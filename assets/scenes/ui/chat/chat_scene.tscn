@@ -1,0 +1,200 @@
+[gd_scene load_steps=7 format=3 uid="uid://ddab3x2x4y5v1"]
+
+[ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://assets/scripts/chat/dialogue_manager.gd" id="1_88hip"]
+[ext_resource type="Texture2D" uid="uid://c6rwockyfbl5w" path="res://assets/images/backgrounds/home/bedroom/bedroom.png" id="2_73nhx"]
+[ext_resource type="Texture2D" uid="uid://cb4n3p23bvrlx" path="res://assets/images/characters/ayrrha/ayrrha.png" id="3_73nhx"]
+[ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://assets/scripts/api/deepseek_client.gd" id="3_buqdj"]
+[ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://assets/scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
+[ext_resource type="PackedScene" uid="uid://dwstgtds1vmce" path="res://assets/scenes/ui/history/history_panel.tscn" id="5_heyvm"]
+
+[node name="ChatScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_88hip")
+
+[node name="BackgroundLayer" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="CharacterLayer" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Bedroom" type="Sprite2D" parent="."]
+position = Vector2(349.00003, 643.00006)
+scale = Vector2(0.6269532, 0.6269532)
+texture = ExtResource("2_73nhx")
+
+[node name="Ayrrha" type="Sprite2D" parent="."]
+position = Vector2(353.87497, 954.11115)
+scale = Vector2(0.6164931, 0.6164931)
+texture = ExtResource("3_73nhx")
+
+[node name="UIOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+grow_horizontal = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="BackButton" type="Button" parent="UIOverlay"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -25.0
+offset_right = 100.0
+offset_bottom = 25.0
+grow_vertical = 2
+text = "返回"
+
+[node name="IntimacyBar" type="ProgressBar" parent="UIOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -10.0
+offset_right = 100.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+value = 50.0
+
+[node name="HistoryButton" type="Button" parent="UIOverlay"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -25.0
+offset_right = -120.0
+offset_bottom = 25.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "记录"
+
+[node name="SettingsButton" type="Button" parent="UIOverlay"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -25.0
+offset_right = -20.0
+offset_bottom = 25.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "设置"
+
+[node name="DialogueLayer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -401.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0, 0, 0, 0.6)
+
+[node name="NameLabel" type="Label" parent="DialogueLayer"]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 10.0
+offset_right = 120.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 30
+text = "ayrrha"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 50.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 25
+theme_override_font_sizes/bold_font_size = 25
+theme_override_font_sizes/bold_italics_font_size = 25
+theme_override_font_sizes/italics_font_size = 25
+theme_override_font_sizes/mono_font_size = 25
+text = "..."
+
+[node name="InputLayer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="InputLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 25
+placeholder_text = "输入你想说的话..."
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "发送"
+
+[node name="DeepSeekClient" type="Node" parent="."]
+script = ExtResource("3_buqdj")
+
+[node name="DoubaoTTSService" type="Node" parent="."]
+script = ExtResource("4_pfs5l")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="HistoryPanel" parent="." instance=ExtResource("5_heyvm")]
+visible = false
+layout_mode = 1
