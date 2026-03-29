@@ -18,12 +18,14 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameDataManager="*res://assets/scripts/data/game_data_manager.gd"
+PromptManager="*res://assets/scripts/data/prompt_manager.gd"
 
 [display]
 
 window/size/viewport_width=720
 window/size/viewport_height=1280
 window/size/mode=1
+window/size/always_on_top=true
 window/size/window_width_override=540
 window/size/window_height_override=960
 window/stretch/mode="canvas_items"

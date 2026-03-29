@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://item12346"]
+
+[ext_resource type="Script" uid="uid://quick_opt_123" path="res://assets/scripts/ui/quick_option_item.gd" id="1_qopt123"]
+
+[node name="QuickOptionItem" type="Button"]
+custom_minimum_size = Vector2(0, 50)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 22
+text = "Option Text"
+script = ExtResource("1_qopt123")

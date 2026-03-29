@@ -59,14 +59,18 @@ func _save_ui_data() -> void:
     config.save_config()
 
 func _on_back_pressed() -> void:
-    if GameDataManager.previous_scene_path != "":
+    if get_parent().name == "ChatScene":
+        hide()
+    elif GameDataManager.previous_scene_path != "":
         get_tree().change_scene_to_file(GameDataManager.previous_scene_path)
     else:
         get_tree().change_scene_to_file("res://assets/scenes/ui/start/start_scene.tscn")
 
 func _on_save_pressed() -> void:
     _save_ui_data()
-    if GameDataManager.previous_scene_path != "":
+    if get_parent().name == "ChatScene":
+        hide()
+    elif GameDataManager.previous_scene_path != "":
         get_tree().change_scene_to_file(GameDataManager.previous_scene_path)
     else:
         get_tree().change_scene_to_file("res://assets/scenes/ui/start/start_scene.tscn")

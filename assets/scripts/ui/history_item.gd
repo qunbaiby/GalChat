@@ -18,9 +18,10 @@ func setup(msg: Dictionary) -> void:
         name_label.text = msg["speaker"]
         
     content_label.text = msg["text"]
-    time_label.text = "[" + msg["time"] + "]"
+    var time_str = msg["time"].replace("T", " ")
+    time_label.text = "[" + time_str + "]"
     
-    if msg["speaker"] == "ayrrha" and msg.has("voice_cache_key") and msg["voice_cache_key"] != "":
+    if msg["speaker"] == GameDataManager.profile.char_name and msg.has("voice_cache_key") and msg["voice_cache_key"] != "":
         play_button.show()
         _voice_cache_key = msg["voice_cache_key"]
         play_button.pressed.connect(_on_play_button_pressed)

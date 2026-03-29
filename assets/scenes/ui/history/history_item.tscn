@@ -19,7 +19,7 @@ size_flags_horizontal = 3
 [node name="NameLabel" type="Label" parent="HeaderHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 30
 text = "Name"
 
 [node name="PlayButton" type="Button" parent="HeaderHBox"]
@@ -31,7 +31,7 @@ text = "▶"
 [node name="ContentLabel" type="RichTextLabel" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/normal_font_size = 20
+theme_override_font_sizes/normal_font_size = 25
 bbcode_enabled = true
 text = "Message content..."
 fit_content = true

@@ -1,0 +1,58 @@
+[
+    {
+        "category": "positive",
+        "behavior": "关心与安慰",
+        "description": "当角色低落、疲惫、委屈时，玩家给予言语上的安慰、陪伴或支持。",
+        "intimacy_change": [1.0, 3.0],
+        "trust_change": [2.0, 5.0]
+    },
+    {
+        "category": "positive",
+        "behavior": "赞美与肯定",
+        "description": "玩家对角色的努力、外貌、能力或作品给予正向评价。",
+        "intimacy_change": [1.5, 4.0],
+        "trust_change": [1.0, 3.0]
+    },
+    {
+        "category": "positive",
+        "behavior": "陪伴与倾听",
+        "description": "玩家主动询问角色的日常，或者在角色分享心事时认真倾听。",
+        "intimacy_change": [1.0, 2.0],
+        "trust_change": [1.0, 3.0]
+    },
+    {
+        "category": "positive",
+        "behavior": "暧昧与偏爱",
+        "description": "玩家展现出特殊的在意，或者进行符合当前好感阶段的亲昵互动。",
+        "intimacy_change": [2.0, 5.0],
+        "trust_change": [1.0, 2.0]
+    },
+    {
+        "category": "negative",
+        "behavior": "冷落与敷衍",
+        "description": "玩家用“哦”、“嗯”等极短词汇回应，或者完全无视角色的情绪和话题。",
+        "intimacy_change": [-1.0, -3.0],
+        "trust_change": [-1.0, -2.0]
+    },
+    {
+        "category": "negative",
+        "behavior": "言语冒犯与否定",
+        "description": "玩家直接批评、嘲笑角色，或者强行输出违背角色意愿的观点。",
+        "intimacy_change": [-2.0, -5.0],
+        "trust_change": [-1.0, -3.0]
+    },
+    {
+        "category": "negative",
+        "behavior": "欺骗与背叛",
+        "description": "玩家被发现说谎，或者违背了之前答应角色的重要约定。",
+        "intimacy_change": [-1.0, -3.0],
+        "trust_change": [-3.0, -5.0]
+    },
+    {
+        "category": "negative",
+        "behavior": "过度越界",
+        "description": "在好感阶段不足时，玩家强行进行不合时宜的亲密举动或暧昧发言。",
+        "intimacy_change": [-3.0, -5.0],
+        "trust_change": [-2.0, -4.0]
+    }
+]

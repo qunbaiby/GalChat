@@ -1,11 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=12 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://assets/scripts/chat/dialogue_manager.gd" id="1_88hip"]
-[ext_resource type="Texture2D" uid="uid://c6rwockyfbl5w" path="res://assets/images/backgrounds/home/bedroom/bedroom.png" id="2_73nhx"]
-[ext_resource type="Texture2D" uid="uid://cb4n3p23bvrlx" path="res://assets/images/characters/ayrrha/ayrrha.png" id="3_73nhx"]
+[ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://assets/scripts/api/deepseek_client.gd" id="3_buqdj"]
+[ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://assets/scenes/ui/chat/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://assets/scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
 [ext_resource type="PackedScene" uid="uid://dwstgtds1vmce" path="res://assets/scenes/ui/history/history_panel.tscn" id="5_heyvm"]
+[ext_resource type="PackedScene" uid="uid://cxnhxnqchkav4" path="res://assets/scenes/ui/chat/affection_panel.tscn" id="6_affec"]
+[ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ui/chat/debug_panel.tscn" id="7_debug"]
+[ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://assets/scenes/ui/chat/toast_notification.tscn" id="8_toast"]
+[ext_resource type="PackedScene" uid="uid://cycb3x2x4y5v1" path="res://assets/scenes/ui/settings/settings_scene.tscn" id="9_settings"]
 
 [node name="ChatScene" type="Control"]
 layout_mode = 3
@@ -25,25 +30,17 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
 
-[node name="CharacterLayer" type="TextureRect" parent="."]
+[node name="BedroomMorning" type="Sprite2D" parent="."]
+position = Vector2(159.66666, 642.5)
+scale = Vector2(0.89513886, 0.89513886)
+texture = ExtResource("2_pfs5l")
+
+[node name="CharacterLayer" parent="." instance=ExtResource("4_heyvm")]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Bedroom" type="Sprite2D" parent="."]
-position = Vector2(349.00003, 643.00006)
-scale = Vector2(0.6269532, 0.6269532)
-texture = ExtResource("2_73nhx")
-
-[node name="Ayrrha" type="Sprite2D" parent="."]
-position = Vector2(353.87497, 954.11115)
-scale = Vector2(0.6164931, 0.6164931)
-texture = ExtResource("3_73nhx")
+offset_left = -168.0
+offset_top = 36.0
+offset_right = 144.75
+offset_bottom = 592.0
 
 [node name="UIOverlay" type="ColorRect" parent="."]
 layout_mode = 1
@@ -110,24 +107,39 @@ grow_horizontal = 0
 grow_vertical = 2
 text = "设置"
 
+[node name="DebugButton" type="Button" parent="UIOverlay"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -605.0
+offset_top = 15.0
+offset_right = -513.0
+offset_bottom = 65.0
+grow_horizontal = 0
+text = "Debug"
+
 [node name="DialogueLayer" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -401.0
-offset_bottom = -100.0
+offset_top = -595.0
+offset_bottom = -353.0
 grow_horizontal = 2
 grow_vertical = 0
 color = Color(0, 0, 0, 0.6)
 
 [node name="NameLabel" type="Label" parent="DialogueLayer"]
 layout_mode = 1
-offset_left = 20.0
-offset_top = 10.0
-offset_right = 120.0
-offset_bottom = 40.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_right = 50.0
+offset_bottom = 42.0
+grow_horizontal = 2
 theme_override_font_sizes/font_size = 30
 text = "ayrrha"
 
@@ -142,12 +154,33 @@ offset_right = -20.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/normal_font_size = 25
-theme_override_font_sizes/bold_font_size = 25
-theme_override_font_sizes/bold_italics_font_size = 25
-theme_override_font_sizes/italics_font_size = 25
-theme_override_font_sizes/mono_font_size = 25
+theme_override_font_sizes/normal_font_size = 30
+theme_override_font_sizes/bold_font_size = 30
+theme_override_font_sizes/bold_italics_font_size = 30
+theme_override_font_sizes/italics_font_size = 30
+theme_override_font_sizes/mono_font_size = 30
+bbcode_enabled = true
 text = "..."
+
+[node name="QuickOptionLayer" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -332.0
+offset_bottom = -124.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="InputLayer" type="ColorRect" parent="."]
 layout_mode = 1
@@ -155,7 +188,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -100.0
+offset_top = -107.0
 grow_horizontal = 2
 grow_vertical = 0
 color = Color(0.1, 0.1, 0.1, 1)
@@ -181,6 +214,12 @@ placeholder_text = "输入你想说的话..."
 wrap_mode = 1
 scroll_fit_content_height = true
 
+[node name="AffectionButton" type="Button" parent="InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "❤️"
+
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
@@ -194,7 +233,32 @@ script = ExtResource("3_buqdj")
 script = ExtResource("4_pfs5l")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = true
 
 [node name="HistoryPanel" parent="." instance=ExtResource("5_heyvm")]
 visible = false
 layout_mode = 1
+
+[node name="AffectionPanel" parent="." instance=ExtResource("6_affec")]
+visible = false
+layout_mode = 1
+
+[node name="DebugPanel" parent="." instance=ExtResource("7_debug")]
+visible = false
+layout_mode = 1
+
+[node name="ToastNotification" parent="." instance=ExtResource("8_toast")]
+layout_mode = 1
+offset_left = 196.0
+offset_top = 45.0
+offset_right = 196.0
+offset_bottom = 45.0
+
+[node name="SettingsScene" parent="." instance=ExtResource("9_settings")]
+visible = false
+layout_mode = 1
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_oa57e")
+autoplay = true
+parameters/looping = true

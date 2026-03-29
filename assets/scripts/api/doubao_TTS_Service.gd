@@ -47,7 +47,7 @@ func synthesize(text: String, options: Dictionary = {}):
     var cache_path = CACHE_DIR + cache_key + "." + default_encoding
     
     if FileAccess.file_exists(cache_path):
-        print("🔊 [DoubaoTTS] 命中缓存: ", text.left(10) + "...")
+        # print("🔊 [DoubaoTTS] 命中缓存: ", text.left(10) + "...")
         var stream = _load_audio_from_file(cache_path)
         if stream:
             tts_success.emit(stream, text)
@@ -67,7 +67,7 @@ func _start_request(text: String, options: Dictionary, cache_path: String, attem
         "Content-Type: application/json"
     ]
     
-    print("🌐 [DoubaoTTS] 发起请求 (尝试 %d/%d): %s..." % [attempt + 1, max_retries + 1, text.left(10)])
+    # print("🌐 [DoubaoTTS] 发起请求 (尝试 %d/%d): %s..." % [attempt + 1, max_retries + 1, text.left(10)])
     
     # 创建临时的 HTTPRequest 节点以支持并发
     var http = HTTPRequest.new()

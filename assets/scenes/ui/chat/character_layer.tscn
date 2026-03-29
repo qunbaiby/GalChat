@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bdtd0mc84eq8r"]
+
+[ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna_calm.png" id="1_5vl8a"]
+[ext_resource type="Script" uid="uid://qpxfkorr8q56" path="res://assets/scripts/ui/character_layer.gd" id="2_script"]
+
+[node name="CharacterLayer" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_5vl8a")
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("2_script")
