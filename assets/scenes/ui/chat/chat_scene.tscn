@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=11 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://assets/scripts/chat/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]

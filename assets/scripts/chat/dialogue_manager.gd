@@ -461,6 +461,10 @@ func _auto_split_message(text: String) -> Array:
     nl_regex.compile("\\n+")
     modified_text = nl_regex.sub(modified_text, "[SPLIT]", true)
     
+    # 修复：确保连续的 [SPLIT] 被合并为一个
+    modified_text = modified_text.replace("[SPLIT][SPLIT]", "[SPLIT]")
+    modified_text = modified_text.replace("[SPLIT] [SPLIT]", "[SPLIT]")
+    
     if not "[SPLIT]" in modified_text:
         var endings = ["。", "！", "？", "……", "”", "」", "~", "～"]
         var brackets = ["（", "("]
@@ -490,8 +494,10 @@ func _auto_split_message(text: String) -> Array:
         if temp_str == "":
             temp_str = tp
         else:
-            # 如果某一句太短（<15字符），合并到上一句，避免气泡过于细碎
-            if temp_str.length() < 15 or tp.length() < 10:
+            # 如果某一句太短（<25字符），合并到上一句，避免气泡过于细碎。
+            # 修改：如果当前部分只有动作没有对话，或者只有对话没有动作，也倾向于合并
+            var has_action = ("（" in tp or "(" in tp) and ("）" in tp or ")" in tp)
+            if temp_str.length() < 25 or tp.length() < 15 or not has_action:
                 temp_str += " " + tp
             else:
                 merged_parts.append(temp_str)
@@ -500,16 +506,44 @@ func _auto_split_message(text: String) -> Array:
     if temp_str != "":
         merged_parts.append(temp_str)
         
+    # 新增限制：如果某一条消息长度超过 60，强制进行二次切分
+    var final_split_parts = []
+    for part in merged_parts:
+        if part.length() > 60:
+            var split_part = part
+            var endings = ["。", "！", "？", "……", "”", "」", "~", "～"]
+            var brackets = ["（", "("]
+            # 尝试在动作前切分
+            for end_char in endings:
+                for bracket in brackets:
+                    split_part = split_part.replace(end_char + bracket, end_char + "[FORCE_SPLIT]" + bracket)
+                    split_part = split_part.replace(end_char + " " + bracket, end_char + "[FORCE_SPLIT]" + bracket)
+            
+            # 如果依然没有切分开，强行按标点切分
+            if not "[FORCE_SPLIT]" in split_part:
+                split_part = split_part.replace("。", "。[FORCE_SPLIT]")
+                split_part = split_part.replace("！", "！[FORCE_SPLIT]")
+                split_part = split_part.replace("？", "？[FORCE_SPLIT]")
+                split_part = split_part.replace("[FORCE_SPLIT][FORCE_SPLIT]", "[FORCE_SPLIT]")
+                
+            var sub_parts = split_part.split("[FORCE_SPLIT]", false)
+            for sp in sub_parts:
+                if sp.strip_edges() != "":
+                    final_split_parts.append(sp.strip_edges())
+        else:
+            final_split_parts.append(part)
+            
+    merged_parts = final_split_parts
+        
     # 限制最多3条
     if merged_parts.size() > 3:
-        var final_parts = []
-        final_parts.append(merged_parts[0])
-        final_parts.append(merged_parts[1])
-        var tail = ""
-        for i in range(2, merged_parts.size()):
-            tail += merged_parts[i]
-        final_parts.append(tail)
-        merged_parts = final_parts
+        # 只保留前3条，或者把后面的内容全部合并到第3条里
+        # 这里选择把多余的部分直接丢弃，强制不超过3条
+        var truncated_parts = []
+        truncated_parts.append(merged_parts[0])
+        truncated_parts.append(merged_parts[1])
+        truncated_parts.append(merged_parts[2])
+        merged_parts = truncated_parts
         
     # 将心情标签加回最后一条消息末尾
     if merged_parts.size() > 0 and mood_tag != "":

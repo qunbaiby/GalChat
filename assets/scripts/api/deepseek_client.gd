@@ -58,7 +58,7 @@ func _get_headers() -> Array:
 func _get_url() -> String:
     return "https://api.deepseek.com/v1/chat/completions"
 
-func _get_history_messages(limit: int = 10) -> Array:
+func _get_history_messages(limit: int = 50) -> Array:
     var api_messages = []
     var history_msgs = GameDataManager.history.messages
     var start_idx = max(0, history_msgs.size() - limit)
@@ -136,7 +136,7 @@ func _send_memory_extraction() -> void:
     
     memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
-func send_options_generation() -> void:
+func send_options_generation(last_ai_reply: String = "") -> void:
     if GameDataManager.config.api_key.is_empty():
         return
         
@@ -146,10 +146,16 @@ func send_options_generation() -> void:
         
     var history_text = ""
     var history_msgs = GameDataManager.history.messages
-    var start_idx = max(0, history_msgs.size() - 5) # 获取最近5条对话
+    var start_idx = max(0, history_msgs.size() - 50) # 拓展到最近50条对话，以提供更丰富的短期上下文
+    
+    # 提取所有包含“玩家”和角色的有效对话文本，去掉 BBCode
+    var bbcode_regex = RegEx.new()
+    bbcode_regex.compile("\\[/?color.*?\\]")
+    
     for i in range(start_idx, history_msgs.size()):
         var msg = history_msgs[i]
-        history_text += msg["speaker"] + ": " + msg["text"] + "\n"
+        var clean_text = bbcode_regex.sub(msg["text"], "", true)
+        history_text += msg["speaker"] + ": " + clean_text + "\n"
         
     var system_prompt = GameDataManager.prompt_manager.build_options_prompt(GameDataManager.profile, history_text)
     var api_messages = [
