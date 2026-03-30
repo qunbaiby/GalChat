@@ -1,7 +1,6 @@
 extends Control
 
 @onready var back_btn: Button = $UIOverlay/BackButton
-@onready var settings_btn: Button = $UIOverlay/SettingsButton
 @onready var debug_btn: Button = $UIOverlay/DebugButton
 @onready var history_btn: Button = $UIOverlay/HistoryButton
 @onready var intimacy_bar: ProgressBar = $UIOverlay/IntimacyBar
@@ -24,7 +23,6 @@ extends Control
 
 @onready var affection_panel: Control = $AffectionPanel
 @onready var debug_panel: Control = $DebugPanel
-@onready var settings_panel: Control = $SettingsScene
 @onready var toast: ToastNotification = $ToastNotification
 @onready var quick_options_container: VBoxContainer = $QuickOptionLayer/QuickOptions
 
@@ -33,7 +31,6 @@ const QUICK_OPTION_ITEM_SCENE = preload("res://assets/scenes/ui/chat/quick_optio
 
 func _ready() -> void:
     back_btn.pressed.connect(_on_back_pressed)
-    settings_btn.pressed.connect(_on_settings_pressed)
     history_btn.pressed.connect(_on_history_pressed)
     debug_btn.pressed.connect(_on_debug_pressed)
     affection_btn.pressed.connect(_on_affection_pressed)
@@ -67,6 +64,9 @@ func _ready() -> void:
     deepseek_client.options_request_completed.connect(_on_options_response)
     deepseek_client.options_request_failed.connect(_on_options_error)
     
+    deepseek_client.narrator_request_completed.connect(_on_narrator_response)
+    deepseek_client.narrator_request_failed.connect(_on_narrator_error)
+    
     doubao_tts.tts_success.connect(_on_tts_success)
     doubao_tts.tts_failed.connect(_on_tts_failed)
     
@@ -76,13 +76,60 @@ func _ready() -> void:
     
     _update_ui()
     
-    # 初始问候 (如果是从开始界面进入，则清空之前可能残留的对话状态，也可以不清空，这里选择不清空而是追加)
+    # 初始问候
     var messages = GameDataManager.history.messages
     if messages.size() == 0:
         var char_name = GameDataManager.profile.char_name
         _show_message("你好...今天想聊点什么？", char_name, false)
     else:
-        _restore_last_message()
+        # 有历史记录时，生成旁白并续写话题
+        _generate_narrator_and_continue()
+
+func _generate_narrator_and_continue() -> void:
+    send_btn.disabled = true
+    input_field.editable = false
+    print("正在生成场景旁白...")
+    # 清空对话框内容，保持干净
+    dialogue_text.text = ""
+    name_label.text = ""
+    deepseek_client.send_narrator_generation()
+
+func _on_narrator_response(response: Dictionary) -> void:
+    if response.has("choices") and response["choices"].size() > 0:
+        var narrator_text = response["choices"][0]["message"]["content"].strip_edges()
+        
+        # 显示旁白，无角色名，不发声，不记录到历史
+        await _show_message_async(narrator_text, " ", true)
+        
+        # 旁白显示完后等待一小段时间
+        if is_inside_tree():
+            await get_tree().create_timer(1.5).timeout
+            
+        # 触发 Luna 续写话题
+        _trigger_luna_continue()
+    else:
+        _on_narrator_error("旁白生成为空")
+
+func _on_narrator_error(error_msg: String) -> void:
+    print("旁白生成失败: ", error_msg)
+    # 兜底：如果旁白失败，直接恢复最后一条消息或让Luna直接说话
+    _restore_last_message()
+    send_btn.disabled = false
+    input_field.editable = true
+
+func _trigger_luna_continue() -> void:
+    print("旁白生成完毕，正在思考后续对话...")
+    
+    # 构造一条系统级的隐式 prompt，让 LLM 知道它需要主动续写话题
+    var continue_prompt = "【系统提示：玩家刚刚重新进入了游戏。请你基于上面的历史对话记录，主动和玩家打个招呼，并自然地续上之前的话题，或者开启一个符合当前阶段的新话题。注意：你是Luna，不要输出这段提示的内容，直接以Luna的口吻说话。】"
+    
+    if GameDataManager.config.ai_mode_enabled:
+        deepseek_client.send_chat_message(continue_prompt)
+    else:
+        var char_name = GameDataManager.profile.char_name
+        _show_message("（离线模式）你回来了，我们刚才聊到哪了？", char_name)
+        send_btn.disabled = false
+        input_field.editable = true
 
 func _restore_last_message() -> void:
     var messages = GameDataManager.history.messages
@@ -116,12 +163,7 @@ func _update_ui() -> void:
     intimacy_bar.value = GameDataManager.profile.intimacy
 
 func _on_back_pressed() -> void:
-    get_tree().change_scene_to_file("res://assets/scenes/ui/start/start_scene.tscn")
-
-func _on_settings_pressed() -> void:
-    settings_panel.show()
-    if settings_panel.has_method("_load_ui_data"):
-        settings_panel._load_ui_data()
+    get_tree().change_scene_to_file("res://assets/scenes/ui/main/main_scene.tscn")
 
 func _on_debug_pressed() -> void:
     debug_panel.show_panel()
@@ -491,13 +533,12 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
     
     # 整个序列播放完成后，请求生成玩家选项
     if lines.size() > 0 and GameDataManager.config.ai_mode_enabled:
-        var last_ai_msg = lines[lines.size() - 1]
         
         # 如果当前不在场景树中（玩家切到了后台），暂停直到重回场景树
         while not is_inside_tree():
             await Engine.get_main_loop().process_frame
             
-        deepseek_client.send_options_generation(last_ai_msg)
+        deepseek_client.send_options_generation()
 
 func _process_single_message_line_async(raw_line: String, char_name: String) -> void:
     var regex = RegEx.new()

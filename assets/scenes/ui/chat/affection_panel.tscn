@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cxnhxnqchkav4"]
 
-[ext_resource type="Script" uid="uid://cdm81qllniyvf" path="res://assets/scripts/ui/affection_panel.gd" id="1_affection"]
+[ext_resource type="Script" uid="uid://cdm81qllniyvf" path="res://assets/scripts/ui/chat/affection_panel.gd" id="1_affection"]
 [ext_resource type="Shader" uid="uid://b66m475r1748f" path="res://assets/scenes/ui/chat/blur_shader.gdshader" id="2_blur"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]

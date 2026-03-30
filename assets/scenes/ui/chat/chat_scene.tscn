@@ -10,7 +10,6 @@
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" path="res://assets/scenes/ui/chat/debug_panel.tscn" id="7_debug"]
 [ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://assets/scenes/ui/chat/toast_notification.tscn" id="8_toast"]
-[ext_resource type="PackedScene" uid="uid://cycb3x2x4y5v1" path="res://assets/scenes/ui/settings/settings_scene.tscn" id="9_settings"]
 
 [node name="ChatScene" type="Control"]
 layout_mode = 3
@@ -84,28 +83,13 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -25.0
-offset_right = -120.0
-offset_bottom = 25.0
-grow_horizontal = 0
-grow_vertical = 2
-text = "记录"
-
-[node name="SettingsButton" type="Button" parent="UIOverlay"]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
 offset_left = -100.0
 offset_top = -25.0
 offset_right = -20.0
 offset_bottom = 25.0
 grow_horizontal = 0
 grow_vertical = 2
-text = "设置"
+text = "记录"
 
 [node name="DebugButton" type="Button" parent="UIOverlay"]
 layout_mode = 1
@@ -253,10 +237,6 @@ offset_left = 196.0
 offset_top = 45.0
 offset_right = 196.0
 offset_bottom = 45.0
-
-[node name="SettingsScene" parent="." instance=ExtResource("9_settings")]
-visible = false
-layout_mode = 1
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")

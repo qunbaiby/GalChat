@@ -16,7 +16,41 @@ func _ready() -> void:
     mood_option.item_selected.connect(_on_mood_selected)
     clear_memory_btn.pressed.connect(_on_clear_memory_pressed)
     
+    _init_stage_options()
     _init_mood_options()
+
+func _init_stage_options() -> void:
+    stage_option.clear()
+    var profile = GameDataManager.profile
+    # Load stages from JSON to get dynamic titles
+    var json_path = "res://assets/data/characters/" + profile.char_name + ".json"
+    var file = FileAccess.open(json_path, FileAccess.READ)
+    var stages = []
+    if file:
+        var text = file.get_as_text()
+        var json = JSON.new()
+        if json.parse(text) == OK:
+            var data = json.get_data()
+            if data.has("stages"):
+                stages = data["stages"]
+        file.close()
+        
+    for i in range(stages.size()):
+        var st = stages[i]
+        var stage_num = int(st.get("stage", i + 1))
+        var title = st.get("stageTitle", "")
+        # Extract Chinese part from title e.g. "initial (初始)" -> "初始"
+        var zh_title = title
+        var regex = RegEx.new()
+        regex.compile("\\((.*?)\\)|（(.*?)）")
+        var match = regex.search(title)
+        if match:
+            zh_title = match.get_string(1) if match.get_string(1) != "" else match.get_string(2)
+        else:
+            zh_title = title
+            
+        var display_text = "Stage %d: %s" % [stage_num, zh_title]
+        stage_option.add_item(display_text, i)
 
 func _init_mood_options() -> void:
     mood_option.clear()

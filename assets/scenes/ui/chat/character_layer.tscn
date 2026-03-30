@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bdtd0mc84eq8r"]
 
 [ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna_calm.png" id="1_5vl8a"]
-[ext_resource type="Script" uid="uid://qpxfkorr8q56" path="res://assets/scripts/ui/character_layer.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://qpxfkorr8q56" path="res://assets/scripts/ui/chat/character_layer.gd" id="2_script"]
 
 [node name="CharacterLayer" type="TextureRect"]
 anchors_preset = 15

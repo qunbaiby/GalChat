@@ -90,7 +90,7 @@ func build_memory_prompt(profile: CharacterProfile) -> String:
         "name": profile.char_name
     })
 
-func build_options_prompt(profile: CharacterProfile, last_msg: String) -> String:
+func build_options_prompt(profile: CharacterProfile, recent_history: String) -> String:
     var template = load_template("player_options")
     if template == "":
         return ""
@@ -103,5 +103,5 @@ func build_options_prompt(profile: CharacterProfile, last_msg: String) -> String
     return template.format({
         "name": profile.char_name,
         "stage_desc": stage_desc,
-        "last_msg": last_msg
+        "recent_history": recent_history
     })

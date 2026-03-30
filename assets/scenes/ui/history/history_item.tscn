@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://item12345"]
 
-[ext_resource type="Script" uid="uid://cte13wyhmtt8l" path="res://assets/scripts/ui/history_item.gd" id="1_item123"]
+[ext_resource type="Script" uid="uid://cte13wyhmtt8l" path="res://assets/scripts/ui/history/history_item.gd" id="1_item123"]
 
 [node name="HistoryItem" type="VBoxContainer"]
 anchors_preset = 15

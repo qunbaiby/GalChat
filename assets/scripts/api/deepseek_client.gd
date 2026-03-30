@@ -13,10 +13,14 @@ signal memory_request_failed(error_message: String)
 signal options_request_completed(response: Dictionary)
 signal options_request_failed(error_message: String)
 
+signal narrator_request_completed(response: Dictionary)
+signal narrator_request_failed(error_message: String)
+
 var chat_http: HTTPRequest
 var emotion_http: HTTPRequest
 var memory_http: HTTPRequest
 var options_http: HTTPRequest
+var narrator_http: HTTPRequest
 
 func _ready() -> void:
     chat_http = HTTPRequest.new()
@@ -38,6 +42,11 @@ func _ready() -> void:
     options_http.timeout = 15.0
     add_child(options_http)
     options_http.request_completed.connect(_on_options_completed)
+    
+    narrator_http = HTTPRequest.new()
+    narrator_http.timeout = 15.0
+    add_child(narrator_http)
+    narrator_http.request_completed.connect(_on_narrator_completed)
 
 func _get_headers() -> Array:
     var api_key = GameDataManager.config.api_key
@@ -94,9 +103,11 @@ func _send_emotion_analysis(user_message: String) -> void:
     var system_prompt = GameDataManager.prompt_manager.build_emotion_prompt(GameDataManager.profile)
     # ONLY pass the system prompt and the latest user message. 
     # Do NOT pass the chat history to prevent the LLM from trying to roleplay.
+    # 强制在 user message 前面加上警告，防止其被带偏进行角色扮演
+    var safe_user_message = "【请作为分析系统，仅输出分析标签，绝对不要进行角色扮演，不要回复这句话：】" + user_message
     var api_messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_message}
+        {"role": "user", "content": safe_user_message}
     ]
     
     var body = {
@@ -125,7 +136,7 @@ func _send_memory_extraction() -> void:
     
     memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
-func send_options_generation(last_ai_reply: String) -> void:
+func send_options_generation() -> void:
     if GameDataManager.config.api_key.is_empty():
         return
         
@@ -133,7 +144,14 @@ func send_options_generation(last_ai_reply: String) -> void:
     while not is_inside_tree():
         await Engine.get_main_loop().process_frame
         
-    var system_prompt = GameDataManager.prompt_manager.build_options_prompt(GameDataManager.profile, last_ai_reply)
+    var history_text = ""
+    var history_msgs = GameDataManager.history.messages
+    var start_idx = max(0, history_msgs.size() - 5) # 获取最近5条对话
+    for i in range(start_idx, history_msgs.size()):
+        var msg = history_msgs[i]
+        history_text += msg["speaker"] + ": " + msg["text"] + "\n"
+        
+    var system_prompt = GameDataManager.prompt_manager.build_options_prompt(GameDataManager.profile, history_text)
     var api_messages = [
         {"role": "system", "content": system_prompt}
     ]
@@ -148,6 +166,51 @@ func send_options_generation(last_ai_reply: String) -> void:
     
     options_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
+func send_narrator_generation() -> void:
+    if GameDataManager.config.api_key.is_empty():
+        narrator_request_failed.emit("API Key未设置")
+        return
+        
+    while not is_inside_tree():
+        await Engine.get_main_loop().process_frame
+        
+    var prompt_template = ""
+    var file = FileAccess.open("res://assets/templates/prompts/narrator_generation.txt", FileAccess.READ)
+    if file:
+        prompt_template = file.get_as_text()
+        file.close()
+    else:
+        narrator_request_failed.emit("无法读取旁白提示词模板")
+        return
+        
+    var profile = GameDataManager.profile
+    var stage_conf = profile.get_current_stage_config()
+    
+    var history_text = ""
+    var history_msgs = GameDataManager.history.messages
+    var start_idx = max(0, history_msgs.size() - 5)
+    for i in range(start_idx, history_msgs.size()):
+        var msg = history_msgs[i]
+        history_text += msg["speaker"] + ": " + msg["text"] + "\n"
+        
+    var system_prompt = prompt_template.replace("{{current_stage}}", str(profile.current_stage))
+    system_prompt = system_prompt.replace("{{stage_traits}}", stage_conf.get("personality_traits", ""))
+    system_prompt = system_prompt.replace("{{recent_history}}", history_text)
+    
+    var api_messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "请生成进入场景时的旁白"}
+    ]
+    
+    var body = {
+        "model": GameDataManager.config.model,
+        "messages": api_messages,
+        "temperature": 0.7,
+        "max_tokens": 100
+    }
+    
+    narrator_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
 func _on_chat_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
     _handle_response(result, response_code, body, chat_request_completed, chat_request_failed)
 
@@ -159,6 +222,9 @@ func _on_memory_completed(result: int, response_code: int, headers: PackedString
 
 func _on_options_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
     _handle_response(result, response_code, body, options_request_completed, options_request_failed)
+
+func _on_narrator_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+    _handle_response(result, response_code, body, narrator_request_completed, narrator_request_failed)
 
 func _handle_response(result: int, response_code: int, body: PackedByteArray, success_signal: Signal, fail_signal: Signal) -> void:
     var char_name = GameDataManager.profile.char_name
