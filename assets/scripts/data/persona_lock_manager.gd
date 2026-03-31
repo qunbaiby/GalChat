@@ -103,18 +103,21 @@ func modify_lock(char_name: String, new_level: int, operator: String, reason: St
 # 模拟 API：延迟 <= 200ms
 func _mock_collision_detection_api(char_name: String) -> Dictionary:
     var lower_name = char_name.to_lower()
-    # 模拟知识库黑名单 (针对 Luna)
-    var hit_db = {
-        "luna": {"domain": "多领域(动漫/加密货币/游戏)", "score": 0.99, "level": LockLevel.STRICT},
-        "luna loud": {"domain": "动漫(喧闹一家亲)", "score": 0.95, "level": LockLevel.STRICT},
-        "luna lovegood": {"domain": "文学/电影(哈利波特)", "score": 0.98, "level": LockLevel.STRICT},
-        "luna inverse": {"domain": "动漫(秀逗魔导士)", "score": 0.92, "level": LockLevel.STRICT},
-        "luna maximoff": {"domain": "漫画(漫威)", "score": 0.90, "level": LockLevel.STRICT},
-        "luna (sailor moon)": {"domain": "动漫(美少女战士)", "score": 0.97, "level": LockLevel.STRICT},
-        "luna (dota 2)": {"domain": "游戏/动漫(Dota 2)", "score": 0.95, "level": LockLevel.STRICT},
-        "luna schweiger": {"domain": "娱乐(演员)", "score": 0.88, "level": LockLevel.LOOSE},
-        "anna paulina luna": {"domain": "政治", "score": 0.85, "level": LockLevel.STRICT}
-    }
+    
+    # 动态加载对应角色的人设锁黑名单数据
+    var hit_db = {}
+    var lock_file_path = "res://assets/data/persona_locks/" + lower_name + ".json"
+    
+    if FileAccess.file_exists(lock_file_path):
+        var file = FileAccess.open(lock_file_path, FileAccess.READ)
+        var content = file.get_as_text()
+        file.close()
+        
+        var json = JSON.new()
+        if json.parse(content) == OK:
+            var data = json.get_data()
+            if data is Dictionary:
+                hit_db = data
     
     if hit_db.has(lower_name):
         return {

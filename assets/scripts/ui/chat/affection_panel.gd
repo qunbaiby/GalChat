@@ -33,14 +33,17 @@ func _on_close_pressed() -> void:
     hide()
 
 func get_stage_color(stage: int) -> Color:
-    if stage <= 2:
-        return Color.CYAN
-    elif stage <= 4:
-        return Color.GREEN
-    elif stage <= 6:
-        return Color.ORANGE
-    else:
-        return Color.PURPLE
+    match stage:
+        1: return Color("9e9e9e") # 初始 (灰色)
+        2: return Color("81d4fa") # 拘谨 (浅蓝)
+        3: return Color("4dd0e1") # 熟络 (青色)
+        4: return Color("81c784") # 亲近 (浅绿)
+        5: return Color("aed581") # 信赖 (绿色)
+        6: return Color("fff176") # 暧昧 (浅黄)
+        7: return Color("ffb74d") # 倾心 (橙色)
+        8: return Color("f06292") # 热恋 (粉色)
+        9: return Color("ba68c8") # 挚爱 (紫色)
+        _: return Color.WHITE
 
 func set_bar_color(bar: ProgressBar, color: Color) -> void:
     var stylebox = StyleBoxFlat.new()
@@ -81,28 +84,28 @@ func update_ui() -> void:
     if threshold >= 9999: # 满级情况处理
         display_max = min_val + 500 # 给进度条一个虚拟的最大值用于显示
         
-    var int_display = "%.1f / MAX" % profile.intimacy if threshold >= 9999 else "%.1f / %d" % [profile.intimacy, int(threshold)]
+    var stage_color = get_stage_color(current_stage)
+    set_bar_color(intimacy_bar, stage_color)
+    set_bar_color(trust_bar, stage_color)
+    set_bar_color(exp_bar, stage_color)
+        
+    var int_display = "%.1f / %d" % [profile.intimacy, int(display_max)] if threshold >= 9999 else "%.1f / %d" % [profile.intimacy, int(threshold)]
     intimacy_val.text = int_display
-    intimacy_bar.min_value = min_val
+    intimacy_bar.min_value = 0
     intimacy_bar.max_value = display_max
     intimacy_bar.value = min(profile.intimacy, display_max)
     
-    var trust_display = "%.1f / MAX" % profile.trust if threshold >= 9999 else "%.1f / %d" % [profile.trust, int(threshold)]
+    var trust_display = "%.1f / %d" % [profile.trust, int(display_max)] if threshold >= 9999 else "%.1f / %d" % [profile.trust, int(threshold)]
     trust_val.text = trust_display
-    trust_bar.min_value = min_val
+    trust_bar.min_value = 0
     trust_bar.max_value = display_max
     trust_bar.value = min(profile.trust, display_max)
     
-    var exp_display = "%d / MAX" % profile.interaction_exp if threshold >= 9999 else "%d / %d" % [profile.interaction_exp, int(threshold)]
+    var exp_display = "%d / %d" % [profile.interaction_exp, int(display_max)] if threshold >= 9999 else "%d / %d" % [profile.interaction_exp, int(threshold)]
     exp_val.text = exp_display
-    exp_bar.min_value = min_val
+    exp_bar.min_value = 0
     exp_bar.max_value = display_max
     exp_bar.value = min(profile.interaction_exp, display_max)
-    
-    var color = get_stage_color(current_stage)
-    set_bar_color(intimacy_bar, color)
-    set_bar_color(trust_bar, color)
-    set_bar_color(exp_bar, color)
 
 func show_panel() -> void:
     update_ui()

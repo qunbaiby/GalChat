@@ -14,6 +14,9 @@ var doubao_cluster: String = "volcano_tts"
 var doubao_voice_type: String = "ICL_zh_female_bingruoshaonv_tob"
 var voice_enabled: bool = true
 
+# 当前选择的角色ID，默认为空，运行时会自动寻找第一个可用角色
+var current_character_id: String = ""
+
 const CONFIG_PATH = "user://config.json"
 
 func save_config() -> void:
@@ -27,7 +30,8 @@ func save_config() -> void:
         "doubao_token": doubao_token,
         "doubao_cluster": doubao_cluster,
         "doubao_voice_type": doubao_voice_type,
-        "voice_enabled": voice_enabled
+        "voice_enabled": voice_enabled,
+        "current_character_id": current_character_id
     }
     var file = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
     if file:
@@ -55,3 +59,4 @@ func load_config() -> void:
                 doubao_cluster = data.get("doubao_cluster", doubao_cluster)
                 doubao_voice_type = data.get("doubao_voice_type", doubao_voice_type)
                 voice_enabled = data.get("voice_enabled", voice_enabled)
+                current_character_id = data.get("current_character_id", current_character_id)

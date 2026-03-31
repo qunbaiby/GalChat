@@ -37,6 +37,9 @@ func build_chat_prompt(profile: CharacterProfile) -> String:
         var tags = stage_conf.get("tags", [])
         if tags is Array and tags.size() > 0:
             full_desc += "\n【Tags】" + ", ".join(tags)
+            
+    # 将配置文本中可能存在的 {char_name} 占位符替换为真实角色名
+    full_desc = full_desc.replace("{char_name}", profile.char_name)
     
     var base_prompt = template.format({
         "name": profile.char_name,
@@ -104,4 +107,27 @@ func build_options_prompt(profile: CharacterProfile, recent_history: String) -> 
         "name": profile.char_name,
         "stage_desc": stage_desc,
         "recent_history": recent_history
+    })
+
+func build_character_mood_prompt(character_message: String) -> String:
+    var template = load_template("character_mood_analysis")
+    if template == "":
+        return ""
+        
+    var mood_list_text = ""
+    var path = "res://assets/data/mood/mood_config.json"
+    if FileAccess.file_exists(path):
+        var file = FileAccess.open(path, FileAccess.READ)
+        var text = file.get_as_text()
+        var json = JSON.new()
+        if json.parse(text) == OK:
+            var data = json.get_data()
+            if typeof(data) == TYPE_ARRAY:
+                for item in data:
+                    mood_list_text += "- ID: " + item.get("id", "") + " | 名称: " + item.get("name", "") + " | 语气: " + item.get("tone", "") + "\n"
+        file.close()
+        
+    return template.format({
+        "mood_list": mood_list_text,
+        "character_message": character_message
     })

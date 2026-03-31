@@ -233,10 +233,6 @@ layout_mode = 1
 
 [node name="ToastNotification" parent="." instance=ExtResource("8_toast")]
 layout_mode = 1
-offset_left = 196.0
-offset_top = 45.0
-offset_right = 196.0
-offset_bottom = 45.0
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")

@@ -11,6 +11,8 @@ var memories: Dictionary = {
     "bond": []      # 羁绊记忆层：专属约定、共同经历、纪念日、一起完成的事
 }
 
+var turns_since_last_extract: int = 0
+
 func _init() -> void:
     load_memory()
 
@@ -27,11 +29,14 @@ func load_memory() -> void:
                 for key in memories.keys():
                     if data.has(key) and data[key] is Array:
                         memories[key] = data[key]
+                turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
 
 func save_memory() -> void:
     var file = FileAccess.open(MEMORY_FILE_PATH, FileAccess.WRITE)
     if file:
-        file.store_string(JSON.stringify(memories, "\t"))
+        var data = memories.duplicate(true)
+        data["_turns_since_last_extract"] = turns_since_last_extract
+        file.store_string(JSON.stringify(data, "\t"))
         file.close()
 
 func add_memory(layer: String, content: String) -> void:
@@ -41,6 +46,15 @@ func add_memory(layer: String, content: String) -> void:
             memories[layer].append(content)
             save_memory()
             print("【记忆管理器】新增 %s 记忆: %s" % [layer, content])
+
+func add_turn() -> bool:
+    turns_since_last_extract += 1
+    save_memory()
+    return turns_since_last_extract % 10 == 0
+
+func reset_turn_counter() -> void:
+    turns_since_last_extract = 0
+    save_memory()
 
 func get_memory_prompt() -> String:
     var prompt_lines = []
