@@ -27,24 +27,27 @@ func build_chat_prompt(profile: CharacterProfile) -> String:
     var mood_desc = GameDataManager.mood_system.get_mood_description(profile.current_mood)
     var memory_desc = GameDataManager.memory_manager.get_memory_prompt()
     
-    var full_desc = "世界观背景：" + profile.description
     var stage_conf = profile.get_current_stage_config()
-    if not stage_conf.is_empty():
-        full_desc += "\n【当前情感阶段】" + stage_conf.get("stageTitle", "") + " - " + stage_conf.get("stageDesc", "")
-        full_desc += "\n【性格特征】" + stage_conf.get("personality_traits", "")
-        full_desc += "\n【场景设定】" + stage_conf.get("scene_setting", "")
-        full_desc += "\n【重要提示】" + stage_conf.get("important_notes", "")
-        var tags = stage_conf.get("tags", [])
-        if tags is Array and tags.size() > 0:
-            full_desc += "\n【Tags】" + ", ".join(tags)
-            
-    # 将配置文本中可能存在的 {char_name} 占位符替换为真实角色名
-    full_desc = full_desc.replace("{char_name}", profile.char_name)
     
+    # 提取并替换占位符
+    var safe_char_name = profile.char_name
+    var world_bg = profile.description.replace("{char_name}", safe_char_name)
+    var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
+    var st_desc = stage_conf.get("stageDesc", "").replace("{char_name}", safe_char_name)
+    var p_traits = stage_conf.get("personality_traits", "").replace("{char_name}", safe_char_name)
+    var scene_set = stage_conf.get("scene_setting", "").replace("{char_name}", safe_char_name)
+    var imp_notes = stage_conf.get("important_notes", "").replace("{char_name}", safe_char_name)
+    
+    # 动态注入
     var base_prompt = template.format({
-        "name": profile.char_name,
+        "name": safe_char_name,
         "age": str(profile.age),
-        "desc": full_desc,
+        "world_background": world_bg,
+        "stage_title": st_title,
+        "stage_desc": st_desc,
+        "personality_traits": p_traits,
+        "scene_setting": scene_set,
+        "important_notes": imp_notes,
         "time": time_str,
         "mood_desc": mood_desc,
         "memory_desc": memory_desc
