@@ -78,7 +78,7 @@ func _get_headers() -> Array:
 func _get_url() -> String:
 	return "https://api.deepseek.com/v1/chat/completions"
 
-func _get_history_messages(limit: int = 50) -> Array:
+func _get_history_messages(limit: int = 10) -> Array:
 	var api_messages = []
 	var history_msgs = GameDataManager.history.messages
 	var start_idx = max(0, history_msgs.size() - limit)
@@ -89,6 +89,11 @@ func _get_history_messages(limit: int = 50) -> Array:
 		var msg = history_msgs[i]
 		var role = "user" if msg["speaker"] == "玩家" else "assistant"
 		var clean_text = bbcode_regex.sub(msg["text"], "", true)
+		
+		# 对最后一条历史记录打上强提示标记，确保AI的注意力集中在此
+		if i == history_msgs.size() - 1:
+			clean_text += " <--- 【系统提示：这是你们上次聊天的最后一句话，请顺着这个话题继续延展，不要生硬地开启新话题】"
+			
 		api_messages.append({"role": role, "content": clean_text})
 	return api_messages
 
@@ -317,7 +322,7 @@ func send_options_generation(last_ai_reply: String = "") -> void:
 		
 	var history_text = ""
 	var history_msgs = GameDataManager.history.messages
-	var start_idx = max(0, history_msgs.size() - 50) # 拓展到最近50条对话，以提供更丰富的短期上下文
+	var start_idx = max(0, history_msgs.size() - 10) # 仅取最近10条，避免长上下文导致AI转移话题
 	
 	# 提取所有包含“玩家”和角色的有效对话文本，去掉 BBCode
 	var bbcode_regex = RegEx.new()
@@ -326,7 +331,15 @@ func send_options_generation(last_ai_reply: String = "") -> void:
 	for i in range(start_idx, history_msgs.size()):
 		var msg = history_msgs[i]
 		var clean_text = bbcode_regex.sub(msg["text"], "", true)
-		history_text += msg["speaker"] + ": " + clean_text + "\n"
+		if i == history_msgs.size() - 1 and msg["speaker"] != "玩家" and last_ai_reply == "":
+			history_text += msg["speaker"] + ": " + clean_text + " <--- 【请主要针对这句话进行回应】\n"
+		else:
+			history_text += msg["speaker"] + ": " + clean_text + "\n"
+			
+	# 如果有提前生成选项时传入的最新AI回复，将其拼接到历史最后，并打上强提示标记
+	if last_ai_reply != "":
+		var char_name = GameDataManager.profile.char_name
+		history_text += char_name + ": " + last_ai_reply + " <--- 【请主要针对这句话进行回应】\n"
 		
 	var system_prompt = GameDataManager.prompt_manager.build_options_prompt(GameDataManager.profile, history_text)
 	var api_messages = [

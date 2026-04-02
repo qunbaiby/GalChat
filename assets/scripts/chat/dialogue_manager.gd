@@ -123,11 +123,14 @@ func _trigger_character_continue() -> void:
 	print("旁白生成完毕，正在思考后续对话...")
 	var char_name = GameDataManager.profile.char_name
 	
+	is_text_playback_finished = false
+	pending_options_data.clear()
+	
 	# 构造一条系统级的隐式 prompt，让 LLM 知道它需要主动续写话题
-	var continue_prompt = "【系统提示：玩家刚刚重新进入了游戏。请你基于上面的历史对话记录，主动和玩家打个招呼，并自然地续上之前的话题，或者开启一个符合当前阶段的新话题。注意：你是%s，不要输出这段提示的内容，直接以%s的口吻说话。】" % [char_name, char_name]
+	var continue_prompt = "【系统提示：玩家刚刚重新上线了。请你基于上面的历史对话记录，自然地和玩家打个招呼，并顺着你们刚才最后聊到的内容继续说下去，或者提出与刚才话题相关的新见解。注意：绝对不要输出这段系统提示，直接以%s的口吻说话。】" % char_name
 	
 	if GameDataManager.config.ai_mode_enabled:
-		# 直接发送消息，但传入 is_system_trigger 标志（如果可以的话），这里我们直接调用 HTTP 请求避免触发情感分析
+		# 直接发送消息，获取历史记录时限制在10条以内，并在深层已经打了锚点标记
 		var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile)
 		var api_messages = [{"role": "system", "content": system_prompt}]
 		api_messages.append_array(deepseek_client._get_history_messages(10))
@@ -284,6 +287,9 @@ func _on_send_pressed() -> void:
 	
 	pending_status_changes.clear()
 	
+	is_text_playback_finished = false
+	pending_options_data.clear()
+	
 	_show_message(text, "玩家")
 	
 	# 清空现有的快捷选项
@@ -329,22 +335,34 @@ func _on_chat_response(response: Dictionary) -> void:
 		stream_live_done = true
 		_extract_stream_segments(true)
 		_try_start_stream_worker()
+		
+		# 当流式接收彻底完毕时，由于选项生成需要大约2~3秒，而打字机播放也需要时间
+		# 我们在这里提前触发选项生成，让其在后台默默生成
+		# 因为此时历史记录中还没有保存AI刚刚说的这句话，我们需要手动将它传给选项生成器
+		if GameDataManager.config.ai_mode_enabled:
+			deepseek_client.send_options_generation(deepseek_client._chat_stream_full_text)
 		return
 		
-	send_btn.disabled = false
-	input_field.editable = true
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
 		
+		# 非流式模式下，收到完整回复后也立刻提前触发选项生成，并手动传入最新回复
+		if GameDataManager.config.ai_mode_enabled:
+			deepseek_client.send_options_generation(reply)
+			
 		# 拦截 reply 进行预处理，提取纯净的消息序列
 		var lines = _parse_reply_to_lines(reply)
 		if lines.size() == 0:
 			_show_message(char_name + " 似乎走神了...", char_name)
+			send_btn.disabled = false
+			input_field.editable = true
 			return
 			
 		_play_message_sequence(lines, char_name)
 	else:
 		_show_message(char_name + " 似乎走神了...", char_name)
+		send_btn.disabled = false
+		input_field.editable = true
 
 # 移除旧的 _on_character_mood_response 和 _on_character_mood_error 回调，
 # 因为我们现在改为在 _play_message_sequence 中逐条进行同步等待分析了。
@@ -449,6 +467,9 @@ func _on_memory_response(response: Dictionary) -> void:
 func _on_memory_error(error_msg: String) -> void:
 	print("Memory Agent Failed: ", error_msg)
 
+var pending_options_data = []
+var is_text_playback_finished = true
+
 func _on_options_response(response: Dictionary) -> void:
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
@@ -461,10 +482,17 @@ func _on_options_response(response: Dictionary) -> void:
 		if json.parse(reply.strip_edges()) == OK:
 			var data = json.get_data()
 			if data is Dictionary and data.has("options") and data["options"] is Array:
-				_populate_quick_options(data["options"])
+				pending_options_data = data["options"]
+				_try_show_options()
 				return
 				
 		print("Warning: Options Agent did not return valid JSON.")
+
+func _try_show_options() -> void:
+	# 只有当文本演出完全结束，且已经获取到了选项数据时，才将选项渲染到UI
+	if is_text_playback_finished and pending_options_data.size() > 0:
+		_populate_quick_options(pending_options_data)
+		pending_options_data.clear()
 
 func _on_options_error(error_msg: String) -> void:
 	print("Options Agent Failed: ", error_msg)
@@ -496,7 +524,7 @@ func _on_chat_error(error_msg: String) -> void:
 	# 本地兜底
 	if is_inside_tree():
 		await get_tree().create_timer(1.0).timeout
-	_show_message("刚才网络好像不太好...", char_name)
+	_show_message("你在哪儿？我听不到你的声音了...", char_name)
 
 func _extract_stream_segments(force_flush: bool) -> void:
 	var delim = "[SPLIT]"
@@ -546,24 +574,12 @@ func _run_stream_worker() -> void:
 			continue
 			
 		if GameDataManager.config.ai_mode_enabled:
-			print("正在分析单条消息的心情: ", t)
-			var mood_id = await deepseek_client.analyze_mood_sync(t)
-			print("【Debug】analyze_mood_sync 返回值: '", mood_id, "'")
-			if mood_id != "":
-				if GameDataManager.mood_system.is_valid_mood(mood_id):
-					print("分析结果 -> ", mood_id)
-					GameDataManager.profile.update_mood(mood_id)
-					toast.show_toast("心情变为：" + GameDataManager.mood_system.mood_configs[mood_id]["name"], Color.ORANGE)
-					_update_ui()
-					_update_character_sprite(mood_id)
-				else:
-					print("【Debug】心情分析返回了未知的 mood_id: '", mood_id, "'")
-			else:
-				print("心情分析未匹配或请求失败")
+			# 异步发起分析，不阻塞当前流程的推进和打字机的显示
+			_async_analyze_and_update_mood(t)
 				
 		await _process_single_message_line_async(t, char_name)
 		if is_inside_tree():
-			await get_tree().create_timer(1.0).timeout
+			await get_tree().create_timer(0.3).timeout # 缩短强制等待时间，加快演出节奏
 			
 	stream_live_active = false
 	stream_live_worker_running = false
@@ -572,10 +588,13 @@ func _run_stream_worker() -> void:
 	GameDataManager.profile.save_profile()
 	_update_ui()
 	
-	if GameDataManager.config.ai_mode_enabled:
-		while not is_inside_tree():
-			await Engine.get_main_loop().process_frame
-		deepseek_client.send_options_generation()
+	# 因为选项生成请求已经提前到流式接收完毕时发送，这里只需要恢复UI交互即可
+	# 等待一小会儿，确保如果选项还没生成完，玩家不会立即打字破坏语境
+	if is_inside_tree():
+		await get_tree().create_timer(1.0).timeout
+		
+	is_text_playback_finished = true
+	_try_show_options()
 		
 	send_btn.disabled = false
 	input_field.editable = true
@@ -707,38 +726,41 @@ func _auto_split_message(text: String) -> Array:
 func _play_message_sequence(lines: Array, char_name: String) -> void:
 	for line in lines:
 		if GameDataManager.config.ai_mode_enabled:
-			print("正在分析单条消息的心情: ", line)
-			var mood_id = await deepseek_client.analyze_mood_sync(line)
-			print("【Debug】analyze_mood_sync 返回值: '", mood_id, "'")
-			if mood_id != "":
-				if GameDataManager.mood_system.is_valid_mood(mood_id):
-					print("分析结果 -> ", mood_id)
-					GameDataManager.profile.update_mood(mood_id)
-					toast.show_toast("心情变为：" + GameDataManager.mood_system.mood_configs[mood_id]["name"], Color.ORANGE)
-					_update_ui()
-					_update_character_sprite(mood_id)
-				else:
-					print("【Debug】心情分析返回了未知的 mood_id: '", mood_id, "'")
-			else:
-				print("心情分析未匹配或请求失败")
+			_async_analyze_and_update_mood(line)
 				
 		await _process_single_message_line_async(line, char_name)
-		# 等待上一句（包括打字机和语音）彻底完成后，再强制额外等待 1 秒
+		# 等待上一句（包括打字机和语音）彻底完成后，再强制额外等待 0.3 秒
 		if is_inside_tree():
-			await get_tree().create_timer(1.0).timeout
+			await get_tree().create_timer(0.3).timeout
 		
 	GameDataManager.profile.add_interaction_exp()
 	GameDataManager.profile.save_profile()
 	_update_ui()
 	
-	# 整个序列播放完成后，请求生成玩家选项
-	if lines.size() > 0 and GameDataManager.config.ai_mode_enabled:
+	if is_inside_tree():
+		await get_tree().create_timer(1.0).timeout
 		
-		# 如果当前不在场景树中（玩家切到了后台），暂停直到重回场景树
-		while not is_inside_tree():
-			await Engine.get_main_loop().process_frame
-			
-		deepseek_client.send_options_generation()
+	is_text_playback_finished = true
+	_try_show_options()
+		
+	send_btn.disabled = false
+	input_field.editable = true
+
+func _async_analyze_and_update_mood(line: String) -> void:
+	print("正在异步分析单条消息的心情: ", line)
+	var mood_id = await deepseek_client.analyze_mood_sync(line)
+	print("【Debug】异步 analyze_mood_sync 返回值: '", mood_id, "'")
+	if mood_id != "":
+		if GameDataManager.mood_system.is_valid_mood(mood_id):
+			print("异步分析结果 -> ", mood_id)
+			GameDataManager.profile.update_mood(mood_id)
+			toast.show_toast("心情变为：" + GameDataManager.mood_system.mood_configs[mood_id]["name"], Color.ORANGE)
+			_update_ui()
+			_update_character_sprite(mood_id)
+		else:
+			print("【Debug】异步心情分析返回了未知的 mood_id: '", mood_id, "'")
+	else:
+		print("异步心情分析未匹配或请求失败")
 
 func _process_single_message_line_async(raw_line: String, char_name: String) -> void:
 	var regex = RegEx.new()
