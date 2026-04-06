@@ -12,6 +12,9 @@ extends Control
 @onready var cluster_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/ClusterInput"
 @onready var voice_type_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/VoiceTypeInput"
 
+@onready var embed_key_input: LineEdit = $"ScrollContainer/TabContainer/向量设置/EmbedKeyInput"
+@onready var embed_model_input: LineEdit = $"ScrollContainer/TabContainer/向量设置/EmbedModelInput"
+
 @onready var back_button: Button = $TopBar/BackButton
 @onready var save_button: Button = $SaveButton
 @onready var clear_history_btn: Button = $"ScrollContainer/TabContainer/API 设置/ClearHistoryBtn"
@@ -41,6 +44,9 @@ func _load_ui_data() -> void:
     token_input.text = config.doubao_token
     cluster_input.text = config.doubao_cluster
     voice_type_input.text = config.doubao_voice_type
+    
+    embed_key_input.text = config.doubao_embedding_api_key
+    embed_model_input.text = config.doubao_embedding_model
 
 func _save_ui_data() -> void:
     var config = GameDataManager.config
@@ -55,6 +61,9 @@ func _save_ui_data() -> void:
     config.doubao_token = token_input.text
     config.doubao_cluster = cluster_input.text
     config.doubao_voice_type = voice_type_input.text
+    
+    config.doubao_embedding_api_key = embed_key_input.text
+    config.doubao_embedding_model = embed_model_input.text
     
     config.save_config()
 

@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameDataManager="*res://assets/scripts/data/game_data_manager.gd"
 PromptManager="*res://assets/scripts/data/prompt_manager.gd"
+DoubaoEmbeddingClient="*res://assets/scripts/api/doubao_embedding_client.gd"
 
 [display]
 

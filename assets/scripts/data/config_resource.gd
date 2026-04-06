@@ -14,6 +14,10 @@ var doubao_cluster: String = "volcano_tts"
 var doubao_voice_type: String = "ICL_zh_female_bingruoshaonv_tob"
 var voice_enabled: bool = true
 
+# 向量模型配置 (Doubao Embedding)
+var doubao_embedding_api_key: String = ""
+var doubao_embedding_model: String = "ep-xxxxxx"
+
 # 当前选择的角色ID，默认为空，运行时会自动寻找第一个可用角色
 var current_character_id: String = ""
 
@@ -31,6 +35,8 @@ func save_config() -> void:
         "doubao_cluster": doubao_cluster,
         "doubao_voice_type": doubao_voice_type,
         "voice_enabled": voice_enabled,
+        "doubao_embedding_api_key": doubao_embedding_api_key,
+        "doubao_embedding_model": doubao_embedding_model,
         "current_character_id": current_character_id
     }
     var file = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
@@ -59,4 +65,6 @@ func load_config() -> void:
                 doubao_cluster = data.get("doubao_cluster", doubao_cluster)
                 doubao_voice_type = data.get("doubao_voice_type", doubao_voice_type)
                 voice_enabled = data.get("voice_enabled", voice_enabled)
+                doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)
+                doubao_embedding_model = data.get("doubao_embedding_model", doubao_embedding_model)
                 current_character_id = data.get("current_character_id", current_character_id)

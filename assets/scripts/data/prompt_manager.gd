@@ -18,14 +18,14 @@ func load_template(template_name: String) -> String:
         printerr("Prompt template not found: ", path)
         return ""
 
-func build_chat_prompt(profile: CharacterProfile) -> String:
+func build_chat_prompt(profile: CharacterProfile, query_embedding: Array = []) -> String:
     var template = load_template("default_chat")
     if template == "":
         return ""
         
     var time_str = Time.get_datetime_string_from_system()
     var mood_desc = GameDataManager.mood_system.get_mood_description(profile.current_mood)
-    var memory_desc = GameDataManager.memory_manager.get_memory_prompt()
+    var memory_desc = GameDataManager.memory_manager.get_memory_prompt(query_embedding)
     
     var stage_conf = profile.get_current_stage_config()
     
@@ -92,8 +92,11 @@ func build_memory_prompt(profile: CharacterProfile) -> String:
     if template == "":
         return ""
         
+    var current_memories = JSON.stringify(GameDataManager.memory_manager.memories, "\t")
+        
     return template.format({
-        "name": profile.char_name
+        "name": profile.char_name,
+        "current_memories": current_memories
     })
 
 func build_options_prompt(profile: CharacterProfile, recent_history: String) -> String:

@@ -1,0 +1,6 @@
+- [x] `config_resource.gd` 已成功添加 `doubao_embedding_api_key` 和 `doubao_embedding_model` 配置项，并在 `settings_scene.tscn` 支持配置。
+- [x] 成功编写了 `doubao_embedding_client.gd`（或直接在原有 API 文件扩充），能够向火山引擎（Doubao）发送包含文本的请求并返回浮点数组向量。
+- [x] `memory_manager.gd` 在保存和更新记忆时，自动发起获取其向量的异步请求，并将得到的 `embedding` 保存到 `player_memory.json`。
+- [x] 本地 GDScript 中成功实现了正确的向量内积（余弦相似度）计算方法。
+- [x] 发送聊天消息前，系统会请求用户最新输入的消息向量，并与历史存储的所有记忆计算相似度，返回前 K 个最高分的记忆以及所有的核心记忆（Core）。
+- [x] 最终发送给大模型的系统 Prompt 中，记忆内容仅包含经过上述步骤精简过滤后的相关记忆，而不是无限叠加的全文。

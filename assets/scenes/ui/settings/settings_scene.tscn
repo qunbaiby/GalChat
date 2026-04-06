@@ -168,6 +168,28 @@ text = "音色 (Voice Type)"
 layout_mode = 2
 text = "ICL_zh_female_bingruoshaonv_tob"
 
+[node name="向量设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="EmbedKeyLabel" type="Label" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+text = "豆包 Embedding API Key"
+
+[node name="EmbedKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+secret = true
+
+[node name="EmbedModelLabel" type="Label" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+text = "Embedding 模型名称"
+
+[node name="EmbedModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+text = "ep-xxxxxx"
+
 [node name="SaveButton" type="Button" parent="."]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1

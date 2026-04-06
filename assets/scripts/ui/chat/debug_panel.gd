@@ -78,10 +78,19 @@ func show_panel() -> void:
 func _update_memory_text() -> void:
 	var mems = GameDataManager.memory_manager.memories
 	var text = ""
-	text += "[b]核心记忆:[/b]\n" + ("\n".join(mems["core"]) if mems["core"].size() > 0 else "无") + "\n\n"
-	text += "[b]情绪记忆:[/b]\n" + ("\n".join(mems["emotion"]) if mems["emotion"].size() > 0 else "无") + "\n\n"
-	text += "[b]习惯记忆:[/b]\n" + ("\n".join(mems["habit"]) if mems["habit"].size() > 0 else "无") + "\n\n"
-	text += "[b]羁绊记忆:[/b]\n" + ("\n".join(mems["bond"]) if mems["bond"].size() > 0 else "无")
+	
+	var format_mems = func(layer_mems):
+		if layer_mems.size() == 0:
+			return "无"
+		var lines = []
+		for m in layer_mems:
+			lines.append("[%s] %s" % [m.get("id", ""), m.get("content", "")])
+		return "\n".join(lines)
+		
+	text += "[b]核心记忆:[/b]\n" + format_mems.call(mems["core"]) + "\n\n"
+	text += "[b]情绪记忆:[/b]\n" + format_mems.call(mems["emotion"]) + "\n\n"
+	text += "[b]习惯记忆:[/b]\n" + format_mems.call(mems["habit"]) + "\n\n"
+	text += "[b]羁绊记忆:[/b]\n" + format_mems.call(mems["bond"])
 	memory_text.text = text
 
 func _on_clear_memory_pressed() -> void:
