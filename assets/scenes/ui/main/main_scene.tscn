@@ -78,3 +78,13 @@ grow_vertical = 2
 custom_minimum_size = Vector2(200, 80)
 layout_mode = 2
 text = "GalChat"
+
+[node name="StatsButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(200, 80)
+layout_mode = 2
+text = "属性面板"
+
+[node name="ActivityButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(200, 80)
+layout_mode = 2
+text = "行程安排"

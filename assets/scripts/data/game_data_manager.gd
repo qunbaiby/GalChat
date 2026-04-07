@@ -9,6 +9,8 @@ var persona_lock: Node
 var mood_system: Node
 var memory_manager: MemoryManager
 var personality_system: Node
+var stats_system: Node
+var activity_manager: Node
 
 # 用于记录上一个场景的路径，以便设置界面返回时知道该回到哪里
 var previous_scene_path: String = ""
@@ -28,6 +30,12 @@ func _ready() -> void:
     
     personality_system = preload("res://assets/scripts/data/personality_system.gd").new()
     add_child(personality_system)
+    
+    stats_system = preload("res://assets/scripts/data/stats_system.gd").new()
+    add_child(stats_system)
+    
+    activity_manager = preload("res://assets/scripts/data/activity_manager.gd").new()
+    add_child(activity_manager)
     
     config = ConfigResource.new()
     config.load_config()

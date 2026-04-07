@@ -24,6 +24,17 @@ var neuroticism: float = 50.0
 
 var last_online_time: int = 0
 
+# 三维六基养成体系数值
+var physical_fitness: float = 0.0 # 身体素质
+var vitality: float = 0.0 # 体能活力
+var academic_quality: float = 0.0 # 学业素养
+var knowledge_reserve: float = 0.0 # 知识储备
+var social_eq: float = 0.0 # 社交情商
+var creative_aesthetics: float = 0.0 # 创意审美
+
+var current_energy: float = 100.0
+var max_energy: float = 100.0
+
 signal stage_upgraded(new_stage: int, unlock_dialog: String)
 
 const PROFILE_PATH = "user://character_profile.json"
@@ -67,24 +78,42 @@ func load_profile() -> void:
 		if error == OK:
 			var data = json.get_data()
 			if data is Dictionary:
-				intimacy = data.get("intimacy", intimacy)
+				intimacy = float(str(data.get("intimacy", intimacy)))
 				current_mood = data.get("current_mood", current_mood)
 				last_login_date = data.get("last_login_date", last_login_date)
-				trust = data.get("trust", trust)
-				current_stage = data.get("current_stage", current_stage)
-				interaction_exp = data.get("interaction_exp", interaction_exp)
-				openness = data.get("openness", base_personality.get("openness", 50.0))
-				conscientiousness = data.get("conscientiousness", base_personality.get("conscientiousness", 50.0))
-				extraversion = data.get("extraversion", base_personality.get("extraversion", 50.0))
-				agreeableness = data.get("agreeableness", base_personality.get("agreeableness", 50.0))
-				neuroticism = data.get("neuroticism", base_personality.get("neuroticism", 50.0))
-				last_online_time = data.get("last_online_time", 0)
+				trust = float(str(data.get("trust", trust)))
+				current_stage = int(str(data.get("current_stage", current_stage)))
+				interaction_exp = int(str(data.get("interaction_exp", interaction_exp)))
+				openness = float(str(data.get("openness", base_personality.get("openness", 50.0))))
+				conscientiousness = float(str(data.get("conscientiousness", base_personality.get("conscientiousness", 50.0))))
+				extraversion = float(str(data.get("extraversion", base_personality.get("extraversion", 50.0))))
+				agreeableness = float(str(data.get("agreeableness", base_personality.get("agreeableness", 50.0))))
+				neuroticism = float(str(data.get("neuroticism", base_personality.get("neuroticism", 50.0))))
+				last_online_time = int(str(data.get("last_online_time", 0)))
+				
+				# 三维六基
+				physical_fitness = float(str(data.get("physical_fitness", 0.0)))
+				vitality = float(str(data.get("vitality", 0.0)))
+				academic_quality = float(str(data.get("academic_quality", 0.0)))
+				knowledge_reserve = float(str(data.get("knowledge_reserve", 0.0)))
+				social_eq = float(str(data.get("social_eq", 0.0)))
+				creative_aesthetics = float(str(data.get("creative_aesthetics", 0.0)))
+				current_energy = float(str(data.get("current_energy", max_energy)))
 	else:
-		openness = base_personality.get("openness", 50.0)
-		conscientiousness = base_personality.get("conscientiousness", 50.0)
-		extraversion = base_personality.get("extraversion", 50.0)
-		agreeableness = base_personality.get("agreeableness", 50.0)
-		neuroticism = base_personality.get("neuroticism", 50.0)
+		openness = float(str(base_personality.get("openness", 50.0)))
+		conscientiousness = float(str(base_personality.get("conscientiousness", 50.0)))
+		extraversion = float(str(base_personality.get("extraversion", 50.0)))
+		agreeableness = float(str(base_personality.get("agreeableness", 50.0)))
+		neuroticism = float(str(base_personality.get("neuroticism", 50.0)))
+		
+		# 三维六基初始值
+		physical_fitness = 0.0
+		vitality = 0.0
+		academic_quality = 0.0
+		knowledge_reserve = 0.0
+		social_eq = 0.0
+		creative_aesthetics = 0.0
+		current_energy = max_energy
 	
 	init_daily_mood()
 
@@ -138,6 +167,9 @@ func init_daily_mood() -> void:
 		if GameDataManager.mood_system != null:
 			current_mood = GameDataManager.mood_system.get_random_mood()
 			print("【心情系统】新的一天，抽取的初始心情为: ", current_mood)
+		# 跨天恢复满精力
+		current_energy = max_energy
+		print("【精力系统】新的一天，精力已回满: ", current_energy)
 		save_profile()
 
 func get_stage_config(stage_num: int) -> Dictionary:
@@ -240,7 +272,14 @@ func save_profile() -> void:
 		"extraversion": extraversion,
 		"agreeableness": agreeableness,
 		"neuroticism": neuroticism,
-		"last_online_time": Time.get_unix_time_from_system()
+		"last_online_time": Time.get_unix_time_from_system(),
+		"physical_fitness": physical_fitness,
+		"vitality": vitality,
+		"academic_quality": academic_quality,
+		"knowledge_reserve": knowledge_reserve,
+		"social_eq": social_eq,
+		"creative_aesthetics": creative_aesthetics,
+		"current_energy": current_energy
 	}
 	var file = FileAccess.open(PROFILE_PATH, FileAccess.WRITE)
 	if file:

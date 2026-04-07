@@ -1,0 +1,143 @@
+[gd_scene load_steps=2 format=3 uid="uid://activity_panel"]
+
+[ext_resource type="Script" path="res://assets/scripts/ui/activity_panel.gd" id="1_act"]
+
+[node name="ActivityPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_act")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -450.0
+offset_right = 300.0
+offset_bottom = 450.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "行程与课程安排"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="EnergyLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "当前精力：100/100"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="ScheduleTitle" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "本周日程 (0/7)"
+horizontal_alignment = 1
+
+[node name="ScheduleSlots" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="Slot1" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="Slot2" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="Slot3" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="Slot4" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="Slot5" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="Slot6" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="Slot7" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+text = "空"
+
+[node name="HSeparator3" type="HSeparator" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActivityList" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ResultLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.4, 0.8, 0.4, 1)
+text = "请选择课程..."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ExecuteButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "执行安排"
+disabled = true
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "关闭"
