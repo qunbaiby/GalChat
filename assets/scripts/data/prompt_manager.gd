@@ -34,7 +34,9 @@ func build_chat_prompt(profile: CharacterProfile, query_embedding: Array = []) -
     var world_bg = profile.description.replace("{char_name}", safe_char_name)
     var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
     var st_desc = stage_conf.get("stageDesc", "").replace("{char_name}", safe_char_name)
-    var p_traits = stage_conf.get("personality_traits", "").replace("{char_name}", safe_char_name)
+    var p_traits = GameDataManager.personality_system.get_dynamic_traits(profile).replace("{char_name}", safe_char_name)
+    var topic_prefs = GameDataManager.personality_system.get_topic_preferences(profile).replace("{char_name}", safe_char_name)
+    var m_habits = GameDataManager.personality_system.get_micro_habits(profile).replace("{char_name}", safe_char_name)
     var scene_set = stage_conf.get("scene_setting", "").replace("{char_name}", safe_char_name)
     var imp_notes = stage_conf.get("important_notes", "").replace("{char_name}", safe_char_name)
     
@@ -46,6 +48,8 @@ func build_chat_prompt(profile: CharacterProfile, query_embedding: Array = []) -
         "stage_title": st_title,
         "stage_desc": st_desc,
         "personality_traits": p_traits,
+        "topic_preferences": topic_prefs,
+        "micro_habits": m_habits,
         "scene_setting": scene_set,
         "important_notes": imp_notes,
         "time": time_str,
@@ -109,9 +113,12 @@ func build_options_prompt(profile: CharacterProfile, recent_history: String) -> 
     if not stage_conf.is_empty():
         stage_desc = stage_conf.get("stageTitle", "") + " - " + stage_conf.get("stageDesc", "")
         
+    var option_constraints = GameDataManager.personality_system.get_option_constraints(profile)
+        
     return template.format({
         "name": profile.char_name,
         "stage_desc": stage_desc,
+        "option_constraints": option_constraints,
         "recent_history": recent_history
     })
 

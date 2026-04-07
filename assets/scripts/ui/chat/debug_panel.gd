@@ -6,6 +6,7 @@ extends Control
 
 @onready var memory_text: RichTextLabel = $"CenterContainer/Panel/VBoxContainer/TabContainer/记忆管理/ScrollContainer/MemoryText"
 @onready var clear_memory_btn: Button = $"CenterContainer/Panel/VBoxContainer/TabContainer/记忆管理/ClearMemoryBtn"
+@onready var personality_text: RichTextLabel = $"CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/ScrollContainer/PersonalityText"
 
 signal stage_changed(new_stage: int)
 signal mood_changed(new_mood: String)
@@ -23,7 +24,7 @@ func _init_stage_options() -> void:
 	stage_option.clear()
 	var profile = GameDataManager.profile
 	# Load stages from JSON to get dynamic titles
-	var json_path = "res://assets/data/characters/" + profile.char_name + ".json"
+	var json_path = "res://assets/data/characters/" + profile.char_name + "_stages.json"
 	var file = FileAccess.open(json_path, FileAccess.READ)
 	var stages = []
 	if file:
@@ -72,8 +73,29 @@ func show_panel() -> void:
 		mood_option.select(idx)
 		
 	_update_memory_text()
+	_update_personality_text()
 	
 	show()
+
+func _update_personality_text() -> void:
+	var profile = GameDataManager.profile
+	var text = ""
+	
+	text += "[b]【大五人格实时分值】[/b]\n"
+	text += "开放性 (Openness): %.1f / 90.0\n" % profile.openness
+	text += "尽责性 (Conscientiousness): %.1f / 90.0\n" % profile.conscientiousness
+	text += "外倾性 (Extraversion): %.1f / 90.0\n" % profile.extraversion
+	text += "宜人性 (Agreeableness): %.1f / 90.0\n" % profile.agreeableness
+	text += "神经质 (Neuroticism): %.1f / 90.0\n" % profile.neuroticism
+	
+	text += "\n[b]【当前激活的人格描述】[/b]\n"
+	var dynamic_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
+	if dynamic_traits == "":
+		text += "暂无激活特征"
+	else:
+		text += dynamic_traits
+		
+	personality_text.text = text
 
 func _update_memory_text() -> void:
 	var mems = GameDataManager.memory_manager.memories

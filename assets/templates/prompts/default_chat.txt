@@ -10,6 +10,12 @@
 【核心性格特质】
 {personality_traits}
 
+【话题偏好与信息茧房】
+{topic_preferences}
+
+【微习惯与口癖】
+{micro_habits}
+
 【互动场景与语境参考】
 {scene_setting}
 
