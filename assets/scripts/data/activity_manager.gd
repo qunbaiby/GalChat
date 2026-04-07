@@ -53,6 +53,14 @@ var activities: Array = [
 		"desc": "包含化妆、形体、穿搭美学，提升个人气质。",
 		"energy_cost": 25,
 		"rewards": { "creative_aesthetics": [20, 30], "social_eq": [5, 5] }
+	},
+	{
+		"id": "rest_at_home",
+		"name": "在家休息",
+		"type": "日常恢复",
+		"desc": "什么也不做，在家睡个好觉。恢复 30~50 点精力。",
+		"energy_cost": 0,
+		"rewards": { "energy_recovery": [30, 50] } # 这是一个特殊标记，用于在逻辑中处理
 	}
 ]
 
@@ -89,8 +97,14 @@ func execute_activity(profile: CharacterProfile, activity_id: String) -> Diction
 		var max_val = range_arr[1]
 		var amount = randi_range(min_val, max_val)
 		
-		# 增加数值
-		GameDataManager.stats_system.add_basic_stat(profile, stat_name, float(amount))
-		gained[stat_name] = amount
+		# 处理特殊的“恢复精力”机制
+		if stat_name == "energy_recovery":
+			profile.current_energy = min(profile.current_energy + amount, profile.max_energy)
+			profile.save_profile()
+			gained["energy_recovery"] = amount
+		else:
+			# 增加数值
+			GameDataManager.stats_system.add_basic_stat(profile, stat_name, float(amount))
+			gained[stat_name] = amount
 		
 	return { "success": true, "msg": "活动执行成功！", "gained_stats": gained }

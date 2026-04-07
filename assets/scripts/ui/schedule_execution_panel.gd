@@ -16,7 +16,8 @@ const STAT_NAME_MAP = {
 	"academic_quality": "学业素养",
 	"knowledge_reserve": "知识储备",
 	"social_eq": "社交情商",
-	"creative_aesthetics": "创意审美"
+	"creative_aesthetics": "创意审美",
+	"energy_recovery": "恢复精力"
 }
 
 func _ready() -> void:
