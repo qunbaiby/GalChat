@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://br1kcissdv26v" path="res://scenes/ui/chat/debug_panel.tscn" id="7_debug"]
 [ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://scenes/ui/chat/toast_notification.tscn" id="8_toast"]
 [ext_resource type="Script" uid="uid://0654av2m37bv" path="res://scripts/api/doubao_ASR_Service.gd" id="doubao_asr"]
+[ext_resource type="PackedScene" uid="uid://gift_panel" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -223,6 +224,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "❤️"
 
+[node name="GiftButton" type="Button" parent="InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "🎁"
+
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
@@ -251,6 +258,10 @@ visible = false
 layout_mode = 1
 
 [node name="AffectionPanel" parent="." instance=ExtResource("6_affec")]
+visible = false
+layout_mode = 1
+
+[node name="GiftPanel" parent="." instance=ExtResource("gift_scene")]
 visible = false
 layout_mode = 1
 

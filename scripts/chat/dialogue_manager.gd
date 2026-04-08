@@ -10,6 +10,7 @@ extends Control
 @onready var input_field: TextEdit = $InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $InputLayer/HBoxContainer/SendButton
 @onready var affection_btn: Button = $InputLayer/HBoxContainer/AffectionButton
+@onready var gift_btn: Button = $InputLayer/HBoxContainer/GiftButton
 @onready var voice_record_btn: Button = $InputLayer/HBoxContainer/VoiceRecordButton
 
 @onready var character_layer: TextureRect = $CharacterLayer
@@ -25,6 +26,7 @@ extends Control
 @onready var history_vbox: VBoxContainer = $HistoryPanel/ScrollContainer/VBoxContainer
 
 @onready var affection_panel: Control = $AffectionPanel
+@onready var gift_panel: Control = $GiftPanel
 @onready var debug_panel: Control = $DebugPanel
 @onready var toast: ToastNotification = $ToastNotification
 @onready var quick_options_container: VBoxContainer = $QuickOptionLayer/QuickOptions
@@ -37,14 +39,8 @@ func _ready() -> void:
 	history_btn.pressed.connect(_on_history_pressed)
 	debug_btn.pressed.connect(_on_debug_pressed)
 	affection_btn.pressed.connect(_on_affection_pressed)
-	affection_btn.mouse_entered.connect(func():
-		var tween = create_tween()
-		tween.tween_property(affection_btn, "scale", Vector2(1.1, 1.1), 0.1)
-	)
-	affection_btn.mouse_exited.connect(func():
-		var tween = create_tween()
-		tween.tween_property(affection_btn, "scale", Vector2(1.0, 1.0), 0.1)
-	)
+	gift_btn.pressed.connect(_on_gift_pressed)
+	gift_panel.gift_sent.connect(_on_gift_sent)
 	send_btn.pressed.connect(_on_send_pressed)
 	input_field.text_changed.connect(_on_input_text_changed)
 	
@@ -261,6 +257,51 @@ func _on_debug_pressed() -> void:
 
 func _on_affection_pressed() -> void:
 	affection_panel.show_panel()
+
+func _on_gift_pressed() -> void:
+	gift_panel.show_panel()
+
+func _on_gift_sent(gift_id: String) -> void:
+	var profile = GameDataManager.profile
+	var gift = GameDataManager.gift_manager.get_gift_by_id(gift_id)
+	if gift.is_empty():
+		return
+		
+	var res = GameDataManager.gift_manager.send_gift(profile, gift_id)
+	if res.success:
+		# 显示Toast
+		var msg = "送出了 [%s]\n" % gift.name
+		if res.gained_intimacy > 0:
+			msg += "亲密 +%.1f " % res.gained_intimacy
+		if res.gained_trust > 0:
+			msg += "信任 +%.1f" % res.gained_trust
+		toast.show_toast(msg, Color.VIOLET)
+		
+		_update_ui()
+		
+		# 触发LLM生成对应的感谢/反应
+		_trigger_gift_reaction(gift)
+	else:
+		toast.show_toast(res.msg, Color.RED)
+
+func _trigger_gift_reaction(gift: Dictionary) -> void:
+	send_btn.disabled = true
+	input_field.editable = false
+	
+	is_text_playback_finished = false
+	pending_options_data.clear()
+	
+	var char_name = GameDataManager.profile.char_name
+	var prompt = "【系统动作：玩家刚刚送给了你一份礼物，名称是：“%s”，描述是：“%s”。请根据你们当前的关系阶段（Stage %d）以及礼物的内容，给出自然的反应和台词。注意：不要输出这段系统提示，直接以%s的口吻说话。】" % [gift.name, gift.desc, GameDataManager.profile.current_stage, char_name]
+	
+	if GameDataManager.config.ai_mode_enabled:
+		deepseek_client.send_chat_message(prompt)
+	else:
+		if is_inside_tree():
+			await get_tree().create_timer(1.0).timeout
+		_show_message("（离线模式）谢谢你的礼物！我很喜欢。", char_name)
+		send_btn.disabled = false
+		input_field.editable = true
 
 func _on_debug_stage_changed(stage: int) -> void:
 	toast.show_toast("【Debug】强制切换情感阶段至：" + str(stage), Color.CYAN)

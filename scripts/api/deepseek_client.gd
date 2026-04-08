@@ -341,6 +341,10 @@ func send_options_generation(last_ai_reply: String = "") -> void:
 	while not is_inside_tree():
 		await Engine.get_main_loop().process_frame
 		
+	# 防止正在处理上一个请求时产生冲突 (ERR_BUSY)
+	if options_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		options_http.cancel_request()
+		
 	var history_text = ""
 	var history_msgs = GameDataManager.history.messages
 	var start_idx = max(0, history_msgs.size() - 10) # 仅取最近10条，避免长上下文导致AI转移话题

@@ -1,0 +1,54 @@
+{
+  "gifts": [
+    {
+      "id": "flower",
+      "name": "一束鲜花",
+      "desc": "代表着美好的祝愿，散发着淡淡的清香。",
+      "icon_path": "res://assets/icons/gifts/icon_flower.tres",
+      "base_intimacy": 10,
+      "base_trust": 5,
+      "cost": 50,
+      "category": "normal"
+    },
+    {
+      "id": "chocolate",
+      "name": "精美巧克力",
+      "desc": "甜丝丝的巧克力，能让人心情愉悦。",
+      "icon_path": "res://assets/icons/gifts/icon_chocolate.tres",
+      "base_intimacy": 15,
+      "base_trust": 5,
+      "cost": 80,
+      "category": "normal"
+    },
+    {
+      "id": "book",
+      "name": "一本好书",
+      "desc": "蕴含着丰富的知识，适合静下心来阅读。",
+      "icon_path": "res://assets/icons/gifts/icon_book.tres",
+      "base_intimacy": 5,
+      "base_trust": 20,
+      "cost": 60,
+      "category": "normal"
+    },
+    {
+      "id": "necklace",
+      "name": "银质项链",
+      "desc": "璀璨夺目的首饰，价格不菲，代表着深深的珍视。",
+      "icon_path": "res://assets/icons/gifts/icon_necklace.tres",
+      "base_intimacy": 30,
+      "base_trust": 40,
+      "cost": 500,
+      "category": "expensive"
+    },
+    {
+      "id": "handmade_scarf",
+      "name": "手工围巾",
+      "desc": "你亲手织的围巾，虽然不完美，但充满了心意。",
+      "icon_path": "res://assets/icons/gifts/icon_handmade.tres",
+      "base_intimacy": 50,
+      "base_trust": 20,
+      "cost": 100,
+      "category": "special"
+    }
+  ]
+}

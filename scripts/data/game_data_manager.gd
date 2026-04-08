@@ -11,6 +11,7 @@ var memory_manager: MemoryManager
 var personality_system: Node
 var stats_system: Node
 var activity_manager: Node
+var gift_manager: Node
 
 # 用于记录上一个场景的路径，以便设置界面返回时知道该回到哪里
 var previous_scene_path: String = ""
@@ -36,6 +37,9 @@ func _ready() -> void:
     
     activity_manager = preload("res://scripts/data/activity_manager.gd").new()
     add_child(activity_manager)
+    
+    gift_manager = preload("res://scripts/data/gift_manager.gd").new()
+    add_child(gift_manager)
     
     config = ConfigResource.new()
     config.load_config()
