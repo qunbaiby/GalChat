@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [audio]
 
 driver/enable_input=true
+input/transcribe/max_tokens=500
 
 [autoload]
 
@@ -27,19 +28,22 @@ DoubaoEmbeddingClient="*res://scripts/api/doubao_embedding_client.gd"
 
 [display]
 
-window/size/viewport_width=720
-window/size/viewport_height=1280
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/mode=1
 window/size/always_on_top=true
-window/size/window_width_override=540
-window/size/window_height_override=960
+window/size/window_width_override=1280
+window/size/window_height_override=720
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep_height"
-window/handheld/orientation=1
+window/stretch/aspect="expand"
 
 [dotnet]
 
 project/assembly_name="GalChat"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_whisper/plugin.cfg")
 
 [file_customization]
 

@@ -1,17 +1,20 @@
 [gd_scene load_steps=3 format=3 uid="uid://bdtd0mc84eq8r"]
 
-[ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna_calm.png" id="1_5vl8a"]
+[ext_resource type="Texture2D" uid="uid://c85ensa8xulqf" path="res://assets/images/characters/Luna/luna_aggrieved.png" id="2_nvelq"]
 [ext_resource type="Script" uid="uid://qpxfkorr8q56" path="res://scripts/ui/chat/character_layer.gd" id="2_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
-[node name="CharacterLayer" type="TextureRect"]
+[node name="CharacterLayer" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="Character" type="TextureRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 305.0
+offset_top = 89.0
+offset_right = 940.625
+offset_bottom = 1219.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_5vl8a")
+texture = ExtResource("2_nvelq")
 expand_mode = 1
-stretch_mode = 5
-script = ExtResource("2_script")
-theme = ExtResource("1_theme")

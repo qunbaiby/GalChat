@@ -55,7 +55,7 @@ text = "正在执行：体能特训课"
 horizontal_alignment = 1
 
 [node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(500, 120)
+custom_minimum_size = Vector2(800, 120)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.8, 0.4, 1)
 theme_override_font_sizes/font_size = 24

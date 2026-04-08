@@ -24,8 +24,8 @@ grow_vertical = 2
 color = Color(0.12549, 0.12549, 0.164706, 1)
 
 [node name="LunaMain" type="Sprite2D" parent="."]
-position = Vector2(360.5, 660.5626)
-scale = Vector2(0.9586667, 0.9586666)
+position = Vector2(640, 360)
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_5itqo")
 
 [node name="TopBar" type="Panel" parent="."]

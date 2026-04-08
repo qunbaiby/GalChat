@@ -1,7 +1,6 @@
-[gd_scene load_steps=14 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=15 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/chat/dialogue_manager.gd" id="1_88hip"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_buqdj"]
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/chat/character_layer.tscn" id="4_heyvm"]
@@ -11,7 +10,11 @@
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" uid="uid://br1kcissdv26v" path="res://scenes/ui/chat/debug_panel.tscn" id="7_debug"]
 [ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://scenes/ui/chat/toast_notification.tscn" id="8_toast"]
-[ext_resource type="PackedScene" uid="uid://gift_panel" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
+[ext_resource type="PackedScene" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
+[ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
+[ext_resource type="WhisperResource" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
 [node name="ChatScene" type="Control"]
 layout_mode = 3
@@ -20,7 +23,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 script = ExtResource("1_88hip")
 
 [node name="BackgroundLayer" type="TextureRect" parent="."]
@@ -32,26 +34,24 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
 
-[node name="BedroomMorning" type="Sprite2D" parent="."]
-position = Vector2(159.66666, 642.5)
-scale = Vector2(0.89513886, 0.89513886)
+[node name="BedroomMorning" type="TextureRect" parent="."]
+layout_mode = 1
+offset_right = 2604.7693
+offset_bottom = 1465.1827
+scale = Vector2(0.49140626, 0.49140626)
 texture = ExtResource("2_pfs5l")
+expand_mode = 1
 
 [node name="CharacterLayer" parent="." instance=ExtResource("4_heyvm")]
-layout_mode = 1
-offset_left = -168.0
-offset_top = 36.0
-offset_right = 144.75
-offset_bottom = 592.0
 
 [node name="UIOverlay" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 10.0
-offset_top = 10.0
+offset_top = 3.0
 offset_right = -10.0
-offset_bottom = 80.0
+offset_bottom = 61.0
 grow_horizontal = 2
 
 [node name="BackButton" type="Button" parent="UIOverlay"]
@@ -101,10 +101,10 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -103.0
-offset_top = 603.0
-offset_right = -11.0
-offset_bottom = 653.0
+offset_left = -200.0
+offset_top = 5.0
+offset_right = -110.0
+offset_bottom = 55.0
 grow_horizontal = 0
 text = "Debug"
 
@@ -114,10 +114,10 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = -600.0
-offset_right = -10.0
-offset_bottom = -360.0
+offset_left = 20.0
+offset_top = -258.0
+offset_right = -20.0
+offset_bottom = -99.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -159,8 +159,10 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -332.0
-offset_bottom = -124.0
+offset_left = 20.0
+offset_top = -580.0
+offset_right = -20.0
+offset_bottom = -370.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -182,7 +184,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
-offset_top = -120.0
+offset_top = -86.0
 offset_right = -10.0
 offset_bottom = -10.0
 grow_horizontal = 2
@@ -209,6 +211,12 @@ placeholder_text = "输入你想说的话..."
 wrap_mode = 1
 scroll_fit_content_height = true
 
+[node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "🎙"
+
 [node name="AffectionButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
@@ -233,27 +241,41 @@ script = ExtResource("3_buqdj")
 [node name="DoubaoTTSService" type="Node" parent="."]
 script = ExtResource("4_pfs5l")
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="LocalWhisperASR" type="SpeechToText" parent="."]
+language = 2
+language_model = ExtResource("whisper_model_base")
+script = ExtResource("local_whisper_asr")
+
+[node name="MicCapture" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamMicrophone_1")
 autoplay = true
+bus = &"Record"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
 [node name="HistoryPanel" parent="." instance=ExtResource("5_heyvm")]
 visible = false
 layout_mode = 1
+theme = null
 
 [node name="AffectionPanel" parent="." instance=ExtResource("6_affec")]
 visible = false
 layout_mode = 1
+theme = null
 
 [node name="GiftPanel" parent="." instance=ExtResource("gift_scene")]
 visible = false
 layout_mode = 1
+theme = null
 
 [node name="DebugPanel" parent="." instance=ExtResource("7_debug")]
 visible = false
 layout_mode = 1
+theme = null
 
 [node name="ToastNotification" parent="." instance=ExtResource("8_toast")]
 layout_mode = 1
+theme = null
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")

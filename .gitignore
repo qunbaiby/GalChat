@@ -1,3 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Whisper Models (too large for Git)
+addons/godot_whisper/models/*.bin
+*.bin

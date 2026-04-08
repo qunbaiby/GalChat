@@ -9,14 +9,17 @@ extends Control
 @onready var dialogue_text: RichTextLabel = $DialogueLayer/RichTextLabel
 @onready var input_field: TextEdit = $InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $InputLayer/HBoxContainer/SendButton
+@onready var voice_record_btn: Button = $InputLayer/HBoxContainer/VoiceRecordButton
 @onready var affection_btn: Button = $InputLayer/HBoxContainer/AffectionButton
 @onready var gift_btn: Button = $InputLayer/HBoxContainer/GiftButton
 
-@onready var character_layer: TextureRect = $CharacterLayer
+@onready var character_layer: Node2D = $CharacterLayer
 
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
 @onready var doubao_tts = $DoubaoTTSService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
+@onready var mic_capture: AudioStreamPlayer = $MicCapture
+@onready var local_whisper_asr = $LocalWhisperASR
 
 @onready var history_panel: Panel = $HistoryPanel
 @onready var history_close_btn: Button = $HistoryPanel/HistoryTopBar/HistoryCloseButton
@@ -37,6 +40,8 @@ func _ready() -> void:
 	debug_btn.pressed.connect(_on_debug_pressed)
 	affection_btn.pressed.connect(_on_affection_pressed)
 	gift_btn.pressed.connect(_on_gift_pressed)
+	voice_record_btn.button_down.connect(_on_voice_record_down)
+	voice_record_btn.button_up.connect(_on_voice_record_up)
 	gift_panel.gift_sent.connect(_on_gift_sent)
 	send_btn.pressed.connect(_on_send_pressed)
 	input_field.text_changed.connect(_on_input_text_changed)
@@ -67,6 +72,10 @@ func _ready() -> void:
 	
 	doubao_tts.tts_success.connect(_on_tts_success)
 	doubao_tts.tts_failed.connect(_on_tts_failed)
+	
+	if local_whisper_asr:
+		local_whisper_asr.transcribe_completed.connect(_on_asr_success)
+		local_whisper_asr.transcribe_failed.connect(_on_asr_failed)
 	
 	# 配置TTS服务
 	var config = GameDataManager.config
@@ -208,7 +217,29 @@ func _update_ui() -> void:
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 
+func _on_voice_record_down() -> void:
+	voice_record_btn.text = "松开发送"
+	voice_record_btn.modulate = Color(0.8, 0.2, 0.2)
+	if local_whisper_asr:
+		local_whisper_asr.start_recording()
 
+func _on_voice_record_up() -> void:
+	voice_record_btn.text = "按住说话"
+	voice_record_btn.modulate = Color(1, 1, 1)
+	if local_whisper_asr:
+		toast.show_toast("正在识别语音...", Color.YELLOW)
+		local_whisper_asr.stop_recording()
+
+func _on_asr_success(text: String) -> void:
+	if not text.is_empty():
+		input_field.text = text
+		toast.show_toast("语音识别成功", Color.GREEN)
+	else:
+		toast.show_toast("未听清你说什么", Color.ORANGE)
+
+func _on_asr_failed(err: String) -> void:
+	toast.show_toast("语音识别失败: " + err, Color.RED)
+	print("ASR Error: ", err)
 
 func _on_debug_pressed() -> void:
 	debug_panel.show_panel()
