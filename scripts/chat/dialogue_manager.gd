@@ -11,15 +11,12 @@ extends Control
 @onready var send_btn: Button = $InputLayer/HBoxContainer/SendButton
 @onready var affection_btn: Button = $InputLayer/HBoxContainer/AffectionButton
 @onready var gift_btn: Button = $InputLayer/HBoxContainer/GiftButton
-@onready var voice_record_btn: Button = $InputLayer/HBoxContainer/VoiceRecordButton
 
 @onready var character_layer: TextureRect = $CharacterLayer
 
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
 @onready var doubao_tts = $DoubaoTTSService
-@onready var doubao_asr = $DoubaoASRService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
-@onready var mic_capture: AudioStreamPlayer = $MicCapture
 
 @onready var history_panel: Panel = $HistoryPanel
 @onready var history_close_btn: Button = $HistoryPanel/HistoryTopBar/HistoryCloseButton
@@ -43,11 +40,6 @@ func _ready() -> void:
 	gift_panel.gift_sent.connect(_on_gift_sent)
 	send_btn.pressed.connect(_on_send_pressed)
 	input_field.text_changed.connect(_on_input_text_changed)
-	
-	voice_record_btn.button_down.connect(_on_voice_record_down)
-	voice_record_btn.button_up.connect(_on_voice_record_up)
-	doubao_asr.asr_success.connect(_on_asr_success)
-	doubao_asr.asr_failed.connect(_on_asr_failed)
 	
 	history_close_btn.pressed.connect(_on_history_close_pressed)
 	
@@ -216,41 +208,7 @@ func _update_ui() -> void:
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 
-var _record_effect: AudioEffectRecord
 
-func _on_voice_record_down() -> void:
-	voice_record_btn.text = "松开发送"
-	voice_record_btn.modulate = Color(0.8, 0.2, 0.2)
-	var bus_idx = AudioServer.get_bus_index("Record")
-	_record_effect = AudioServer.get_bus_effect(bus_idx, 0)
-	if _record_effect:
-		_record_effect.set_recording_active(true)
-
-func _on_voice_record_up() -> void:
-	voice_record_btn.text = "按住说话"
-	voice_record_btn.modulate = Color(1, 1, 1)
-	if _record_effect:
-		_record_effect.set_recording_active(false)
-		var recording = _record_effect.get_recording()
-		if recording:
-			recording.save_to_wav("user://temp_record.wav")
-			var file = FileAccess.open("user://temp_record.wav", FileAccess.READ)
-			if file:
-				var data = file.get_buffer(file.get_length())
-				file.close()
-				toast.show_toast("正在识别语音...", Color.YELLOW)
-				doubao_asr.recognize(data)
-
-func _on_asr_success(text: String) -> void:
-	if not text.is_empty():
-		input_field.text = text
-		toast.show_toast("语音识别成功", Color.GREEN)
-	else:
-		toast.show_toast("未听清你说什么", Color.ORANGE)
-
-func _on_asr_failed(err: String) -> void:
-	toast.show_toast("语音识别失败: " + err, Color.RED)
-	print("ASR Error: ", err)
 
 func _on_debug_pressed() -> void:
 	debug_panel.show_panel()

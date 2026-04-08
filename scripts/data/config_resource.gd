@@ -11,7 +11,6 @@ var ai_mode_enabled: bool = true
 var doubao_app_id: String = "2557182005"
 var doubao_token: String = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
 var doubao_cluster: String = "volcano_tts"
-var doubao_asr_cluster: String = "volcengine_streaming_asr"
 var doubao_voice_type: String = "ICL_zh_female_bingruoshaonv_tob"
 var voice_enabled: bool = true
 
@@ -34,7 +33,6 @@ func save_config() -> void:
         "doubao_app_id": doubao_app_id,
         "doubao_token": doubao_token,
         "doubao_cluster": doubao_cluster,
-        "doubao_asr_cluster": doubao_asr_cluster,
         "doubao_voice_type": doubao_voice_type,
         "voice_enabled": voice_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
@@ -65,7 +63,6 @@ func load_config() -> void:
                 doubao_app_id = data.get("doubao_app_id", doubao_app_id)
                 doubao_token = data.get("doubao_token", doubao_token)
                 doubao_cluster = data.get("doubao_cluster", doubao_cluster)
-                doubao_asr_cluster = data.get("doubao_asr_cluster", doubao_asr_cluster)
                 doubao_voice_type = data.get("doubao_voice_type", doubao_voice_type)
                 voice_enabled = data.get("voice_enabled", voice_enabled)
                 doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)

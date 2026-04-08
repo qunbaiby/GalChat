@@ -15,6 +15,10 @@ run/main_scene="res://scenes/ui/start/start_scene.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[audio]
+
+driver/enable_input=true
+
 [autoload]
 
 GameDataManager="*res://scripts/data/game_data_manager.gd"
@@ -42,6 +46,10 @@ project/assembly_name="GalChat"
 folder_colors={
 "res://scripts/": "red"
 }
+
+[gui]
+
+theme/custom="res://assets/themes/galchat_theme.tres"
 
 [rendering]
 

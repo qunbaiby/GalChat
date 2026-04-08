@@ -162,14 +162,6 @@ text = "豆包 Cluster"
 layout_mode = 2
 text = "volcano_tts"
 
-[node name="ASRClusterLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
-layout_mode = 2
-text = "豆包 ASR Cluster"
-
-[node name="ASRClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
-layout_mode = 2
-text = "volcengine_streaming_asr"
-
 [node name="VoiceTypeLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
 layout_mode = 2
 text = "音色 (Voice Type)"

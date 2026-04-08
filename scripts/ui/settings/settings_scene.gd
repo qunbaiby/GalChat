@@ -10,7 +10,6 @@ extends Control
 @onready var app_id_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/AppIdInput"
 @onready var token_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/TokenInput"
 @onready var cluster_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/ClusterInput"
-@onready var asr_cluster_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/ASRClusterInput"
 @onready var voice_type_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/VoiceTypeInput"
 
 @onready var embed_key_input: LineEdit = $"ScrollContainer/TabContainer/向量设置/EmbedKeyInput"
@@ -44,7 +43,6 @@ func _load_ui_data() -> void:
     app_id_input.text = config.doubao_app_id
     token_input.text = config.doubao_token
     cluster_input.text = config.doubao_cluster
-    asr_cluster_input.text = config.doubao_asr_cluster
     voice_type_input.text = config.doubao_voice_type
     
     embed_key_input.text = config.doubao_embedding_api_key
@@ -62,7 +60,6 @@ func _save_ui_data() -> void:
     config.doubao_app_id = app_id_input.text
     config.doubao_token = token_input.text
     config.doubao_cluster = cluster_input.text
-    config.doubao_asr_cluster = asr_cluster_input.text
     config.doubao_voice_type = voice_type_input.text
     
     config.doubao_embedding_api_key = embed_key_input.text
