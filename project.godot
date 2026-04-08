@@ -11,15 +11,15 @@ config_version=5
 [application]
 
 config/name="GalChat"
-run/main_scene="res://assets/scenes/ui/start/start_scene.tscn"
+run/main_scene="res://scenes/ui/start/start_scene.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameDataManager="*res://assets/scripts/data/game_data_manager.gd"
-PromptManager="*res://assets/scripts/data/prompt_manager.gd"
-DoubaoEmbeddingClient="*res://assets/scripts/api/doubao_embedding_client.gd"
+GameDataManager="*res://scripts/data/game_data_manager.gd"
+PromptManager="*res://scripts/data/prompt_manager.gd"
+DoubaoEmbeddingClient="*res://scripts/api/doubao_embedding_client.gd"
 
 [display]
 
@@ -40,7 +40,7 @@ project/assembly_name="GalChat"
 [file_customization]
 
 folder_colors={
-"res://assets/scripts/": "red"
+"res://scripts/": "red"
 }
 
 [rendering]

@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://item12346"]
+
+[ext_resource type="Script" uid="uid://quick_opt_123" path="res://scripts/ui/chat/quick_option_item.gd" id="1_qopt123"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+
+[node name="QuickOptionItem" type="Button"]
+custom_minimum_size = Vector2(0, 50)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 22
+text = "Option Text"
+script = ExtResource("1_qopt123")
+theme = ExtResource("1_theme")

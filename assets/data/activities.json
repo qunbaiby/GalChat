@@ -1,0 +1,162 @@
+{
+  "categories": [
+    {
+      "id": "tech",
+      "name": "数字与科技"
+    },
+    {
+      "id": "business",
+      "name": "商业与金融"
+    },
+    {
+      "id": "art",
+      "name": "艺术与演艺"
+    },
+    {
+      "id": "sports",
+      "name": "体育与健康"
+    },
+    {
+      "id": "academic",
+      "name": "学术与教育"
+    }
+  ],
+  "activities": [
+    {
+      "id": "programming",
+      "name": "编程算法基础",
+      "category_id": "tech",
+      "desc": "学习Python与数据结构，培养逻辑思维与代码能力。",
+      "energy_cost": 25,
+      "icon_path": "res://assets/icons/activities/icon_tech.tres",
+      "rewards": {
+        "academic_quality": [15, 25],
+        "knowledge_reserve": [10, 20]
+      }
+    },
+    {
+      "id": "data_analysis",
+      "name": "数据分析实战",
+      "category_id": "tech",
+      "desc": "掌握大数据挖掘与分析工具，洞察数据背后的规律。",
+      "energy_cost": 30,
+      "icon_path": "res://assets/icons/activities/icon_tech.tres",
+      "rewards": {
+        "knowledge_reserve": [20, 35]
+      }
+    },
+    {
+      "id": "business_management",
+      "name": "商业管理概论",
+      "category_id": "business",
+      "desc": "学习企业运营、市场营销与团队管理技巧。",
+      "energy_cost": 20,
+      "icon_path": "res://assets/icons/activities/icon_business.tres",
+      "rewards": {
+        "social_eq": [15, 25],
+        "knowledge_reserve": [5, 15]
+      }
+    },
+    {
+      "id": "financial_investing",
+      "name": "金融投资基础",
+      "category_id": "business",
+      "desc": "了解宏观经济、股市与理财，培养财商与金融嗅觉。",
+      "energy_cost": 25,
+      "icon_path": "res://assets/icons/activities/icon_business.tres",
+      "rewards": {
+        "knowledge_reserve": [20, 30]
+      }
+    },
+    {
+      "id": "acting_class",
+      "name": "戏剧表演课",
+      "category_id": "art",
+      "desc": "解放天性，练习表情管理与台词功底，增强舞台魅力。",
+      "energy_cost": 25,
+      "icon_path": "res://assets/icons/activities/icon_art.tres",
+      "rewards": {
+        "creative_aesthetics": [15, 25],
+        "social_eq": [10, 20]
+      }
+    },
+    {
+      "id": "music_production",
+      "name": "音乐制作入门",
+      "category_id": "art",
+      "desc": "学习乐理基础与数字音乐制作，激发创作灵感。",
+      "energy_cost": 20,
+      "icon_path": "res://assets/icons/activities/icon_art.tres",
+      "rewards": {
+        "creative_aesthetics": [20, 30]
+      }
+    },
+    {
+      "id": "fitness_training",
+      "name": "体能特训课",
+      "category_id": "sports",
+      "desc": "涵盖耐力跑、核心力量训练，提升精力恢复速度。",
+      "energy_cost": 20,
+      "icon_path": "res://assets/icons/activities/icon_sports.tres",
+      "rewards": {
+        "vitality": [15, 25]
+      }
+    },
+    {
+      "id": "swimming_class",
+      "name": "游泳竞技课",
+      "category_id": "sports",
+      "desc": "全身心的高效有氧运动，显著提升身体素质。",
+      "energy_cost": 25,
+      "icon_path": "res://assets/icons/activities/icon_sports.tres",
+      "rewards": {
+        "physical_fitness": [20, 30]
+      }
+    },
+    {
+      "id": "literature_reading",
+      "name": "中外文学精读",
+      "category_id": "academic",
+      "desc": "品读经典名著，提升人文素养与写作能力。",
+      "energy_cost": 20,
+      "icon_path": "res://assets/icons/activities/icon_academic.tres",
+      "rewards": {
+        "academic_quality": [15, 25],
+        "knowledge_reserve": [10, 15]
+      }
+    },
+    {
+      "id": "philosophy_history",
+      "name": "哲学与历史纵横",
+      "category_id": "academic",
+      "desc": "探讨深邃思想与人类文明演进，拓宽视野与思辨力。",
+      "energy_cost": 25,
+      "icon_path": "res://assets/icons/activities/icon_academic.tres",
+      "rewards": {
+        "knowledge_reserve": [20, 30]
+      }
+    }
+  ],
+  "rest_activities": [
+    {
+      "id": "rest_at_home",
+      "name": "在家休息",
+      "desc": "什么也不做，在家睡个好觉。恢复 30~50 点精力。",
+      "energy_cost": 0,
+      "icon_path": "res://assets/icons/activities/icon_rest.tres",
+      "rewards": {
+        "energy_recovery": [30, 50]
+      }
+    },
+    {
+      "id": "cafe_break",
+      "name": "咖啡馆小憩",
+      "desc": "去咖啡馆喝杯咖啡，放松心情。恢复 20~30 点精力。",
+      "energy_cost": 0,
+      "icon_path": "res://assets/icons/activities/icon_rest.tres",
+      "rewards": {
+        "energy_recovery": [20, 30]
+      }
+    }
+  ]
+}

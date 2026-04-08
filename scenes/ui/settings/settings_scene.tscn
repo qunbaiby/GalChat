@@ -1,0 +1,216 @@
+[gd_scene load_steps=2 format=3 uid="uid://cycb3x2x4y5v1"]
+
+[ext_resource type="Script" path="res://scripts/ui/settings/settings_scene.gd" id="1_sc123"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+
+[node name="SettingsScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sc123")
+theme = ExtResource("1_theme")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12549, 0.12549, 0.164706, 1)
+
+[node name="TopBar" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+grow_horizontal = 2
+color = Color(0.2, 0.2, 0.25, 1)
+
+[node name="Title" type="Label" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "设置"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -25.0
+offset_right = 100.0
+offset_bottom = 25.0
+grow_vertical = 2
+text = "返回"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = -20.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TabContainer" type="TabContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="API 设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="ApiLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+text = "DeepSeek API Key"
+
+[node name="ApiKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+secret = true
+
+[node name="ModelLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+text = "模型选择"
+
+[node name="ModelOption" type="OptionButton" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+item_count = 2
+popup/item_0/text = "deepseek-chat"
+popup/item_0/id = 0
+popup/item_1/text = "deepseek-coder"
+popup/item_1/id = 1
+
+[node name="TempLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+text = "Temperature"
+
+[node name="TempSlider" type="HSlider" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+min_value = 0.2
+max_value = 1.0
+step = 0.1
+value = 0.7
+
+[node name="TokensLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+text = "最大 Tokens"
+
+[node name="TokensSpinBox" type="SpinBox" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+min_value = 100.0
+max_value = 4096.0
+value = 2048.0
+
+[node name="AIModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+text = "启用 AI 模式"
+button_pressed = true
+
+[node name="ClearHistoryBtn" type="Button" parent="ScrollContainer/TabContainer/API 设置"]
+layout_mode = 2
+text = "清除聊天记录"
+
+[node name="语音设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="VoiceModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "启用语音合成 (TTS)"
+button_pressed = true
+
+[node name="AppIdLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "豆包 App ID"
+
+[node name="AppIdInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "2557182005"
+
+[node name="TokenLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "豆包 Access Token"
+
+[node name="TokenInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+secret = true
+text = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
+
+[node name="ClusterLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "豆包 Cluster"
+
+[node name="ClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "volcano_tts"
+
+[node name="ASRClusterLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "豆包 ASR Cluster"
+
+[node name="ASRClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "volcengine_streaming_asr"
+
+[node name="VoiceTypeLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "音色 (Voice Type)"
+
+[node name="VoiceTypeInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+layout_mode = 2
+text = "ICL_zh_female_bingruoshaonv_tob"
+
+[node name="向量设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="EmbedKeyLabel" type="Label" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+text = "豆包 Embedding API Key"
+
+[node name="EmbedKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+secret = true
+
+[node name="EmbedModelLabel" type="Label" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+text = "Embedding 模型名称"
+
+[node name="EmbedModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/向量设置"]
+layout_mode = 2
+text = "ep-xxxxxx"
+
+[node name="SaveButton" type="Button" parent="."]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -100.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "保存并返回"
