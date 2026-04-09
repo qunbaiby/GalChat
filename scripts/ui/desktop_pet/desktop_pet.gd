@@ -1,16 +1,17 @@
 extends Window
 
-@onready var bubble_container: VBoxContainer = $Control/VBoxContainer/BubbleContainer
-@onready var input_edit: LineEdit = $Control/VBoxContainer/HBoxContainer/InputEdit
-@onready var send_button: Button = $Control/VBoxContainer/HBoxContainer/SendButton
-@onready var main_window_button: Button = $Control/VBoxContainer/HBoxContainer/MainWindowButton
-@onready var close_button: Button = $Control/VBoxContainer/HBoxContainer/CloseButton
+@onready var bubble_container: VBoxContainer = $Control/BubbleContainer
+@onready var input_edit: LineEdit = $Control/HBoxContainer/InputEdit
+@onready var send_button: Button = $Control/HBoxContainer/SendButton
+@onready var main_window_button: Button = $Control/HBoxContainer/MainWindowButton
+@onready var close_button: Button = $Control/HBoxContainer/CloseButton
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
 @onready var doubao_tts = $DoubaoTTSService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
+@onready var pet_spine = get_node_or_null("Control/PetContainer/SpineSprite")
 
 # 隐藏的模板气泡
-@onready var bubble_template: PanelContainer = $Control/VBoxContainer/BubbleContainer/SpeechBubble
+@onready var bubble_template: PanelContainer = $Control/BubbleContainer/SpeechBubble
 
 var dragging: bool = false
 var drag_offset: Vector2i = Vector2i.ZERO
@@ -46,19 +47,19 @@ func _ready() -> void:
 	unresizable = true
 	
 	# 设置为小窗口大小
-	var target_size = Vector2i(300, 400)
+	var target_size = Vector2i(300, 550)
 	size = target_size
 	
 	# 初始位置：右下角
 	var current_screen = DisplayServer.window_get_current_screen()
 	var screen_size = DisplayServer.screen_get_size(current_screen)
-	var init_pos = Vector2i(screen_size.x - target_size.x - 50, screen_size.y - target_size.y - 100)
+	var init_pos = Vector2i(screen_size.x - target_size.x - 50, screen_size.y - target_size.y - 80)
 	position = init_pos
 	
 	# 确保内部 Control 占满整个小窗口
 	var control_node = $Control
 	control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-	control_node.size = Vector2(300, 400)
+	control_node.size = Vector2(300, 550)
 	control_node.position = Vector2.ZERO
 	
 	# 隐藏模板
@@ -90,7 +91,7 @@ func _ready() -> void:
 	
 	# 初始化轮询定时器
 	_poll_timer = Timer.new()
-	_poll_timer.wait_time = 3.0
+	_poll_timer.wait_time = 5.0
 	_poll_timer.autostart = true
 	_poll_timer.timeout.connect(_on_poll_timer_timeout)
 	add_child(_poll_timer)
@@ -107,6 +108,27 @@ func _ready() -> void:
 	
 	# 延迟一帧后显示窗口，以防止初次渲染的黑/灰块
 	call_deferred("show")
+	
+	if pet_spine:
+		# 尝试播放默认的 idle 动画
+		var anim_state = pet_spine.get_animation_state()
+		var skeleton = pet_spine.get_skeleton()
+		if anim_state and skeleton and skeleton.get_data():
+			var anims = skeleton.get_data().get_animations()
+			if anims.size() > 0:
+				var target_anim = anims[0].get_name()
+				for a in anims:
+					if "idle" in a.get_name().to_lower() or "daiji" in a.get_name().to_lower():
+						target_anim = a.get_name()
+						break
+				anim_state.set_animation(target_anim, true, 0)
+				
+		# 绑定触碰事件
+		var spine_control = get_node_or_null("Control/PetContainer")
+		if spine_control:
+			spine_control.mouse_filter = Control.MOUSE_FILTER_STOP
+			spine_control.gui_input.connect(_on_pet_clicked)
+
 
 func _exit_tree() -> void:
 	pass
@@ -432,3 +454,55 @@ func _on_control_gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and dragging:
 		# 更新 Window 位置
 		position = DisplayServer.mouse_get_position() - drag_offset
+
+func _on_pet_clicked(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			# 当鼠标按下时，视为触发了触碰
+			_trigger_pet_touch()
+
+func _trigger_pet_touch() -> void:
+	if not pet_spine:
+		return
+		
+	var anim_state = pet_spine.get_animation_state()
+	if not anim_state:
+		return
+		
+	var current_tick = Time.get_ticks_msec()
+	# 增加一个冷却时间，防止疯狂点击
+	if current_tick - _last_reaction_tick < 3000:
+		return
+		
+	_last_reaction_tick = current_tick
+	
+	# 播放交互动画（例如 blink，或者是其他的动作），播放完后再切回 idle
+	var skeleton = pet_spine.get_skeleton()
+	var idle_anim = "Idle"
+	var interact_anim = "Blink"
+	
+	if skeleton and skeleton.get_data():
+		var anims = skeleton.get_data().get_animations()
+		var anim_names = []
+		for a in anims:
+			anim_names.append(a.get_name())
+			
+		# 如果找不到预设名字，随便找个非 idle 的动作播放
+		if not interact_anim in anim_names and anim_names.size() > 1:
+			for name in anim_names:
+				if name.to_lower() != "idle" and name.to_lower() != "daiji":
+					interact_anim = name
+					break
+					
+		if idle_anim not in anim_names:
+			idle_anim = anim_names[0]
+	
+	# track 0 播放交互动画，不循环
+	anim_state.set_animation(interact_anim, false, 0)
+	# 交互动画结束后，把待机动画加入队列排队播放，开启循环
+	anim_state.add_animation(idle_anim, 0.0, true, 0)
+	
+	# 触发聊天
+	if not is_chatting:
+		var prompt = "【系统动作：玩家用鼠标轻轻戳了触碰了你一下。请根据你的性格和当前心情，做出可爱的回应或吐槽，一两句话即可。】"
+		_trigger_proactive_chat(prompt)

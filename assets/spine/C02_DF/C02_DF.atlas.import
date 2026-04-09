@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://ctg11xch151vk"
+path="res://.godot/imported/C02_DF.atlas-ac653f4351d37f9956d39a40c2206ac2.spatlas"
+
+[deps]
+
+source_file="res://assets/spine/C02_DF/C02_DF.atlas"
+dest_files=["res://.godot/imported/C02_DF.atlas-ac653f4351d37f9956d39a40c2206ac2.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"
