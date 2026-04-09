@@ -30,9 +30,16 @@
       "energy_cost": 25,
       "icon_path": "res://assets/icons/activities/icon_tech.tres",
       "rewards": {
-        "academic_quality": [15, 25],
-        "knowledge_reserve": [10, 20]
-      }
+        "academic_quality": [
+          15,
+          25
+        ],
+        "knowledge_reserve": [
+          10,
+          20
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_tech.png"
     },
     {
       "id": "data_analysis",
@@ -42,8 +49,12 @@
       "energy_cost": 30,
       "icon_path": "res://assets/icons/activities/icon_tech.tres",
       "rewards": {
-        "knowledge_reserve": [20, 35]
-      }
+        "knowledge_reserve": [
+          20,
+          35
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_tech.png"
     },
     {
       "id": "business_management",
@@ -53,9 +64,16 @@
       "energy_cost": 20,
       "icon_path": "res://assets/icons/activities/icon_business.tres",
       "rewards": {
-        "social_eq": [15, 25],
-        "knowledge_reserve": [5, 15]
-      }
+        "social_eq": [
+          15,
+          25
+        ],
+        "knowledge_reserve": [
+          5,
+          15
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_business.png"
     },
     {
       "id": "financial_investing",
@@ -65,8 +83,12 @@
       "energy_cost": 25,
       "icon_path": "res://assets/icons/activities/icon_business.tres",
       "rewards": {
-        "knowledge_reserve": [20, 30]
-      }
+        "knowledge_reserve": [
+          20,
+          30
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_business.png"
     },
     {
       "id": "acting_class",
@@ -76,9 +98,16 @@
       "energy_cost": 25,
       "icon_path": "res://assets/icons/activities/icon_art.tres",
       "rewards": {
-        "creative_aesthetics": [15, 25],
-        "social_eq": [10, 20]
-      }
+        "creative_aesthetics": [
+          15,
+          25
+        ],
+        "social_eq": [
+          10,
+          20
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_art.png"
     },
     {
       "id": "music_production",
@@ -88,8 +117,12 @@
       "energy_cost": 20,
       "icon_path": "res://assets/icons/activities/icon_art.tres",
       "rewards": {
-        "creative_aesthetics": [20, 30]
-      }
+        "creative_aesthetics": [
+          20,
+          30
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_art.png"
     },
     {
       "id": "fitness_training",
@@ -99,8 +132,12 @@
       "energy_cost": 20,
       "icon_path": "res://assets/icons/activities/icon_sports.tres",
       "rewards": {
-        "vitality": [15, 25]
-      }
+        "vitality": [
+          15,
+          25
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_sports.png"
     },
     {
       "id": "swimming_class",
@@ -110,8 +147,12 @@
       "energy_cost": 25,
       "icon_path": "res://assets/icons/activities/icon_sports.tres",
       "rewards": {
-        "physical_fitness": [20, 30]
-      }
+        "physical_fitness": [
+          20,
+          30
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_sports.png"
     },
     {
       "id": "literature_reading",
@@ -121,9 +162,16 @@
       "energy_cost": 20,
       "icon_path": "res://assets/icons/activities/icon_academic.tres",
       "rewards": {
-        "academic_quality": [15, 25],
-        "knowledge_reserve": [10, 15]
-      }
+        "academic_quality": [
+          15,
+          25
+        ],
+        "knowledge_reserve": [
+          10,
+          15
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_academic.png"
     },
     {
       "id": "philosophy_history",
@@ -133,8 +181,12 @@
       "energy_cost": 25,
       "icon_path": "res://assets/icons/activities/icon_academic.tres",
       "rewards": {
-        "knowledge_reserve": [20, 30]
-      }
+        "knowledge_reserve": [
+          20,
+          30
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_academic.png"
     }
   ],
   "rest_activities": [
@@ -145,8 +197,12 @@
       "energy_cost": 0,
       "icon_path": "res://assets/icons/activities/icon_rest.tres",
       "rewards": {
-        "energy_recovery": [30, 50]
-      }
+        "energy_recovery": [
+          30,
+          50
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_rest.png"
     },
     {
       "id": "cafe_break",
@@ -155,8 +211,12 @@
       "energy_cost": 0,
       "icon_path": "res://assets/icons/activities/icon_rest.tres",
       "rewards": {
-        "energy_recovery": [20, 30]
-      }
+        "energy_recovery": [
+          20,
+          30
+        ]
+      },
+      "preview_image": "res://assets/images/activities/icon_rest.png"
     }
   ]
 }

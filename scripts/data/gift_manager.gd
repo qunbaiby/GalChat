@@ -1,7 +1,7 @@
 class_name GiftManager
 extends Node
 
-var _db_path: String = "res://assets/data/gifts.json"
+var _db_path: String = "res://assets/data/interaction/gift/gifts.json"
 var gifts: Array = []
 
 # 用于防止刷数值的衰减队列：结构为 [{ "id": gift_id, "time": timestamp }, ...]

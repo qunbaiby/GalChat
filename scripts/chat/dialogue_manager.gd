@@ -1,16 +1,14 @@
-extends Control
+extends Window
 
 @onready var back_btn: Button = $UIOverlay/BackButton
-@onready var debug_btn: Button = $UIOverlay/DebugButton
 @onready var history_btn: Button = $UIOverlay/HistoryButton
-@onready var intimacy_bar: ProgressBar = $UIOverlay/IntimacyBar
 
 @onready var name_label: Label = $DialogueLayer/NameLabel
 @onready var dialogue_text: RichTextLabel = $DialogueLayer/RichTextLabel
 @onready var input_field: TextEdit = $InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $InputLayer/HBoxContainer/SendButton
 @onready var voice_record_btn: Button = $InputLayer/HBoxContainer/VoiceRecordButton
-@onready var affection_btn: Button = $InputLayer/HBoxContainer/AffectionButton
+@onready var affection_btn: Button = $AffectionButton
 @onready var gift_btn: Button = $InputLayer/HBoxContainer/GiftButton
 
 @onready var character_layer: Node2D = $CharacterLayer
@@ -35,9 +33,19 @@ const HISTORY_ITEM_SCENE = preload("res://scenes/ui/history/history_item.tscn")
 const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/chat/quick_option_item.tscn")
 
 func _ready() -> void:
+	if self is Window:
+		if GameDataManager.has_meta("last_window_pos"):
+			var last_pos = GameDataManager.get_meta("last_window_pos")
+			if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
+				self.position = last_pos
+			else:
+				self.move_to_center()
+		else:
+			self.move_to_center()
+			
+	close_requested.connect(_on_close_requested)
 	back_btn.pressed.connect(_on_back_pressed)
 	history_btn.pressed.connect(_on_history_pressed)
-	debug_btn.pressed.connect(_on_debug_pressed)
 	affection_btn.pressed.connect(_on_affection_pressed)
 	gift_btn.pressed.connect(_on_gift_pressed)
 	voice_record_btn.button_down.connect(_on_voice_record_down)
@@ -194,27 +202,25 @@ func _on_input_text_changed() -> void:
 		input_field.set_caret_column(120)
 
 func _update_ui() -> void:
-	var profile = GameDataManager.profile
-	var conf = profile.get_current_stage_config()
-	var threshold = float(conf.get("threshold", 100))
-	
-	var display_max = threshold
-	if threshold >= 9999:
-		var prev_stage = max(1, profile.current_stage - 1)
-		var prev_conf = profile.get_stage_config(prev_stage)
-		var min_val = float(prev_conf.get("threshold", 0)) if not prev_conf.is_empty() else 0.0
-		display_max = min_val + 500
-		
-	intimacy_bar.min_value = 0
-	intimacy_bar.max_value = display_max
-	intimacy_bar.value = min(profile.intimacy, display_max)
-	
-	# Update bar color to match stage
-	var stylebox = StyleBoxFlat.new()
-	stylebox.bg_color = affection_panel.get_stage_color(profile.current_stage)
-	intimacy_bar.add_theme_stylebox_override("fill", stylebox)
+	pass
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
+		if debug_panel.visible:
+			debug_panel.hide()
+		else:
+			debug_panel.show_panel()
+
+func _on_close_requested() -> void:
+	var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
+	if is_instance_valid(desktop_pet) and desktop_pet.visible:
+		self.hide()
+	else:
+		get_tree().quit()
 
 func _on_back_pressed() -> void:
+	if self is Window:
+		GameDataManager.set_meta("last_window_pos", self.position)
 	get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 
 func _on_voice_record_down() -> void:
@@ -240,9 +246,6 @@ func _on_asr_success(text: String) -> void:
 func _on_asr_failed(err: String) -> void:
 	toast.show_toast("语音识别失败: " + err, Color.RED)
 	print("ASR Error: ", err)
-
-func _on_debug_pressed() -> void:
-	debug_panel.show_panel()
 
 func _on_affection_pressed() -> void:
 	affection_panel.show_panel()

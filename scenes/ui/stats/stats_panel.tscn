@@ -1,102 +1,518 @@
-[gd_scene load_steps=3 format=3 uid="uid://stats_panel"]
+[gd_scene load_steps=6 format=3 uid="uid://esq41rrjvxf3"]
 
-[ext_resource type="Script" path="res://scripts/ui/stats/stats_panel.gd" id="1_stats"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://cgfv6p5l654kr" path="res://scripts/ui/stats/stats_panel.gd" id="1_stats"]
 
-[node name="StatsPanel" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.12, 0.1, 0.1, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.6, 0.45, 0.25, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.9, 0.85, 0.75, 1)
+border_width_bottom = 4
+border_color = Color(0.75, 0.65, 0.55, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pbar_bg"]
+bg_color = Color(0.4, 0.4, 0.4, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pbar_fg"]
+bg_color = Color(0.85, 0.35, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="StatsPanel" type="PanelContainer"]
+offset_right = 294.0
+offset_bottom = 282.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 script = ExtResource("1_stats")
-theme = ExtResource("1_theme")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -340.0
-offset_right = 320.0
-offset_bottom = 340.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="CoreStatsHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_constants/separation = 15
+alignment = 1
 
-[node name="Title" type="Label" parent="Panel/VBoxContainer"]
+[node name="CoreVBox_Physical" type="VBoxContainer" parent="MarginContainer/VBoxContainer/CoreStatsHBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "角色养成属性"
-horizontal_alignment = 1
+alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+[node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Physical"]
 layout_mode = 2
-
-[node name="EnergyLabel" type="Label" parent="Panel/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "当前精力：100/100"
-horizontal_alignment = 1
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="CoreLabel" type="Label" parent="Panel/VBoxContainer"]
-layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 28
-text = "【核心三维】
-体 (Physical): 0
-智 (Intelligence): 0
-魅 (Charm): 0"
+text = "0"
+horizontal_alignment = 1
 
-[node name="HSeparator3" type="HSeparator" parent="Panel/VBoxContainer"]
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Physical"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.5, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "体"
+horizontal_alignment = 1
+
+[node name="CoreVBox_Intelligence" type="VBoxContainer" parent="MarginContainer/VBoxContainer/CoreStatsHBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Intelligence"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.75, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Intelligence"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "智"
+horizontal_alignment = 1
+
+[node name="CoreVBox_Charm" type="VBoxContainer" parent="MarginContainer/VBoxContainer/CoreStatsHBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Charm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.35, 0.85, 1)
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Charm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.2, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "魅"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="BasicStatsLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
+[node name="BasicStatsHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 24
-theme_override_font_sizes/bold_font_size = 28
-bbcode_enabled = true
-text = "[b]【六大基础属性】[/b]
+theme_override_constants/separation = 6
 
-身体素质: 0 / 2000
-体能活力: 0 / 2000
-
-学业素养: 0 / 2000
-知识储备: 0 / 2000
-
-社交情商: 0 / 2000
-创意审美: 0 / 2000"
-
-[node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 60)
+[node name="BasicStatsVBox1" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "关闭"
+
+[node name="Stat_PhysicalFitness" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.25, 0.25, 1)
+theme_override_font_sizes/font_size = 14
+text = "身体
+素质"
+
+[node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox/MidVBox"]
+layout_mode = 2
+
+[node name="ValLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.35, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "还差 0"
+vertical_alignment = 2
+
+[node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox/MidVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_pbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pbar_fg")
+show_percentage = false
+
+[node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_PhysicalFitness/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.35, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat_Vitality" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.4, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "体能
+活力"
+
+[node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox/MidVBox"]
+layout_mode = 2
+
+[node name="ValLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.55, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "还差 0"
+vertical_alignment = 2
+
+[node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox/MidVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_pbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pbar_fg")
+show_percentage = false
+
+[node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Vitality/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.55, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat_Academic" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.6, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "学业
+素养"
+
+[node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox/MidVBox"]
+layout_mode = 2
+
+[node name="ValLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.45, 0.75, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "还差 0"
+vertical_alignment = 2
+
+[node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox/MidVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_pbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pbar_fg")
+show_percentage = false
+
+[node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox1/Stat_Academic/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.75, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BasicStatsVBox2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox"]
+layout_mode = 2
+
+[node name="Stat_Knowledge" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.5, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "知识
+储备"
+
+[node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox/MidVBox"]
+layout_mode = 2
+
+[node name="ValLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.35, 0.65, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "还差 0"
+vertical_alignment = 2
+
+[node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox/MidVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_pbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pbar_fg")
+show_percentage = false
+
+[node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Knowledge/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.65, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat_SocialEQ" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.3, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "社交
+情商"
+
+[node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox/MidVBox"]
+layout_mode = 2
+
+[node name="ValLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.45, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "还差 0"
+vertical_alignment = 2
+
+[node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox/MidVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_pbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pbar_fg")
+show_percentage = false
+
+[node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_SocialEQ/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.45, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat_Aesthetics" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.3, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+text = "创意
+审美"
+
+[node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox/MidVBox"]
+layout_mode = 2
+
+[node name="ValLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.65, 0.45, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox/MidVBox/ValHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "还差 0"
+vertical_alignment = 2
+
+[node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox/MidVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_pbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pbar_fg")
+show_percentage = false
+
+[node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsHBox/BasicStatsVBox2/Stat_Aesthetics/Margin/HBox"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.45, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1

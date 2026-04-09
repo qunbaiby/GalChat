@@ -1,0 +1,42 @@
+{
+  "web_browser": {
+    "category_name": "网页浏览器",
+    "keywords": ["chrome", "edge", "firefox", "browser", "opera", "safari", "brave", "vivaldi", "yandex", "chromium", "360", "qqbrowser", "sogou"]
+  },
+  "development": {
+    "category_name": "编程开发工具",
+    "keywords": ["code", "trae", "cursor", "idea", "studio", "devenv", "pycharm", "webstorm", "goland", "clion", "rider", "phpstorm", "sublime", "notepad", "vim", "eclipse", "netbeans", "intellij", "github", "git", "postman", "navicat", "datagrip"]
+  },
+  "game_engine": {
+    "category_name": "游戏开发引擎",
+    "keywords": ["unity", "godot", "unreal", "blender", "rpgmaker", "gamemaker", "cocos", "egret"]
+  },
+  "office": {
+    "category_name": "办公文档软件",
+    "keywords": ["word", "excel", "powerpoint", "wps", "office", "onenote", "outlook", "publisher", "access", "pdf", "acrobat", "reader", "foxit", "notion", "evernote", "obsidian", "typora", "xmind", "mindmaster"]
+  },
+  "gaming": {
+    "category_name": "游戏平台/游戏",
+    "keywords": ["steam", "game", "epic", "origin", "uplay", "battle.net", "gog", "wegame", "minecraft", "league", "genshin", "honkai", "csgo", "valorant", "dota", "pubg", "overwatch"]
+  },
+  "communication": {
+    "category_name": "通讯聊天软件",
+    "keywords": ["wechat", "qq", "discord", "telegram", "skype", "slack", "teams", "zoom", "whatsapp", "line", "signal", "viber", "dingtalk", "feishu"]
+  },
+  "video": {
+    "category_name": "视频播放软件",
+    "keywords": ["bilibili", "youtube", "video", "player", "vlc", "potplayer", "kmplayer", "iqiyi", "tencentvideo", "youku", "netflix", "hulu", "prime", "disney", "twitch"]
+  },
+  "music": {
+    "category_name": "音乐播放软件",
+    "keywords": ["music", "cloudmusic", "netease", "spotify", "kugou", "kuwo", "qqmusic", "itunes", "apple", "foobar", "winamp", "aimp"]
+  },
+  "design": {
+    "category_name": "设计与创作软件",
+    "keywords": ["photoshop", "illustrator", "premiere", "aftereffects", "lightroom", "indesign", "figma", "sketch", "xd", "coreldraw", "autocad", "maya", "zbrush", "cinema4d", "davinci", "clipstudio", "paint", "sai"]
+  },
+  "utility": {
+    "category_name": "系统工具软件",
+    "keywords": ["taskmgr", "cmd", "powershell", "terminal", "bash", "zsh", "registry", "control", "calc", "notepad", "paint", "snip", "zip", "rar", "7z", "winrar", "bandizip", "everything", "obs", "xsplit"]
+  }
+}

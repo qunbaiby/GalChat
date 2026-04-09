@@ -1,4 +1,4 @@
-extends Control
+extends Window
 
 @onready var api_key_input: LineEdit = $"ScrollContainer/TabContainer/API 设置/ApiKeyInput"
 @onready var model_option: OptionButton = $"ScrollContainer/TabContainer/API 设置/ModelOption"
@@ -20,6 +20,17 @@ extends Control
 @onready var clear_history_btn: Button = $"ScrollContainer/TabContainer/API 设置/ClearHistoryBtn"
 
 func _ready() -> void:
+    if self is Window:
+        if GameDataManager.has_meta("last_window_pos"):
+            var last_pos = GameDataManager.get_meta("last_window_pos")
+            if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
+                self.position = last_pos
+            else:
+                self.move_to_center()
+        else:
+            self.move_to_center()
+            
+    close_requested.connect(_on_close_requested)
     back_button.pressed.connect(_on_back_pressed)
     save_button.pressed.connect(_on_save_pressed)
     clear_history_btn.pressed.connect(_on_clear_history_pressed)
@@ -67,7 +78,17 @@ func _save_ui_data() -> void:
     
     config.save_config()
 
+func _on_close_requested() -> void:
+    var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
+    if is_instance_valid(desktop_pet) and desktop_pet.visible:
+        self.hide()
+    else:
+        get_tree().quit()
+
 func _on_back_pressed() -> void:
+    if self is Window:
+        GameDataManager.set_meta("last_window_pos", self.position)
+        
     if get_parent().name == "ChatScene":
         hide()
     elif GameDataManager.previous_scene_path != "":
@@ -76,6 +97,9 @@ func _on_back_pressed() -> void:
         get_tree().change_scene_to_file("res://scenes/ui/start/start_scene.tscn")
 
 func _on_save_pressed() -> void:
+    if self is Window:
+        GameDataManager.set_meta("last_window_pos", self.position)
+        
     _save_ui_data()
     if get_parent().name == "ChatScene":
         hide()

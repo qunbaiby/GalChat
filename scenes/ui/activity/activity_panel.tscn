@@ -1,7 +1,31 @@
-[gd_scene load_steps=3 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=5 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/activity/rest_item.tscn" id="2_rest"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.95, 0.9, 0.8, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.4, 0.25, 0.15, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner"]
+bg_color = Color(0.98, 0.95, 0.88, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.7, 0.5, 1)
 
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
@@ -10,7 +34,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 script = ExtResource("1_act")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -22,145 +45,299 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -340.0
-offset_right = 400.0
-offset_bottom = 340.0
+offset_left = -500.0
+offset_top = -320.0
+offset_right = 500.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="MainHBox" type="HBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="LeftPanel" type="VBoxContainer" parent="Panel/Margin/MainHBox"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="Title" type="Label" parent="Panel/VBoxContainer"]
+[node name="PreviewTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "行程安排"
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+text = "请选择课程"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+[node name="PreviewImage" type="TextureRect" parent="Panel/Margin/MainHBox/LeftPanel"]
+custom_minimum_size = Vector2(350, 200)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ScheduleTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "日程安排 (0/10)"
+
+[node name="ScheduleSlots" type="GridContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="Slot1" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot2" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot3" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot4" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot5" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot6" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot7" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot8" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot9" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot10" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="OutcomePanel" type="PanelContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_inner")
+
+[node name="Margin" type="MarginContainer" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin"]
 layout_mode = 2
 
-[node name="EnergyLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "学习成果"
+horizontal_alignment = 1
+
+[node name="OutcomeList" type="RichTextLabel" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+
+[node name="BottomHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="UndoButton" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 20
+text = "撤销"
+
+[node name="RestHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox/RestHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "休息"
+
+[node name="RightPanel" type="VBoxContainer" parent="Panel/Margin/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+
+[node name="EnergyLabel" type="Label" parent="Panel/Margin/MainHBox/RightPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 24
 text = "当前精力：100/100"
-horizontal_alignment = 1
+horizontal_alignment = 2
 
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="ScheduleTitle" type="Label" parent="Panel/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "本周日程 (0/7)"
-horizontal_alignment = 1
-
-[node name="ScheduleSlots" type="HBoxContainer" parent="Panel/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Slot1" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="Slot2" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="Slot3" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="Slot4" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="Slot5" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="Slot6" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="Slot7" type="Button" parent="Panel/VBoxContainer/ScheduleSlots"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "空"
-expand_icon = true
-
-[node name="HSeparator3" type="HSeparator" parent="Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="CategoryTabs" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="CategoryTabs" type="HBoxContainer" parent="Panel/Margin/MainHBox/RightPanel"]
 layout_mode = 2
 theme_override_constants/separation = 5
-alignment = 1
+alignment = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+[node name="TabTech" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "科技"
+
+[node name="TabBusiness" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "商业"
+
+[node name="TabArt" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "艺术"
+
+[node name="TabSports" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "体育"
+
+[node name="TabAcademic" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "学术"
+
+[node name="TabContainer" type="TabContainer" parent="Panel/Margin/MainHBox/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+tabs_visible = false
+
+[node name="TechList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/TechList"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ActivityList" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/TechList/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="ResultLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="BusinessList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
+visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.8, 0.4, 1)
-theme_override_font_sizes/font_size = 24
-text = "请选择课程..."
-horizontal_alignment = 1
-autowrap_mode = 2
+theme_override_constants/separation = 10
 
-[node name="ExecuteButton" type="Button" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 60)
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/BusinessList"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/BusinessList/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ArtList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/ArtList"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/ArtList/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SportsList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/SportsList"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/SportsList/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="AcademicList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/AcademicList"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/AcademicList/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BottomHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/RightPanel"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 20
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "返回"
+
+[node name="ExecuteButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
+custom_minimum_size = Vector2(150, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
 disabled = true
 text = "执行安排"
-
-[node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 60)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "返回"

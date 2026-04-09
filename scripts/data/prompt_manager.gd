@@ -19,7 +19,10 @@ func load_template(template_name: String) -> String:
         return ""
 
 func build_chat_prompt(profile: CharacterProfile, query_embedding: Array = []) -> String:
-    var template = load_template("default_chat")
+    return build_system_prompt(profile, "default_chat", query_embedding)
+
+func build_system_prompt(profile: CharacterProfile, template_name: String = "default_chat", query_embedding: Array = []) -> String:
+    var template = load_template(template_name)
     if template == "":
         return ""
         

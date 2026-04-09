@@ -12,7 +12,7 @@ config_version=5
 
 config/name="GalChat"
 run/main_scene="res://scenes/ui/start/start_scene.tscn"
-config/features=PackedStringArray("4.5", "GL Compatibility")
+config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [audio]
@@ -30,12 +30,14 @@ DoubaoEmbeddingClient="*res://scripts/api/doubao_embedding_client.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/mode=1
-window/size/always_on_top=true
+window/size/borderless=true
+window/size/transparent=true
 window/size/window_width_override=1280
 window/size/window_height_override=720
+window/subwindows/embed_subwindows=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/per_pixel_transparency/allowed=true
 
 [dotnet]
 
@@ -50,10 +52,6 @@ enabled=PackedStringArray("res://addons/godot_whisper/plugin.cfg")
 folder_colors={
 "res://scripts/": "red"
 }
-
-[gui]
-
-theme/custom="res://assets/themes/galchat_theme.tres"
 
 [rendering]
 

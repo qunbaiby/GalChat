@@ -1,7 +1,7 @@
 class_name ActivityManager
 extends Node
 
-var _db_path: String = "res://assets/data/activities.json"
+var _db_path: String = "res://assets/data/interaction/activity/activities.json"
 
 var categories: Array = []
 var activities: Array = []

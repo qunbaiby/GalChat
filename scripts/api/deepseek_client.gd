@@ -123,6 +123,29 @@ func send_chat_message_stream(user_message: String) -> void:
 		else:
 			api_messages.append({"role": "user", "content": user_message})
 	
+	_start_stream_request(api_messages)
+	
+	# Trigger emotion and memory agents in parallel
+	_send_emotion_analysis(user_message)
+	if GameDataManager.memory_manager.add_turn():
+		_send_memory_extraction()
+
+func send_desktop_pet_chat_stream(user_message: String, system_prompt: String, chat_history: Array = []) -> void:
+	if not is_inside_tree() or GameDataManager.config.api_key.is_empty():
+		chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+		return
+		
+	if _chat_stream_active:
+		_stop_chat_stream()
+		
+	var api_messages = [{"role": "system", "content": system_prompt}]
+	for msg in chat_history:
+		api_messages.append(msg)
+	api_messages.append({"role": "user", "content": user_message})
+	
+	_start_stream_request(api_messages)
+
+func _start_stream_request(api_messages: Array) -> void:
 	var body = {
 		"model": GameDataManager.config.model,
 		"messages": api_messages,
@@ -142,7 +165,7 @@ func send_chat_message_stream(user_message: String) -> void:
 		"Content-Type: application/json",
 		"Authorization: Bearer " + api_key,
 		"Accept: text/event-stream",
-        "Connection: keep-alive"
+		"Connection: keep-alive"
 	]
 	
 	_chat_stream_client = HTTPClient.new()
@@ -156,11 +179,7 @@ func send_chat_message_stream(user_message: String) -> void:
 	_chat_stream_active = true
 	set_process(true)
 	chat_stream_started.emit()
-		
-	# Trigger emotion and memory agents in parallel
-	_send_emotion_analysis(user_message)
-	if GameDataManager.memory_manager.add_turn():
-		_send_memory_extraction()
+
 
 func _send_emotion_analysis(user_message: String) -> void:
 	if not is_inside_tree() or GameDataManager.config.api_key.is_empty():

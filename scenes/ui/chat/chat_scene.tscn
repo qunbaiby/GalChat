@@ -11,18 +11,13 @@
 [ext_resource type="PackedScene" uid="uid://br1kcissdv26v" path="res://scenes/ui/chat/debug_panel.tscn" id="7_debug"]
 [ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://scenes/ui/chat/toast_notification.tscn" id="8_toast"]
 [ext_resource type="PackedScene" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
-[ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
-[ext_resource type="WhisperResource" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
+[ext_resource type="Script" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
+[ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
-[node name="ChatScene" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="ChatScene" type="Window"]
+size = Vector2i(1280, 720)
 script = ExtResource("1_88hip")
 
 [node name="BackgroundLayer" type="TextureRect" parent="."]
@@ -43,6 +38,7 @@ texture = ExtResource("2_pfs5l")
 expand_mode = 1
 
 [node name="CharacterLayer" parent="." instance=ExtResource("4_heyvm")]
+visible = false
 
 [node name="UIOverlay" type="Panel" parent="."]
 layout_mode = 1
@@ -66,21 +62,6 @@ offset_bottom = 25.0
 grow_vertical = 2
 text = "返回"
 
-[node name="IntimacyBar" type="ProgressBar" parent="UIOverlay"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -10.0
-offset_right = 100.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-value = 50.0
-
 [node name="HistoryButton" type="Button" parent="UIOverlay"]
 layout_mode = 1
 anchors_preset = 6
@@ -96,18 +77,6 @@ grow_horizontal = 0
 grow_vertical = 2
 text = "记录"
 
-[node name="DebugButton" type="Button" parent="UIOverlay"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -200.0
-offset_top = 5.0
-offset_right = -110.0
-offset_bottom = 55.0
-grow_horizontal = 0
-text = "Debug"
-
 [node name="DialogueLayer" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 12
@@ -115,9 +84,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0
-offset_top = -258.0
+offset_top = -242.0
 offset_right = -20.0
-offset_bottom = -99.0
+offset_bottom = -83.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -144,11 +113,11 @@ offset_right = -20.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/normal_font_size = 30
-theme_override_font_sizes/bold_font_size = 30
-theme_override_font_sizes/bold_italics_font_size = 30
-theme_override_font_sizes/italics_font_size = 30
-theme_override_font_sizes/mono_font_size = 30
+theme_override_font_sizes/normal_font_size = 25
+theme_override_font_sizes/bold_font_size = 25
+theme_override_font_sizes/bold_italics_font_size = 25
+theme_override_font_sizes/italics_font_size = 25
+theme_override_font_sizes/mono_font_size = 25
 bbcode_enabled = true
 text = "..."
 
@@ -159,10 +128,10 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = -580.0
+offset_left = 617.0
+offset_top = -474.0
 offset_right = -20.0
-offset_bottom = -370.0
+offset_bottom = -259.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -177,6 +146,16 @@ offset_bottom = 0.023986816
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="AffectionButton" type="Button" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 0
+offset_left = 28.0
+offset_top = 171.0
+offset_right = 108.0
+offset_bottom = 227.0
+theme_override_font_sizes/font_size = 25
+text = "❤️"
+
 [node name="InputLayer" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 12
@@ -184,7 +163,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
-offset_top = -86.0
+offset_top = -77.0
 offset_right = -10.0
 offset_bottom = -10.0
 grow_horizontal = 2
@@ -203,6 +182,12 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
+[node name="GiftButton" type="Button" parent="InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "🎁"
+
 [node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -216,18 +201,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "🎙"
-
-[node name="AffectionButton" type="Button" parent="InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 25
-text = "❤️"
-
-[node name="GiftButton" type="Button" parent="InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 25
-text = "🎁"
 
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)

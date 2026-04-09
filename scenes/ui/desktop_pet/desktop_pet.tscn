@@ -1,0 +1,100 @@
+[gd_scene load_steps=5 format=3 uid="uid://dbwmyour8af3m"]
+
+[ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dhdx110iute65" path="res://assets/images/characters/desktop_pet/Q_desktop.png" id="2_k2xx7"]
+[ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
+[ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
+
+[node name="DesktopPet" type="Window"]
+transparent_bg = true
+oversampling_override = 1.0
+title = "桌宠"
+size = Vector2i(300, 400)
+visible = false
+unresizable = true
+borderless = true
+always_on_top = true
+transparent = true
+script = ExtResource("1_script")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 300.0
+offset_bottom = 400.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="BubbleContainer" type="VBoxContainer" parent="Control/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+alignment = 2
+
+[node name="SpeechBubble" type="PanelContainer" parent="Control/VBoxContainer/BubbleContainer"]
+visible = false
+custom_minimum_size = Vector2(10, 30)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/VBoxContainer/BubbleContainer/SpeechBubble"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control/VBoxContainer/BubbleContainer/SpeechBubble/MarginContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+autowrap_mode = 2
+
+[node name="PetImage" type="TextureRect" parent="Control/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+texture = ExtResource("2_k2xx7")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/VBoxContainer"]
+layout_mode = 2
+
+[node name="InputEdit" type="LineEdit" parent="Control/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "说点什么..."
+
+[node name="SendButton" type="Button" parent="Control/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "发送"
+
+[node name="MainWindowButton" type="Button" parent="Control/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "主界面"
+
+[node name="CloseButton" type="Button" parent="Control/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "关闭"
+
+[node name="DeepSeekClient" type="Node" parent="."]
+script = ExtResource("3_api")
+
+[node name="DoubaoTTSService" type="Node" parent="."]
+script = ExtResource("4_pfs5l")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
