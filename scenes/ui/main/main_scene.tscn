@@ -4,11 +4,12 @@
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 
 [node name="MainScene" type="Window"]
+oversampling_override = 1.0
+position = Vector2i(0, 36)
 size = Vector2i(1280, 720)
 script = ExtResource("1_main")
 
 [node name="Background" type="ColorRect" parent="."]
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -17,14 +18,11 @@ grow_vertical = 2
 color = Color(0.12549, 0.12549, 0.164706, 1)
 
 [node name="TopBar" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 10
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = 1147.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 262.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
 
 [node name="SettingsButton" type="Button" parent="TopBar"]
 layout_mode = 1
@@ -42,7 +40,6 @@ grow_vertical = 2
 text = "设置"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -70,4 +67,3 @@ layout_mode = 2
 text = "桌宠模式"
 
 [node name="StatsPanel" parent="." instance=ExtResource("2_stats")]
-layout_mode = 0

@@ -48,7 +48,7 @@ func _ready() -> void:
     unresizable = true
     
     # 设置为小窗口大小
-    var target_size = Vector2i(300, 550)
+    var target_size = Vector2i(300, 680)
     size = target_size
     
     # 初始位置：右下角
@@ -60,7 +60,7 @@ func _ready() -> void:
     # 确保内部 Control 占满整个小窗口
     var control_node = $Control
     control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-    control_node.size = Vector2(300, 550)
+    control_node.size = Vector2(300, 680)
     control_node.position = Vector2.ZERO
     
     # 隐藏模板
@@ -573,6 +573,10 @@ func _trigger_pet_touch() -> void:
         _trigger_proactive_chat(prompt)
 
 func _update_mouse_passthrough() -> void:
+    # 确保窗口已经有效存在
+    if not is_inside_tree() or get_window_id() == DisplayServer.INVALID_WINDOW_ID:
+        return
+        
     var rects: Array[Rect2] = []
     
     var pet_container = get_node_or_null("Control/PetContainer")

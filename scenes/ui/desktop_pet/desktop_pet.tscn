@@ -1,15 +1,15 @@
 [gd_scene load_steps=5 format=3 uid="uid://dbwmyour8af3m"]
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://c02dfdata123" path="res://assets/spine/C02_DF/C02_DF_data.tres" id="2_k2xx7"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
 [ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
-[ext_resource type="SpineSkeletonDataResource" uid="uid://c02dfdata123" path="res://assets/spine/C02_DF/C02_DF_data.tres" id="5_spine"]
 
 [node name="DesktopPet" type="Window"]
 transparent_bg = true
 oversampling_override = 1.0
 title = "桌宠"
-size = Vector2i(300, 550)
+size = Vector2i(300, 680)
 visible = false
 unresizable = true
 borderless = true
@@ -20,8 +20,8 @@ script = ExtResource("1_script")
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
 anchor_right = 1.0
-anchor_bottom = 0.90500003
-offset_bottom = 7.0
+anchor_bottom = 1.0400001
+offset_bottom = -0.050048828
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -59,27 +59,27 @@ autowrap_mode = 2
 [node name="PetContainer" type="Control" parent="Control"]
 custom_minimum_size = Vector2(0, 250)
 anchors_preset = 0
-offset_left = 10.0
-offset_top = 216.0
-offset_right = 290.0
-offset_bottom = 466.0
+offset_left = 34.0
+offset_top = 219.0
+offset_right = 259.0
+offset_bottom = 629.0
 size_flags_stretch_ratio = 1.5
 
 [node name="SpineSprite" type="SpineSprite" parent="Control/PetContainer"]
-skeleton_data_res = ExtResource("5_spine")
+skeleton_data_res = ExtResource("2_k2xx7")
 preview_skin = "default"
 preview_animation = "Idle"
 preview_frame = false
 preview_time = 0.0
-position = Vector2(140, 250)
-scale = Vector2(0.05, 0.05)
+position = Vector2(100, 400)
+scale = Vector2(0.08, 0.08)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control"]
 layout_mode = 0
 offset_left = 10.0
-offset_top = 476.0
+offset_top = 639.0
 offset_right = 290.0
-offset_bottom = 507.0
+offset_bottom = 670.0
 
 [node name="InputEdit" type="LineEdit" parent="Control/HBoxContainer"]
 layout_mode = 2
