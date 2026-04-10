@@ -1,15 +1,19 @@
-[gd_scene load_steps=5 format=3 uid="uid://dbwmyour8af3m"]
+[gd_scene load_steps=8 format=3 uid="uid://dbwmyour8af3m"]
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
 [ext_resource type="SpineSkeletonDataResource" uid="uid://c02dfdata123" path="res://assets/spine/C02_DF/C02_DF_data.tres" id="2_k2xx7"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
 [ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
+[ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
+[ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
 [node name="DesktopPet" type="Window"]
 transparent_bg = true
 oversampling_override = 1.0
 title = "桌宠"
-size = Vector2i(300, 680)
+size = Vector2i(500, 680)
 visible = false
 unresizable = true
 borderless = true
@@ -19,18 +23,18 @@ script = ExtResource("1_script")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 1.0400001
-offset_bottom = -0.050048828
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="BubbleContainer" type="VBoxContainer" parent="Control"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 0
-offset_left = 10.0
+offset_left = 31.0
 offset_top = 6.0
-offset_right = 290.0
+offset_right = 437.0
 offset_bottom = 206.0
 size_flags_stretch_ratio = 1.5
 alignment = 2
@@ -59,9 +63,9 @@ autowrap_mode = 2
 [node name="PetContainer" type="Control" parent="Control"]
 custom_minimum_size = Vector2(0, 250)
 anchors_preset = 0
-offset_left = 34.0
+offset_left = 122.0
 offset_top = 219.0
-offset_right = 259.0
+offset_right = 347.0
 offset_bottom = 629.0
 size_flags_stretch_ratio = 1.5
 
@@ -74,27 +78,68 @@ preview_time = 0.0
 position = Vector2(100, 400)
 scale = Vector2(0.08, 0.08)
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Control"]
+[node name="UIContainer" type="VBoxContainer" parent="Control"]
 layout_mode = 0
-offset_left = 10.0
-offset_top = 639.0
-offset_right = 290.0
-offset_bottom = 670.0
+offset_left = 411.0
+offset_top = 495.0
+offset_right = 492.0
+offset_bottom = 596.0
 
-[node name="InputEdit" type="LineEdit" parent="Control/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "说点什么..."
-
-[node name="SendButton" type="Button" parent="Control/HBoxContainer"]
-layout_mode = 2
-text = "发送"
-
-[node name="MainWindowButton" type="Button" parent="Control/HBoxContainer"]
+[node name="MainWindowButton" type="Button" parent="Control/UIContainer"]
 layout_mode = 2
 text = "主界面"
 
-[node name="CloseButton" type="Button" parent="Control/HBoxContainer"]
+[node name="CloseButton" type="Button" parent="Control/UIContainer"]
+layout_mode = 2
+text = "关闭"
+
+[node name="DialogueButton" type="Button" parent="Control/UIContainer"]
+layout_mode = 2
+text = "聊天"
+
+[node name="InputLayer" type="Panel" parent="Control"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -41.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/InputLayer"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="InputField" type="TextEdit" parent="Control/InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+placeholder_text = "输入你想说的话..."
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="VoiceRecordButton" type="Button" parent="Control/InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "🎙"
+
+[node name="SendButton" type="Button" parent="Control/InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "发送"
+
+[node name="Close" type="Button" parent="Control/InputLayer/HBoxContainer"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 text = "关闭"
 
@@ -103,5 +148,15 @@ script = ExtResource("3_api")
 
 [node name="DoubaoTTSService" type="Node" parent="."]
 script = ExtResource("4_pfs5l")
+
+[node name="LocalWhisperASR" type="SpeechToText" parent="."]
+language = 2
+language_model = ExtResource("whisper_model_base")
+script = ExtResource("local_whisper_asr")
+
+[node name="MicCapture" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamMicrophone_1")
+autoplay = true
+bus = &"Record"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

@@ -239,7 +239,7 @@ func _send_memory_extraction() -> void:
 	
 	memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if not _chat_stream_active or _chat_stream_client == null:
 		return
 		
@@ -539,22 +539,22 @@ func analyze_mood_sync(character_message: String) -> String:
 	
 	return ""
 
-func _on_chat_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, chat_request_completed, chat_request_failed)
 
-func _on_emotion_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_emotion_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, emotion_request_completed, emotion_request_failed)
 
-func _on_memory_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_memory_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, memory_request_completed, memory_request_failed)
 
-func _on_options_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_options_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, options_request_completed, options_request_failed)
 
-func _on_narrator_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_narrator_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, narrator_request_completed, narrator_request_failed)
 
-func _on_character_mood_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_character_mood_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, character_mood_request_completed, character_mood_request_failed)
 
 func _handle_response(result: int, response_code: int, body: PackedByteArray, success_signal: Signal, fail_signal: Signal) -> void:
