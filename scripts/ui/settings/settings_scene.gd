@@ -1,41 +1,69 @@
-extends Window
+extends Control
 
-@onready var api_key_input: LineEdit = $"ScrollContainer/TabContainer/API 设置/ApiKeyInput"
-@onready var model_option: OptionButton = $"ScrollContainer/TabContainer/API 设置/ModelOption"
-@onready var temp_slider: HSlider = $"ScrollContainer/TabContainer/API 设置/TempSlider"
-@onready var tokens_spinbox: SpinBox = $"ScrollContainer/TabContainer/API 设置/TokensSpinBox"
-@onready var ai_mode_check: CheckButton = $"ScrollContainer/TabContainer/API 设置/AIModeCheck"
+@onready var api_key_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/ApiKeyInput"
+@onready var model_option: OptionButton = $"ScrollContainer/TabContainer/AI 设置/ModelOption"
+@onready var temp_slider: HSlider = $"ScrollContainer/TabContainer/AI 设置/TempSlider"
+@onready var tokens_spinbox: SpinBox = $"ScrollContainer/TabContainer/AI 设置/TokensSpinBox"
+@onready var ai_mode_check: CheckButton = $"ScrollContainer/TabContainer/AI 设置/AIModeCheck"
 
-@onready var voice_mode_check: CheckButton = $"ScrollContainer/TabContainer/语音设置/VoiceModeCheck"
-@onready var app_id_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/AppIdInput"
-@onready var token_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/TokenInput"
-@onready var cluster_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/ClusterInput"
-@onready var voice_type_input: LineEdit = $"ScrollContainer/TabContainer/语音设置/VoiceTypeInput"
+@onready var voice_mode_check: CheckButton = $"ScrollContainer/TabContainer/AI 设置/VoiceModeCheck"
+@onready var app_id_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/AppIdInput"
+@onready var token_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/TokenInput"
+@onready var cluster_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/ClusterInput"
+@onready var voice_type_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/VoiceTypeInput"
 
-@onready var embed_key_input: LineEdit = $"ScrollContainer/TabContainer/向量设置/EmbedKeyInput"
-@onready var embed_model_input: LineEdit = $"ScrollContainer/TabContainer/向量设置/EmbedModelInput"
+@onready var embed_key_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/EmbedKeyInput"
+@onready var embed_model_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/EmbedModelInput"
+
+@onready var resolution_option: OptionButton = $"ScrollContainer/TabContainer/画面设置/ResolutionOption"
+@onready var fps_option: OptionButton = $"ScrollContainer/TabContainer/画面设置/FPSOption"
+@onready var vsync_check: CheckButton = $"ScrollContainer/TabContainer/画面设置/VsyncCheck"
+
+@onready var bgm_slider: HSlider = $"ScrollContainer/TabContainer/声音设置/BGMSlider"
+@onready var voice_slider: HSlider = $"ScrollContainer/TabContainer/声音设置/VoiceSlider"
 
 @onready var back_button: Button = $TopBar/BackButton
 @onready var save_button: Button = $SaveButton
-@onready var clear_history_btn: Button = $"ScrollContainer/TabContainer/API 设置/ClearHistoryBtn"
+@onready var clear_history_btn: Button = $"ScrollContainer/TabContainer/AI 设置/ClearHistoryBtn"
 
 func _ready() -> void:
-    if self is Window:
-        if GameDataManager.has_meta("last_window_pos"):
-            var last_pos = GameDataManager.get_meta("last_window_pos")
-            if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
-                self.position = last_pos
-            else:
-                self.move_to_center()
-        else:
-            self.move_to_center()
-            
-    close_requested.connect(_on_close_requested)
     back_button.pressed.connect(_on_back_pressed)
     save_button.pressed.connect(_on_save_pressed)
     clear_history_btn.pressed.connect(_on_clear_history_pressed)
     
+    # 动态连接设置变化
+    resolution_option.item_selected.connect(_on_resolution_changed)
+    fps_option.item_selected.connect(_on_fps_changed)
+    vsync_check.toggled.connect(_on_vsync_changed)
+    bgm_slider.value_changed.connect(_on_bgm_changed)
+    voice_slider.value_changed.connect(_on_voice_changed)
+    
     _load_ui_data()
+
+func show_panel() -> void:
+    _load_ui_data()
+    show()
+    # Add a simple popup animation
+    modulate.a = 0.0
+    var tween = create_tween()
+    tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+    tween.tween_property(self, "modulate:a", 1.0, 0.3)
+    
+    # Scale animation on the inner container if we want, but let's just animate the whole panel scale from 0.9 to 1.0
+    scale = Vector2(0.9, 0.9)
+    pivot_offset = get_viewport_rect().size / 2.0
+    var scale_tween = create_tween()
+    scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+    scale_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.3)
+
+func hide_panel() -> void:
+    var tween = create_tween()
+    tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+    tween.tween_property(self, "modulate:a", 0.0, 0.2)
+    var scale_tween = create_tween()
+    scale_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+    scale_tween.tween_property(self, "scale", Vector2(0.9, 0.9), 0.2)
+    scale_tween.finished.connect(hide)
 
 func _load_ui_data() -> void:
     var config = GameDataManager.config
@@ -59,6 +87,13 @@ func _load_ui_data() -> void:
     embed_key_input.text = config.doubao_embedding_api_key
     embed_model_input.text = config.doubao_embedding_model
 
+    # 加载音画设置
+    resolution_option.selected = config.resolution_idx
+    fps_option.selected = config.fps_idx
+    vsync_check.button_pressed = config.vsync_enabled
+    bgm_slider.value = config.bgm_volume
+    voice_slider.value = config.voice_volume
+
 func _save_ui_data() -> void:
     var config = GameDataManager.config
     config.api_key = api_key_input.text
@@ -76,37 +111,46 @@ func _save_ui_data() -> void:
     config.doubao_embedding_api_key = embed_key_input.text
     config.doubao_embedding_model = embed_model_input.text
     
+    config.resolution_idx = resolution_option.selected
+    config.fps_idx = fps_option.selected
+    config.vsync_enabled = vsync_check.button_pressed
+    config.bgm_volume = bgm_slider.value
+    config.voice_volume = voice_slider.value
+    
     config.save_config()
+    config.apply_settings()
 
-func _on_close_requested() -> void:
-    var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
-    if is_instance_valid(desktop_pet) and desktop_pet.visible:
-        self.hide()
-    else:
-        get_tree().quit()
+func _on_resolution_changed(idx: int) -> void:
+    GameDataManager.config.resolution_idx = idx
+    GameDataManager.config.apply_settings()
+    GameDataManager.config.save_config()
+
+func _on_fps_changed(idx: int) -> void:
+    GameDataManager.config.fps_idx = idx
+    GameDataManager.config.apply_settings()
+    GameDataManager.config.save_config()
+
+func _on_vsync_changed(toggled: bool) -> void:
+    GameDataManager.config.vsync_enabled = toggled
+    GameDataManager.config.apply_settings()
+    GameDataManager.config.save_config()
+
+func _on_bgm_changed(value: float) -> void:
+    GameDataManager.config.bgm_volume = value
+    GameDataManager.config.apply_settings()
+    GameDataManager.config.save_config()
+
+func _on_voice_changed(value: float) -> void:
+    GameDataManager.config.voice_volume = value
+    GameDataManager.config.apply_settings()
+    GameDataManager.config.save_config()
 
 func _on_back_pressed() -> void:
-    if self is Window:
-        GameDataManager.set_meta("last_window_pos", self.position)
-        
-    if get_parent().name == "ChatScene":
-        hide()
-    elif GameDataManager.previous_scene_path != "":
-        get_tree().change_scene_to_file(GameDataManager.previous_scene_path)
-    else:
-        get_tree().change_scene_to_file("res://scenes/ui/start/start_scene.tscn")
+    hide_panel()
 
 func _on_save_pressed() -> void:
-    if self is Window:
-        GameDataManager.set_meta("last_window_pos", self.position)
-        
     _save_ui_data()
-    if get_parent().name == "ChatScene":
-        hide()
-    elif GameDataManager.previous_scene_path != "":
-        get_tree().change_scene_to_file(GameDataManager.previous_scene_path)
-    else:
-        get_tree().change_scene_to_file("res://scenes/ui/start/start_scene.tscn")
+    hide_panel()
 
 func _on_clear_history_pressed() -> void:
     # 待实现清除历史记录的逻辑

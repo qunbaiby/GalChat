@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ddst2yjqr0wlt"
-path="res://.godot/imported/LunaMain.jpg-b55fa70c1b2539baeba54288e8a79bd1.ctex"
+uid="uid://cige4y1dm7bpc"
+path="res://.godot/imported/ui_DressRoom_clothe_button_lock.png-2f7bc3beba888395b787f0cabfaf809f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/backgrounds/LunaMain.jpg"
-dest_files=["res://.godot/imported/LunaMain.jpg-b55fa70c1b2539baeba54288e8a79bd1.ctex"]
+source_file="res://assets/images/ui/dialogue/ui_DressRoom_clothe_button_lock.png"
+dest_files=["res://.godot/imported/ui_DressRoom_clothe_button_lock.png-2f7bc3beba888395b787f0cabfaf809f.ctex"]
 
 [params]
 

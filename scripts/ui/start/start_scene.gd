@@ -3,7 +3,12 @@ extends Window
 @onready var start_button: Button = $VBoxContainer/StartButton
 @onready var settings_button: Button = $VBoxContainer/SettingsButton
 
+var settings_panel_instance = null
+
 func _ready() -> void:
+    if GameDataManager.config:
+        GameDataManager.config.apply_settings()
+        
     if self is Window:
         if GameDataManager.has_meta("last_window_pos"):
             var last_pos = GameDataManager.get_meta("last_window_pos")
@@ -34,11 +39,12 @@ func _on_start_pressed() -> void:
 
 func _on_settings_pressed() -> void:
     _animate_button(settings_button)
-    if self is Window:
-        GameDataManager.set_meta("last_window_pos", self.position)
-    await get_tree().create_timer(0.2).timeout
-    GameDataManager.previous_scene_path = "res://scenes/ui/start/start_scene.tscn"
-    get_tree().change_scene_to_file("res://scenes/ui/settings/settings_scene.tscn")
+    if settings_panel_instance == null:
+        var SettingsPanelObj = load("res://scenes/ui/settings/settings_scene.tscn")
+        settings_panel_instance = SettingsPanelObj.instantiate()
+        add_child(settings_panel_instance)
+        settings_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    settings_panel_instance.show_panel()
 
 func _animate_button(btn: Button) -> void:
     var tween = create_tween()

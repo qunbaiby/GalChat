@@ -1,4 +1,6 @@
-extends Window
+extends Control
+
+signal chat_closed
 
 @onready var back_btn: Button = $UIOverlay/BackButton
 @onready var history_btn: Button = $UIOverlay/HistoryButton
@@ -28,22 +30,15 @@ extends Window
 @onready var debug_panel: Control = $DebugPanel
 @onready var toast: ToastNotification = $ToastNotification
 @onready var quick_options_container: VBoxContainer = $QuickOptionLayer/QuickOptions
+@onready var bgm: AudioStreamPlayer = $BGM
 
 const HISTORY_ITEM_SCENE = preload("res://scenes/ui/history/history_item.tscn")
 const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/chat/quick_option_item.tscn")
 
 func _ready() -> void:
-	if self is Window:
-		if GameDataManager.has_meta("last_window_pos"):
-			var last_pos = GameDataManager.get_meta("last_window_pos")
-			if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
-				self.position = last_pos
-			else:
-				self.move_to_center()
-		else:
-			self.move_to_center()
-			
-	close_requested.connect(_on_close_requested)
+	if GameDataManager.config:
+		GameDataManager.config.apply_settings()
+		
 	back_btn.pressed.connect(_on_back_pressed)
 	history_btn.pressed.connect(_on_history_pressed)
 	affection_btn.pressed.connect(_on_affection_pressed)
@@ -211,17 +206,37 @@ func _input(event: InputEvent) -> void:
 		else:
 			debug_panel.show_panel()
 
-func _on_close_requested() -> void:
-	var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
-	if is_instance_valid(desktop_pet) and desktop_pet.visible:
-		self.hide()
-	else:
-		get_tree().quit()
+func show_panel() -> void:
+	show()
+	modulate.a = 0.0
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(self, "modulate:a", 1.0, 0.3)
+	scale = Vector2(0.95, 0.95)
+	pivot_offset = get_viewport_rect().size / 2.0
+	var scale_tween = create_tween()
+	scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	scale_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.3)
+	
+	if bgm and not bgm.playing:
+		bgm.play()
+
+func hide_panel() -> void:
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(self, "modulate:a", 0.0, 0.2)
+	var scale_tween = create_tween()
+	scale_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	scale_tween.tween_property(self, "scale", Vector2(0.9, 0.9), 0.2)
+	tween.finished.connect(func():
+		hide()
+		if bgm:
+			bgm.stop()
+		chat_closed.emit()
+	)
 
 func _on_back_pressed() -> void:
-	if self is Window:
-		GameDataManager.set_meta("last_window_pos", self.position)
-	get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+	hide_panel()
 
 func _on_voice_record_down() -> void:
 	voice_record_btn.text = "松开发送"
@@ -248,7 +263,10 @@ func _on_asr_failed(err: String) -> void:
 	print("ASR Error: ", err)
 
 func _on_affection_pressed() -> void:
-	affection_panel.show_panel()
+	if affection_panel.visible:
+		affection_panel.hide()
+	else:
+		affection_panel.show_panel()
 
 func _on_gift_pressed() -> void:
 	gift_panel.show_panel()

@@ -1,5 +1,24 @@
 extends Node
 
+const DYNAMIC_STYLES: Array[String] = [
+    "深思熟虑的长回复：请写一段连贯、细腻且有深度的长文（要求：纯台词部分必须超过 150 字），深入探讨当前的话题或倾诉内心，【请一次性发送完整内容，完全不要拆分】。",
+    "连珠炮式的多条短促消息：请像连珠炮一样用急促、激动的语气回应，要求：必须使用 [SPLIT] 分隔符分成 3 到 4 段来模拟连续发送，并且每段至少包含 30 字的真实台词对话！",
+    "普通节奏的交流：保持自然的沟通节奏，适当穿插生活细节或个人感受，要求：必须使用 [SPLIT] 分隔符分成 2 段来模拟发送，每段必须包含 50 字以上的真实台词对话。",
+    "情感爆发的倾诉：情绪产生明显波动（不论是开心、难过还是生气），请详细描写内心的波澜，要求：必须使用 [SPLIT] 分隔符分成 2 到 3 段，每段必须包含 60 字以上的真实台词和感受。",
+    "欲言又止的迟疑：带着犹豫、纠结的心情，想说又不知道怎么开口，要求：必须使用 [SPLIT] 分隔符分成 3 段发送，前两段可以多些心理活动描写和简短的试探台词（不少于 20 字），最后一段必须有 80 字以上的真实坦白或追问。",
+    "漫不经心的傲娇：表面上装作不在意，实际上内心戏很足。要求：必须使用 [SPLIT] 分隔符分成 2 段发送。第一段用轻描淡写的台词掩饰（不少于 40 字），第二段暴露真实的关心或真实的情绪（不少于 60 字）。",
+    "连篇累牍的科普或说教：兴致勃勃地聊起自己感兴趣或者擅长的领域，像讲故事一样。要求：必须使用 [SPLIT] 分隔符分成 3 段发送，每段都必须包含 70 字以上的长篇台词，内容充实且连贯。",
+    "温柔细腻的关心：以极度体贴、柔软的语气安抚或关心对方。要求：【请一次性发送完整内容，完全不要拆分】，纯台词部分必须超过 120 字，伴随细致入微的关怀动作描写。"
+]
+
+const PET_DYNAMIC_STYLES: Array[String] = [
+    "普通节奏的交流：保持轻快的沟通节奏，适当穿插生活细节或个人感受，要求：使用 [SPLIT] 分隔符分成 2 段来模拟发送，【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。",
+    "欲言又止的迟疑：带着犹豫、纠结的心情，想说又不知道怎么开口，要求：使用 [SPLIT] 分隔符分成 2 段发送，第一段试探，第二段坦白。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。",
+    "漫不经心的傲娇：表面上装作不在意，实际上内心戏很足。要求：使用 [SPLIT] 分隔符分成 2 段发送。第一段掩饰，第二段暴露真实的关心。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。",
+    "温柔细腻的关心：以极度体贴、柔软的语气安抚或关心对方。要求：【请一次性发送完整内容，完全不要拆分】，伴随细致入微的关怀动作描写。",
+    "开朗活泼的回应：心情非常好，语气欢快。要求：【请一次性发送完整内容，完全不要拆分】，并配上可爱的动作描写。"
+]
+
 # 缓存已加载的模板
 var templates: Dictionary = {}
 
@@ -43,6 +62,12 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     var scene_set = stage_conf.get("scene_setting", "").replace("{char_name}", safe_char_name)
     var imp_notes = stage_conf.get("important_notes", "").replace("{char_name}", safe_char_name)
     
+    var random_style = ""
+    if template_name == "desktop_pet":
+        random_style = PET_DYNAMIC_STYLES[randi() % PET_DYNAMIC_STYLES.size()]
+    else:
+        random_style = DYNAMIC_STYLES[randi() % DYNAMIC_STYLES.size()]
+    
     # 动态注入
     var base_prompt = template.format({
         "name": safe_char_name,
@@ -57,7 +82,8 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
         "important_notes": imp_notes,
         "time": time_str,
         "mood_desc": mood_desc,
-        "memory_desc": memory_desc
+        "memory_desc": memory_desc,
+        "dynamic_style": random_style
     })
     
     # 注入人设锁（如果存在）

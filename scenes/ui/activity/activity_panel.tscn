@@ -1,31 +1,30 @@
-[gd_scene load_steps=5 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=4 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
-[ext_resource type="PackedScene" path="res://scenes/ui/activity/rest_item.tscn" id="2_rest"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.95, 0.9, 0.8, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
 border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
 border_color = Color(0.4, 0.25, 0.15, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner"]
 bg_color = Color(0.98, 0.95, 0.88, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.8, 0.7, 0.5, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
@@ -194,8 +193,8 @@ text = "撤销"
 [node name="RestHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 2
 theme_override_constants/separation = 10
+alignment = 2
 
 [node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox/RestHBox"]
 layout_mode = 2
@@ -253,11 +252,13 @@ text = "学术"
 [node name="TabContainer" type="TabContainer" parent="Panel/Margin/MainHBox/RightPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+current_tab = 0
 tabs_visible = false
 
 [node name="TechList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10
+metadata/_tab_index = 0
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/TechList"]
 layout_mode = 2
@@ -272,6 +273,7 @@ theme_override_constants/separation = 10
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
+metadata/_tab_index = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/BusinessList"]
 layout_mode = 2
@@ -286,6 +288,7 @@ theme_override_constants/separation = 10
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
+metadata/_tab_index = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/ArtList"]
 layout_mode = 2
@@ -300,6 +303,7 @@ theme_override_constants/separation = 10
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
+metadata/_tab_index = 3
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/SportsList"]
 layout_mode = 2
@@ -314,6 +318,7 @@ theme_override_constants/separation = 10
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
+metadata/_tab_index = 4
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/AcademicList"]
 layout_mode = 2
@@ -326,8 +331,8 @@ theme_override_constants/separation = 10
 
 [node name="BottomHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/RightPanel"]
 layout_mode = 2
-alignment = 2
 theme_override_constants/separation = 20
+alignment = 2
 
 [node name="CloseButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
 custom_minimum_size = Vector2(120, 50)

@@ -1,0 +1,58 @@
+[gd_scene load_steps=4 format=3 uid="uid://d0vnlpr3gjrac"]
+
+[ext_resource type="SpineSkeletonDataResource" path="res://assets/spine/C06_DF/C06_DF_data.tres" id="1_f5jw8"]
+[ext_resource type="Script" uid="uid://b5ponp1xixff7" path="res://scripts/ui/desktop_pet/pet_body.gd" id="2_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
+size = Vector2(83, 179)
+
+[node name="PetBody" type="CharacterBody2D"]
+input_pickable = true
+script = ExtResource("2_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(31.5, 79.5)
+shape = SubResource("RectangleShape2D_yofv2")
+
+[node name="SpineSprite" type="SpineSprite" parent="."]
+skeleton_data_res = ExtResource("1_f5jw8")
+preview_skin = "default"
+preview_animation = "Idle"
+preview_frame = false
+preview_time = 0.0
+position = Vector2(25, 73)
+scale = Vector2(0.15, 0.15)
+
+[node name="BubbleContainer" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 250)
+offset_left = -91.0
+offset_top = -264.0
+offset_right = 159.0
+offset_bottom = -14.0
+size_flags_stretch_ratio = 1.5
+mouse_filter = 2
+alignment = 2
+
+[node name="SpeechBubble" type="PanelContainer" parent="BubbleContainer"]
+visible = false
+custom_minimum_size = Vector2(10, 30)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="BubbleContainer/SpeechBubble"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="RichTextLabel" type="RichTextLabel" parent="BubbleContainer/SpeechBubble/MarginContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+mouse_filter = 2
+bbcode_enabled = true
+fit_content = true
+autowrap_mode = 2

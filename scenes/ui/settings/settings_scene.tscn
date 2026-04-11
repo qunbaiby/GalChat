@@ -3,8 +3,13 @@
 [ext_resource type="Script" path="res://scripts/ui/settings/settings_scene.gd" id="1_sc123"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
-[node name="SettingsScene" type="Window"]
-size = Vector2i(1280, 720)
+[node name="SettingsScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_sc123")
 theme = ExtResource("1_theme")
 
@@ -66,24 +71,30 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="API 设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+[node name="AI 设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="ApiLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="APISectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
+text = "--- API 设置 ---"
+horizontal_alignment = 1
+
+[node name="ApiLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "DeepSeek API Key"
 
-[node name="ApiKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="ApiKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 secret = true
 
-[node name="ModelLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="ModelLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "模型选择"
 
-[node name="ModelOption" type="OptionButton" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="ModelOption" type="OptionButton" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 item_count = 2
 popup/item_0/text = "deepseek-chat"
@@ -91,101 +102,176 @@ popup/item_0/id = 0
 popup/item_1/text = "deepseek-coder"
 popup/item_1/id = 1
 
-[node name="TempLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="TempLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "Temperature"
 
-[node name="TempSlider" type="HSlider" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="TempSlider" type="HSlider" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 min_value = 0.2
 max_value = 1.0
 step = 0.1
 value = 0.7
 
-[node name="TokensLabel" type="Label" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="TokensLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "最大 Tokens"
 
-[node name="TokensSpinBox" type="SpinBox" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="TokensSpinBox" type="SpinBox" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 min_value = 100.0
 max_value = 4096.0
 value = 2048.0
 
-[node name="AIModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="AIModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "启用 AI 模式"
 button_pressed = true
 
-[node name="ClearHistoryBtn" type="Button" parent="ScrollContainer/TabContainer/API 设置"]
+[node name="ClearHistoryBtn" type="Button" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "清除聊天记录"
 
-[node name="语音设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
-visible = false
+[node name="HSeparator1" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="VoiceModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="VoiceSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
+text = "--- 语音设置 ---"
+horizontal_alignment = 1
+
+[node name="VoiceModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "启用语音合成 (TTS)"
 button_pressed = true
 
-[node name="AppIdLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="AppIdLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "豆包 App ID"
 
-[node name="AppIdInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="AppIdInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "2557182005"
 
-[node name="TokenLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="TokenLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "豆包 Access Token"
 
-[node name="TokenInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="TokenInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 secret = true
 text = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
 
-[node name="ClusterLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="ClusterLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "豆包 Cluster"
 
-[node name="ClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="ClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "volcano_tts"
 
-[node name="VoiceTypeLabel" type="Label" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="VoiceTypeLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "音色 (Voice Type)"
 
-[node name="VoiceTypeInput" type="LineEdit" parent="ScrollContainer/TabContainer/语音设置"]
+[node name="VoiceTypeInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 text = "ICL_zh_female_bingruoshaonv_tob"
 
-[node name="向量设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+[node name="HSeparator2" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VectorSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
+text = "--- 向量设置 ---"
+horizontal_alignment = 1
+
+[node name="EmbedKeyLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+text = "豆包 Embedding API Key"
+
+[node name="EmbedKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+secret = true
+
+[node name="EmbedModelLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+text = "Embedding 模型名称"
+
+[node name="EmbedModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+text = "ep-xxxxxx"
+
+[node name="画面设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="EmbedKeyLabel" type="Label" parent="ScrollContainer/TabContainer/向量设置"]
+[node name="ResolutionLabel" type="Label" parent="ScrollContainer/TabContainer/画面设置"]
 layout_mode = 2
-text = "豆包 Embedding API Key"
+text = "分辨率"
 
-[node name="EmbedKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/向量设置"]
+[node name="ResolutionOption" type="OptionButton" parent="ScrollContainer/TabContainer/画面设置"]
 layout_mode = 2
-secret = true
+item_count = 4
+popup/item_0/text = "1280x720"
+popup/item_0/id = 0
+popup/item_1/text = "1600x900"
+popup/item_1/id = 1
+popup/item_2/text = "1920x1080"
+popup/item_2/id = 2
+popup/item_3/text = "全屏幕"
+popup/item_3/id = 3
 
-[node name="EmbedModelLabel" type="Label" parent="ScrollContainer/TabContainer/向量设置"]
+[node name="FPSLabel" type="Label" parent="ScrollContainer/TabContainer/画面设置"]
 layout_mode = 2
-text = "Embedding 模型名称"
+text = "画面帧数"
 
-[node name="EmbedModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/向量设置"]
+[node name="FPSOption" type="OptionButton" parent="ScrollContainer/TabContainer/画面设置"]
 layout_mode = 2
-text = "ep-xxxxxx"
+item_count = 3
+popup/item_0/text = "30 FPS"
+popup/item_0/id = 0
+popup/item_1/text = "60 FPS"
+popup/item_1/id = 1
+popup/item_2/text = "120 FPS"
+popup/item_2/id = 2
+
+[node name="VsyncCheck" type="CheckButton" parent="ScrollContainer/TabContainer/画面设置"]
+layout_mode = 2
+text = "垂直同步"
+button_pressed = true
+
+[node name="声音设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="BGMLabel" type="Label" parent="ScrollContainer/TabContainer/声音设置"]
+layout_mode = 2
+text = "背景音乐 (BGM)"
+
+[node name="BGMSlider" type="HSlider" parent="ScrollContainer/TabContainer/声音设置"]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="VoiceLabel" type="Label" parent="ScrollContainer/TabContainer/声音设置"]
+layout_mode = 2
+text = "角色语音"
+
+[node name="VoiceSlider" type="HSlider" parent="ScrollContainer/TabContainer/声音设置"]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
 
 [node name="SaveButton" type="Button" parent="."]
 custom_minimum_size = Vector2(0, 80)

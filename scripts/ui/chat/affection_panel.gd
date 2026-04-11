@@ -1,26 +1,22 @@
-extends Control
+extends PanelContainer
 
-@onready var emoji_label: Label = $CenterContainer/Panel/VBoxContainer/HeaderBox/EmojiLabel
-@onready var stage_label: Label = $CenterContainer/Panel/VBoxContainer/HeaderBox/StageLabel
-@onready var title_label: Label = $CenterContainer/Panel/VBoxContainer/TitleLabel
-@onready var desc_label: Label = $CenterContainer/Panel/VBoxContainer/DescLabel
+@onready var emoji_label: Label = $MarginContainer/VBoxContainer/HeaderBox/EmojiLabel
+@onready var stage_label: Label = $MarginContainer/VBoxContainer/HeaderBox/StageLabel
+@onready var title_label: Label = $MarginContainer/VBoxContainer/TitleLabel
+@onready var desc_label: Label = $MarginContainer/VBoxContainer/DescLabel
 
-@onready var intimacy_val: Label = $CenterContainer/Panel/VBoxContainer/StatsBox/IntimacyBox/LabelBox/Value
-@onready var intimacy_bar: ProgressBar = $CenterContainer/Panel/VBoxContainer/StatsBox/IntimacyBox/ProgressBar
+@onready var intimacy_val: Label = $MarginContainer/VBoxContainer/StatsBox/IntimacyBox/LabelBox/Value
+@onready var intimacy_bar: ProgressBar = $MarginContainer/VBoxContainer/StatsBox/IntimacyBox/ProgressBar
 
-@onready var trust_val: Label = $CenterContainer/Panel/VBoxContainer/StatsBox/TrustBox/LabelBox/Value
-@onready var trust_bar: ProgressBar = $CenterContainer/Panel/VBoxContainer/StatsBox/TrustBox/ProgressBar
+@onready var trust_val: Label = $MarginContainer/VBoxContainer/StatsBox/TrustBox/LabelBox/Value
+@onready var trust_bar: ProgressBar = $MarginContainer/VBoxContainer/StatsBox/TrustBox/ProgressBar
 
-@onready var exp_val: Label = $CenterContainer/Panel/VBoxContainer/StatsBox/ExpBox/LabelBox/Value
-@onready var exp_bar: ProgressBar = $CenterContainer/Panel/VBoxContainer/StatsBox/ExpBox/ProgressBar
-
-@onready var close_btn: Button = $CenterContainer/Panel/VBoxContainer/CloseButton
+@onready var exp_val: Label = $MarginContainer/VBoxContainer/StatsBox/ExpBox/LabelBox/Value
+@onready var exp_bar: ProgressBar = $MarginContainer/VBoxContainer/StatsBox/ExpBox/ProgressBar
 
 var update_timer: Timer
 
 func _ready() -> void:
-    close_btn.pressed.connect(_on_close_pressed)
-    
     update_timer = Timer.new()
     update_timer.wait_time = 0.1
     update_timer.autostart = true
@@ -29,8 +25,6 @@ func _ready() -> void:
     
     update_ui()
 
-func _on_close_pressed() -> void:
-    hide()
 
 func get_stage_color(stage: int) -> Color:
     match stage:
@@ -50,8 +44,6 @@ func set_bar_color(bar: ProgressBar, color: Color) -> void:
     stylebox.bg_color = color
     bar.add_theme_stylebox_override("fill", stylebox)
 
-@onready var blur_bg: TextureRect = $BlurBackground
-
 func update_ui() -> void:
     if not visible: return
     
@@ -60,13 +52,6 @@ func update_ui() -> void:
     var conf = profile.get_current_stage_config()
     
     if conf.is_empty(): return
-    
-    var sprite_path = GameDataManager.mood_system.get_mood_sprite_path(profile.current_mood)
-    if sprite_path != "":
-        # 如果是本地项目中的 .png，通过 load() 获取
-        var tex = load(sprite_path)
-        if tex:
-            blur_bg.texture = tex
     
     emoji_label.text = conf.get("emojiIcon", "")
     stage_label.text = "Stage " + str(current_stage)

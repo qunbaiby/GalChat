@@ -1,6 +1,5 @@
 extends Window
 
-@onready var bubble_container: VBoxContainer = $Control/BubbleContainer
 @onready var input_edit: TextEdit = $Control/InputLayer/HBoxContainer/InputField
 @onready var send_button: Button = $Control/InputLayer/HBoxContainer/SendButton
 @onready var main_window_button: Button = $Control/UIContainer/MainWindowButton
@@ -15,17 +14,12 @@ extends Window
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
 @onready var doubao_tts = $DoubaoTTSService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
-@onready var pet_container: Control = $Control/PetContainer
-@onready var pet_spine = get_node_or_null("Control/PetContainer/SpineSprite")
 
 @onready var local_whisper_asr = get_node_or_null("LocalWhisperASR")
-
-# 隐藏的模板气泡
-@onready var bubble_template: PanelContainer = $Control/BubbleContainer/SpeechBubble
+@onready var pet_body = get_node_or_null("Control/PetBody")
 
 var dragging: bool = false
 var drag_offset: Vector2i = Vector2i.ZERO
-var _pet_click_start_pos: Vector2 = Vector2.ZERO
 
 var pet_prompt: String = ""
 var is_chatting: bool = false
@@ -49,669 +43,677 @@ var _last_chatted_app: String = ""
 var is_dialogue_panel_open: bool = false
 
 func _ready() -> void:
-	# 初始化上次交互时间为 0，避免启动后立刻触发被拦截
-	# _last_reaction_tick = 0
-	
-	# 设置窗口属性：无边框透明
-	transparent_bg = true
-	transparent = true
-	borderless = true
-	always_on_top = true
-	unresizable = true
-	
-	# 设置为小窗口大小
-	var target_size = Vector2i(500, 680)
-	size = target_size
-	
-	# 初始位置：右下角
-	var active_screen = DisplayServer.window_get_current_screen()
-	var screen_size = DisplayServer.screen_get_size(active_screen)
-	# 考虑到 Windows 任务栏通常在底部（高度约 40-50），把 y 轴偏移量设为 60
-	var init_pos = Vector2i(screen_size.x - target_size.x - 20, screen_size.y - target_size.y - 60)
-	position = init_pos
-	
-	# 确保内部 Control 占满整个小窗口
-	var control_node = $Control
-	control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-	control_node.size = Vector2(500, 680)
-	control_node.position = Vector2.ZERO
-	
-	# 隐藏模板
-	bubble_template.hide()
-	
-	ui_container.hide()
-	input_layer.hide()
-	
-	# 注入豆包 TTS 的 AppID 和 Token 配置
-	if GameDataManager.config.doubao_app_id != "" and GameDataManager.config.doubao_token != "":
-		doubao_tts.setup_auth(GameDataManager.config.doubao_app_id, GameDataManager.config.doubao_token, GameDataManager.config.doubao_cluster)
-	
-	# 连接信号
-	send_button.pressed.connect(_on_send_pressed)
-	main_window_button.pressed.connect(_on_main_window_pressed)
-	close_button.pressed.connect(_on_close_pressed)
-	
-	dialogue_button.pressed.connect(_on_dialogue_button_pressed)
-	close_input_button.pressed.connect(_on_close_input_pressed)
-	voice_record_button.button_down.connect(_on_voice_record_down)
-	voice_record_button.button_up.connect(_on_voice_record_up)
-	
-	if local_whisper_asr:
-		local_whisper_asr.transcribe_completed.connect(_on_asr_success)
-		local_whisper_asr.transcribe_failed.connect(_on_asr_failed)
-		
-	# 注意：TextEdit 没有 text_submitted，因此我们需要在 _input 里面监听回车或者单独处理。这里先移除之前的 line_edit 特有信号。
-	# 监听 text_changed 拦截换行
-	input_edit.text_changed.connect(_on_input_text_changed)
-	
-	deepseek_client.chat_stream_started.connect(_on_chat_started)
-	deepseek_client.chat_stream_delta.connect(_on_chat_delta)
-	deepseek_client.chat_request_completed.connect(_on_chat_completed)
-	deepseek_client.chat_request_failed.connect(_on_chat_failed)
-	
-	doubao_tts.tts_success.connect(_on_tts_success)
-	doubao_tts.tts_failed.connect(_on_tts_failed)
-	
-	_load_prompt()
-	
-	# 连接 Control 面板的输入信号以处理拖拽
-	control_node.mouse_filter = Control.MOUSE_FILTER_STOP
-	control_node.gui_input.connect(_on_control_gui_input)
-	
-	# 初始化轮询定时器
-	_poll_timer = Timer.new()
-	_poll_timer.wait_time = 5.0
-	_poll_timer.autostart = true
-	_poll_timer.timeout.connect(_on_poll_timer_timeout)
-	add_child(_poll_timer)
-	
-	# 根据任务要求监听 speech_bubble (即 bubble_template) 的 visibility_changed 信号
-	bubble_template.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	
-	# 监听容器排版更新以处理气泡动态添加和删除时的尺寸变化
-	bubble_container.sort_children.connect(func(): call_deferred("_update_mouse_passthrough"))
-	
-	ui_container.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	input_layer.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	
-	# 初始化时延迟调用以更新鼠标穿透区域
-	call_deferred("_update_mouse_passthrough")
-	
-	# 实例化 WindowDetector (通过字符串路径加载，避免非 C# 版本下报错)
-	var window_detector_path = "res://scripts/csharp/WindowDetector.cs"
-	if FileAccess.file_exists(window_detector_path):
-		var WindowDetectorObj = load(window_detector_path)
-		if WindowDetectorObj:
-			_window_detector = WindowDetectorObj.new()
-			add_child(_window_detector)
-	else:
-		pass
-	
-	# 延迟一帧后显示窗口，以防止初次渲染的黑/灰块
-	call_deferred("show")
-	
-	if pet_spine:
-		# 尝试播放默认的 idle 动画
-		var anim_state = pet_spine.get_animation_state()
-		var skeleton = pet_spine.get_skeleton()
-		if anim_state and skeleton and skeleton.get_data():
-			var anims = skeleton.get_data().get_animations()
-			if anims.size() > 0:
-				var target_anim = anims[0].get_name()
-				for a in anims:
-					if "idle" in a.get_name().to_lower() or "daiji" in a.get_name().to_lower():
-						target_anim = a.get_name()
-						break
-				anim_state.set_animation(target_anim, true, 0)
-				
-		# 绑定触碰事件
-		var spine_control = get_node_or_null("Control/PetContainer")
-		if spine_control:
-			spine_control.mouse_filter = Control.MOUSE_FILTER_STOP
-			spine_control.gui_input.connect(_on_pet_clicked)
-
+    # 初始化上次交互时间为 0，避免启动后立刻触发被拦截
+    # _last_reaction_tick = 0
+    
+    # 设置窗口属性：无边框透明
+    transparent_bg = true
+    transparent = true
+    borderless = true
+    always_on_top = true
+    unresizable = true
+    
+    # 设置为小窗口大小
+    var target_size = Vector2i(500, 500)
+    size = target_size
+    
+    # 初始位置：右下角
+    var active_screen = DisplayServer.window_get_current_screen()
+    var screen_size = DisplayServer.screen_get_size(active_screen)
+    # 考虑到 Windows 任务栏通常在底部（高度约 40-50），把 y 轴偏移量设为 60
+    var init_pos = Vector2i(screen_size.x - target_size.x - 20, screen_size.y - target_size.y - 60)
+    position = init_pos
+    
+    # 确保内部 Control 占满整个小窗口
+    var control_node = $Control
+    control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
+    control_node.size = Vector2(500, 500)
+    control_node.position = Vector2.ZERO
+    
+    ui_container.hide()
+    input_layer.hide()
+    
+    # 注入豆包 TTS 的 AppID 和 Token 配置
+    if GameDataManager.config.doubao_app_id != "" and GameDataManager.config.doubao_token != "":
+        doubao_tts.setup_auth(GameDataManager.config.doubao_app_id, GameDataManager.config.doubao_token, GameDataManager.config.doubao_cluster)
+    
+    # 连接信号
+    send_button.pressed.connect(_on_send_pressed)
+    main_window_button.pressed.connect(_on_main_window_pressed)
+    close_button.pressed.connect(_on_close_pressed)
+    
+    dialogue_button.pressed.connect(_on_dialogue_button_pressed)
+    close_input_button.pressed.connect(_on_close_input_pressed)
+    voice_record_button.button_down.connect(_on_voice_record_down)
+    voice_record_button.button_up.connect(_on_voice_record_up)
+    
+    if local_whisper_asr:
+        local_whisper_asr.transcribe_completed.connect(_on_asr_success)
+        local_whisper_asr.transcribe_failed.connect(_on_asr_failed)
+        
+    # 注意：TextEdit 没有 text_submitted，因此我们需要在 _input 里面监听回车或者单独处理。这里先移除之前的 line_edit 特有信号。
+    # 监听 text_changed 拦截换行
+    input_edit.text_changed.connect(_on_input_text_changed)
+    
+    deepseek_client.chat_stream_started.connect(_on_chat_started)
+    deepseek_client.chat_stream_delta.connect(_on_chat_delta)
+    deepseek_client.chat_request_completed.connect(_on_chat_completed)
+    deepseek_client.chat_request_failed.connect(_on_chat_failed)
+    
+    doubao_tts.tts_success.connect(_on_tts_success)
+    doubao_tts.tts_failed.connect(_on_tts_failed)
+    
+    _load_prompt()
+    
+    # 连接 Control 面板的输入信号以处理拖拽
+    control_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var bg_layer = get_node_or_null("Control/Background_layer")
+    if bg_layer:
+        bg_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    
+    # 初始化轮询定时器
+    _poll_timer = Timer.new()
+    _poll_timer.wait_time = 1.0 # 改为1秒以便更平滑地显示倒计时
+    _poll_timer.autostart = true
+    _poll_timer.timeout.connect(_on_poll_timer_timeout)
+    add_child(_poll_timer)
+    
+    if pet_body:
+        pet_body.bubbles_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+        pet_body.pet_clicked.connect(_trigger_pet_touch)
+    
+    ui_container.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    input_layer.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    
+    # 初始化时延迟调用以更新鼠标穿透区域
+    call_deferred("_update_mouse_passthrough")
+    
+    # 实例化 WindowDetector (通过字符串路径加载，避免非 C# 版本下报错)
+    var window_detector_path = "res://scripts/csharp/WindowDetector.cs"
+    if FileAccess.file_exists(window_detector_path):
+        var WindowDetectorObj = load(window_detector_path)
+        if WindowDetectorObj:
+            _window_detector = WindowDetectorObj.new()
+            add_child(_window_detector)
+    else:
+        pass
+    
+    # 延迟一帧后显示窗口，以防止初次渲染的黑/灰块
+    call_deferred("show")
 
 func _input(_event: InputEvent) -> void:
-	pass
+    pass
 
 func _on_dialogue_button_pressed() -> void:
-	input_layer.show()
-	is_dialogue_panel_open = true
-	ui_container.hide()
+    input_layer.show()
+    is_dialogue_panel_open = true
+    ui_container.hide()
 
 func _on_close_input_pressed() -> void:
-	input_layer.hide()
-	is_dialogue_panel_open = false
+    input_layer.hide()
+    is_dialogue_panel_open = false
 
 func _on_voice_record_down() -> void:
-	voice_record_button.text = "松开发送"
-	voice_record_button.modulate = Color(0.8, 0.2, 0.2)
-	if local_whisper_asr:
-		local_whisper_asr.start_recording()
+    voice_record_button.text = "松开发送"
+    voice_record_button.modulate = Color(0.8, 0.2, 0.2)
+    if local_whisper_asr:
+        local_whisper_asr.start_recording()
 
 func _on_voice_record_up() -> void:
-	voice_record_button.text = "🎙"
-	voice_record_button.modulate = Color(1, 1, 1)
-	if local_whisper_asr:
-		# Toast feedback could be added here if you have a toast system for the pet.
-		local_whisper_asr.stop_recording()
+    voice_record_button.text = "🎙"
+    voice_record_button.modulate = Color(1, 1, 1)
+    if local_whisper_asr:
+        # Toast feedback could be added here if you have a toast system for the pet.
+        local_whisper_asr.stop_recording()
 
 func _on_asr_success(text: String) -> void:
-	if not text.is_empty():
-		input_edit.text = text
+    if not text.is_empty():
+        input_edit.text = text
 
 func _on_asr_failed(err: String) -> void:
-	print("ASR Error: ", err)
+    print("ASR Error: ", err)
 
 func _on_input_text_changed() -> void:
-	# TextEdit supports multiple lines, but we can intercept Enter to send
-	var text = input_edit.text
-	if text.ends_with("\n"):
-		input_edit.text = text.strip_edges()
-		_on_send_pressed()
-	elif text.length() > 120:
-		input_edit.text = text.substr(0, 120)
-		input_edit.set_caret_column(120)
+    # TextEdit supports multiple lines, but we can intercept Enter to send
+    var text = input_edit.text
+    if text.ends_with("\n"):
+        input_edit.text = text.strip_edges()
+        _on_send_pressed()
+    elif text.length() > 120:
+        input_edit.text = text.substr(0, 120)
+        input_edit.set_caret_column(120)
 
 func _exit_tree() -> void:
-	pass
+    pass
 
 
 func _load_prompt() -> void:
-	pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet")
-	if pet_prompt.is_empty():
-		pet_prompt = "你扮演一名AI伴侣，名字叫{{char_name}}。现在你是玩家的桌宠。请用简短、可爱、日常的语气回答玩家的问题。你的回答应该像在桌面上轻声细语，每次回答不应超过三句话。"
-		var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
-		pet_prompt = pet_prompt.replace("{{char_name}}", char_name)
+    # 强制在每次生成时都使用最新的系统提示词
+    pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet")
+    if pet_prompt.is_empty():
+        pet_prompt = "你是{{char_name}}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
+        var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
+        pet_prompt = pet_prompt.replace("{{char_name}}", char_name)
 
 func _on_poll_timer_timeout() -> void:
-	_check_hourly_chime()
-	_check_active_window()
+    _check_hourly_chime()
+    _check_active_window()
 
 func _check_active_window() -> void:
-	if is_dialogue_panel_open: return
-	if not is_instance_valid(_window_detector):
-		# print("[DesktopPet Debug] _window_detector is invalid!")
-		return
-		
-	if is_chatting:
-		return
-		
-	var window_title = _window_detector.call("GetCurrentWindowTitle")
-	var process_name = _window_detector.call("GetCurrentProcessName")
-	
-	if window_title == null: window_title = ""
-	if process_name == null: process_name = ""
-	
-	if window_title == "" and process_name == "":
-		return
-		
-	var app_identifier = process_name + "|" + window_title
-	# print("[DesktopPet Debug] App Identifier: ", app_identifier, ", Time: ", _time_since_last_switch)
-	
-	if _current_app_name != app_identifier:
-		_current_app_name = app_identifier
-		_time_since_last_switch = 0.0
-	else:
-		_time_since_last_switch += _poll_timer.wait_time
-		
-	var current_tick = Time.get_ticks_msec()
-	
-	# 修改逻辑：当停留超过特定时间（如10秒）时，允许触发
-	# 为了防止不切窗口就再也不触发，我们通过检查冷却时间(比如3分钟=180000ms)来允许重复触发
-	if _time_since_last_switch >= 10.0:
-		var cooldown_time = 180000 # 同一个应用连续停留，每3分钟可以再次吐槽一次
-		if _last_chatted_app != app_identifier:
-			cooldown_time = 30000 # 刚切到新应用，只需要和上一次任何对话间隔30秒即可
-			
-		if current_tick - _last_reaction_tick < cooldown_time:
-			# 还在冷却中
-			return
-			
-		_last_chatted_app = app_identifier
-		_last_reaction_tick = current_tick
-		
-		# 既然重新触发了，把停留时间减掉一部分，或者保持不动，只要受冷却时间控制即可
-		
-		var app_type = _map_app_type(window_title, process_name)
-		var prompt = "【系统动作：玩家已经盯着名为“%s”的窗口（识别为%s）很久了。请根据你当前的心情和性格，以及你们的关系阶段，对此发表一句简短可爱的关心或吐槽。】" % [window_title, app_type]
-		print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
-		_trigger_proactive_chat(prompt)
+    if is_dialogue_panel_open: return
+    if not is_instance_valid(_window_detector):
+        # print("[DesktopPet Debug] _window_detector is invalid!")
+        return
+        
+    if is_chatting:
+        return
+        
+    var window_title = _window_detector.call("GetCurrentWindowTitle")
+    var process_name = _window_detector.call("GetCurrentProcessName")
+    
+    if window_title == null: window_title = ""
+    if process_name == null: process_name = ""
+    
+    if window_title == "" and process_name == "":
+        return
+        
+    var app_identifier = process_name + "|" + window_title
+    # print("[DesktopPet Debug] App Identifier: ", app_identifier, ", Time: ", _time_since_last_switch)
+    
+    if _current_app_name != app_identifier:
+        _current_app_name = app_identifier
+        _time_since_last_switch = 0.0
+    else:
+        _time_since_last_switch += _poll_timer.wait_time
+        
+    # 打印前置的 10 秒停留倒计时
+    if _time_since_last_switch < 10.0:
+        var remain = 10.0 - _time_since_last_switch
+        print("[DesktopPet Debug] 观察新应用中 (%s)... 触发还需: %.1f 秒" % [process_name, remain])
+        
+    var current_tick = Time.get_ticks_msec()
+    
+    # 修改逻辑：当停留超过特定时间（如10秒）时，允许触发
+    # 为了防止不切窗口就再也不触发，我们通过检查冷却时间(比如2分钟=120000ms)来允许重复触发
+    if _time_since_last_switch >= 10.0:
+        var cooldown_time = 120000 # 同一个应用连续停留，每3分钟可以再次吐槽一次
+        if _last_chatted_app != app_identifier:
+            cooldown_time = 30000 # 刚切到新应用，只需要和上一次任何对话间隔30秒即可
+            
+        if current_tick - _last_reaction_tick < cooldown_time:
+            # 还在冷却中
+            var remaining = (cooldown_time - (current_tick - _last_reaction_tick)) / 1000.0
+            print("[DesktopPet Debug] 主动聊天冷却中: 剩余 %.1f 秒" % remaining)
+            return
+            
+        _last_chatted_app = app_identifier
+        _last_reaction_tick = current_tick
+        
+        # 既然重新触发了，把停留时间减掉一部分，或者保持不动，只要受冷却时间控制即可
+        
+        var app_type = _map_app_type(window_title, process_name)
+        var prompt = "【系统动作：玩家现在正在看着屏幕上名为“%s”的内容（这可能是一个%s）。请你以真实陪伴者的身份，根据你当前的心情和性格，针对“%s”这个名字和应用类型，发表一句关心、好奇或者吐槽。绝对不能提到你是AI或桌宠。必须紧扣“%s”这个主题发挥！】" % [window_title, app_type, window_title, window_title]
+        print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
+        _trigger_proactive_chat(prompt)
 
 func _map_app_type(window_title_str: String, process: String) -> String:
-	var p = process.to_lower()
-	var t = window_title_str.to_lower()
-	
-	var app_db = GameDataManager.app_database
-	if app_db and not app_db.is_empty():
-		for category_key in app_db:
-			var category_data = app_db[category_key]
-			var category_name = category_data.get("category_name", "某个应用")
-			var keywords = category_data.get("keywords", [])
-			
-			for keyword in keywords:
-				if keyword in p or keyword in t:
-					return category_name
-	
-	# Fallback if not found in database
-	if "chrome" in p or "edge" in p or "firefox" in p or "browser" in p:
-		return "网页浏览器"
-	elif "code" in p or "idea" in p or "studio" in p or "devenv" in p or "pycharm" in p:
-		return "编程开发工具"
-	elif "word" in p or "excel" in p or "powerpoint" in p or "wps" in p:
-		return "办公文档软件"
-	elif "steam" in p or "game" in p or "epic" in p:
-		return "游戏平台/游戏"
-	elif "wechat" in p or "qq" in p or "discord" in p or "telegram" in p:
-		return "通讯聊天软件"
-	elif "bilibili" in p or "youtube" in p or "video" in p or "player" in p:
-		return "视频播放软件"
-	elif "music" in p or "cloudmusic" in p or "netease" in p or "spotify" in p:
-		return "音乐播放软件"
-		
-	return process if process != "" else "某个应用"
+    var p = process.to_lower()
+    var t = window_title_str.to_lower()
+    
+    var app_db = GameDataManager.app_database
+    if app_db and not app_db.is_empty():
+        for category_key in app_db:
+            var category_data = app_db[category_key]
+            var category_name = category_data.get("category_name", "某个应用")
+            var keywords = category_data.get("keywords", [])
+            
+            for keyword in keywords:
+                if keyword in p or keyword in t:
+                    return category_name
+    
+    # Fallback if not found in database
+    if "chrome" in p or "edge" in p or "firefox" in p or "browser" in p:
+        return "网页浏览器"
+    elif "code" in p or "idea" in p or "studio" in p or "devenv" in p or "pycharm" in p or "cursor" in p or "trae" in p:
+        return "编程开发工具"
+    elif "word" in p or "excel" in p or "powerpoint" in p or "wps" in p:
+        return "办公文档软件"
+    elif "steam" in p or "game" in p or "epic" in p:
+        return "游戏"
+    elif "wechat" in p or "qq" in p or "discord" in p or "telegram" in p:
+        return "通讯聊天软件"
+    elif "bilibili" in p or "youtube" in p or "video" in p or "player" in p:
+        return "视频"
+    elif "music" in p or "cloudmusic" in p or "netease" in p or "spotify" in p:
+        return "音乐"
+        
+    return process if process != "" else "未知应用"
 
 func _check_hourly_chime() -> void:
-	if is_dialogue_panel_open: return
-	if is_chatting:
-		return
-		
-	var time_dict = Time.get_datetime_dict_from_system()
-	var current_hour = time_dict["hour"]
-	var current_minute = time_dict["minute"]
-	
-	# 触发条件：分钟在0~2之间，且本小时未报时
-	if current_minute >= 0 and current_minute <= 2 and _last_hourly_chime_hour != current_hour:
-		var current_tick = Time.get_ticks_msec()
-		if current_tick - _last_reaction_tick < 60000:
-			# 60秒内有过对话，稍后再尝试报时
-			return
-			
-		_last_hourly_chime_hour = current_hour
-		_last_reaction_tick = current_tick
-		
-		var time_str = ""
-		if current_hour >= 6 and current_hour < 11:
-			time_str = "清晨"
-		elif current_hour >= 11 and current_hour < 14:
-			time_str = "中午"
-		elif current_hour >= 14 and current_hour < 19:
-			time_str = "下午"
-		elif current_hour >= 19 and current_hour < 23:
-			time_str = "晚上"
-		else:
-			time_str = "深夜"
-			
-		var prompt = "【系统提示：现在是现实时间%s %02d:00。请作为桌宠，根据你的性格，用简短的话语提醒玩家注意时间或进行整点报时。】" % [time_str, current_hour]
-		_trigger_proactive_chat(prompt)
+    if is_dialogue_panel_open: return
+    if is_chatting:
+        return
+        
+    var time_dict = Time.get_datetime_dict_from_system()
+    var current_hour = time_dict["hour"]
+    var current_minute = time_dict["minute"]
+    
+    # 触发条件：分钟在0~2之间，且本小时未报时
+    if current_minute >= 0 and current_minute <= 2 and _last_hourly_chime_hour != current_hour:
+        var current_tick = Time.get_ticks_msec()
+        if current_tick - _last_reaction_tick < 60000:
+            # 60秒内有过对话，稍后再尝试报时
+            return
+            
+        _last_hourly_chime_hour = current_hour
+        _last_reaction_tick = current_tick
+        
+        var time_str = ""
+        if current_hour >= 6 and current_hour < 11:
+            time_str = "清晨"
+        elif current_hour >= 11 and current_hour < 14:
+            time_str = "中午"
+        elif current_hour >= 14 and current_hour < 19:
+            time_str = "下午"
+        elif current_hour >= 19 and current_hour < 23:
+            time_str = "晚上"
+        else:
+            time_str = "深夜"
+            
+        var prompt = "【系统提示：现在是现实时间%s %02d:00。请根据你当前的心情和性格，以及你们的关系阶段，以真实陪伴者的身份，提醒玩家注意时间或进行整点报时。绝对不能提到自己是AI或桌宠。】" % [time_str, current_hour]
+        _trigger_proactive_chat(prompt)
 
 
 func _trigger_proactive_chat(prompt_text: String) -> void:
-	is_chatting = true
-	current_response = ""
-	
-	bubble_queue.clear()
-	if audio_player and audio_player.playing:
-		audio_player.stop()
-		
-	# 维护历史记录长度
-	if chat_history.size() > 10:
-		chat_history = chat_history.slice(-10)
-		
-	# print("[DesktopPet Debug] Sending request to DeepSeek...")
-	deepseek_client.send_desktop_pet_chat_stream(prompt_text, pet_prompt, chat_history)
-	
-	# 将系统触发的提示以系统事件的形式加入历史记录
-	chat_history.append({"role": "user", "content": "【系统事件】" + prompt_text})
+    print("[DesktopPet Debug] Triggering proactive chat. is_chatting: ", is_chatting)
+    if is_chatting:
+        return
+        
+    is_chatting = true
+    current_response = ""
+    
+    bubble_queue.clear()
+    if pet_body:
+        pet_body.clear_bubbles()
+    if audio_player and audio_player.playing:
+        audio_player.stop()
+        
+    # 维护历史记录长度
+    if chat_history.size() > 10:
+        chat_history = chat_history.slice(-10)
+        
+    # 每次发送前都重新构建 prompt，确保应用识别的 prompt 也是最新的约束
+    _load_prompt()
+        
+    # 将系统触发的提示以系统事件的形式加入历史记录，然后再发给大模型
+    # 这样才能保证发送的数据包含这一次最新的 action
+    chat_history.append({"role": "user", "content": prompt_text})
+    deepseek_client.send_desktop_pet_chat_stream(prompt_text, pet_prompt, chat_history)
 
 func _on_send_pressed() -> void:
-	var text = input_edit.text.strip_edges()
-	if text.is_empty() or is_chatting:
-		return
-		
-	input_edit.text = ""
-	is_chatting = true
-	current_response = ""
-	
-	# 更新最后反应时间
-	_last_reaction_tick = Time.get_ticks_msec()
-	
-	# Reset queue and stop TTS
-	bubble_queue.clear()
-	if audio_player and audio_player.playing:
-		audio_player.stop()
-	
-	# Maintain history (max 10 items to prevent context window overflow)
-	if chat_history.size() > 10:
-		chat_history = chat_history.slice(-10)
-	
-	deepseek_client.send_desktop_pet_chat_stream(text, pet_prompt, chat_history)
-	
-	# Add user message to history
-	chat_history.append({"role": "user", "content": text})
+    var text = input_edit.text.strip_edges()
+    if text.is_empty() or is_chatting:
+        return
+        
+    input_edit.text = ""
+    is_chatting = true
+    current_response = ""
+    
+    # 更新最后反应时间
+    _last_reaction_tick = Time.get_ticks_msec()
+    
+    # Reset queue and stop TTS
+    bubble_queue.clear()
+    if pet_body:
+        pet_body.clear_bubbles()
+    if audio_player and audio_player.playing:
+        audio_player.stop()
+    
+    # Maintain history (max 10 items to prevent context window overflow)
+    if chat_history.size() > 10:
+        chat_history = chat_history.slice(-10)
+        
+    _load_prompt()
+    
+    # Add user message to history
+    # 桌宠特有逻辑：直接在发包前把话塞进去
+    chat_history.append({"role": "user", "content": text})
+    deepseek_client.send_desktop_pet_chat_stream(text, pet_prompt, chat_history)
 
 func _on_chat_started() -> void:
-	current_response = ""
+    current_response = ""
 
 func _on_chat_delta(delta_text: String) -> void:
-	current_response += delta_text
+    current_response += delta_text
 
 func _on_chat_completed(response: Dictionary) -> void:
-	is_chatting = false
-	
-	# Extract response text
-	var text = ""
-	if response.has("choices") and response.choices.size() > 0:
-		text = response.choices[0].message.content
-	else:
-		text = current_response
-		
-	# Add assistant message to history
-	chat_history.append({"role": "assistant", "content": text})
-		
-	display_bubble(text)
+    print("[DesktopPet Debug] Chat request completed. Response keys: ", response.keys())
+    is_chatting = false
+    
+    # Extract response text
+    var text = ""
+    if response.has("choices") and response.choices.size() > 0:
+        text = response.choices[0].message.content
+    else:
+        text = current_response
+        
+    print("[DesktopPet Debug] === RAW AI RESPONSE ===")
+    print(text)
+    print("[DesktopPet Debug] =======================")
+        
+    print("[DesktopPet Debug] Extracted text length: ", text.length())
+    if text.is_empty():
+        print("[DesktopPet Debug] WARNING: Response text is empty! Fallback to error message.")
+        text = "（沉默）……"
+        
+    # 如果大模型抽风只回复了括号动作而没有文字，强制补充省略号，否则无法发声且很怪异
+    var pure_dialogue = _extract_dialogue_text(text)
+    if pure_dialogue.is_empty():
+        print("[DesktopPet Debug] WARNING: No dialogue text found in response! Appending fallback.")
+        text += " ……"
+        
+    # Add assistant message to history
+    chat_history.append({"role": "assistant", "content": text})
+        
+    display_bubble(text)
 
 func _on_chat_failed(error_msg: String) -> void:
-	_add_bubble("[color=red]错误: " + error_msg + "[/color]")
-	is_chatting = false
+    print("[DesktopPet Debug] Chat request failed: ", error_msg)
+    if pet_body:
+        pet_body.add_bubble("[color=red]错误: " + error_msg + "[/color]")
+    is_chatting = false
 
 func display_bubble(text: String) -> void:
-	var chunks = text.split("[SPLIT]")
-	for chunk in chunks:
-		var c = chunk.strip_edges()
-		if not c.is_empty():
-			bubble_queue.append(c)
-			
-	if not is_processing_bubbles:
-		_process_next_bubble()
-
-func _add_bubble(text: String, is_typewriter: bool = false) -> void:
-	var bubble = bubble_template.duplicate()
-	bubble.visible = true
-	bubble_container.add_child(bubble)
-	
-	var label: RichTextLabel = bubble.get_node("MarginContainer/RichTextLabel")
-	label.text = text
-	
-	if is_typewriter:
-		label.visible_characters = 0
-		var plain_text = text.replace("[color=green]", "").replace("[/color]", "")
-		var parsed_len = plain_text.length()
-		var duration = parsed_len * 0.05
-		if duration <= 0: duration = 0.5
-		var tween = create_tween()
-		tween.tween_property(label, "visible_ratio", 1.0, duration)
-		tween.finished.connect(func(): label.visible_characters = -1)
-	
-	# 限制最多3个气泡
-	var bubbles = bubble_container.get_children()
-	# The first child is the hidden template
-	if bubbles.size() > 4:
-		bubbles[1].queue_free()
-		
-	# 设定气泡超时自动消失（由于有语音播放的需求，恢复为稍长的时间 10 秒后，以免文字消失比语音还快）
-	var timer = get_tree().create_timer(10.0)
-	var bubble_ref = weakref(bubble)
-	timer.timeout.connect(func():
-		var b = bubble_ref.get_ref()
-		if b and is_instance_valid(b):
-			var fade_tween = create_tween()
-			fade_tween.tween_property(b, "modulate:a", 0.0, 0.5)
-			fade_tween.finished.connect(func(): 
-				if is_instance_valid(b): 
-					b.queue_free()
-			)
-	)
-
-func _remove_last_bubble() -> void:
-	var bubbles = bubble_container.get_children()
-	if bubbles.size() > 1:
-		bubbles[bubbles.size() - 1].queue_free()
+    var chunks = text.split("[SPLIT]")
+    for chunk in chunks:
+        var c = chunk.strip_edges()
+        if not c.is_empty():
+            # 为每一小段兜底：如果这小段只有括号，没有台词，也补上省略号
+            var pure = _extract_dialogue_text(c)
+            if pure.is_empty():
+                c += " ……"
+            bubble_queue.append(c)
+            
+    if not is_processing_bubbles:
+        _process_next_bubble()
 
 func _process_next_bubble() -> void:
-	if bubble_queue.is_empty():
-		is_processing_bubbles = false
-		return
-		
-	is_processing_bubbles = true
-	var chunk = bubble_queue.pop_front()
-	
-	# Parse green action text and pure dialogue for TTS
-	var display_text = _format_action_text(chunk)
-	var tts_text = _extract_dialogue_text(chunk)
-	
-	_add_bubble(display_text, true)
-	
-	if GameDataManager.config.voice_enabled and tts_text != "":
-		var options = {"voice_type": GameDataManager.config.doubao_voice_type}
-		
-		# 将标志位存入数组，以便在 Lambda 内部能够修改外层变量引用（GDScript 4.x 闭包机制）
-		var tts_state = [false]
-		
-		var on_success = func(_stream: AudioStream, _text: String): tts_state[0] = true
-		var on_failed = func(_err: String, _text: String): tts_state[0] = true
-		
-		doubao_tts.tts_success.connect(on_success, CONNECT_ONE_SHOT)
-		doubao_tts.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
-		
-		doubao_tts.synthesize(tts_text, options)
-		
-		# 第一阶段：死等网络请求回来（最多等10秒）
-		var wait_net = 0
-		while not tts_state[0] and wait_net < 200:
-			await get_tree().create_timer(0.05).timeout
-			wait_net += 1
-			
-		# 安全清理连接，防止因为超时或其他原因导致的死连接
-		if doubao_tts.tts_success.is_connected(on_success):
-			doubao_tts.tts_success.disconnect(on_success)
-		if doubao_tts.tts_failed.is_connected(on_failed):
-			doubao_tts.tts_failed.disconnect(on_failed)
-			
-		# 第二阶段：网络请求回来后，由于播放有一点微小的延迟，我们稍微等几帧确保 audio_player.playing 状态更新
-		await get_tree().process_frame
-		await get_tree().process_frame
-		await get_tree().process_frame
-			
-		# 第三阶段：死等音频播放结束
-		var wait_count = 0
-		while audio_player and audio_player.playing and wait_count < 1200: # 最多等60秒
-			await get_tree().create_timer(0.05).timeout
-			wait_count += 1
-			
-		# 极短的缓冲，让两句话之间显得自然，而不是生硬地等半天
-		await get_tree().create_timer(0.2).timeout
-	else:
-		# 如果没有语音，等待打字机完成 + 短暂暂停
-		var duration = chunk.length() * 0.05 + 1.0
-		await get_tree().create_timer(duration).timeout
-	
-	_process_next_bubble()
+    if bubble_queue.is_empty():
+        is_processing_bubbles = false
+        return
+        
+    is_processing_bubbles = true
+    var chunk = bubble_queue.pop_front()
+    
+    # Parse green action text and pure dialogue for TTS
+    var display_text = _format_action_text(chunk)
+    var tts_text = _extract_dialogue_text(chunk)
+    
+    if pet_body:
+        pet_body.add_bubble(display_text, true)
+    
+    if GameDataManager.config.voice_enabled and tts_text != "":
+        var options = {"voice_type": GameDataManager.config.doubao_voice_type}
+        
+        # 将标志位存入数组，以便在 Lambda 内部能够修改外层变量引用（GDScript 4.x 闭包机制）
+        var tts_state = [false]
+        
+        var on_success = func(_stream: AudioStream, _text: String): tts_state[0] = true
+        var on_failed = func(_err: String, _text: String): tts_state[0] = true
+        
+        doubao_tts.tts_success.connect(on_success, CONNECT_ONE_SHOT)
+        doubao_tts.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
+        
+        doubao_tts.synthesize(tts_text, options)
+        
+        # 第一阶段：死等网络请求回来（最多等10秒）
+        var wait_net = 0
+        while not tts_state[0] and wait_net < 200:
+            await get_tree().create_timer(0.05).timeout
+            wait_net += 1
+            
+        # 安全清理连接，防止因为超时或其他原因导致的死连接
+        if doubao_tts.tts_success.is_connected(on_success):
+            doubao_tts.tts_success.disconnect(on_success)
+        if doubao_tts.tts_failed.is_connected(on_failed):
+            doubao_tts.tts_failed.disconnect(on_failed)
+            
+        # 第二阶段：网络请求回来后，由于播放有一点微小的延迟，我们稍微等几帧确保 audio_player.playing 状态更新
+        await get_tree().process_frame
+        await get_tree().process_frame
+        await get_tree().process_frame
+            
+        # 第三阶段：死等音频播放结束
+        var wait_count = 0
+        while audio_player and audio_player.playing and wait_count < 1200: # 最多等60秒
+            await get_tree().create_timer(0.05).timeout
+            wait_count += 1
+            
+        # 极短的缓冲，让两句话之间显得自然，而不是生硬地等半天
+        await get_tree().create_timer(0.2).timeout
+    else:
+        # 如果没有语音，等待打字机完成 + 短暂暂停
+        var duration = chunk.length() * 0.05 + 1.0
+        await get_tree().create_timer(duration).timeout
+    
+    _process_next_bubble()
 
 func _format_action_text(text: String) -> String:
-	# 简单正则替换 (...) 和 （...）为绿色
-	var regex = RegEx.new()
-	regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
-	var result = text
-	var matches = regex.search_all(text)
-	# 为了防止破坏BBCode，从后往前替换或者直接替换
-	# 但由于没有嵌套，直接 replace 是可以的
-	for m in matches:
-		var matched_string = m.get_string()
-		result = result.replace(matched_string, "[color=green]" + matched_string + "[/color]")
-	return result
+    # 简单正则替换 (...) 和 （...）为绿色
+    var regex = RegEx.new()
+    regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
+    var result = text
+    var matches = regex.search_all(text)
+    # 为了防止破坏BBCode，从后往前替换或者直接替换
+    # 但由于没有嵌套，直接 replace 是可以的
+    for m in matches:
+        var matched_string = m.get_string()
+        result = result.replace(matched_string, "[color=green]" + matched_string + "[/color]")
+    return result
 
 func _extract_dialogue_text(text: String) -> String:
-	var regex = RegEx.new()
-	regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
-	return regex.sub(text, "", true).strip_edges()
+    var regex = RegEx.new()
+    regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
+    return regex.sub(text, "", true).strip_edges()
 
 func _on_tts_success(audio_stream: AudioStream, _text: String) -> void:
-	if audio_player:
-		audio_player.stream = audio_stream
-		audio_player.play()
+    if audio_player:
+        audio_player.stream = audio_stream
+        audio_player.play()
 
 func _on_tts_failed(error_msg: String, _text: String) -> void:
-	print("Desktop Pet TTS failed: ", error_msg)
+    print("Desktop Pet TTS failed: ", error_msg)
 
 func _on_main_window_pressed() -> void:
-	# 重新显示主窗口并请求焦点
-	var current_scene: Node = get_tree().current_scene
-	if current_scene and current_scene is Window:
-		current_scene.show()
-		current_scene.grab_focus()
-		DisplayServer.window_request_attention()
+    # 重新显示主窗口并请求焦点
+    var current_scene: Node = get_tree().current_scene
+    if current_scene and current_scene is Window:
+        current_scene.show()
+        current_scene.grab_focus()
+        DisplayServer.window_request_attention()
 
 func _on_close_pressed() -> void:
-	queue_free()
-	# 如果关闭桌宠时，主窗口被隐藏了，则彻底退出
-	var current_scene = get_tree().current_scene
-	if current_scene and not current_scene.visible:
-		get_tree().quit()
+    # 先隐藏窗口并切断输入流，防止 _push_unhandled_input_internal 报错
+    hide()
+    
+    # release_focus() 属于 Control 节点，Window 节点没有这个方法
+    # 取消当前窗口中所有 Control 的焦点
+    var focused_node = get_viewport().gui_get_focus_owner()
+    if focused_node:
+        focused_node.release_focus()
+        
+    queue_free()
+    
+    # 如果关闭桌宠时，主窗口被隐藏了，则彻底退出
+    var current_scene = get_tree().current_scene
+    if current_scene and not current_scene.visible:
+        get_tree().quit()
 
-func _on_control_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				dragging = true
-				drag_offset = Vector2i(event.global_position)
-			else:
-				dragging = false
-	elif event is InputEventMouseMotion and dragging:
-		# 更新 Window 位置
-		position = DisplayServer.mouse_get_position() - drag_offset
-
-func _on_pet_clicked(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				_pet_click_start_pos = event.global_position
-				dragging = true
-				drag_offset = Vector2i(event.global_position)
-			else:
-				dragging = false
-				# 当鼠标松开时，如果位置没有发生明显偏移（偏移量小于10像素），才视为点击
-				var dist = event.global_position.distance_to(_pet_click_start_pos)
-				if dist < 10.0:
-					_trigger_pet_touch()
-		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			# 右键点击：切换 UI 面板显示/隐藏
-			if is_dialogue_panel_open:
-				return
-			ui_container.visible = not ui_container.visible
-	elif event is InputEventMouseMotion and dragging:
-		# 当发生明显拖拽时，将起始点设为一个极远的位置，确保松开时不会触发点击
-		var dist = event.global_position.distance_to(_pet_click_start_pos)
-		if dist >= 10.0:
-			_pet_click_start_pos = Vector2(-9999, -9999)
-			
-		position = DisplayServer.mouse_get_position() - drag_offset
+func _unhandled_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton:
+        if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            # 右键点击背景：切换 UI 面板显示/隐藏
+            if is_dialogue_panel_open:
+                return
+            ui_container.visible = not ui_container.visible
+            get_viewport().set_input_as_handled()
+        elif event.button_index == MOUSE_BUTTON_LEFT:
+            if event.pressed:
+                dragging = true
+                drag_offset = Vector2i(event.global_position)
+            else:
+                dragging = false
+    elif event is InputEventMouseMotion and dragging:
+        position = DisplayServer.mouse_get_position() - drag_offset
 
 func _trigger_pet_touch() -> void:
-	if is_dialogue_panel_open: return
-	if not pet_spine:
-		return
-		
-	var anim_state = pet_spine.get_animation_state()
-	if not anim_state:
-		return
-		
-	var current_tick = Time.get_ticks_msec()
-	# 增加一个冷却时间，防止疯狂点击
-	if current_tick - _last_reaction_tick < 3000:
-		return
-		
-	_last_reaction_tick = current_tick
-	
-	# 播放交互动画（例如 blink，或者是其他的动作），播放完后再切回 idle
-	var skeleton = pet_spine.get_skeleton()
-	var idle_anim = "Idle"
-	var interact_anim = "Blink"
-	
-	if skeleton and skeleton.get_data():
-		var anims = skeleton.get_data().get_animations()
-		var anim_names = []
-		for a in anims:
-			anim_names.append(a.get_name())
-			
-		# 如果找不到预设名字，随便找个非 idle 的动作播放
-		if not interact_anim in anim_names and anim_names.size() > 1:
-			for anim_name_str in anim_names:
-				if anim_name_str.to_lower() != "idle" and anim_name_str.to_lower() != "daiji":
-					interact_anim = anim_name_str
-					break
-					
-		if idle_anim not in anim_names:
-			idle_anim = anim_names[0]
-	
-	# track 0 播放交互动画，不循环
-	anim_state.set_animation(interact_anim, false, 0)
-	# 交互动画结束后，把待机动画加入队列排队播放，开启循环
-	anim_state.add_animation(idle_anim, 0.0, true, 0)
-	
-	# 触发聊天
-	if not is_chatting:
-		var prompt = "【系统动作：玩家用鼠标轻轻戳了触碰了你一下。请根据你的性格和当前心情，做出可爱的回应或吐槽，一两句话即可。】"
-		_trigger_proactive_chat(prompt)
+    if is_dialogue_panel_open: return
+        
+    var current_tick = Time.get_ticks_msec()
+    # 增加一个冷却时间，防止疯狂点击
+    if current_tick - _last_reaction_tick < 3000:
+        return
+        
+    _last_reaction_tick = current_tick
+    
+    # 触发聊天
+    if not is_chatting:
+        var prompt = "【系统动作：玩家用鼠标轻轻戳了触碰了你一下。请根据你的性格和当前心情，做出可爱的回应或吐槽，一两句话即可。】"
+        _trigger_proactive_chat(prompt)
 
 func _update_mouse_passthrough() -> void:
-	# 确保窗口已经有效存在
-	if not is_inside_tree() or get_window_id() == DisplayServer.INVALID_WINDOW_ID:
-		return
-		
-	var rects: Array[Rect2] = []
-	
-	var p_container = get_node_or_null("Control/PetContainer")
-	if p_container and p_container.is_visible_in_tree():
-		rects.append(p_container.get_global_rect().grow(5))
-		
-	var u_container = get_node_or_null("Control/UIContainer")
-	if u_container and u_container.is_visible_in_tree():
-		rects.append(u_container.get_global_rect().grow(5))
-		
-	var i_layer = get_node_or_null("Control/InputLayer")
-	if i_layer and i_layer.is_visible_in_tree():
-		rects.append(i_layer.get_global_rect().grow(5))
-		
-	if bubble_container:
-		for child in bubble_container.get_children():
-			# 只有当气泡可见时才将其加入碰撞区域
-			if child is Control and child.is_visible_in_tree():
-				rects.append(child.get_global_rect().grow(5))
-				
-	if rects.is_empty():
-		# 如果没有矩形，为了实现全穿透，传递一个在屏幕外的极小多边形
-		var dummy := PackedVector2Array([
-			Vector2(-10, -10), Vector2(-9, -10),
-			Vector2(-9, -9), Vector2(-10, -9)
-		])
-		DisplayServer.window_set_mouse_passthrough(dummy, get_window_id())
-		return
-		
-	var polygon := PackedVector2Array()
-	var first = rects[0]
-	
-	# 绘制第一个矩形
-	polygon.append(first.position)
-	polygon.append(Vector2(first.end.x, first.position.y))
-	polygon.append(first.end)
-	polygon.append(Vector2(first.position.x, first.end.y))
-	polygon.append(first.position)
-	
-	# 使用零宽桥接(Zero-width bridge)连接后续独立的矩形，形成单个多边形
-	for i in range(1, rects.size()):
-		var r = rects[i]
-		
-		# 从第一个矩形的起点连到当前矩形的起点 (去程桥接)
-		polygon.append(r.position)
-		
-		# 绘制当前矩形
-		polygon.append(Vector2(r.end.x, r.position.y))
-		polygon.append(r.end)
-		polygon.append(Vector2(r.position.x, r.end.y))
-		polygon.append(r.position)
-		
-		# 从当前矩形的起点连回第一个矩形的起点 (回程桥接)
-		polygon.append(first.position)
-		
-	DisplayServer.window_set_mouse_passthrough(polygon, get_window_id())
+    print("[DesktopPet Debug] _update_mouse_passthrough started")
+    # 确保窗口已经有效存在且没有在被销毁的过程中
+    if not is_inside_tree() or is_queued_for_deletion():
+        print("[DesktopPet Debug] Window not in tree or queued for deletion")
+        return
+        
+    var win_id = get_window_id()
+    if win_id == DisplayServer.INVALID_WINDOW_ID:
+        print("[DesktopPet Debug] INVALID_WINDOW_ID")
+        return
+        
+    print("[DesktopPet Debug] Gathering rects...")
+    var rects: Array[Rect2] = []
+    
+    # 始终包含左侧和底部边缘的一小块区域作为拖拽抓手，防止全透明后彻底丢失窗口控制权
+    rects.append(Rect2(0, size.y - 40, 40, 40))
+    
+    var bg_layer = get_node_or_null("Control/Background_layer")
+    if bg_layer and bg_layer.is_visible_in_tree():
+        var bg_rect = bg_layer.get_global_rect()
+        if bg_rect.size.x > 0 and bg_rect.size.y > 0:
+            rects.append(bg_rect.grow(5))
+        
+    var u_container = get_node_or_null("Control/UIContainer")
+    if u_container and u_container.is_visible_in_tree():
+        var ui_rect = u_container.get_global_rect()
+        if ui_rect.size.x > 0 and ui_rect.size.y > 0:
+            rects.append(ui_rect.grow(5))
+            
+    var i_layer = get_node_or_null("Control/InputLayer")
+    if i_layer and i_layer.is_visible_in_tree():
+        var in_rect = i_layer.get_global_rect()
+        if in_rect.size.x > 0 and in_rect.size.y > 0:
+            rects.append(in_rect.grow(5))
+        
+    if pet_body and pet_body.is_visible_in_tree():
+        if pet_body.has_method("get_passthrough_rects"):
+            var pet_rects = pet_body.get_passthrough_rects()
+            for r in pet_rects:
+                if r.size.x > 0 and r.size.y > 0:
+                    rects.append(r)
+                
+    if rects.is_empty():
+        print("[DesktopPet Debug] Rects empty, setting dummy polygon")
+        # 如果没有矩形，为了实现全穿透，传递一个在屏幕外的极小多边形
+        var dummy := PackedVector2Array([
+            Vector2(-10, -10), Vector2(-9, -10),
+            Vector2(-9, -9), Vector2(-10, -9)
+        ])
+        if is_inside_tree() and not is_queued_for_deletion():
+            DisplayServer.window_set_mouse_passthrough(dummy, win_id)
+        return
+        
+    print("[DesktopPet Debug] Building polygons from %d rects" % rects.size())
+    var polys: Array[PackedVector2Array] = []
+    for r in rects:
+        # 顺时针和逆时针的问题在Godot中要注意，这里先按照一个标准方向构建矩形
+        var p = PackedVector2Array([
+            r.position,
+            Vector2(r.position.x, r.end.y),
+            r.end,
+            Vector2(r.end.x, r.position.y)
+        ])
+        # Godot中，Geometry2D处理的是逆时针多边形
+        if Geometry2D.is_polygon_clockwise(p):
+            p.reverse()
+        polys.append(p)
+        
+    print("[DesktopPet Debug] Merging polygons...")
+    # 消除重叠，避免零宽桥接在ALTERNATE填充规则下产生漏洞（镂空）
+    var changed = true
+    var loop_count = 0
+    while changed and loop_count < 100: # 防死循环保护
+        loop_count += 1
+        changed = false
+        for i in range(polys.size()):
+            for j in range(i + 1, polys.size()):
+                var intersection = Geometry2D.intersect_polygons(polys[i], polys[j])
+                if intersection.size() > 0:
+                    var merged = Geometry2D.merge_polygons(polys[i], polys[j])
+                    polys.remove_at(j)
+                    polys.remove_at(i)
+                    for m in merged:
+                        if m.size() >= 3 and not Geometry2D.is_polygon_clockwise(m):
+                            polys.append(m)
+                    changed = true
+                    break
+            if changed:
+                break
+                
+    if loop_count >= 100:
+        print("[DesktopPet Debug] ERROR: Polygon merge loop exceeded max iterations!")
+                
+    if polys.is_empty():
+        print("[DesktopPet Debug] Polys empty after merge, setting dummy polygon")
+        var dummy := PackedVector2Array([
+            Vector2(-10, -10), Vector2(-9, -10),
+            Vector2(-9, -9), Vector2(-10, -9)
+        ])
+        if is_inside_tree() and not is_queued_for_deletion():
+            DisplayServer.window_set_mouse_passthrough(dummy, win_id)
+        return
+        
+    print("[DesktopPet Debug] Bridging %d final polygons..." % polys.size())
+    var polygon := PackedVector2Array()
+    var first = polys[0]
+    
+    if first.size() < 3:
+        print("[DesktopPet Debug] ERROR: First polygon has less than 3 points!")
+        return
+    
+    polygon.append_array(first)
+    polygon.append(first[0]) # 闭合第一个多边形
+    
+    # 使用零宽桥接(Zero-width bridge)连接后续独立的多边形，形成单个多边形
+    for i in range(1, polys.size()):
+        var current = polys[i]
+        if current.size() < 3:
+            continue
+            
+        # 从第一个多边形的起点连到当前多边形的起点 (去程桥接)
+        polygon.append(first[0])
+        polygon.append(current[0])
+        
+        # 绘制当前多边形
+        polygon.append_array(current)
+        polygon.append(current[0]) # 闭合当前多边形
+        
+        # 从当前多边形的起点连回第一个多边形的起点 (回程桥接)
+        polygon.append(first[0])
+        
+    print("[DesktopPet Debug] Setting final passthrough polygon with %d points" % polygon.size())
+    if is_inside_tree() and not is_queued_for_deletion():
+        DisplayServer.window_set_mouse_passthrough(polygon, win_id)
+    print("[DesktopPet Debug] _update_mouse_passthrough completed")

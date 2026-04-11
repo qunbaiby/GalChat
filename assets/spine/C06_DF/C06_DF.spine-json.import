@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://bs4xi2f5iqej"
+path="res://.godot/imported/C06_DF.spine-json-b795bd97681aa63e747bd60ff34e43ed.spjson"
+
+[deps]
+
+source_file="res://assets/spine/C06_DF/C06_DF.spine-json"
+dest_files=["res://.godot/imported/C06_DF.spine-json-b795bd97681aa63e747bd60ff34e43ed.spjson"]
+
+[params]
+
