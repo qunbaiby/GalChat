@@ -154,7 +154,7 @@ func _trigger_character_continue() -> void:
 			var last_msg = messages[messages.size() - 1]["text"]
 			query_embedding = await DoubaoEmbeddingClient.get_embedding(last_msg)
 			
-		var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, query_embedding)
+		var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, continue_prompt, query_embedding)
 		var api_messages = [{"role": "system", "content": system_prompt}]
 		api_messages.append_array(deepseek_client._get_history_messages(10))
 		api_messages.append({"role": "user", "content": continue_prompt})

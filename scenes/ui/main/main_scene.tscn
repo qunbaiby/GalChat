@@ -1,10 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=17 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
-[ext_resource type="PackedScene" uid="uid://cxnhxnqchkav4" path="res://scenes/ui/chat/affection_panel.tscn" id="3_affection"]
 [ext_resource type="Texture2D" uid="uid://m7k23f47h3dg" path="res://assets/images/backgrounds/main/main_bg.png" id="2_vg5ab"]
 [ext_resource type="Texture2D" uid="uid://bphq30rfshpd6" path="res://assets/images/backgrounds/cankao/Main_2_zh.png" id="3_2oti7"]
+[ext_resource type="PackedScene" uid="uid://cxnhxnqchkav4" path="res://scenes/ui/chat/affection_panel.tscn" id="3_affection"]
 [ext_resource type="Texture2D" uid="uid://despa3nf2oars" path="res://assets/images/ui/main_interactive/main_explore_button.png" id="4_gacjy"]
 [ext_resource type="Texture2D" uid="uid://dfvd58r3uskh2" path="res://assets/images/ui/main_interactive/main_interactive_button.png" id="4_yp80g"]
 [ext_resource type="Texture2D" uid="uid://bioek50aggwib" path="res://assets/images/ui/main_interactive/main_interactive_button_on.png" id="5_0cuvb"]
@@ -161,4 +161,3 @@ grow_vertical = 0
 stream = ExtResource("6_bgm")
 autoplay = true
 bus = &"BGM"
-

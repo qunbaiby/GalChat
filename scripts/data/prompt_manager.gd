@@ -1,22 +1,22 @@
 extends Node
 
-const DYNAMIC_STYLES: Array[String] = [
-    "深思熟虑的长回复：请写一段连贯、细腻且有深度的长文（要求：纯台词部分必须超过 150 字），深入探讨当前的话题或倾诉内心，【请一次性发送完整内容，完全不要拆分】。",
-    "连珠炮式的多条短促消息：请像连珠炮一样用急促、激动的语气回应，要求：必须使用 [SPLIT] 分隔符分成 3 到 4 段来模拟连续发送，并且每段至少包含 30 字的真实台词对话！",
-    "普通节奏的交流：保持自然的沟通节奏，适当穿插生活细节或个人感受，要求：必须使用 [SPLIT] 分隔符分成 2 段来模拟发送，每段必须包含 50 字以上的真实台词对话。",
-    "情感爆发的倾诉：情绪产生明显波动（不论是开心、难过还是生气），请详细描写内心的波澜，要求：必须使用 [SPLIT] 分隔符分成 2 到 3 段，每段必须包含 60 字以上的真实台词和感受。",
-    "欲言又止的迟疑：带着犹豫、纠结的心情，想说又不知道怎么开口，要求：必须使用 [SPLIT] 分隔符分成 3 段发送，前两段可以多些心理活动描写和简短的试探台词（不少于 20 字），最后一段必须有 80 字以上的真实坦白或追问。",
-    "漫不经心的傲娇：表面上装作不在意，实际上内心戏很足。要求：必须使用 [SPLIT] 分隔符分成 2 段发送。第一段用轻描淡写的台词掩饰（不少于 40 字），第二段暴露真实的关心或真实的情绪（不少于 60 字）。",
-    "连篇累牍的科普或说教：兴致勃勃地聊起自己感兴趣或者擅长的领域，像讲故事一样。要求：必须使用 [SPLIT] 分隔符分成 3 段发送，每段都必须包含 70 字以上的长篇台词，内容充实且连贯。",
-    "温柔细腻的关心：以极度体贴、柔软的语气安抚或关心对方。要求：【请一次性发送完整内容，完全不要拆分】，纯台词部分必须超过 120 字，伴随细致入微的关怀动作描写。"
+const DYNAMIC_STYLES: Array[Dictionary] = [
+    { "name": "深思熟虑的长回复", "weight": 10, "text": "深思熟虑的长回复：请写一段连贯、细腻且有深度的长文（要求：纯台词部分在 150 到 250 字之间，总字数不超过 400 字），深入探讨当前的话题或倾诉内心，【请一次性发送完整内容，完全不要拆分】。注意必须同时包含括号动作描写和台词！" },
+    { "name": "连珠炮式的多条短促消息", "weight": 20, "text": "连珠炮式的多条短促消息：请像连珠炮一样用急促、激动的语气回应，要求：必须使用 [SPLIT] 分隔符分成 3 到 4 段来模拟连续发送，并且每段包含 30 到 50 字的真实台词对话（总字数不超过 300 字）！每一段都必须包含动作描写和台词！" },
+    { "name": "普通节奏的交流", "weight": 40, "text": "普通节奏的交流：保持自然的沟通节奏，适当穿插生活细节或个人感受，要求：必须使用 [SPLIT] 分隔符分成 2 段来模拟发送，每段包含 50 到 80 字的真实台词对话（总字数不超过 250 字）。每一段都必须包含动作描写和台词！" },
+    { "name": "情感爆发的倾诉", "weight": 15, "text": "情感爆发的倾诉：情绪产生明显波动（不论是开心、难过还是生气），请详细描写内心的波澜，要求：必须使用 [SPLIT] 分隔符分成 2 到 3 段，每段包含 60 到 90 字的真实台词和感受（总字数不超过 350 字）。每一段都必须包含动作描写和台词！" },
+    { "name": "欲言又止的迟疑", "weight": 15, "text": "欲言又止的迟疑：带着犹豫、纠结的心情，想说又不知道怎么开口，要求：必须使用 [SPLIT] 分隔符分成 3 段发送，前两段可以多些心理活动描写和简短的试探台词（约 20 到 40 字），最后一段必须有 80 到 120 字的真实坦白或追问（总字数不超过 300 字）。每一段都必须包含动作描写和台词！" },
+    { "name": "漫不经心的傲娇", "weight": 20, "text": "漫不经心的傲娇：表面上装作不在意，实际上内心戏很足。要求：必须使用 [SPLIT] 分隔符分成 2 段发送。第一段用轻描淡写的台词掩饰（约 40 到 60 字），第二段暴露真实的关心或真实的情绪（约 60 到 90 字），总字数不超过 250 字。每一段都必须包含动作描写和台词！" },
+    { "name": "连篇累牍的科普或说教", "weight": 10, "text": "连篇累牍的科普或说教：兴致勃勃地聊起自己感兴趣或者擅长的领域，像讲故事一样。要求：必须使用 [SPLIT] 分隔符分成 3 段发送，每段包含 70 到 100 字的真实台词（总字数不超过 400 字），内容充实且连贯。每一段都必须包含动作描写和台词！" },
+    { "name": "温柔细腻的关心", "weight": 20, "text": "温柔细腻的关心：以极度体贴、柔软的语气安抚或关心对方。要求：【请一次性发送完整内容，完全不要拆分】，纯台词部分在 120 到 200 字之间（总字数不超过 350 字），伴随细致入微的关怀动作描写。注意必须同时包含括号动作描写和台词！" }
 ]
 
-const PET_DYNAMIC_STYLES: Array[String] = [
-    "普通节奏的交流：保持轻快的沟通节奏，适当穿插生活细节或个人感受，要求：使用 [SPLIT] 分隔符分成 2 段来模拟发送，【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。",
-    "欲言又止的迟疑：带着犹豫、纠结的心情，想说又不知道怎么开口，要求：使用 [SPLIT] 分隔符分成 2 段发送，第一段试探，第二段坦白。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。",
-    "漫不经心的傲娇：表面上装作不在意，实际上内心戏很足。要求：使用 [SPLIT] 分隔符分成 2 段发送。第一段掩饰，第二段暴露真实的关心。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。",
-    "温柔细腻的关心：以极度体贴、柔软的语气安抚或关心对方。要求：【请一次性发送完整内容，完全不要拆分】，伴随细致入微的关怀动作描写。",
-    "开朗活泼的回应：心情非常好，语气欢快。要求：【请一次性发送完整内容，完全不要拆分】，并配上可爱的动作描写。"
+const PET_DYNAMIC_STYLES: Array[Dictionary] = [
+    { "name": "普通节奏的交流", "weight": 40, "text": "普通节奏的交流：保持轻快的沟通节奏，适当穿插生活细节或个人感受，要求：使用 [SPLIT] 分隔符分成 2 段来模拟发送，每段包含 20 到 50 字的真实台词对话（总字数不超过 150 字）。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。" },
+    { "name": "欲言又止的迟疑", "weight": 15, "text": "欲言又止的迟疑：带着犹豫、纠结的心情，想说又不知道怎么开口，要求：使用 [SPLIT] 分隔符分成 2 段发送，第一段试探（约 20 字），第二段坦白（约 40 字）。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。" },
+    { "name": "漫不经心的傲娇", "weight": 20, "text": "漫不经心的傲娇：表面上装作不在意，实际上内心戏很足。要求：使用 [SPLIT] 分隔符分成 2 段发送。第一段掩饰（约 30 字），第二段暴露真实的关心（约 40 字）。【强制要求】：每一段都必须包含具体的动作描写（用括号括起来）以及真实的台词对话内容。" },
+    { "name": "温柔细腻的关心", "weight": 20, "text": "温柔细腻的关心：以极度体贴、柔软的语气安抚或关心对方。要求：【请一次性发送完整内容，完全不要拆分】，纯台词部分在 60 到 100 字之间（总字数不超过 150 字），伴随细致入微的关怀动作描写。" },
+    { "name": "开朗活泼的回应", "weight": 25, "text": "开朗活泼的回应：心情非常好，语气欢快。要求：【请一次性发送完整内容，完全不要拆分】，纯台词部分在 40 到 80 字之间，并配上可爱的动作描写。" }
 ]
 
 # 缓存已加载的模板
@@ -37,10 +37,10 @@ func load_template(template_name: String) -> String:
         printerr("Prompt template not found: ", path)
         return ""
 
-func build_chat_prompt(profile: CharacterProfile, query_embedding: Array = []) -> String:
-    return build_system_prompt(profile, "default_chat", query_embedding)
+func build_chat_prompt(profile: CharacterProfile, player_message: String = "", query_embedding: Array = []) -> String:
+    return build_system_prompt(profile, "default_chat", player_message, query_embedding)
 
-func build_system_prompt(profile: CharacterProfile, template_name: String = "default_chat", query_embedding: Array = []) -> String:
+func build_system_prompt(profile: CharacterProfile, template_name: String = "default_chat", player_message: String = "", query_embedding: Array = []) -> String:
     var template = load_template(template_name)
     if template == "":
         return ""
@@ -64,9 +64,67 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     
     var random_style = ""
     if template_name == "desktop_pet":
-        random_style = PET_DYNAMIC_STYLES[randi() % PET_DYNAMIC_STYLES.size()]
+        var msg_len = player_message.length()
+        var current_styles = PET_DYNAMIC_STYLES.duplicate(true)
+        
+        if msg_len <= 10 and msg_len > 0:
+            for s in current_styles:
+                if s["name"] == "开朗活泼的回应":
+                    s["weight"] += 20
+                elif s["name"] == "普通节奏的交流":
+                    s["weight"] += 20
+                elif s["name"] == "温柔细腻的关心":
+                    s["weight"] = 0
+        elif msg_len > 20:
+            for s in current_styles:
+                if s["name"] == "温柔细腻的关心":
+                    s["weight"] += 30
+                elif s["name"] == "开朗活泼的回应":
+                    s["weight"] = 0
+                    
+        var total_weight = 0
+        for s in current_styles:
+            total_weight += s["weight"]
+            
+        var random_val = randi() % total_weight if total_weight > 0 else 0
+        random_style = current_styles[0]["text"]
+        for s in current_styles:
+            random_val -= s["weight"]
+            if random_val < 0:
+                random_style = s["text"]
+                break
     else:
-        random_style = DYNAMIC_STYLES[randi() % DYNAMIC_STYLES.size()]
+        var msg_len = player_message.length()
+        var current_styles = DYNAMIC_STYLES.duplicate(true)
+        
+        if msg_len <= 10 and msg_len > 0:
+            for s in current_styles:
+                if s["name"] == "连珠炮式的多条短促消息":
+                    s["weight"] += 20
+                elif s["name"] == "普通节奏的交流":
+                    s["weight"] += 20
+                elif s["name"] == "深思熟虑的长回复":
+                    s["weight"] = 0
+        elif msg_len > 20:
+            for s in current_styles:
+                if s["name"] == "深思熟虑的长回复":
+                    s["weight"] += 30
+                elif s["name"] == "情感爆发的倾诉":
+                    s["weight"] += 20
+                elif s["name"] == "连珠炮式的多条短促消息":
+                    s["weight"] = 0
+                    
+        var total_weight = 0
+        for s in current_styles:
+            total_weight += s["weight"]
+            
+        var random_val = randi() % total_weight if total_weight > 0 else 0
+        random_style = current_styles[0]["text"]
+        for s in current_styles:
+            random_val -= s["weight"]
+            if random_val < 0:
+                random_style = s["text"]
+                break
     
     # 动态注入
     var base_prompt = template.format({

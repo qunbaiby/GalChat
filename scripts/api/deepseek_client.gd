@@ -111,7 +111,7 @@ func send_chat_message_stream(user_message: String) -> void:
     # 获取用户输入的 embedding
     var query_embedding = await DoubaoEmbeddingClient.get_embedding(user_message)
         
-    var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, query_embedding)
+    var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, query_embedding)
     var api_messages = [{"role": "system", "content": system_prompt}]
     api_messages.append_array(_get_history_messages(10))
     if api_messages.size() == 0:
