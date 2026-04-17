@@ -13,12 +13,31 @@ var memories: Dictionary = {
 
 var turns_since_last_extract: int = 0
 
+func get_memory_file_path() -> String:
+    var char_id = GameDataManager.config.current_character_id if GameDataManager.config else "default"
+    if char_id == "": char_id = "default"
+    var dir_path = "user://saves/%s" % char_id
+    if not DirAccess.dir_exists_absolute(dir_path):
+        DirAccess.make_dir_recursive_absolute(dir_path)
+    return "%s/player_memory.json" % dir_path
+
 func _init() -> void:
-    load_memory()
+    # 不在_init()加载，等待GameDataManager显式调用load_memory()
+    pass
 
 func load_memory() -> void:
-    if FileAccess.file_exists(MEMORY_FILE_PATH):
-        var file = FileAccess.open(MEMORY_FILE_PATH, FileAccess.READ)
+    var path = get_memory_file_path()
+    # 切换角色时清空旧数据
+    memories = {
+        "core": [],
+        "emotion": [],
+        "habit": [],
+        "bond": []
+    }
+    turns_since_last_extract = 0
+    
+    if FileAccess.file_exists(path):
+        var file = FileAccess.open(path, FileAccess.READ)
         var content = file.get_as_text()
         file.close()
         
@@ -41,9 +60,16 @@ func load_memory() -> void:
                                 layer_mems.append(item)
                         memories[key] = layer_mems
                 turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
+    else:
+        # 尝试迁移旧的 player_memory.json (单角色模式下的旧存档)
+        var old_path = "user://player_memory.json"
+        if FileAccess.file_exists(old_path):
+            var dir = DirAccess.open("user://")
+            dir.copy(old_path, path)
+            load_memory()
 
 func save_memory() -> void:
-    var file = FileAccess.open(MEMORY_FILE_PATH, FileAccess.WRITE)
+    var file = FileAccess.open(get_memory_file_path(), FileAccess.WRITE)
     if file:
         var data = memories.duplicate(true)
         data["_turns_since_last_extract"] = turns_since_last_extract

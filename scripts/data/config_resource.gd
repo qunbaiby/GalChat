@@ -11,7 +11,12 @@ var ai_mode_enabled: bool = true
 var doubao_app_id: String = "2557182005"
 var doubao_token: String = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
 var doubao_cluster: String = "volcano_tts"
-var doubao_voice_type: String = "ICL_zh_female_bingruoshaonv_tob"
+
+# 角色独立音色配置，key 为 char_id，value 为音色 ID
+var character_voice_types: Dictionary = {
+    "luna": "ICL_zh_female_bingruoshaonv_tob",
+    "ya": "ICL_zh_female_yujie_tob"
+}
 var voice_enabled: bool = true
 
 # 向量模型配置 (Doubao Embedding)
@@ -40,7 +45,7 @@ func save_config() -> void:
         "doubao_app_id": doubao_app_id,
         "doubao_token": doubao_token,
         "doubao_cluster": doubao_cluster,
-        "doubao_voice_type": doubao_voice_type,
+        "character_voice_types": character_voice_types,
         "voice_enabled": voice_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
         "doubao_embedding_model": doubao_embedding_model,
@@ -75,7 +80,15 @@ func load_config() -> void:
                 doubao_app_id = data.get("doubao_app_id", doubao_app_id)
                 doubao_token = data.get("doubao_token", doubao_token)
                 doubao_cluster = data.get("doubao_cluster", doubao_cluster)
-                doubao_voice_type = data.get("doubao_voice_type", doubao_voice_type)
+                
+                # 兼容旧版本的单变量配置
+                if data.has("character_voice_types"):
+                    var dict_data = data["character_voice_types"]
+                    if dict_data is Dictionary:
+                        character_voice_types = dict_data
+                elif data.has("doubao_voice_type"):
+                    character_voice_types["luna"] = data["doubao_voice_type"]
+                
                 voice_enabled = data.get("voice_enabled", voice_enabled)
                 doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)
                 doubao_embedding_model = data.get("doubao_embedding_model", doubao_embedding_model)

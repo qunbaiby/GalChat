@@ -172,14 +172,6 @@ text = "豆包 Cluster"
 layout_mode = 2
 text = "volcano_tts"
 
-[node name="VoiceTypeLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
-layout_mode = 2
-text = "音色 (Voice Type)"
-
-[node name="VoiceTypeInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
-layout_mode = 2
-text = "ICL_zh_female_bingruoshaonv_tob"
-
 [node name="HSeparator2" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
 theme_override_constants/separation = 20
@@ -272,6 +264,10 @@ layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
+
+[node name="VoiceTypeContainer" type="VBoxContainer" parent="ScrollContainer/TabContainer/声音设置"]
+layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="SaveButton" type="Button" parent="."]
 custom_minimum_size = Vector2(0, 80)

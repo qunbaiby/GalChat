@@ -14,6 +14,8 @@ var activity_manager: Node
 var gift_manager: Node
 var app_database: Dictionary = {}
 
+signal character_switched(char_id: String)
+
 # 用于记录上一个场景的路径，以便设置界面返回时知道该回到哪里
 var previous_scene_path: String = ""
 
@@ -54,6 +56,9 @@ func _ready() -> void:
 	history = ChatHistoryManager.new()
 	history.load_history()
 	
+	# 需要在 config 加载后调用 memory_manager.load_memory()
+	memory_manager.load_memory()
+	
 	prompt_manager = preload("res://scripts/data/prompt_manager.gd").new()
 	add_child(prompt_manager)
 	
@@ -77,6 +82,30 @@ func _load_app_database() -> void:
 			print("[GameDataManager] Error parsing app_database.json.")
 	else:
 		print("[GameDataManager] app_database.json not found.")
+
+func switch_character(char_id: String) -> void:
+	if config.current_character_id == char_id:
+		return
+		
+	print("[GameDataManager] Switching character to: ", char_id)
+	
+	# 保存当前角色数据
+	if profile: profile.save_profile()
+	if history: history.save_history()
+	if memory_manager: memory_manager.save_memory()
+	
+	# 更新配置并重新加载
+	config.current_character_id = char_id
+	config.save_config()
+	
+	profile.current_character_id = char_id
+	profile.load_profile()
+	history.load_history()
+	memory_manager.load_memory()
+	
+	persona_lock.check_and_lock_character(profile.char_name)
+	
+	character_switched.emit(char_id)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:

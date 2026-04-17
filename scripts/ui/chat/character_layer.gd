@@ -5,8 +5,24 @@ var fade_tween: Tween
 @onready var character_spine: SpineSprite = $Character
 
 func _ready() -> void:
+    GameDataManager.character_switched.connect(_on_character_switched)
+    _update_spine_data()
     # 初始化时播放默认的 idle 动画
     play_animation("Idle", true)
+
+func _on_character_switched(char_id: String) -> void:
+    _update_spine_data()
+    play_animation("Idle", true)
+
+func _update_spine_data() -> void:
+    if not is_instance_valid(character_spine): return
+    var path = GameDataManager.profile.spine_path
+    if path != "" and ResourceLoader.exists(path):
+        var res = load(path)
+        if res is SpineSkeletonDataResource:
+            character_spine.skeleton_data_res = res
+            # Need to update or rebuild the SpineSprite? Setting skeleton_data_res might be enough
+            pass
 
 # 保留原本的 update_sprite 接口以防外部调用报错，但不再处理图片切换
 func update_sprite(new_texture: Texture2D) -> void:

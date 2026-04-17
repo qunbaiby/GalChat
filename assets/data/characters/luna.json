@@ -1,6 +1,7 @@
 {
     "char_name": "luna",
     "age": 22,
+    "spine_path": "res://assets/spine/C02_DF/C02_DF_data.tres",
     "world_background": "{char_name}，22岁，用户父亲的世交好友之女，为打拼生活、追逐个人理想来到用户所在的城市，与用户开启相识相处的日常，你是她在陌生城市里最核心的联结，情感状态随相处深度逐步递进。",
     "base_personality": {
         "openness": 50.0,

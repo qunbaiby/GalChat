@@ -84,6 +84,18 @@ offset_bottom = 70.0
 grow_horizontal = 0
 text = "设置"
 
+[node name="SwitchCharButton" type="Button" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -210.0
+offset_top = 20.0
+offset_right = -110.0
+offset_bottom = 70.0
+grow_horizontal = 0
+text = "切换角色"
+
 [node name="ActivityButton" type="Button" parent="."]
 anchors_preset = 3
 anchor_left = 1.0

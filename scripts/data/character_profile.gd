@@ -5,6 +5,7 @@ var char_name: String = ""
 var age: int = 22
 var description: String = ""
 var tags: Array = []
+var spine_path: String = ""
 
 var intimacy: float = 0.0 # 0-9999
 var current_mood: String = "平静" # 从 9 种状态中选取
@@ -40,6 +41,14 @@ signal stage_upgraded(new_stage: int, unlock_dialog: String)
 const PROFILE_PATH = "user://character_profile.json"
 var current_character_id: String = ""
 
+func get_profile_path() -> String:
+	var char_id = current_character_id
+	if char_id == "": char_id = "default"
+	var dir_path = "user://saves/%s" % char_id
+	if not DirAccess.dir_exists_absolute(dir_path):
+		DirAccess.make_dir_recursive_absolute(dir_path)
+	return "%s/character_profile.json" % dir_path
+
 func _init():
 	pass
 
@@ -62,14 +71,18 @@ func load_profile() -> void:
 		if current_character_id == "":
 			printerr("No character config found in res://assets/data/characters/")
 			return
+		elif GameDataManager.config:
+			GameDataManager.config.current_character_id = current_character_id
+			GameDataManager.config.save_config()
 			
 	# 先加载静态数据
 	_load_static_data()
 	_load_stage_data()
 	
 	# 加载动态存档
-	if FileAccess.file_exists(PROFILE_PATH):
-		var file = FileAccess.open(PROFILE_PATH, FileAccess.READ)
+	var path = get_profile_path()
+	if FileAccess.file_exists(path):
+		var file = FileAccess.open(path, FileAccess.READ)
 		var content = file.get_as_text()
 		file.close()
 		
@@ -100,6 +113,14 @@ func load_profile() -> void:
 				creative_aesthetics = float(str(data.get("creative_aesthetics", 0.0)))
 				current_energy = float(str(data.get("current_energy", max_energy)))
 	else:
+		# 尝试迁移旧存档
+		var old_path = "user://character_profile.json"
+		if FileAccess.file_exists(old_path):
+			var dir = DirAccess.open("user://")
+			dir.copy(old_path, path)
+			load_profile()
+			return
+		
 		openness = float(str(base_personality.get("openness", 50.0)))
 		conscientiousness = float(str(base_personality.get("conscientiousness", 50.0)))
 		extraversion = float(str(base_personality.get("extraversion", 50.0)))
@@ -137,6 +158,7 @@ func _load_static_data() -> void:
 			if data is Dictionary:
 				char_name = data.get("char_name", char_name)
 				age = data.get("age", age)
+				spine_path = data.get("spine_path", spine_path)
 				description = data.get("world_background", data.get("description", description))
 				tags = data.get("tags", tags)
 				if data.has("base_personality"):
@@ -281,7 +303,7 @@ func save_profile() -> void:
 		"creative_aesthetics": creative_aesthetics,
 		"current_energy": current_energy
 	}
-	var file = FileAccess.open(PROFILE_PATH, FileAccess.WRITE)
+	var file = FileAccess.open(get_profile_path(), FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(data, "\t"))
 		file.close()

@@ -55,6 +55,7 @@ func _ready() -> void:
 	debug_panel.mood_changed.connect(_on_debug_mood_changed)
 	
 	GameDataManager.profile.stage_upgraded.connect(_on_stage_upgraded)
+	GameDataManager.character_switched.connect(_on_character_switched)
 	
 	deepseek_client.chat_request_completed.connect(_on_chat_response)
 	deepseek_client.chat_request_failed.connect(_on_chat_error)
@@ -199,12 +200,34 @@ func _on_input_text_changed() -> void:
 func _update_ui() -> void:
 	pass
 
+func _on_character_switched(char_id: String) -> void:
+	toast.show_toast("已切换到角色：" + char_id, Color.CYAN)
+	
+	# 清空现有对话UI
+	dialogue_text.text = ""
+	name_label.text = ""
+	
+	_update_ui()
+	
+	# 初始问候或恢复历史记录
+	var messages = GameDataManager.history.messages
+	if messages.size() == 0:
+		var char_name = GameDataManager.profile.char_name
+		_show_message("你好...今天想聊点什么？", char_name, false)
+	else:
+		_restore_last_message()
+
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
-		if debug_panel.visible:
-			debug_panel.hide()
-		else:
-			debug_panel.show_panel()
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_F12:
+			if debug_panel.visible:
+				debug_panel.hide()
+			else:
+				debug_panel.show_panel()
+		elif event.keycode == KEY_F10:
+			GameDataManager.switch_character("luna")
+		elif event.keycode == KEY_F11:
+			GameDataManager.switch_character("ya")
 
 func show_panel() -> void:
 	show()
@@ -988,7 +1011,12 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		var text_to_speak = tts_text if tts_text != "" else text
 		if text_to_speak != "":
 			is_tts_started = true
-			var options = {"voice_type": GameDataManager.config.doubao_voice_type}
+			var char_id = GameDataManager.config.current_character_id
+			var v_type = "ICL_zh_female_bingruoshaonv_tob"
+			if GameDataManager.config.character_voice_types.has(char_id):
+				v_type = GameDataManager.config.character_voice_types[char_id]
+				
+			var options = {"voice_type": v_type}
 			cache_key = doubao_tts._generate_cache_key(text_to_speak, options)
 			doubao_tts.synthesize(text_to_speak, options)
 		
