@@ -52,9 +52,11 @@ func get_profile_path() -> String:
 func _init():
 	pass
 
-func load_profile() -> void:
+func load_profile(force_char_id: String = "") -> void:
 	# 确定要加载的角色ID
-	if GameDataManager.config and GameDataManager.config.current_character_id != "":
+	if force_char_id != "":
+		current_character_id = force_char_id
+	elif GameDataManager.config and GameDataManager.config.current_character_id != "":
 		current_character_id = GameDataManager.config.current_character_id
 	else:
 		# 如果未配置，自动寻找第一个可用的角色文件
@@ -78,6 +80,17 @@ func load_profile() -> void:
 	# 先加载静态数据
 	_load_static_data()
 	_load_stage_data()
+	
+	# 如果当前角色文件不存在，但 base_personality 是在上一次加载的，我们需要先把它重置掉，
+	# 因为 static_data 里的加载是只有在有数据时才会覆盖
+	if not FileAccess.file_exists(_get_static_data_path()):
+		base_personality = {
+			"openness": 50.0,
+			"conscientiousness": 50.0,
+			"extraversion": 50.0,
+			"agreeableness": 50.0,
+			"neuroticism": 50.0
+		}
 	
 	# 加载动态存档
 	var path = get_profile_path()
@@ -118,7 +131,8 @@ func load_profile() -> void:
 		if FileAccess.file_exists(old_path):
 			var dir = DirAccess.open("user://")
 			dir.copy(old_path, path)
-			load_profile()
+			dir.rename(old_path, "user://character_profile_migrated.json")
+			load_profile(force_char_id)
 			return
 		
 		openness = float(str(base_personality.get("openness", 50.0)))
@@ -156,11 +170,11 @@ func _load_static_data() -> void:
 		if error == OK:
 			var data = json.get_data()
 			if data is Dictionary:
-				char_name = data.get("char_name", char_name)
-				age = data.get("age", age)
-				spine_path = data.get("spine_path", spine_path)
-				description = data.get("world_background", data.get("description", description))
-				tags = data.get("tags", tags)
+				char_name = data.get("char_name", "")
+				age = data.get("age", 22)
+				spine_path = data.get("spine_path", "")
+				description = data.get("world_background", data.get("description", ""))
+				tags = data.get("tags", [])
 				if data.has("base_personality"):
 					base_personality = data["base_personality"]
 	else:

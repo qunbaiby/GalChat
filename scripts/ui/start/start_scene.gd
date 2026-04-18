@@ -1,4 +1,4 @@
-extends Window
+extends Control
 
 @onready var start_button: Button = $VBoxContainer/StartButton
 @onready var settings_button: Button = $VBoxContainer/SettingsButton
@@ -9,17 +9,20 @@ func _ready() -> void:
     if GameDataManager.config:
         GameDataManager.config.apply_settings()
         
-    if self is Window:
-        if GameDataManager.has_meta("last_window_pos"):
-            var last_pos = GameDataManager.get_meta("last_window_pos")
-            if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
-                self.position = last_pos
-            else:
-                self.move_to_center()
+    # 开始界面需要占据全屏，取消鼠标穿透（恢复系统默认的全屏接受鼠标输入，同时确保画面渲染）
+    DisplayServer.window_set_mouse_passthrough(PackedVector2Array(), get_tree().root.get_window_id())
+        
+    var window = get_window()
+    if GameDataManager.has_meta("last_window_pos"):
+        var last_pos = GameDataManager.get_meta("last_window_pos")
+        if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
+            window.position = last_pos
         else:
-            self.move_to_center()
+            window.move_to_center()
+    else:
+        window.move_to_center()
             
-    close_requested.connect(_on_close_requested)
+    window.close_requested.connect(_on_close_requested)
     start_button.pressed.connect(_on_start_pressed)
     settings_button.pressed.connect(_on_settings_pressed)
     
@@ -28,12 +31,16 @@ func _ready() -> void:
     settings_button.pivot_offset = settings_button.size / 2
 
 func _on_close_requested() -> void:
-    get_tree().quit()
+    pass
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_WM_CLOSE_REQUEST:
+        get_tree().quit()
 
 func _on_start_pressed() -> void:
     _animate_button(start_button)
-    if self is Window:
-        GameDataManager.set_meta("last_window_pos", self.position)
+    var window = get_window()
+    GameDataManager.set_meta("last_window_pos", window.position)
     await get_tree().create_timer(0.2).timeout
     get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 

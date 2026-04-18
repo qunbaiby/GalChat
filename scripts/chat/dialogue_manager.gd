@@ -1009,7 +1009,10 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	if speaker_name == GameDataManager.profile.char_name and GameDataManager.config.voice_enabled and not is_restore:
 		# 如果提供了专属的 tts_text (过滤了动作描写的纯净文本)，就用它来发声
 		var text_to_speak = tts_text if tts_text != "" else text
-		if text_to_speak != "":
+		
+		var regex = RegEx.new()
+		regex.compile("[a-zA-Z0-9\u4e00-\u9fa5]")
+		if regex.search(text_to_speak) != null:
 			is_tts_started = true
 			var char_id = GameDataManager.config.current_character_id
 			var v_type = "ICL_zh_female_bingruoshaonv_tob"

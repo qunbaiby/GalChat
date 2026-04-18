@@ -23,6 +23,12 @@ func _ready() -> void:
 	# 禁用自动退出机制，以便在关闭主窗口时可以保持桌宠运行
 	get_tree().set_auto_accept_quit(false)
 	
+	# 注：由于 `window/size/transparent=true`，不要随便修改根窗口的穿透区域，
+	# 否则会导致作为唯一非透明层的主场景也跟着被底层系统丢弃渲染（变成全透明黑屏）。
+	# 如果想要真正的透明点击穿透功能，请取消 project.godot 里的 transparent=true
+	# 或者使用外部 C# P/Invoke 调用系统 API 修改窗口扩展样式 (WS_EX_TRANSPARENT)。
+	# 目前恢复为引擎默认机制。
+	
 	audit_logger = preload("res://scripts/data/audit_logger.gd").new()
 	add_child(audit_logger)
 	

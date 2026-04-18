@@ -66,6 +66,7 @@ func load_memory() -> void:
         if FileAccess.file_exists(old_path):
             var dir = DirAccess.open("user://")
             dir.copy(old_path, path)
+            dir.rename(old_path, "user://player_memory_migrated.json")
             load_memory()
 
 func save_memory() -> void:

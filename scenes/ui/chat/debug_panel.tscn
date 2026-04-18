@@ -56,7 +56,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 25
-current_tab = 2
+current_tab = 1
 
 [node name="情感控制" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
 visible = false
@@ -77,7 +77,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="心情" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 20
 metadata/_tab_index = 1
@@ -93,30 +92,6 @@ text = "强制切换心情："
 [node name="MoodOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/心情/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="记忆管理" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 2
-
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/记忆管理"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "当前四层记忆内容："
-
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/记忆管理"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="MemoryText" type="RichTextLabel" parent="CenterContainer/Panel/VBoxContainer/TabContainer/记忆管理/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-
-[node name="ClearMemoryBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/记忆管理"]
-layout_mode = 2
-text = "清空所有记忆"
 
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
