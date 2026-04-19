@@ -1,9 +1,0 @@
-- [x] `luna.json` 中各个 `stages` 节点内的 `personality_traits` 字段已被移除。
-- [x] `luna.json` 根节点包含 `base_personality` 对象及大五人格的初始分数。
-- [x] `CharacterProfile` 包含 5 个大五人格属性，并在 `load_profile` 和 `save_profile` 时被正确读取和持久化存储。
-- [x] `PersonalitySystem` 被创建并在 `GameDataManager` 中成功注册。
-- [x] `PersonalitySystem.update_trait` 可以正确地限制分数在 10.0 到 90.0 的范围内。
-- [x] `PersonalitySystem.get_dynamic_traits` 可以根据当前大五人格的分数生成对应的性格描述文本。
-- [x] `emotion_analysis.txt` 提示词模板包含对大五人格（开放性、尽责性、外倾性、宜人性、神经质）的分析要求，并以 `<trait_name:±value>` 的格式输出。
-- [x] `deepseek_client.gd` 可以正确解析大五人格的变化标签并同步更新到 `CharacterProfile` 中。
-- [x] `prompt_manager.gd` 成功将动态生成的人格描述 `personality_traits` 注入到聊天提示词的对应占位符中，而不再使用静态的阶段描述。

@@ -1,6 +1,0 @@
-- [x] Godot 麦克风输入权限已开启 (`audio/driver/enable_input`=true)。
-- [x] 音频总线中包含 "Record" Bus，并配置了 `AudioEffectRecord`，并且静音了该轨道。
-- [x] `doubao_ASR_Service.gd` 正确实现了与豆包 ASR API 的交互。
-- [x] 聊天界面 UI 包含语音录制按钮（例如"按住说话"）。
-- [x] 录音逻辑正常，松开后能成功调用 API。
-- [x] 识别结果文本成功显示在输入框中。

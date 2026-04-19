@@ -1,6 +1,0 @@
-- [x] Godot 4 `spine-godot` GDExtension is downloaded and installed into the `bin/` directory.
-- [x] Spine skeleton (`.skel`) and atlas (`.atlas`) files in `e:\GalChat_APP\assets\spine\xuyuan` are successfully imported as Godot Spine resources.
-- [x] The `PetImage` (TextureRect) in `desktop_pet.tscn` is replaced by a `Control` container holding a `SpineSprite`.
-- [x] The `SpineSprite` correctly references the `xuyuan` Spine skeleton data and atlas.
-- [x] `desktop_pet.gd` initializes and plays a default animation on the `SpineSprite`.
-- [x] The desktop pet window runs without crashing and correctly displays the dynamic Spine animation.

@@ -1,7 +1,0 @@
-- [x] `_update_mouse_passthrough()` 方法被正确实现并可以被调用。
-- [x] 成功使用“零宽桥接”算法合并了多个不连续的 `Rect2` 并生成一个 `PackedVector2Array` 传给 `DisplayServer.window_set_mouse_passthrough`。
-- [x] 只有 `Control/PetContainer`、`Control/HBoxContainer` 参与了默认的基础裁剪，区域外完全鼠标穿透。
-- [x] 当对话发生，`SpeechBubble` 变为可见时，气泡区域正确包含在不可穿透区域中。
-- [x] 当对话结束或关闭，`SpeechBubble` 隐藏时，气泡区域恢复为透明并鼠标可穿透。
-- [x] 在 `_ready` 初始化阶段触发了一次 `_update_mouse_passthrough`。
-- [x] 桌宠仍然可以被拖拽移动，发送按钮等互动依然生效。
