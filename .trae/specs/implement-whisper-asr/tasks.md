@@ -1,0 +1,21 @@
+# Tasks
+
+- [x] Task 1: **环境配置**
+  - 在 `project.godot` 确保 `audio/driver/enable_input=true` 被开启。
+  - 修改 `default_bus_layout.tres`，确保有名为 `Record` 的总线挂载 `AudioEffectCapture`，并且为了防止回音，`Record` 总线应该路由到一个被静音的 `MuteBus`。
+- [x] Task 2: **创建 LocalWhisperASR 服务**
+  - 在 `scripts/api/local_whisper_asr.gd` 创建新脚本，继承自 `SpeechToText`。
+  - 定义 `transcribe_completed(text: String)` 和 `transcribe_failed(err: String)` 信号。
+  - 实现 `start_recording()`: 获取 `Record` 总线的 `AudioEffectCapture` 并调用 `clear_buffer()`。
+  - 实现 `stop_recording()`: 提取缓冲区所有的 `get_buffer()`，在后台 `Thread` 中使用 `resample` 进行重采样，并调用 `transcribe()`。
+  - 实现一个子线程循环或处理函数，等待 `transcribe` 返回后发送 `transcribe_completed` 信号（注意移除特殊字符如 `[ ]` 等）。
+- [x] Task 3: **恢复场景 UI 和 节点**
+  - 在 `scenes/ui/chat/chat_scene.tscn` 中的 `InputLayer/HBoxContainer` 重新添加 `VoiceRecordButton`（🎙 按钮）。
+  - 在场景中添加 `MicCapture` 节点（`AudioStreamPlayer`，设置 `bus="Record"` 和 `stream=AudioStreamMicrophone`，`autoplay=true`）。
+  - 在场景中添加 `LocalWhisperASR` 节点并挂载 `local_whisper_asr.gd` 脚本。
+- [x] Task 4: **连接 UI 逻辑**
+  - 在 `scripts/chat/dialogue_manager.gd` 中获取 `VoiceRecordButton`、`MicCapture`、`LocalWhisperASR` 节点。
+  - 连接 `VoiceRecordButton` 的 `button_down` 和 `button_up` 信号，调用 `start_recording` 和 `stop_recording`。
+  - 连接 `LocalWhisperASR` 的回调信号，当成功时填充到 `input_field.text`，并显示对应的 Toast 通知。
+- [x] Task 5: **模型占位或说明配置**
+  - （可选/按需）在 `LocalWhisperASR` 中提供模型加载的支持（`language_model` 必须提供一个 `WhisperResource`）。如果项目里还没有模型文件，在任务中指引用户如何使用 Godot-Whisper 提供的下载器下载一个微型模型。

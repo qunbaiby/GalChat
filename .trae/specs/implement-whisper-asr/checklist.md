@@ -1,0 +1,5 @@
+- [x] 环境中麦克风权限（`audio/driver/enable_input`）和 `default_bus_layout.tres` 中的 `Record` 总线（带 `AudioEffectCapture`）已配置正确。
+- [x] 成功创建并实现了 `LocalWhisperASR` 节点，能够执行后台转录。
+- [x] `chat_scene.tscn` 中的 `VoiceRecordButton` 已恢复。
+- [x] 录音按钮按下和松开能正确触发 `LocalWhisperASR` 的开始和停止事件，并且成功将文字输出到聊天框。
+- [x] Whisper 插件（`godot-whisper`）能在当前项目中无错误加载。

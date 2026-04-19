@@ -1,0 +1,5 @@
+- [x] C# project files (`.sln`, `.csproj`) are restored and compile successfully (`dotnet build`).
+- [x] `WindowDetector.cs` correctly uses `EnumWindows` and successfully filters out the Godot process.
+- [x] `desktop_pet.gd` correctly polls `WindowDetector` for the active window name and process.
+- [x] Staying on an external application (like a browser or code editor) for the configured time triggers a proactive, character-appropriate chat response.
+- [x] The desktop pet does not falsely identify itself, invisible background tasks, or "Program Manager" as the active window.

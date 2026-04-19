@@ -1,0 +1,47 @@
+{
+    "luna": {
+        "domain": "多领域(动漫/加密货币/游戏)",
+        "score": 0.99,
+        "level": 2
+    },
+    "luna loud": {
+        "domain": "动漫(喧闹一家亲)",
+        "score": 0.95,
+        "level": 2
+    },
+    "luna lovegood": {
+        "domain": "文学/电影(哈利波特)",
+        "score": 0.98,
+        "level": 2
+    },
+    "luna inverse": {
+        "domain": "动漫(秀逗魔导士)",
+        "score": 0.92,
+        "level": 2
+    },
+    "luna maximoff": {
+        "domain": "漫画(漫威)",
+        "score": 0.9,
+        "level": 2
+    },
+    "luna (sailor moon)": {
+        "domain": "动漫(美少女战士)",
+        "score": 0.97,
+        "level": 2
+    },
+    "luna (dota 2)": {
+        "domain": "游戏/动漫(Dota 2)",
+        "score": 0.95,
+        "level": 2
+    },
+    "luna schweiger": {
+        "domain": "娱乐(演员)",
+        "score": 0.88,
+        "level": 1
+    },
+    "anna paulina luna": {
+        "domain": "政治",
+        "score": 0.85,
+        "level": 2
+    }
+}
