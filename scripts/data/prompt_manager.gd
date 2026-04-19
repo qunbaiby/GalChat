@@ -1,16 +1,14 @@
 extends Node
 
 const DYNAMIC_STYLES: Array[Dictionary] = [
-    { "name": "单段回复", "weight": 20, "text": "【分段策略：单段回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 80 到 150 字之间，总字数不超过 300 字。【请一次性发送完整内容，完全不要拆分】。注意必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
-    { "name": "双段连续", "weight": 40, "text": "【分段策略：双段连续】请将你的回答分成 2 段发送。要求：必须使用 [SPLIT] 分隔符分隔这两段。每段包含 40 到 80 字的真实台词对话（总字数不超过 250 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
-    { "name": "三段递进", "weight": 25, "text": "【分段策略：三段递进】请将你的回答分成 3 段发送，模拟递进或补充的语境。要求：必须使用 [SPLIT] 分隔符分隔这三段。每段包含 30 到 60 字的真实台词对话（总字数不超过 350 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
-    { "name": "四段短促", "weight": 15, "text": "【分段策略：四段短促】请将你的回答分成 4 段发送，模拟连珠炮式或补充说明的短消息。要求：必须使用 [SPLIT] 分隔符分隔这四段。每段包含 20 到 40 字的真实台词对话（总字数不超过 300 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" }
+    { "name": "单段回复", "weight": 35, "text": "【分段策略：单段回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 80 到 150 字之间，总字数不超过 300 字。【强制要求：请一次性发送完整内容，绝对不要使用 [SPLIT] 拆分段落】。注意必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
+    { "name": "双段连续", "weight": 40, "text": "【分段策略：双段连续】请将你的回答分成 2 段发送。要求：【绝对强制】你必须在两段之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段）！每段包含 40 到 80 字的真实台词对话（总字数不超过 250 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
+    { "name": "三段递进", "weight": 25, "text": "【分段策略：三段递进】请将你的回答分成 3 段发送，模拟递进或补充的语境。要求：【绝对强制】你必须在段落之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段[SPLIT]第三段）！每段包含 30 到 60 字的真实台词对话（总字数不超过 350 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" }
 ]
 
 const PET_DYNAMIC_STYLES: Array[Dictionary] = [
-    { "name": "单段简短回复", "weight": 40, "text": "【分段策略：单段简短回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 30 到 60 字之间，总字数不超过 100 字。【请一次性发送完整内容，完全不要拆分】。注意必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
-    { "name": "双段轻快交流", "weight": 45, "text": "【分段策略：双段轻快交流】请将你的回答分成 2 段发送。要求：必须使用 [SPLIT] 分隔符分隔这两段。每段包含 20 到 40 字的真实台词对话（总字数不超过 150 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
-    { "name": "三段碎碎念", "weight": 15, "text": "【分段策略：三段碎碎念】请将你的回答分成 3 段发送，模拟连续补充的短语境。要求：必须使用 [SPLIT] 分隔符分隔这三段。每段包含 15 到 30 字的真实台词对话（总字数不超过 180 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" }
+    { "name": "单段简短回复", "weight": 55, "text": "【分段策略：单段简短回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 30 到 60 字之间，总字数不超过 100 字。【强制要求：请一次性发送完整内容，绝对不要使用 [SPLIT] 拆分段落】。注意必须同时包含括号括起来的动作/神态描写和真实台词对话！" },
+    { "name": "双段轻快交流", "weight": 45, "text": "【分段策略：双段轻快交流】请将你的回答分成 2 段发送。要求：【绝对强制】你必须在两段之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段）！每段包含 20 到 40 字的真实台词对话（总字数不超过 150 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" }
 ]
 
 # 缓存已加载的模板
@@ -57,6 +55,7 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     var imp_notes = stage_conf.get("important_notes", "").replace("{char_name}", safe_char_name)
     
     var random_style = ""
+    var random_style_name = ""
     if template_name == "desktop_pet":
         var msg_len = player_message.length()
         var current_styles = PET_DYNAMIC_STYLES.duplicate(true)
@@ -64,15 +63,13 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
         if msg_len <= 10 and msg_len > 0:
             for s in current_styles:
                 if s["name"] == "单段简短回复":
-                    s["weight"] += 20
+                    s["weight"] += 30
                 elif s["name"] == "双段轻快交流":
-                    s["weight"] += 10
-                elif s["name"] == "三段碎碎念":
                     s["weight"] = 0
         elif msg_len > 20:
             for s in current_styles:
-                if s["name"] == "三段碎碎念":
-                    s["weight"] += 20
+                if s["name"] == "双段轻快交流":
+                    s["weight"] += 60
                 elif s["name"] == "单段简短回复":
                     s["weight"] = 0
                     
@@ -82,10 +79,12 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
             
         var random_val = randi() % total_weight if total_weight > 0 else 0
         random_style = current_styles[0]["text"]
+        random_style_name = current_styles[0]["name"]
         for s in current_styles:
             random_val -= s["weight"]
             if random_val < 0:
                 random_style = s["text"]
+                random_style_name = s["name"]
                 break
     else:
         var msg_len = player_message.length()
@@ -94,17 +93,17 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
         if msg_len <= 10 and msg_len > 0:
             for s in current_styles:
                 if s["name"] == "单段回复":
-                    s["weight"] += 20
+                    s["weight"] += 40
                 elif s["name"] == "双段连续":
-                    s["weight"] += 20
+                    s["weight"] = 0
                 elif s["name"] == "三段递进":
                     s["weight"] = 0
         elif msg_len > 20:
             for s in current_styles:
                 if s["name"] == "三段递进":
-                    s["weight"] += 20
-                elif s["name"] == "四段短促":
-                    s["weight"] += 20
+                    s["weight"] += 50
+                elif s["name"] == "双段连续":
+                    s["weight"] += 30
                 elif s["name"] == "单段回复":
                     s["weight"] = 0
                     
@@ -114,11 +113,15 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
             
         var random_val = randi() % total_weight if total_weight > 0 else 0
         random_style = current_styles[0]["text"]
+        random_style_name = current_styles[0]["name"]
         for s in current_styles:
             random_val -= s["weight"]
             if random_val < 0:
                 random_style = s["text"]
+                random_style_name = s["name"]
                 break
+                
+    print("[PromptManager] 当前输入字数: ", player_message.length(), " | 选定的分段策略: ", random_style_name)
     
     # 动态注入
     var base_prompt = template.format({

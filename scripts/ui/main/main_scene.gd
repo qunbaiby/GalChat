@@ -2,10 +2,10 @@ extends Control
 
 @onready var galchat_button: Button = $GalChatButton
 @onready var activity_button: Button = $ActivityButton
-@onready var desktop_pet_button: Button = $DesktopPetButton
-@onready var settings_button: Button = $TopBar/SettingsButton
-@onready var archive_button: Button = $TopBar/ArchiveButton
-@onready var switch_char_button: Button = $TopBar/SwitchCharButton
+@onready var desktop_pet_button: Button = $BottomButtonPanel/BottomButton/DesktopPetButton
+@onready var settings_button: Button = $SettingsButton
+@onready var archive_button: Button = $BottomButtonPanel/BottomButton/ArchiveButton
+@onready var switch_char_button: Button = $BottomButtonPanel/BottomButton/SwitchCharButton
 @onready var stats_panel = $StatsPanel
 @onready var archive_panel = $ArchivePanel
 @onready var bgm: AudioStreamPlayer = $BGM

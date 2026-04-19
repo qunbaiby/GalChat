@@ -1,18 +1,18 @@
 extends PanelContainer
 
-@onready var emoji_label: Label = $MarginContainer/VBoxContainer/HeaderBox/EmojiLabel
-@onready var stage_label: Label = $MarginContainer/VBoxContainer/HeaderBox/StageLabel
-@onready var title_label: Label = $MarginContainer/VBoxContainer/TitleLabel
-@onready var desc_label: Label = $MarginContainer/VBoxContainer/DescLabel
+@onready var emoji_label: Label = $MarginContainer/VBoxContainer/EmotionRow/EmojiLabel
+@onready var title_label: Label = $MarginContainer/VBoxContainer/EmotionRow/TitleLabel
+@onready var tooltip_panel: PanelContainer = $TooltipPanel
+@onready var desc_label: Label = $TooltipPanel/Margin/DescLabel
 
-@onready var intimacy_val: Label = $MarginContainer/VBoxContainer/StatsBox/IntimacyBox/LabelBox/Value
-@onready var intimacy_bar: ProgressBar = $MarginContainer/VBoxContainer/StatsBox/IntimacyBox/ProgressBar
+@onready var intimacy_val: Label = $MarginContainer/VBoxContainer/IntimacyRow/ProgressBar/ValueLabel
+@onready var intimacy_bar: ProgressBar = $MarginContainer/VBoxContainer/IntimacyRow/ProgressBar
 
-@onready var trust_val: Label = $MarginContainer/VBoxContainer/StatsBox/TrustBox/LabelBox/Value
-@onready var trust_bar: ProgressBar = $MarginContainer/VBoxContainer/StatsBox/TrustBox/ProgressBar
+@onready var trust_val: Label = $MarginContainer/VBoxContainer/TrustRow/ProgressBar/ValueLabel
+@onready var trust_bar: ProgressBar = $MarginContainer/VBoxContainer/TrustRow/ProgressBar
 
-@onready var exp_val: Label = $MarginContainer/VBoxContainer/StatsBox/ExpBox/LabelBox/Value
-@onready var exp_bar: ProgressBar = $MarginContainer/VBoxContainer/StatsBox/ExpBox/ProgressBar
+@onready var exp_val: Label = $MarginContainer/VBoxContainer/ExpRow/ProgressBar/ValueLabel
+@onready var exp_bar: ProgressBar = $MarginContainer/VBoxContainer/ExpRow/ProgressBar
 
 var update_timer: Timer
 
@@ -23,7 +23,27 @@ func _ready() -> void:
     update_timer.timeout.connect(update_ui)
     add_child(update_timer)
     
+    # Tooltip events
+    title_label.mouse_entered.connect(_on_stage_hover_entered)
+    title_label.mouse_exited.connect(_on_stage_hover_exited)
+    tooltip_panel.hide()
+    
     update_ui()
+
+func _on_stage_hover_entered() -> void:
+    tooltip_panel.show()
+    # Position tooltip near the title label explicitly (on its right side)
+    tooltip_panel.global_position = title_label.global_position + Vector2(title_label.size.x + 10, -20)
+    
+    # Fade in animation
+    tooltip_panel.modulate.a = 0.0
+    var tween = create_tween()
+    tween.tween_property(tooltip_panel, "modulate:a", 1.0, 0.2)
+
+func _on_stage_hover_exited() -> void:
+    var tween = create_tween()
+    tween.tween_property(tooltip_panel, "modulate:a", 0.0, 0.2)
+    tween.tween_callback(tooltip_panel.hide)
 
 
 func get_stage_color(stage: int) -> Color:
@@ -54,7 +74,6 @@ func update_ui() -> void:
     if conf.is_empty(): return
     
     emoji_label.text = conf.get("emojiIcon", "")
-    stage_label.text = "Stage " + str(current_stage)
     title_label.text = conf.get("stageTitle", "")
     desc_label.text = conf.get("stageDesc", "")
     

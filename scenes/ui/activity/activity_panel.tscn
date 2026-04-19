@@ -1,32 +1,36 @@
 [gd_scene load_steps=4 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.95, 0.9, 0.8, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.4, 0.25, 0.15, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+bg_color = Color(0.89, 0.88, 0.96, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.65, 0.58, 0.8, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner"]
-bg_color = Color(0.98, 0.95, 0.88, 1)
+bg_color = Color(1, 1, 1, 0.85)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.8, 0.7, 0.5, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+border_color = Color(0.65, 0.58, 0.8, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [node name="ActivityPanel" type="Control"]
+theme = ExtResource("1_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,7 +46,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0, 0, 0, 0.3)
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -77,7 +81,7 @@ theme_override_constants/separation = 15
 
 [node name="PreviewTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/font_size = 24
 text = "请选择课程"
 horizontal_alignment = 1
@@ -90,7 +94,7 @@ stretch_mode = 5
 
 [node name="ScheduleTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/font_size = 20
 text = "日程安排 (0/10)"
 
@@ -167,7 +171,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/font_size = 18
 text = "学习成果"
 horizontal_alignment = 1
@@ -175,7 +179,7 @@ horizontal_alignment = 1
 [node name="OutcomeList" type="RichTextLabel" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/default_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 
@@ -198,7 +202,7 @@ alignment = 2
 
 [node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox/RestHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/font_size = 18
 text = "休息"
 
@@ -209,7 +213,7 @@ theme_override_constants/separation = 15
 
 [node name="EnergyLabel" type="Label" parent="Panel/Margin/MainHBox/RightPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/font_size = 24
 text = "当前精力：100/100"
 horizontal_alignment = 2

@@ -49,6 +49,16 @@ func start_recording() -> void:
         call_deferred("emit_signal", "transcribe_failed", "Language model not configured")
         return
         
+    # Initialize the model context if not already done by SpeechToText
+    if not has_method("is_model_loaded") or not call("is_model_loaded"):
+        # The underlying C++ module requires the model to be explicitly loaded/initialized
+        # before any transcribe operations can occur.
+        # Check if we can trigger initialization by assigning the language_model again.
+        if language_model:
+            var current_model = language_model
+            language_model = null
+            language_model = current_model
+        
     _is_recording = true
     if _effect_capture:
         _effect_capture.clear_buffer()

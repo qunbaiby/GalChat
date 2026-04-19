@@ -1,7 +1,0 @@
-- [x] `narrator_generation.txt` uses `{{char_name}}` and `prompt_manager.gd` replaces it.
-- [x] New characters do not inherit the old character's save file (e.g., `user://character_profile.json` is renamed after copy).
-- [x] New characters do not inherit the old character's memory file (e.g., `user://player_memory.json` is renamed after copy).
-- [x] Archive Panel exists and is accessible from `main_scene`.
-- [x] Archive Panel allows viewing the memory layers of different characters separately.
-- [x] Archive Panel displays the personality evolution (current values compared to base) for different characters.
-- [x] Debug Panel no longer contains the "记忆管理" (Memory Management) tab.

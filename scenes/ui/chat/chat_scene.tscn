@@ -17,34 +17,37 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
 [ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ut5mp"]
-bg_color = Color(0.96862745, 0.47843137, 0.8352941, 0.27058825)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+bg_color = Color(0.89, 0.88, 0.96, 0.85)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ns7o"]
-bg_color = Color(0.93333334, 0.34509805, 0.77254903, 0.23137255)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+bg_color = Color(0.85, 0.8, 0.9, 0.85)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qieko"]
-bg_color = Color(1, 1, 1, 0.78431374)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+bg_color = Color(1, 1, 1, 0.85)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8h6pm"]
-bg_color = Color(0.92156863, 0.5294118, 0.79607844, 0.47058824)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+bg_color = Color(0.89, 0.88, 0.96, 0.95)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 6
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6s2cx"]
 texture = ExtResource("5_8h6pm")
@@ -61,6 +64,7 @@ texture = ExtResource("7_vdeok")
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
 [node name="ChatScene" type="Control"]
+theme = ExtResource("1_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -175,7 +179,7 @@ offset_left = -426.0
 offset_right = -326.0
 offset_bottom = 32.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 0.49411765, 1, 1)
+theme_override_colors/font_color = Color(0.65, 0.58, 0.8, 1)
 theme_override_font_sizes/font_size = 23
 text = "ayrrha"
 vertical_alignment = 1
@@ -191,7 +195,7 @@ offset_right = -144.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/default_color = Color(0.36740565, 0.00093465106, 0.5358144, 1)
+theme_override_colors/default_color = Color(0.4, 0.35, 0.5, 1)
 theme_override_font_sizes/normal_font_size = 25
 theme_override_font_sizes/bold_font_size = 25
 theme_override_font_sizes/bold_italics_font_size = 25

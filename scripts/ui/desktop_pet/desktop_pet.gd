@@ -1,19 +1,20 @@
 extends Window
 
-@onready var input_edit: TextEdit = $Control/InputLayer/HBoxContainer/InputField
-@onready var send_button: Button = $Control/InputLayer/HBoxContainer/SendButton
+@onready var input_edit: TextEdit = $Control/InputLayer/MarginContainer/HBoxContainer/InputField
+@onready var send_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/SendButton
 @onready var main_window_button: Button = $Control/UIContainer/MainWindowButton
 @onready var close_button: Button = $Control/UIContainer/CloseButton
 @onready var dialogue_button: Button = $Control/UIContainer/DialogueButton
 
 @onready var ui_container: VBoxContainer = $Control/UIContainer
-@onready var input_layer: Panel = $Control/InputLayer
-@onready var voice_record_button: Button = $Control/InputLayer/HBoxContainer/VoiceRecordButton
-@onready var close_input_button: Button = $Control/InputLayer/HBoxContainer/Close
+@onready var input_layer: PanelContainer = $Control/InputLayer
+@onready var voice_record_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/VoiceRecordButton
+@onready var close_input_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/Close
 
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
 @onready var doubao_tts = $DoubaoTTSService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
+@onready var mic_capture: AudioStreamPlayer = $MicCapture
 
 @onready var local_whisper_asr = get_node_or_null("LocalWhisperASR")
 @onready var pet_body = get_node_or_null("Control/PetBody")
@@ -56,7 +57,7 @@ func _ready() -> void:
     unresizable = true
     
     # 设置为小窗口大小
-    var target_size = Vector2i(500, 500)
+    var target_size = Vector2i(550, 500)
     size = target_size
     
     # 初始位置：右下角
@@ -69,7 +70,7 @@ func _ready() -> void:
     # 确保内部 Control 占满整个小窗口
     var control_node = $Control
     control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-    control_node.size = Vector2(500, 500)
+    control_node.size = Vector2(550, 500)
     control_node.position = Vector2.ZERO
     
     ui_container.hide()
@@ -158,12 +159,16 @@ func _on_close_input_pressed() -> void:
 func _on_voice_record_down() -> void:
     voice_record_button.text = "松开发送"
     voice_record_button.modulate = Color(0.8, 0.2, 0.2)
+    if mic_capture:
+        mic_capture.play()
     if local_whisper_asr:
         local_whisper_asr.start_recording()
 
 func _on_voice_record_up() -> void:
     voice_record_button.text = "🎙"
     voice_record_button.modulate = Color(1, 1, 1)
+    if mic_capture:
+        mic_capture.stop()
     if local_whisper_asr:
         # Toast feedback could be added here if you have a toast system for the pet.
         local_whisper_asr.stop_recording()
@@ -547,7 +552,7 @@ func _on_main_window_pressed() -> void:
     if current_scene:
         get_tree().root.show()
         current_scene.show()
-        if current_scene is Control:
+        if current_scene is Control and current_scene.focus_mode != Control.FOCUS_NONE:
             current_scene.grab_focus()
         DisplayServer.window_request_attention()
 
@@ -583,7 +588,17 @@ func _unhandled_input(event: InputEvent) -> void:
             else:
                 dragging = false
     elif event is InputEventMouseMotion and dragging:
-        position = DisplayServer.mouse_get_position() - drag_offset
+        var new_pos = DisplayServer.mouse_get_position() - drag_offset
+        
+        # 多显示器支持：获取目标位置所在的屏幕
+        var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(new_pos, size))
+        var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
+        
+        # 限制在新屏幕的边界范围内
+        new_pos.x = clampi(new_pos.x, screen_rect.position.x, screen_rect.end.x - size.x)
+        new_pos.y = clampi(new_pos.y, screen_rect.position.y, screen_rect.end.y - size.y)
+        
+        position = new_pos
 
 func _trigger_pet_touch() -> void:
     if is_dialogue_panel_open: return

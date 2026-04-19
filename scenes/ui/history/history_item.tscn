@@ -41,6 +41,6 @@ fit_content = true
 [node name="TimeLabel" type="Label" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.533333, 0.533333, 0.533333, 1)
+theme_override_colors/font_color = Color(0.6, 0.55, 0.7, 1)
 theme_override_font_sizes/font_size = 16
 text = "[2026-03-29 12:00:00]"

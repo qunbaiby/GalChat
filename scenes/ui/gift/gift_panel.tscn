@@ -1,8 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://gift_panel"]
 
 [ext_resource type="Script" path="res://scripts/ui/gift/gift_panel.gd" id="1_gift"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [node name="GiftPanel" type="Control"]
+theme = ExtResource("1_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,7 +20,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0, 0, 0, 0.3)
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
