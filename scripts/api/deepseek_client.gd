@@ -39,7 +39,7 @@ var _chat_stream_response_code: int = 0
 
 func _ready() -> void:
     chat_http = HTTPRequest.new()
-    chat_http.timeout = 10.0
+    chat_http.timeout = 60.0
     add_child(chat_http)
     chat_http.request_completed.connect(_on_chat_completed)
     
@@ -245,6 +245,26 @@ func _send_memory_extraction() -> void:
     }
     
     memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
+func call_chat_api_non_stream(api_messages: Array) -> void:
+    if not is_inside_tree() or GameDataManager.config.api_key.is_empty():
+        chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+        return
+        
+    if chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+        chat_http.cancel_request()
+        
+    var body = {
+        "model": GameDataManager.config.model,
+        "messages": api_messages,
+        "temperature": GameDataManager.config.temperature,
+        "max_tokens": GameDataManager.config.max_tokens,
+        "stream": false
+    }
+    
+    var err = chat_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+    if err != OK:
+        chat_request_failed.emit("网络请求发送失败: " + str(err))
 
 func _process(_delta: float) -> void:
     if not _chat_stream_active or _chat_stream_client == null:

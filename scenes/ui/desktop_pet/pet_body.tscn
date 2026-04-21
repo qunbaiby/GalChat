@@ -1,21 +1,11 @@
 [gd_scene load_steps=5 format=3 uid="uid://d0vnlpr3gjrac"]
 
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/spine/C06_DF/C06_DF_data.tres" id="1_f5jw8"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://b5ponp1xixff7" path="res://scripts/ui/desktop_pet/pet_body.gd" id="2_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
 size = Vector2(83, 179)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
-bg_color = Color(0.9, 0.85, 0.75, 1)
-border_width_bottom = 4
-border_color = Color(0.75, 0.65, 0.55, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.05)
-shadow_size = 2
 
 [node name="PetBody" type="CharacterBody2D"]
 input_pickable = true
@@ -38,36 +28,38 @@ scale = Vector2(0.15, 0.15)
 
 [node name="BubbleContainer" type="VBoxContainer" parent="."]
 custom_minimum_size = Vector2(0, 250)
-offset_left = -91.0
+offset_left = -170.0
 offset_top = -264.0
-offset_right = 159.0
+offset_right = 230.0
 offset_bottom = -14.0
 size_flags_stretch_ratio = 1.5
 mouse_filter = 2
+theme = ExtResource("1_theme")
 alignment = 2
 
 [node name="SpeechBubble" type="PanelContainer" parent="BubbleContainer"]
 visible = false
-custom_minimum_size = Vector2(10, 30)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Bubble")
+theme = ExtResource("1_theme")
 
 [node name="MarginContainer" type="MarginContainer" parent="BubbleContainer/SpeechBubble"]
 layout_mode = 2
 mouse_filter = 2
+theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
 [node name="RichTextLabel" type="RichTextLabel" parent="BubbleContainer/SpeechBubble/MarginContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/default_color = Color(0.4, 0.35, 0.5, 1)
+theme = ExtResource("1_theme")
 bbcode_enabled = true
 fit_content = true
 autowrap_mode = 2

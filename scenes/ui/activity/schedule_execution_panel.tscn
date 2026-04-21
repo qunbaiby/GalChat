@@ -37,7 +37,6 @@ alignment = 1
 
 [node name="DayLabel" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
 text = "第 1 天"
 horizontal_alignment = 1
 
@@ -50,15 +49,12 @@ stretch_mode = 5
 
 [node name="ActivityLabel" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
 text = "正在执行：体能特训课"
 horizontal_alignment = 1
 
 [node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(800, 120)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.4, 0.6, 1)
-theme_override_font_sizes/font_size = 24
 text = "等待执行..."
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -68,5 +64,4 @@ autowrap_mode = 2
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 28
 text = "点击继续"

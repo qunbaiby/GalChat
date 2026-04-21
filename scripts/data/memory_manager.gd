@@ -14,8 +14,10 @@ var memories: Dictionary = {
 var turns_since_last_extract: int = 0
 
 func get_memory_file_path() -> String:
-    var char_id = GameDataManager.config.current_character_id if GameDataManager.config else "default"
-    if char_id == "": char_id = "default"
+    var char_id = "default"
+    if GameDataManager.config and GameDataManager.config.current_character_id != "":
+        char_id = GameDataManager.config.current_character_id
+        
     var dir_path = "user://saves/%s" % char_id
     if not DirAccess.dir_exists_absolute(dir_path):
         DirAccess.make_dir_recursive_absolute(dir_path)
@@ -60,14 +62,6 @@ func load_memory() -> void:
                                 layer_mems.append(item)
                         memories[key] = layer_mems
                 turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
-    else:
-        # 尝试迁移旧的 player_memory.json (单角色模式下的旧存档)
-        var old_path = "user://player_memory.json"
-        if FileAccess.file_exists(old_path):
-            var dir = DirAccess.open("user://")
-            dir.copy(old_path, path)
-            dir.rename(old_path, "user://player_memory_migrated.json")
-            load_memory()
 
 func save_memory() -> void:
     var file = FileAccess.open(get_memory_file_path(), FileAccess.WRITE)

@@ -57,7 +57,7 @@ func _ready() -> void:
     unresizable = true
     
     # 设置为小窗口大小
-    var target_size = Vector2i(550, 500)
+    var target_size = Vector2i(450, 500)
     size = target_size
     
     # 初始位置：右下角
@@ -70,7 +70,7 @@ func _ready() -> void:
     # 确保内部 Control 占满整个小窗口
     var control_node = $Control
     control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-    control_node.size = Vector2(550, 500)
+    control_node.size = Vector2(450, 500)
     control_node.position = Vector2.ZERO
     
     ui_container.hide()
@@ -203,9 +203,9 @@ func _load_prompt() -> void:
     # 强制在每次生成时都使用最新的系统提示词
     pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet")
     if pet_prompt.is_empty():
-        pet_prompt = "你是{{char_name}}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
+        pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
         var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
-        pet_prompt = pet_prompt.replace("{{char_name}}", char_name)
+        pet_prompt = pet_prompt.replace("{name}", char_name)
 
 func _on_poll_timer_timeout() -> void:
     _check_hourly_chime()
@@ -264,7 +264,10 @@ func _check_active_window() -> void:
         # 既然重新触发了，把停留时间减掉一部分，或者保持不动，只要受冷却时间控制即可
         
         var app_type = _map_app_type(window_title, process_name)
-        var prompt = "【系统动作：玩家现在正在看着屏幕上名为“%s”的内容（这可能是一个%s）。请你以真实陪伴者的身份，根据你当前的心情和性格，针对“%s”这个名字和应用类型，发表一句关心、好奇或者吐槽。绝对不能提到你是AI或桌宠。必须紧扣“%s”这个主题发挥！】" % [window_title, app_type, window_title, window_title]
+        var time_dict = Time.get_datetime_dict_from_system()
+        var h = time_dict["hour"]
+        var m = time_dict["minute"]
+        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。请你以真实陪伴者的身份，根据你当前的心情和性格，针对这个应用发表一句关心、好奇或者吐槽。注意：仅将时间作为语境参考（白天不催睡觉，晚上可提醒休息），绝不要在回复中直接报出当前时间，也绝对不能提到你是AI或桌宠。】" % [h, m, window_title, app_type]
         print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
         _trigger_proactive_chat(prompt)
 
@@ -321,18 +324,24 @@ func _check_hourly_chime() -> void:
         _last_reaction_tick = current_tick
         
         var time_str = ""
+        var time_constraint = ""
         if current_hour >= 6 and current_hour < 11:
             time_str = "清晨"
+            time_constraint = "现在是白天，请展现出活力，鼓励玩家开始新的一天，绝对不要催促休息。"
         elif current_hour >= 11 and current_hour < 14:
             time_str = "中午"
+            time_constraint = "现在是中午，可以提醒玩家吃午饭或稍微午休放松一下。"
         elif current_hour >= 14 and current_hour < 19:
             time_str = "下午"
+            time_constraint = "现在是下午，请陪伴玩家度过这段时间，可以说些提神的话，绝对不要催促睡觉。"
         elif current_hour >= 19 and current_hour < 23:
             time_str = "晚上"
+            time_constraint = "现在是晚上，可以聊些轻松的话题，如果时间较晚可以适当提醒准备休息。"
         else:
             time_str = "深夜"
+            time_constraint = "现在是深夜，玩家还在熬夜，可以表现出心疼或强制要求玩家去睡觉。"
             
-        var prompt = "【系统提示：现在是现实时间%s %02d:00。请根据你当前的心情和性格，以及你们的关系阶段，以真实陪伴者的身份，提醒玩家注意时间或进行整点报时。绝对不能提到自己是AI或桌宠。】" % [time_str, current_hour]
+        var prompt = "【系统提示：现在是现实时间 %s %02d:00。%s 请结合你的性格和心情，以真实陪伴者的身份进行整点报时或吐槽。绝对不能提到自己是AI或桌宠。】" % [time_str, current_hour, time_constraint]
         _trigger_proactive_chat(prompt)
 
 
@@ -612,7 +621,10 @@ func _trigger_pet_touch() -> void:
     
     # 触发聊天
     if not is_chatting:
-        var prompt = "【系统动作：玩家用鼠标轻轻戳了触碰了你一下。请根据你的性格和当前心情，做出可爱的回应或吐槽，一两句话即可。】"
+        var time_dict = Time.get_datetime_dict_from_system()
+        var h = time_dict["hour"]
+        var m = time_dict["minute"]
+        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。请结合当前时间作为隐性语境（如白天不催促睡觉），根据你的性格和当前心情，做出一两句话可爱的回应或吐槽。绝对不要在回复中直接报出当前时间或提到AI。】" % [h, m]
         _trigger_proactive_chat(prompt)
 
 func _update_mouse_passthrough() -> void:

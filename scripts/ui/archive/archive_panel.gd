@@ -4,7 +4,24 @@ extends Control
 @onready var char_option: OptionButton = $Panel/VBoxContainer/TopBar/CharOption
 @onready var tab_container: TabContainer = $Panel/VBoxContainer/TabContainer
 @onready var memory_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/记忆库/ScrollContainer/MemoryText"
-@onready var personality_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/PersonalityText"
+@onready var base_personality_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/BasePersonalityText"
+@onready var dynamic_personality_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/DynamicPersonalityText"
+@onready var deepseek_client = $DeepSeekClient
+
+@onready var trait_o_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO/ProgressBar"
+@onready var trait_o_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO/Value"
+
+@onready var trait_c_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC/ProgressBar"
+@onready var trait_c_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC/Value"
+
+@onready var trait_e_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE/ProgressBar"
+@onready var trait_e_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE/Value"
+
+@onready var trait_a_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA/ProgressBar"
+@onready var trait_a_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA/Value"
+
+@onready var trait_n_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN/ProgressBar"
+@onready var trait_n_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN/Value"
 
 var available_characters: Array = []
 
@@ -81,32 +98,66 @@ func _load_char_archive(char_id: String) -> void:
 	_update_memory_display(mems)
 
 func _update_personality_display(profile: CharacterProfile) -> void:
-	var text = ""
-	text += "[b]【大五人格实时分值与底色对比】[/b]\n\n"
-	text += "当前查看角色: " + profile.char_name + "\n\n"
-	
 	var base_o = profile.base_personality.get("openness", 50.0)
 	var base_c = profile.base_personality.get("conscientiousness", 50.0)
 	var base_e = profile.base_personality.get("extraversion", 50.0)
 	var base_a = profile.base_personality.get("agreeableness", 50.0)
 	var base_n = profile.base_personality.get("neuroticism", 50.0)
 	
-	text += _format_trait("开放性 (Openness)", profile.openness, base_o)
-	text += _format_trait("尽责性 (Conscientiousness)", profile.conscientiousness, base_c)
-	text += _format_trait("外倾性 (Extraversion)", profile.extraversion, base_e)
-	text += _format_trait("宜人性 (Agreeableness)", profile.agreeableness, base_a)
-	text += _format_trait("神经质 (Neuroticism)", profile.neuroticism, base_n)
+	_set_trait_ui(trait_o_bar, trait_o_val, profile.openness, base_o)
+	_set_trait_ui(trait_c_bar, trait_c_val, profile.conscientiousness, base_c)
+	_set_trait_ui(trait_e_bar, trait_e_val, profile.extraversion, base_e)
+	_set_trait_ui(trait_a_bar, trait_a_val, profile.agreeableness, base_a)
+	_set_trait_ui(trait_n_bar, trait_n_val, profile.neuroticism, base_n)
 	
-	text += "\n[b]【当前激活的人格描述】[/b]\n"
-	var dynamic_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
-	if dynamic_traits == "":
-		text += "暂无激活特征"
+	var base_traits_str = GameDataManager.personality_system.get_base_traits(profile)
+	if base_traits_str == "":
+		base_personality_text.text = "暂无初始底色配置"
 	else:
-		text += dynamic_traits
+		base_personality_text.text = base_traits_str
 		
-	personality_text.text = text
+	var dynamic_traits_str = GameDataManager.personality_system.get_dynamic_traits(profile)
+	dynamic_personality_text.text = "AI 正在分析性格演化，请稍候..."
+	
+	_request_ai_personality_summary(profile, base_traits_str, dynamic_traits_str)
 
-func _format_trait(name: String, current: float, base: float) -> String:
+func _request_ai_personality_summary(profile: CharacterProfile, base_traits: String, dynamic_traits: String) -> void:
+	if not is_instance_valid(deepseek_client):
+		dynamic_personality_text.text = "AI 分析服务未就绪"
+		return
+		
+	var system_prompt = "你是一位专业的心理学与人物性格分析师。请根据以下角色的【初始底色】和【当前因为属性变化而激活的动态性格特征】，用一段自然、生动且富有洞察力的语言（150-300字），总结该角色目前的性格状态、可能的行为倾向，以及给玩家的相处建议。不要输出Markdown代码块，直接输出分析文本。"
+	var user_prompt = "角色名称：" + profile.char_name + "\n\n" + base_traits + "\n\n【当前激活的动态特征】\n" + dynamic_traits
+	
+	if deepseek_client.chat_request_completed.is_connected(_on_ai_summary_completed):
+		deepseek_client.chat_request_completed.disconnect(_on_ai_summary_completed)
+	if deepseek_client.chat_request_failed.is_connected(_on_ai_summary_failed):
+		deepseek_client.chat_request_failed.disconnect(_on_ai_summary_failed)
+		
+	deepseek_client.chat_request_completed.connect(_on_ai_summary_completed, CONNECT_ONE_SHOT)
+	deepseek_client.chat_request_failed.connect(_on_ai_summary_failed, CONNECT_ONE_SHOT)
+	
+	var messages = [
+		{"role": "system", "content": system_prompt},
+		{"role": "user", "content": user_prompt}
+	]
+	
+	deepseek_client.call_chat_api_non_stream(messages)
+
+func _on_ai_summary_completed(response: Dictionary) -> void:
+	if is_instance_valid(dynamic_personality_text):
+		if response.has("choices") and response["choices"].size() > 0:
+			var content = response["choices"][0].get("message", {}).get("content", "")
+			dynamic_personality_text.text = content
+		else:
+			dynamic_personality_text.text = "[color=red]AI 返回格式错误[/color]"
+
+func _on_ai_summary_failed(err_msg: String) -> void:
+	if is_instance_valid(dynamic_personality_text):
+		dynamic_personality_text.text = "[color=red]AI 分析失败: " + err_msg + "[/color]"
+
+func _set_trait_ui(bar: ProgressBar, val_label: RichTextLabel, current: float, base: float) -> void:
+	bar.value = current
 	var diff = current - base
 	var diff_str = ""
 	if diff > 0:
@@ -115,26 +166,29 @@ func _format_trait(name: String, current: float, base: float) -> String:
 		diff_str = "[color=red]%.1f[/color]" % diff
 	else:
 		diff_str = "[color=gray]0.0[/color]"
-	return "%s: 当前 %.1f (底色 %.1f) %s\n" % [name, current, base, diff_str]
+	val_label.text = "%.1f (初始: %.1f) %s" % [current, base, diff_str]
 
 func _update_memory_display(mems: Dictionary) -> void:
 	var text = ""
 	
-	var format_mems = func(layer_mems):
+	var format_mems = func(title, layer_mems, icon_color):
+		var sec = "[color=%s][b]■ %s[/b][/color]\n" % [icon_color, title]
 		if layer_mems.size() == 0:
-			return "无"
-		var lines = []
+			sec += "[color=gray]  暂无记录[/color]\n\n"
+			return sec
+			
 		for m in layer_mems:
 			if m is Dictionary:
-				lines.append(" - %s" % m.get("content", ""))
+				sec += "  • %s\n" % m.get("content", "")
 			elif m is String:
-				lines.append(" - %s" % m)
-		return "\n".join(lines)
+				sec += "  • %s\n" % m
+		sec += "\n"
+		return sec
 		
-	text += "[b]核心记忆:[/b]\n" + format_mems.call(mems.get("core", [])) + "\n\n"
-	text += "[b]情绪记忆:[/b]\n" + format_mems.call(mems.get("emotion", [])) + "\n\n"
-	text += "[b]习惯记忆:[/b]\n" + format_mems.call(mems.get("habit", [])) + "\n\n"
-	text += "[b]羁绊记忆:[/b]\n" + format_mems.call(mems.get("bond", []))
+	text += format_mems.call("核心记忆 (Core)", mems.get("core", []), "#ff6b81")
+	text += format_mems.call("情绪记忆 (Emotion)", mems.get("emotion", []), "#1e90ff")
+	text += format_mems.call("习惯记忆 (Habit)", mems.get("habit", []), "#ff4757")
+	text += format_mems.call("羁绊记忆 (Bond)", mems.get("bond", []), "#fbc531")
 	
 	memory_text.text = text
 

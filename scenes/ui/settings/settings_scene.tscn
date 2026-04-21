@@ -78,7 +78,6 @@ theme_override_constants/separation = 20
 
 [node name="APISectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.58, 0.8, 1)
 text = "--- API 设置 ---"
 horizontal_alignment = 1
 
@@ -138,7 +137,6 @@ theme_override_constants/separation = 20
 
 [node name="VoiceSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.58, 0.8, 1)
 text = "--- 语音设置 ---"
 horizontal_alignment = 1
 
@@ -178,7 +176,6 @@ theme_override_constants/separation = 20
 
 [node name="VectorSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.58, 0.8, 1)
 text = "--- 向量设置 ---"
 horizontal_alignment = 1
 

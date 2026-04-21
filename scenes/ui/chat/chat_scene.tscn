@@ -1,80 +1,35 @@
-[gd_scene load_steps=27 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=17 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/chat/dialogue_manager.gd" id="1_88hip"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]
 [ext_resource type="Texture2D" uid="uid://cxe1scobxnrj6" path="res://assets/images/backgrounds/cankao/暴食對話框.png" id="3_7ns7o"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_buqdj"]
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/chat/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
-[ext_resource type="Texture2D" uid="uid://cwfe2pol5hlfc" path="res://assets/images/ui/dialogue/ui_DressRoom_clothe_button_normal.png" id="5_8h6pm"]
 [ext_resource type="PackedScene" uid="uid://dwstgtds1vmce" path="res://scenes/ui/history/history_panel.tscn" id="5_heyvm"]
 [ext_resource type="PackedScene" uid="uid://cxnhxnqchkav4" path="res://scenes/ui/chat/affection_panel.tscn" id="6_affec"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
-[ext_resource type="Texture2D" uid="uid://bh58gx4tfny8l" path="res://assets/images/ui/dialogue/ui_DressRoom_clothe_button_select.png" id="6_wv3fp"]
 [ext_resource type="PackedScene" uid="uid://br1kcissdv26v" path="res://scenes/ui/chat/debug_panel.tscn" id="7_debug"]
-[ext_resource type="Texture2D" uid="uid://cige4y1dm7bpc" path="res://assets/images/ui/dialogue/ui_DressRoom_clothe_button_lock.png" id="7_vdeok"]
 [ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://scenes/ui/chat/toast_notification.tscn" id="8_toast"]
 [ext_resource type="PackedScene" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
 [ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ut5mp"]
-bg_color = Color(0.89, 0.88, 0.96, 0.85)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ns7o"]
-bg_color = Color(0.85, 0.8, 0.9, 0.85)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qieko"]
-bg_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8h6pm"]
-bg_color = Color(0.89, 0.88, 0.96, 0.95)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.1)
-shadow_size = 6
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6s2cx"]
-texture = ExtResource("5_8h6pm")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_rm74n"]
-texture = ExtResource("6_wv3fp")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jpu63"]
-texture = ExtResource("6_wv3fp")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mwkc3"]
-texture = ExtResource("7_vdeok")
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
 [node name="ChatScene" type="Control"]
-theme = ExtResource("1_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_theme")
 script = ExtResource("1_88hip")
 
 [node name="BackgroundLayer" type="TextureRect" parent="."]
-anchors_preset = 15
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -82,7 +37,7 @@ grow_vertical = 2
 expand_mode = 1
 
 [node name="BedroomMorning" type="TextureRect" parent="."]
-anchors_preset = 15
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -100,7 +55,7 @@ texture = ExtResource("3_7ns7o")
 [node name="CharacterLayer" parent="." instance=ExtResource("4_heyvm")]
 
 [node name="UIOverlay" type="Panel" parent="."]
-anchors_preset = 10
+layout_mode = 0
 anchor_right = 1.0
 offset_left = 10.0
 offset_top = 3.0
@@ -135,103 +90,100 @@ grow_horizontal = 0
 grow_vertical = 2
 text = "记录"
 
-[node name="DialogueLayer" type="Panel" parent="."]
+[node name="DialogueLayer" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -260.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.05, 0.05, 0.08, 0.65)
+
+[node name="NameLabel" type="Label" parent="DialogueLayer"]
+layout_mode = 1
+offset_left = 150.0
+offset_top = 25.0
+offset_right = 350.0
+offset_bottom = 55.0
+theme_override_font_sizes/font_size = 18
+text = "Character Name"
+vertical_alignment = 1
+
+[node name="NameLine" type="ColorRect" parent="DialogueLayer/NameLabel"]
+layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 61.0
-offset_top = -242.0
-offset_right = -62.0
-offset_bottom = -83.0
+offset_right = -150.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_ut5mp")
-
-[node name="DialogueBg2" type="Panel" parent="DialogueLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 27.0
-offset_right = -27.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_7ns7o")
-
-[node name="DialogueBg1" type="Panel" parent="DialogueLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 52.0
-offset_right = -53.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_qieko")
-
-[node name="NameLabel" type="Label" parent="DialogueLayer"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -426.0
-offset_right = -326.0
-offset_bottom = 32.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(0.65, 0.58, 0.8, 1)
-theme_override_font_sizes/font_size = 23
-text = "ayrrha"
-vertical_alignment = 1
+color = Color(0.8, 0.8, 0.9, 0.6)
 
 [node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 154.0
-offset_top = 37.0
-offset_right = -144.0
+offset_left = 150.0
+offset_top = 60.0
+offset_right = -150.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/default_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/normal_font_size = 25
-theme_override_font_sizes/bold_font_size = 25
-theme_override_font_sizes/bold_italics_font_size = 25
-theme_override_font_sizes/italics_font_size = 25
-theme_override_font_sizes/mono_font_size = 25
+theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
-text = "..."
+text = "Dialogue text goes here..."
 
-[node name="QuickOptionLayer" type="Panel" parent="."]
-self_modulate = Color(1, 1, 1, 0)
+[node name="SkipButton" type="Button" parent="DialogueLayer"]
+layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -663.0
-offset_top = -474.0
-offset_right = -20.0
-offset_bottom = -259.0
+offset_left = -150.0
+offset_top = -50.0
+offset_right = -50.0
+offset_bottom = -20.0
 grow_horizontal = 0
 grow_vertical = 0
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "Skip"
+flat = true
 
-[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer"]
+[node name="QuickOptionLayer" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = -0.053000003
-anchor_right = 1.0
-anchor_bottom = 0.947
-offset_top = 0.024000168
-offset_bottom = 0.023986816
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -344.75
+offset_top = -137.0
+offset_right = 344.75
+offset_bottom = 33.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+alignment = 1
+
 [node name="AffectionButton" type="Button" parent="."]
 custom_minimum_size = Vector2(80, 0)
-anchors_preset = 4
+layout_mode = 0
 anchor_top = 0.5
 anchor_bottom = 0.5
 offset_left = 28.0
@@ -239,11 +191,10 @@ offset_top = -189.0
 offset_right = 108.0
 offset_bottom = -133.0
 grow_vertical = 2
-theme_override_font_sizes/font_size = 25
 text = "❤️"
 
 [node name="InputLayer" type="Panel" parent="."]
-anchors_preset = 12
+layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -253,7 +204,6 @@ offset_right = -56.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_8h6pm")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="InputLayer"]
 layout_mode = 1
@@ -271,17 +221,11 @@ theme_override_constants/separation = 10
 [node name="GiftButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
-theme_override_styles/normal = SubResource("StyleBoxTexture_6s2cx")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_rm74n")
-theme_override_styles/hover = SubResource("StyleBoxTexture_jpu63")
-theme_override_styles/disabled = SubResource("StyleBoxTexture_mwkc3")
 text = "🎁"
 
 [node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 25
 placeholder_text = "输入你想说的话..."
 wrap_mode = 1
 scroll_fit_content_height = true
@@ -289,13 +233,11 @@ scroll_fit_content_height = true
 [node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
 text = "🎙"
 
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
 text = "发送"
 
 [node name="DeepSeekClient" type="Node" parent="."]
@@ -318,11 +260,12 @@ bus = &"Record"
 
 [node name="HistoryPanel" parent="." instance=ExtResource("5_heyvm")]
 visible = false
-theme = null
+layout_mode = 0
+anchors_preset = 0
 
 [node name="AffectionPanel" parent="." instance=ExtResource("6_affec")]
 visible = false
-anchors_preset = 4
+layout_mode = 0
 anchor_top = 0.5
 anchor_bottom = 0.5
 offset_left = 120.0
@@ -330,17 +273,17 @@ offset_top = -189.0
 offset_right = 400.0
 offset_bottom = 171.0
 grow_vertical = 2
-theme = null
 
 [node name="GiftPanel" parent="." instance=ExtResource("gift_scene")]
 visible = false
+layout_mode = 1
 
 [node name="DebugPanel" parent="." instance=ExtResource("7_debug")]
 visible = false
-theme = null
+layout_mode = 1
 
 [node name="ToastNotification" parent="." instance=ExtResource("8_toast")]
-theme = null
+layout_mode = 1
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")

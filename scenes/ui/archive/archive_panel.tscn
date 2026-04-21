@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://archive_panel_script" path="res://scripts/ui/archive/archive_panel.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_deepseek"]
 
 [node name="ArchivePanel" type="Control"]
 layout_mode = 3
@@ -12,6 +13,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 theme = ExtResource("2_theme")
+
+[node name="DeepSeekClient" type="Node" parent="."]
+script = ExtResource("3_deepseek")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -55,7 +59,6 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer/TopBar"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
 text = "角色档案库"
 
 [node name="Spacer" type="Control" parent="Panel/VBoxContainer/TopBar"]
@@ -78,32 +81,186 @@ text = "关闭"
 [node name="TabContainer" type="TabContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 20
 
 [node name="性格演化" type="MarginContainer" parent="Panel/VBoxContainer/TabContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer/性格演化"]
 layout_mode = 2
 
-[node name="PersonalityText" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer"]
+[node name="VBox" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="TitleBase" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "【大五人格实时分值与底色对比】"
+
+[node name="TraitsVBox" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="TraitO" type="HBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "开放性 (Openness)"
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_vertical = 4
+step = 0.1
+value = 50.0
+show_percentage = false
+
+[node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO"]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
 bbcode_enabled = true
+text = "50.0"
+scroll_active = false
+
+[node name="TraitC" type="HBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "尽责性 (Conscientiousness)"
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_vertical = 4
+step = 0.1
+value = 50.0
+show_percentage = false
+
+[node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC"]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
+bbcode_enabled = true
+text = "50.0"
+scroll_active = false
+
+[node name="TraitE" type="HBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "外倾性 (Extraversion)"
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_vertical = 4
+step = 0.1
+value = 50.0
+show_percentage = false
+
+[node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE"]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
+bbcode_enabled = true
+text = "50.0"
+scroll_active = false
+
+[node name="TraitA" type="HBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "宜人性 (Agreeableness)"
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_vertical = 4
+step = 0.1
+value = 50.0
+show_percentage = false
+
+[node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA"]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
+bbcode_enabled = true
+text = "50.0"
+scroll_active = false
+
+[node name="TraitN" type="HBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "神经质 (Neuroticism)"
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_vertical = 4
+step = 0.1
+value = 50.0
+show_percentage = false
+
+[node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN"]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
+bbcode_enabled = true
+text = "50.0"
+scroll_active = false
+
+[node name="TitleBaseDesc" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "【初始性格底色】"
+
+[node name="BasePersonalityText" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
 text = "正在加载..."
+
+[node name="TitleDynDesc" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "【当前性格演化分析】"
+
+[node name="DynamicPersonalityText" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+text = "AI 正在分析性格演化..."
 
 [node name="记忆库" type="MarginContainer" parent="Panel/VBoxContainer/TabContainer"]
 visible = false
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer/记忆库"]
 layout_mode = 2
@@ -112,5 +269,6 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/line_separation = 8
 bbcode_enabled = true
 text = "正在加载..."

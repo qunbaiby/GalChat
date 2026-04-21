@@ -115,6 +115,7 @@ func load_profile(force_char_id: String = "") -> void:
 				extraversion = float(str(data.get("extraversion", base_personality.get("extraversion", 50.0))))
 				agreeableness = float(str(data.get("agreeableness", base_personality.get("agreeableness", 50.0))))
 				neuroticism = float(str(data.get("neuroticism", base_personality.get("neuroticism", 50.0))))
+				
 				last_online_time = int(str(data.get("last_online_time", 0)))
 				
 				# 三维六基

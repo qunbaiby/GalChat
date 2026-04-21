@@ -48,7 +48,11 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     var world_bg = profile.description.replace("{char_name}", safe_char_name)
     var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
     var st_desc = stage_conf.get("stageDesc", "").replace("{char_name}", safe_char_name)
-    var p_traits = GameDataManager.personality_system.get_dynamic_traits(profile).replace("{char_name}", safe_char_name)
+    
+    var base_traits = GameDataManager.personality_system.get_base_traits(profile).replace("{char_name}", safe_char_name)
+    var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile).replace("{char_name}", safe_char_name)
+    var p_traits = base_traits + "\n\n" + dyn_traits
+    
     var topic_prefs = GameDataManager.personality_system.get_topic_preferences(profile).replace("{char_name}", safe_char_name)
     var m_habits = GameDataManager.personality_system.get_micro_habits(profile).replace("{char_name}", safe_char_name)
     var scene_set = stage_conf.get("scene_setting", "").replace("{char_name}", safe_char_name)

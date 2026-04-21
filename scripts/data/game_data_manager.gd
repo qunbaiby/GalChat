@@ -104,8 +104,7 @@ func switch_character(char_id: String) -> void:
     config.current_character_id = char_id
     config.save_config()
     
-    profile.current_character_id = char_id
-    profile.load_profile()
+    profile.load_profile(char_id)
     history.load_history()
     memory_manager.load_memory()
     

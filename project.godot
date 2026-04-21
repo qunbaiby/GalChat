@@ -49,6 +49,7 @@ enabled=PackedStringArray("res://addons/godot_whisper/plugin.cfg")
 [file_customization]
 
 folder_colors={
+"res://scenes/": "green",
 "res://scripts/": "red"
 }
 
@@ -57,3 +58,7 @@ folder_colors={
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
+
+[gui]
+
+

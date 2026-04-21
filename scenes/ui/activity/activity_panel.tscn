@@ -3,32 +3,6 @@
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.89, 0.88, 0.96, 0.95)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.65, 0.58, 0.8, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.1)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner"]
-bg_color = Color(1, 1, 1, 0.85)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.65, 0.58, 0.8, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
 [node name="ActivityPanel" type="Control"]
 theme = ExtResource("1_theme")
 layout_mode = 3
@@ -61,7 +35,6 @@ offset_right = 500.0
 offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2
@@ -81,8 +54,6 @@ theme_override_constants/separation = 15
 
 [node name="PreviewTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/font_size = 24
 text = "请选择课程"
 horizontal_alignment = 1
 
@@ -94,8 +65,6 @@ stretch_mode = 5
 
 [node name="ScheduleTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/font_size = 20
 text = "日程安排 (0/10)"
 
 [node name="ScheduleSlots" type="GridContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
@@ -157,7 +126,6 @@ expand_icon = true
 [node name="OutcomePanel" type="PanelContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_inner")
 
 [node name="Margin" type="MarginContainer" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel"]
 layout_mode = 2
@@ -171,16 +139,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/font_size = 18
 text = "学习成果"
 horizontal_alignment = 1
 
 [node name="OutcomeList" type="RichTextLabel" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
 
 [node name="BottomHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
@@ -191,7 +155,6 @@ theme_override_constants/separation = 20
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 20
 text = "撤销"
 
 [node name="RestHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox"]
@@ -202,8 +165,6 @@ alignment = 2
 
 [node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox/RestHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/font_size = 18
 text = "休息"
 
 [node name="RightPanel" type="VBoxContainer" parent="Panel/Margin/MainHBox"]
@@ -213,8 +174,6 @@ theme_override_constants/separation = 15
 
 [node name="EnergyLabel" type="Label" parent="Panel/Margin/MainHBox/RightPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.35, 0.5, 1)
-theme_override_font_sizes/font_size = 24
 text = "当前精力：100/100"
 horizontal_alignment = 2
 
@@ -226,31 +185,26 @@ alignment = 2
 [node name="TabTech" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "科技"
 
 [node name="TabBusiness" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "商业"
 
 [node name="TabArt" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "艺术"
 
 [node name="TabSports" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "体育"
 
 [node name="TabAcademic" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "学术"
 
 [node name="TabContainer" type="TabContainer" parent="Panel/Margin/MainHBox/RightPanel"]
@@ -341,12 +295,10 @@ alignment = 2
 [node name="CloseButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
 text = "返回"
 
 [node name="ExecuteButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
 custom_minimum_size = Vector2(150, 50)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
 disabled = true
 text = "执行安排"
