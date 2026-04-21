@@ -1,19 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://cxnhxnqchkav4"]
+[gd_scene load_steps=3 format=3 uid="uid://cxnhxnqchkav4"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_8kwnr"]
 [ext_resource type="Script" uid="uid://cdm81qllniyvf" path="res://scripts/ui/chat/affection_panel.gd" id="1_affection"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
-
-[sub_resource type="StyleBoxLine" id="StyleBoxLine_Separator"]
-color = Color(0.65, 0.58, 0.8, 0.6)
-grow_begin = -10.0
-grow_end = -10.0
-thickness = 3
 
 [node name="AffectionPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(320, 0)
 offset_right = 320.0
 offset_bottom = 220.0
-theme = ExtResource("1_theme")
+theme = ExtResource("1_8kwnr")
 script = ExtResource("1_affection")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -170,9 +164,9 @@ visible = false
 top_level = true
 z_index = 10
 layout_mode = 2
-mouse_filter = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
 [node name="Margin" type="MarginContainer" parent="TooltipPanel"]
 layout_mode = 2
@@ -185,7 +179,5 @@ theme_override_constants/margin_bottom = 10
 [node name="DescLabel" type="Label" parent="TooltipPanel/Margin"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-mouse_filter = 2
 text = "刚刚认识，对你充满防备和社恐。"
 autowrap_mode = 3
-

@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://bl0bceh1xgj74"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_3iugm"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_yp80g"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="Texture2D" uid="uid://bphq30rfshpd6" path="res://assets/images/backgrounds/cankao/Main_2_zh.png" id="3_2oti7"]
 [ext_resource type="Texture2D" uid="uid://bdigqg8r26vsl" path="res://assets/images/backgrounds/main/main_bg.jpg" id="3_6odu6"]
@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_yp80g")
+theme = ExtResource("1_3iugm")
 script = ExtResource("1_main")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -70,10 +70,10 @@ offset_bottom = -11.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ArchiveButton" type="Button" parent="UIPanel/BottomButton"]
+[node name="PhoneButton" type="Button" parent="UIPanel/BottomButton"]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "档案"
+text = "手机"
 
 [node name="SwitchCharButton" type="Button" parent="UIPanel/BottomButton"]
 custom_minimum_size = Vector2(60, 0)
@@ -121,11 +121,12 @@ offset_left = 12.0
 offset_top = 15.0
 offset_right = 252.0
 offset_bottom = 115.0
+theme = null
 
 [node name="StatsPanel" parent="UIPanel" instance=ExtResource("2_stats")]
 layout_mode = 1
 offset_left = 10.0
-offset_top = -223.0
+offset_top = -220.0
 offset_right = 470.0
 offset_bottom = -7.0
 theme = null

@@ -37,7 +37,6 @@ script = ExtResource("1_stats")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
@@ -45,18 +44,15 @@ theme_override_constants/margin_bottom = 10
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 2
 
 [node name="CoreStatsHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 20
 alignment = 1
 
 [node name="CoreVBox_Physical" type="HBoxContainer" parent="MarginContainer/VBoxContainer/CoreStatsHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 alignment = 1
 
@@ -71,28 +67,24 @@ custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_core_physical")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Physical"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 15
 text = "体"
 horizontal_alignment = 1
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Physical"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 15
 text = "0"
 horizontal_alignment = 1
 
 [node name="CoreVBox_Intelligence" type="HBoxContainer" parent="MarginContainer/VBoxContainer/CoreStatsHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 alignment = 1
 
@@ -107,28 +99,24 @@ custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_core_intelligence")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Intelligence"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 15
 text = "智"
 horizontal_alignment = 1
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Intelligence"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 15
 text = "0"
 horizontal_alignment = 1
 
 [node name="CoreVBox_Charm" type="HBoxContainer" parent="MarginContainer/VBoxContainer/CoreStatsHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 alignment = 1
 
@@ -143,33 +131,28 @@ custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_core_charm")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Charm"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 15
 text = "魅"
 horizontal_alignment = 1
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/CoreStatsHBox/CoreVBox_Charm"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 15
 text = "0"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="BasicStatsVBox" type="GridContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme = ExtResource("1_theme")
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 2
@@ -177,11 +160,9 @@ columns = 2
 [node name="Stat_PhysicalFitness" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
@@ -189,36 +170,30 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 
 [node name="PIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_physical")
 stretch_mode = 5
 
 [node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 alignment = 1
 
 [node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 12
 text = "身体素质"
 
 [node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 10
 text = "还差 0"
 horizontal_alignment = 2
@@ -227,7 +202,6 @@ vertical_alignment = 1
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme = ExtResource("1_theme")
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox/PBar"]
@@ -237,7 +211,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 10
 text = "0 / 100"
@@ -247,7 +220,6 @@ vertical_alignment = 1
 [node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "D"
@@ -257,11 +229,9 @@ vertical_alignment = 1
 [node name="Stat_Vitality" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
@@ -269,36 +239,30 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 
 [node name="VIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_vitality")
 stretch_mode = 5
 
 [node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 alignment = 1
 
 [node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 12
 text = "体能活力"
 
 [node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 10
 text = "还差 0"
 horizontal_alignment = 2
@@ -307,7 +271,6 @@ vertical_alignment = 1
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme = ExtResource("1_theme")
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox/PBar"]
@@ -317,7 +280,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 10
 text = "0 / 100"
@@ -327,7 +289,6 @@ vertical_alignment = 1
 [node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "D"
@@ -337,11 +298,9 @@ vertical_alignment = 1
 [node name="Stat_Academic" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
@@ -349,36 +308,30 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 
 [node name="AcIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_academic")
 stretch_mode = 5
 
 [node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 alignment = 1
 
 [node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 12
 text = "学业素养"
 
 [node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 10
 text = "还差 0"
 horizontal_alignment = 2
@@ -387,7 +340,6 @@ vertical_alignment = 1
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme = ExtResource("1_theme")
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox/PBar"]
@@ -397,7 +349,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 10
 text = "0 / 100"
@@ -407,7 +358,6 @@ vertical_alignment = 1
 [node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "D"
@@ -417,11 +367,9 @@ vertical_alignment = 1
 [node name="Stat_Knowledge" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
@@ -429,36 +377,30 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 
 [node name="KIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_knowledge")
 stretch_mode = 5
 
 [node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 alignment = 1
 
 [node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 12
 text = "知识见闻"
 
 [node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 10
 text = "还差 0"
 horizontal_alignment = 2
@@ -467,7 +409,6 @@ vertical_alignment = 1
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme = ExtResource("1_theme")
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox/PBar"]
@@ -477,7 +418,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 10
 text = "0 / 100"
@@ -487,7 +427,6 @@ vertical_alignment = 1
 [node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "D"
@@ -497,11 +436,9 @@ vertical_alignment = 1
 [node name="Stat_SocialEQ" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
@@ -509,36 +446,30 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 
 [node name="SIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_social")
 stretch_mode = 5
 
 [node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 alignment = 1
 
 [node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 12
 text = "社交情商"
 
 [node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 10
 text = "还差 0"
 horizontal_alignment = 2
@@ -547,7 +478,6 @@ vertical_alignment = 1
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme = ExtResource("1_theme")
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox/PBar"]
@@ -557,7 +487,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 10
 text = "0 / 100"
@@ -567,7 +496,6 @@ vertical_alignment = 1
 [node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "D"
@@ -577,11 +505,9 @@ vertical_alignment = 1
 [node name="Stat_Aesthetics" type="PanelContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
@@ -589,36 +515,30 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/separation = 5
 
 [node name="AIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme = ExtResource("1_theme")
 texture = ExtResource("tex_aesthetics")
 stretch_mode = 5
 
 [node name="MidVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 alignment = 1
 
 [node name="ValHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 12
 text = "创意审美"
 
 [node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox/ValHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_theme")
 theme_override_font_sizes/font_size = 10
 text = "还差 0"
 horizontal_alignment = 2
@@ -627,7 +547,6 @@ vertical_alignment = 1
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme = ExtResource("1_theme")
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox/PBar"]
@@ -637,7 +556,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 10
 text = "0 / 100"
@@ -647,7 +565,6 @@ vertical_alignment = 1
 [node name="GradeLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme = ExtResource("1_theme")
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "D"

@@ -34,11 +34,7 @@ func _update_time() -> void:
 	var time_dict = Time.get_time_dict_from_system()
 	var date_dict = Time.get_date_dict_from_system()
 	
-	var display_hour = time_dict.hour % 12
-	if display_hour == 0:
-		display_hour = 12
-		
-	time_label.text = "%02d:%02d" % [display_hour, time_dict.minute]
+	time_label.text = "%02d:%02d" % [time_dict.hour, time_dict.minute]
 	period_label.text = "上午" if time_dict.hour < 12 else "下午"
 	
 	var weekday_str = ["日", "一", "二", "三", "四", "五", "六"]

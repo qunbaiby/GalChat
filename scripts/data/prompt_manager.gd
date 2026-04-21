@@ -11,6 +11,11 @@ const PET_DYNAMIC_STYLES: Array[Dictionary] = [
     { "name": "双段轻快交流", "weight": 45, "text": "【分段策略：双段轻快交流】请将你的回答分成 2 段发送。要求：【绝对强制】你必须在两段之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段）！每段包含 20 到 40 字的真实台词对话（总字数不超过 150 字）。每一段都必须同时包含括号括起来的动作/神态描写和真实台词对话！" }
 ]
 
+const MOBILE_CHAT_DYNAMIC_STYLES: Array[Dictionary] = [
+    { "name": "单段手机回复", "weight": 50, "text": "【分段策略：单段回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 10 到 50 字之间，总字数不超过 100 字。【绝对强制要求：这是手机聊天界面的对话，请直接输出对话文本，绝对不要使用括号添加任何动作、神态或心理描写！绝对不要使用 [SPLIT] 拆分段落！】" },
+    { "name": "双段手机连续", "weight": 50, "text": "【分段策略：双段连续】请将你的回答分成 2 段发送，模拟微信连发两条消息。要求：【绝对强制】你必须在两段之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段）！每段包含 10 到 30 字的真实对话（总字数不超过 80 字）。【绝对强制要求：这是手机聊天界面的对话，请直接输出对话文本，绝对不要使用括号添加任何动作、神态或心理描写！】" }
+]
+
 # 缓存已加载的模板
 var templates: Dictionary = {}
 
@@ -75,6 +80,36 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
                 if s["name"] == "双段轻快交流":
                     s["weight"] += 60
                 elif s["name"] == "单段简短回复":
+                    s["weight"] = 0
+                    
+        var total_weight = 0
+        for s in current_styles:
+            total_weight += s["weight"]
+            
+        var random_val = randi() % total_weight if total_weight > 0 else 0
+        random_style = current_styles[0]["text"]
+        random_style_name = current_styles[0]["name"]
+        for s in current_styles:
+            random_val -= s["weight"]
+            if random_val < 0:
+                random_style = s["text"]
+                random_style_name = s["name"]
+                break
+    elif template_name == "mobile_chat":
+        var msg_len = player_message.length()
+        var current_styles = MOBILE_CHAT_DYNAMIC_STYLES.duplicate(true)
+        
+        if msg_len <= 10 and msg_len > 0:
+            for s in current_styles:
+                if s["name"] == "单段手机回复":
+                    s["weight"] += 30
+                elif s["name"] == "双段手机连续":
+                    s["weight"] = 0
+        elif msg_len > 20:
+            for s in current_styles:
+                if s["name"] == "双段手机连续":
+                    s["weight"] += 60
+                elif s["name"] == "单段手机回复":
                     s["weight"] = 0
                     
         var total_weight = 0

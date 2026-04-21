@@ -18,6 +18,7 @@ theme = ExtResource("2_theme")
 script = ExtResource("3_deepseek")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -27,17 +28,10 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.3)
 
 [node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(800, 600)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -300.0
-offset_right = 400.0
-offset_bottom = 300.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -113,21 +107,24 @@ layout_mode = 2
 theme_override_constants/separation = 15
 
 [node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-text = "开放性 (Openness)"
+theme_override_font_sizes/font_size = 12
+text = "开放性"
+autowrap_mode = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO"]
-custom_minimum_size = Vector2(300, 20)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 step = 0.1
 value = 50.0
 show_percentage = false
 
 [node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitO"]
-custom_minimum_size = Vector2(200, 24)
+custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 text = "50.0"
 scroll_active = false
@@ -137,21 +134,24 @@ layout_mode = 2
 theme_override_constants/separation = 15
 
 [node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-text = "尽责性 (Conscientiousness)"
+theme_override_font_sizes/font_size = 12
+text = "尽责性"
+autowrap_mode = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC"]
-custom_minimum_size = Vector2(300, 20)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 step = 0.1
 value = 50.0
 show_percentage = false
 
 [node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitC"]
-custom_minimum_size = Vector2(200, 24)
+custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 text = "50.0"
 scroll_active = false
@@ -161,21 +161,24 @@ layout_mode = 2
 theme_override_constants/separation = 15
 
 [node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-text = "外倾性 (Extraversion)"
+theme_override_font_sizes/font_size = 12
+text = "外倾性"
+autowrap_mode = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE"]
-custom_minimum_size = Vector2(300, 20)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 step = 0.1
 value = 50.0
 show_percentage = false
 
 [node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitE"]
-custom_minimum_size = Vector2(200, 24)
+custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 text = "50.0"
 scroll_active = false
@@ -185,21 +188,24 @@ layout_mode = 2
 theme_override_constants/separation = 15
 
 [node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-text = "宜人性 (Agreeableness)"
+theme_override_font_sizes/font_size = 12
+text = "宜人性"
+autowrap_mode = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA"]
-custom_minimum_size = Vector2(300, 20)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 step = 0.1
 value = 50.0
 show_percentage = false
 
 [node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitA"]
-custom_minimum_size = Vector2(200, 24)
+custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 text = "50.0"
 scroll_active = false
@@ -209,21 +215,24 @@ layout_mode = 2
 theme_override_constants/separation = 15
 
 [node name="Name" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-text = "神经质 (Neuroticism)"
+theme_override_font_sizes/font_size = 12
+text = "神经质"
+autowrap_mode = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN"]
-custom_minimum_size = Vector2(300, 20)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 step = 0.1
 value = 50.0
 show_percentage = false
 
 [node name="Value" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/TraitN"]
-custom_minimum_size = Vector2(200, 24)
+custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 text = "50.0"
 scroll_active = false
