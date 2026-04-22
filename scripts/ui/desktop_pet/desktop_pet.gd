@@ -211,6 +211,18 @@ func _on_poll_timer_timeout() -> void:
     _check_hourly_chime()
     _check_active_window()
 
+func _get_time_constraint(hour: int) -> String:
+    if hour >= 6 and hour < 11:
+        return "现在是清晨/上午，请展现出活力，【绝对禁止】说出“晚安”、“好困”或催促睡觉的词汇。"
+    elif hour >= 11 and hour < 14:
+        return "现在是中午，可以提醒玩家吃午饭或稍微午休，【绝对禁止】说出“晚安”或催促晚上睡觉的词汇。"
+    elif hour >= 14 and hour < 19:
+        return "现在是下午，请陪伴玩家度过这段时间，可以说些提神的话，【绝对禁止】说出“晚安”、“好困”或催促睡觉的词汇。"
+    elif hour >= 19 and hour < 23:
+        return "现在是晚上，可以聊些轻松的话题，如果时间较晚可以适当提醒准备休息。"
+    else:
+        return "现在是深夜，玩家还在熬夜，可以表现出困意、心疼或强制要求玩家去睡觉。"
+
 func _check_active_window() -> void:
     if is_dialogue_panel_open: return
     if not is_instance_valid(_window_detector):
@@ -267,7 +279,8 @@ func _check_active_window() -> void:
         var time_dict = Time.get_datetime_dict_from_system()
         var h = time_dict["hour"]
         var m = time_dict["minute"]
-        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。请你以真实陪伴者的身份，根据你当前的心情和性格，针对这个应用发表一句关心、好奇或者吐槽。注意：仅将时间作为语境参考（白天不催睡觉，晚上可提醒休息），绝不要在回复中直接报出当前时间，也绝对不能提到你是AI或桌宠。】" % [h, m, window_title, app_type]
+        var time_constraint = _get_time_constraint(h)
+        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。请你以真实陪伴者的身份，根据你当前的心情和性格，针对这个应用发表一句关心、好奇或者吐槽。注意：%s 绝不要在回复中直接报出当前时间，也绝对不能提到你是AI或桌宠。】" % [h, m, window_title, app_type, time_constraint]
         print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
         _trigger_proactive_chat(prompt)
 
@@ -323,25 +336,8 @@ func _check_hourly_chime() -> void:
         _last_hourly_chime_hour = current_hour
         _last_reaction_tick = current_tick
         
-        var time_str = ""
-        var time_constraint = ""
-        if current_hour >= 6 and current_hour < 11:
-            time_str = "清晨"
-            time_constraint = "现在是白天，请展现出活力，鼓励玩家开始新的一天，绝对不要催促休息。"
-        elif current_hour >= 11 and current_hour < 14:
-            time_str = "中午"
-            time_constraint = "现在是中午，可以提醒玩家吃午饭或稍微午休放松一下。"
-        elif current_hour >= 14 and current_hour < 19:
-            time_str = "下午"
-            time_constraint = "现在是下午，请陪伴玩家度过这段时间，可以说些提神的话，绝对不要催促睡觉。"
-        elif current_hour >= 19 and current_hour < 23:
-            time_str = "晚上"
-            time_constraint = "现在是晚上，可以聊些轻松的话题，如果时间较晚可以适当提醒准备休息。"
-        else:
-            time_str = "深夜"
-            time_constraint = "现在是深夜，玩家还在熬夜，可以表现出心疼或强制要求玩家去睡觉。"
-            
-        var prompt = "【系统提示：现在是现实时间 %s %02d:00。%s 请结合你的性格和心情，以真实陪伴者的身份进行整点报时或吐槽。绝对不能提到自己是AI或桌宠。】" % [time_str, current_hour, time_constraint]
+        var time_constraint = _get_time_constraint(current_hour)
+        var prompt = "【系统提示：现在是现实时间 %02d:00。%s 请结合你的性格和心情，以真实陪伴者的身份进行整点报时或吐槽。绝对不能提到自己是AI或桌宠。】" % [current_hour, time_constraint]
         _trigger_proactive_chat(prompt)
 
 
@@ -366,10 +362,14 @@ func _trigger_proactive_chat(prompt_text: String) -> void:
     # 每次发送前都重新构建 prompt，确保应用识别的 prompt 也是最新的约束
     _load_prompt()
         
-    # 将系统触发的提示以系统事件的形式加入历史记录，然后再发给大模型
-    # 这样才能保证发送的数据包含这一次最新的 action
+    # 构建专属的独立请求记录，不带历史上下文，防止主动吐槽被历史聊天带偏
+    var proactive_history = []
+    proactive_history.append({"role": "user", "content": prompt_text})
+    
+    # 我们把这次主动事件也悄悄塞进主聊天历史里（为了以后的连贯性），但发给大模型时只发独立的 proactive_history
     chat_history.append({"role": "user", "content": prompt_text})
-    deepseek_client.send_desktop_pet_chat_stream(prompt_text, pet_prompt, chat_history)
+    
+    deepseek_client.send_desktop_pet_chat_stream(prompt_text, pet_prompt, proactive_history)
 
 func _on_send_pressed() -> void:
     var text = input_edit.text.strip_edges()
@@ -624,7 +624,8 @@ func _trigger_pet_touch() -> void:
         var time_dict = Time.get_datetime_dict_from_system()
         var h = time_dict["hour"]
         var m = time_dict["minute"]
-        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。请结合当前时间作为隐性语境（如白天不催促睡觉），根据你的性格和当前心情，做出一两句话可爱的回应或吐槽。绝对不要在回复中直接报出当前时间或提到AI。】" % [h, m]
+        var time_constraint = _get_time_constraint(h)
+        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。%s 请结合当前时间作为隐性语境，根据你的性格和当前心情，做出一两句话可爱的回应或吐槽。绝对不要在回复中直接报出当前时间或提到AI。】" % [h, m, time_constraint]
         _trigger_proactive_chat(prompt)
 
 func _update_mouse_passthrough() -> void:

@@ -1,0 +1,7 @@
+# Tasks
+- [ ] Task 1: Update Character Data: Add `"avatar"` field to `luna.json` and `ya.json` pointing to appropriate placeholder images.
+- [ ] Task 2: Create Voice Call UI: Create `voice_call_panel.tscn` with a layout containing the character's large avatar, name, status ("通话中"), a message dialog box in the center/bottom, a hang-up button (bottom left), and a voice record button (bottom right).
+- [ ] Task 3: Integrate Voice Call into Mobile Chat: Add a Voice Call toggle button to the top right of `mobile_chat_panel.tscn`. Implement logic to show/hide the `voice_call_panel` as an overlay.
+- [ ] Task 4: Implement Character Message Display & TTS: In `voice_call_panel.gd`, implement logic to strip bracketed actions from AI responses, display the text character-by-character (typewriter effect), and play the corresponding TTS audio using `doubao_tts`. Handle `[SPLIT]` messages sequentially.
+- [ ] Task 5: Implement Player Voice Input & ASR: In `voice_call_panel.gd`, connect the voice record button to the ASR module (`LocalWhisperASR`). On successful transcription, display the player's text character-by-character, then trigger the AI response request.
+- [ ] Task 6: Refine Avatar Display in Mobile Chat: Ensure the normal `mobile_chat_panel.tscn` uses the character's configured avatar image for message bubbles instead of the colored placeholder panel.

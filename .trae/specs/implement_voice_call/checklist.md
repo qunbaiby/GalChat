@@ -1,0 +1,11 @@
+- [ ] `luna.json` and `ya.json` have valid `"avatar"` fields.
+- [ ] A voice call button exists in the mobile chat top bar and correctly opens the voice call interface.
+- [ ] The voice call interface correctly displays the character's avatar, name, and "通话中".
+- [ ] Character messages in the voice call interface do NOT show bracketed action descriptions.
+- [ ] Character messages in the voice call interface display character-by-character and play TTS audio simultaneously.
+- [ ] Multi-part `[SPLIT]` messages are handled sequentially in the voice call interface.
+- [ ] The hang-up button correctly closes the voice call interface and returns to normal chat.
+- [ ] The voice record button is disabled while the character is speaking.
+- [ ] Holding the voice record button records audio, and releasing it triggers ASR transcription.
+- [ ] Player transcribed text displays character-by-character, and only after completion does the character respond.
+- [ ] Normal mobile chat bubbles correctly display the character's configured avatar.

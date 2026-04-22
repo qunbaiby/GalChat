@@ -1,0 +1,146 @@
+[gd_scene load_steps=7 format=3 uid="uid://d1qrbdrlwfwd2"]
+
+[ext_resource type="Script" uid="uid://32kx5jtivabj" path="res://scripts/ui/mobile/chat/voice_call_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="3_asr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VoiceBg"]
+bg_color = Color(0.1, 0.12, 0.15, 0.95)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarBg"]
+bg_color = Color(0.8, 0.8, 0.8, 1)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
+bg_color = Color(0.8, 0.2, 0.2, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
+bg_color = Color(0.2, 0.6, 0.2, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+
+[node name="VoiceCallPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_VoiceBg")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TopSpacer" type="Control" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="AvatarCenter" type="CenterContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="AvatarPanel" type="Panel" parent="Panel/VBox/AvatarCenter"]
+clip_children = 1
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarBg")
+
+[node name="AvatarTex" type="TextureRect" parent="Panel/VBox/AvatarCenter/AvatarPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="NameLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Name"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "通话中"
+horizontal_alignment = 1
+
+[node name="MessageCenter" type="MarginContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_right = 30
+
+[node name="MessageLabel" type="RichTextLabel" parent="Panel/VBox/MessageCenter"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/default_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "[center]...[/center]"
+fit_content = true
+
+[node name="BottomBar" type="HBoxContainer" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+theme_override_constants/separation = 80
+alignment = 1
+
+[node name="HangupBtn" type="Button" parent="Panel/VBox/BottomBar"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_HangupBtn")
+text = "挂断"
+
+[node name="RecordBtn" type="Button" parent="Panel/VBox/BottomBar"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_RecordBtn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_RecordBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_RecordBtn")
+text = "按住说话"
+
+[node name="BottomSpacer" type="Control" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="LocalWhisperASR" type="SpeechToText" parent="."]
+script = ExtResource("3_asr")

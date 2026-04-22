@@ -6,6 +6,7 @@ var age: int = 22
 var description: String = ""
 var tags: Array = []
 var spine_path: String = ""
+var avatar: String = ""
 
 var intimacy: float = 0.0 # 0-9999
 var current_mood: String = "平静" # 从 9 种状态中选取
@@ -174,6 +175,7 @@ func _load_static_data() -> void:
 				char_name = data.get("char_name", "")
 				age = data.get("age", 22)
 				spine_path = data.get("spine_path", "")
+				avatar = data.get("avatar", "")
 				description = data.get("world_background", data.get("description", ""))
 				tags = data.get("tags", [])
 				if data.has("base_personality"):

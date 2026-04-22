@@ -1,0 +1,4 @@
+# Tasks
+- [x] Task 1: Clean up `desktop_pet.txt` template: Remove concrete dialogue examples (especially those mentioning sleep or night) and replace them with abstract structural format requirements to prevent prompt pollution.
+- [x] Task 2: Implement strict time constraints in `desktop_pet.gd`: Create a helper function `_get_time_constraint(hour: int)` that returns a hard constraint string based on the time of day (e.g., explicitly forbidding "good night" or "sleepy" during daytime).
+- [x] Task 3: Inject time constraints into all proactive triggers: Apply the new helper function to `_trigger_pet_touch`, `_check_active_window`, and `_check_hourly_chime` in `desktop_pet.gd` to enforce time awareness across all interactions.

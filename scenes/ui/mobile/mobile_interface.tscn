@@ -1,7 +1,6 @@
-[gd_scene load_steps=18 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=17 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://b70xfywn2mf5j" path="res://assets/icons/ui/archive.svg" id="3_archive"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PhoneBg"]
@@ -189,14 +188,12 @@ _data = {
 }
 
 [node name="MobileInterface" type="Control"]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -219,7 +216,7 @@ anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -200.0
 offset_right = 200.0
-offset_bottom = 709.0
+offset_bottom = 711.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
@@ -431,7 +428,7 @@ offset_right = 55.0
 offset_bottom = 33.0
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "短消息"
+text = "GalChat"
 
 [node name="L1_Content" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
 layout_mode = 0
@@ -449,7 +446,7 @@ offset_right = 160.0
 offset_bottom = 31.0
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "暂时没有新的短消息。"
+text = "暂时没有新的消息。"
 
 [node name="L1_Icon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
 layout_mode = 0
@@ -509,7 +506,7 @@ offset_right = 160.0
 offset_bottom = 31.0
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "左然的未接来电。"
+text = "未接来电。"
 
 [node name="L2_Icon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List2"]
 layout_mode = 0
