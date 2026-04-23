@@ -33,6 +33,12 @@ var vsync_enabled: bool = true
 var bgm_volume: float = 1.0
 var voice_volume: float = 1.0
 
+# 玩家基本信息
+var player_name: String = "开拓者"
+var player_bio: String = "暂无简介"
+var player_level: int = 70
+var player_eq_level: int = 6
+
 const CONFIG_PATH = "user://config.json"
 
 func save_config() -> void:
@@ -54,7 +60,11 @@ func save_config() -> void:
         "fps_idx": fps_idx,
         "vsync_enabled": vsync_enabled,
         "bgm_volume": bgm_volume,
-        "voice_volume": voice_volume
+        "voice_volume": voice_volume,
+        "player_name": player_name,
+        "player_bio": player_bio,
+        "player_level": player_level,
+        "player_eq_level": player_eq_level
     }
     var file = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
     if file:
@@ -98,6 +108,10 @@ func load_config() -> void:
                 vsync_enabled = data.get("vsync_enabled", vsync_enabled)
                 bgm_volume = data.get("bgm_volume", bgm_volume)
                 voice_volume = data.get("voice_volume", voice_volume)
+                player_name = data.get("player_name", player_name)
+                player_bio = data.get("player_bio", player_bio)
+                player_level = data.get("player_level", player_level)
+                player_eq_level = data.get("player_eq_level", player_eq_level)
     
     apply_settings()
 

@@ -2,16 +2,19 @@ extends Control
 
 signal chat_closed
 
-@onready var back_btn: Button = $UIOverlay/BackButton
-@onready var history_btn: Button = $UIOverlay/HistoryButton
+@onready var ui_panel: Panel = $UIPanel
+@onready var back_btn: Button = $UIPanel/UIOverlay/BackButton
+@onready var history_btn: Button = $UIPanel/UIOverlay/HistoryButton
+@onready var hide_ui_btn: Button = $UIPanel/UIOverlay/HideUIButton
+@onready var camera_btn: Button = $UIPanel/UIOverlay/CameraButton
 
-@onready var name_label: Label = $DialogueLayer/NameLabel
-@onready var dialogue_text: RichTextLabel = $DialogueLayer/RichTextLabel
-@onready var input_field: TextEdit = $InputLayer/HBoxContainer/InputField
-@onready var send_btn: Button = $InputLayer/HBoxContainer/SendButton
-@onready var voice_record_btn: Button = $InputLayer/HBoxContainer/VoiceRecordButton
-@onready var affection_btn: Button = $AffectionButton
-@onready var gift_btn: Button = $InputLayer/HBoxContainer/GiftButton
+@onready var name_label: Label = $UIPanel/DialogueLayer/NameLabel
+@onready var dialogue_text: RichTextLabel = $UIPanel/DialogueLayer/RichTextLabel
+@onready var input_field: TextEdit = $UIPanel/InputLayer/HBoxContainer/InputField
+@onready var send_btn: Button = $UIPanel/InputLayer/HBoxContainer/SendButton
+@onready var voice_record_btn: Button = $UIPanel/InputLayer/HBoxContainer/VoiceRecordButton
+@onready var affection_btn: Button = $UIPanel/AffectionButton
+@onready var gift_btn: Button = $UIPanel/InputLayer/HBoxContainer/GiftButton
 
 @onready var character_layer: Node2D = $CharacterLayer
 
@@ -29,18 +32,25 @@ signal chat_closed
 @onready var gift_panel: Control = $GiftPanel
 @onready var debug_panel: Control = $DebugPanel
 @onready var toast: ToastNotification = $ToastNotification
-@onready var quick_options_container: VBoxContainer = $QuickOptionLayer/QuickOptions
-@onready var bgm: AudioStreamPlayer = $BGM
+@onready var quick_options_container: VBoxContainer = $UIPanel/QuickOptionLayer/QuickOptions
+@onready var click_blocker: Control = $ClickBlocker
+
+var _ui_tween: Tween = null
+var camera_panel_instance = null
 
 const HISTORY_ITEM_SCENE = preload("res://scenes/ui/history/history_item.tscn")
 const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/chat/quick_option_item.tscn")
 
 func _ready() -> void:
+	click_blocker.gui_input.connect(_on_click_blocker_input)
+	
 	if GameDataManager.config:
 		GameDataManager.config.apply_settings()
 		
 	back_btn.pressed.connect(_on_back_pressed)
 	history_btn.pressed.connect(_on_history_pressed)
+	hide_ui_btn.pressed.connect(_on_hide_ui_pressed)
+	camera_btn.pressed.connect(_on_camera_pressed)
 	affection_btn.pressed.connect(_on_affection_pressed)
 	gift_btn.pressed.connect(_on_gift_pressed)
 	voice_record_btn.button_down.connect(_on_voice_record_down)
@@ -240,9 +250,6 @@ func show_panel() -> void:
 	var scale_tween = create_tween()
 	scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	scale_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.3)
-	
-	if bgm and not bgm.playing:
-		bgm.play()
 
 func hide_panel() -> void:
 	var tween = create_tween()
@@ -253,10 +260,60 @@ func hide_panel() -> void:
 	scale_tween.tween_property(self, "scale", Vector2(0.9, 0.9), 0.2)
 	tween.finished.connect(func():
 		hide()
-		if bgm:
-			bgm.stop()
 		chat_closed.emit()
 	)
+
+func _on_hide_ui_pressed() -> void:
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
+
+func _on_click_blocker_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if camera_panel_instance and camera_panel_instance.visible:
+			return
+			
+		if not ui_panel.visible or ui_panel.modulate.a < 0.99:
+			click_blocker.accept_event()
+			if _ui_tween:
+				_ui_tween.kill()
+			ui_panel.visible = true
+			_ui_tween = create_tween()
+			_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
+		else:
+			if dialogue_text.visible_characters < dialogue_text.get_total_character_count():
+				click_blocker.accept_event()
+				dialogue_text.visible_characters = dialogue_text.get_total_character_count()
+
+func _gui_input(event: InputEvent) -> void:
+	pass
+
+func _unhandled_input(event: InputEvent) -> void:
+	pass
+
+func _on_camera_pressed() -> void:
+	if camera_panel_instance == null:
+		var CameraPanelObj = load("res://scenes/ui/mobile/camera_panel.tscn")
+		camera_panel_instance = CameraPanelObj.instantiate()
+		get_tree().get_root().add_child(camera_panel_instance)
+		camera_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		camera_panel_instance.camera_closed.connect(_on_camera_closed)
+		
+	camera_panel_instance.show_panel()
+	
+	if _ui_tween:
+		_ui_tween.kill()
+	ui_panel.visible = false
+	ui_panel.modulate.a = 0.0
+
+func _on_camera_closed() -> void:
+	ui_panel.visible = true
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
 
 func _on_back_pressed() -> void:
 	hide_panel()
@@ -408,6 +465,7 @@ func _play_cached_voice(cache_key: String) -> void:
 		print("未找到语音缓存: ", cache_key)
 
 var pending_status_changes = []
+
 
 func _on_send_pressed() -> void:
 	var text = input_field.text.strip_edges()

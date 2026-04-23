@@ -4,6 +4,7 @@ extends Control
 @onready var galchat_button: Button = $UIPanel/StoryButton
 @onready var activity_button: Button = $UIPanel/ActivityButton
 @onready var desktop_pet_button: Button = $UIPanel/BottomButton/DesktopPetButton
+@onready var test_call_button: Button = $UIPanel/BottomButton/TestCallButton
 @onready var hide_ui_button: Button = $UIPanel/SystemButton/HideUIButton
 @onready var settings_button: Button = $UIPanel/SystemButton/SettingsButton
 @onready var affection_button: Button = $UIPanel/AffectionButton
@@ -12,6 +13,7 @@ extends Control
 @onready var stats_panel = $UIPanel/StatsPanel
 @onready var bgm: AudioStreamPlayer = $BGM
 @onready var music_player: Panel = $UIPanel/BottomButton/MusicPlayer
+@onready var incoming_call_notification: Panel = $IncomingCallNotification
 
 var activity_panel_instance = null
 var settings_panel_instance = null
@@ -50,6 +52,9 @@ func _ready() -> void:
 	switch_char_button.pressed.connect(_on_switch_char_pressed)
 	activity_button.pressed.connect(_on_activity_pressed)
 	desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
+	test_call_button.pressed.connect(_on_test_call_pressed)
+	
+	incoming_call_notification.call_accepted.connect(_on_incoming_call_accepted)
 	
 	GameDataManager.character_switched.connect(_on_character_switched)
 	
@@ -60,6 +65,7 @@ func _ready() -> void:
 	switch_char_button.pivot_offset = switch_char_button.size / 2
 	activity_button.pivot_offset = activity_button.size / 2
 	desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
+	test_call_button.pivot_offset = test_call_button.size / 2
 	hide_ui_button.pivot_offset = hide_ui_button.size / 2
 	settings_button.pivot_offset = settings_button.size / 2
 	affection_button.pivot_offset = affection_button.size / 2
@@ -139,6 +145,22 @@ func _on_desktop_pet_pressed() -> void:
 		desktop_pet_instance = DesktopPetObj.instantiate()
 		get_tree().root.add_child(desktop_pet_instance)
 
+func _on_test_call_pressed() -> void:
+	_animate_button(test_call_button)
+	# 模拟来电，随机语音或视频
+	var char_id = GameDataManager.config.current_character_id
+	var is_video = randf() > 0.5
+	incoming_call_notification.show_incoming_call(char_id, is_video)
+
+func _on_incoming_call_accepted(char_id: String, is_video: bool) -> void:
+	# 接听电话：打开手机面板
+	if mobile_interface_instance == null:
+		_on_phone_pressed()
+	else:
+		mobile_interface_instance.show_phone()
+		
+	# 告诉手机面板直接跳转到通话界面
+	mobile_interface_instance.open_call_directly(char_id, is_video)
 
 func _on_phone_pressed() -> void:
 	_animate_button(phone_button)
@@ -243,8 +265,12 @@ func _on_hide_ui_pressed() -> void:
 	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
 	_ui_tween.tween_callback(func(): ui_panel.visible = false)
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		# 如果手机界面存在且正在显示相机，不要显示UI
+		if mobile_interface_instance and mobile_interface_instance.camera_panel_instance and mobile_interface_instance.camera_panel_instance.visible:
+			return
+			
 		if not ui_panel.visible or ui_panel.modulate.a < 0.99:
 			get_viewport().set_input_as_handled()
 			if _ui_tween:

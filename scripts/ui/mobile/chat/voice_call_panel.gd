@@ -49,12 +49,12 @@ func _ready() -> void:
 	else:
 		print("Voice Call: Could not load TTS service script.")
 
-func setup(char_id: String, profile: CharacterProfile) -> void:
+func setup(char_id: String, profile: CharacterProfile, is_incoming: bool = false) -> void:
 	current_char_id = char_id
 	char_profile = profile
 	
 	name_label.text = profile.char_name
-	status_label.text = "通话中"
+	status_label.text = "接通中..."
 	message_label.text = "[center]...[/center]"
 	
 	var avatar_path = profile.avatar
@@ -63,6 +63,10 @@ func setup(char_id: String, profile: CharacterProfile) -> void:
 	else:
 		# 兜底
 		avatar_tex.texture = load("res://assets/images/characters/desktop_pet/Q_desktop.png")
+
+func set_loading_state() -> void:
+	status_label.text = "对方正在连接..."
+	record_btn.disabled = true
 
 func _on_hangup_pressed() -> void:
 	if audio_player.playing:

@@ -50,15 +50,19 @@ func _ready() -> void:
 	else:
 		print("Video Call: Could not load TTS service script.")
 
-func setup(char_id: String, profile: CharacterProfile) -> void:
+func setup(char_id: String, profile: CharacterProfile, is_incoming: bool = false) -> void:
 	current_char_id = char_id
 	char_profile = profile
 	
 	name_label.text = profile.char_name
-	status_label.text = "视频通话中"
+	status_label.text = "接通中..."
 	message_label.text = "[center]...[/center]"
 	
 	_load_spine(char_id)
+
+func set_loading_state() -> void:
+	status_label.text = "对方正在连接..."
+	record_btn.disabled = true
 
 func set_background(bg_path: String) -> void:
 	if bg_path != "" and ResourceLoader.exists(bg_path):

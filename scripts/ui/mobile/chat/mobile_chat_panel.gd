@@ -1,9 +1,11 @@
 extends Control
 
 signal back_requested
+signal incoming_call_ended
 
 @onready var back_btn: Button = $Panel/VBox/TopBar/BackBtn
 @onready var title_label: Label = $Panel/VBox/TopBar/Title
+@onready var image_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/ImageBtn/Btn
 @onready var voice_call_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/VoiceCallBtn/Btn
 @onready var video_call_btn: TextureRect = $Panel/VBox/BottomArea/ActionRow/VideoBtn/Icon
 @onready var message_list: VBoxContainer = $Panel/VBox/ScrollContainer/Margin/MessageList
@@ -12,21 +14,33 @@ signal back_requested
 @onready var scroll_container: ScrollContainer = $Panel/VBox/ScrollContainer
 @onready var deepseek_client = $DeepSeekClient
 
+@onready var image_overlay: Control = $ImageOverlay
+@onready var full_image: TextureRect = $ImageOverlay/FullImage
+@onready var close_viewer_btn: Button = $ImageOverlay/CloseViewerBtn
+@onready var save_to_album_btn: Button = $ImageOverlay/SaveToAlbumBtn
+
 var doubao_tts = null
 var audio_player: AudioStreamPlayer = null
 
 var current_char_id: String = ""
 var char_profile: CharacterProfile = null
 var chat_history: Array = []
+var current_call_history: Array = [] # 专门用于通话上下文的独立历史记录
 var voice_call_panel_instance = null
 var is_voice_call_mode: bool = false
 var video_call_panel_instance = null
+var _current_call_is_incoming: bool = false
+var _current_viewing_image_path: String = ""
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back_pressed)
 	send_btn.pressed.connect(_on_send_pressed)
 	input_edit.text_submitted.connect(_on_input_submitted)
 	voice_call_btn.pressed.connect(_on_voice_call_pressed)
+	image_btn.pressed.connect(_on_image_btn_pressed)
+	
+	close_viewer_btn.pressed.connect(_on_close_viewer_pressed)
+	save_to_album_btn.pressed.connect(_on_save_to_album_pressed)
 	
 	video_call_btn.mouse_filter = Control.MOUSE_FILTER_PASS
 	video_call_btn.gui_input.connect(func(event: InputEvent):
@@ -80,7 +94,34 @@ func setup(char_id: String) -> void:
 func _on_back_pressed() -> void:
 	back_requested.emit()
 
+func _on_image_btn_pressed() -> void:
+	var mobile_interface = get_parent().get_parent() # Assuming it's inside PhonePanel
+	if mobile_interface and mobile_interface.has_method("_on_album_app_pressed"):
+		mobile_interface._on_album_app_pressed()
+		
+		# Set picker mode for album
+		if mobile_interface.album_panel_instance:
+			mobile_interface.album_panel_instance.set_picker_mode(true)
+			# We need to connect once
+			if not mobile_interface.album_panel_instance.is_connected("photo_picked", _on_photo_picked):
+				mobile_interface.album_panel_instance.photo_picked.connect(_on_photo_picked)
+
+func _on_photo_picked(path: String) -> void:
+	var msg_text = "[img]%s[/img]" % path
+	_send_player_message(msg_text)
+	
+	# After picking, we should return to chat
+	var mobile_interface = get_parent().get_parent()
+	if mobile_interface and mobile_interface.album_panel_instance:
+		mobile_interface.album_panel_instance.hide_panel()
+		mobile_interface.album_panel_instance.set_picker_mode(false)
+
 func _on_voice_call_pressed() -> void:
+	start_voice_call(false)
+
+func start_voice_call(is_incoming: bool) -> void:
+	current_call_history.clear()
+	_current_call_is_incoming = is_incoming
 	if voice_call_panel_instance == null:
 		var VoiceCallObj = load("res://scenes/ui/mobile/chat/voice_call_panel.tscn")
 		voice_call_panel_instance = VoiceCallObj.instantiate()
@@ -89,19 +130,34 @@ func _on_voice_call_pressed() -> void:
 		voice_call_panel_instance.call_ended.connect(_on_voice_call_ended)
 		voice_call_panel_instance.message_sent.connect(_on_voice_call_message_sent)
 		
-	voice_call_panel_instance.setup(current_char_id, char_profile)
+	voice_call_panel_instance.setup(current_char_id, char_profile, is_incoming)
 	voice_call_panel_instance.show()
 	is_voice_call_mode = true
+	
+	_request_proactive_call_message(is_incoming, false)
 
 func _on_voice_call_ended() -> void:
-	if voice_call_panel_instance:
-		voice_call_panel_instance.hide()
+	if not _current_call_is_incoming:
+		if voice_call_panel_instance:
+			voice_call_panel_instance.hide()
+			
 	is_voice_call_mode = false
-	# Refresh history in case voice call added new messages
-	_load_mobile_history()
-	_render_history()
+	
+	if deepseek_client and deepseek_client.chat_http:
+		deepseek_client.chat_http.cancel_request()
+		
+	input_edit.editable = true
+	send_btn.disabled = false
+		
+	if _current_call_is_incoming:
+		incoming_call_ended.emit()
 
 func _on_video_call_pressed() -> void:
+	start_video_call(false)
+
+func start_video_call(is_incoming: bool) -> void:
+	current_call_history.clear()
+	_current_call_is_incoming = is_incoming
 	if video_call_panel_instance == null:
 		var VideoCallObj = load("res://scenes/ui/mobile/chat/video_call_panel.tscn")
 		video_call_panel_instance = VideoCallObj.instantiate()
@@ -110,23 +166,45 @@ func _on_video_call_pressed() -> void:
 		video_call_panel_instance.call_ended.connect(_on_video_call_ended)
 		video_call_panel_instance.message_sent.connect(_on_voice_call_message_sent)
 		
-	video_call_panel_instance.setup(current_char_id, char_profile)
+	video_call_panel_instance.setup(current_char_id, char_profile, is_incoming)
 	
 	# 可以根据场景设置不同的背景
 	# video_call_panel_instance.set_background("res://assets/images/backgrounds/room_night.png")
 	
 	video_call_panel_instance.show()
 	is_voice_call_mode = true
+	
+	_request_proactive_call_message(is_incoming, true)
 
 func _on_video_call_ended() -> void:
-	if video_call_panel_instance:
-		video_call_panel_instance.hide()
+	if not _current_call_is_incoming:
+		if video_call_panel_instance:
+			video_call_panel_instance.hide()
+			
 	is_voice_call_mode = false
-	_load_mobile_history()
-	_render_history()
+	
+	if deepseek_client and deepseek_client.chat_http:
+		deepseek_client.chat_http.cancel_request()
+		
+	input_edit.editable = true
+	send_btn.disabled = false
+		
+	if _current_call_is_incoming:
+		incoming_call_ended.emit()
 
 func _on_voice_call_message_sent(text: String) -> void:
-	_send_player_message(text)
+	current_call_history.append({"speaker": "player", "text": text})
+	
+	# Disable input while waiting
+	input_edit.editable = false
+	send_btn.disabled = true
+	
+	if voice_call_panel_instance and voice_call_panel_instance.visible:
+		voice_call_panel_instance.set_loading_state()
+	elif video_call_panel_instance and video_call_panel_instance.visible:
+		video_call_panel_instance.set_loading_state()
+		
+	_request_ai_call_response(text)
 
 func _on_send_pressed() -> void:
 	var text = input_edit.text.strip_edges()
@@ -148,10 +226,56 @@ func _send_player_message(text: String) -> void:
 	
 	_request_ai_response(text)
 
-func _request_ai_response(player_text: String) -> void:
+func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
+	if not deepseek_client: return
+	
+	var call_type_str = "视频通话" if is_video else "语音通话"
+	var scenario = ""
+	if is_incoming:
+		scenario = "【系统提示：你刚刚主动给玩家打了一个%s，玩家刚刚接通了。请你先开口说第一句话，不要发表情或动作，直接用自然口吻开始聊天。结合你当前的性格、阶段和心情来回应。】" % call_type_str
+	else:
+		scenario = "【系统提示：玩家刚刚给你打了一个%s，你接通了。请你先开口说第一句话，不要发表情或动作，直接用自然口吻回应。结合你当前的性格、阶段和心情来回应。】" % call_type_str
+		
+	# 不保存这段 prompt 到历史记录，只是作为一次性的 system/user 引导
+	var system_prompt = GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", "", [])
+	
+	var messages = [{"role": "system", "content": system_prompt}]
+	
+	messages.append({"role": "user", "content": scenario})
+	
+	# 禁用按钮
+	input_edit.editable = false
+	send_btn.disabled = true
+	if voice_call_panel_instance and voice_call_panel_instance.visible:
+		voice_call_panel_instance.set_loading_state()
+	elif video_call_panel_instance and video_call_panel_instance.visible:
+		video_call_panel_instance.set_loading_state()
+		
+	deepseek_client.call_chat_api_non_stream(messages)
+
+func _request_ai_call_response(player_text: String) -> void:
 	if not deepseek_client: return
 	
 	var system_prompt = GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", player_text, [])
+	
+	var messages = [{"role": "system", "content": system_prompt}]
+	
+	# Add recent call history (last 10 messages)
+	var recent = current_call_history.slice(-10)
+	for msg in recent:
+		var role = "user" if msg.speaker == "player" else "assistant"
+		messages.append({"role": role, "content": msg.text})
+		
+	deepseek_client.call_chat_api_non_stream(messages)
+
+func _request_ai_response(player_text: String) -> void:
+	if not deepseek_client: return
+	
+	var processed_text = player_text
+	if player_text.begins_with("[img]") and player_text.ends_with("[/img]"):
+		processed_text = "【系统动作：玩家向你发送了一张刚刚拍摄的照片。】"
+		
+	var system_prompt = GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", processed_text, [])
 	
 	var messages = [{"role": "system", "content": system_prompt}]
 	
@@ -159,10 +283,11 @@ func _request_ai_response(player_text: String) -> void:
 	var recent = chat_history.slice(-10)
 	for msg in recent:
 		var role = "user" if msg.speaker == "player" else "assistant"
-		messages.append({"role": role, "content": msg.text})
+		var msg_content = msg.text
+		if msg_content.begins_with("[img]") and msg_content.ends_with("[/img]"):
+			msg_content = "【系统提示：[%s发送了一张照片]】" % ("玩家" if msg.speaker == "player" else "你")
+		messages.append({"role": role, "content": msg_content})
 		
-	# messages.append({"role": "user", "content": player_text}) # Already in recent
-	
 	deepseek_client.call_chat_api_non_stream(messages)
 
 func _on_ai_response(response: Dictionary) -> void:
@@ -180,11 +305,12 @@ func _on_ai_response(response: Dictionary) -> void:
 				voice_call_panel_instance.add_character_message(content)
 			elif video_call_panel_instance and video_call_panel_instance.visible:
 				video_call_panel_instance.add_character_message(content)
-			# 同时也保存在后台的历史记录中
+			
+			# 将其记录在通话历史中，而不是聊天历史
 			for part in parts:
 				part = part.strip_edges()
 				if part != "":
-					_save_message_to_history("char", part)
+					current_call_history.append({"speaker": "char", "text": part})
 		else:
 			for part in parts:
 				part = part.strip_edges()
@@ -205,7 +331,16 @@ func _on_ai_response(response: Dictionary) -> void:
 func _on_ai_error(err_msg: String) -> void:
 	input_edit.editable = true
 	send_btn.disabled = false
-	_add_message_bubble("system", "网络错误: " + err_msg)
+	
+	if is_voice_call_mode:
+		if voice_call_panel_instance and voice_call_panel_instance.visible:
+			voice_call_panel_instance.status_label.text = "网络错误: " + err_msg
+			voice_call_panel_instance.record_btn.disabled = false
+		elif video_call_panel_instance and video_call_panel_instance.visible:
+			video_call_panel_instance.status_label.text = "网络错误: " + err_msg
+			video_call_panel_instance.record_btn.disabled = false
+	else:
+		_add_message_bubble("system", "网络错误: " + err_msg)
 
 func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, duration: int = 0, msg: Dictionary = {}) -> void:
 	var hbox = HBoxContainer.new()
@@ -261,6 +396,43 @@ func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, 
 		var max_w = 180 # 限制语音气泡的最大宽度，为右侧转文字按钮留出空间
 		var calc_w = clamp(min_w + duration * 8, min_w, max_w)
 		margin.custom_minimum_size = Vector2(calc_w, 40)
+	elif text.begins_with("[img]") and text.ends_with("[/img]"):
+		# 图片消息
+		var path = text.substr(5, text.length() - 11)
+		var img = Image.load_from_file(path)
+		if img:
+			var tex = ImageTexture.create_from_image(img)
+			# 点击查看大图按钮
+			var btn = TextureButton.new()
+			btn.texture_normal = tex
+			btn.ignore_texture_size = true
+			btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_COVERED
+			btn.custom_minimum_size = Vector2(150, 150)
+			btn.mouse_filter = Control.MOUSE_FILTER_STOP
+			
+			var img_panel = PanelContainer.new()
+			img_panel.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+			var img_style = StyleBoxFlat.new()
+			img_style.bg_color = Color.BLACK
+			img_style.corner_radius_top_left = 12
+			img_style.corner_radius_top_right = 12
+			img_style.corner_radius_bottom_left = 12
+			img_style.corner_radius_bottom_right = 12
+			img_panel.add_theme_stylebox_override("panel", img_style)
+			
+			img_panel.add_child(btn)
+			margin.add_child(img_panel)
+			
+			btn.pressed.connect(func():
+				_show_image_fullscreen(tex, path, speaker == "char")
+			)
+			
+			# 图片气泡不需要那么宽的内边距，覆盖掉
+			margin.add_theme_constant_override("margin_left", 4)
+			margin.add_theme_constant_override("margin_right", 4)
+			margin.add_theme_constant_override("margin_top", 4)
+			margin.add_theme_constant_override("margin_bottom", 4)
+			style.bg_color = Color(0, 0, 0, 0) # 透明底色
 	else:
 		var label = RichTextLabel.new()
 		label.bbcode_enabled = true
@@ -484,6 +656,45 @@ func _render_history() -> void:
 		var duration = int(msg.get("duration", 0))
 		_add_message_bubble(msg.speaker, msg.text, is_voice, duration, msg)
 
+func _show_image_fullscreen(tex: Texture2D, path: String, is_char: bool) -> void:
+	_current_viewing_image_path = path
+	full_image.texture = tex
+	image_overlay.show()
+	
+	if is_char:
+		save_to_album_btn.show()
+	else:
+		save_to_album_btn.hide()
+		
+	image_overlay.modulate.a = 0.0
+	var tween = create_tween()
+	tween.tween_property(image_overlay, "modulate:a", 1.0, 0.2)
+
+func _on_close_viewer_pressed() -> void:
+	var tween = create_tween()
+	tween.tween_property(image_overlay, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(func():
+		image_overlay.hide()
+		full_image.texture = null
+		_current_viewing_image_path = ""
+	)
+
+func _on_save_to_album_pressed() -> void:
+	if _current_viewing_image_path != "":
+		var save_dir = "user://saves/photos"
+		if not DirAccess.dir_exists_absolute(save_dir):
+			DirAccess.make_dir_recursive_absolute(save_dir)
+			
+		var filename = "char_img_" + str(Time.get_unix_time_from_system()) + ".png"
+		var new_path = save_dir + "/" + filename
+		
+		var img = Image.load_from_file(_current_viewing_image_path)
+		if img:
+			img.save_png(new_path)
+			
+		# 可以弹个提示或者简单关闭
+		_on_close_viewer_pressed()
+
 func _mark_message_read(text: String) -> void:
 	var changed = false
 	for msg in chat_history:
@@ -534,7 +745,13 @@ func show_panel() -> void:
 	await get_tree().create_timer(0.1).timeout
 	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
 
-func hide_panel() -> void:
+func hide_panel(immediate: bool = false) -> void:
+	if immediate:
+		modulate.a = 0.0
+		position.x = size.x
+		hide()
+		return
+		
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(self, "position:x", size.x, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)

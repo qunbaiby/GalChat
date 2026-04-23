@@ -1,7 +1,6 @@
-[gd_scene load_steps=17 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=16 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/chat/dialogue_manager.gd" id="1_88hip"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]
 [ext_resource type="Texture2D" uid="uid://cxe1scobxnrj6" path="res://assets/images/backgrounds/cankao/暴食對話框.png" id="3_7ns7o"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_buqdj"]
@@ -25,7 +24,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
+mouse_filter = 0
 script = ExtResource("1_88hip")
 
 [node name="BackgroundLayer" type="TextureRect" parent="."]
@@ -35,6 +34,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
+mouse_filter = 2
 
 [node name="BedroomMorning" type="TextureRect" parent="."]
 layout_mode = 0
@@ -45,6 +45,7 @@ grow_vertical = 2
 texture = ExtResource("2_pfs5l")
 expand_mode = 1
 stretch_mode = 6
+mouse_filter = 2
 
 [node name="2#55673" type="Sprite2D" parent="."]
 visible = false
@@ -54,43 +55,56 @@ texture = ExtResource("3_7ns7o")
 
 [node name="CharacterLayer" parent="." instance=ExtResource("4_heyvm")]
 
-[node name="UIOverlay" type="Panel" parent="."]
+[node name="ClickBlocker" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="UIPanel" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="UIOverlay" type="HBoxContainer" parent="UIPanel"]
 layout_mode = 0
 anchor_right = 1.0
 offset_left = 10.0
-offset_top = 3.0
+offset_top = 10.0
 offset_right = -10.0
 offset_bottom = 61.0
 grow_horizontal = 2
+mouse_filter = 0
 
-[node name="BackButton" type="Button" parent="UIOverlay"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 20.0
-offset_top = -25.0
-offset_right = 100.0
-offset_bottom = 25.0
-grow_vertical = 2
+[node name="BackButton" type="Button" parent="UIPanel/UIOverlay"]
+layout_mode = 2
 text = "返回"
 
-[node name="HistoryButton" type="Button" parent="UIOverlay"]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -25.0
-offset_right = -20.0
-offset_bottom = 25.0
-grow_horizontal = 0
-grow_vertical = 2
+[node name="HistoryButton" type="Button" parent="UIPanel/UIOverlay"]
+layout_mode = 2
 text = "记录"
 
-[node name="DialogueLayer" type="ColorRect" parent="."]
+[node name="Spacer" type="Control" parent="UIPanel/UIOverlay"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HideUIButton" type="Button" parent="UIPanel/UIOverlay"]
+layout_mode = 2
+text = "隐藏UI"
+
+[node name="CameraButton" type="Button" parent="UIPanel/UIOverlay"]
+layout_mode = 2
+text = "相机"
+
+[node name="DialogueLayer" type="ColorRect" parent="UIPanel"]
 layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -100,8 +114,9 @@ offset_bottom = -80.0
 grow_horizontal = 2
 grow_vertical = 0
 color = Color(0.05, 0.05, 0.08, 0.65)
+mouse_filter = 0
 
-[node name="NameLabel" type="Label" parent="DialogueLayer"]
+[node name="NameLabel" type="Label" parent="UIPanel/DialogueLayer"]
 layout_mode = 1
 offset_left = 150.0
 offset_top = 25.0
@@ -111,7 +126,7 @@ theme_override_font_sizes/font_size = 18
 text = "Character Name"
 vertical_alignment = 1
 
-[node name="NameLine" type="ColorRect" parent="DialogueLayer/NameLabel"]
+[node name="NameLine" type="ColorRect" parent="UIPanel/DialogueLayer/NameLabel"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -123,7 +138,7 @@ grow_horizontal = 2
 grow_vertical = 0
 color = Color(0.8, 0.8, 0.9, 0.6)
 
-[node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer"]
+[node name="RichTextLabel" type="RichTextLabel" parent="UIPanel/DialogueLayer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -138,7 +153,7 @@ theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
 text = "Dialogue text goes here..."
 
-[node name="SkipButton" type="Button" parent="DialogueLayer"]
+[node name="SkipButton" type="Button" parent="UIPanel/DialogueLayer"]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -157,7 +172,7 @@ theme_override_font_sizes/font_size = 16
 text = "Skip"
 flat = true
 
-[node name="QuickOptionLayer" type="Control" parent="."]
+[node name="QuickOptionLayer" type="Control" parent="UIPanel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -170,8 +185,9 @@ offset_right = 344.75
 offset_bottom = 33.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer"]
+[node name="QuickOptions" type="VBoxContainer" parent="UIPanel/QuickOptionLayer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -180,8 +196,9 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 15
 alignment = 1
+mouse_filter = 2
 
-[node name="AffectionButton" type="Button" parent="."]
+[node name="AffectionButton" type="Button" parent="UIPanel"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 0
 anchor_top = 0.5
@@ -193,7 +210,7 @@ offset_bottom = -133.0
 grow_vertical = 2
 text = "❤️"
 
-[node name="InputLayer" type="Panel" parent="."]
+[node name="InputLayer" type="Panel" parent="UIPanel"]
 layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -204,8 +221,9 @@ offset_right = -56.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="InputLayer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UIPanel/InputLayer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -218,24 +236,24 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="GiftButton" type="Button" parent="InputLayer/HBoxContainer"]
+[node name="GiftButton" type="Button" parent="UIPanel/InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 text = "🎁"
 
-[node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer"]
+[node name="InputField" type="TextEdit" parent="UIPanel/InputLayer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "输入你想说的话..."
 wrap_mode = 1
 scroll_fit_content_height = true
 
-[node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
+[node name="VoiceRecordButton" type="Button" parent="UIPanel/InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "🎙"
 
-[node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
+[node name="SendButton" type="Button" parent="UIPanel/InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "发送"
@@ -262,6 +280,11 @@ bus = &"Record"
 visible = false
 layout_mode = 0
 anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
+theme = null
 
 [node name="AffectionPanel" parent="." instance=ExtResource("6_affec")]
 visible = false
@@ -273,19 +296,22 @@ offset_top = -189.0
 offset_right = 400.0
 offset_bottom = 171.0
 grow_vertical = 2
+theme = null
 
 [node name="GiftPanel" parent="." instance=ExtResource("gift_scene")]
 visible = false
 layout_mode = 1
+theme = null
 
 [node name="DebugPanel" parent="." instance=ExtResource("7_debug")]
 visible = false
 layout_mode = 1
+theme = null
 
 [node name="ToastNotification" parent="." instance=ExtResource("8_toast")]
 layout_mode = 1
+theme = null
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")
-autoplay = true
 parameters/looping = true

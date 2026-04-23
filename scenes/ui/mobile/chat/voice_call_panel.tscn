@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://d1qrbdrlwfwd2"]
+[gd_scene load_steps=8 format=3 uid="uid://d1qrbdrlwfwd2"]
 
 [ext_resource type="Script" uid="uid://32kx5jtivabj" path="res://scripts/ui/mobile/chat/voice_call_panel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/avatar/luna.png" id="2_k5ilk"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="3_asr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VoiceBg"]
-bg_color = Color(0.1, 0.12, 0.15, 0.95)
+bg_color = Color(0.101960786, 0.12156863, 0.14901961, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 
@@ -14,7 +15,7 @@ corner_radius_top_left = 60
 corner_radius_top_right = 60
 corner_radius_bottom_right = 60
 corner_radius_bottom_left = 60
-shadow_color = Color(0, 0, 0, 0.3)
+shadow_color = Color(0, 0, 0, 0)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
@@ -32,10 +33,12 @@ corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
 
 [node name="VoiceCallPanel" type="Control"]
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -880.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
@@ -78,6 +81,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("2_k5ilk")
 expand_mode = 1
 stretch_mode = 6
 
