@@ -96,7 +96,9 @@ func _on_back_pressed() -> void:
 	back_requested.emit()
 
 func _on_image_btn_pressed() -> void:
+	print("Image button pressed!")
 	var mobile_interface = get_parent().get_parent() # Assuming it's inside PhonePanel
+	print("mobile_interface: ", mobile_interface, ", has method: ", mobile_interface.has_method("_on_album_app_pressed") if mobile_interface else "null")
 	if mobile_interface and mobile_interface.has_method("_on_album_app_pressed"):
 		mobile_interface._on_album_app_pressed()
 		
@@ -315,30 +317,51 @@ func _on_ai_response(response: Dictionary) -> void:
 	if response.has("choices") and response["choices"].size() > 0:
 		var content = response["choices"][0].get("message", {}).get("content", "")
 		
-		# Split by [SPLIT] if any
+		# 强制过滤所有的括号及其内部内容，确保只剩下纯文本
+		var regex = RegEx.new()
+		# 匹配各种中英文括号及其内部的任意字符（包括动作、神态等）
+		regex.compile("(\\(.*?\\)|\\（.*?\\）|\\[.*?\\]|\\【.*?\\】|\\<.*?\\>|\\《.*?\\》|\\{.*?\\}|\\*.*?\\*)")
+		var clean_content = regex.sub(content, "", true).strip_edges()
+		
+		# 如果全被过滤掉了，说明AI只发了括号动作（虽然概率极低），我们给个默认值
+		if clean_content == "":
+			clean_content = "..."
+			
+		# Split by [SPLIT] if any (注意，如果AI依然输出了 [SPLIT]，上面的正则可能会把它当成括号过滤掉。所以我们需要先把 [SPLIT] 替换成安全字符，过滤完再替换回来，或者修改正则不要过滤大写的SPLIT)
+		# 更好的做法是，先按照 [SPLIT] 拆分，然后对每部分分别过滤
+		
 		var parts = content.split("[SPLIT]")
 		
 		if is_voice_call_mode:
 			if voice_call_panel_instance and voice_call_panel_instance.visible:
-				voice_call_panel_instance.add_character_message(content)
+				# 此时把原始内容传给通话面板，那边可能也会过滤，或者我们在这里先过滤
+				# 这里我们统一先过滤
+				for i in range(parts.size()):
+					parts[i] = regex.sub(parts[i], "", true).strip_edges()
+					if parts[i] == "": parts[i] = "..."
+				
+				voice_call_panel_instance.add_character_message("[SPLIT]".join(parts))
 			elif video_call_panel_instance and video_call_panel_instance.visible:
-				video_call_panel_instance.add_character_message(content)
+				for i in range(parts.size()):
+					parts[i] = regex.sub(parts[i], "", true).strip_edges()
+					if parts[i] == "": parts[i] = "..."
+					
+				video_call_panel_instance.add_character_message("[SPLIT]".join(parts))
 			
 			# 将其记录在通话历史中，而不是聊天历史
 			for part in parts:
-				part = part.strip_edges()
 				if part != "":
 					current_call_history.append({"speaker": "char", "text": part})
 		else:
 			for part in parts:
-				part = part.strip_edges()
-				if part != "":
+				var clean_part = regex.sub(part, "", true).strip_edges()
+				if clean_part != "":
 					# 20% chance to be a voice message
 					var is_voice = randf() < 0.2
-					var duration = max(1, int(part.length() / 4.0)) if is_voice else 0
+					var duration = max(1, int(clean_part.length() / 4.0)) if is_voice else 0
 					
-					_add_message_bubble("char", part, is_voice, duration)
-					_save_message_to_history("char", part, is_voice, duration)
+					_add_message_bubble("char", clean_part, is_voice, duration)
+					_save_message_to_history("char", clean_part, is_voice, duration)
 					
 			# Scroll to bottom
 			await get_tree().create_timer(0.1).timeout

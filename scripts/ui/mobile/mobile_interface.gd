@@ -63,6 +63,8 @@ func _on_archive_app_pressed() -> void:
         archive_panel_instance = ArchivePanelObj.instantiate()
         phone_panel.add_child(archive_panel_instance)
         archive_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    else:
+        phone_panel.move_child(archive_panel_instance, -1)
     archive_panel_instance.show_panel()
 
 func _on_camera_app_pressed() -> void:
@@ -72,6 +74,8 @@ func _on_camera_app_pressed() -> void:
         get_tree().get_root().add_child(camera_panel_instance)
         camera_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         camera_panel_instance.camera_closed.connect(_on_camera_closed)
+    else:
+        get_tree().get_root().move_child(camera_panel_instance, -1)
         
     camera_panel_instance.show_panel()
     
@@ -95,6 +99,8 @@ func _on_album_app_pressed() -> void:
         album_panel_instance = AlbumPanelObj.instantiate()
         phone_panel.add_child(album_panel_instance)
         album_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    else:
+        phone_panel.move_child(album_panel_instance, -1)
         
     # Reset picker mode when opening directly from app list
     album_panel_instance.set_picker_mode(false)
@@ -108,6 +114,8 @@ func _on_sms_app_pressed() -> void:
         contact_list_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         contact_list_instance.back_requested.connect(_on_contact_list_back)
         contact_list_instance.character_selected.connect(_on_character_selected)
+    else:
+        phone_panel.move_child(contact_list_instance, -1)
     contact_list_instance.show_panel()
 
 func _on_contact_list_back() -> void:
@@ -122,6 +130,8 @@ func _on_character_selected(char_id: String) -> void:
         chat_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         chat_panel_instance.back_requested.connect(_on_chat_panel_back)
         chat_panel_instance.incoming_call_ended.connect(_on_incoming_call_ended)
+    else:
+        phone_panel.move_child(chat_panel_instance, -1)
         
     chat_panel_instance.setup(char_id)
     chat_panel_instance.show_panel()
@@ -141,6 +151,8 @@ func open_call_directly(char_id: String, is_video: bool, is_fixed: bool = false)
         chat_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         chat_panel_instance.back_requested.connect(_on_chat_panel_back)
         chat_panel_instance.incoming_call_ended.connect(_on_incoming_call_ended)
+    else:
+        phone_panel.move_child(chat_panel_instance, -1)
         
     chat_panel_instance.setup(char_id)
     chat_panel_instance.show_panel()

@@ -1,12 +1,12 @@
-[gd_scene load_steps=17 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=18 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://bdigqg8r26vsl" path="res://assets/images/backgrounds/main/main_bg.jpg" id="2_bg"]
+[ext_resource type="Texture2D" uid="uid://cf57811uyvxux" path="res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://b70xfywn2mf5j" path="res://assets/icons/ui/archive.svg" id="3_archive"]
-[ext_resource type="Texture2D" uid="uid://dr1m6o8sps1h0" path="res://assets/images/characters/desktop_pet/Q_desktop.png" id="4_player_avatar"]
+[ext_resource type="Texture2D" uid="uid://dhdx110iute65" path="res://assets/images/characters/desktop_pet/Q_desktop.png" id="4_player_avatar"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_PhoneBg"]
-texture = ExtResource("2_bg")
+texture = ExtResource("2_6upme")
 modulate_color = Color(0.7, 0.7, 0.8, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvMask"]
@@ -15,6 +15,13 @@ corner_radius_top_left = 40
 corner_radius_top_right = 40
 corner_radius_bottom_right = 40
 corner_radius_bottom_left = 40
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card1"]
+bg_color = Color(0.85, 0.85, 0.88, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ExpBg"]
 bg_color = Color(0.2, 0.2, 0.2, 0.5)
@@ -29,61 +36,6 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Av0"]
-bg_color = Color(0.8, 0.5, 0.5, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.9, 0.9, 1)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Av1"]
-bg_color = Color(0.5, 0.8, 0.5, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.9, 0.9, 1)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Av2"]
-bg_color = Color(0.5, 0.5, 0.8, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.9, 0.9, 1)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Av3"]
-bg_color = Color(0.8, 0.8, 0.5, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.9, 0.9, 1)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card1"]
-bg_color = Color(0.85, 0.85, 0.88, 0.8)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card3"]
 bg_color = Color(0.6, 0.8, 0.9, 0.8)
@@ -320,14 +272,14 @@ stretch_mode = 6
 
 [node name="NameAndLevel" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/MainInfo"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 5
+alignment = 1
 
 [node name="PlayerName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/MainInfo/NameAndLevel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "开拓者"
+text = "小绿"
 
 [node name="EqLevel" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/MainInfo/NameAndLevel"]
 layout_mode = 2
