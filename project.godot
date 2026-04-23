@@ -30,7 +30,6 @@ DoubaoEmbeddingClient="*res://scripts/api/doubao_embedding_client.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/transparent=true
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/subwindows/embed_subwindows=false

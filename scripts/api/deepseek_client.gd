@@ -379,7 +379,7 @@ func _stop_chat_stream() -> void:
         _chat_stream_client = null
     set_process(false)
 
-func send_options_generation(last_ai_reply: String = "") -> void:
+func send_options_generation(last_ai_reply: String = "", free_chat_strategy: String = "") -> void:
     if GameDataManager.config.api_key.is_empty():
         return
         
@@ -413,6 +413,10 @@ func send_options_generation(last_ai_reply: String = "") -> void:
         history_text += char_name + ": " + last_ai_reply + " <--- 【请主要针对这句话进行回应】\n"
         
     var system_prompt = GameDataManager.prompt_manager.build_options_prompt(GameDataManager.profile, history_text)
+    
+    if free_chat_strategy != "":
+        system_prompt += "\n\n【特别对话策略引导】：当前处于特定自由对话模式，请你为玩家生成的这3个回复选项，必须重点围绕以下策略或话题展开：%s" % free_chat_strategy
+        
     var api_messages = [
         {"role": "system", "content": system_prompt}
     ]

@@ -64,7 +64,8 @@ func _ready() -> void:
 		if GameDataManager.config:
 			doubao_tts.setup_auth(
 				GameDataManager.config.doubao_app_id,
-				GameDataManager.config.doubao_token
+				GameDataManager.config.doubao_token,
+				GameDataManager.config.doubao_cluster
 			)
 			
 		doubao_tts.tts_success.connect(_on_tts_success)
@@ -119,7 +120,7 @@ func _on_photo_picked(path: String) -> void:
 func _on_voice_call_pressed() -> void:
 	start_voice_call(false)
 
-func start_voice_call(is_incoming: bool) -> void:
+func start_voice_call(is_incoming: bool, is_fixed: bool = false) -> void:
 	current_call_history.clear()
 	_current_call_is_incoming = is_incoming
 	if voice_call_panel_instance == null:
@@ -130,11 +131,12 @@ func start_voice_call(is_incoming: bool) -> void:
 		voice_call_panel_instance.call_ended.connect(_on_voice_call_ended)
 		voice_call_panel_instance.message_sent.connect(_on_voice_call_message_sent)
 		
-	voice_call_panel_instance.setup(current_char_id, char_profile, is_incoming)
+	voice_call_panel_instance.setup(current_char_id, char_profile, is_incoming, is_fixed)
 	voice_call_panel_instance.show()
 	is_voice_call_mode = true
 	
-	_request_proactive_call_message(is_incoming, false)
+	if not is_fixed:
+		_request_proactive_call_message(is_incoming, false)
 
 func _on_voice_call_ended() -> void:
 	if not _current_call_is_incoming:
@@ -149,13 +151,22 @@ func _on_voice_call_ended() -> void:
 	input_edit.editable = true
 	send_btn.disabled = false
 		
+	# 把当前通话历史同步到全局聊天记录（作为 fixed_call 或 normal_call，此处假设我们统称为 fixed_call 或者根据 is_fixed 判断）
+	# 因为这里 mobile_chat_panel 自身并不知道 is_fixed 状态，我们可以统一保存为普通对话，或者把 is_fixed 存起来。
+	# 为简单起见，既然需求提到固定剧情音视频通话，我们就直接追加到 GameDataManager.history 中：
+	var is_fixed = voice_call_panel_instance.is_fixed_mode if voice_call_panel_instance else false
+	var type_str = "fixed_call" if is_fixed else "normal"
+	for msg in current_call_history:
+		var s_name = "我" if msg.speaker == "player" else current_char_id.capitalize()
+		GameDataManager.history.add_message(s_name, "【语音通话】" + msg.text, "", type_str)
+		
 	if _current_call_is_incoming:
 		incoming_call_ended.emit()
 
 func _on_video_call_pressed() -> void:
 	start_video_call(false)
 
-func start_video_call(is_incoming: bool) -> void:
+func start_video_call(is_incoming: bool, is_fixed: bool = false) -> void:
 	current_call_history.clear()
 	_current_call_is_incoming = is_incoming
 	if video_call_panel_instance == null:
@@ -166,7 +177,7 @@ func start_video_call(is_incoming: bool) -> void:
 		video_call_panel_instance.call_ended.connect(_on_video_call_ended)
 		video_call_panel_instance.message_sent.connect(_on_voice_call_message_sent)
 		
-	video_call_panel_instance.setup(current_char_id, char_profile, is_incoming)
+	video_call_panel_instance.setup(current_char_id, char_profile, is_incoming, is_fixed)
 	
 	# 可以根据场景设置不同的背景
 	# video_call_panel_instance.set_background("res://assets/images/backgrounds/room_night.png")
@@ -174,7 +185,8 @@ func start_video_call(is_incoming: bool) -> void:
 	video_call_panel_instance.show()
 	is_voice_call_mode = true
 	
-	_request_proactive_call_message(is_incoming, true)
+	if not is_fixed:
+		_request_proactive_call_message(is_incoming, true)
 
 func _on_video_call_ended() -> void:
 	if not _current_call_is_incoming:
@@ -188,6 +200,12 @@ func _on_video_call_ended() -> void:
 		
 	input_edit.editable = true
 	send_btn.disabled = false
+		
+	var is_fixed = video_call_panel_instance.is_fixed_mode if video_call_panel_instance else false
+	var type_str = "fixed_call" if is_fixed else "normal"
+	for msg in current_call_history:
+		var s_name = "我" if msg.speaker == "player" else current_char_id.capitalize()
+		GameDataManager.history.add_message(s_name, "【视频通话】" + msg.text, "", type_str)
 		
 	if _current_call_is_incoming:
 		incoming_call_ended.emit()
@@ -402,16 +420,12 @@ func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, 
 		var img = Image.load_from_file(path)
 		if img:
 			var tex = ImageTexture.create_from_image(img)
-			# 点击查看大图按钮
-			var btn = TextureButton.new()
-			btn.texture_normal = tex
-			btn.ignore_texture_size = true
-			btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_COVERED
-			btn.custom_minimum_size = Vector2(150, 150)
-			btn.mouse_filter = Control.MOUSE_FILTER_STOP
 			
 			var img_panel = PanelContainer.new()
 			img_panel.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+			img_panel.custom_minimum_size = Vector2(150, 150)
+			img_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+			
 			var img_style = StyleBoxFlat.new()
 			img_style.bg_color = Color.BLACK
 			img_style.corner_radius_top_left = 12
@@ -420,11 +434,18 @@ func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, 
 			img_style.corner_radius_bottom_right = 12
 			img_panel.add_theme_stylebox_override("panel", img_style)
 			
-			img_panel.add_child(btn)
+			var rect = TextureRect.new()
+			rect.texture = tex
+			rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			img_panel.add_child(rect)
+			
 			margin.add_child(img_panel)
 			
-			btn.pressed.connect(func():
-				_show_image_fullscreen(tex, path, speaker == "char")
+			img_panel.gui_input.connect(func(event: InputEvent):
+				if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+					_show_image_fullscreen(tex, path, speaker == "char")
 			)
 			
 			# 图片气泡不需要那么宽的内边距，覆盖掉
@@ -657,9 +678,11 @@ func _render_history() -> void:
 		_add_message_bubble(msg.speaker, msg.text, is_voice, duration, msg)
 
 func _show_image_fullscreen(tex: Texture2D, path: String, is_char: bool) -> void:
+	print("Showing image fullscreen: ", path)
 	_current_viewing_image_path = path
 	full_image.texture = tex
 	image_overlay.show()
+	image_overlay.move_to_front() # Ensure it's on top of everything in MobileChatPanel
 	
 	if is_char:
 		save_to_album_btn.show()
@@ -696,13 +719,13 @@ func _on_save_to_album_pressed() -> void:
 		_on_close_viewer_pressed()
 
 func _mark_message_read(text: String) -> void:
-	var changed = false
+	var has_changed = false
 	for msg in chat_history:
 		if msg.text == text and not msg.get("is_read", false):
 			msg["is_read"] = true
-			changed = true
+			has_changed = true
 			
-	if changed:
+	if has_changed:
 		var dir_path = "user://saves/%s" % current_char_id
 		if not DirAccess.dir_exists_absolute(dir_path):
 			DirAccess.make_dir_recursive_absolute(dir_path)

@@ -133,7 +133,7 @@ func _on_chat_panel_back() -> void:
 func _on_incoming_call_ended() -> void:
     hide_phone()
 
-func open_call_directly(char_id: String, is_video: bool) -> void:
+func open_call_directly(char_id: String, is_video: bool, is_fixed: bool = false) -> void:
     if chat_panel_instance == null:
         var ChatPanelObj = load("res://scenes/ui/mobile/chat/mobile_chat_panel.tscn")
         chat_panel_instance = ChatPanelObj.instantiate()
@@ -148,9 +148,9 @@ func open_call_directly(char_id: String, is_video: bool) -> void:
     # 延迟一帧等待 chat_panel 准备完毕，然后直接触发对应的通话按钮并传递参数
     await get_tree().process_frame
     if is_video:
-        chat_panel_instance.start_video_call(true)
+        chat_panel_instance.start_video_call(true, is_fixed)
     else:
-        chat_panel_instance.start_voice_call(true)
+        chat_panel_instance.start_voice_call(true, is_fixed)
 
 func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "slide_down":

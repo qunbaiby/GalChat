@@ -2,32 +2,17 @@ extends Control
 class_name ToastNotification
 
 @onready var container: VBoxContainer = $ToastContainer
+@onready var template: CenterContainer = $ToastTemplate
 
 func show_toast(message: String, color: Color = Color.WHITE) -> void:
-    var panel = PanelContainer.new()
-    var style = StyleBoxFlat.new()
-    style.bg_color = Color(0, 0, 0, 0.7)
-    style.corner_radius_top_left = 20
-    style.corner_radius_top_right = 20
-    style.corner_radius_bottom_left = 20
-    style.corner_radius_bottom_right = 20
-    style.content_margin_left = 20
-    style.content_margin_right = 20
-    style.content_margin_top = 10
-    style.content_margin_bottom = 10
-    panel.add_theme_stylebox_override("panel", style)
+    var center = template.duplicate()
+    center.visible = true
+    var panel = center.get_node("Panel")
+    var label = panel.get_node("Label")
     
-    var label = Label.new()
     label.text = message
-    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     label.add_theme_color_override("font_color", color)
-    label.add_theme_font_size_override("font_size", 24)
     
-    panel.add_child(label)
-    
-    # Center the panel in the container
-    var center = CenterContainer.new()
-    center.add_child(panel)
     container.add_child(center)
     
     # Animate

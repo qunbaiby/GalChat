@@ -1,10 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=11 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="Texture2D" uid="uid://bphq30rfshpd6" path="res://assets/images/backgrounds/cankao/Main_2_zh.png" id="3_2oti7"]
 [ext_resource type="Texture2D" uid="uid://bdigqg8r26vsl" path="res://assets/images/backgrounds/main/main_bg.jpg" id="3_6odu6"]
-[ext_resource type="PackedScene" path="res://scenes/ui/main/incoming_call_notification.tscn" id="5_notification"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="7_eye"]
@@ -195,9 +194,3 @@ expand_icon = true
 stream = ExtResource("6_bgm")
 autoplay = true
 bus = &"BGM"
-
-[node name="IncomingCallNotification" parent="." instance=ExtResource("5_notification")]
-layout_mode = 1
-anchors_preset = 1
-offset_left = -404.0
-offset_right = -84.0

@@ -10,6 +10,7 @@ signal chat_closed
 
 @onready var name_label: Label = $UIPanel/DialogueLayer/NameLabel
 @onready var dialogue_text: RichTextLabel = $UIPanel/DialogueLayer/RichTextLabel
+@onready var input_layer: Panel = $UIPanel/InputLayer
 @onready var input_field: TextEdit = $UIPanel/InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $UIPanel/InputLayer/HBoxContainer/SendButton
 @onready var voice_record_btn: Button = $UIPanel/InputLayer/HBoxContainer/VoiceRecordButton
@@ -24,22 +25,37 @@ signal chat_closed
 @onready var mic_capture: AudioStreamPlayer = $MicCapture
 @onready var local_whisper_asr = $LocalWhisperASR
 
-@onready var history_panel: Panel = $HistoryPanel
-@onready var history_close_btn: Button = $HistoryPanel/HistoryTopBar/HistoryCloseButton
-@onready var history_vbox: VBoxContainer = $HistoryPanel/ScrollContainer/VBoxContainer
-
-@onready var affection_panel: Control = $AffectionPanel
-@onready var gift_panel: Control = $GiftPanel
-@onready var debug_panel: Control = $DebugPanel
-@onready var toast: ToastNotification = $ToastNotification
 @onready var quick_options_container: VBoxContainer = $UIPanel/QuickOptionLayer/QuickOptions
 @onready var click_blocker: Control = $ClickBlocker
 
 var _ui_tween: Tween = null
+var _typewriter_tween: Tween = null
 var camera_panel_instance = null
+var mobile_interface_instance = null
+var _intro_playing: bool = false
+var _intro_waiting_for_click: bool = false
+
+# Free Chat states
+var is_free_chat_mode: bool = false
+var free_chat_strategy: String = ""
+var free_chat_max_rounds: int = 0
+var free_chat_current_round: int = 0
+
+@onready var free_chat_info_layer: Control = $UIPanel/FreeChatInfoLayer
+@onready var free_chat_round_label: Label = $UIPanel/FreeChatInfoLayer/Panel/Margin/VBox/RoundLabel
+@onready var free_chat_strategy_label: RichTextLabel = $UIPanel/FreeChatInfoLayer/Panel/Margin/VBox/StrategyLabel
+
+var history_panel = null
+var affection_panel = null
+var gift_panel = null
+var debug_panel = null
+var toast = null
+var incoming_call_notification_instance = null
+
+signal _intro_click_proceed
 
 const HISTORY_ITEM_SCENE = preload("res://scenes/ui/history/history_item.tscn")
-const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/chat/quick_option_item.tscn")
+const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/story/quick_option_item.tscn")
 
 func _ready() -> void:
 	click_blocker.gui_input.connect(_on_click_blocker_input)
@@ -55,14 +71,8 @@ func _ready() -> void:
 	gift_btn.pressed.connect(_on_gift_pressed)
 	voice_record_btn.button_down.connect(_on_voice_record_down)
 	voice_record_btn.button_up.connect(_on_voice_record_up)
-	gift_panel.gift_sent.connect(_on_gift_sent)
 	send_btn.pressed.connect(_on_send_pressed)
 	input_field.text_changed.connect(_on_input_text_changed)
-	
-	history_close_btn.pressed.connect(_on_history_close_pressed)
-	
-	debug_panel.stage_changed.connect(_on_debug_stage_changed)
-	debug_panel.mood_changed.connect(_on_debug_mood_changed)
 	
 	GameDataManager.profile.stage_upgraded.connect(_on_stage_upgraded)
 	GameDataManager.character_switched.connect(_on_character_switched)
@@ -97,6 +107,12 @@ func _ready() -> void:
 	
 	_update_ui()
 	
+	# Check if we should play the intro story
+	if GameDataManager.has_meta("play_intro_story") and GameDataManager.get_meta("play_intro_story"):
+		GameDataManager.remove_meta("play_intro_story")
+		_play_intro_story()
+		return
+	
 	# 初始问候
 	var messages = GameDataManager.history.messages
 	if messages.size() == 0:
@@ -105,6 +121,267 @@ func _ready() -> void:
 	else:
 		# 有历史记录时，生成旁白并续写话题
 		_generate_narrator_and_continue()
+
+func _play_intro_story() -> void:
+	_intro_playing = true
+	send_btn.disabled = true
+	input_field.editable = false
+	ui_panel.visible = true
+	input_layer.hide()
+	
+	# 淡入效果
+	modulate.a = 0.0
+	var fade_tween = create_tween()
+	fade_tween.tween_property(self, "modulate:a", 1.0, 1.0)
+	
+	# 初始隐藏立绘
+	if character_layer.has_method("hide_character"):
+		character_layer.hide()
+	
+	# Load intro story data
+	var path = "res://assets/data/story/intro_story.json"
+	var story_data = []
+	if FileAccess.file_exists(path):
+		var file = FileAccess.open(path, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			story_data = json.data
+			
+	if story_data.is_empty():
+		print("Error loading intro story data")
+		_intro_playing = false
+		send_btn.disabled = false
+		input_field.editable = true
+		input_layer.show()
+		return
+		
+	# 将数据转为字典以便通过 ID 查找
+	var story_dict = {}
+	for line in story_data:
+		if line.has("id"):
+			story_dict[line["id"]] = line
+			
+	# 如果数据有 ID，从第一条开始；否则按顺序播放
+	var current_id = ""
+	if story_data.size() > 0 and story_data[0].has("id"):
+		current_id = story_data[0]["id"]
+	
+	var index = 0
+	while true:
+		var line = {}
+		if current_id != "" and story_dict.has(current_id):
+			line = story_dict[current_id]
+		elif index < story_data.size():
+			line = story_data[index]
+		else:
+			break
+			
+		var speaker = line.get("speaker", "旁白")
+		var text = line.get("text", "")
+		
+		# Clear current text
+		dialogue_text.text = ""
+		
+		if speaker == "旁白":
+			name_label.text = " "
+			_show_message_async(text, " ", true)
+		elif speaker == "player":
+			name_label.text = "我"
+			_show_message_async(text, "我", true)
+		elif speaker == "char":
+			name_label.text = GameDataManager.profile.char_name
+			_show_message_async(text, GameDataManager.profile.char_name, true)
+		elif speaker == "event":
+			# Pure event node, no dialogue
+			pass
+		else:
+			name_label.text = speaker.capitalize()
+			_show_message_async(text, speaker, true)
+			
+		# 为了确保_show_message_async内部初始化了Tween和各种状态，稍微让出一帧
+		await get_tree().process_frame
+			
+		# 处理事件 (在文本显示并点击后，或如果是纯事件节点则直接处理)
+		# 修复：先处理不阻塞的视觉/系统事件，再显示文本！
+		print("[Debug] 当前节点 ID:", current_id, " 事件数量:", line.get("events", []).size() if line.has("events") else 0)
+		var call_event = null
+		var start_free_chat_event = false
+		var start_free_chat_data = null
+		if line.has("events"):
+			for event in line["events"]:
+				print("[Debug] 执行事件:", event)
+				if event.get("type") == "show_character":
+					if character_layer.has_method("show_character"):
+						character_layer.show_character(event.get("animation", "fade_in"))
+				elif event.get("type") == "hide_character":
+					if character_layer.has_method("hide_character"):
+						character_layer.hide_character(event.get("animation", "fade_out"))
+				elif event.get("type") == "voice_call" or event.get("type") == "video_call":
+					call_event = event
+				elif event.get("type") == "start_free_chat":
+					start_free_chat_event = true
+					start_free_chat_data = event
+		
+		# Wait for click to proceed (only if there is text)
+		if text != "":
+			if not is_inside_tree():
+				return
+			
+			# 如果该节点自身是旁白/说话节点，则等待点击；否则如果是直接带着事件，可以直接执行？
+			# 不，即使有事件，只要有 text 就需要等待点击
+			_intro_waiting_for_click = true
+			await _intro_click_proceed
+			
+		# 如果是通话事件，它会阻塞主流程，所以在点击后执行
+		if call_event != null:
+			print("[Debug] 进入通话事件分支:", call_event.get("type"))
+			var is_video = call_event.get("type") == "video_call"
+			var fixed_calls_path = "res://assets/data/story/fixed_calls.json"
+			var call_data = []
+			if FileAccess.file_exists(fixed_calls_path):
+				var file = FileAccess.open(fixed_calls_path, FileAccess.READ)
+				var json = JSON.new()
+				if json.parse(file.get_as_text()) == OK:
+					call_data = json.data
+			
+			var target_call_id = call_event.get("call_id", "")
+			var call_lines = []
+			var char_id = "ya"
+			for call in call_data:
+				if call.get("id") == target_call_id:
+					call_lines = call.get("lines", [])
+					char_id = call.get("char_id", "ya")
+					break
+					
+			GameDataManager.set_meta("pending_fixed_call_data", call_lines)
+			
+			if is_instance_valid(incoming_call_notification_instance):
+				incoming_call_notification_instance.queue_free()
+				
+			# 独立实例化来电通知弹窗，不依赖 MainScene
+			var NotificationObj = load("res://scenes/ui/main/incoming_call_notification.tscn")
+			var notification = NotificationObj.instantiate()
+			incoming_call_notification_instance = notification
+			add_child(notification)
+			notification.show_incoming_call(char_id, is_video, true)
+			
+			# 隐藏故事背景 UI 防止遮挡
+			var original_ui_visible = ui_panel.visible
+			ui_panel.visible = false
+			
+			await notification.call_accepted
+			notification.queue_free()
+			
+			# 独立实例化手机通话界面
+			if mobile_interface_instance == null:
+				var MobileInterfaceObj = load("res://scenes/ui/mobile/mobile_interface.tscn")
+				mobile_interface_instance = MobileInterfaceObj.instantiate()
+				add_child(mobile_interface_instance)
+				mobile_interface_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				
+			mobile_interface_instance.show_phone()
+			mobile_interface_instance.open_call_directly(char_id, is_video, true)
+			
+			await get_tree().process_frame
+			await get_tree().process_frame
+			
+			if mobile_interface_instance.chat_panel_instance:
+				await mobile_interface_instance.chat_panel_instance.incoming_call_ended
+			
+			# 恢复 UI
+			ui_panel.visible = original_ui_visible
+		
+			if text != "":
+				_intro_waiting_for_click = true
+				await _intro_click_proceed
+			
+		if start_free_chat_event:
+			# 开启自由对话模式
+			is_free_chat_mode = true
+			if start_free_chat_data:
+				free_chat_strategy = start_free_chat_data.get("strategy", "")
+				free_chat_max_rounds = start_free_chat_data.get("max_rounds", 0)
+				free_chat_current_round = 0
+			
+			if free_chat_strategy != "":
+				_get_toast().show_toast("进入自由对话阶段\n策略: " + free_chat_strategy, Color.AQUAMARINE)
+			else:
+				_get_toast().show_toast("进入自由对话阶段", Color.AQUAMARINE)
+			
+			if free_chat_max_rounds > 0 or free_chat_strategy != "":
+				free_chat_info_layer.show()
+				_update_free_chat_info()
+			else:
+				free_chat_info_layer.hide()
+			
+			# 提前跳出并启动自由对话
+			break
+			
+		if current_id != "" and line.has("next_id"):
+			current_id = line["next_id"]
+			if current_id == "end" or not story_dict.has(current_id):
+				break
+		else:
+			break
+		
+	# Finish intro story
+	_intro_playing = false
+	
+	# 淡入显示输入面板
+	input_layer.modulate.a = 0.0
+	input_layer.show()
+	var in_tween = create_tween()
+	in_tween.tween_property(input_layer, "modulate:a", 1.0, 0.5)
+	
+	send_btn.disabled = false
+	input_field.editable = true
+	
+	# 如果历史记录里有固定剧情，触发选项生成以继续话题
+	# 注意：我们这里直接调用 _trigger_character_continue 即可，因为在 _trigger_character_continue 里面
+	# 会基于最新的历史记录请求一次 LLM 回复或选项。
+	var messages = GameDataManager.history.messages
+	if messages.size() > 0:
+		_trigger_character_continue()
+	else:
+		var prompt = "【系统提示：开场剧情已结束。玩家刚刚同意了你的指导请求。请根据你的人设和当前心情，对玩家说第一句话。】"
+		input_field.text = ""
+		_send_player_message(prompt, true)
+
+func _update_free_chat_info() -> void:
+	if free_chat_max_rounds > 0:
+		free_chat_round_label.text = "自由对话轮次: %d / %d" % [free_chat_current_round, free_chat_max_rounds]
+	else:
+		free_chat_round_label.text = "自由对话"
+		
+	if free_chat_strategy != "":
+		free_chat_strategy_label.text = "策略: " + free_chat_strategy
+	else:
+		free_chat_strategy_label.text = ""
+
+func _send_player_message(text: String, is_system_event: bool = false) -> void:
+	if not is_system_event:
+		_show_message(text, "我")
+		input_field.text = ""
+		
+		if is_free_chat_mode:
+			free_chat_current_round += 1
+			_update_free_chat_info()
+			
+	send_btn.disabled = true
+	input_field.editable = false
+	
+	# 发起请求前清除之前的选项
+	pending_options_data.clear()
+	for child in quick_options_container.get_children():
+		child.queue_free()
+		
+	_request_ai_response(text, is_system_event)
+	
+	# 检查是否达到最大轮次，在发送请求后关闭模式，这样本次请求还能带上策略
+	if is_free_chat_mode and free_chat_max_rounds > 0 and free_chat_current_round >= free_chat_max_rounds:
+		is_free_chat_mode = false
+		free_chat_info_layer.hide()
+		_get_toast().show_toast("自由对话阶段结束", Color.ORANGE)
 
 func _generate_narrator_and_continue() -> void:
 	send_btn.disabled = true
@@ -158,7 +435,6 @@ func _trigger_character_continue() -> void:
 	var continue_prompt = "【系统提示：%s。注意：绝对不要输出这段系统提示，直接以%s的口吻说话。】" % [greeting_strategy, char_name]
 	
 	if GameDataManager.config.ai_mode_enabled:
-		# 获取最近一条历史对话的 embedding 来进行记忆检索
 		var query_embedding = []
 		var messages = GameDataManager.history.messages
 		if messages.size() > 0:
@@ -210,8 +486,15 @@ func _on_input_text_changed() -> void:
 func _update_ui() -> void:
 	pass
 
+func _get_toast() -> Node:
+	if toast == null:
+		var ToastObj = load("res://scenes/ui/story/toast_notification.tscn")
+		toast = ToastObj.instantiate()
+		add_child(toast)
+	return toast
+
 func _on_character_switched(char_id: String) -> void:
-	toast.show_toast("已切换到角色：" + char_id, Color.CYAN)
+	_get_toast().show_toast("已切换到角色：" + char_id, Color.CYAN)
 	
 	# 清空现有对话UI
 	dialogue_text.text = ""
@@ -229,15 +512,23 @@ func _on_character_switched(char_id: String) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_F12:
+		if event.keycode == KEY_F10:
+			GameDataManager.switch_character("luna")
+		elif event.keycode == KEY_F11:
+			GameDataManager.switch_character("ya")
+		elif event.keycode == KEY_F12:
+			if debug_panel == null:
+				var DebugPanelObj = load("res://scenes/ui/story/debug_panel.tscn")
+				debug_panel = DebugPanelObj.instantiate()
+				add_child(debug_panel)
+				debug_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				debug_panel.stage_changed.connect(_on_debug_stage_changed)
+				debug_panel.mood_changed.connect(_on_debug_mood_changed)
+				
 			if debug_panel.visible:
 				debug_panel.hide()
 			else:
 				debug_panel.show_panel()
-		elif event.keycode == KEY_F10:
-			GameDataManager.switch_character("luna")
-		elif event.keycode == KEY_F11:
-			GameDataManager.switch_character("ya")
 
 func show_panel() -> void:
 	show()
@@ -261,6 +552,10 @@ func hide_panel() -> void:
 	tween.finished.connect(func():
 		hide()
 		chat_closed.emit()
+		
+		# 如果当前是根场景（例如初次进入的开场剧情），返回应该切换到主场景
+		if get_parent() == get_tree().root:
+			get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 	)
 
 func _on_hide_ui_pressed() -> void:
@@ -283,9 +578,23 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 			_ui_tween = create_tween()
 			_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
 		else:
-			if dialogue_text.visible_characters < dialogue_text.get_total_character_count():
+			if dialogue_text.visible_ratio < 1.0:
 				click_blocker.accept_event()
-				dialogue_text.visible_characters = dialogue_text.get_total_character_count()
+				if _typewriter_tween:
+					_typewriter_tween.kill()
+				dialogue_text.visible_ratio = 1.0
+				dialogue_text.visible_characters = -1
+				
+				# Make sure we finish the tween's intended outcome immediately if we killed it
+				# We don't emit finished here, but we can wait briefly and then if it's intro we wait for next click
+				
+				# ADDED: If we just finished the text, we should NOT emit proceed immediately,
+				# the next click should emit proceed.
+			elif _intro_playing and _intro_waiting_for_click:
+				click_blocker.accept_event()
+				_intro_waiting_for_click = false
+				_intro_click_proceed.emit()
+				print("[Debug] _intro_click_proceed signal emitted")
 
 func _gui_input(event: InputEvent) -> void:
 	pass
@@ -328,27 +637,46 @@ func _on_voice_record_up() -> void:
 	voice_record_btn.text = "按住说话"
 	voice_record_btn.modulate = Color(1, 1, 1)
 	if local_whisper_asr:
-		toast.show_toast("正在识别语音...", Color.YELLOW)
+		_get_toast().show_toast("正在识别语音...", Color.YELLOW)
 		local_whisper_asr.stop_recording()
 
 func _on_asr_success(text: String) -> void:
 	if not text.is_empty():
 		input_field.text = text
-		toast.show_toast("语音识别成功", Color.GREEN)
+		_get_toast().show_toast("语音识别成功", Color.GREEN)
 	else:
-		toast.show_toast("未听清你说什么", Color.ORANGE)
+		_get_toast().show_toast("未听清你说什么", Color.ORANGE)
 
 func _on_asr_failed(err: String) -> void:
-	toast.show_toast("语音识别失败: " + err, Color.RED)
+	_get_toast().show_toast("语音识别失败: " + err, Color.RED)
 	print("ASR Error: ", err)
 
 func _on_affection_pressed() -> void:
+	if affection_panel == null:
+		var AffectionPanelObj = load("res://scenes/ui/story/affection_panel.tscn")
+		affection_panel = AffectionPanelObj.instantiate()
+		add_child(affection_panel)
+		# Set proper anchor layout programmatically if needed
+		affection_panel.anchor_top = 0.5
+		affection_panel.anchor_bottom = 0.5
+		affection_panel.offset_left = 120.0
+		affection_panel.offset_top = -189.0
+		affection_panel.offset_right = 400.0
+		affection_panel.offset_bottom = 171.0
+		
 	if affection_panel.visible:
 		affection_panel.hide()
 	else:
 		affection_panel.show_panel()
 
 func _on_gift_pressed() -> void:
+	if gift_panel == null:
+		var GiftPanelObj = load("res://scenes/ui/gift/gift_panel.tscn")
+		gift_panel = GiftPanelObj.instantiate()
+		add_child(gift_panel)
+		gift_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		gift_panel.gift_sent.connect(_on_gift_sent)
+		
 	gift_panel.show_panel()
 
 func _on_gift_sent(gift_id: String) -> void:
@@ -365,14 +693,14 @@ func _on_gift_sent(gift_id: String) -> void:
 			msg += "亲密 +%.1f " % res.gained_intimacy
 		if res.gained_trust > 0:
 			msg += "信任 +%.1f" % res.gained_trust
-		toast.show_toast(msg, Color.VIOLET)
+		_get_toast().show_toast(msg, Color.VIOLET)
 		
 		_update_ui()
 		
 		# 触发LLM生成对应的感谢/反应
 		_trigger_gift_reaction(gift)
 	else:
-		toast.show_toast(res.msg, Color.RED)
+		_get_toast().show_toast(res.msg, Color.RED)
 
 func _trigger_gift_reaction(gift: Dictionary) -> void:
 	send_btn.disabled = true
@@ -394,26 +722,26 @@ func _trigger_gift_reaction(gift: Dictionary) -> void:
 		input_field.editable = true
 
 func _on_debug_stage_changed(stage: int) -> void:
-	toast.show_toast("【Debug】强制切换情感阶段至：" + str(stage), Color.CYAN)
+	_get_toast().show_toast("【Debug】强制切换情感阶段至：" + str(stage), Color.CYAN)
 	GameDataManager.profile.force_set_stage(stage)
 	# Clear short term history so the AI doesn't get confused by previous stage's context
 	GameDataManager.history.messages.clear()
 	GameDataManager.history.save_history()
 	_update_ui()
-	toast.show_toast("已清空上下文历史，以重新适配新阶段", Color.GRAY)
+	_get_toast().show_toast("已清空上下文历史，以重新适配新阶段", Color.GRAY)
 
 func _on_stage_upgraded(new_stage: int, unlock_dialog: String) -> void:
-	toast.show_toast("情感阶段提升至: Stage " + str(new_stage), Color.YELLOW)
+	_get_toast().show_toast("情感阶段提升至: Stage " + str(new_stage), Color.YELLOW)
 	
 	var stage_conf = GameDataManager.profile.get_current_stage_config()
 	if stage_conf.has("mood_switch"):
 		var new_mood = stage_conf["mood_switch"]
 		if GameDataManager.mood_system.is_valid_mood(new_mood):
 			GameDataManager.profile.update_mood(new_mood)
-			toast.show_toast("心情切换为：" + new_mood, Color.ORANGE)
+			_get_toast().show_toast("心情切换为：" + new_mood, Color.ORANGE)
 
 func _on_debug_mood_changed(mood: String) -> void:
-	toast.show_toast("【Debug】强制切换心情至：" + mood, Color.CYAN)
+	_get_toast().show_toast("【Debug】强制切换心情至：" + mood, Color.CYAN)
 	GameDataManager.profile.update_mood(mood)
 	_update_ui()
 
@@ -428,6 +756,15 @@ func _update_character_sprite(mood: String) -> void:
 				character_layer.texture = tex
 
 func _on_history_pressed() -> void:
+	if history_panel == null:
+		var HistoryPanelObj = load("res://scenes/ui/history/history_panel.tscn")
+		history_panel = HistoryPanelObj.instantiate()
+		add_child(history_panel)
+		history_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var close_btn = history_panel.get_node("HistoryTopBar/HistoryCloseButton")
+		if close_btn:
+			close_btn.pressed.connect(_on_history_close_pressed)
+			
 	history_panel.show()
 	_populate_history_ui()
 	
@@ -440,9 +777,14 @@ func _on_history_pressed() -> void:
 		v_scroll.value = v_scroll.max_value
 
 func _on_history_close_pressed() -> void:
-	history_panel.hide()
+	if history_panel:
+		history_panel.hide()
 
 func _populate_history_ui() -> void:
+	if not history_panel: return
+	var history_vbox = history_panel.get_node("ScrollContainer/VBoxContainer")
+	if not history_vbox: return
+	
 	# 清空现有子节点
 	for child in history_vbox.get_children():
 		child.queue_free()
@@ -467,26 +809,14 @@ func _play_cached_voice(cache_key: String) -> void:
 var pending_status_changes = []
 
 
-func _on_send_pressed() -> void:
-	var text = input_field.text.strip_edges()
-	if text.is_empty():
-		return
+func _request_ai_response(text: String, is_system_event: bool) -> void:
+	if not is_system_event:
+		# Save player message
+		GameDataManager.history.add_message("我", text, "")
 		
-	input_field.text = ""
-	send_btn.disabled = true
-	input_field.editable = false
-	
-	pending_status_changes.clear()
-	
+	# Clear the flag for playback finish
 	is_text_playback_finished = false
-	pending_options_data.clear()
 	
-	_show_message(text, "玩家")
-	
-	# 清空现有的快捷选项
-	for child in quick_options_container.get_children():
-		child.queue_free()
-		
 	if GameDataManager.config.ai_mode_enabled:
 		deepseek_client.send_chat_message(text)
 	else:
@@ -497,6 +827,13 @@ func _on_send_pressed() -> void:
 		_show_message("（离线模式）我...我不知道该说什么...", char_name)
 		send_btn.disabled = false
 		input_field.editable = true
+
+func _on_send_pressed() -> void:
+	var text = input_field.text.strip_edges()
+	if text.is_empty():
+		return
+	
+	_send_player_message(text, false)
 
 var pending_reply_lines = []
 var stream_live_active: bool = false
@@ -531,7 +868,7 @@ func _on_chat_response(response: Dictionary) -> void:
 		# 我们在这里提前触发选项生成，让其在后台默默生成
 		# 因为此时历史记录中还没有保存AI刚刚说的这句话，我们需要手动将它传给选项生成器
 		if GameDataManager.config.ai_mode_enabled:
-			deepseek_client.send_options_generation(deepseek_client._chat_stream_full_text)
+			deepseek_client.send_options_generation(deepseek_client._chat_stream_full_text, free_chat_strategy if is_free_chat_mode else "")
 		return
 		
 	if response.has("choices") and response["choices"].size() > 0:
@@ -539,7 +876,7 @@ func _on_chat_response(response: Dictionary) -> void:
 		
 		# 非流式模式下，收到完整回复后也立刻提前触发选项生成，并手动传入最新回复
 		if GameDataManager.config.ai_mode_enabled:
-			deepseek_client.send_options_generation(reply)
+			deepseek_client.send_options_generation(reply, free_chat_strategy if is_free_chat_mode else "")
 			
 		# 拦截 reply 进行预处理，提取纯净的消息序列
 		var lines = _parse_reply_to_lines(reply)
@@ -590,7 +927,7 @@ func _parse_reply_to_lines(reply: String) -> Array:
 func _append_status_change(change_text: String, plain_text: String) -> void:
 	# 不再向对话框追加状态，而是直接通过 toast 弹出，并输出到控制台
 	# print("【情感分析/记忆提取】", plain_text)
-	toast.show_toast(plain_text, Color.AQUAMARINE)
+	_get_toast().show_toast(plain_text, Color.AQUAMARINE)
 
 func _on_emotion_response(response: Dictionary) -> void:
 	if response.has("choices") and response["choices"].size() > 0:
@@ -691,7 +1028,7 @@ func _on_memory_response(response: Dictionary) -> void:
 							plain_text_changes += "删除记忆 [%s]\n" % id
 							
 				if plain_text_changes != "":
-					_append_status_change("", plain_text_changes.strip_edges())
+					print("记忆系统更新（不弹窗）: ", plain_text_changes.strip_edges())
 		else:
 			print("Memory Agent 无法解析JSON: ", json.get_error_message())
 
@@ -985,7 +1322,7 @@ func _async_analyze_and_update_mood(line: String) -> void:
 		if GameDataManager.mood_system.is_valid_mood(mood_id):
 			print("异步分析结果 -> ", mood_id)
 			GameDataManager.profile.update_mood(mood_id)
-			toast.show_toast("心情变为：" + GameDataManager.mood_system.mood_configs[mood_id]["name"], Color.ORANGE)
+			print("【心情更新（不弹窗）】心情变为：" + GameDataManager.mood_system.mood_configs[mood_id]["name"])
 			_update_ui()
 			_update_character_sprite(mood_id)
 		else:
@@ -1052,19 +1389,25 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	# 开启 BBCode 渲染
 	dialogue_text.bbcode_enabled = true
 	dialogue_text.text = text
-	dialogue_text.visible_characters = 0
+	dialogue_text.visible_ratio = 0.0
 	
 	# 简单的打字机效果
-	var tween = create_tween()
-	var duration = text.length() * 0.05 # 每个字符 0.05 秒
-	tween.tween_property(dialogue_text, "visible_ratio", 1.0, duration)
-	tween.finished.connect(func(): dialogue_text.visible_characters = -1)
+	if _typewriter_tween:
+		_typewriter_tween.kill()
+	_typewriter_tween = create_tween()
+	var duration = max(0.5, text.length() * 0.05) # 每个字符 0.05 秒，至少0.5秒
+	_typewriter_tween.tween_property(dialogue_text, "visible_ratio", 1.0, duration)
+	# We will handle visible_characters = -1 after tween finishes or gets killed
 	
 	var cache_key = ""
 	var is_tts_started = false
 	
 	# 触发TTS语音合成 (仅对 角色 发声)，如果是恢复记录则不发声
-	if speaker_name == GameDataManager.profile.char_name and GameDataManager.config.voice_enabled and not is_restore:
+	# 在固定剧情模式下，判断 speaker_name 是不是玩家或旁白，都不是的话说明是配音角色，也可以发声
+	var is_player_or_narrator = (speaker_name == "我" or speaker_name == "旁白" or speaker_name == " ")
+	
+	# 如果是固定剧情（_intro_playing），即使 is_restore 为 true，也允许发声
+	if GameDataManager.config.voice_enabled and (not is_restore or _intro_playing) and not is_player_or_narrator:
 		# 如果提供了专属的 tts_text (过滤了动作描写的纯净文本)，就用它来发声
 		var text_to_speak = tts_text if tts_text != "" else text
 		
@@ -1072,7 +1415,13 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		regex.compile("[a-zA-Z0-9\u4e00-\u9fa5]")
 		if regex.search(text_to_speak) != null:
 			is_tts_started = true
+			
+			# 如果是固定剧情的配音，优先尝试用 speaker_name 作为角色 ID 查找音色
+			# 否则使用当前全局角色的音色
 			var char_id = GameDataManager.config.current_character_id
+			if _intro_playing and speaker_name != GameDataManager.profile.char_name:
+				char_id = speaker_name.to_lower()
+				
 			var v_type = "ICL_zh_female_bingruoshaonv_tob"
 			if GameDataManager.config.character_voice_types.has(char_id):
 				v_type = GameDataManager.config.character_voice_types[char_id]
@@ -1083,18 +1432,42 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		
 	# 保存记录到历史管理器 (只有在非恢复模式时保存)
 	if not is_restore:
-		GameDataManager.history.add_message(speaker_name, text, cache_key)
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "normal")
+	elif _intro_playing and text != "":
+		# 因为 _intro_playing 调用时是 is_restore=true 专门为了避开 normal 的保存
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story")
 
 	# 等待打字机效果完成
 	if is_inside_tree():
-		await get_tree().create_timer(duration).timeout
+		while _typewriter_tween and _typewriter_tween.is_valid() and _typewriter_tween.is_running():
+			await get_tree().process_frame
+			
+	if not is_inside_tree():
+		return
+		
+	# If we killed the tween, make sure the text is fully shown
+	dialogue_text.visible_ratio = 1.0
+	dialogue_text.visible_characters = -1
 	
 	# 如果启动了语音，并且语音还在播放中，则等待语音播放完毕
 	if is_tts_started and is_inside_tree():
-		# 等待一小会儿确保 TTS 请求有时间返回并开始播放
-		await get_tree().create_timer(0.5).timeout 
-		while audio_player.playing and is_inside_tree():
-			await get_tree().process_frame
+		# 极短缓冲，然后死等 audio_player 结束，但加上最大超时保护
+		var wait_count = 0
+		while not audio_player.playing and wait_count < 10:
+			# 在等待过程中，如果玩家点击屏幕跳过了对话，应该能提前退出
+			if not _intro_waiting_for_click and _intro_playing:
+				break
+			await get_tree().create_timer(0.05).timeout
+			wait_count += 1
+			
+		wait_count = 0
+		while audio_player.playing and is_inside_tree() and wait_count < 1200: # 最多等60秒
+			# 在播放过程中，如果玩家点击屏幕跳过了对话，应该立即停止音频并退出
+			if not _intro_waiting_for_click and _intro_playing:
+				audio_player.stop()
+				break
+			await get_tree().create_timer(0.05).timeout
+			wait_count += 1
 
 func _on_tts_success(audio_stream: AudioStream, text: String) -> void:
 	if audio_player:

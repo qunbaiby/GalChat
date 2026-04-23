@@ -1,19 +1,25 @@
-[gd_scene load_steps=16 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=12 format=3 uid="uid://ddab3x2x4y5v1"]
 
-[ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/chat/dialogue_manager.gd" id="1_88hip"]
+[ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]
 [ext_resource type="Texture2D" uid="uid://cxe1scobxnrj6" path="res://assets/images/backgrounds/cankao/暴食對話框.png" id="3_7ns7o"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_buqdj"]
-[ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/chat/character_layer.tscn" id="4_heyvm"]
+[ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
-[ext_resource type="PackedScene" uid="uid://dwstgtds1vmce" path="res://scenes/ui/history/history_panel.tscn" id="5_heyvm"]
-[ext_resource type="PackedScene" uid="uid://cxnhxnqchkav4" path="res://scenes/ui/chat/affection_panel.tscn" id="6_affec"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
-[ext_resource type="PackedScene" uid="uid://br1kcissdv26v" path="res://scenes/ui/chat/debug_panel.tscn" id="7_debug"]
-[ext_resource type="PackedScene" uid="uid://hx2jrjgjff11" path="res://scenes/ui/chat/toast_notification.tscn" id="8_toast"]
-[ext_resource type="PackedScene" path="res://scenes/ui/gift/gift_panel.tscn" id="gift_scene"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
 [ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.12, 0.12, 0.15, 0.85)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -24,7 +30,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 script = ExtResource("1_88hip")
 
 [node name="BackgroundLayer" type="TextureRect" parent="."]
@@ -33,8 +38,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-expand_mode = 1
 mouse_filter = 2
+expand_mode = 1
 
 [node name="BedroomMorning" type="TextureRect" parent="."]
 layout_mode = 0
@@ -42,10 +47,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("2_pfs5l")
 expand_mode = 1
 stretch_mode = 6
-mouse_filter = 2
 
 [node name="2#55673" type="Sprite2D" parent="."]
 visible = false
@@ -62,7 +67,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
 [node name="UIPanel" type="Panel" parent="."]
 self_modulate = Color(1, 1, 1, 0)
@@ -114,7 +118,6 @@ offset_bottom = -80.0
 grow_horizontal = 2
 grow_vertical = 0
 color = Color(0.05, 0.05, 0.08, 0.65)
-mouse_filter = 0
 
 [node name="NameLabel" type="Label" parent="UIPanel/DialogueLayer"]
 layout_mode = 1
@@ -172,6 +175,57 @@ theme_override_font_sizes/font_size = 16
 text = "Skip"
 flat = true
 
+[node name="FreeChatInfoLayer" type="Control" parent="UIPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -400.0
+offset_top = 80.0
+offset_right = -20.0
+offset_bottom = 200.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="UIPanel/FreeChatInfoLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
+
+[node name="Margin" type="MarginContainer" parent="UIPanel/FreeChatInfoLayer/Panel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="UIPanel/FreeChatInfoLayer/Panel/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="RoundLabel" type="Label" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 18
+text = "自由对话轮次: 0 / 5"
+
+[node name="StrategyLabel" type="RichTextLabel" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+text = "策略: 引导玩家说出心里话..."
+fit_content = true
+
 [node name="QuickOptionLayer" type="Control" parent="UIPanel"]
 layout_mode = 1
 anchors_preset = 8
@@ -194,9 +248,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_constants/separation = 15
 alignment = 1
-mouse_filter = 2
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
 custom_minimum_size = Vector2(80, 0)
@@ -221,7 +275,6 @@ offset_right = -56.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
-mouse_filter = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UIPanel/InputLayer"]
 layout_mode = 1
@@ -275,42 +328,6 @@ autoplay = true
 bus = &"Record"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="HistoryPanel" parent="." instance=ExtResource("5_heyvm")]
-visible = false
-layout_mode = 0
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-grow_horizontal = 1
-grow_vertical = 1
-theme = null
-
-[node name="AffectionPanel" parent="." instance=ExtResource("6_affec")]
-visible = false
-layout_mode = 0
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 120.0
-offset_top = -189.0
-offset_right = 400.0
-offset_bottom = 171.0
-grow_vertical = 2
-theme = null
-
-[node name="GiftPanel" parent="." instance=ExtResource("gift_scene")]
-visible = false
-layout_mode = 1
-theme = null
-
-[node name="DebugPanel" parent="." instance=ExtResource("7_debug")]
-visible = false
-layout_mode = 1
-theme = null
-
-[node name="ToastNotification" parent="." instance=ExtResource("8_toast")]
-layout_mode = 1
-theme = null
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")

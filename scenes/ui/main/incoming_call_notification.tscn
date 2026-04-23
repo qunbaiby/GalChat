@@ -28,13 +28,14 @@ corner_radius_bottom_left = 25
 
 [node name="IncomingCallNotification" type="Panel"]
 custom_minimum_size = Vector2(320, 80)
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -340.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
 offset_top = 20.0
-offset_right = -20.0
+offset_right = 160.0
 offset_bottom = 100.0
-grow_horizontal = 0
+grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1eh7l")
 script = ExtResource("1_script")
 

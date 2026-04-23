@@ -13,7 +13,6 @@ extends Control
 @onready var stats_panel = $UIPanel/StatsPanel
 @onready var bgm: AudioStreamPlayer = $BGM
 @onready var music_player: Panel = $UIPanel/BottomButton/MusicPlayer
-@onready var incoming_call_notification: Panel = $IncomingCallNotification
 
 var activity_panel_instance = null
 var settings_panel_instance = null
@@ -22,6 +21,7 @@ var chat_scene_instance = null
 var archive_panel_instance = null
 var affection_panel_instance = null
 var mobile_interface_instance = null
+var incoming_call_notification_instance = null
 
 var _window_detector: Node = null
 var _is_afk: bool = false
@@ -53,8 +53,6 @@ func _ready() -> void:
 	activity_button.pressed.connect(_on_activity_pressed)
 	desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
 	test_call_button.pressed.connect(_on_test_call_pressed)
-	
-	incoming_call_notification.call_accepted.connect(_on_incoming_call_accepted)
 	
 	GameDataManager.character_switched.connect(_on_character_switched)
 	
@@ -147,12 +145,23 @@ func _on_desktop_pet_pressed() -> void:
 
 func _on_test_call_pressed() -> void:
 	_animate_button(test_call_button)
+	
+	if is_instance_valid(incoming_call_notification_instance):
+		return
+		
 	# 模拟来电，随机语音或视频
 	var char_id = GameDataManager.config.current_character_id
 	var is_video = randf() > 0.5
-	incoming_call_notification.show_incoming_call(char_id, is_video)
+	
+	var NotificationObj = load("res://scenes/ui/main/incoming_call_notification.tscn")
+	var notification = NotificationObj.instantiate()
+	add_child(notification)
+	
+	incoming_call_notification_instance = notification
+	notification.call_accepted.connect(_on_incoming_call_accepted)
+	notification.show_incoming_call(char_id, is_video)
 
-func _on_incoming_call_accepted(char_id: String, is_video: bool) -> void:
+func _on_incoming_call_accepted(char_id: String, is_video: bool, is_fixed: bool = false) -> void:
 	# 接听电话：打开手机面板
 	if mobile_interface_instance == null:
 		_on_phone_pressed()
@@ -160,7 +169,7 @@ func _on_incoming_call_accepted(char_id: String, is_video: bool) -> void:
 		mobile_interface_instance.show_phone()
 		
 	# 告诉手机面板直接跳转到通话界面
-	mobile_interface_instance.open_call_directly(char_id, is_video)
+	mobile_interface_instance.open_call_directly(char_id, is_video, is_fixed)
 
 func _on_phone_pressed() -> void:
 	_animate_button(phone_button)
@@ -170,6 +179,13 @@ func _on_phone_pressed() -> void:
 		ui_panel.add_child(mobile_interface_instance)
 		mobile_interface_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		mobile_interface_instance.app_opened.connect(_on_mobile_app_opened)
+	
+	# 如果当前在故事剧情场景中触发手机，需要把它提到最前面防止被剧情场景遮挡
+	if is_instance_valid(chat_scene_instance) and chat_scene_instance.visible:
+		mobile_interface_instance.get_parent().remove_child(mobile_interface_instance)
+		add_child(mobile_interface_instance)
+		move_child(mobile_interface_instance, -1)
+		
 	mobile_interface_instance.show_phone()
 
 func _on_mobile_app_opened(app_name: String) -> void:
@@ -189,9 +205,11 @@ func _on_galchat_pressed() -> void:
 	_animate_button(galchat_button)
 	
 	if chat_scene_instance == null:
-		var ChatSceneObj = load("res://scenes/ui/chat/chat_scene.tscn")
+		var ChatSceneObj = load("res://scenes/ui/story/story_scene.tscn")
 		chat_scene_instance = ChatSceneObj.instantiate()
 		add_child(chat_scene_instance)
+		move_child(chat_scene_instance, -1)
+		
 		chat_scene_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		chat_scene_instance.chat_closed.connect(_on_chat_closed)
 		
@@ -228,7 +246,7 @@ func _on_affection_pressed() -> void:
 	_animate_button(affection_button)
 	var was_visible = false
 	if affection_panel_instance == null:
-		var AffectionPanelObj = load("res://scenes/ui/chat/affection_panel.tscn")
+		var AffectionPanelObj = load("res://scenes/ui/story/affection_panel.tscn")
 		affection_panel_instance = AffectionPanelObj.instantiate()
 		ui_panel.add_child(affection_panel_instance)
 		was_visible = false # 初次实例化，视为原本是隐藏的
@@ -266,6 +284,35 @@ func _on_hide_ui_pressed() -> void:
 	_ui_tween.tween_callback(func(): ui_panel.visible = false)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
+		var root = get_tree().root
+		var debug_panel = root.get_node_or_null("GlobalDebugPanel")
+		if debug_panel == null:
+			var DebugPanelObj = load("res://scenes/ui/story/debug_panel.tscn")
+			debug_panel = DebugPanelObj.instantiate()
+			debug_panel.name = "GlobalDebugPanel"
+			root.add_child(debug_panel)
+			debug_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			
+			# 如果当前是主场景，连上信号
+			debug_panel.stage_changed.connect(func(stage: int):
+				GameDataManager.profile.force_set_stage(stage)
+				GameDataManager.history.messages.clear()
+				GameDataManager.history.save_history()
+				print("【Debug】强制切换情感阶段至：" + str(stage))
+			)
+			debug_panel.mood_changed.connect(func(mood: String):
+				GameDataManager.profile.update_mood(mood)
+				print("【Debug】强制切换心情至：" + mood)
+			)
+			
+		if debug_panel.visible:
+			debug_panel.hide()
+		else:
+			debug_panel.show_panel()
+		get_viewport().set_input_as_handled()
+		return
+		
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		# 如果手机界面存在且正在显示相机，不要显示UI
 		if mobile_interface_instance and mobile_interface_instance.camera_panel_instance and mobile_interface_instance.camera_panel_instance.visible:

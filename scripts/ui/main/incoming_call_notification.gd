@@ -1,6 +1,6 @@
 extends Panel
 
-signal call_accepted(char_id: String, is_video: bool)
+signal call_accepted(char_id: String, is_video: bool, is_fixed: bool)
 signal call_rejected(char_id: String)
 
 @onready var avatar_rect: TextureRect = $HBoxContainer/AvatarRect
@@ -39,9 +39,12 @@ func _ready() -> void:
 	mask_panel.add_child(avatar_rect)
 	avatar_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-func show_incoming_call(char_id: String, is_video: bool) -> void:
+var is_fixed_mode: bool = false
+
+func show_incoming_call(char_id: String, is_video: bool, is_fixed: bool = false) -> void:
 	current_char_id = char_id
 	is_video_call = is_video
+	is_fixed_mode = is_fixed
 	
 	var profile = CharacterProfile.new()
 	profile.load_profile(char_id)
@@ -55,6 +58,13 @@ func show_incoming_call(char_id: String, is_video: bool) -> void:
 		accept_btn.text = "📞"
 		
 	reject_btn.text = "☎"
+	
+	if is_fixed_mode:
+		reject_btn.show()
+		reject_btn.disabled = true
+	else:
+		reject_btn.show()
+		reject_btn.disabled = false
 		
 	var avatar_path = profile.avatar
 	if avatar_path != "" and ResourceLoader.exists(avatar_path):
@@ -80,7 +90,7 @@ func hide_notification() -> void:
 	tween.chain().tween_callback(self.hide)
 
 func _on_accept_pressed() -> void:
-	call_accepted.emit(current_char_id, is_video_call)
+	call_accepted.emit(current_char_id, is_video_call, is_fixed_mode)
 	hide_notification()
 
 func _on_reject_pressed() -> void:

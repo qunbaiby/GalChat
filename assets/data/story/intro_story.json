@@ -1,0 +1,84 @@
+[
+    {
+        "id": "intro_1",
+        "speaker": "旁白",
+        "text": "时光悄然滑过四百多天，那道伤痕仍在我心底隐隐作痛。",
+        "next_id": "intro_2"
+    },
+    {
+        "id": "intro_2",
+        "speaker": "旁白",
+        "text": "每到深夜，那个女孩颤抖的瞳孔总浮现在眼前——",
+        "next_id": "intro_3"
+    },
+    {
+        "id": "intro_3",
+        "speaker": "luna",
+        "text": "若当时我能看穿表象，捕捉她眼中的求救信号；若我的目光能穿透职业面具，读懂她的挣扎...或许结局会有不同。",
+        "next_id": "intro_4"
+    },
+    {
+        "id": "intro_4",
+        "speaker": "旁白",
+        "text": "那些自诩的\"人生导师\"头衔、镀金的\"引路人\"光环，终究是场笑话。",
+        "next_id": "intro_5"
+    },
+    {
+        "id": "intro_5",
+        "speaker": "旁白",
+        "text": "我不过是个披着专业外衣的拙劣演员，在他人需要共情时，连最基本的人性温度都感知不到。",
+        "next_id": "intro_6",
+        "events": [
+            {
+                "type": "voice_call",
+                "call_id": "intro_call_ya"
+            }
+        ]
+    },
+    {
+        "id": "intro_6",
+        "speaker": "旁白",
+        "text": "推开门，一个女孩正垂首站在门外。她的脸庞被阴影笼罩，我看不真切，却一眼注意到她双手紧紧攥着一个略显陈旧的本子——那本子莫名让我心头一动。",
+        "next_id": "intro_7"
+    },
+    {
+        "id": "intro_7",
+        "speaker": "player",
+        "text": "是Sylvie让你来的吧？你请回吧，我已经不再……",
+        "next_id": "intro_8"
+    },
+    {
+        "id": "intro_8",
+        "speaker": "旁白",
+        "text": "我本想三言两语将她打发走，可就在她怯生生抬起头的瞬间，我整个人怔在原地。她的轮廓与多年前站在同一扇门前的那个身影，竟重叠在一起。几乎是本能地，我脱口而出：",
+        "next_id": "intro_9"
+    },
+    {
+        "id": "intro_9",
+        "speaker": "player",
+        "text": "Ava……",
+        "next_id": "intro_10"
+    },
+    {
+        "id": "intro_10",
+        "speaker": "luna",
+        "text": "听到这个名字，少女明显地颤抖了一下。随后，她像是终于鼓起所有勇气，轻声说道。",
+        "next_id": "intro_11"
+    },
+    {
+        "id": "intro_11",
+        "speaker": "luna",
+        "text": "老师您好，我叫Luna，是Sylvie老师推荐我来的……我的姐姐Ava，以前也受过您的指导，她说您是一位非常温柔、专业又可靠的老师……希望您也能指导我。",
+        "events": [
+            {
+                "type": "show_character",
+                "animation": "fade_in"
+            },
+            {
+                "type": "start_free_chat",
+                "strategy": "请先询问luna的近期状况或烦恼，并给出初步的安慰。",
+                "max_rounds": 5
+            }
+        ]
+    }
+]

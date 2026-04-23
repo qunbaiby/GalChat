@@ -41,8 +41,28 @@ func _on_start_pressed() -> void:
     _animate_button(start_button)
     var window = get_window()
     GameDataManager.set_meta("last_window_pos", window.position)
-    await get_tree().create_timer(0.2).timeout
-    get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+    
+    # Check if this is the first time playing (no history)
+    var is_first_time = false
+    if GameDataManager.history and GameDataManager.history.messages.is_empty():
+        is_first_time = true
+        
+    # Create black screen overlay
+    var overlay = ColorRect.new()
+    overlay.color = Color(0, 0, 0, 0)
+    overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+    add_child(overlay)
+    
+    var tween = create_tween()
+    tween.tween_property(overlay, "color:a", 1.0, 1.0)
+    await tween.finished
+    
+    if is_first_time:
+        GameDataManager.set_meta("play_intro_story", true)
+        get_tree().change_scene_to_file("res://scenes/ui/story/story_scene.tscn")
+    else:
+        get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 
 func _on_settings_pressed() -> void:
     _animate_button(settings_button)
