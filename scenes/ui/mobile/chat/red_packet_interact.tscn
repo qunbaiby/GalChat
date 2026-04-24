@@ -1,0 +1,175 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mobile/chat/red_packet_interact.gd" id="1_script"]
+
+[node name="RedPacketInteract" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BgRed" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.92, 0.35, 0.25, 1)
+
+[node name="BgWhite" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ReceiveUI" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopFlap" type="Panel" parent="ReceiveUI"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="VBox" type="VBoxContainer" parent="ReceiveUI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="AvatarPanel" type="PanelContainer" parent="ReceiveUI/VBox"]
+clip_children = 1
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Avatar" type="TextureRect" parent="ReceiveUI/VBox/AvatarPanel"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="ReceiveUI/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="TextLabel" type="Label" parent="ReceiveUI/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.8, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="ReceiveUI/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="BtnCenter" type="CenterContainer" parent="ReceiveUI/VBox"]
+layout_mode = 2
+
+[node name="OpenBtn" type="Button" parent="ReceiveUI/VBox/BtnCenter"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 48
+text = "開"
+
+[node name="DetailUI" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CurvePanel" type="Panel" parent="DetailUI"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 100.0
+grow_horizontal = 2
+
+[node name="VBox" type="VBoxContainer" parent="DetailUI"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 120.0
+grow_horizontal = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="AvatarPanel" type="PanelContainer" parent="DetailUI/VBox"]
+clip_children = 1
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Avatar" type="TextureRect" parent="DetailUI/VBox/AvatarPanel"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="DetailUI/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="TextLabel" type="Label" parent="DetailUI/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="DetailUI/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="AmountLabel" type="Label" parent="DetailUI/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="CloseBtn" type="Button" parent="TopBar"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.8, 1)
+theme_override_font_sizes/font_size = 28
+text = "<"
+flat = true

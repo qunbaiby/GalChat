@@ -38,6 +38,14 @@ func _ready() -> void:
     bgm_slider.value_changed.connect(_on_bgm_changed)
     voice_slider.value_changed.connect(_on_voice_changed)
     
+    model_option.clear()
+    model_option.add_item("deepseek-chat (V3)")
+    model_option.set_item_metadata(0, "deepseek-chat")
+    model_option.add_item("deepseek-coder")
+    model_option.set_item_metadata(1, "deepseek-coder")
+    model_option.add_item("deepseek-reasoner (R1/V4)")
+    model_option.set_item_metadata(2, "deepseek-reasoner")
+    
     _load_ui_data()
 
 func show_panel() -> void:
@@ -71,6 +79,8 @@ func _load_ui_data() -> void:
     
     if config.model == "deepseek-coder":
         model_option.selected = 1
+    elif config.model == "deepseek-reasoner":
+        model_option.selected = 2
     else:
         model_option.selected = 0
         
@@ -123,7 +133,12 @@ func _create_voice_type_input(char_id: String, config) -> void:
 func _save_ui_data() -> void:
     var config = GameDataManager.config
     config.api_key = api_key_input.text
-    config.model = "deepseek-coder" if model_option.selected == 1 else "deepseek-chat"
+    if model_option.selected == 1:
+        config.model = "deepseek-coder"
+    elif model_option.selected == 2:
+        config.model = "deepseek-reasoner"
+    else:
+        config.model = "deepseek-chat"
     config.temperature = temp_slider.value
     config.max_tokens = tokens_spinbox.value
     config.ai_mode_enabled = ai_mode_check.button_pressed

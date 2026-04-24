@@ -1,165 +1,165 @@
 [gd_resource type="Theme" load_steps=14 format=3 uid="uid://cx6y837p8y74k"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d5sak"]
-bg_color = Color(0.6627451, 0.21176471, 0.5176471, 0.3529412)
+bg_color = Color(0.25, 0.18, 0.12, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 0.90616035, 0.9374345, 1)
+border_color = Color(0.85, 0.65, 0.35, 0.9)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnHover"]
-bg_color = Color(0.6627451, 0.21176471, 0.5176471, 0.3529412)
+bg_color = Color(0.3, 0.2, 0.15, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 0.85, 0.9, 0.9)
+border_color = Color(0.9, 0.7, 0.4, 0.9)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnNormal"]
-bg_color = Color(0.16862746, 0.101960786, 0.15686275, 0.7372549)
+bg_color = Color(0.2, 0.14, 0.1, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 0.85, 0.9, 0.5)
+border_color = Color(0.7, 0.5, 0.3, 0.8)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnPressed"]
-bg_color = Color(0.7499947, 0.26531932, 0.59079784, 0.3529412)
+bg_color = Color(0.15, 0.1, 0.08, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
+border_color = Color(0.85, 0.65, 0.35, 0.9)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LineEdit"]
-bg_color = Color(0.05, 0.05, 0.08, 0.6)
+bg_color = Color(0.1, 0.08, 0.06, 0.8)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.8, 0.8, 0.9, 0.4)
+border_color = Color(0.6, 0.45, 0.25, 0.6)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.12, 0.08, 0.15, 0.8)
+bg_color = Color(0.16, 0.13, 0.12, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.9, 0.75, 0.85, 0.4)
+border_color = Color(0.69, 0.49, 0.31, 0.8)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelContainer"]
-bg_color = Color(0.12, 0.08, 0.15, 0.8)
+bg_color = Color(0.16, 0.13, 0.12, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.9, 0.75, 0.85, 0.4)
+border_color = Color(0.69, 0.49, 0.31, 0.8)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yegx0"]
-bg_color = Color(0, 0.17809808, 0.24941823, 0.5294118)
+bg_color = Color(0.2, 0.14, 0.1, 0.8)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabContainerPanel"]
-bg_color = Color(0.05, 0.05, 0.08, 0.6)
+bg_color = Color(0.12, 0.1, 0.08, 0.8)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.8, 0.8, 0.9, 0.2)
+border_color = Color(0.6, 0.45, 0.25, 0.6)
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c22ba"]
-bg_color = Color(0.15, 0.15, 0.2, 0.8)
+bg_color = Color(0.2, 0.14, 0.1, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
-border_color = Color(0.7312157, 0.6736553, 0.9876998, 0.8)
+border_color = Color(0.85, 0.65, 0.35, 0.9)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qv6gn"]
-bg_color = Color(0.15, 0.15, 0.2, 0.8)
+bg_color = Color(0.25, 0.18, 0.12, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
-border_color = Color(0.3, 0.8, 0.9, 0.8)
+border_color = Color(0.9, 0.7, 0.4, 0.9)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabSelected"]
-bg_color = Color(0.15, 0.15, 0.2, 0.8)
+bg_color = Color(0.25, 0.18, 0.12, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
-border_color = Color(0.3, 0.8, 0.9, 0.8)
+border_color = Color(0.9, 0.7, 0.4, 0.9)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabUnselected"]
-bg_color = Color(0.05, 0.05, 0.08, 0.4)
+bg_color = Color(0.12, 0.1, 0.08, 0.6)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
-border_color = Color(0.8, 0.8, 0.9, 0.2)
+border_color = Color(0.5, 0.35, 0.2, 0.4)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 
 [resource]
-Button/colors/font_color = Color(0.9, 0.9, 0.95, 1)
-Button/colors/font_hover_color = Color(1, 1, 1, 1)
-Button/colors/font_pressed_color = Color(0.7, 0.9, 1, 1)
+Button/colors/font_color = Color(0.95, 0.85, 0.75, 1)
+Button/colors/font_hover_color = Color(1, 0.95, 0.85, 1)
+Button/colors/font_pressed_color = Color(0.8, 0.65, 0.45, 1)
 Button/styles/focus = SubResource("StyleBoxFlat_d5sak")
 Button/styles/hover = SubResource("StyleBoxFlat_BtnHover")
 Button/styles/normal = SubResource("StyleBoxFlat_BtnNormal")
 Button/styles/pressed = SubResource("StyleBoxFlat_BtnPressed")
-Label/colors/font_color = Color(0.9, 0.9, 0.95, 1)
+Label/colors/font_color = Color(0.95, 0.85, 0.75, 1)
 Label/font_sizes/font_size = 13
-LineEdit/colors/font_color = Color(0.9, 0.9, 0.95, 1)
+LineEdit/colors/font_color = Color(0.95, 0.85, 0.75, 1)
 LineEdit/styles/normal = SubResource("StyleBoxFlat_LineEdit")
-OptionButton/colors/font_color = Color(0.9, 0.9, 0.95, 1)
+OptionButton/colors/font_color = Color(0.95, 0.85, 0.75, 1)
 Panel/styles/panel = SubResource("StyleBoxFlat_Panel")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_PanelContainer")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_yegx0")
-RichTextLabel/colors/default_color = Color(0.9, 0.9, 0.95, 1)
-TabContainer/colors/font_selected_color = Color(1, 1, 1, 1)
-TabContainer/colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
+RichTextLabel/colors/default_color = Color(0.95, 0.85, 0.75, 1)
+TabContainer/colors/font_selected_color = Color(1, 0.95, 0.85, 1)
+TabContainer/colors/font_unselected_color = Color(0.7, 0.6, 0.5, 1)
 TabContainer/styles/panel = SubResource("StyleBoxFlat_TabContainerPanel")
 TabContainer/styles/tab_focus = SubResource("StyleBoxFlat_c22ba")
 TabContainer/styles/tab_hovered = SubResource("StyleBoxFlat_qv6gn")
 TabContainer/styles/tab_selected = SubResource("StyleBoxFlat_TabSelected")
 TabContainer/styles/tab_unselected = SubResource("StyleBoxFlat_TabUnselected")
-TextEdit/colors/font_color = Color(0.9, 0.9, 0.95, 1)
+TextEdit/colors/font_color = Color(0.95, 0.85, 0.75, 1)
 TextEdit/styles/normal = SubResource("StyleBoxFlat_LineEdit")

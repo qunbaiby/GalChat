@@ -1,0 +1,106 @@
+[gd_scene load_steps=6 format=3 uid="uid://sv4gjnbeh1bx"]
+
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="Texture2D" uid="uid://dmgvfew2hwstv" path="res://assets/images/icons/ui/stats/gold.svg" id="2_icon_gold"]
+[ext_resource type="Script" uid="uid://bye163asqo5p0" path="res://scripts/ui/main/top_status_panel.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="3_icon_energy"]
+[ext_resource type="Texture2D" uid="uid://bpv0e2vd3ujb8" path="res://assets/images/icons/ui/stats/vitality.svg" id="4_icon_stress"]
+
+[node name="TopStatusPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 40)
+offset_right = 581.0
+offset_bottom = 70.0
+theme = ExtResource("1_theme")
+script = ExtResource("2_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="GoldBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/GoldBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("2_icon_gold")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/GoldBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "500G"
+vertical_alignment = 1
+
+[node name="EnergyBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/EnergyBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("3_icon_energy")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergyBox"]
+layout_mode = 2
+text = "行动力"
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/EnergyBox"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergyBox/VBoxContainer"]
+layout_mode = 2
+text = "10/10"
+horizontal_alignment = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HBoxContainer/EnergyBox/VBoxContainer"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="StressBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/StressBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("4_icon_stress")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/StressBox"]
+layout_mode = 2
+text = "压力"
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/StressBox"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/StressBox/VBoxContainer"]
+layout_mode = 2
+text = "10%"
+horizontal_alignment = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HBoxContainer/StressBox/VBoxContainer"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+value = 10.0
+show_percentage = false

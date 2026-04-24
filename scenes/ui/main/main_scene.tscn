@@ -1,15 +1,17 @@
-[gd_scene load_steps=11 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=13 format=3 uid="uid://bl0bceh1xgj74"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_d4tf4"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
+[ext_resource type="Texture2D" uid="uid://dhbgpdrweqx7l" path="res://assets/images/backgrounds/main/main_bg.png" id="2_3iugm"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="Texture2D" uid="uid://bphq30rfshpd6" path="res://assets/images/backgrounds/cankao/Main_2_zh.png" id="3_2oti7"]
-[ext_resource type="Texture2D" uid="uid://bdigqg8r26vsl" path="res://assets/images/backgrounds/main/main_bg.jpg" id="3_6odu6"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="7_eye"]
 [ext_resource type="Texture2D" uid="uid://dfdvtfnlpm64n" path="res://assets/images/icons/ui/system/gear.svg" id="8_gear"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="9_heart"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music_player.tscn" id="10_music_player"]
+[ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 
 [node name="MainScene" type="Control"]
 layout_mode = 3
@@ -18,6 +20,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_d4tf4")
 script = ExtResource("1_main")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -34,7 +37,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_6odu6")
+texture = ExtResource("2_3iugm")
 expand_mode = 1
 stretch_mode = 6
 
@@ -57,6 +60,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="TopStatusPanel" parent="UIPanel" instance=ExtResource("11_top_panel")]
+layout_mode = 1
+offset_left = 407.0
+offset_right = 988.0
 
 [node name="BottomButton" type="HBoxContainer" parent="UIPanel"]
 layout_mode = 1

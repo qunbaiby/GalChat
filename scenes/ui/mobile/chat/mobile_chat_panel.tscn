@@ -1,28 +1,28 @@
 [gd_scene load_steps=12 format=3 uid="uid://b66u3jjc01x4b"]
 
 [ext_resource type="Script" uid="uid://bdcvogjxdy51q" path="res://scripts/ui/mobile/chat/mobile_chat_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
+[ext_resource type="Theme" uid="uid://dj142v0c1m65o" path="res://assets/themes/mobile_chat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_deepseek"]
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="4_eye"]
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="5_gift"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="6_image"]
 [ext_resource type="Texture2D" uid="uid://blts2rskaripw" path="res://assets/images/icons/ui/stats/social.svg" id="7_voice"]
-[ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="8_follow"]
+[ext_resource type="Texture2D" uid="uid://cst7iywsysq4r" path="res://assets/images/icons/ui/stats/red_packet.svg" id="8_red_packet"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PhoneBg"]
-bg_color = Color(0.97, 0.97, 0.98, 1)
+bg_color = Color(0.95, 0.95, 0.95, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputBg"]
-bg_color = Color(0.95, 0.95, 0.95, 1)
+bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SendBtn"]
-bg_color = Color(0.54, 0.35, 0.96, 1)
+bg_color = Color(0.46, 0.45, 0.53, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
@@ -64,7 +64,7 @@ layout_mode = 2
 [node name="BackBtn" type="Button" parent="Panel/VBox/TopBar"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 28
 text = "<"
 flat = true
@@ -81,7 +81,7 @@ vertical_alignment = 1
 [node name="MoreBtn" type="Button" parent="Panel/VBox/TopBar"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 24
 text = "..."
 flat = true
@@ -122,7 +122,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 24
 text = "☺"
 flat = true
@@ -130,7 +130,8 @@ flat = true
 [node name="InputEdit" type="LineEdit" parent="Panel/VBox/BottomArea/InputRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_InputBg")
 placeholder_text = " 输入消息内容..."
@@ -156,72 +157,12 @@ layout_mode = 2
 theme_override_constants/separation = 25
 alignment = 1
 
-[node name="VideoBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/VideoBtn"]
-modulate = Color(0.6, 0.6, 0.6, 1)
-custom_minimum_size = Vector2(28, 28)
-layout_mode = 2
-size_flags_horizontal = 4
-texture = ExtResource("4_eye")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/VideoBtn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 12
-text = "视频"
-horizontal_alignment = 1
-
-[node name="GiftBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/GiftBtn"]
-modulate = Color(0.6, 0.6, 0.6, 1)
-custom_minimum_size = Vector2(28, 28)
-layout_mode = 2
-size_flags_horizontal = 4
-texture = ExtResource("5_gift")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/GiftBtn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 12
-text = "礼物"
-horizontal_alignment = 1
-
-[node name="ImageBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/ImageBtn"]
-modulate = Color(0.6, 0.6, 0.6, 1)
-custom_minimum_size = Vector2(28, 28)
-layout_mode = 2
-size_flags_horizontal = 4
-texture_normal = ExtResource("6_image")
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/ImageBtn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 12
-text = "图片"
-horizontal_alignment = 1
-
 [node name="VoiceCallBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
 [node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/VoiceCallBtn"]
-modulate = Color(0.6, 0.6, 0.6, 1)
+modulate = Color(0.9, 0.84, 0.76, 1)
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -231,29 +172,89 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/VoiceCallBtn"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "语音"
 horizontal_alignment = 1
 
-[node name="FollowBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
+[node name="VideoBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/FollowBtn"]
-modulate = Color(0.6, 0.6, 0.6, 1)
+[node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/VideoBtn"]
+modulate = Color(0.9, 0.84, 0.76, 1)
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 size_flags_horizontal = 4
-texture = ExtResource("8_follow")
+texture = ExtResource("4_eye")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/FollowBtn"]
+[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/VideoBtn"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
-text = "已关注"
+text = "视频"
+horizontal_alignment = 1
+
+[node name="ImageBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/ImageBtn"]
+modulate = Color(0.9, 0.84, 0.76, 1)
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+texture_normal = ExtResource("6_image")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/ImageBtn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "图片"
+horizontal_alignment = 1
+
+[node name="RedPacketBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/RedPacketBtn"]
+modulate = Color(0.9, 0.84, 0.76, 1)
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+texture_normal = ExtResource("8_red_packet")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/RedPacketBtn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "红包"
+horizontal_alignment = 1
+
+[node name="GiftBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/GiftBtn"]
+modulate = Color(0.9, 0.84, 0.76, 1)
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("5_gift")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Panel/VBox/BottomArea/ActionRow/GiftBtn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "礼物"
 horizontal_alignment = 1
 
 [node name="BottomSpacer" type="Control" parent="Panel/VBox/BottomArea"]
@@ -320,3 +321,161 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_SendBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SendBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SendBtn")
 text = "保存到相册"
+
+[node name="RedPacketOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Bg" type="ColorRect" parent="RedPacketOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.08, 1)
+
+[node name="VBox" type="VBoxContainer" parent="RedPacketOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TopBar" type="HBoxContainer" parent="RedPacketOverlay/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="CloseBtn" type="Button" parent="RedPacketOverlay/VBox/TopBar"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.84, 0.76, 1)
+theme_override_font_sizes/font_size = 28
+text = "<"
+flat = true
+
+[node name="Title" type="Label" parent="RedPacketOverlay/VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.84, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "发红包"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightSpacer" type="Control" parent="RedPacketOverlay/VBox/TopBar"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="RedPacketOverlay/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="FormVBox" type="VBoxContainer" parent="RedPacketOverlay/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="AmountPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
+
+[node name="HBox" type="HBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "  单个金额"
+
+[node name="AmountInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+placeholder_text = "¥0.00"
+alignment = 2
+flat = true
+
+[node name="TextPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
+
+[node name="TextInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/TextPanel"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+placeholder_text = "恭喜发财，大吉大利"
+flat = true
+
+[node name="CoverPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
+
+[node name="HBox" type="HBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VBox" type="VBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "  红包封面"
+
+[node name="Label2" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "  默认"
+
+[node name="Icon" type="ColorRect" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox"]
+custom_minimum_size = Vector2(40, 50)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.8, 0.2, 0.2, 1)
+
+[node name="RightArrow" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+text = " >  "
+
+[node name="Spacer" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="DisplayAmount" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "¥ 0.00"
+horizontal_alignment = 1
+
+[node name="Spacer2" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="SendRPBtn" type="Button" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_SendBtn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SendBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SendBtn")
+text = "塞钱进红包"

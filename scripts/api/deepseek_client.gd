@@ -347,10 +347,12 @@ func _consume_sse_event(event_text: String) -> void:
         if data.has("choices") and data["choices"] is Array and data["choices"].size() > 0:
             var c0 = data["choices"][0]
             if c0 is Dictionary:
-                if c0.has("delta") and c0["delta"] is Dictionary and c0["delta"].has("content"):
-                    delta_text = str(c0["delta"]["content"])
-                elif c0.has("message") and c0["message"] is Dictionary and c0["message"].has("content"):
-                    delta_text = str(c0["message"]["content"])
+                if c0.has("delta") and c0["delta"] is Dictionary:
+                    if c0["delta"].has("content") and c0["delta"]["content"] != null:
+                        delta_text = str(c0["delta"]["content"])
+                elif c0.has("message") and c0["message"] is Dictionary:
+                    if c0["message"].has("content") and c0["message"]["content"] != null:
+                        delta_text = str(c0["message"]["content"])
                     
         if delta_text != "":
             _chat_stream_full_text += delta_text

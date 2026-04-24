@@ -1,5 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://d1qrbdrlwfwd2"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://32kx5jtivabj" path="res://scripts/ui/mobile/chat/voice_call_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/avatar/luna.png" id="2_k5ilk"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="3_asr"]
@@ -43,6 +44,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
+theme = ExtResource("2_theme")
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 15

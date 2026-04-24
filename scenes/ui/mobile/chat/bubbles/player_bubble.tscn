@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://cx6t307a51p5g"]
+
+[ext_resource type="Script" uid="uid://c05aueqov4wu" path="res://scripts/ui/mobile/chat/bubbles/player_bubble.gd" id="1_script"]
+
+[node name="PlayerBubble" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+alignment = 2
+script = ExtResource("1_script")
+
+[node name="Spacer" type="Control" parent="."]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BubblePanel" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="MarginContainer" type="MarginContainer" parent="BubblePanel"]
+layout_mode = 2
+
+[node name="ContentContainer" type="VBoxContainer" parent="BubblePanel/MarginContainer"]
+layout_mode = 2
+
+[node name="AvatarMargin" type="MarginContainer" parent="."]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+
+[node name="AvatarPanel" type="PanelContainer" parent="AvatarMargin"]
+clip_children = 1
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="AvatarRect" type="TextureRect" parent="AvatarMargin/AvatarPanel"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5

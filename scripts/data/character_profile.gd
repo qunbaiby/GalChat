@@ -36,6 +36,9 @@ var creative_aesthetics: float = 0.0 # 创意审美
 
 var current_energy: float = 100.0
 var max_energy: float = 100.0
+var gold: int = 500
+var stress: float = 10.0 # 0-100
+var max_stress: float = 100.0
 
 signal stage_upgraded(new_stage: int, unlock_dialog: String)
 
@@ -127,6 +130,8 @@ func load_profile(force_char_id: String = "") -> void:
 				social_eq = float(str(data.get("social_eq", 0.0)))
 				creative_aesthetics = float(str(data.get("creative_aesthetics", 0.0)))
 				current_energy = float(str(data.get("current_energy", max_energy)))
+				gold = int(str(data.get("gold", 500)))
+				stress = float(str(data.get("stress", 10.0)))
 	else:
 		# 尝试迁移旧存档
 		var old_path = "user://character_profile.json"
@@ -318,7 +323,9 @@ func save_profile() -> void:
 		"knowledge_reserve": knowledge_reserve,
 		"social_eq": social_eq,
 		"creative_aesthetics": creative_aesthetics,
-		"current_energy": current_energy
+		"current_energy": current_energy,
+		"gold": gold,
+		"stress": stress
 	}
 	var file = FileAccess.open(get_profile_path(), FileAccess.WRITE)
 	if file:

@@ -1,5 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Script" path="res://scripts/ui/mobile/album_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AlbumBg"]
@@ -8,7 +9,7 @@ corner_radius_top_left = 20
 corner_radius_top_right = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Send"]
-bg_color = Color(0.54, 0.35, 0.96, 1)
+bg_color = Color(0.4, 0.26, 0.2, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
@@ -23,6 +24,7 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AlbumBg")
 script = ExtResource("1_script")
 
+theme = ExtResource("2_theme")
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -67,7 +69,7 @@ columns = 3
 visible = false
 layout_mode = 2
 size_flags_vertical = 6
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 text = "相册空空如也~"
 horizontal_alignment = 1
 vertical_alignment = 1

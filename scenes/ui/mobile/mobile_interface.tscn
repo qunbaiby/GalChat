@@ -1,5 +1,6 @@
 [gd_scene load_steps=18 format=3 uid="uid://c3q0g1d3h7gax"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cf57811uyvxux" path="res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://b70xfywn2mf5j" path="res://assets/icons/ui/archive.svg" id="3_archive"]
@@ -17,7 +18,7 @@ corner_radius_bottom_right = 40
 corner_radius_bottom_left = 40
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card1"]
-bg_color = Color(0.85, 0.85, 0.88, 0.8)
+bg_color = Color(0.14, 0.11, 0.1, 0.85)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -38,33 +39,33 @@ corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card3"]
-bg_color = Color(0.6, 0.8, 0.9, 0.8)
+bg_color = Color(0.14, 0.11, 0.1, 0.85)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_List"]
-bg_color = Color(0.9, 0.9, 0.92, 0.6)
+bg_color = Color(0.1, 0.08, 0.07, 0.6)
 corner_radius_top_left = 15
 corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ListContent"]
-bg_color = Color(0.8, 0.8, 0.8, 0.5)
+bg_color = Color(0.14, 0.11, 0.1, 0.5)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PowerBtn"]
-bg_color = Color(0.9, 0.9, 0.9, 0.5)
+bg_color = Color(0.21, 0.15, 0.13, 0.8)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.8)
+border_color = Color(0.55, 0.35, 0.27, 0.5)
 corner_radius_top_left = 25
 corner_radius_top_right = 25
 corner_radius_bottom_right = 25
@@ -170,6 +171,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
+theme = ExtResource("2_theme")
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -301,7 +303,7 @@ offset_left = 10.0
 offset_right = -10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.9, 0.84, 0.76, 1)
 theme_override_font_sizes/font_size = 14
 text = "暂无简介"
 vertical_alignment = 1
@@ -355,7 +357,7 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 50.0
 offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "你我之间"
 
@@ -380,7 +382,7 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 50.0
 offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 10
 text = "记忆档案"
 
@@ -414,7 +416,7 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 50.0
 offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "相机"
 
@@ -448,7 +450,7 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 50.0
 offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "相册"
 
@@ -486,7 +488,7 @@ offset_left = 15.0
 offset_top = 10.0
 offset_right = 55.0
 offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "GalChat"
 
@@ -504,7 +506,7 @@ offset_left = 10.0
 offset_top = 8.0
 offset_right = 160.0
 offset_bottom = 31.0
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 14
 text = "暂时没有新的消息。"
 
@@ -546,7 +548,7 @@ offset_left = 15.0
 offset_top = 10.0
 offset_right = 55.0
 offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "通话记录"
 
@@ -564,7 +566,7 @@ offset_left = 10.0
 offset_top = 8.0
 offset_right = 160.0
 offset_bottom = 31.0
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 14
 text = "未接来电。"
 
@@ -592,7 +594,7 @@ size_flags_vertical = 3
 
 [node name="HintLabel" type="Label" parent="PhonePanel/MainMargin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 10
 text = "◆ 开启快捷入口后点击主页手机默认进入【你我之间】"
 horizontal_alignment = 1

@@ -5,9 +5,10 @@ signal incoming_call_ended
 
 @onready var back_btn: Button = $Panel/VBox/TopBar/BackBtn
 @onready var title_label: Label = $Panel/VBox/TopBar/Title
-@onready var image_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/ImageBtn/Btn
 @onready var voice_call_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/VoiceCallBtn/Btn
 @onready var video_call_btn: TextureRect = $Panel/VBox/BottomArea/ActionRow/VideoBtn/Icon
+@onready var image_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/ImageBtn/Btn
+@onready var red_packet_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/RedPacketBtn/Btn
 @onready var message_list: VBoxContainer = $Panel/VBox/ScrollContainer/Margin/MessageList
 @onready var input_edit: LineEdit = $Panel/VBox/BottomArea/InputRow/InputEdit
 @onready var send_btn: Button = $Panel/VBox/BottomArea/InputRow/SendBtn
@@ -18,6 +19,13 @@ signal incoming_call_ended
 @onready var full_image: TextureRect = $ImageOverlay/FullImage
 @onready var close_viewer_btn: Button = $ImageOverlay/CloseViewerBtn
 @onready var save_to_album_btn: Button = $ImageOverlay/SaveToAlbumBtn
+
+@onready var red_packet_overlay: Control = $RedPacketOverlay
+@onready var rp_close_btn: Button = $RedPacketOverlay/VBox/TopBar/CloseBtn
+@onready var rp_amount_input: LineEdit = $RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox/AmountInput
+@onready var rp_text_input: LineEdit = $RedPacketOverlay/VBox/Margin/FormVBox/TextPanel/TextInput
+@onready var rp_display_amount: Label = $RedPacketOverlay/VBox/Margin/FormVBox/DisplayAmount
+@onready var rp_send_btn: Button = $RedPacketOverlay/VBox/Margin/FormVBox/SendRPBtn
 
 var doubao_tts = null
 var audio_player: AudioStreamPlayer = null
@@ -38,9 +46,14 @@ func _ready() -> void:
 	input_edit.text_submitted.connect(_on_input_submitted)
 	voice_call_btn.pressed.connect(_on_voice_call_pressed)
 	image_btn.pressed.connect(_on_image_btn_pressed)
+	red_packet_btn.pressed.connect(_on_red_packet_pressed)
 	
 	close_viewer_btn.pressed.connect(_on_close_viewer_pressed)
 	save_to_album_btn.pressed.connect(_on_save_to_album_pressed)
+	
+	rp_close_btn.pressed.connect(_on_rp_close_pressed)
+	rp_amount_input.text_changed.connect(_on_rp_amount_changed)
+	rp_send_btn.pressed.connect(_on_rp_send_pressed)
 	
 	video_call_btn.mouse_filter = Control.MOUSE_FILTER_PASS
 	video_call_btn.gui_input.connect(func(event: InputEvent):
@@ -94,6 +107,97 @@ func setup(char_id: String) -> void:
 
 func _on_back_pressed() -> void:
 	back_requested.emit()
+
+func _on_red_packet_pressed() -> void:
+	red_packet_overlay.show()
+	rp_amount_input.text = ""
+	rp_text_input.text = ""
+	rp_display_amount.text = "¥ 0.00"
+
+func _on_rp_close_pressed() -> void:
+	red_packet_overlay.hide()
+
+func _on_rp_amount_changed(new_text: String) -> void:
+	var amount = new_text.to_int()
+	rp_display_amount.text = "¥ " + str(amount) + ".00"
+
+func _on_rp_send_pressed() -> void:
+	var amount = rp_amount_input.text.to_int()
+	if amount <= 0:
+		return
+	if GameDataManager.profile.gold < amount:
+		# 钱不够
+		return
+	
+	GameDataManager.profile.gold -= amount
+	GameDataManager.profile.save_profile()
+	
+	var top_panel = get_tree().get_root().find_child("TopStatusPanel", true, false)
+	if top_panel and top_panel.has_method("_update_ui"):
+		top_panel._update_ui()
+	
+	red_packet_overlay.hide()
+	
+	var text = rp_text_input.text
+	if text == "":
+		text = "恭喜发财，大吉大利"
+		
+	# 发送红包消息
+	var msg_data = {
+		"role": "user",
+		"type": "red_packet",
+		"content": text,
+		"amount": amount,
+		"status": "unclaimed" # unclaimed, claimed, expired
+	}
+	_add_message_to_ui(msg_data)
+	chat_history.append(msg_data)
+	_save_mobile_history()
+	
+	# 模拟AI领取红包
+	await get_tree().create_timer(1.5).timeout
+	if msg_data["status"] == "unclaimed":
+		msg_data["status"] = "claimed"
+		var sys_msg = {
+			"role": "system",
+			"type": "system",
+			"content": current_char_id.capitalize() + "领取了你的红包"
+		}
+		chat_history.append(sys_msg)
+		_save_mobile_history()
+		_load_mobile_history()
+		_render_history()
+		
+		# 发起AI回复请求，由于上一步修改了chat_history，这里把刚发的红包和系统消息作为上下文带进去
+		var sys_prompt_text = "【系统提示：玩家给你发了一个%dG的红包: %s，并且你已经自动领取了。请你根据当前好感度、心情和你们的聊天语境，给玩家发送一段感谢或反应消息。如果好感度低可能表现得傲娇或惊讶。】" % [amount, text]
+		var fake_msg = {"role": "system", "content": sys_prompt_text}
+		chat_history.append(fake_msg)
+		
+		var messages = [{"role": "system", "content": GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", "", [])}]
+		var recent = chat_history.slice(-10)
+		for msg in recent:
+			var msg_speaker = msg.get("speaker", msg.get("role", ""))
+			var msg_text = msg.get("text", msg.get("content", ""))
+			var role = "user" if msg_speaker == "player" or msg_speaker == "user" or msg_speaker == "system" else "assistant"
+			var msg_content = str(msg_text)
+			
+			if msg.get("type", "") == "system":
+				msg_content = "【系统提示：%s】" % msg_content
+			elif msg.get("type", "") == "red_packet":
+				msg_content = "【系统提示：[%s发了一个红包: %s]】" % [
+					"玩家" if msg_speaker == "player" or msg_speaker == "user" else "你", 
+					msg_content
+				]
+			elif msg_content.begins_with("[img]") and msg_content.ends_with("[/img]"):
+				msg_content = "【系统提示：[%s发送了一张照片]】" % ("玩家" if msg_speaker == "player" or msg_speaker == "user" else "你")
+				
+			messages.append({"role": role, "content": msg_content})
+			
+		chat_history.erase(fake_msg) # 移出伪造的系统提示
+		
+		input_edit.editable = false
+		send_btn.disabled = true
+		deepseek_client.call_chat_api_non_stream(messages)
 
 func _on_image_btn_pressed() -> void:
 	print("Image button pressed!")
@@ -159,8 +263,10 @@ func _on_voice_call_ended() -> void:
 	var is_fixed = voice_call_panel_instance.is_fixed_mode if voice_call_panel_instance else false
 	var type_str = "fixed_call" if is_fixed else "normal"
 	for msg in current_call_history:
-		var s_name = "我" if msg.speaker == "player" else current_char_id.capitalize()
-		GameDataManager.history.add_message(s_name, "【语音通话】" + msg.text, "", type_str)
+		var msg_speaker = msg.get("speaker", msg.get("role", ""))
+		var msg_text = msg.get("text", msg.get("content", ""))
+		var s_name = "我" if msg_speaker == "player" or msg_speaker == "user" else current_char_id.capitalize()
+		GameDataManager.history.add_message(s_name, "【语音通话】" + msg_text, "", type_str)
 		
 	if _current_call_is_incoming:
 		incoming_call_ended.emit()
@@ -206,8 +312,10 @@ func _on_video_call_ended() -> void:
 	var is_fixed = video_call_panel_instance.is_fixed_mode if video_call_panel_instance else false
 	var type_str = "fixed_call" if is_fixed else "normal"
 	for msg in current_call_history:
-		var s_name = "我" if msg.speaker == "player" else current_char_id.capitalize()
-		GameDataManager.history.add_message(s_name, "【视频通话】" + msg.text, "", type_str)
+		var msg_speaker = msg.get("speaker", msg.get("role", ""))
+		var msg_text = msg.get("text", msg.get("content", ""))
+		var s_name = "我" if msg_speaker == "player" or msg_speaker == "user" else current_char_id.capitalize()
+		GameDataManager.history.add_message(s_name, "【视频通话】" + msg_text, "", type_str)
 		
 	if _current_call_is_incoming:
 		incoming_call_ended.emit()
@@ -283,8 +391,10 @@ func _request_ai_call_response(player_text: String) -> void:
 	# Add recent call history (last 10 messages)
 	var recent = current_call_history.slice(-10)
 	for msg in recent:
-		var role = "user" if msg.speaker == "player" else "assistant"
-		messages.append({"role": role, "content": msg.text})
+		var msg_speaker = msg.get("speaker", msg.get("role", ""))
+		var msg_text = msg.get("text", msg.get("content", ""))
+		var role = "user" if msg_speaker == "player" or msg_speaker == "user" else "assistant"
+		messages.append({"role": role, "content": msg_text})
 		
 	deepseek_client.call_chat_api_non_stream(messages)
 
@@ -302,10 +412,21 @@ func _request_ai_response(player_text: String) -> void:
 	# Add recent history (last 10 messages)
 	var recent = chat_history.slice(-10)
 	for msg in recent:
-		var role = "user" if msg.speaker == "player" else "assistant"
-		var msg_content = msg.text
-		if msg_content.begins_with("[img]") and msg_content.ends_with("[/img]"):
-			msg_content = "【系统提示：[%s发送了一张照片]】" % ("玩家" if msg.speaker == "player" else "你")
+		var msg_speaker = msg.get("speaker", msg.get("role", ""))
+		var msg_text = msg.get("text", msg.get("content", ""))
+		var role = "user" if msg_speaker == "player" or msg_speaker == "user" or msg_speaker == "system" else "assistant"
+		var msg_content = str(msg_text)
+		
+		if msg.get("type", "") == "system":
+			msg_content = "【系统提示：%s】" % msg_content
+		elif msg.get("type", "") == "red_packet":
+			msg_content = "【系统提示：[%s发了一个红包: %s]】" % [
+				"玩家" if msg_speaker == "player" or msg_speaker == "user" else "你", 
+				msg_content
+			]
+		elif msg_content.begins_with("[img]") and msg_content.ends_with("[/img]"):
+			msg_content = "【系统提示：[%s发送了一张照片]】" % ("玩家" if msg_speaker == "player" or msg_speaker == "user" else "你")
+			
 		messages.append({"role": role, "content": msg_content})
 		
 	deepseek_client.call_chat_api_non_stream(messages)
@@ -356,6 +477,20 @@ func _on_ai_response(response: Dictionary) -> void:
 			for part in parts:
 				var clean_part = regex.sub(part, "", true).strip_edges()
 				if clean_part != "":
+					# 随机触发角色发红包 (例如文本包含特定词汇)
+					if clean_part.find("红包") != -1 and clean_part.find("给") != -1 and randf() < 0.6:
+						var rp_amount = randi_range(50, 200)
+						var rp_msg = {
+							"role": "char",
+							"type": "red_packet",
+							"content": "给你的红包！",
+							"amount": rp_amount,
+							"status": "unclaimed"
+						}
+						_add_message_to_ui(rp_msg)
+						chat_history.append(rp_msg)
+						_save_mobile_history()
+						
 					# 20% chance to be a voice message
 					var is_voice = randf() < 0.2
 					var duration = max(1, int(clean_part.length() / 4.0)) if is_voice else 0
@@ -367,7 +502,14 @@ func _on_ai_response(response: Dictionary) -> void:
 			await get_tree().create_timer(0.1).timeout
 			scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
 	else:
-		_add_message_bubble("system", "消息发送失败...")
+		var sys_msg = {
+			"role": "system",
+			"type": "system",
+			"content": "消息发送失败..."
+		}
+		_add_message_to_ui(sys_msg)
+		chat_history.append(sys_msg)
+		_save_mobile_history()
 
 func _on_ai_error(err_msg: String) -> void:
 	input_edit.editable = true
@@ -381,294 +523,106 @@ func _on_ai_error(err_msg: String) -> void:
 			video_call_panel_instance.status_label.text = "网络错误: " + err_msg
 			video_call_panel_instance.record_btn.disabled = false
 	else:
-		_add_message_bubble("system", "网络错误: " + err_msg)
+		var sys_msg = {
+			"role": "system",
+			"type": "system",
+			"content": "网络错误: " + err_msg
+		}
+		_add_message_to_ui(sys_msg)
+		chat_history.append(sys_msg)
+		_save_mobile_history()
+
+func _add_message_to_ui(msg: Dictionary) -> void:
+	_add_message_bubble(msg.get("role", msg.get("speaker", "")), msg.get("content", msg.get("text", "")), msg.get("is_voice", false), msg.get("duration", 0), msg)
 
 func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, duration: int = 0, msg: Dictionary = {}) -> void:
-	var hbox = HBoxContainer.new()
-	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
-	var bubble_panel = PanelContainer.new()
-	bubble_panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN if speaker == "char" else Control.SIZE_SHRINK_END
-	
-	var style = StyleBoxFlat.new()
-	style.corner_radius_top_left = 15
-	style.corner_radius_top_right = 15
-	style.corner_radius_bottom_left = 15 if speaker == "player" else 0
-	style.corner_radius_bottom_right = 15 if speaker == "char" else 0
-	
-	if speaker == "player":
-		style.bg_color = Color(0.54, 0.35, 0.96, 1) # Purple from reference
-		hbox.alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	elif speaker == "char":
-		style.bg_color = Color(0.2, 0.2, 0.2, 1) if is_voice else Color(1, 1, 1, 1)
-		hbox.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	else:
-		style.bg_color = Color(0.9, 0.9, 0.9, 1)
-		hbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if speaker == "user":
+		speaker = "player"
+	elif speaker == "assistant":
+		speaker = "char"
 		
-	bubble_panel.add_theme_stylebox_override("panel", style)
-	
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	
-	if is_voice:
-		var voice_hbox = HBoxContainer.new()
-		voice_hbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		voice_hbox.add_theme_constant_override("separation", 5)
+	var final_msg = msg.duplicate()
+	if not final_msg.has("text") and not final_msg.has("content"):
+		final_msg["text"] = text
+	if not final_msg.has("is_voice"):
+		final_msg["is_voice"] = is_voice
+	if not final_msg.has("duration"):
+		final_msg["duration"] = duration
 		
-		var voice_icon = Label.new()
-		voice_icon.text = "•))"
-		voice_icon.add_theme_font_size_override("font_size", 16)
-		voice_icon.add_theme_color_override("font_color", Color.WHITE)
-			
-		var dur_label = Label.new()
-		dur_label.text = str(duration) + "\""
-		dur_label.add_theme_font_size_override("font_size", 16)
-		dur_label.add_theme_color_override("font_color", Color.WHITE)
-			
-		voice_hbox.add_child(voice_icon)
-		voice_hbox.add_child(dur_label)
-		margin.add_child(voice_hbox)
-		
-		var min_w = 80
-		var max_w = 180 # 限制语音气泡的最大宽度，为右侧转文字按钮留出空间
-		var calc_w = clamp(min_w + duration * 8, min_w, max_w)
-		margin.custom_minimum_size = Vector2(calc_w, 40)
-	elif text.begins_with("[img]") and text.ends_with("[/img]"):
-		# 图片消息
-		var path = text.substr(5, text.length() - 11)
-		var img = Image.load_from_file(path)
-		if img:
-			var tex = ImageTexture.create_from_image(img)
-			
-			var img_panel = PanelContainer.new()
-			img_panel.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
-			img_panel.custom_minimum_size = Vector2(150, 150)
-			img_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-			
-			var img_style = StyleBoxFlat.new()
-			img_style.bg_color = Color.BLACK
-			img_style.corner_radius_top_left = 12
-			img_style.corner_radius_top_right = 12
-			img_style.corner_radius_bottom_left = 12
-			img_style.corner_radius_bottom_right = 12
-			img_panel.add_theme_stylebox_override("panel", img_style)
-			
-			var rect = TextureRect.new()
-			rect.texture = tex
-			rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			img_panel.add_child(rect)
-			
-			margin.add_child(img_panel)
-			
-			img_panel.gui_input.connect(func(event: InputEvent):
-				if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-					_show_image_fullscreen(tex, path, speaker == "char")
-			)
-			
-			# 图片气泡不需要那么宽的内边距，覆盖掉
-			margin.add_theme_constant_override("margin_left", 4)
-			margin.add_theme_constant_override("margin_right", 4)
-			margin.add_theme_constant_override("margin_top", 4)
-			margin.add_theme_constant_override("margin_bottom", 4)
-			style.bg_color = Color(0, 0, 0, 0) # 透明底色
-	else:
-		var label = RichTextLabel.new()
-		label.bbcode_enabled = true
-		if speaker == "player":
-			label.text = "[color=white]%s[/color]" % text
-		else:
-			label.text = "[color=#333333]%s[/color]" % text
-		label.fit_content = true
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.custom_minimum_size = Vector2(50, 0) # Give it a min size to wrap properly
-		
-		# Calculate max width (approximate)
-		var max_w = 260
-		label.custom_minimum_size.x = min(max_w, label.get_theme_font("normal_font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 20)
-		if label.custom_minimum_size.x > max_w:
-			label.custom_minimum_size.x = max_w
-			
-		label.add_theme_font_size_override("normal_font_size", 14)
-		margin.add_child(label)
+	var msg_type = final_msg.get("type", "text")
 	
-	bubble_panel.add_child(margin)
-	
-	var content_vbox = VBoxContainer.new()
-	content_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL if speaker == "system" else Control.SIZE_SHRINK_BEGIN
-	
-	var bubble_row = HBoxContainer.new()
-	bubble_row.add_theme_constant_override("separation", 10)
-	
-	if speaker == "char":
-		var avatar = TextureRect.new()
-		avatar.custom_minimum_size = Vector2(40, 40)
-		avatar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		avatar.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		
-		var avatar_path = ""
-		if char_profile:
-			avatar_path = char_profile.avatar
-			
-		if avatar_path != "" and ResourceLoader.exists(avatar_path):
-			avatar.texture = load(avatar_path)
-			
-			# Make avatar round
-			var av_panel = PanelContainer.new()
-			av_panel.custom_minimum_size = Vector2(40, 40)
-			av_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-			var av_style = StyleBoxFlat.new()
-			av_style.bg_color = Color(1, 1, 1, 1) # Must be opaque for clip mask to work
-			av_style.corner_radius_top_left = 20
-			av_style.corner_radius_top_right = 20
-			av_style.corner_radius_bottom_left = 20
-			av_style.corner_radius_bottom_right = 20
-			av_panel.add_theme_stylebox_override("panel", av_style)
-			av_panel.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
-			
-			av_panel.add_child(avatar)
-			hbox.add_child(av_panel)
-		else:
-			var av_panel = Panel.new()
-			av_panel.custom_minimum_size = Vector2(40, 40)
-			av_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-			var av_style = StyleBoxFlat.new()
-			av_style.bg_color = Color(0.8, 0.5, 0.5, 1)
-			av_style.corner_radius_top_left = 20
-			av_style.corner_radius_top_right = 20
-			av_style.corner_radius_bottom_left = 20
-			av_style.corner_radius_bottom_right = 20
-			av_panel.add_theme_stylebox_override("panel", av_style)
-			hbox.add_child(av_panel)
-			
-		if is_voice:
-			bubble_row.add_child(bubble_panel)
-			
-			var transcribe_btn = Button.new()
-			transcribe_btn.text = "转文字"
-			transcribe_btn.add_theme_font_size_override("font_size", 12)
-			transcribe_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			
-			var transcribe_style = StyleBoxFlat.new()
-			transcribe_style.bg_color = Color(0.2, 0.2, 0.2, 0.8)
-			transcribe_style.corner_radius_top_left = 12
-			transcribe_style.corner_radius_top_right = 12
-			transcribe_style.corner_radius_bottom_left = 12
-			transcribe_style.corner_radius_bottom_right = 12
-			transcribe_style.content_margin_left = 8
-			transcribe_style.content_margin_right = 8
-			transcribe_style.content_margin_top = 4
-			transcribe_style.content_margin_bottom = 4
-			transcribe_btn.add_theme_stylebox_override("normal", transcribe_style)
-			transcribe_btn.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-			# transcribe_btn.hide() # 现在让它一直显示
-			
-			var red_dot = Label.new()
-			red_dot.text = "•"
-			red_dot.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
-			red_dot.add_theme_font_size_override("font_size", 24)
-			red_dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			
-			bubble_row.add_child(red_dot)
-			bubble_row.add_child(transcribe_btn)
-			
-			content_vbox.add_child(bubble_row)
-			
-			var transcribed_panel = PanelContainer.new()
-			var t_style = StyleBoxFlat.new()
-			t_style.bg_color = Color(0.2, 0.2, 0.2, 1)
-			t_style.corner_radius_top_left = 4
-			t_style.corner_radius_top_right = 15
-			t_style.corner_radius_bottom_left = 15
-			t_style.corner_radius_bottom_right = 15
-			transcribed_panel.add_theme_stylebox_override("panel", t_style)
-			transcribed_panel.hide()
-			
-			var t_margin = MarginContainer.new()
-			t_margin.add_theme_constant_override("margin_left", 16)
-			t_margin.add_theme_constant_override("margin_right", 16)
-			t_margin.add_theme_constant_override("margin_top", 12)
-			t_margin.add_theme_constant_override("margin_bottom", 12)
-			
-			var t_label = RichTextLabel.new()
-			t_label.bbcode_enabled = true
-			t_label.text = "[color=#dddddd]%s[/color]" % text
-			t_label.fit_content = true
-			t_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			t_label.custom_minimum_size = Vector2(50, 0)
-			
-			var t_max_w = 260
-			t_label.custom_minimum_size.x = min(t_max_w, t_label.get_theme_font("normal_font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 20)
-			if t_label.custom_minimum_size.x > t_max_w:
-				t_label.custom_minimum_size.x = t_max_w
-				
-			t_label.add_theme_font_size_override("normal_font_size", 14)
-			
-			t_margin.add_child(t_label)
-			transcribed_panel.add_child(t_margin)
-			
-			content_vbox.add_child(transcribed_panel)
-			
-			var is_read = msg.get("is_read", false)
-			
-			if not is_read:
-				red_dot.show()
-			else:
-				red_dot.hide()
-			
-			transcribe_btn.pressed.connect(func():
-				transcribed_panel.visible = not transcribed_panel.visible
-				if transcribed_panel.visible:
-					transcribe_btn.hide()
-				if not is_read:
-					red_dot.hide()
-					_mark_message_read(text)
-					
-				# 延迟一帧等待布局更新，然后再滚动到底部
-				await get_tree().process_frame
-				scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
-			)
-			
-			bubble_panel.mouse_filter = Control.MOUSE_FILTER_PASS
-			bubble_panel.gui_input.connect(func(event: InputEvent):
-				if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-					if not is_read:
-						red_dot.hide() # 点击播放也会隐藏小红点
-						_mark_message_read(text)
-					_play_voice_message(text)
-			)
-			
-			hbox.add_child(content_vbox)
-		else:
-			hbox.add_child(bubble_panel)
+	if speaker == "system" or msg_type == "system":
+		var system_bubble = load("res://scenes/ui/mobile/chat/bubbles/system_bubble.tscn").instantiate()
+		message_list.add_child(system_bubble)
+		system_bubble.setup(final_msg)
 	elif speaker == "player":
-		hbox.add_child(bubble_panel)
-		
-		var av_panel = Panel.new()
-		av_panel.custom_minimum_size = Vector2(40, 40)
-		av_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		var av_style = StyleBoxFlat.new()
-		av_style.bg_color = Color(0.5, 0.8, 0.5, 1)
-		av_style.corner_radius_top_left = 20
-		av_style.corner_radius_top_right = 20
-		av_style.corner_radius_bottom_left = 20
-		av_style.corner_radius_bottom_right = 20
-		av_panel.add_theme_stylebox_override("panel", av_style)
-		
-		hbox.add_child(av_panel)
+		var player_bubble = load("res://scenes/ui/mobile/chat/bubbles/player_bubble.tscn").instantiate()
+		message_list.add_child(player_bubble)
+		player_bubble.setup(final_msg)
 	else:
-		hbox.add_child(bubble_panel)
+		var char_bubble = load("res://scenes/ui/mobile/chat/bubbles/character_bubble.tscn").instantiate()
+		message_list.add_child(char_bubble)
+		var c_profile_dict = {}
+		if char_profile:
+			c_profile_dict["avatar_path"] = char_profile.avatar
+		char_bubble.setup(final_msg, c_profile_dict)
 		
-	message_list.add_child(hbox)
-	
 	# Scroll down
 	await get_tree().process_frame
 	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+
+func _on_red_packet_message_clicked(msg: Dictionary) -> void:
+	var speaker = msg.get("role", msg.get("speaker", ""))
+	var is_sender = (speaker == "player" or speaker == "user")
+	var status = msg.get("status", "unclaimed")
+	
+	var p_avatar = null
+	if GameDataManager.profile and GameDataManager.profile.avatar and ResourceLoader.exists(GameDataManager.profile.avatar):
+		p_avatar = load(GameDataManager.profile.avatar)
+		
+	var c_avatar = null
+	if char_profile and char_profile.avatar and ResourceLoader.exists(char_profile.avatar):
+		c_avatar = load(char_profile.avatar)
+	
+	var rp_scene = load("res://scenes/ui/mobile/chat/red_packet_interact.tscn")
+	var rp_ui = rp_scene.instantiate()
+	rp_ui.setup(msg, is_sender, current_char_id, c_avatar, p_avatar)
+	add_child(rp_ui)
+	rp_ui.opened.connect(func():
+		if is_sender or status == "claimed":
+			return
+			
+		msg["status"] = "claimed"
+		
+		# Find the original message in chat_history and update it
+		for i in range(chat_history.size() - 1, -1, -1):
+			var h_msg = chat_history[i]
+			if h_msg.get("type") == "red_packet" and h_msg.get("content", h_msg.get("text", "")) == msg.get("content", msg.get("text", "")) and h_msg.get("amount", 0) == msg.get("amount", 0):
+				if h_msg.get("status", "unclaimed") == "unclaimed":
+					h_msg["status"] = "claimed"
+					break
+		
+		var amount = msg.get("amount", 0)
+		if amount > 0:
+			GameDataManager.profile.gold += amount
+			GameDataManager.profile.save_profile()
+			
+			var top_panel = get_tree().get_root().find_child("TopStatusPanel", true, false)
+			if top_panel and top_panel.has_method("_update_ui"):
+				top_panel._update_ui()
+		
+		# 添加系统消息
+		var sys_msg = {
+			"role": "system",
+			"type": "system",
+			"content": "你领取了" + current_char_id.capitalize() + "的红包"
+		}
+		chat_history.append(sys_msg)
+		
+		_save_mobile_history()
+		_load_mobile_history()
+		_render_history()
+	)
 
 func _play_voice_message(text: String) -> void:
 	if not doubao_tts:
@@ -698,7 +652,15 @@ func _render_history() -> void:
 	for msg in chat_history:
 		var is_voice = msg.get("is_voice", false)
 		var duration = int(msg.get("duration", 0))
-		_add_message_bubble(msg.speaker, msg.text, is_voice, duration, msg)
+		var msg_speaker = msg.get("speaker", msg.get("role", ""))
+		var msg_text = msg.get("text", msg.get("content", ""))
+		
+		if msg.get("type", "") == "system":
+			_add_message_to_ui(msg)
+		elif msg.get("type", "") == "red_packet":
+			_add_message_to_ui(msg)
+		else:
+			_add_message_bubble(msg_speaker, msg_text, is_voice, duration, msg)
 
 func _show_image_fullscreen(tex: Texture2D, path: String, is_char: bool) -> void:
 	print("Showing image fullscreen: ", path)
@@ -741,22 +703,26 @@ func _on_save_to_album_pressed() -> void:
 		# 可以弹个提示或者简单关闭
 		_on_close_viewer_pressed()
 
+func _save_mobile_history() -> void:
+	var dir_path = "user://saves/%s" % current_char_id
+	if not DirAccess.dir_exists_absolute(dir_path):
+		DirAccess.make_dir_recursive_absolute(dir_path)
+		
+	var path = "%s/mobile_chat_history.json" % dir_path
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(chat_history, "\t"))
+
 func _mark_message_read(text: String) -> void:
 	var has_changed = false
 	for msg in chat_history:
-		if msg.text == text and not msg.get("is_read", false):
+		var msg_text = msg.get("text", msg.get("content", ""))
+		if msg_text == text and not msg.get("is_read", false):
 			msg["is_read"] = true
 			has_changed = true
 			
 	if has_changed:
-		var dir_path = "user://saves/%s" % current_char_id
-		if not DirAccess.dir_exists_absolute(dir_path):
-			DirAccess.make_dir_recursive_absolute(dir_path)
-			
-		var path = "%s/mobile_chat_history.json" % dir_path
-		var file = FileAccess.open(path, FileAccess.WRITE)
-		if file:
-			file.store_string(JSON.stringify(chat_history, "\t"))
+		_save_mobile_history()
 
 func _save_message_to_history(speaker: String, text: String, is_voice: bool = false, duration: int = 0) -> void:
 	var new_msg = {
@@ -768,15 +734,7 @@ func _save_message_to_history(speaker: String, text: String, is_voice: bool = fa
 		"is_read": false
 	}
 	chat_history.append(new_msg)
-	
-	var dir_path = "user://saves/%s" % current_char_id
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
-		
-	var path = "%s/mobile_chat_history.json" % dir_path
-	var file = FileAccess.open(path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(chat_history, "\t"))
+	_save_mobile_history()
 
 func show_panel() -> void:
 	show()
