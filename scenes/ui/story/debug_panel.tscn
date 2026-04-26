@@ -89,6 +89,31 @@ text = "强制切换心情："
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="工具与测试" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 20
+metadata/_tab_index = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+layout_mode = 2
+alignment = 1
+
+[node name="SwitchCharButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+text = "切换角色"
+
+[node name="TestCallButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+text = "模拟来电"
+
+[node name="GenerateDiaryButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+text = "生成日记"
+
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2

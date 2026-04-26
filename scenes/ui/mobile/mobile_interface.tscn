@@ -1,7 +1,7 @@
-[gd_scene load_steps=18 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=19 format=3 uid="uid://c3q0g1d3h7gax"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://dj142v0c1m65o" path="res://assets/themes/mobile_chat_theme.tres" id="1_v7k4o"]
 [ext_resource type="Texture2D" uid="uid://cf57811uyvxux" path="res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://b70xfywn2mf5j" path="res://assets/icons/ui/archive.svg" id="3_archive"]
 [ext_resource type="Texture2D" uid="uid://dhdx110iute65" path="res://assets/images/characters/desktop_pet/Q_desktop.png" id="4_player_avatar"]
@@ -169,9 +169,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_v7k4o")
 script = ExtResource("1_script")
 
-theme = ExtResource("2_theme")
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15

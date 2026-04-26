@@ -50,7 +50,6 @@ func _update_ui() -> void:
             var current_val = float(profile.get(stat_id))
             var info = get_grade_info(current_val)
 
-            var next_label = child.find_child("NextLabel", true, false) as Label
             var pbar = child.find_child("PBar", true, false) as ProgressBar 
             var grade_label = child.find_child("GradeLabel", true, false) as Label
             var value_label = pbar.get_node_or_null("ValueLabel") if pbar else null
@@ -58,14 +57,12 @@ func _update_ui() -> void:
             if grade_label: grade_label.text = info.grade
 
             if current_val >= 2000:
-                if next_label: next_label.text = "已满级"
                 if value_label: value_label.text = "%d / %d" % [int(current_val), 2000]
                 if pbar:
                     pbar.min_value = 0
                     pbar.max_value = 1
                     pbar.value = 1
             else:
-                if next_label: next_label.text = "还差 %d" % int(info.next - current_val)
                 if value_label: value_label.text = "%d / %d" % [int(current_val), int(info.next)]
                 if pbar:
                     # Calculate progress in current bracket

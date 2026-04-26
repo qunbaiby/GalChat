@@ -1,0 +1,81 @@
+[gd_scene load_steps=5 format=3 uid="uid://dx3centralstreet"]
+
+[ext_resource type="Script" path="res://scripts/ui/map/exploration_map.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://dx2playerchar" path="res://scenes/map/player_character.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://dx4minimapui" path="res://scenes/ui/map/minimap_ui.tscn" id="3_minimap"]
+
+[sub_resource type="TileSet" id="TileSet_Default"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_Wall"]
+size = Vector2(1280, 50)
+
+[node name="ThemisLawFirmMap" type="Node2D"]
+script = ExtResource("1_script")
+location_id = "themis_law_firm"
+
+[node name="MinimapUI" parent="UILayer" instance=ExtResource("3_minimap")]
+player_path = NodePath("../../PlayerCharacter")
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_Default")
+format = 2
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="Ground" type="ColorRect" parent="Environment"]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.2, 0.3, 0.2, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Environment"]
+
+[node name="TopWall" type="CollisionShape2D" parent="Environment/StaticBody2D"]
+position = Vector2(640, -25)
+shape = SubResource("RectangleShape2D_Wall")
+
+[node name="BottomWall" type="CollisionShape2D" parent="Environment/StaticBody2D"]
+position = Vector2(640, 745)
+shape = SubResource("RectangleShape2D_Wall")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Environment/StaticBody2D"]
+position = Vector2(-25, 360)
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_Wall")
+
+[node name="RightWall" type="CollisionShape2D" parent="Environment/StaticBody2D"]
+position = Vector2(1305, 360)
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_Wall")
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("2_player")]
+position = Vector2(640, 360)
+
+[node name="Camera2D" type="Camera2D" parent="PlayerCharacter"]
+zoom = Vector2(1.5, 1.5)
+limit_left = 0
+limit_top = 0
+limit_right = 1280
+limit_bottom = 720
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="BackButton" type="Button" parent="UILayer"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 120.0
+offset_bottom = 60.0
+text = "< 返回大地图"
+
+[node name="TitleLabel" type="Label" parent="UILayer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 20.0
+offset_right = 100.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
+text = "中央商业街"
+horizontal_alignment = 1
+vertical_alignment = 1

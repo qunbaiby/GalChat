@@ -21,12 +21,16 @@ signal narrator_request_failed(error_message: String)
 signal character_mood_request_completed(response: Dictionary)
 signal character_mood_request_failed(error_message: String)
 
+signal diary_generated(diary_entry: Dictionary)
+signal diary_error(error_msg: String)
+
 var chat_http: HTTPRequest
 var emotion_http: HTTPRequest
 var memory_http: HTTPRequest
 var options_http: HTTPRequest
 var narrator_http: HTTPRequest
 var character_mood_http: HTTPRequest
+var diary_http: HTTPRequest
 
 var _chat_stream_client: HTTPClient
 var _chat_stream_active: bool = false
@@ -67,6 +71,10 @@ func _ready() -> void:
     character_mood_http.timeout = 10.0
     add_child(character_mood_http)
     character_mood_http.request_completed.connect(_on_character_mood_completed)
+    
+    diary_http = HTTPRequest.new()
+    add_child(diary_http)
+    diary_http.request_completed.connect(_on_diary_request_completed)
 
 func _get_headers() -> Array:
     var api_key = GameDataManager.config.api_key
@@ -573,6 +581,60 @@ func analyze_mood_sync(character_message: String) -> String:
     
     return ""
 
+func send_diary_generation() -> void:
+    if GameDataManager.config.api_key.is_empty():
+        diary_error.emit("API Key未设置")
+        return
+        
+    while not is_inside_tree():
+        await Engine.get_main_loop().process_frame
+        
+    var prompt_template = ""
+    var file = FileAccess.open("res://scripts/templates/prompts/diary_generation.txt", FileAccess.READ)
+    if file:
+        prompt_template = file.get_as_text()
+        file.close()
+    else:
+        diary_error.emit("找不到日记生成提示词模板")
+        return
+        
+    var profile = GameDataManager.profile
+    var char_name = profile.char_name
+    var personality = GameDataManager.personality_system.get_personality_summary(profile)
+    var emotion_stage = "Stage " + str(profile.current_stage)
+    var mood = "未知"
+    var current_mood_id = profile.current_mood
+    var mood_db = GameDataManager.mood_system.mood_configs
+    if mood_db and mood_db.has(current_mood_id):
+        mood = mood_db[current_mood_id].get("mood_name", "未知")
+    
+    var player_name = "玩家" # You can replace with actual player name if stored
+    var chat_history = profile.get_recent_chat_history_text(10)
+    
+    if chat_history.is_empty():
+        chat_history = "今天没有太多的交流..."
+        
+    var system_prompt = prompt_template.replace("{char_name}", char_name)
+    system_prompt = system_prompt.replace("{personality}", personality)
+    system_prompt = system_prompt.replace("{emotion_stage}", emotion_stage)
+    system_prompt = system_prompt.replace("{mood}", mood)
+    system_prompt = system_prompt.replace("{player_name}", player_name)
+    system_prompt = system_prompt.replace("{chat_history}", chat_history)
+    
+    var api_messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "请写下今天的日记。"}
+    ]
+    
+    var body = {
+        "model": GameDataManager.config.model,
+        "messages": api_messages,
+        "temperature": 0.7,
+        "max_tokens": 800
+    }
+    
+    diary_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
 func _on_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
     _handle_response(result, response_code, body, chat_request_completed, chat_request_failed)
 
@@ -590,6 +652,32 @@ func _on_narrator_completed(result: int, response_code: int, _headers: PackedStr
 
 func _on_character_mood_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
     _handle_response(result, response_code, body, character_mood_request_completed, character_mood_request_failed)
+
+func _on_diary_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+    if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
+        var response_str = body.get_string_from_utf8()
+        var json = JSON.new()
+        if json.parse(response_str) == OK:
+            var response_data = json.data
+            if response_data.has("choices") and response_data.choices.size() > 0:
+                var content = response_data.choices[0].message.content
+                var diary_entry = {
+                    "date": Time.get_date_string_from_system(),
+                    "weather": "晴",
+                    "content": content
+                }
+                diary_generated.emit(diary_entry)
+            else:
+                diary_error.emit("找不到 choices 字段")
+        else:
+            diary_error.emit("JSON 解析失败: " + json.get_error_message())
+    else:
+        var err_msg = "请求失败 (Code: %d)" % response_code
+        if body.size() > 0:
+            var json = JSON.new()
+            if json.parse(body.get_string_from_utf8()) == OK and json.data is Dictionary and json.data.has("error"):
+                err_msg += " - " + json.data["error"].get("message", "")
+        diary_error.emit(err_msg)
 
 func _handle_response(result: int, response_code: int, body: PackedByteArray, success_signal: Signal, fail_signal: Signal) -> void:
     var char_name = GameDataManager.profile.char_name

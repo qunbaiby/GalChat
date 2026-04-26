@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dx2playerchar"]
+
+[ext_resource type="Script" path="res://scripts/ui/map/player_character.gd" id="1_script"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_Char"]
+size = Vector2(32, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_Collision"]
+size = Vector2(30, 20)
+
+[node name="PlayerCharacter" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("PlaceholderTexture2D_Char")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 22)
+shape = SubResource("RectangleShape2D_Collision")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

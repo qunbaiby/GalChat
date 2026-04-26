@@ -198,6 +198,11 @@ func get_base_traits(profile: CharacterProfile) -> String:
 		
 	return "\n\n".join(traits)
 
+func get_personality_summary(profile: CharacterProfile) -> String:
+	var summary = get_base_traits(profile)
+	summary += "\n" + get_dynamic_traits(profile)
+	return summary
+
 func get_dynamic_traits(profile: CharacterProfile) -> String:
 	var traits = []
 	

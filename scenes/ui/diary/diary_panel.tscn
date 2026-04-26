@@ -1,0 +1,172 @@
+[gd_scene load_steps=5 format=3 uid="uid://cy8xxa3qqt4m1"]
+
+[ext_resource type="Script" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DiaryBook"]
+bg_color = Color(0.96, 0.94, 0.9, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.8, 0.75, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 15
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Divider"]
+bg_color = Color(0.8, 0.75, 0.7, 1)
+
+[node name="DiaryPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+theme = ExtResource("2_theme")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DiaryBook" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(900, 550)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_DiaryBook")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="LeftPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PhotoContainer" type="CenterContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PhotoRect" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer"]
+custom_minimum_size = Vector2(350, 350)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/PhotoRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+text = "暂无照片"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage"]
+layout_mode = 2
+alignment = 1
+
+[node name="PrevButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/BottomBar"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "上一页"
+
+[node name="Divider" type="Panel" parent="CenterContainer/DiaryBook/Margin/HBox"]
+custom_minimum_size = Vector2(2, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Divider")
+
+[node name="RightPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+layout_mode = 2
+
+[node name="DateLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "2025年4月23日"
+
+[node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WeatherLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "晴"
+
+[node name="CloseButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "X"
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_font_sizes/font_size = 24
+text = "— 每日小记 —"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentText" type="RichTextLabel" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_constants/line_separation = 10
+theme_override_font_sizes/normal_font_size = 18
+text = "　　今天发生了一些有趣的事情..."
+fit_content = true
+
+[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+layout_mode = 2
+
+[node name="PageNumLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+text = "1 / 1"
+
+[node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NextButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "下一页"

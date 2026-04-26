@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://by7p87kdfqqdv" path="res://assets/images/icons/ui/weather/sunny.svg" id="3_sunny"]
 
 [node name="WeatherPanel" type="PanelContainer"]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(240, 100)
 offset_right = 240.0
 offset_bottom = 100.0

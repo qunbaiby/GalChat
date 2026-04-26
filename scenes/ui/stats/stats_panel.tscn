@@ -191,14 +191,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "身体素质"
 
-[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox/ValHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "还差 0"
-horizontal_alignment = 2
-vertical_alignment = 1
-
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_PhysicalFitness/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
@@ -259,14 +251,6 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "体能活力"
-
-[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox/ValHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "还差 0"
-horizontal_alignment = 2
-vertical_alignment = 1
 
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Vitality/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
@@ -329,14 +313,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "学业素养"
 
-[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox/ValHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "还差 0"
-horizontal_alignment = 2
-vertical_alignment = 1
-
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Academic/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
@@ -397,14 +373,6 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "知识见闻"
-
-[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox/ValHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "还差 0"
-horizontal_alignment = 2
-vertical_alignment = 1
 
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Knowledge/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
@@ -467,14 +435,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "社交情商"
 
-[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox/ValHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "还差 0"
-horizontal_alignment = 2
-vertical_alignment = 1
-
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_SocialEQ/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
@@ -535,14 +495,6 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "创意审美"
-
-[node name="NextLabel" type="Label" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox/ValHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "还差 0"
-horizontal_alignment = 2
-vertical_alignment = 1
 
 [node name="PBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BasicStatsVBox/Stat_Aesthetics/Margin/HBox/MidVBox"]
 custom_minimum_size = Vector2(0, 10)
