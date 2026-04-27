@@ -2,6 +2,7 @@ class_name CharacterProfile
 extends Resource
 
 var char_name: String = ""
+var player_name: String = ""
 var age: int = 22
 var description: String = ""
 var tags: Array = []
@@ -111,6 +112,7 @@ func load_profile(force_char_id: String = "") -> void:
         if error == OK:
             var data = json.get_data()
             if data is Dictionary:
+                player_name = data.get("player_name", player_name)
                 intimacy = float(str(data.get("intimacy", intimacy)))
                 current_mood = data.get("current_mood", current_mood)
                 last_login_date = data.get("last_login_date", last_login_date)
@@ -309,6 +311,7 @@ func update_mood(new_mood: String) -> void:
 
 func save_profile() -> void:
     var data = {
+        "player_name": player_name,
         "intimacy": intimacy,
         "current_mood": current_mood,
         "last_login_date": last_login_date,

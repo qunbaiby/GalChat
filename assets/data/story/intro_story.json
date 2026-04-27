@@ -69,11 +69,22 @@
         "id": "intro_11",
         "speaker": "luna",
         "text": "老师您好，我叫Luna，是Sylvie老师推荐我来的……我的姐姐Ava，以前也受过您的指导，她说您是一位非常温柔、专业又可靠的老师……希望您也能指导我。",
+        "next_id": "intro_12",
         "events": [
             {
                 "type": "show_character",
                 "animation": "fade_in"
             },
+            {
+                "type": "show_player_info_popup"
+            }
+        ]
+    },
+    {
+        "id": "intro_12",
+        "speaker": "旁白",
+        "text": "（她的话让我陷入了短暂的沉默，我看着她，最终还是叹了口气，让她进来了。）",
+        "events": [
             {
                 "type": "start_free_chat",
                 "strategy": "请先询问luna的近期状况或烦恼，并给出初步的安慰。",

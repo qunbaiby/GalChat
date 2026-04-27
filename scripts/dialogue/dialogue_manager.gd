@@ -207,6 +207,7 @@ func _play_intro_story() -> void:
 		var call_event = null
 		var start_free_chat_event = false
 		var start_free_chat_data = null
+		var player_info_popup_event = null
 		if line.has("events"):
 			for event in line["events"]:
 				print("[Debug] 执行事件:", event)
@@ -221,6 +222,8 @@ func _play_intro_story() -> void:
 				elif event.get("type") == "start_free_chat":
 					start_free_chat_event = true
 					start_free_chat_data = event
+				elif event.get("type") == "show_player_info_popup":
+					player_info_popup_event = event
 		
 		# Wait for click to proceed (only if there is text)
 		if text != "":
@@ -232,6 +235,28 @@ func _play_intro_story() -> void:
 			_intro_waiting_for_click = true
 			await _intro_click_proceed
 			
+		if player_info_popup_event != null:
+			var popup_scene = load("res://scenes/ui/story/player_info_popup.tscn")
+			if popup_scene:
+				var popup = popup_scene.instantiate()
+				add_child(popup)
+				popup.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				await popup.info_submitted
+				
+				# 当信息提交后，将其存入核心记忆
+				if popup.player_info.has("name"):
+					var player_name = popup.player_info["name"]
+					GameDataManager.profile.player_name = player_name
+					GameDataManager.memory_manager.add_memory("core", "我的名字是：" + player_name)
+				if popup.player_info.has("gender"):
+					GameDataManager.memory_manager.add_memory("core", "我的性别是：" + popup.player_info["gender"])
+				if popup.player_info.has("birthday"):
+					GameDataManager.memory_manager.add_memory("core", "我的生日是：" + popup.player_info["birthday"])
+				if popup.player_info.has("profession"):
+					GameDataManager.memory_manager.add_memory("core", "我的职业是：" + popup.player_info["profession"])
+				
+				popup.queue_free()
+
 		# 如果是通话事件，它会阻塞主流程，所以在点击后执行
 		if call_event != null:
 			print("[Debug] 进入通话事件分支:", call_event.get("type"))

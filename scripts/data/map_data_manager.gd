@@ -35,33 +35,9 @@ func _load_map_data():
     }
     
     locations = {
-        "central_street": {
-            "id": "central_street",
-            "name": "中央商业街",
-            "description": "繁华的购物街。",
-            "scene_path": "res://scenes/map/locations/central_street.tscn"
-        },
-        "themis_law_firm": {
-            "id": "themis_law_firm",
-            "name": "忒弥斯律所",
-            "description": "知名的律师事务所。",
-            "scene_path": "res://scenes/map/locations/themis_law_firm.tscn"
-        },
-        "he_yin_hall": {
-            "id": "he_yin_hall",
-            "name": "和印大厅",
-            "description": "和印集团的接待大厅。",
-            "scene_path": "res://scenes/map/locations/he_yin_hall.tscn"
-        },
-        "jia_nan_market": {
-            "id": "jia_nan_market",
-            "name": "嘉南市场",
-            "description": "热闹的市集。",
-            "scene_path": "res://scenes/map/locations/jia_nan_market.tscn"
-        },
         "university": {
             "id": "university",
-            "name": "未名大学",
+            "name": "默名大学",
             "description": "历史悠久的学府。",
             "scene_path": "res://scenes/map/locations/university.tscn"
         }

@@ -1,67 +1,274 @@
-[gd_scene load_steps=3 format=3 uid="uid://schedule_execution_panel"]
+[gd_scene load_steps=5 format=3 uid="uid://schedule_execution_panel"]
 
 [ext_resource type="Script" path="res://scripts/ui/activity/schedule_execution_panel.gd" id="1_exec"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/activity/course_slot.tscn" id="2_slot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainPanel"]
+bg_color = Color(0.95, 0.9, 0.85, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.3, 0.2, 0.15, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultPanel"]
+bg_color = Color(0.98, 0.88, 0.72, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.85, 0.65, 0.45, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleBg"]
+bg_color = Color(0.45, 0.25, 0.15, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
 
 [node name="ScheduleExecutionPanel" type="Control"]
-theme = ExtResource("1_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_theme")
 script = ExtResource("1_exec")
+slot_scene = ExtResource("2_slot")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="DimBackground" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.3)
+color = Color(0, 0, 0, 0.6)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="MainPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(900, 650)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -325.0
+offset_right = 450.0
+offset_bottom = 325.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_MainPanel")
+
+[node name="TopImageRect" type="TextureRect" parent="MainPanel"]
+custom_minimum_size = Vector2(800, 360)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 40.0
+offset_right = 400.0
+offset_bottom = 400.0
+grow_horizontal = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect" type="ColorRect" parent="MainPanel/TopImageRect"]
+show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.85, 0.8, 0.7, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="TitleContainer" type="PanelContainer" parent="MainPanel/TopImageRect"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_TitleBg")
+
+[node name="TitleLabel" type="Label" parent="MainPanel/TopImageRect/TitleContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_font_sizes/font_size = 22
+text = "课程标题"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="MainPanel"]
+custom_minimum_size = Vector2(800, 60)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = 115.0
+offset_right = 400.0
+offset_bottom = 175.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.3, 0.25, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "获取描述中..."
+horizontal_alignment = 1
+autowrap_mode = 3
+max_lines_visible = 3
+
+[node name="BonusHBox" type="HBoxContainer" parent="MainPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = 180.0
+offset_right = 400.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="DayLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "第 1 天"
-horizontal_alignment = 1
+[node name="TrackContainer" type="HBoxContainer" parent="MainPanel"]
+custom_minimum_size = Vector2(850, 80)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -425.0
+offset_top = -90.0
+offset_right = 425.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 5
+alignment = 1
 
-[node name="IconRect" type="TextureRect" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(150, 150)
+[node name="CharacterIcon" type="ColorRect" parent="MainPanel/TrackContainer"]
+z_index = 1
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
-size_flags_horizontal = 4
-expand_mode = 1
-stretch_mode = 5
+size_flags_horizontal = 0
+size_flags_vertical = 4
+color = Color(0.8, 0.4, 0.2, 1)
 
-[node name="ActivityLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "正在执行：体能特训课"
-horizontal_alignment = 1
-
-[node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(800, 120)
-layout_mode = 2
-text = "等待执行..."
+[node name="Label" type="Label" parent="MainPanel/TrackContainer/CharacterIcon"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "我"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
 
-[node name="NextButton" type="Button" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(200, 60)
+[node name="ClickArea" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+focus_mode = 0
+
+[node name="ResultPopup" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultMask" type="ColorRect" parent="ResultPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="ResultPanel" type="Panel" parent="ResultPopup"]
+custom_minimum_size = Vector2(400, 500)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -250.0
+offset_right = 200.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ResultPanel")
+
+[node name="Margin" type="MarginContainer" parent="ResultPopup/ResultPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="ResultPopup/ResultPanel/Margin"]
 layout_mode = 2
-size_flags_horizontal = 4
-text = "点击继续"
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="ResultPopup/ResultPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.55, 0.25, 1)
+theme_override_font_sizes/font_size = 28
+text = "学习成果"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ResultPopup/ResultPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="StatsVBox" type="VBoxContainer" parent="ResultPopup/ResultPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="EndButton" type="Button" parent="ResultPopup/ResultPanel/Margin/VBox"]
+visible = false
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "进入周末"
