@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://df2mab5j1234"]
+
+[ext_resource type="Script" path="res://scripts/ui/map/location_button.gd" id="1_script"]
+
+[node name="LocationButton" type="Button"]
+custom_minimum_size = Vector2(160, 200)
+offset_right = 160.0
+offset_bottom = 200.0
+text = "地点名称"
+script = ExtResource("1_script")
+
+[node name="DescLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+vertical_alignment = 1
