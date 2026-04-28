@@ -34,6 +34,7 @@ var camera_panel_instance = null
 var mobile_interface_instance = null
 var _intro_playing: bool = false
 var _intro_waiting_for_click: bool = false
+var _waiting_for_chat_click: bool = false
 
 # Free Chat states
 var is_free_chat_mode: bool = false
@@ -53,6 +54,7 @@ var toast = null
 var incoming_call_notification_instance = null
 
 signal _intro_click_proceed
+signal _chat_click_proceed
 
 const HISTORY_ITEM_SCENE = preload("res://scenes/ui/history/history_item.tscn")
 const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/story/quick_option_item.tscn")
@@ -385,7 +387,6 @@ func _update_free_chat_info() -> void:
 
 func _send_player_message(text: String, is_system_event: bool = false) -> void:
 	if not is_system_event:
-		_show_message(text, "我")
 		input_field.text = ""
 		
 		if is_free_chat_mode:
@@ -400,6 +401,10 @@ func _send_player_message(text: String, is_system_event: bool = false) -> void:
 	for child in quick_options_container.get_children():
 		child.queue_free()
 		
+	if not is_system_event:
+		# Wait for the typewriter effect of the player's message to finish before requesting AI response
+		await _show_message_async(text, "我")
+	
 	_request_ai_response(text, is_system_event)
 	
 	# 检查是否达到最大轮次，在发送请求后关闭模式，这样本次请求还能带上策略
@@ -620,6 +625,11 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 				_intro_waiting_for_click = false
 				_intro_click_proceed.emit()
 				print("[Debug] _intro_click_proceed signal emitted")
+			elif _waiting_for_chat_click:
+				click_blocker.accept_event()
+				_waiting_for_chat_click = false
+				_chat_click_proceed.emit()
+				print("[Debug] _chat_click_proceed signal emitted")
 
 func _gui_input(event: InputEvent) -> void:
 	pass
@@ -814,7 +824,7 @@ func _populate_history_ui() -> void:
 	for child in history_vbox.get_children():
 		child.queue_free()
 		
-	var messages = GameDataManager.history.messages
+	var messages = GameDataManager.history.get_messages_by_type("story_chat")
 	for msg in messages:
 		var item = HISTORY_ITEM_SCENE.instantiate()
 		history_vbox.add_child(item)
@@ -837,13 +847,13 @@ var pending_status_changes = []
 func _request_ai_response(text: String, is_system_event: bool) -> void:
 	if not is_system_event:
 		# Save player message
-		GameDataManager.history.add_message("我", text, "")
+		GameDataManager.history.add_message("我", text, "", "story_chat")
 		
 	# Clear the flag for playback finish
 	is_text_playback_finished = false
 	
 	if GameDataManager.config.ai_mode_enabled:
-		deepseek_client.send_chat_message(text)
+		deepseek_client.send_chat_message(text, "story_chat")
 	else:
 		# 本地兜底对话
 		if is_inside_tree():
@@ -872,6 +882,11 @@ func _on_chat_stream_started() -> void:
 	stream_live_done = false
 	stream_live_buffer = ""
 	stream_live_queue.clear()
+	
+	if _waiting_for_chat_click:
+		_waiting_for_chat_click = false
+		_chat_click_proceed.emit()
+		
 	_try_start_stream_worker()
 
 func _on_chat_stream_delta(delta_text: String) -> void:
@@ -1072,7 +1087,21 @@ func _on_options_response(response: Dictionary) -> void:
 		print("============================================\n")
 		
 		var json = JSON.new()
-		if json.parse(reply.strip_edges()) == OK:
+		
+		# 提取可能的 JSON 代码块
+		var json_str = reply
+		var regex = RegEx.new()
+		regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
+		var match = regex.search(reply)
+		if match:
+			json_str = match.get_string(1).strip_edges()
+		else:
+			var start_idx = reply.find("{")
+			var end_idx = reply.rfind("}")
+			if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+				json_str = reply.substr(start_idx, end_idx - start_idx + 1)
+				
+		if json.parse(json_str.strip_edges()) == OK:
 			var data = json.get_data()
 			if data is Dictionary and data.has("options") and data["options"] is Array:
 				pending_options_data = data["options"]
@@ -1150,7 +1179,11 @@ func _run_stream_worker() -> void:
 	var char_name = GameDataManager.profile.char_name
 	while true:
 		while not is_inside_tree():
+			if not stream_live_active: break
 			await Engine.get_main_loop().process_frame
+			
+		if not stream_live_active and stream_live_queue.size() == 0:
+			break
 			
 		if stream_live_queue.size() == 0:
 			if stream_live_done:
@@ -1171,8 +1204,16 @@ func _run_stream_worker() -> void:
 			_async_analyze_and_update_mood(t)
 				
 		await _process_single_message_line_async(t, char_name)
+		
+		if not stream_live_active:
+			break
+			
 		if is_inside_tree():
-			await get_tree().create_timer(0.3).timeout # 缩短强制等待时间，加快演出节奏
+			_waiting_for_chat_click = true
+			await _chat_click_proceed
+			
+		if not stream_live_active:
+			break
 			
 	stream_live_active = false
 	stream_live_worker_running = false
@@ -1182,10 +1223,6 @@ func _run_stream_worker() -> void:
 	_update_ui()
 	
 	# 因为选项生成请求已经提前到流式接收完毕时发送，这里只需要恢复UI交互即可
-	# 等待一小会儿，确保如果选项还没生成完，玩家不会立即打字破坏语境
-	if is_inside_tree():
-		await get_tree().create_timer(1.0).timeout
-		
 	is_text_playback_finished = true
 	_try_show_options()
 		
@@ -1258,8 +1295,8 @@ func _auto_split_message(text: String) -> Array:
 			tp_clean = action_regex.sub(tp_clean, "", true).strip_edges()
 			temp_clean = action_regex.sub(temp_clean, "", true).strip_edges()
 			
-			# 如果某一句太短（<25字符），或者其中一个片段仅仅只有动作描写（去掉括号后无内容），则必须合并
-			if temp_str.length() < 25 or tp.length() < 15 or tp_clean == "" or temp_clean == "":
+			# 如果其中一个片段仅仅只有动作描写（去掉括号后无内容），则必须合并
+			if tp_clean == "" or temp_clean == "":
 				temp_str += " " + tp
 			else:
 				merged_parts.append(temp_str)
@@ -1322,9 +1359,10 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 			_async_analyze_and_update_mood(line)
 				
 		await _process_single_message_line_async(line, char_name)
-		# 等待上一句（包括打字机和语音）彻底完成后，再强制额外等待 0.3 秒
+		# 等待上一句（包括打字机和语音）彻底完成后，等待点击进入下一句
 		if is_inside_tree():
-			await get_tree().create_timer(0.3).timeout
+			_waiting_for_chat_click = true
+			await _chat_click_proceed
 		
 	GameDataManager.profile.add_interaction_exp()
 	GameDataManager.profile.save_profile()
@@ -1457,7 +1495,7 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		
 	# 保存记录到历史管理器 (只有在非恢复模式时保存)
 	if not is_restore:
-		GameDataManager.history.add_message(speaker_name, text, cache_key, "normal")
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat")
 	elif _intro_playing and text != "":
 		# 因为 _intro_playing 调用时是 is_restore=true 专门为了避开 normal 的保存
 		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story")

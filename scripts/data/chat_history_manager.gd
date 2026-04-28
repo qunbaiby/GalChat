@@ -58,3 +58,16 @@ func load_history() -> void:
 func clear_history() -> void:
 	messages.clear()
 	save_history()
+
+func get_messages_by_type(type_filter: String) -> Array:
+	if type_filter == "all" or type_filter == "":
+		return messages.duplicate()
+	var filtered = []
+	for msg in messages:
+		if msg.has("type"):
+			var t = msg["type"]
+			if t == type_filter:
+				filtered.append(msg)
+			elif type_filter == "story_chat" and t == "fixed_story":
+				filtered.append(msg)
+	return filtered

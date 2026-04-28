@@ -86,16 +86,16 @@ func _get_headers() -> Array:
 func _get_url() -> String:
     return "https://api.deepseek.com/v1/chat/completions"
 
-func _get_history_messages(limit: int = 10, is_chat: bool = true) -> Array:
+func _get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
     var api_messages = []
-    var history_msgs = GameDataManager.history.messages
+    var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
     var start_idx = max(0, history_msgs.size() - limit)
     var bbcode_regex = RegEx.new()
     bbcode_regex.compile("\\[/?color.*?\\]")
     
     for i in range(start_idx, history_msgs.size()):
         var msg = history_msgs[i]
-        var role = "user" if msg["speaker"] == "玩家" else "assistant"
+        var role = "user" if msg["speaker"] == "玩家" or msg["speaker"] == "我" else "assistant"
         var clean_text = bbcode_regex.sub(msg["text"], "", true)
         
         # 对最后一条历史记录打上强提示标记，确保AI的注意力集中在此
@@ -105,10 +105,10 @@ func _get_history_messages(limit: int = 10, is_chat: bool = true) -> Array:
         api_messages.append({"role": role, "content": clean_text})
     return api_messages
 
-func send_chat_message(user_message: String) -> void:
-    send_chat_message_stream(user_message)
+func send_chat_message(user_message: String, history_type: String = "all") -> void:
+    send_chat_message_stream(user_message, history_type)
 
-func send_chat_message_stream(user_message: String) -> void:
+func send_chat_message_stream(user_message: String, history_type: String = "all") -> void:
     if not is_inside_tree() or GameDataManager.config.api_key.is_empty():
         chat_request_failed.emit("API Key未设置，请在设置界面配置。")
         return
@@ -121,7 +121,7 @@ func send_chat_message_stream(user_message: String) -> void:
         
     var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, query_embedding)
     var api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.append_array(_get_history_messages(10))
+    api_messages.append_array(_get_history_messages(10, true, history_type))
     if api_messages.size() == 0:
         api_messages.append({"role": "user", "content": user_message})
     else:
@@ -389,7 +389,7 @@ func _stop_chat_stream() -> void:
         _chat_stream_client = null
     set_process(false)
 
-func send_options_generation(last_ai_reply: String = "", free_chat_strategy: String = "") -> void:
+func send_options_generation(last_ai_reply: String = "", free_chat_strategy: String = "", history_type: String = "all") -> void:
     if GameDataManager.config.api_key.is_empty():
         return
         
@@ -402,7 +402,7 @@ func send_options_generation(last_ai_reply: String = "", free_chat_strategy: Str
         options_http.cancel_request()
         
     var history_text = ""
-    var history_msgs = GameDataManager.history.messages
+    var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
     var start_idx = max(0, history_msgs.size() - 10) # 仅取最近10条，避免长上下文导致AI转移话题
     
     # 提取所有包含“玩家”和角色的有效对话文本，去掉 BBCode
@@ -462,7 +462,7 @@ func send_narrator_generation() -> void:
     var stage_conf = profile.get_current_stage_config()
     
     var history_text = ""
-    var history_msgs = GameDataManager.history.messages
+    var history_msgs = GameDataManager.history.get_messages_by_type("story_chat")
     var start_idx = max(0, history_msgs.size() - 5)
     for i in range(start_idx, history_msgs.size()):
         var msg = history_msgs[i]

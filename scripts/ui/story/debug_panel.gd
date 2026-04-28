@@ -92,23 +92,35 @@ func _on_mood_selected(index: int) -> void:
         mood_changed.emit(mood_id)
 
 func _on_switch_char_pressed() -> void:
-    var profiles = GameDataManager.character_profiles
-    var current_id = GameDataManager.current_character_id
-    var keys = profiles.keys()
+    var profiles = _get_available_character_ids()
+    var current_id = GameDataManager.config.current_character_id
+    if current_id == "": current_id = GameDataManager.profile.current_character_id
     
-    if keys.size() <= 1:
+    if profiles.size() <= 1:
         print("[DebugPanel] 只有一个角色，无需切换")
         return
         
-    var idx = keys.find(current_id)
-    var next_idx = (idx + 1) % keys.size()
-    var next_id = keys[next_idx]
+    var idx = profiles.find(current_id)
+    var next_idx = (idx + 1) % profiles.size()
+    var next_id = profiles[next_idx]
     
     print("[DebugPanel] 切换角色从 ", current_id, " 到 ", next_id)
     GameDataManager.switch_character(next_id)
     
     # Update debug panel UI for the new character
     show_panel()
+
+func _get_available_character_ids() -> Array:
+    var ids = []
+    var dir = DirAccess.open("res://assets/data/characters")
+    if dir:
+        dir.list_dir_begin()
+        var file_name = dir.get_next()
+        while file_name != "":
+            if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
+                ids.append(file_name.replace(".json", ""))
+            file_name = dir.get_next()
+    return ids
 
 func _on_test_call_pressed() -> void:
     var fixed_calls_path = "res://assets/data/story/fixed_calls.json"
