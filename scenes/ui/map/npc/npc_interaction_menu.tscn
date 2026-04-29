@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cxab3x2xx8x2x"]
 
-[ext_resource type="Script" path="res://scripts/ui/map/npc/npc_interaction_menu.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://b4aiqdf50io6w" path="res://scripts/ui/map/npc/npc_interaction_menu.gd" id="1_script"]
 
 [node name="NPCInteractionMenu" type="CanvasLayer"]
 script = ExtResource("1_script")
@@ -22,52 +22,83 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.784314)
 
-[node name="PortraitCenter" type="CenterContainer" parent="Control"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Portrait" type="TextureRect" parent="Control/PortraitCenter"]
-custom_minimum_size = Vector2(300, 500)
-layout_mode = 2
-
-[node name="PlaceholderBG" type="ColorRect" parent="Control/PortraitCenter/Portrait"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="NameLabel" type="Label" parent="Control/PortraitCenter/Portrait"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = -40.0
-offset_bottom = -10.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 24
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="OptionsPanel" type="PanelContainer" parent="Control"]
+[node name="InfoAndOptions" type="VBoxContainer" parent="Control"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -150.0
-offset_right = -100.0
-offset_bottom = 150.0
+offset_left = -380.0
+offset_top = -250.0
+offset_right = -80.0
+offset_bottom = 250.0
 grow_horizontal = 0
 grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/OptionsPanel"]
-layout_mode = 2
 theme_override_constants/separation = 20
+alignment = 1
+
+[node name="NPCInfoVBox" type="VBoxContainer" parent="Control/InfoAndOptions"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="Control/InfoAndOptions/NPCInfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 20
+text = "神秘角色"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="Control/InfoAndOptions/NPCInfoVBox"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 48
+text = "名字"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StageHBox" type="HBoxContainer" parent="Control/InfoAndOptions/NPCInfoVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="LeftLine" type="ColorRect" parent="Control/InfoAndOptions/NPCInfoVBox/StageHBox"]
+custom_minimum_size = Vector2(60, 2)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.8, 0.8, 0.8, 0.6)
+
+[node name="StageLabel" type="Label" parent="Control/InfoAndOptions/NPCInfoVBox/StageHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 22
+text = "陌生人"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightLine" type="ColorRect" parent="Control/InfoAndOptions/NPCInfoVBox/StageHBox"]
+custom_minimum_size = Vector2(60, 2)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.8, 0.8, 0.8, 0.6)
+
+[node name="HeartsLabel" type="Label" parent="Control/InfoAndOptions/NPCInfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.6, 0.9, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_font_sizes/font_size = 24
+text = "♡♡♡♡♡♡♡♡♡♡"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="Control/InfoAndOptions"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="OptionsVBox" type="VBoxContainer" parent="Control/InfoAndOptions"]
+layout_mode = 2
+theme_override_constants/separation = 15
 alignment = 1

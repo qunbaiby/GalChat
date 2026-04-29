@@ -5,7 +5,6 @@ extends Control
 @onready var rich_text_label = $DialogueLayer/RichTextLabel
 @onready var quick_option_layer = $QuickOptionLayer
 @onready var input_layer = $InputLayer
-@onready var skip_button = $DialogueLayer/SkipButton
 @onready var history_button = $DialogueLayer/HistoryButton
 @onready var end_chat_button = $DialogueLayer/EndChatButton
 
@@ -26,7 +25,6 @@ func _ready():
     mouse_filter = Control.MOUSE_FILTER_STOP
     
     # 隐藏不需要的按钮，或者绑定默认事件
-    skip_button.pressed.connect(_on_skip_pressed)
     end_chat_button.pressed.connect(_on_end_chat_pressed)
     
     # 初始化 TTS
@@ -58,13 +56,11 @@ func play_single_line(char_id: String, char_name: String, text: String, hide_inp
         quick_option_layer.hide()
         input_layer.hide()
         # 隐藏结束对话等按钮，只需点击屏幕即可
-        skip_button.hide()
         history_button.hide()
         end_chat_button.hide()
     else:
         quick_option_layer.show()
         input_layer.show()
-        skip_button.show()
         history_button.show()
         end_chat_button.show()
     

@@ -7,15 +7,17 @@ extends Control
 @onready var back_button: Button = $BackButton
 
 @onready var interaction_menu = $InteractionMenu
-@onready var options_panel = $InteractionMenu/OptionsPanel
-@onready var portrait_center = $InteractionMenu/PortraitCenter
-@onready var menu_portrait_bg = $InteractionMenu/PortraitCenter/Portrait/PlaceholderBG
-@onready var menu_name_label = $InteractionMenu/PortraitCenter/Portrait/NameLabel
+@onready var info_and_options = $InteractionMenu/InfoAndOptions
+
+@onready var menu_title_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/TitleLabel
+@onready var menu_name_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/NameLabel
+@onready var menu_stage_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox/StageLabel
+@onready var menu_hearts_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/HeartsLabel
+
 @onready var character_layer = $InteractionMenu/CharacterLayer
-@onready var menu_options_vbox = $InteractionMenu/OptionsPanel/VBoxContainer
+@onready var menu_options_vbox = $InteractionMenu/InfoAndOptions/OptionsVBox
 
 @onready var dialogue_panel = $DialoguePanel
-@onready var portrait_tex = $InteractionMenu/PortraitCenter/Portrait
 
 var location_id: String = ""
 
@@ -33,7 +35,7 @@ func _ready() -> void:
 		if dialogue_panel.has_signal("dialogue_finished"):
 			dialogue_panel.dialogue_finished.connect(func():
 				if current_interacting_npc_id != "":
-					options_panel.show()
+					info_and_options.show()
 			)
 	
 	if location_id != "":
@@ -82,6 +84,7 @@ func _on_npc_clicked(npc_id: String):
 		
 	var spine_path = ""
 	var static_portrait_path = ""
+	var npc_title = "未知"
 	
 	var file = FileAccess.open(char_file_path, FileAccess.READ)
 	if file:
@@ -92,13 +95,37 @@ func _on_npc_clicked(npc_id: String):
 				npc_name = data.get("char_name", npc_name)
 				spine_path = data.get("spine_path", "")
 				static_portrait_path = data.get("static_portrait", data.get("avatar", ""))
+				npc_title = data.get("title", npc_title)
 				
 	menu_name_label.text = npc_name
+	if npc_id == "luna":
+		menu_title_label.text = "魔法少女" # 或从配置读取
+	else:
+		menu_title_label.text = npc_title
+		
+	# 好感度及情感阶段展示逻辑
+	if npc_id == "luna":
+		var profile = GameDataManager.profile
+		var current_stage = profile.current_stage
+		var conf = profile.get_current_stage_config()
+		menu_stage_label.text = conf.get("stageTitle", "陌生人")
+		
+		# 构建爱心字符串 (根据当前阶段显示实心心，总共10颗心)
+		var max_hearts = 10
+		var filled_hearts = min(current_stage, max_hearts)
+		var hearts_str = ""
+		for i in range(max_hearts):
+			if i < filled_hearts:
+				hearts_str += "♥"
+			else:
+				hearts_str += "♡"
+		menu_hearts_label.text = hearts_str
+	else:
+		# 默认非主角NPC的好感度展示
+		menu_stage_label.text = "普通朋友"
+		menu_hearts_label.text = "♥♡♡♡♡♡♡♡♡♡"
 	
 	# 重置显示状态
-	portrait_tex.texture = null
-	portrait_tex.hide()
-	menu_portrait_bg.show()
 	if character_layer:
 		character_layer.hide_character("none")
 		
@@ -107,21 +134,10 @@ func _on_npc_clicked(npc_id: String):
 		character_layer.load_spine_by_path(spine_path)
 		character_layer.show_character("none")
 		loaded_spine = true
-		menu_portrait_bg.hide()
 			
 	if not loaded_spine:
-		portrait_tex.show()
-		if not static_portrait_path.is_empty() and ResourceLoader.exists(static_portrait_path):
-			portrait_tex.texture = load(static_portrait_path)
-			menu_portrait_bg.hide()
-		else:
-			var npc_type = npc_data.get("type", "random")
-			if npc_type == "resident":
-				menu_portrait_bg.color = Color(0.4, 0.8, 0.4)
-			else:
-				if npc_id == "luna": menu_portrait_bg.color = Color(1.0, 0.5, 0.5)
-				elif npc_id == "ya": menu_portrait_bg.color = Color(0.5, 0.5, 1.0)
-				else: menu_portrait_bg.color = Color(0.8, 0.8, 0.8)
+		# Fallback: 如果没有 Spine，暂时不显示任何立绘
+		pass
 
 	# Clear existing buttons
 	for child in menu_options_vbox.get_children():
@@ -134,8 +150,55 @@ func _on_npc_clicked(npc_id: String):
 
 	for action in interactions:
 		var btn = Button.new()
-		btn.text = action.get("label", "未知操作")
-		btn.add_theme_font_size_override("font_size", 20)
+		var action_label = action.get("label", "未知操作")
+		
+		# 添加对应的图标前缀 (根据ID简单匹配)
+		var icon_str = "💬 "
+		match action.get("id", ""):
+			"chat": icon_str = "💬 "
+			"order": icon_str = "☕ "
+			"gift": icon_str = "🎁 "
+			"leave": icon_str = "🏃 "
+			"interact": icon_str = "✨ "
+			"invite", "date": icon_str = "💕 "
+		
+		btn.text = icon_str + action_label
+		btn.add_theme_font_size_override("font_size", 22)
+		btn.add_theme_color_override("font_color", Color(0.8, 0.8, 0.85, 1))
+		btn.add_theme_color_override("font_hover_color", Color(1, 0.9, 0.6, 1))
+		
+		# 样式设计
+		var style_normal = StyleBoxFlat.new()
+		style_normal.bg_color = Color(0.15, 0.2, 0.3, 0.8)
+		style_normal.corner_radius_top_left = 25
+		style_normal.corner_radius_top_right = 25
+		style_normal.corner_radius_bottom_left = 25
+		style_normal.corner_radius_bottom_right = 25
+		style_normal.border_width_bottom = 2
+		style_normal.border_width_top = 2
+		style_normal.border_width_left = 2
+		style_normal.border_width_right = 2
+		style_normal.border_color = Color(0.8, 0.7, 0.4, 0.5) # 淡淡的金边
+		style_normal.content_margin_left = 30
+		style_normal.content_margin_right = 30
+		style_normal.content_margin_top = 15
+		style_normal.content_margin_bottom = 15
+		
+		var style_hover = style_normal.duplicate()
+		style_hover.bg_color = Color(0.2, 0.25, 0.35, 0.9)
+		style_hover.border_color = Color(1.0, 0.9, 0.5, 0.8) # 高亮的金边
+		
+		var style_pressed = style_normal.duplicate()
+		style_pressed.bg_color = Color(0.1, 0.15, 0.25, 0.9)
+		style_pressed.border_color = Color(0.6, 0.5, 0.3, 0.8)
+		
+		btn.add_theme_stylebox_override("normal", style_normal)
+		btn.add_theme_stylebox_override("hover", style_hover)
+		btn.add_theme_stylebox_override("pressed", style_pressed)
+		btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+		
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		
 		btn.pressed.connect(_on_menu_action_pressed.bind(action.get("id", "")))
 		menu_options_vbox.add_child(btn)
 
@@ -148,7 +211,7 @@ func _on_menu_action_pressed(action_id: String):
 		"order":
 			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 点单/服务")
 			if current_interacting_npc_id == "ya":
-				options_panel.hide() # 仅隐藏右侧选项，保留角色和姓名
+				info_and_options.hide() # 仅隐藏右侧选项，保留角色和姓名
 				var order_menu_scene = load("res://scenes/ui/map/cafe/cafe_order_menu.tscn")
 				if order_menu_scene:
 					var order_menu = order_menu_scene.instantiate()
@@ -168,7 +231,7 @@ func _on_menu_action_pressed(action_id: String):
 									break
 									
 							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "" and not is_making: 
-								options_panel.show()
+								info_and_options.show()
 						)
 					get_tree().root.add_child(order_menu)
 			else:
@@ -193,7 +256,7 @@ func _on_menu_action_pressed(action_id: String):
 func _on_dialogue_finished():
 	# 当打字机专属台词结束后，恢复互动菜单显示
 	if current_interacting_npc_id != "":
-		options_panel.show()
+		info_and_options.show()
 
 func _on_back_pressed():
 	var world_map_scene = load("res://scenes/ui/map/core/world_map_scene.tscn")
