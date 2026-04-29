@@ -1,0 +1,87 @@
+[gd_scene load_steps=2 format=3 uid="uid://dxcafeordermenu"]
+
+[ext_resource type="Script" path="res://scripts/ui/map/cafe/cafe_order_menu.gd" id="1_script"]
+
+[node name="CafeOrderMenu" type="CanvasLayer"]
+script = ExtResource("1_script")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 10.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
+text = "月世界咖啡厅 - 点单"
+horizontal_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -50.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 50.0
+grow_horizontal = 0
+text = "X"
+
+[node name="CurrencyLabel" type="Label" parent="Panel"]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 150.0
+offset_bottom = 43.0
+text = "余额: 999 银币"
+
+[node name="TabContainer" type="TabContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="咖啡" type="ScrollContainer" parent="Panel/TabContainer"]
+layout_mode = 2
+
+[node name="CoffeeVBox" type="VBoxContainer" parent="Panel/TabContainer/咖啡"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="甜点" type="ScrollContainer" parent="Panel/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="DessertVBox" type="VBoxContainer" parent="Panel/TabContainer/甜点"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[connection signal="pressed" from="Panel/CloseButton" to="." method="_on_close_button_pressed"]

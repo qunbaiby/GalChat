@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://dpw5npcp1x"]
+
+[ext_resource type="Script" path="res://scripts/ui/map/npc/quick_npc_portrait.gd" id="1_script"]
+
+[node name="QuickNPCPortrait" type="VBoxContainer"]
+offset_right = 250.0
+offset_bottom = 437.0
+alignment = 2
+script = ExtResource("1_script")
+
+[node name="Portrait" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(250, 400)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PlaceholderBG" type="ColorRect" parent="Portrait"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="InteractButton" type="Button" parent="Portrait"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "NPC: 名字"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="Portrait/InteractButton" to="." method="_on_interact_button_pressed"]

@@ -1,0 +1,143 @@
+[gd_scene load_steps=5 format=3 uid="uid://11qncg5lxfxf"]
+
+[ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b1isdxijgpwrt" path="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png" id="2_3k4mg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/common/dialogue_panel.tscn" id="2_dialogue"]
+[ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="3_char"]
+
+[node name="QuickLocationScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_3k4mg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="MapInfoPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 30.0
+offset_right = 330.0
+offset_bottom = 130.0
+
+[node name="VBox" type="VBoxContainer" parent="MapInfoPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NameLabel" type="Label" parent="MapInfoPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "地点名称"
+
+[node name="DescLabel" type="Label" parent="MapInfoPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "这里是地点的描述信息。"
+autowrap_mode = 2
+
+[node name="NPCContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -600.0
+offset_top = -400.0
+offset_right = -50.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 20
+alignment = 2
+
+[node name="InteractionMenu" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PortraitCenter" type="CenterContainer" parent="InteractionMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Portrait" type="TextureRect" parent="InteractionMenu/PortraitCenter"]
+custom_minimum_size = Vector2(300, 500)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PlaceholderBG" type="ColorRect" parent="InteractionMenu/PortraitCenter/Portrait"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.3)
+
+[node name="NameLabel" type="Label" parent="InteractionMenu/PortraitCenter/Portrait"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = -40.0
+offset_bottom = -10.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CharacterLayer" parent="InteractionMenu" instance=ExtResource("3_char")]
+position = Vector2(35, -397)
+
+[node name="OptionsPanel" type="PanelContainer" parent="InteractionMenu"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -150.0
+offset_right = -100.0
+offset_bottom = 150.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="InteractionMenu/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="BackButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_top = 30.0
+offset_right = -30.0
+offset_bottom = 70.0
+grow_horizontal = 0
+text = "返回地图"
+
+[node name="DialoguePanel" parent="." instance=ExtResource("2_dialogue")]
+layout_mode = 1

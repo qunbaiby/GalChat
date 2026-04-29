@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3 uid="uid://dx5y3x4x1x9x"]
+
+[ext_resource type="Script" path="res://scripts/map/objects/npc_interactable.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(80, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(120, 140)
+
+[node name="NPCInteractable" type="CharacterBody2D"]
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="Placeholder" type="ColorRect" parent="."]
+offset_left = -20.0
+offset_top = -50.0
+offset_right = 20.0
+color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -40.0
+offset_top = -80.0
+offset_right = 40.0
+offset_bottom = -57.0
+horizontal_alignment = 1
+
+[node name="InteractPrompt" type="Label" parent="."]
+visible = false
+offset_left = -40.0
+offset_top = -100.0
+offset_right = 40.0
+offset_bottom = -77.0
+text = "[F] 交互"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -25)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="InteractArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+position = Vector2(0, -25)
+shape = SubResource("RectangleShape2D_2")
+
+[connection signal="body_entered" from="InteractArea" to="." method="_on_interact_area_body_entered"]
+[connection signal="body_exited" from="InteractArea" to="." method="_on_interact_area_body_exited"]

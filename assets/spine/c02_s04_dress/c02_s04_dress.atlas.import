@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://dhuhc8tk5jlm0"
+path="res://.godot/imported/c02_s04_dress.atlas-a2ed7960e047d1c06b4ab34a7ef5a843.spatlas"
+
+[deps]
+
+source_file="res://assets/spine/c02_s04_dress/c02_s04_dress.atlas"
+dest_files=["res://.godot/imported/c02_s04_dress.atlas-a2ed7960e047d1c06b4ab34a7ef5a843.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

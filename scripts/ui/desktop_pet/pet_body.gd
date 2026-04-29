@@ -38,11 +38,34 @@ func _ready() -> void:
             var anims = skeleton.get_data().get_animations()
             if anims.size() > 0:
                 var target_anim = anims[0].get_name()
+                var anim_names = []
                 for a in anims:
+                    anim_names.append(a.get_name())
                     if "idle" in a.get_name().to_lower() or "daiji" in a.get_name().to_lower():
                         target_anim = a.get_name()
-                        break
-                anim_state.set_animation(target_anim, true, 0)
+                
+                if target_anim in anim_names:
+                    anim_state.set_animation(target_anim, true, 0)
+        elif is_inside_tree():
+            # 如果 skeleton 还没准备好，延迟一帧处理
+            call_deferred("_ready_delayed_spine")
+
+func _ready_delayed_spine() -> void:
+    if spine_sprite:
+        var anim_state = spine_sprite.get_animation_state()
+        var skeleton = spine_sprite.get_skeleton()
+        if anim_state and skeleton and skeleton.get_data():
+            var anims = skeleton.get_data().get_animations()
+            if anims.size() > 0:
+                var target_anim = anims[0].get_name()
+                var anim_names = []
+                for a in anims:
+                    anim_names.append(a.get_name())
+                    if "idle" in a.get_name().to_lower() or "daiji" in a.get_name().to_lower():
+                        target_anim = a.get_name()
+                
+                if target_anim in anim_names:
+                    anim_state.set_animation(target_anim, true, 0)
 
 func _on_click_control_gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:
@@ -75,11 +98,18 @@ func _play_interact_anim() -> void:
                 if anim_name_str.to_lower() != "idle" and anim_name_str.to_lower() != "daiji":
                     interact_anim = anim_name_str
                     break
-        if idle_anim not in anim_names and anim_names.size() > 0:
-            idle_anim = anim_names[0]
-            
-    anim_state.set_animation(interact_anim, false, 0)
-    anim_state.add_animation(idle_anim, 0.0, true, 0)
+        
+        # 更严格的 idle_anim 判定
+        if not idle_anim in anim_names:
+            if "idle" in anim_names:
+                idle_anim = "idle"
+            elif anim_names.size() > 0:
+                idle_anim = anim_names[0]
+                
+        # 安全调用
+        if interact_anim in anim_names and idle_anim in anim_names:
+            anim_state.set_animation(interact_anim, false, 0)
+            anim_state.add_animation(idle_anim, 0.0, true, 0)
 
 func clear_bubbles() -> void:
     for child in bubble_container.get_children():

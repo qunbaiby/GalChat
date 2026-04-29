@@ -7,12 +7,18 @@ var fade_tween: Tween
 func _ready() -> void:
     GameDataManager.character_switched.connect(_on_character_switched)
     _update_spine_data()
-    # 初始化时播放默认的 idle 动画
-    play_animation("Idle", true)
+    # 在 ready 阶段，如果 skeleton 未准备好，延迟一帧播放
+    if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
+        play_animation("Idle", true)
+    else:
+        call_deferred("play_animation", "Idle", true)
 
 func _on_character_switched(char_id: String) -> void:
     _update_spine_data()
-    play_animation("Idle", true)
+    if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
+        play_animation("Idle", true)
+    else:
+        call_deferred("play_animation", "Idle", true)
 
 func _update_spine_data() -> void:
     if not is_instance_valid(character_spine): return
@@ -21,8 +27,21 @@ func _update_spine_data() -> void:
         var res = load(path)
         if res is SpineSkeletonDataResource:
             character_spine.skeleton_data_res = res
-            # Need to update or rebuild the SpineSprite? Setting skeleton_data_res might be enough
             pass
+
+# 提供一个公共方法，允许外部强制更新 Spine 数据而不读取 Profile
+func load_spine_by_path(path: String) -> void:
+    if not is_instance_valid(character_spine): return
+    if path != "" and ResourceLoader.exists(path):
+        var res = load(path)
+        if res is SpineSkeletonDataResource:
+            character_spine.skeleton_data_res = res
+            
+            # 同样也用 deferred 延迟，确保底层完成绑定
+            if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
+                play_animation("Idle", true)
+            else:
+                call_deferred("play_animation", "Idle", true)
 
 # 保留原本的 update_sprite 接口以防外部调用报错，但不再处理图片切换
 func update_sprite(new_texture: Texture2D) -> void:
@@ -35,12 +54,12 @@ func play_animation(anim_name: String, loop: bool = true) -> void:
     if not is_instance_valid(character_spine):
         return
         
-    var anim_state = character_spine.get_animation_state()
-    if not anim_state:
-        return
-        
     var skeleton = character_spine.get_skeleton()
     if not skeleton or not skeleton.get_data():
+        return
+        
+    var anim_state = character_spine.get_animation_state()
+    if not anim_state:
         return
         
     var anims = skeleton.get_data().get_animations()
@@ -51,7 +70,9 @@ func play_animation(anim_name: String, loop: bool = true) -> void:
     # 如果请求的动画不存在，回退到 Idle 或者第一个可用动画
     var target_anim = anim_name
     if not target_anim in anim_names:
-        if "Idle" in anim_names:
+        if "idle" in anim_names:
+            target_anim = "idle"
+        elif "Idle" in anim_names:
             target_anim = "Idle"
         elif anim_names.size() > 0:
             target_anim = anim_names[0]
@@ -63,7 +84,9 @@ func play_animation(anim_name: String, loop: bool = true) -> void:
     if current_track and current_track.get_animation().get_name() == target_anim and loop:
         return
         
-    anim_state.set_animation(target_anim, loop, 0)
+    # 安全调用：确保 target_anim 确实存在于 skeleton data 中
+    if target_anim in anim_names:
+        anim_state.set_animation(target_anim, loop, 0)
 
 # 新增：控制立绘显示与隐藏（支持动画）
 func show_character(anim_type: String = "fade_in") -> void:
@@ -96,6 +119,8 @@ func show_character(anim_type: String = "fade_in") -> void:
         _:
             modulate.a = 1.0
             position = Vector2.ZERO
+            if fade_tween and fade_tween.is_valid():
+                fade_tween.kill() # 如果没有要执行的动画，一定要杀掉空 tween
 
 func hide_character(anim_type: String = "fade_out") -> void:
     if fade_tween and fade_tween.is_valid():
@@ -119,5 +144,9 @@ func hide_character(anim_type: String = "fade_out") -> void:
             fade_tween.parallel().tween_property(self, "modulate:a", 0.0, 0.5)
         _:
             modulate.a = 0.0
+            if fade_tween and fade_tween.is_valid():
+                fade_tween.kill() # 如果没有要执行的动画，一定要杀掉空 tween
+            self.hide()
+            return # 直接返回，不再调用最后的 tween_callback
             
     fade_tween.tween_callback(self.hide)

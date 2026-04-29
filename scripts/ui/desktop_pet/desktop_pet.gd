@@ -366,10 +366,14 @@ func _trigger_proactive_chat(prompt_text: String) -> void:
     var proactive_history = []
     proactive_history.append({"role": "user", "content": prompt_text})
     
-    # 我们把这次主动事件也悄悄塞进主聊天历史里（为了以后的连贯性），但发给大模型时只发独立的 proactive_history
+    # 我们把这次主动事件塞进专属的桌宠聊天历史里
     chat_history.append({"role": "user", "content": prompt_text})
     
-    deepseek_client.send_desktop_pet_chat_stream(prompt_text, pet_prompt, proactive_history)
+    var pet_messages = [{"role": "system", "content": pet_prompt}]
+    for msg in proactive_history:
+        pet_messages.append(msg)
+        
+    deepseek_client._start_stream_request(pet_messages)
 
 func _on_send_pressed() -> void:
     var text = input_edit.text.strip_edges()
@@ -398,8 +402,15 @@ func _on_send_pressed() -> void:
     
     # Add user message to history
     # 桌宠特有逻辑：直接在发包前把话塞进去
+    # 我们不要再塞进全局的聊天历史里了，而是使用专门的桌宠历史
     chat_history.append({"role": "user", "content": text})
-    deepseek_client.send_desktop_pet_chat_stream(text, pet_prompt, chat_history)
+    
+    # 构建专门为桌宠发送的历史数组，避免混用
+    var pet_messages = [{"role": "system", "content": pet_prompt}]
+    for msg in chat_history:
+        pet_messages.append(msg)
+        
+    deepseek_client._start_stream_request(pet_messages)
 
 func _on_chat_started() -> void:
     current_response = ""

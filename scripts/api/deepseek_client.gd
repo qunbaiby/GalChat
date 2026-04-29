@@ -21,6 +21,9 @@ signal narrator_request_failed(error_message: String)
 signal character_mood_request_completed(response: Dictionary)
 signal character_mood_request_failed(error_message: String)
 
+signal npc_event_dialogue_completed(dialogue: String)
+signal npc_event_dialogue_failed(error_message: String)
+
 signal diary_generated(diary_entry: Dictionary)
 signal diary_error(error_msg: String)
 
@@ -30,6 +33,7 @@ var memory_http: HTTPRequest
 var options_http: HTTPRequest
 var narrator_http: HTTPRequest
 var character_mood_http: HTTPRequest
+var npc_event_http: HTTPRequest
 var diary_http: HTTPRequest
 
 var _chat_stream_client: HTTPClient
@@ -71,6 +75,11 @@ func _ready() -> void:
     character_mood_http.timeout = 10.0
     add_child(character_mood_http)
     character_mood_http.request_completed.connect(_on_character_mood_completed)
+    
+    npc_event_http = HTTPRequest.new()
+    npc_event_http.timeout = 20.0
+    add_child(npc_event_http)
+    npc_event_http.request_completed.connect(_on_npc_event_completed)
     
     diary_http = HTTPRequest.new()
     add_child(diary_http)
@@ -122,43 +131,27 @@ func send_chat_message_stream(user_message: String, history_type: String = "all"
     var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, query_embedding)
     var api_messages = [{"role": "system", "content": system_prompt}]
     api_messages.append_array(_get_history_messages(10, true, history_type))
-    if api_messages.size() == 0:
-        api_messages.append({"role": "user", "content": user_message})
-    else:
+    
+    # Check if the last message is the exact same user message, to avoid duplication
+    var should_append = true
+    if api_messages.size() > 1:
         var last_msg = api_messages[api_messages.size() - 1]
-        if last_msg is Dictionary and last_msg.get("role", "") == "user" and str(last_msg.get("content", "")).strip_edges() == user_message.strip_edges():
-            pass
-        else:
-            api_messages.append({"role": "user", "content": user_message})
+        if last_msg is Dictionary and last_msg.get("role", "") == "user":
+            var cleaned_content = str(last_msg.get("content", "")).replace(" <--- 【系统提示：这是你们上次聊天的最后一句话，请顺着这个话题继续延展，不要生硬地开启新话题】", "").strip_edges()
+            if cleaned_content == user_message.strip_edges():
+                should_append = false
+                
+    if should_append:
+        api_messages.append({"role": "user", "content": user_message})
     
     _start_stream_request(api_messages)
     
     # Trigger emotion and memory agents in parallel
     _send_emotion_analysis(user_message)
     if GameDataManager.memory_manager.add_turn():
-        _send_memory_extraction()
+        _send_memory_extraction(history_type)
 
-func send_desktop_pet_chat_stream(user_message: String, system_prompt: String, chat_history: Array = []) -> void:
-    if not is_inside_tree() or GameDataManager.config.api_key.is_empty():
-        chat_request_failed.emit("API Key未设置，请在设置界面配置。")
-        return
-        
-    if _chat_stream_active:
-        _stop_chat_stream()
-        
-    print("[DeepSeek Client] Sending desktop pet request...")
-    
-    var api_messages = [{"role": "system", "content": system_prompt}]
-    for msg in chat_history:
-        api_messages.append(msg)
-        
-    print("[DeepSeek Client] Final messages count: ", api_messages.size())
-    print("[DeepSeek Client] === FULL PAYLOAD DUMP ===")
-    for i in range(api_messages.size()):
-        print("  [%d] Role: %s | Content: %s" % [i, api_messages[i].role, api_messages[i].content])
-    print("[DeepSeek Client] === END PAYLOAD DUMP ===")
-    
-    _start_stream_request(api_messages)
+
 
 func _start_stream_request(api_messages: Array) -> void:
     var body = {
@@ -219,7 +212,7 @@ func _send_emotion_analysis(user_message: String) -> void:
     
     emotion_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
-func _send_memory_extraction() -> void:
+func _send_memory_extraction(history_type: String = "story_chat") -> void:
     if not is_inside_tree() or GameDataManager.config.api_key.is_empty():
         return
         
@@ -227,7 +220,7 @@ func _send_memory_extraction() -> void:
     
     # 将历史记录转化为纯文本传入，防止 AI 根据 role="assistant" 顺着往下进行角色扮演
     var history_text = ""
-    var history_msgs = GameDataManager.history.messages
+    var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
     var start_idx = max(0, history_msgs.size() - 20)
     var bbcode_regex = RegEx.new()
     bbcode_regex.compile("\\[/?color.*?\\]")
@@ -581,6 +574,75 @@ func analyze_mood_sync(character_message: String) -> String:
     
     return ""
 
+func generate_npc_event_dialogue(npc_id: String, event_type: String, event_details: Dictionary) -> void:
+    if GameDataManager.config.api_key.is_empty():
+        npc_event_dialogue_failed.emit("API Key未设置")
+        return
+        
+    while not is_inside_tree():
+        await Engine.get_main_loop().process_frame
+        
+    if npc_event_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+        npc_event_http.cancel_request()
+        
+    var npc_name = "未知NPC"
+    var personality = "普通"
+    var stage = 1
+    var stage_title = "初识"
+    
+    # 获取 NPC 基础设定
+    var npc_file = FileAccess.open("res://assets/data/characters/npc/" + npc_id + ".json", FileAccess.READ)
+    if npc_file:
+        var json = JSON.new()
+        if json.parse(npc_file.get_as_text()) == OK:
+            var data = json.get_data()
+            npc_name = data.get("char_name", npc_id)
+            if data.has("base_personality"):
+                personality = data["base_personality"].get("core_traits", "") + " " + data["base_personality"].get("dialogue_style", "")
+    
+    # 获取好感度阶段
+    if GameDataManager.profile.current_character_id == npc_id:
+        stage = GameDataManager.profile.current_stage
+        stage_title = GameDataManager.profile.get_current_stage_config().get("stageTitle", "未知")
+    else:
+        var stages_file = FileAccess.open("res://assets/data/characters/npc/" + npc_id + "_stages.json", FileAccess.READ)
+        if stages_file:
+            var json = JSON.new()
+            if json.parse(stages_file.get_as_text()) == OK:
+                var data = json.get_data()
+                if data.has("stages") and data["stages"].size() > 0:
+                    stage_title = data["stages"][0].get("stageTitle", "未知")
+    
+    # 构建事件描述
+    var event_desc = ""
+    var protagonist_name = GameDataManager.profile.char_name # 当前游戏的女主(例如Luna)
+    if protagonist_name.is_empty():
+        protagonist_name = "Luna"
+        
+    if event_type == "order":
+        var item_name = event_details.get("item_name", "单品")
+        event_desc = "少女 %s 在你这里点了一份【%s】。" % [protagonist_name, item_name]
+    elif event_type == "gift":
+        var gift_name = event_details.get("gift_name", "礼物")
+        event_desc = "少女 %s 送给了你一份【%s】。" % [protagonist_name, gift_name]
+    else:
+        event_desc = "发生了一个特殊事件。"
+        
+    var system_prompt = "【系统设定】\n你扮演的角色是：%s。\n你的性格特征和说话风格是：%s。\n注意：在这个世界里，屏幕外有一个“玩家”，而你现在面对的是游戏世界中的少女【%s】。\n你当前与少女【%s】的情感羁绊处于【阶段%d：%s】。请严格根据这个情感阶段对她表现出相应的态度，不要把她和屏幕外的玩家混淆。\n\n【当前事件】\n%s\n\n【任务要求】\n请结合你的性格、情感阶段以及当前发生的事件，说一句非常符合你人设的专属台词。注意：\n1. 直接输出台词，不要包含任何旁白、动作描述（如括弧内的动作）。\n2. 语气必须严格符合当前对【%s】的情感阶段。\n3. 台词要简短自然，像游戏里的即时互动反馈。" % [npc_name, personality, protagonist_name, protagonist_name, stage, stage_title, event_desc, protagonist_name]
+    
+    var api_messages = [
+        {"role": "system", "content": system_prompt}
+    ]
+    
+    var body = {
+        "model": GameDataManager.config.model,
+        "messages": api_messages,
+        "temperature": 0.7,
+        "max_tokens": 500 # 防止 reasoning 截断
+    }
+    
+    npc_event_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
 func send_diary_generation() -> void:
     if GameDataManager.config.api_key.is_empty():
         diary_error.emit("API Key未设置")
@@ -652,6 +714,23 @@ func _on_narrator_completed(result: int, response_code: int, _headers: PackedStr
 
 func _on_character_mood_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
     _handle_response(result, response_code, body, character_mood_request_completed, character_mood_request_failed)
+
+func _on_npc_event_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+    if response_code == 200:
+        var json = JSON.new()
+        if json.parse(body.get_string_from_utf8()) == OK:
+            var data = json.get_data()
+            if typeof(data) == TYPE_DICTIONARY and data.has("choices") and data["choices"].size() > 0:
+                var choice = data["choices"][0]
+                if choice.has("message") and choice["message"].has("content"):
+                    var content = choice["message"]["content"].strip_edges()
+                    if content.is_empty() and choice["message"].has("reasoning_content"):
+                        npc_event_dialogue_completed.emit("（微笑着，没有说话）")
+                    else:
+                        npc_event_dialogue_completed.emit(content)
+                    return
+    
+    npc_event_dialogue_failed.emit("NPC 事件台词获取失败 (Code: %d)" % response_code)
 
 func _on_diary_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
     if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:

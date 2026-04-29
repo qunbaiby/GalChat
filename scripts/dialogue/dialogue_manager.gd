@@ -8,14 +8,15 @@ signal chat_closed
 @onready var hide_ui_btn: Button = $UIPanel/UIOverlay/HideUIButton
 @onready var camera_btn: Button = $UIPanel/UIOverlay/CameraButton
 
-@onready var name_label: Label = $UIPanel/DialogueLayer/NameLabel
-@onready var dialogue_text: RichTextLabel = $UIPanel/DialogueLayer/RichTextLabel
-@onready var input_layer: Panel = $UIPanel/InputLayer
-@onready var input_field: TextEdit = $UIPanel/InputLayer/HBoxContainer/InputField
-@onready var send_btn: Button = $UIPanel/InputLayer/HBoxContainer/SendButton
-@onready var voice_record_btn: Button = $UIPanel/InputLayer/HBoxContainer/VoiceRecordButton
-@onready var affection_btn: Button = $UIPanel/AffectionButton
-@onready var gift_btn: Button = $UIPanel/InputLayer/HBoxContainer/GiftButton
+@onready var dialogue_panel: Control = $UIPanel/DialoguePanel
+@onready var name_label: Label = $UIPanel/DialoguePanel/DialogueLayer/NameLabel
+@onready var dialogue_text: RichTextLabel = $UIPanel/DialoguePanel/DialogueLayer/RichTextLabel
+@onready var input_layer: Panel = $UIPanel/DialoguePanel/InputLayer
+@onready var input_field: TextEdit = $UIPanel/DialoguePanel/InputLayer/HBoxContainer/InputField
+@onready var send_btn: Button = $UIPanel/DialoguePanel/InputLayer/HBoxContainer/SendButton
+@onready var voice_record_btn: Button = $UIPanel/DialoguePanel/InputLayer/HBoxContainer/VoiceRecordButton
+@onready var gift_btn: Button = $UIPanel/DialoguePanel/InputLayer/HBoxContainer/GiftButton
+@onready var quick_options_container: VBoxContainer = $UIPanel/DialoguePanel/QuickOptionLayer/QuickOptions
 
 @onready var character_layer: Node2D = $CharacterLayer
 
@@ -25,7 +26,7 @@ signal chat_closed
 @onready var mic_capture: AudioStreamPlayer = $MicCapture
 @onready var local_whisper_asr = $LocalWhisperASR
 
-@onready var quick_options_container: VBoxContainer = $UIPanel/QuickOptionLayer/QuickOptions
+@onready var affection_btn: Button = $UIPanel/AffectionButton
 @onready var click_blocker: Control = $ClickBlocker
 
 var _ui_tween: Tween = null
@@ -60,7 +61,15 @@ const HISTORY_ITEM_SCENE = preload("res://scenes/ui/history/history_item.tscn")
 const QUICK_OPTION_ITEM_SCENE = preload("res://scenes/ui/story/quick_option_item.tscn")
 
 func _ready() -> void:
+	dialogue_panel.show()
+	
+	# 故事场景中，我们不需要公共面板自带的“结束对话”按钮和输入框等
+	if dialogue_panel.has_node("DialogueLayer/EndChatButton"):
+		dialogue_panel.get_node("DialogueLayer/EndChatButton").hide()
+		
 	click_blocker.gui_input.connect(_on_click_blocker_input)
+	if dialogue_panel.has_signal("panel_clicked"):
+		dialogue_panel.panel_clicked.connect(_on_click_blocker_input)
 	
 	if GameDataManager.config:
 		GameDataManager.config.apply_settings()
@@ -601,7 +610,7 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 			return
 			
 		if not ui_panel.visible or ui_panel.modulate.a < 0.99:
-			click_blocker.accept_event()
+			get_viewport().set_input_as_handled()
 			if _ui_tween:
 				_ui_tween.kill()
 			ui_panel.visible = true
@@ -609,7 +618,7 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 			_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
 		else:
 			if dialogue_text.visible_ratio < 1.0:
-				click_blocker.accept_event()
+				get_viewport().set_input_as_handled()
 				if _typewriter_tween:
 					_typewriter_tween.kill()
 				dialogue_text.visible_ratio = 1.0
@@ -621,12 +630,12 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 				# ADDED: If we just finished the text, we should NOT emit proceed immediately,
 				# the next click should emit proceed.
 			elif _intro_playing and _intro_waiting_for_click:
-				click_blocker.accept_event()
+				get_viewport().set_input_as_handled()
 				_intro_waiting_for_click = false
 				_intro_click_proceed.emit()
 				print("[Debug] _intro_click_proceed signal emitted")
 			elif _waiting_for_chat_click:
-				click_blocker.accept_event()
+				get_viewport().set_input_as_handled()
 				_waiting_for_chat_click = false
 				_chat_click_proceed.emit()
 				print("[Debug] _chat_click_proceed signal emitted")
@@ -1208,13 +1217,6 @@ func _run_stream_worker() -> void:
 		if not stream_live_active:
 			break
 			
-		if is_inside_tree():
-			_waiting_for_chat_click = true
-			await _chat_click_proceed
-			
-		if not stream_live_active:
-			break
-			
 	stream_live_active = false
 	stream_live_worker_running = false
 	
@@ -1359,10 +1361,6 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 			_async_analyze_and_update_mood(line)
 				
 		await _process_single_message_line_async(line, char_name)
-		# 等待上一句（包括打字机和语音）彻底完成后，等待点击进入下一句
-		if is_inside_tree():
-			_waiting_for_chat_click = true
-			await _chat_click_proceed
 		
 	GameDataManager.profile.add_interaction_exp()
 	GameDataManager.profile.save_profile()
@@ -1512,13 +1510,19 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	dialogue_text.visible_ratio = 1.0
 	dialogue_text.visible_characters = -1
 	
+	# 为常规聊天提前设置等待点击状态，允许跳过语音
+	if not _intro_playing:
+		_waiting_for_chat_click = true
+	
 	# 如果启动了语音，并且语音还在播放中，则等待语音播放完毕
 	if is_tts_started and is_inside_tree():
 		# 极短缓冲，然后死等 audio_player 结束，但加上最大超时保护
 		var wait_count = 0
 		while not audio_player.playing and wait_count < 10:
 			# 在等待过程中，如果玩家点击屏幕跳过了对话，应该能提前退出
-			if not _intro_waiting_for_click and _intro_playing:
+			if _intro_playing and not _intro_waiting_for_click:
+				break
+			if not _intro_playing and not _waiting_for_chat_click:
 				break
 			await get_tree().create_timer(0.05).timeout
 			wait_count += 1
@@ -1526,11 +1530,18 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		wait_count = 0
 		while audio_player.playing and is_inside_tree() and wait_count < 1200: # 最多等60秒
 			# 在播放过程中，如果玩家点击屏幕跳过了对话，应该立即停止音频并退出
-			if not _intro_waiting_for_click and _intro_playing:
+			if _intro_playing and not _intro_waiting_for_click:
+				audio_player.stop()
+				break
+			if not _intro_playing and not _waiting_for_chat_click:
 				audio_player.stop()
 				break
 			await get_tree().create_timer(0.05).timeout
 			wait_count += 1
+			
+	# 如果用户在语音播放期间没有点击，或者根本没有语音，则在这里等待点击
+	if not _intro_playing and is_inside_tree() and _waiting_for_chat_click:
+		await _chat_click_proceed
 
 func _on_tts_success(audio_stream: AudioStream, text: String) -> void:
 	if audio_player:

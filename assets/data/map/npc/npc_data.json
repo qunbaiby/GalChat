@@ -1,0 +1,33 @@
+{
+  "ya": {
+    "id": "ya",
+    "name": "雅",
+    "type": "resident",
+    "interactions": [
+      {"id": "chat", "label": "聊天"},
+      {"id": "order", "label": "点单"},
+      {"id": "gift", "label": "送礼"},
+      {"id": "leave", "label": "离开"}
+    ]
+  },
+  "luna": {
+    "id": "luna",
+    "name": "Luna",
+    "type": "main",
+    "interactions": [
+      {"id": "chat", "label": "聊天"},
+      {"id": "interact", "label": "互动"},
+      {"id": "gift", "label": "送礼"},
+      {"id": "leave", "label": "离开"}
+    ]
+  },
+  "librarian": {
+    "id": "librarian",
+    "name": "图书管理员",
+    "type": "resident",
+    "interactions": [
+      {"id": "chat", "label": "询问信息"},
+      {"id": "leave", "label": "离开"}
+    ]
+  }
+}

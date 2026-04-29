@@ -164,8 +164,12 @@ func _play_spine_animation(anim_name: String, loop: bool = true) -> void:
 	if current_track and current_track.get_animation().get_name() == target_anim and loop:
 		return
 		
-	print("Spine: Playing animation ", target_anim)
-	anim_state.set_animation(target_anim, loop, 0)
+	# 最严格的防线，确保 target_anim 一定存在于骨骼数据中
+	if target_anim in anim_names:
+		print("Spine: Playing animation ", target_anim)
+		anim_state.set_animation(target_anim, loop, 0)
+	else:
+		print("Spine Error: Fallback animation ", target_anim, " not found either!")
 
 func _on_hangup_pressed() -> void:
 	if audio_player.playing:

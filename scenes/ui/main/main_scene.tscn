@@ -1,5 +1,6 @@
-[gd_scene load_steps=18 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=20 format=3 uid="uid://bl0bceh1xgj74"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_fvueq"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="Texture2D" uid="uid://dhbgpdrweqx7l" path="res://assets/images/backgrounds/main/main_bg.png" id="2_3iugm"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
@@ -13,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="13_api"]
+[ext_resource type="PackedScene" path="res://scenes/ui/common/dialogue_panel.tscn" id="14_dialogue"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6odu6"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
@@ -33,6 +35,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_fvueq")
 script = ExtResource("1_main")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -44,6 +47,7 @@ grow_vertical = 2
 color = Color(0.12549, 0.12549, 0.164706, 1)
 
 [node name="MainBg" type="TextureRect" parent="."]
+visible = false
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -64,190 +68,8 @@ texture = ExtResource("4_6odu6")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="DialoguePanel" type="Panel" parent="."]
-visible = false
+[node name="DialoguePanel" parent="." instance=ExtResource("14_dialogue")]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="DialogueLayer" type="ColorRect" parent="DialoguePanel"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -260.0
-offset_bottom = -80.0
-grow_horizontal = 2
-grow_vertical = 0
-color = Color(0.05, 0.05, 0.08, 0.65)
-
-[node name="NameLabel" type="Label" parent="DialoguePanel/DialogueLayer"]
-layout_mode = 1
-offset_left = 150.0
-offset_top = 25.0
-offset_right = 350.0
-offset_bottom = 55.0
-theme_override_font_sizes/font_size = 18
-text = "Character Name"
-vertical_alignment = 1
-
-[node name="NameLine" type="ColorRect" parent="DialoguePanel/DialogueLayer/NameLabel"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -150.0
-offset_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 0
-color = Color(0.8, 0.8, 0.9, 0.6)
-
-[node name="RichTextLabel" type="RichTextLabel" parent="DialoguePanel/DialogueLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 150.0
-offset_top = 60.0
-offset_right = -150.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/normal_font_size = 22
-bbcode_enabled = true
-text = "Dialogue text goes here..."
-
-[node name="SkipButton" type="Button" parent="DialoguePanel/DialogueLayer"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -150.0
-offset_top = -50.0
-offset_right = -50.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Skip"
-flat = true
-
-[node name="HistoryButton" type="Button" parent="DialoguePanel/DialogueLayer"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -320.0
-offset_top = -50.0
-offset_right = -270.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "记录"
-flat = true
-
-[node name="EndChatButton" type="Button" parent="DialoguePanel/DialogueLayer"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -250.0
-offset_top = -50.0
-offset_right = -160.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.8, 0.3, 0.3, 1)
-theme_override_colors/font_hover_color = Color(1, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 16
-text = "结束对话"
-flat = true
-
-[node name="QuickOptionLayer" type="Control" parent="DialoguePanel"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_top = -169.0
-offset_right = 689.5
-offset_bottom = 1.0
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="QuickOptions" type="VBoxContainer" parent="DialoguePanel/QuickOptionLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 15
-alignment = 1
-
-[node name="InputLayer" type="Panel" parent="DialoguePanel"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 57.0
-offset_top = -77.0
-offset_right = -56.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="DialoguePanel/InputLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 10
-
-[node name="GiftButton" type="Button" parent="DialoguePanel/InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 2
-text = "🎁"
-
-[node name="InputField" type="TextEdit" parent="DialoguePanel/InputLayer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "输入你想说的话..."
-wrap_mode = 1
-scroll_fit_content_height = true
-
-[node name="VoiceRecordButton" type="Button" parent="DialoguePanel/InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-text = "🎙"
-
-[node name="SendButton" type="Button" parent="DialoguePanel/InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-text = "发送"
 
 [node name="UIPanel" type="Panel" parent="."]
 self_modulate = Color(1, 1, 1, 0.2)
@@ -449,10 +271,10 @@ layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 397.0
-offset_top = -250.0
-offset_right = 597.0
-offset_bottom = -130.0
+offset_left = 416.0
+offset_top = -201.0
+offset_right = 616.0
+offset_bottom = -11.0
 grow_vertical = 2
 theme_override_constants/separation = 20
 
@@ -461,6 +283,12 @@ custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "与【角色名】聊天"
+
+[node name="SootheButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "心灵疗愈"
 
 [node name="RestButton" type="Button" parent="UIPanel/InteractGroup"]
 custom_minimum_size = Vector2(200, 50)

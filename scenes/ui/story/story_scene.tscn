@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=13 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_pfs5l"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
+[ext_resource type="PackedScene" path="res://scenes/ui/common/dialogue_panel.tscn" id="13_dialogue"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
 [ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
 
@@ -78,6 +79,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="DialoguePanel" parent="UIPanel" instance=ExtResource("13_dialogue")]
+layout_mode = 1
+
 [node name="UIOverlay" type="HBoxContainer" parent="UIPanel"]
 layout_mode = 0
 anchor_right = 1.0
@@ -107,73 +111,6 @@ text = "隐藏UI"
 [node name="CameraButton" type="Button" parent="UIPanel/UIOverlay"]
 layout_mode = 2
 text = "相机"
-
-[node name="DialogueLayer" type="ColorRect" parent="UIPanel"]
-layout_mode = 0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -260.0
-offset_bottom = -80.0
-grow_horizontal = 2
-grow_vertical = 0
-color = Color(0.05, 0.05, 0.08, 0.65)
-
-[node name="NameLabel" type="Label" parent="UIPanel/DialogueLayer"]
-layout_mode = 1
-offset_left = 150.0
-offset_top = 25.0
-offset_right = 350.0
-offset_bottom = 55.0
-theme_override_font_sizes/font_size = 18
-text = "Character Name"
-vertical_alignment = 1
-
-[node name="NameLine" type="ColorRect" parent="UIPanel/DialogueLayer/NameLabel"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -150.0
-offset_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 0
-color = Color(0.8, 0.8, 0.9, 0.6)
-
-[node name="RichTextLabel" type="RichTextLabel" parent="UIPanel/DialogueLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 150.0
-offset_top = 60.0
-offset_right = -150.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/normal_font_size = 22
-bbcode_enabled = true
-text = "Dialogue text goes here..."
-
-[node name="SkipButton" type="Button" parent="UIPanel/DialogueLayer"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -150.0
-offset_top = -50.0
-offset_right = -50.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Skip"
-flat = true
 
 [node name="FreeChatInfoLayer" type="Control" parent="UIPanel"]
 visible = false

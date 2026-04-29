@@ -19,7 +19,6 @@ shape = SubResource("RectangleShape2D_yofv2")
 [node name="SpineSprite" type="SpineSprite" parent="."]
 skeleton_data_res = ExtResource("1_f5jw8")
 preview_skin = "default"
-preview_animation = "Idle"
 preview_frame = false
 preview_time = 0.0
 visible = false

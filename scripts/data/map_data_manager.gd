@@ -2,97 +2,59 @@ extends Node
 
 var areas: Dictionary = {}
 var locations: Dictionary = {}
+var npcs_data: Dictionary = {}
 
 var _last_visited_area: String = ""
+var is_quick_mode: bool = false
+
+const MAP_DATA_PATH = "res://assets/data/map/core/map_data.json"
+const NPC_DATA_PATH = "res://assets/data/map/npc/npc_data.json"
 
 func _ready():
     _load_map_data()
+    _load_npcs_data()
+
+func _load_npcs_data():
+    if not FileAccess.file_exists(NPC_DATA_PATH):
+        push_error("NPC data file not found: " + NPC_DATA_PATH)
+        return
+        
+    var file = FileAccess.open(NPC_DATA_PATH, FileAccess.READ)
+    var json_str = file.get_as_text()
+    file.close()
+    
+    var json = JSON.new()
+    var error = json.parse(json_str)
+    if error == OK:
+        npcs_data = json.data
+    else:
+        push_error("Failed to parse NPC data JSON: " + json.get_error_message())
 
 func _load_map_data():
-    areas = {
-        "studio": {
-            "id": "studio",
-            "name": "工作室",
-            "description": "你的专属工作与生活空间。",
-            "locations": ["studio_living_room", "studio_bedroom", "studio_kitchen"]
-        },
-        "binhe_south": {
-            "id": "binhe_south",
-            "name": "滨河南区",
-            "description": "繁华的商业区与行政中心。",
-            "locations": ["central_street", "themis_law_firm", "he_yin_hall"]
-        },
-        "jia_nan": {
-            "id": "jia_nan",
-            "name": "嘉南区",
-            "description": "生活气息浓厚的老城区。",
-            "locations": ["jia_nan_market"]
-        },
-        "north": {
-            "id": "north",
-            "name": "北区",
-            "description": "安静的住宅区。",
-            "locations": []
-        },
-        "wen_hua": {
-            "id": "wen_hua",
-            "name": "文华区",
-            "description": "学府林立的文化中心。",
-            "locations": ["university"]
-        }
-    }
+    if not FileAccess.file_exists(MAP_DATA_PATH):
+        push_error("Map data file not found: " + MAP_DATA_PATH)
+        return
+        
+    var file = FileAccess.open(MAP_DATA_PATH, FileAccess.READ)
+    var json_str = file.get_as_text()
+    file.close()
     
-    locations = {
-        "studio_living_room": {
-            "id": "studio_living_room",
-            "name": "工作室大厅",
-            "description": "接见委托人的地方。",
-            "map_position": Vector2(500, 200)
-        },
-        "studio_bedroom": {
-            "id": "studio_bedroom",
-            "name": "卧室",
-            "description": "温馨的休息空间。",
-            "map_position": Vector2(150, 150)
-        },
-        "studio_kitchen": {
-            "id": "studio_kitchen",
-            "name": "厨房",
-            "description": "制作美食的区域。",
-            "map_position": Vector2(850, 100)
-        },
-        "university": {
-            "id": "university",
-            "name": "默名大学",
-            "description": "历史悠久的学府。",
-            "scene_path": "res://scenes/map/locations/university.tscn",
-            "map_position": Vector2(150, 100)
-        },
-        "central_street": {
-            "id": "central_street",
-            "name": "中央大街",
-            "description": "繁华的商业中心。",
-            "map_position": Vector2(250, 150)
-        },
-        "themis_law_firm": {
-            "id": "themis_law_firm",
-            "name": "忒弥斯律所",
-            "description": "顶级律师事务所。",
-            "map_position": Vector2(600, 80)
-        },
-        "he_yin_hall": {
-            "id": "he_yin_hall",
-            "name": "和音堂",
-            "description": "著名的音乐厅。",
-            "map_position": Vector2(850, 250)
-        },
-        "jia_nan_market": {
-            "id": "jia_nan_market",
-            "name": "嘉南市场",
-            "description": "充满烟火气的老集市。",
-            "map_position": Vector2(400, 200)
-        }
-    }
+    var json = JSON.new()
+    var error = json.parse(json_str)
+    if error == OK:
+        var data = json.data
+        areas = data.get("areas", {})
+        
+        # Parse locations and convert dictionary map_position back to Vector2
+        var raw_locations = data.get("locations", {})
+        for loc_id in raw_locations:
+            var loc = raw_locations[loc_id]
+            if loc.has("map_position"):
+                var pos_dict = loc["map_position"]
+                loc["map_position"] = Vector2(pos_dict.get("x", 0), pos_dict.get("y", 0))
+            locations[loc_id] = loc
+    else:
+        push_error("Failed to parse Map data JSON: " + json.get_error_message())
 
 func get_area(area_id: String) -> Dictionary:
     return areas.get(area_id, {})
@@ -109,6 +71,22 @@ func get_area_locations(area_id: String) -> Array:
             if not loc.is_empty():
                 locs.append(loc)
     return locs
+
+func get_npc_data(npc_id: String) -> Dictionary:
+    return npcs_data.get(npc_id, {})
+
+func generate_location_npcs(location_id: String) -> Array:
+    # 模拟生成当前地点的NPC列表(常驻+随机)
+    var loc = get_location(location_id)
+    var current_npcs = []
+    if loc.has("resident_npcs"):
+        current_npcs.append_array(loc["resident_npcs"])
+    if loc.has("random_npcs"):
+        # 简单随机逻辑：每个NPC有50%几率出现
+        for npc in loc["random_npcs"]:
+            if randf() > 0.5:
+                current_npcs.append(npc)
+    return current_npcs
 
 func set_last_area(area_id: String) -> void:
     _last_visited_area = area_id

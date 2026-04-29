@@ -1,0 +1,119 @@
+{
+  "areas": {
+    "qingyu_street": {
+      "id": "qingyu_street",
+      "name": "青屿街",
+      "description": "充满生活气息的街道，工作室与常去的咖啡厅都在这里。",
+      "locations": ["studio", "moon_world_cafe"]
+    },
+    "binhe_south": {
+      "id": "binhe_south",
+      "name": "滨河南区",
+      "description": "繁华的商业区与行政中心。",
+      "locations": ["central_street", "themis_law_firm", "he_yin_hall"]
+    },
+    "jia_nan": {
+      "id": "jia_nan",
+      "name": "嘉南区",
+      "description": "生活气息浓厚的老城区。",
+      "locations": ["jia_nan_market"]
+    },
+    "north": {
+      "id": "north",
+      "name": "北区",
+      "description": "安静的住宅区。",
+      "locations": []
+    },
+    "university_area": {
+      "id": "university_area",
+      "name": "默名大学",
+      "description": "历史悠久的学府。",
+      "locations": ["library", "gymnasium", "teaching_building", "laboratory"]
+    }
+  },
+  "locations": {
+    "studio": {
+      "id": "studio",
+      "name": "工作室",
+      "description": "你的专属工作与生活空间。",
+      "bg_path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png",
+      "map_position": {"x": 500, "y": 200},
+      "resident_npcs": [],
+      "random_npcs": [],
+      "events": []
+    },
+    "library": {
+      "id": "library",
+      "name": "图书馆",
+      "description": "安静的阅读与学习空间。",
+      "scene_path": "res://scenes/map/locations/library.tscn",
+      "bg_path": "res://assets/images/backgrounds/cankao/3c6e9491b29a2c351dbcc959a4dc5ce6.png",
+      "map_position": {"x": 150, "y": 100},
+      "resident_npcs": ["librarian"],
+      "random_npcs": ["luna"],
+      "events": ["main", "bond"]
+    },
+    "gymnasium": {
+      "id": "gymnasium",
+      "name": "体育馆",
+      "description": "挥洒汗水的地方。",
+      "map_position": {"x": 500, "y": 250},
+      "resident_npcs": [],
+      "random_npcs": [],
+      "events": ["side"]
+    },
+    "teaching_building": {
+      "id": "teaching_building",
+      "name": "教学楼",
+      "description": "上课的主要场所。",
+      "map_position": {"x": 850, "y": 80},
+      "resident_npcs": [],
+      "random_npcs": ["luna"],
+      "events": []
+    },
+    "laboratory": {
+      "id": "laboratory",
+      "name": "实验室",
+      "description": "进行各类实验的专业区域。",
+      "map_position": {"x": 1000, "y": 280},
+      "resident_npcs": [],
+      "random_npcs": [],
+      "events": []
+    },
+    "moon_world_cafe": {
+      "id": "moon_world_cafe",
+      "name": "月世界咖啡厅",
+      "description": "雅经营的优雅咖啡厅，环境安静，咖啡香醇。",
+      "scene_path": "res://scenes/map/locations/moon_world_cafe.tscn",
+      "bg_path": "res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png",
+      "map_position": {"x": 250, "y": 250},
+      "resident_npcs": ["ya"],
+      "random_npcs": ["luna"],
+      "events": ["bond"]
+    },
+    "central_street": {
+      "id": "central_street",
+      "name": "中央大街",
+      "description": "繁华的商业中心。",
+      "map_position": {"x": 250, "y": 150}
+    },
+    "themis_law_firm": {
+      "id": "themis_law_firm",
+      "name": "忒弥斯律所",
+      "description": "顶级律师事务所。",
+      "map_position": {"x": 600, "y": 80}
+    },
+    "he_yin_hall": {
+      "id": "he_yin_hall",
+      "name": "和音堂",
+      "description": "著名的音乐厅。",
+      "map_position": {"x": 850, "y": 250}
+    },
+    "jia_nan_market": {
+      "id": "jia_nan_market",
+      "name": "嘉南市场",
+      "description": "充满烟火气的老集市。",
+      "map_position": {"x": 400, "y": 200}
+    }
+  }
+}
