@@ -1,15 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://bdtd0mc84eq8r"]
+[gd_scene load_steps=4 format=3 uid="uid://bdtd0mc84eq8r"]
 
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/spine/c02_s04_dress/c02_s04_dress_data.tres" id="2_28u0b"]
 [ext_resource type="Script" uid="uid://qpxfkorr8q56" path="res://scripts/ui/story/character_layer.gd" id="2_script"]
+[ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="3_f0cgw"]
 
 [node name="CharacterLayer" type="Node2D"]
 script = ExtResource("2_script")
 
-[node name="Character" type="SpineSprite" parent="."]
+[node name="CharacterSpine" type="SpineSprite" parent="."]
 skeleton_data_res = ExtResource("2_28u0b")
 preview_skin = "default"
+preview_animation = "-- Empty --"
 preview_frame = false
 preview_time = 0.0
 position = Vector2(810, 762)
 scale = Vector2(0.3, 0.3)
+
+[node name="CharacterAni" type="AnimatedSprite2D" parent="."]
+position = Vector2(608, 566)
+scale = Vector2(0.39301756, 0.39301762)
+sprite_frames = ExtResource("3_f0cgw")
+animation = &"defult"

@@ -1,4 +1,0 @@
-- [x] `desktop_pet.txt` no longer contains any concrete dialogue examples that could pollute the prompt (e.g., no "晚安", "好困").
-- [x] Abstract formatting examples (like `(动作) 台词 [SPLIT] (动作) 台词`) are present in `desktop_pet.txt` to guide the model.
-- [x] `desktop_pet.gd` has a unified `_get_time_constraint` function.
-- [x] Mouse touch and app monitoring proactive chats in `desktop_pet.gd` now use the strict time constraints.

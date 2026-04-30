@@ -1,0 +1,14 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cnoyusupp2phj"]
+
+[ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna_calm.png" id="1_38c60"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_38c60")
+}],
+"loop": true,
+"name": &"defult",
+"speed": 5.0
+}]

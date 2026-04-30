@@ -9,13 +9,15 @@ extends Control
 @onready var interaction_menu = $InteractionMenu
 @onready var info_and_options = $InteractionMenu/InfoAndOptions
 
-@onready var menu_title_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/TitleLabel
 @onready var menu_name_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/NameLabel
 @onready var menu_stage_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox/StageLabel
 @onready var menu_hearts_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/HeartsLabel
 
 @onready var character_layer = $InteractionMenu/CharacterLayer
 @onready var menu_options_vbox = $InteractionMenu/InfoAndOptions/OptionsVBox
+
+@onready var topic_panel: Panel = $TopicPanel
+@onready var topic_container: VBoxContainer = $TopicPanel/TopicContainer
 
 @onready var dialogue_panel = $DialoguePanel
 
@@ -98,10 +100,6 @@ func _on_npc_clicked(npc_id: String):
 				npc_title = data.get("title", npc_title)
 				
 	menu_name_label.text = npc_name
-	if npc_id == "luna":
-		menu_title_label.text = "魔法少女" # 或从配置读取
-	else:
-		menu_title_label.text = npc_title
 		
 	# 好感度及情感阶段展示逻辑
 	if npc_id == "luna":
@@ -122,8 +120,29 @@ func _on_npc_clicked(npc_id: String):
 		menu_hearts_label.text = hearts_str
 	else:
 		# 默认非主角NPC的好感度展示
-		menu_stage_label.text = "普通朋友"
-		menu_hearts_label.text = "♥♡♡♡♡♡♡♡♡♡"
+		# 这里使用专门的 NPC 好感度系统
+		var npc_stage_data = _get_npc_stage_data(npc_id)
+		menu_stage_label.text = npc_stage_data.get("stageTitle", "普通朋友")
+		
+		var heart_count = npc_stage_data.get("heartCount", 0)
+		# 处理 heartCount 可能是范围字符串的情况 (如 "2-3", "4-9")
+		var current_hearts = 0
+		if typeof(heart_count) == TYPE_STRING:
+			var parts = heart_count.split("-")
+			if parts.size() > 0:
+				current_hearts = parts[0].to_int()
+		else:
+			current_hearts = heart_count
+			
+		var max_hearts = 10
+		var filled_hearts = min(current_hearts, max_hearts)
+		var hearts_str = ""
+		for i in range(max_hearts):
+			if i < filled_hearts:
+				hearts_str += "♥"
+			else:
+				hearts_str += "♡"
+		menu_hearts_label.text = hearts_str
 	
 	# 重置显示状态
 	if character_layer:
@@ -136,8 +155,10 @@ func _on_npc_clicked(npc_id: String):
 		loaded_spine = true
 			
 	if not loaded_spine:
-		# Fallback: 如果没有 Spine，暂时不显示任何立绘
-		pass
+		# Fallback: 如果没有 Spine，尝试显示静态立绘或者 CharacterAni
+		if character_layer:
+			character_layer.load_spine_by_path("") # 传入空路径以触发 fallback 逻辑
+			character_layer.show_character("none")
 
 	# Clear existing buttons
 	for child in menu_options_vbox.get_children():
@@ -202,12 +223,25 @@ func _on_npc_clicked(npc_id: String):
 		btn.pressed.connect(_on_menu_action_pressed.bind(action.get("id", "")))
 		menu_options_vbox.add_child(btn)
 
+func _get_npc_stage_data(npc_id: String) -> Dictionary:
+	# 暂时返回第一阶段作为默认值。实际应用中需要从全局 NPC 好感度管理器中读取当前进度。
+	var stages_file = "res://assets/data/characters/npc/" + npc_id + "_stages.json"
+	if FileAccess.file_exists(stages_file):
+		var file = FileAccess.open(stages_file, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			var data = json.get_data()
+			if data is Dictionary and data.has("stages") and data["stages"].size() > 0:
+				# TODO: 接入真实的 NPC 好感度管理器来获取实际进度，这里暂时取第一阶段
+				return data["stages"][0]
+	return {"stageTitle": "普通朋友", "heartCount": 0}
+
 func _on_menu_action_pressed(action_id: String):
 	match action_id:
 		"chat":
 			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 聊天")
 			interaction_menu.hide() # 隐藏互动选项
-			# TODO: 触发聊天对话系统
+			_show_topic_panel()
 		"order":
 			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 点单/服务")
 			if current_interacting_npc_id == "ya":
@@ -257,6 +291,95 @@ func _on_dialogue_finished():
 	# 当打字机专属台词结束后，恢复互动菜单显示
 	if current_interacting_npc_id != "":
 		info_and_options.show()
+
+func _show_topic_panel() -> void:
+	topic_panel.visible = true
+	topic_panel.modulate.a = 0.0
+	var t_tween = create_tween()
+	t_tween.tween_property(topic_panel, "modulate:a", 1.0, 0.3)
+	
+	for child in topic_container.get_children():
+		child.queue_free()
+		
+	var loading_label = Label.new()
+	loading_label.text = "正在思考话题..."
+	loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	loading_label.add_theme_font_size_override("font_size", 20)
+	topic_container.add_child(loading_label)
+	
+	# 请求 AI 动态生成话题
+	var profile = GameDataManager.profile
+	var npc_stage_data = _get_npc_stage_data(current_interacting_npc_id)
+	var stage_title = npc_stage_data.get("stageTitle", "普通朋友")
+	var npc_name = menu_name_label.text
+	
+	var prompt = "【系统指令】\n请基于当前少女【%s】与NPC【%s】的情感阶段（当前阶段：%s），以【%s】的口吻，生成 3 个向【%s】发起聊天的话题选项。\n要求：\n1. 直接输出 3 个选项，每行一个。\n2. 不要带有序号（如 1. 2. 3.）、破折号或其他前缀。\n3. 话题要自然、简短（20字以内），符合日常聊天习惯。" % [profile.char_name, npc_name, stage_title, profile.char_name, npc_name]
+	
+	var deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient")
+	if not deepseek_client:
+		printerr("DeepSeekClient not found!")
+		_render_dynamic_topics("最近生意怎么样？\n今天有什么推荐的吗？\n想随便聊聊。")
+		return
+		
+	deepseek_client.generate_dynamic_topics(prompt, func(text: String):
+		if text.is_empty():
+			_render_dynamic_topics("最近生意怎么样？\n今天有什么推荐的吗？\n想随便聊聊。")
+		else:
+			_render_dynamic_topics(text)
+	)
+
+func _render_dynamic_topics(raw_text: String) -> void:
+	for child in topic_container.get_children():
+		child.queue_free()
+		
+	var lines = raw_text.split("\n", false)
+	var topics = []
+	for line in lines:
+		var t = line.strip_edges()
+		var regex = RegEx.new()
+		regex.compile("^(\\d+\\.|\\-|\\*)\\s*")
+		t = regex.sub(t, "")
+		if t != "":
+			topics.append(t)
+			
+	if topics.size() > 3:
+		topics = topics.slice(0, 3)
+	elif topics.size() == 0:
+		topics = ["聊点什么呢？", "天气不错", "分享件有趣的事"]
+		
+	for topic_text in topics:
+		var btn = Button.new()
+		btn.text = topic_text
+		btn.custom_minimum_size = Vector2(0, 50)
+		btn.add_theme_font_size_override("font_size", 20)
+		topic_container.add_child(btn)
+		btn.pressed.connect(_on_topic_selected.bind(topic_text))
+
+func _on_topic_selected(topic: String) -> void:
+	var t_tween = create_tween()
+	t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
+	t_tween.tween_callback(func(): topic_panel.visible = false)
+	
+	interaction_menu.show() # 恢复背景层
+	info_and_options.hide() # 但是隐藏互动选项菜单，让对话框显示
+	
+	var event_desc = "Luna对你说：" + topic
+	var deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient") # 借用全局或寻找本场景的客户端
+	if not deepseek_client:
+		# 尝试在本场景找找看有没有
+		deepseek_client = get_node_or_null("DeepSeekClient")
+		if not deepseek_client:
+			printerr("DeepSeekClient not found!")
+			return
+		
+	# 生成并播放 NPC 的专属台词
+	deepseek_client.generate_npc_event_dialogue(
+		current_interacting_npc_id,
+		event_desc,
+		func(reply_text: String):
+			if dialogue_panel:
+				dialogue_panel.play_single_line(reply_text)
+	)
 
 func _on_back_pressed():
 	var world_map_scene = load("res://scenes/ui/map/core/world_map_scene.tscn")

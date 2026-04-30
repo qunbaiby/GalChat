@@ -2,7 +2,8 @@ extends Node2D
 
 var fade_tween: Tween
 
-@onready var character_spine: SpineSprite = $Character
+@onready var character_spine: SpineSprite = $CharacterSpine
+@onready var character_ani: AnimatedSprite2D = $CharacterAni
 
 func _ready() -> void:
     GameDataManager.character_switched.connect(_on_character_switched)
@@ -27,7 +28,35 @@ func _update_spine_data() -> void:
         var res = load(path)
         if res is SpineSkeletonDataResource:
             character_spine.skeleton_data_res = res
-            pass
+            character_spine.show()
+            if is_instance_valid(character_ani):
+                character_ani.hide()
+            return
+            
+    # 如果找不到 spine 或者路径为空，则显示立绘动画
+    if is_instance_valid(character_spine):
+        character_spine.hide()
+    if is_instance_valid(character_ani):
+        character_ani.show()
+        _update_character_ani()
+
+# 新增：更新立绘动画状态
+func _update_character_ani() -> void:
+    if not is_instance_valid(character_ani): return
+    var mood = GameDataManager.profile.mood
+    
+    # 检查 AnimatedSprite2D 是否有对应心情的动画
+    var frames = character_ani.sprite_frames
+    if frames and frames.has_animation(mood):
+        character_ani.play(mood)
+    else:
+        # 如果没有对应心情的动画，尝试回退到 "calm" 或 "idle" 等默认动画
+        if frames and frames.has_animation("calm"):
+            character_ani.play("calm")
+        elif frames and frames.has_animation("idle"):
+            character_ani.play("idle")
+        elif frames and frames.has_animation("default"):
+            character_ani.play("default")
 
 # 提供一个公共方法，允许外部强制更新 Spine 数据而不读取 Profile
 func load_spine_by_path(path: String) -> void:
@@ -36,12 +65,23 @@ func load_spine_by_path(path: String) -> void:
         var res = load(path)
         if res is SpineSkeletonDataResource:
             character_spine.skeleton_data_res = res
+            character_spine.show()
+            if is_instance_valid(character_ani):
+                character_ani.hide()
             
             # 同样也用 deferred 延迟，确保底层完成绑定
             if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
                 play_animation("Idle", true)
             else:
                 call_deferred("play_animation", "Idle", true)
+            return
+            
+    # fallback to character_ani if spine load failed
+    if is_instance_valid(character_spine):
+        character_spine.hide()
+    if is_instance_valid(character_ani):
+        character_ani.show()
+        _update_character_ani()
 
 # 保留原本的 update_sprite 接口以防外部调用报错，但不再处理图片切换
 func update_sprite(new_texture: Texture2D) -> void:

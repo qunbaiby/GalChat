@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene load_steps=6 format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
 [ext_resource type="Texture2D" uid="uid://b1isdxijgpwrt" path="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png" id="2_3k4mg"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="2_dialogue"]
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="3_char"]
@@ -95,14 +96,6 @@ layout_mode = 2
 theme_override_constants/separation = 5
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_font_sizes/font_size = 20
-text = "神秘角色"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="NameLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
@@ -166,6 +159,49 @@ offset_right = -30.0
 offset_bottom = 70.0
 grow_horizontal = 0
 text = "返回地图"
+
+[node name="TopicPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -150.0
+offset_right = 250.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="TopicPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
+text = "选择一个话题"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopicContainer" type="VBoxContainer" parent="TopicPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = 70.0
+offset_right = -50.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="DeepSeekClient" type="Node" parent="."]
+script = ExtResource("1_script_deepseek")
 
 [node name="DialoguePanel" parent="." instance=ExtResource("2_dialogue")]
 layout_mode = 1

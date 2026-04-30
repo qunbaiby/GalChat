@@ -73,7 +73,8 @@ func update_ui() -> void:
     
     if conf.is_empty(): return
     
-    emoji_label.text = conf.get("emojiIcon", "")
+    # 因为这个面板目前专门用于展示 Luna 与玩家的亲密度/信任度，因此恢复原来的 emojiIcon 配置
+    emoji_label.text = conf.get("emojiIcon", "❤️")
     title_label.text = conf.get("stageTitle", "")
     desc_label.text = conf.get("stageDesc", "")
     
