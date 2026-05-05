@@ -1,11 +1,8 @@
-extends Node
+extends TTSAdapter
 class_name DoubaoTTSService
 
 # 豆包 (Volcengine) TTS 服务
 # 负责处理文本到语音的 API 请求、缓存和音频数据处理
-
-signal tts_success(audio_stream: AudioStream, text: String)
-signal tts_failed(error_msg: String, text: String)
 
 # 配置
 var api_url: String = "https://openspeech.bytedance.com/api/v1/tts"
@@ -29,10 +26,10 @@ func _ready():
         DirAccess.make_dir_absolute(CACHE_DIR)
 
 # 设置认证信息
-func setup_auth(p_app_id: String, p_access_token: String, p_cluster: String = "volcano_tts"):
-    app_id = p_app_id
-    access_token = p_access_token
-    cluster = p_cluster
+func setup_auth(config: Dictionary) -> void:
+    app_id = config.get("app_id", app_id)
+    access_token = config.get("token", access_token)
+    cluster = config.get("cluster", cluster)
 
 # 合成语音
 # text: 要转换的文本

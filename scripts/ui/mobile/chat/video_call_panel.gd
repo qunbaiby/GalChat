@@ -16,7 +16,6 @@ signal message_sent(text)
 
 var current_char_id: String = ""
 var char_profile: CharacterProfile = null
-var doubao_tts = null
 
 var is_character_speaking: bool = false
 var is_recording: bool = false
@@ -36,21 +35,8 @@ func _ready() -> void:
 		asr.transcribe_completed.connect(_on_asr_completed)
 		asr.transcribe_failed.connect(_on_asr_failed)
 		
-	var tts_script = load("res://scripts/api/doubao_TTS_Service.gd")
-		
-	if tts_script:
-		doubao_tts = tts_script.new()
-		add_child(doubao_tts)
-		
-		if GameDataManager.config:
-			doubao_tts.setup_auth(
-				GameDataManager.config.doubao_app_id,
-				GameDataManager.config.doubao_token,
-				GameDataManager.config.doubao_cluster
-			)
-			
-		doubao_tts.tts_success.connect(_on_tts_success)
-		doubao_tts.tts_failed.connect(_on_tts_failed)
+	TTSManager.tts_success.connect(_on_tts_success)
+	TTSManager.tts_failed.connect(_on_tts_failed)
 
 func setup(char_id: String, profile: CharacterProfile, is_incoming: bool = false, is_fixed: bool = false) -> void:
 	current_char_id = char_id
@@ -251,11 +237,11 @@ func _process_next_message() -> void:
 	var raw_action = _extract_action_only(chunk)
 	# 开始 TTS
 	if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
-		var v_type = "ICL_zh_female_bingruoshaonv_tob"
+		var options = {}
 		if GameDataManager.config.character_voice_types.has(current_char_id):
-			v_type = GameDataManager.config.character_voice_types[current_char_id]
+			options["voice_type"] = GameDataManager.config.character_voice_types[current_char_id]
 			
-		doubao_tts.synthesize(tts_text, {"voice_type": v_type})
+		TTSManager.synthesize(tts_text, options)
 		
 		# 逐字显示和等待语音
 		_typewriter_effect("[color=#ffffff]" + display_text + "[/color]")

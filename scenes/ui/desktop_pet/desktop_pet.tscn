@@ -1,9 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dbwmyour8af3m"]
+[gd_scene load_steps=7 format=3 uid="uid://dbwmyour8af3m"]
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
 [ext_resource type="PackedScene" uid="uid://d0vnlpr3gjrac" path="res://scenes/ui/desktop_pet/pet_body.tscn" id="3_yofv2"]
-[ext_resource type="Script" uid="uid://dck7hu4nvea8s" path="res://scripts/api/doubao_TTS_Service.gd" id="4_pfs5l"]
 [ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
 [ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
 
@@ -14,6 +13,7 @@ transparent_bg = true
 oversampling_override = 1.0
 title = "桌宠"
 size = Vector2i(400, 500)
+visible = false
 unresizable = true
 borderless = true
 always_on_top = true
@@ -123,9 +123,6 @@ text = "关闭"
 
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("3_api")
-
-[node name="DoubaoTTSService" type="Node" parent="."]
-script = ExtResource("4_pfs5l")
 
 [node name="LocalWhisperASR" type="SpeechToText" parent="."]
 language = 2

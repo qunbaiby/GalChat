@@ -162,7 +162,7 @@ func send_chat_message_stream(user_message: String, history_type: String = "all"
 
 
 
-func send_vision_request(prompt: String, base64_image: String) -> void:
+func send_vision_request(system_prompt: String, user_prompt: String, base64_image: String) -> void:
     if not is_inside_tree() or GameDataManager.config.vision_api_key.is_empty():
         vision_request_failed.emit("Vision API Key未设置，请在设置界面配置。")
         return
@@ -180,11 +180,15 @@ func send_vision_request(prompt: String, base64_image: String) -> void:
         "model": GameDataManager.config.vision_model,
         "messages": [
             {
+                "role": "system",
+                "content": system_prompt
+            },
+            {
                 "role": "user",
                 "content": [
                     {
                         "type": "text",
-                        "text": prompt
+                        "text": user_prompt
                     },
                     {
                         "type": "image_url",

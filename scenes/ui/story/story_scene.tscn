@@ -251,9 +251,6 @@ text = "发送"
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("3_buqdj")
 
-[node name="DoubaoTTSService" type="Node" parent="."]
-script = ExtResource("4_pfs5l")
-
 [node name="LocalWhisperASR" type="SpeechToText" parent="."]
 language = 2
 language_model = ExtResource("whisper_model_base")

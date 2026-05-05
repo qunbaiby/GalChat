@@ -27,7 +27,6 @@ signal incoming_call_ended
 @onready var rp_display_amount: Label = $RedPacketOverlay/VBox/Margin/FormVBox/DisplayAmount
 @onready var rp_send_btn: Button = $RedPacketOverlay/VBox/Margin/FormVBox/SendRPBtn
 
-var doubao_tts = null
 var audio_player: AudioStreamPlayer = null
 
 var current_char_id: String = ""
@@ -68,21 +67,8 @@ func _ready() -> void:
 	audio_player = AudioStreamPlayer.new()
 	add_child(audio_player)
 	
-	var tts_script = load("res://scripts/api/doubao_TTS_Service.gd")
-	if tts_script:
-		doubao_tts = tts_script.new()
-		add_child(doubao_tts)
-		
-		# Load API keys from config
-		if GameDataManager.config:
-			doubao_tts.setup_auth(
-				GameDataManager.config.doubao_app_id,
-				GameDataManager.config.doubao_token,
-				GameDataManager.config.doubao_cluster
-			)
-			
-		doubao_tts.tts_success.connect(_on_tts_success)
-		doubao_tts.tts_failed.connect(_on_tts_failed)
+	TTSManager.tts_success.connect(_on_tts_success)
+	TTSManager.tts_failed.connect(_on_tts_failed)
 		
 func _on_tts_success(stream: AudioStream, _text: String) -> void:
 	if audio_player:
@@ -625,15 +611,12 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 	)
 
 func _play_voice_message(text: String) -> void:
-	if not doubao_tts:
-		return
-		
 	if GameDataManager.config.voice_enabled:
-		var v_type = "ICL_zh_female_bingruoshaonv_tob"
+		var options = {}
 		if GameDataManager.config.character_voice_types.has(current_char_id):
-			v_type = GameDataManager.config.character_voice_types[current_char_id]
+			options["voice_type"] = GameDataManager.config.character_voice_types[current_char_id]
 			
-		doubao_tts.synthesize(text, {"voice_type": v_type})
+		TTSManager.synthesize(text, options)
 
 func _load_mobile_history() -> void:
 	chat_history.clear()

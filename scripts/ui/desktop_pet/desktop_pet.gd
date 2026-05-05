@@ -13,7 +13,6 @@ extends Window
 @onready var close_input_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/Close
 
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
-@onready var doubao_tts = $DoubaoTTSService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
 @onready var mic_capture: AudioStreamPlayer = $MicCapture
 
@@ -80,9 +79,7 @@ func _ready() -> void:
     ui_container.hide()
     input_layer.hide()
     
-    # 注入豆包 TTS 的 AppID 和 Token 配置
-    if GameDataManager.config.doubao_app_id != "" and GameDataManager.config.doubao_token != "":
-        doubao_tts.setup_auth(GameDataManager.config.doubao_app_id, GameDataManager.config.doubao_token, GameDataManager.config.doubao_cluster)
+    # TTSManager 已在全局自动处理配置，这里不需要额外配置
     
     # 连接信号
     send_button.pressed.connect(_on_send_pressed)
@@ -111,8 +108,8 @@ func _ready() -> void:
     deepseek_client.vision_request_completed.connect(_on_vision_completed)
     deepseek_client.vision_request_failed.connect(_on_vision_failed)
     
-    doubao_tts.tts_success.connect(_on_tts_success)
-    doubao_tts.tts_failed.connect(_on_tts_failed)
+    TTSManager.tts_success.connect(_on_tts_success)
+    TTSManager.tts_failed.connect(_on_tts_failed)
     
     # 获取音频分析器用于绘制波形环
     var bus_idx = AudioServer.get_bus_index("Voice")
@@ -349,10 +346,22 @@ func _check_active_window() -> void:
             
         if base64_image != "":
             print("[DesktopPet Debug] Vision API Triggered! App: ", window_title)
-            var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家正在看名为“%s”的应用。这是该应用的窗口截图。】\n请你执行以下两个步骤：\n1. 先用一行文字简要描述你在这张截图里看到了什么内容（必须以“画面分析：”开头）。\n2. 换行后，不要加任何序号，直接以真实陪伴者的身份，根据你看到的画面内容、你当前的心情和性格，对玩家发表一句关心、好奇或者吐槽的话语（必须包含动作描写和真实台词）。\n注意：%s 绝不要在回复中直接报出当前时间，也绝对不能提到你是AI或桌宠。" % [h, m, window_title, time_constraint]
+            var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家正在看名为“%s”的应用。这是该应用的窗口截图。】
+为了确保你能准确理解画面并做出最自然的反应，请严格执行以下步骤：
+1. 【客观转述】先用一行文字客观描述截图里的主体内容（必须以“画面分析：”开头，例如：画面分析：屏幕显示一个代码编辑器...）。
+2. 【角色反应】换行后，代入你当前设定的身份、心情和性格，基于上述画面信息，像真人一样对玩家说一句话。
+   - 反应要生动多样！不要套用死板的模板。例如看到代码时，可以好奇代码写了什么、吐槽全是字母看不懂、或者假装很懂地夸奖一番。
+   - 结合你们的关系阶段和当前的【微习惯与口癖】。
+   - 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。
+   - 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（必须包含括号动作描写）。""" % [h, m, window_title]
             _trigger_vision_chat(prompt, base64_image)
         else:
-            var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。请你以真实陪伴者的身份，根据你当前的心情和性格，针对这个应用发表一句关心、好奇或者吐槽。注意：%s 绝不要在回复中直接报出当前时间，也绝对不能提到你是AI或桌宠。】" % [h, m, window_title, app_type, time_constraint]
+            var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。】
+请你代入当前设定的身份、心情和性格，像真人一样对玩家屏幕上的内容做出最自然、最符合人设的反应。
+- 反应要生动多样！不要套用死板的模板（例如不要每次看到代码就问眼睛酸不酸，可以好奇代码写了什么、吐槽全是字母看不懂、或者假装很懂地夸奖一番）。
+- 结合你们的关系阶段和当前的【微习惯与口癖】。
+- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
+- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [h, m, window_title, app_type]
             print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
             _trigger_proactive_chat(prompt)
 
@@ -369,13 +378,11 @@ func _trigger_vision_chat(prompt_text: String, base64_image: String) -> void:
     if chat_history.size() > 10: chat_history = chat_history.slice(-10)
     _load_prompt()
     
-    var final_prompt = pet_prompt + "\n\n" + prompt_text
-    
     print("\n[DesktopPet Vision] --- Sending Vision Request ---")
     print("Prompt text length: ", prompt_text.length())
     print("Base64 length: ", base64_image.length())
-    
-    deepseek_client.send_vision_request(final_prompt, base64_image)
+
+    deepseek_client.send_vision_request(pet_prompt, prompt_text, base64_image)
 
 func _on_vision_completed(response: Dictionary) -> void:
     print("\n[DesktopPet Vision] --- Vision Request Completed ---")
@@ -388,19 +395,25 @@ func _on_vision_completed(response: Dictionary) -> void:
         var full_text = msg.get("content", "")
         print("[DesktopPet Vision] Raw Vision Output:\n", full_text)
         
-        # 过滤掉画面分析，提取实际对话
+        # 如果 AI 不听话加了 "2. "，我们把 "2. " 删掉保留后面的内容
+        # 这里进行更宽松的过滤，过滤掉任何以数字、符号开头的序号或“角色反应：”之类的前缀
+        var content_lines = []
         var lines = full_text.split("\n")
         for line in lines:
             var trimmed = line.strip_edges()
+            # 跳过画面分析行
             if trimmed.begins_with("画面分析") or trimmed.begins_with("【画面分析") or trimmed.begins_with("1.") or trimmed.is_empty():
                 continue
-                
-            # 如果 AI 不听话加了 "2. "，我们把 "2. " 删掉保留后面的内容
-            if trimmed.begins_with("2.") or trimmed.begins_with("2、"):
-                trimmed = trimmed.substr(2).strip_edges()
-                
-            text += trimmed + "\n"
-        text = text.strip_edges()
+            
+            # 清理类似 "2. "，"2、", "【角色反应】", "角色反应：" 等前缀
+            var clean_line = trimmed
+            var prefix_regex = RegEx.new()
+            prefix_regex.compile("^(2[\\.\\、]|【角色反应】|角色反应：|【反应】|反应：)\\s*")
+            clean_line = prefix_regex.sub(clean_line, "")
+            
+            content_lines.append(clean_line)
+            
+        text = "\n".join(content_lines).strip_edges()
         
         if text.is_empty():
             text = full_text # 回退机制
@@ -470,7 +483,11 @@ func _check_hourly_chime() -> void:
         _last_reaction_tick = current_tick
         
         var time_constraint = _get_time_constraint(current_hour)
-        var prompt = "【系统提示：现在是现实时间 %02d:00。%s 请结合你的性格和心情，以真实陪伴者的身份进行整点报时或吐槽。绝对不能提到自己是AI或桌宠。】" % [current_hour, time_constraint]
+        var prompt = """【系统提示：现在是现实时间 %02d:00。】
+请你结合当前时间作为隐性语境，代入当前设定的身份、心情和性格，像真人一样对玩家进行整点报时或吐槽。
+- 反应要生动多样！结合你们的【微习惯与口癖】。
+- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
+- 绝对不能提到你是AI或桌宠。""" % [current_hour]
         _trigger_proactive_chat(prompt)
 
 
@@ -631,10 +648,10 @@ func _process_next_bubble() -> void:
         var on_success = func(_stream: AudioStream, _text: String): tts_state[0] = true
         var on_failed = func(_err: String, _text: String): tts_state[0] = true
         
-        doubao_tts.tts_success.connect(on_success, CONNECT_ONE_SHOT)
-        doubao_tts.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
+        TTSManager.tts_success.connect(on_success, CONNECT_ONE_SHOT)
+        TTSManager.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
         
-        doubao_tts.synthesize(tts_text, options)
+        TTSManager.synthesize(tts_text, options)
         
         # 第一阶段：死等网络请求回来（最多等10秒）
         var wait_net = 0
@@ -643,10 +660,10 @@ func _process_next_bubble() -> void:
             wait_net += 1
             
         # 安全清理连接，防止因为超时或其他原因导致的死连接
-        if doubao_tts.tts_success.is_connected(on_success):
-            doubao_tts.tts_success.disconnect(on_success)
-        if doubao_tts.tts_failed.is_connected(on_failed):
-            doubao_tts.tts_failed.disconnect(on_failed)
+        if TTSManager.tts_success.is_connected(on_success):
+            TTSManager.tts_success.disconnect(on_success)
+        if TTSManager.tts_failed.is_connected(on_failed):
+            TTSManager.tts_failed.disconnect(on_failed)
             
         # 第二阶段：网络请求回来后，由于播放有一点微小的延迟，我们稍微等几帧确保 audio_player.playing 状态更新
         await get_tree().process_frame
@@ -773,7 +790,12 @@ func _trigger_pet_touch() -> void:
         var h = time_dict["hour"]
         var m = time_dict["minute"]
         var time_constraint = _get_time_constraint(h)
-        var prompt = "【系统动作：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。%s 请结合当前时间作为隐性语境，根据你的性格和当前心情，做出一两句话可爱的回应或吐槽。绝对不要在回复中直接报出当前时间或提到AI。】" % [h, m, time_constraint]
+        var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。】
+请你结合当前时间作为隐性语境，代入你的性格和当前心情，像真人一样对玩家的触碰做出最自然的反应。
+- 反应要生动多样！可以是撒娇、傲娇吐槽、疑惑等，取决于你们的关系和心情。
+- 结合你们的【微习惯与口癖】。
+- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
+- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [h, m]
         _trigger_proactive_chat(prompt)
 
 func _update_mouse_passthrough() -> void:

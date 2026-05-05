@@ -51,6 +51,22 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     var mood_desc = GameDataManager.mood_system.get_mood_description(profile.current_mood)
     var memory_desc = GameDataManager.memory_manager.get_memory_prompt(query_embedding)
     
+    # 注入近期日记作为长期上下文摘要
+    var diaries = profile.get_diaries()
+    if diaries.size() > 0:
+        var diary_text = ""
+        # 取最近3篇日记
+        var start_idx = max(0, diaries.size() - 3)
+        for i in range(start_idx, diaries.size()):
+            var d = diaries[i]
+            var content = d.get("content", "").replace("\n", " ")
+            diary_text += "【" + d.get("date", "未知日期") + " 日记】" + content + "\n"
+            
+        if diary_text != "":
+            if memory_desc != "":
+                memory_desc += "\n\n"
+            memory_desc += "- 历史日记摘要（这是你过去写下的日记摘要，反映了你与玩家之前的经历，请作为重要的长期上下文参考）：\n" + diary_text
+    
     var stage_conf = profile.get_current_stage_config()
     
     # 提取并替换占位符

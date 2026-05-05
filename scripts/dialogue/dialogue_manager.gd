@@ -21,7 +21,6 @@ signal chat_closed
 @onready var character_layer: Node2D = $CharacterLayer
 
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
-@onready var doubao_tts = $DoubaoTTSService
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
 @onready var mic_capture: AudioStreamPlayer = $MicCapture
 @onready var local_whisper_asr = $LocalWhisperASR
@@ -105,16 +104,12 @@ func _ready() -> void:
 	deepseek_client.narrator_request_completed.connect(_on_narrator_response)
 	deepseek_client.narrator_request_failed.connect(_on_narrator_error)
 	
-	doubao_tts.tts_success.connect(_on_tts_success)
-	doubao_tts.tts_failed.connect(_on_tts_failed)
+	TTSManager.tts_success.connect(_on_tts_success)
+	TTSManager.tts_failed.connect(_on_tts_failed)
 	
 	if local_whisper_asr:
 		local_whisper_asr.transcribe_completed.connect(_on_asr_success)
 		local_whisper_asr.transcribe_failed.connect(_on_asr_failed)
-	
-	# 配置TTS服务
-	var config = GameDataManager.config
-	doubao_tts.setup_auth(config.doubao_app_id, config.doubao_token, config.doubao_cluster)
 	
 	_update_ui()
 	
@@ -841,10 +836,27 @@ func _populate_history_ui() -> void:
 		item.play_voice_requested.connect(_play_cached_voice)
 
 func _play_cached_voice(cache_key: String) -> void:
-	var cache_path = doubao_tts.CACHE_DIR + cache_key + "." + doubao_tts.default_encoding
+	# 由于我们重构了 TTSManager，原来的本地缓存逻辑直接暴露给外部不太合适
+	# 但这里仅仅是播放历史语音，我们可以直接通过 FileAccess 尝试加载 MD5 key 对应的音频文件
+	# 或者简单地通过 TTSManager 重新请求（因为它内部有缓存）
+	# 为了保持行为一致，我们使用 TTSManager 提供的新接口或者直接重新请求：
+	var options = {}
+	if GameDataManager.profile and GameDataManager.config:
+		var char_id = GameDataManager.config.current_character_id
+		if GameDataManager.config.character_voice_types.has(char_id):
+			options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
+	
+	# TODO: 未来需要在 TTSManager 或 Adapter 中公开 get_cache_path 方法以支持直接播放，
+	# 暂时我们直接通过 TTSManager 重新发送文本，因为它的内部底层 Adapter 依然会命中缓存文件
+	# 注意：历史面板目前只保存了 cache_key 而不是完整文本，我们需要根据设计调整。
+	# 在没有公开 _load_audio_from_file 之前，我们可以直接查默认目录：
+	var cache_path = "user://tts_cache/" + cache_key + ".mp3"
 	if FileAccess.file_exists(cache_path):
-		var stream = doubao_tts._load_audio_from_file(cache_path)
-		if stream:
+		var file = FileAccess.open(cache_path, FileAccess.READ)
+		if file:
+			var data = file.get_buffer(file.get_length())
+			var stream = AudioStreamMP3.new()
+			stream.data = data
 			audio_player.stream = stream
 			audio_player.play()
 	else:
@@ -1483,13 +1495,12 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 			if _intro_playing and speaker_name != GameDataManager.profile.char_name:
 				char_id = speaker_name.to_lower()
 				
-			var v_type = "ICL_zh_female_bingruoshaonv_tob"
+			var options = {}
 			if GameDataManager.config.character_voice_types.has(char_id):
-				v_type = GameDataManager.config.character_voice_types[char_id]
+				options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
 				
-			var options = {"voice_type": v_type}
-			cache_key = doubao_tts._generate_cache_key(text_to_speak, options)
-			doubao_tts.synthesize(text_to_speak, options)
+			cache_key = (text_to_speak + str(options)).md5_text()
+			TTSManager.synthesize(text_to_speak, options)
 		
 	# 保存记录到历史管理器 (只有在非恢复模式时保存)
 	if not is_restore:

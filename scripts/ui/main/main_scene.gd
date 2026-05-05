@@ -59,7 +59,6 @@ var _window_detector: Node = null
 var _is_afk: bool = false
 var _afk_timer: Timer = null
 var _ui_tween: Tween = null
-var doubao_tts = null
 var audio_player: AudioStreamPlayer = null
 
 var map_scene_instance = null
@@ -467,19 +466,15 @@ func _stream_worker_loop() -> void:
             action_regex.compile("（.*?）|\\(.*?\\)")
             tts_text = action_regex.sub(tts_text, "", true).strip_edges()
             
-            if GameDataManager.config.voice_enabled and doubao_tts:
+            if GameDataManager.config.voice_enabled:
                 var regex_tts = RegEx.new()
                 regex_tts.compile("[a-zA-Z0-9\u4e00-\u9fa5]")
                 if regex_tts.search(tts_text) != null:
                     is_tts_started = true
-                    var char_id = GameDataManager.config.current_character_id
-                    var v_type = "ICL_zh_female_bingruoshaonv_tob"
-                    if GameDataManager.config.character_voice_types.has(char_id):
-                        v_type = GameDataManager.config.character_voice_types[char_id]
-                    var options = {"voice_type": v_type}
-                    # 保存 cache key，为了后续写入历史记录关联语音播放
-                    current_cache_key = doubao_tts._generate_cache_key(tts_text, options)
-                    doubao_tts.synthesize(tts_text, options)
+                    var options = {}
+                    # 保存 cache key，为了后续写入历史记录关联语音播放 (简单用md5替代原来的内部方法)
+                    current_cache_key = (tts_text + str(options)).md5_text()
+                    TTSManager.synthesize(tts_text, options)
             
             # 这里必须等待一帧，确保 TTS 组件内部有机会触发 success 信号
             await get_tree().process_frame
@@ -659,14 +654,8 @@ func _ready() -> void:
     audio_player = AudioStreamPlayer.new()
     add_child(audio_player)
     
-    var TTSService = load("res://scripts/api/doubao_TTS_Service.gd")
-    if TTSService:
-        doubao_tts = TTSService.new()
-        add_child(doubao_tts)
-        doubao_tts.tts_success.connect(_on_tts_success)
-        doubao_tts.tts_failed.connect(_on_tts_failed)
-        if GameDataManager.config:
-            doubao_tts.setup_auth(GameDataManager.config.doubao_app_id, GameDataManager.config.doubao_token, GameDataManager.config.doubao_cluster)
+    TTSManager.tts_success.connect(_on_tts_success)
+    TTSManager.tts_failed.connect(_on_tts_failed)
             
     GameDataManager.character_switched.connect(_on_character_switched)
     
@@ -862,13 +851,16 @@ func _populate_history_ui() -> void:
         v_scroll.value = v_scroll.max_value
 
 func _play_cached_voice(cache_key: String) -> void:
-    if doubao_tts == null: return
-    var cache_path = doubao_tts.CACHE_DIR + cache_key + "." + doubao_tts.default_encoding
+    var cache_path = "user://tts_cache/" + cache_key + ".mp3"
     if FileAccess.file_exists(cache_path):
-        var stream = doubao_tts._load_audio_from_file(cache_path)
-        if stream and audio_player:
-            audio_player.stream = stream
-            audio_player.play()
+        var file = FileAccess.open(cache_path, FileAccess.READ)
+        if file:
+            var data = file.get_buffer(file.get_length())
+            var stream = AudioStreamMP3.new()
+            stream.data = data
+            if audio_player:
+                audio_player.stream = stream
+                audio_player.play()
     else:
         print("未找到语音缓存: ", cache_key)
 

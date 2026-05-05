@@ -12,7 +12,6 @@ signal dialogue_finished
 signal panel_clicked(event: InputEvent)
 
 var _typewriter_tween: Tween = null
-var doubao_tts = null
 var audio_player: AudioStreamPlayer = null
 var current_text: String = ""
 var is_playing_single_line: bool = false
@@ -29,15 +28,10 @@ func _ready():
     
     # 初始化 TTS
     if GameDataManager.config.voice_enabled:
-        var tts_script = load("res://scripts/api/doubao_TTS_Service.gd")
-        if tts_script:
-            doubao_tts = tts_script.new()
-            add_child(doubao_tts)
-            doubao_tts.tts_success.connect(_on_tts_success)
-            doubao_tts.setup_auth(GameDataManager.config.doubao_app_id, GameDataManager.config.doubao_token, GameDataManager.config.doubao_cluster)
-            
-            audio_player = AudioStreamPlayer.new()
-            add_child(audio_player)
+        TTSManager.tts_success.connect(_on_tts_success)
+        
+        audio_player = AudioStreamPlayer.new()
+        add_child(audio_player)
 
 # 供外部调用，播放单句台词
 func play_single_line(char_id: String, char_name: String, text: String, hide_input: bool = true):
@@ -83,7 +77,7 @@ func _start_typewriter():
     var dur = max(0.5, current_text.length() * 0.05)
     _typewriter_tween.tween_property(rich_text_label, "visible_ratio", 1.0, dur)
     
-    if doubao_tts and GameDataManager.config.voice_enabled:
+    if GameDataManager.config.voice_enabled:
         # 去掉动作描写括号()和（）以及星号**用于发音
         var tts_text = current_text
         var action_regex = RegEx.new()
@@ -94,11 +88,10 @@ func _start_typewriter():
         tts_text = tts_text.replace("*", "")
         
         if tts_text != "":
-            var v_type = "ICL_zh_female_bingruoshaonv_tob"
+            var options = {}
             if GameDataManager.config.character_voice_types.has(character_id):
-                v_type = GameDataManager.config.character_voice_types[character_id]
-            var options = {"voice_type": v_type}
-            doubao_tts.synthesize(tts_text, options)
+                options["voice_type"] = GameDataManager.config.character_voice_types[character_id]
+            TTSManager.synthesize(tts_text, options)
 
 func _on_tts_success(audio_stream: AudioStream, text: String):
     if audio_player and audio_stream:
