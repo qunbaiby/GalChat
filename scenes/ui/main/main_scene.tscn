@@ -1,7 +1,7 @@
 [gd_scene load_steps=19 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
-[ext_resource type="Texture2D" uid="uid://dhbgpdrweqx7l" path="res://assets/images/backgrounds/main/main_bg.png" id="2_3iugm"]
+[ext_resource type="Texture2D" uid="uid://bcdkhcyyge81x" path="res://assets/images/backgrounds/main/ChatGPT Image 2026年5月5日 23_22_45.png" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="Texture2D" uid="uid://cmji1qjdnsskj" path="res://assets/images/backgrounds/cankao/6567c9588637f3143ce8c8da263474f6.png" id="4_6odu6"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
@@ -34,6 +34,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_main")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -42,16 +43,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.12549, 0.12549, 0.164706, 1)
 
 [node name="MainBg" type="TextureRect" parent="."]
-visible = false
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_3iugm")
+mouse_filter = 2
+texture = ExtResource("2_fvueq")
 expand_mode = 1
 stretch_mode = 6
 
@@ -62,6 +64,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("4_6odu6")
 expand_mode = 1
 stretch_mode = 6
@@ -133,6 +136,24 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_6odu6")
 theme_override_styles/hover = SubResource("StyleBoxFlat_6odu6")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_6odu6")
 text = "日记"
+
+[node name="PomodoroButton" type="Button" parent="UIPanel/BottomPanel/BottomButton"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_6odu6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_6odu6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_6odu6")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_6odu6")
+text = "番茄钟"
+
+[node name="ScheduleButton" type="Button" parent="UIPanel/BottomPanel/BottomButton"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_6odu6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_6odu6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_6odu6")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_6odu6")
+text = "待办日程"
 
 [node name="MusicPlayer" parent="UIPanel" instance=ExtResource("10_music_player")]
 layout_mode = 0
@@ -243,7 +264,6 @@ expand_icon = true
 [node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]
 visible = false
 layout_mode = 1
-theme = null
 
 [node name="DiaryNotification" type="PanelContainer" parent="UIPanel"]
 layout_mode = 1

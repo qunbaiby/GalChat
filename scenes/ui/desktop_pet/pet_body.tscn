@@ -1,64 +1,106 @@
 [gd_scene load_steps=5 format=3 uid="uid://d0vnlpr3gjrac"]
 
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/spine/C06_DF/C06_DF_data.tres" id="1_f5jw8"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://b5ponp1xixff7" path="res://scripts/ui/desktop_pet/pet_body.gd" id="2_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
-size = Vector2(83, 179)
+size = Vector2(133.5, 179)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble"]
+bg_color = Color(0.18, 0.18, 0.22, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.5, 0.8)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
 
 [node name="PetBody" type="CharacterBody2D"]
 input_pickable = true
 script = ExtResource("2_script")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
-position = Vector2(31.5, 79.5)
-shape = SubResource("RectangleShape2D_yofv2")
+[node name="AvatarContainer" type="Control" parent="."]
+custom_minimum_size = Vector2(160, 160)
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -80.0
+offset_right = 80.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="SpineSprite" type="SpineSprite" parent="."]
+[node name="AvatarMask" type="Control" parent="AvatarContainer"]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpineSprite" type="SpineSprite" parent="AvatarContainer/AvatarMask"]
 skeleton_data_res = ExtResource("1_f5jw8")
 preview_skin = "default"
+preview_animation = "-- Empty --"
 preview_frame = false
 preview_time = 0.0
-visible = false
-position = Vector2(25, 73)
-scale = Vector2(0.15, 0.15)
+position = Vector2(80, 132.00003)
+scale = Vector2(0.2, 0.2)
+
+[node name="StateRing" type="Control" parent="AvatarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(4.75, 15)
+shape = SubResource("RectangleShape2D_yofv2")
 
 [node name="BubbleContainer" type="VBoxContainer" parent="."]
 custom_minimum_size = Vector2(0, 250)
-offset_left = -170.0
-offset_top = -264.0
-offset_right = 230.0
-offset_bottom = -14.0
+offset_left = -199.0
+offset_top = -340.0
+offset_right = 201.0
+offset_bottom = -90.0
 size_flags_stretch_ratio = 1.5
 mouse_filter = 2
-theme = ExtResource("1_theme")
 alignment = 2
 
 [node name="SpeechBubble" type="PanelContainer" parent="BubbleContainer"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
 mouse_filter = 2
-theme = ExtResource("1_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 
 [node name="MarginContainer" type="MarginContainer" parent="BubbleContainer/SpeechBubble"]
 layout_mode = 2
 mouse_filter = 2
-theme = ExtResource("1_theme")
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 12
 
 [node name="RichTextLabel" type="RichTextLabel" parent="BubbleContainer/SpeechBubble/MarginContainer"]
-custom_minimum_size = Vector2(350, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 mouse_filter = 2
-theme = ExtResource("1_theme")
+theme_override_colors/default_color = Color(0.9, 0.9, 0.95, 1)
 bbcode_enabled = true
 fit_content = true
 autowrap_mode = 2

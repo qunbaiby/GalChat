@@ -26,7 +26,7 @@ func setup(id: String) -> void:
             var data = json.get_data()
             if data is Dictionary:
                 npc_name = data.get("char_name", npc_name)
-                var tex_path = data.get("static_portrait", data.get("avatar", ""))
+                var tex_path = data.get("avatar", data.get("static_portrait", ""))
                 if not tex_path.is_empty() and ResourceLoader.exists(tex_path):
                     portrait_texture = load(tex_path)
     

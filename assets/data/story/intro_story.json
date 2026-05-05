@@ -3,7 +3,12 @@
         "id": "intro_1",
         "speaker": "旁白",
         "text": "时光悄然滑过四百多天，那道伤痕仍在我心底隐隐作痛。",
-        "next_id": "intro_2"
+        "next_id": "intro_2",
+        "events": [
+            {
+                "type": "show_player_info_popup"
+            }
+        ]
     },
     {
         "id": "intro_2",

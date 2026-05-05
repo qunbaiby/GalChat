@@ -15,6 +15,16 @@ extends Control
 @onready var embed_key_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/EmbedKeyInput"
 @onready var embed_model_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/EmbedModelInput"
 
+@onready var vision_key_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/VisionKeyInput"
+@onready var vision_model_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/VisionModelInput"
+@onready var vision_base_url_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/VisionBaseUrlInput"
+
+@onready var image_provider_option: OptionButton = $"ScrollContainer/TabContainer/AI 设置/ImageProviderOption"
+@onready var image_key_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/ImageKeyInput"
+@onready var doubao_image_key_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/DoubaoImageKeyInput"
+@onready var doubao_image_model_input: LineEdit = $"ScrollContainer/TabContainer/AI 设置/DoubaoImageModelInput"
+@onready var enable_ai_illustration_check: CheckButton = $"ScrollContainer/TabContainer/AI 设置/EnableAiIllustrationCheck"
+
 @onready var resolution_option: OptionButton = $"ScrollContainer/TabContainer/画面设置/ResolutionOption"
 @onready var fps_option: OptionButton = $"ScrollContainer/TabContainer/画面设置/FPSOption"
 @onready var vsync_check: CheckButton = $"ScrollContainer/TabContainer/画面设置/VsyncCheck"
@@ -110,6 +120,16 @@ func _load_ui_data() -> void:
     embed_key_input.text = config.doubao_embedding_api_key
     embed_model_input.text = config.doubao_embedding_model
 
+    vision_key_input.text = config.vision_api_key
+    vision_model_input.text = config.vision_model
+    vision_base_url_input.text = config.vision_base_url
+
+    image_provider_option.selected = config.image_generation_provider
+    image_key_input.text = config.openai_image_api_key
+    doubao_image_key_input.text = config.doubao_image_api_key
+    doubao_image_model_input.text = config.doubao_image_model
+    enable_ai_illustration_check.button_pressed = config.enable_ai_diary_illustration
+
     # 加载音画设置
     resolution_option.selected = config.resolution_idx
     fps_option.selected = config.fps_idx
@@ -157,6 +177,16 @@ func _save_ui_data() -> void:
     
     config.doubao_embedding_api_key = embed_key_input.text
     config.doubao_embedding_model = embed_model_input.text
+    
+    config.vision_api_key = vision_key_input.text
+    config.vision_model = vision_model_input.text
+    config.vision_base_url = vision_base_url_input.text
+    
+    config.image_generation_provider = image_provider_option.selected
+    config.openai_image_api_key = image_key_input.text
+    config.doubao_image_api_key = doubao_image_key_input.text
+    config.doubao_image_model = doubao_image_model_input.text
+    config.enable_ai_diary_illustration = enable_ai_illustration_check.button_pressed
     
     config.resolution_idx = resolution_option.selected
     config.fps_idx = fps_option.selected

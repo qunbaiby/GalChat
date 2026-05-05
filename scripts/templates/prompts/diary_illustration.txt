@@ -1,0 +1,13 @@
+请阅读以下日记内容，提取其中的核心场景和氛围，并生成一段用于AI绘画生成的英文提示词（Prompt）。
+
+【日记内容】
+{diary_content}
+
+【艺术风格强制要求】
+请在提示词中必须包含以下风格描述：
+Japanese healing flat illustration, soft rounded lines, macaron warm tones, no hard shadows, soft light diffusion, retro paper grain texture, slight noise texture, fairy tale style, low saturation
+
+【生成要求】
+1. 提取日记中最具画面感的一个瞬间（人物动作、场景环境、关键物品等），翻译并转化为英文描述词。
+2. 提示词应由连贯的短语或逗号分隔的关键词组成，适合作为文生图模型的输入。
+3. 不要输出任何中文、解释性文字或多余的标点符号，仅输出纯英文提示词。

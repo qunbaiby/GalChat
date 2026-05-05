@@ -14,6 +14,14 @@ var activity_manager: Node
 var gift_manager: Node
 var app_database: Dictionary = {}
 
+# 番茄钟与待办事项数据
+var pomodoro_data: Dictionary = {
+    "work_duration": 25,
+    "break_duration": 5,
+    "total_focus_time": 0,
+    "todos": []
+}
+
 signal character_switched(char_id: String)
 
 # 用于记录上一个场景的路径，以便设置界面返回时知道该回到哪里
@@ -72,6 +80,26 @@ func _ready() -> void:
     persona_lock.check_and_lock_character(profile.char_name)
     
     _load_app_database()
+    _load_pomodoro_data()
+
+func _load_pomodoro_data() -> void:
+    var path = "user://pomodoro_data.json"
+    if FileAccess.file_exists(path):
+        var file = FileAccess.open(path, FileAccess.READ)
+        var json_text = file.get_as_text()
+        file.close()
+        var json = JSON.new()
+        if json.parse(json_text) == OK:
+            var data = json.data
+            if typeof(data) == TYPE_DICTIONARY:
+                for key in data.keys():
+                    pomodoro_data[key] = data[key]
+                    
+func save_pomodoro_data() -> void:
+    var path = "user://pomodoro_data.json"
+    var file = FileAccess.open(path, FileAccess.WRITE)
+    file.store_string(JSON.stringify(pomodoro_data))
+    file.close()
 
 func _load_app_database() -> void:
     var path = "res://assets/data/interaction/app_database.json"

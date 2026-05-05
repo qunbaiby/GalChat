@@ -1,0 +1,7 @@
+- [x] `openai_image_api_key` and `enable_ai_diary_illustration` are added to config and settings UI.
+- [x] `diary_illustration.txt` prompt template is created with the specified art style constraints.
+- [x] `openai_image_client.gd` correctly calls the OpenAI Image API and handles up to 3 retries.
+- [x] Generated images are saved as PNG (1024x1024) in date-based folders with the correct naming convention.
+- [x] Diary generation workflow successfully integrates image generation and stores metadata (URL, duration, prompt, model).
+- [x] Fallback to default placeholder works when generation fails or feature is disabled.
+- [x] Unit and integration tests are written and achieve >=90% coverage for the new module.

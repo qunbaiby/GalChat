@@ -1,7 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://cy8xxa3qqt4m1"]
+[gd_scene load_steps=4 format=3 uid="uid://cy8xxa3qqt4m1"]
 
-[ext_resource type="Script" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://bscfneq0ojqtm" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DiaryBook"]
 bg_color = Color(0.96, 0.94, 0.9, 1)
@@ -29,7 +28,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
-theme = ExtResource("2_theme")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -79,6 +77,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Label" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/PhotoRect"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

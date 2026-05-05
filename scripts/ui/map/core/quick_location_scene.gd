@@ -260,7 +260,7 @@ func _on_menu_action_pressed(action_id: String):
 							# 3. 当前场景树中不存在 CafeMakingPopup (制作弹窗)
 							var is_making = false
 							for child in get_tree().root.get_children():
-								if child.name == "CafeMakingPopup":
+								if child.name.begins_with("CafeMakingPopup"):
 									is_making = true
 									break
 									
@@ -371,16 +371,38 @@ func _on_topic_selected(topic: String) -> void:
 		if not deepseek_client:
 			printerr("DeepSeekClient not found!")
 			return
+			
+	# 如果找到了现有的 client，先断开之前可能的连接
+	if deepseek_client.is_connected("npc_event_dialogue_completed", _on_topic_reply_generated):
+		deepseek_client.npc_event_dialogue_completed.disconnect(_on_topic_reply_generated)
+	if deepseek_client.is_connected("npc_event_dialogue_failed", _on_topic_reply_failed):
+		deepseek_client.npc_event_dialogue_failed.disconnect(_on_topic_reply_failed)
+		
+	# 临时连接信号用于接收这一次对话的结果
+	deepseek_client.npc_event_dialogue_completed.connect(_on_topic_reply_generated, CONNECT_ONE_SHOT)
+	deepseek_client.npc_event_dialogue_failed.connect(_on_topic_reply_failed, CONNECT_ONE_SHOT)
 		
 	# 生成并播放 NPC 的专属台词
 	deepseek_client.generate_npc_event_dialogue(
 		current_interacting_npc_id,
-		event_desc,
-		func(reply_text: String):
-			if dialogue_panel:
-				dialogue_panel.play_single_line(reply_text)
+		event_desc
 	)
+
+func _on_topic_reply_generated(reply_text: String) -> void:
+	if dialogue_panel:
+		# 强制移至最顶层渲染
+		if dialogue_panel.get_parent():
+			dialogue_panel.get_parent().move_child(dialogue_panel, -1)
+			
+		var npc_name = menu_name_label.text
+		dialogue_panel.play_single_line(current_interacting_npc_id, npc_name, reply_text, true)
+
+func _on_topic_reply_failed(_error_msg: String) -> void:
+	if dialogue_panel:
+		var npc_name = menu_name_label.text
+		dialogue_panel.play_single_line(current_interacting_npc_id, npc_name, "……（默认回应）", true)
 
 func _on_back_pressed():
 	var world_map_scene = load("res://scenes/ui/map/core/world_map_scene.tscn")
 	get_tree().change_scene_to_packed(world_map_scene)
+	queue_free()

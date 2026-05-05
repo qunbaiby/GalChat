@@ -3,19 +3,29 @@ extends CharacterBody2D
 signal pet_clicked()
 signal bubbles_changed()
 
-@onready var spine_sprite: SpineSprite = $SpineSprite
+@onready var avatar_mask: Control = $AvatarContainer/AvatarMask
+@onready var state_ring: Control = $AvatarContainer/StateRing
+@onready var spine_sprite: SpineSprite = $AvatarContainer/AvatarMask/SpineSprite
 @onready var bubble_container: VBoxContainer = $BubbleContainer
 @onready var bubble_template: PanelContainer = $BubbleContainer/SpeechBubble
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 var _click_start_pos: Vector2 = Vector2.ZERO
 
+# 状态环变量
+var current_state: int = 0 # 0: Idle, 1: Thinking, 2: Speaking, 3: Cooldown
+var state_progress: float = 0.0
+var ring_time: float = 0.0
+var ring_volume: float = 0.0
+
 func _ready() -> void:
     bubble_template.hide()
     
-    # 动态创建一个 Control 用于可靠的点击检测，因为 Window 下物理拾取可能有坑
+    avatar_mask.draw.connect(_on_mask_draw)
+    state_ring.draw.connect(_on_ring_draw)
+    
+    # 动态创建一个 Control 用于可靠的点击检测
     var click_control = Control.new()
-    # 强制指定一个默认大小，防止 collision_shape 还没初始化好导致大小为 0
     click_control.position = Vector2(-40, -10)
     click_control.size = Vector2(80, 180)
         
@@ -66,6 +76,57 @@ func _ready_delayed_spine() -> void:
                 
                 if target_anim in anim_names:
                     anim_state.set_animation(target_anim, true, 0)
+
+func _process(delta: float) -> void:
+    ring_time += delta
+    if is_instance_valid(state_ring):
+        state_ring.queue_redraw()
+
+func _on_mask_draw() -> void:
+    var center = avatar_mask.size / 2.0
+    var radius = min(avatar_mask.size.x, avatar_mask.size.y) / 2.0
+    
+    # 绘制一个带抗锯齿效果的高分辨率多边形近似圆，填充纯白色，背景保持透明
+    # Godot 4.x 的 clip_children 如果使用 draw_circle 在透明窗口下会产生黑色背景Bug
+    var points = PackedVector2Array()
+    var num_points = 64
+    for i in range(num_points):
+        var angle = i * TAU / num_points
+        points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+        
+    avatar_mask.draw_colored_polygon(points, Color.WHITE)
+
+func _on_ring_draw() -> void:
+    var center = state_ring.size / 2.0
+    var radius = min(state_ring.size.x, state_ring.size.y) / 2.0
+    
+    # 绘制基础底环
+    var base_color = Color(0.3, 0.3, 0.3, 0.5)
+    state_ring.draw_arc(center, radius, 0, TAU, 64, base_color, 4.0, true)
+    
+    # 根据不同状态绘制动态特效
+    if current_state == 1: # Thinking
+        var start_angle = ring_time * 5.0
+        var end_angle = start_angle + PI / 2.0
+        state_ring.draw_arc(center, radius, start_angle, end_angle, 32, Color(0.4, 0.8, 1.0, 0.9), 4.0, true)
+    elif current_state == 2: # Speaking
+        var glow = radius + ring_volume * 20.0
+        state_ring.draw_arc(center, glow, 0, TAU, 64, Color(0.4, 0.8, 1.0, 0.6), 3.0, true)
+    elif current_state == 3: # App Switch Observing (10s)
+        # 绿色圆环，平滑缓慢填满
+        var angle = lerp(0.0, TAU, state_progress)
+        state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.3, 0.8, 0.3, 0.8), 4.0, true)
+    elif current_state == 4: # Proactive Chat Cooldown (long timer)
+        # 橙黄色圆环，表示大招冷却中，非常缓慢地填满
+        var angle = lerp(0.0, TAU, state_progress)
+        state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.8, 0.6, 0.2, 0.8), 4.0, true)
+
+func set_pet_state(state: int, progress: float = 0.0) -> void:
+    current_state = state
+    state_progress = progress
+
+func update_voice_volume(vol: float) -> void:
+    ring_volume = lerp(ring_volume, vol, 0.2)
 
 func _on_click_control_gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:
@@ -157,20 +218,21 @@ func add_bubble(text: String, is_typewriter: bool = false) -> void:
 
 func get_passthrough_rects() -> Array[Rect2]:
     var rects: Array[Rect2] = []
-    if not is_inside_tree() or not visible:
-        return rects
+    
+    # 获取遮罩和状态环的组合区域
+    if avatar_mask and avatar_mask.is_visible_in_tree():
+        # 给状态环预留足够的空间，避免被裁剪
+        rects.append(avatar_mask.get_global_rect().grow(10))
         
-    # 添加角色碰撞盒区域（转换为全局坐标）
-    if collision_shape and collision_shape.shape:
-        var shape = collision_shape.shape
-        if shape is RectangleShape2D:
-            var size = shape.size
-            var pos = collision_shape.global_position - size / 2.0
-            rects.append(Rect2(pos, size).grow(5))
-            
-    # 添加可见气泡区域
-    for child in bubble_container.get_children():
-        if child is Control and child.is_visible_in_tree() and child != bubble_template:
-            rects.append(child.get_global_rect().grow(5))
+    if state_ring and state_ring.is_visible_in_tree():
+        rects.append(state_ring.get_global_rect().grow(10))
+        
+    # 获取对话气泡的区域
+    if bubble_container and bubble_container.is_visible_in_tree():
+        # 我们需要为气泡预留一个固定的最大区域，防止空的时候被裁掉
+        # 使用基于节点初始 offset 的固定矩形，而不是依赖可能收缩的动态 size
+        var base_pos = bubble_container.global_position
+        var reserved_rect = Rect2(base_pos.x, base_pos.y, 400, 250)
+        rects.append(reserved_rect.grow(10))
             
     return rects

@@ -23,6 +23,18 @@ var voice_enabled: bool = true
 var doubao_embedding_api_key: String = ""
 var doubao_embedding_model: String = "ep-xxxxxx"
 
+# 多模态视觉模型配置 (Vision Model)
+var vision_api_key: String = ""
+var vision_model: String = "ep-xxxxxx"
+var vision_base_url: String = "https://ark.cn-beijing.volces.com/api/v3"
+
+# 图像生成配置 (Image Generation)
+var openai_image_api_key: String = ""
+var image_generation_provider: int = 0 # 0: OpenAI, 1: Doubao
+var doubao_image_api_key: String = ""
+var doubao_image_model: String = "doubao-seedream-5-0-260128"
+var enable_ai_diary_illustration: bool = true
+
 # 当前选择的角色ID，默认为空，运行时会自动寻找第一个可用角色
 var current_character_id: String = ""
 
@@ -55,6 +67,14 @@ func save_config() -> void:
         "voice_enabled": voice_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
         "doubao_embedding_model": doubao_embedding_model,
+        "vision_api_key": vision_api_key,
+        "vision_model": vision_model,
+        "vision_base_url": vision_base_url,
+        "openai_image_api_key": openai_image_api_key,
+        "image_generation_provider": image_generation_provider,
+        "doubao_image_api_key": doubao_image_api_key,
+        "doubao_image_model": doubao_image_model,
+        "enable_ai_diary_illustration": enable_ai_diary_illustration,
         "current_character_id": current_character_id,
         "resolution_idx": resolution_idx,
         "fps_idx": fps_idx,
@@ -102,6 +122,14 @@ func load_config() -> void:
                 voice_enabled = data.get("voice_enabled", voice_enabled)
                 doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)
                 doubao_embedding_model = data.get("doubao_embedding_model", doubao_embedding_model)
+                vision_api_key = data.get("vision_api_key", vision_api_key)
+                vision_model = data.get("vision_model", vision_model)
+                vision_base_url = data.get("vision_base_url", vision_base_url)
+                openai_image_api_key = data.get("openai_image_api_key", openai_image_api_key)
+                image_generation_provider = int(data.get("image_generation_provider", image_generation_provider))
+                doubao_image_api_key = data.get("doubao_image_api_key", doubao_image_api_key)
+                doubao_image_model = data.get("doubao_image_model", doubao_image_model)
+                enable_ai_diary_illustration = data.get("enable_ai_diary_illustration", enable_ai_diary_illustration)
                 current_character_id = data.get("current_character_id", current_character_id)
                 resolution_idx = data.get("resolution_idx", resolution_idx)
                 fps_idx = data.get("fps_idx", fps_idx)

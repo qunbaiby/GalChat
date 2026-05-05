@@ -72,6 +72,17 @@ func _update_page() -> void:
     var content = entry.get("content", "")
     content_text.text = content
     
+    # Handle image display
+    var img_url = entry.get("image_url", "")
+    if img_url != "" and FileAccess.file_exists(img_url):
+        var image = Image.load_from_file(img_url)
+        if image:
+            var tex = ImageTexture.create_from_image(image)
+            photo_rect.texture = tex
+    else:
+        # Load a default placeholder if image is missing
+        photo_rect.texture = preload("res://icon.svg")
+    
     page_num_label.text = "%d / %d" % [current_page_index + 1, diaries.size()]
     
     prev_btn.disabled = current_page_index == 0

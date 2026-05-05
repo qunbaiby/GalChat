@@ -67,16 +67,29 @@ func load_profile(force_char_id: String = "") -> void:
     elif GameDataManager.config and GameDataManager.config.current_character_id != "":
         current_character_id = GameDataManager.config.current_character_id
     else:
-        # 如果未配置，自动寻找第一个可用的角色文件
-        var dir = DirAccess.open("res://assets/data/characters")
-        if dir:
-            dir.list_dir_begin()
-            var file_name = dir.get_next()
-            while file_name != "":
-                if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
-                    current_character_id = file_name.replace(".json", "")
-                    break
-                file_name = dir.get_next()
+        # 如果未配置，优先寻找外部目录
+        var ext_dir = DirAccess.open("user://game_data/characters")
+        if ext_dir:
+            ext_dir.list_dir_begin()
+            var folder_name = ext_dir.get_next()
+            while folder_name != "":
+                if ext_dir.current_is_dir() and not folder_name.begins_with("."):
+                    if FileAccess.file_exists("user://game_data/characters/" + folder_name + "/settings.json"):
+                        current_character_id = folder_name
+                        break
+                folder_name = ext_dir.get_next()
+                
+        # 否则寻找内置目录
+        if current_character_id == "":
+            var dir = DirAccess.open("res://assets/data/characters")
+            if dir:
+                dir.list_dir_begin()
+                var file_name = dir.get_next()
+                while file_name != "":
+                    if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
+                        current_character_id = file_name.replace(".json", "")
+                        break
+                    file_name = dir.get_next()
             
         if current_character_id == "":
             printerr("No character config found in res://assets/data/characters/")
@@ -166,9 +179,16 @@ func load_profile(force_char_id: String = "") -> void:
     init_daily_mood()
 
 func _get_static_data_path() -> String:
+    # 优先检查外部动态目录
+    var ext_path = "user://game_data/characters/%s/settings.json" % current_character_id
+    if FileAccess.file_exists(ext_path):
+        return ext_path
     return "res://assets/data/characters/%s.json" % current_character_id
 
 func _get_stage_data_path() -> String:
+    var ext_path = "user://game_data/characters/%s/stages.json" % current_character_id
+    if FileAccess.file_exists(ext_path):
+        return ext_path
     return "res://assets/data/characters/%s_stages.json" % current_character_id
 
 func _load_static_data() -> void:

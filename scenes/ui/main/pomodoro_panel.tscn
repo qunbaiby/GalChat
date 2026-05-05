@@ -1,0 +1,215 @@
+[gd_scene load_steps=5 format=3 uid="uid://dxxxxxxxxxx"]
+
+[ext_resource type="Script" path="res://scripts/ui/main/pomodoro_panel.gd" id="1_pomodoro"]
+[ext_resource type="Script" path="res://scripts/ui/main/pomodoro_ring.gd" id="2_ring"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.08, 0.1, 0.15, 0.95)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Btn"]
+bg_color = Color(0.2, 0.22, 0.28, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+
+[node name="PomodoroPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_pomodoro")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -280.0
+offset_right = 180.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+
+[node name="CloseButton" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+text = "X"
+flat = true
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 30
+mouse_filter = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Ring" type="Control" parent="Panel/MarginContainer/VBoxContainer/CenterContainer"]
+custom_minimum_size = Vector2(240, 240)
+layout_mode = 2
+script = ExtResource("2_ring")
+
+[node name="VBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+theme_override_constants/separation = 5
+
+[node name="ModeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "工作"
+horizontal_alignment = 1
+
+[node name="TimeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "25:00"
+horizontal_alignment = 1
+
+[node name="StateLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.3, 0.7, 1, 1)
+text = "空闲中"
+horizontal_alignment = 1
+
+[node name="RoundLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+text = "第 1 / 2 轮"
+horizontal_alignment = 1
+
+[node name="Controls" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="PlayButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
+theme_override_font_sizes/font_size = 24
+text = "▶"
+
+[node name="PauseButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
+theme_override_font_sizes/font_size = 24
+text = "||"
+
+[node name="ResetButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
+theme_override_font_sizes/font_size = 24
+text = "↻"
+
+[node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Settings" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 30
+
+[node name="WorkSet" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/Settings"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/Settings/WorkSet"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "专注"
+horizontal_alignment = 1
+
+[node name="WorkSpin" type="SpinBox" parent="Panel/MarginContainer/VBoxContainer/Settings/WorkSet"]
+layout_mode = 2
+min_value = 1.0
+max_value = 120.0
+value = 25.0
+suffix = "m"
+alignment = 1
+
+[node name="RestSet" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/Settings"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/Settings/RestSet"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "休息"
+horizontal_alignment = 1
+
+[node name="RestSpin" type="SpinBox" parent="Panel/MarginContainer/VBoxContainer/Settings/RestSet"]
+layout_mode = 2
+min_value = 1.0
+max_value = 60.0
+value = 5.0
+suffix = "m"
+alignment = 1
+
+[node name="LoopSet" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/Settings"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/Settings/LoopSet"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "循环"
+horizontal_alignment = 1
+
+[node name="LoopSpin" type="SpinBox" parent="Panel/MarginContainer/VBoxContainer/Settings/LoopSet"]
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+value = 2.0
+suffix = "次"
+alignment = 1

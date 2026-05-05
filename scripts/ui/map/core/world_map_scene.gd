@@ -143,6 +143,7 @@ func _on_location_pressed(location_id: String):
 			var instance = quick_scene.instantiate()
 			instance.location_id = location_id
 			get_tree().root.add_child(instance)
+			get_tree().current_scene = instance
 			self.queue_free()
 	else:
 		var loc_data = MapDataManager.get_location(location_id)

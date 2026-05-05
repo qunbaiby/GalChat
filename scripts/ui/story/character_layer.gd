@@ -36,6 +36,11 @@ func _update_spine_data() -> void:
     # 如果找不到 spine 或者路径为空，则显示立绘动画
     if is_instance_valid(character_spine):
         character_spine.hide()
+    
+    var dynamic_sprite = get_node_or_null("DynamicSprite")
+    if dynamic_sprite:
+        dynamic_sprite.hide()
+        
     if is_instance_valid(character_ani):
         character_ani.show()
         _update_character_ani()
@@ -43,9 +48,27 @@ func _update_spine_data() -> void:
 # 新增：更新立绘动画状态
 func _update_character_ani() -> void:
     if not is_instance_valid(character_ani): return
-    var mood = GameDataManager.profile.mood
+    var mood = GameDataManager.profile.current_mood
     
-    # 检查 AnimatedSprite2D 是否有对应心情的动画
+    # 获取图片路径
+    var sprite_path = GameDataManager.mood_system.get_mood_sprite_path(mood)
+    if sprite_path != "":
+        # 如果是外部文件
+        if sprite_path.begins_with("user://"):
+            var img = Image.new()
+            var err = img.load(sprite_path)
+            if err == OK:
+                var tex = ImageTexture.create_from_image(img)
+                _set_sprite_texture(tex)
+                return
+        # 如果是内置文件
+        elif ResourceLoader.exists(sprite_path):
+            var tex = load(sprite_path)
+            if tex is Texture2D:
+                _set_sprite_texture(tex)
+                return
+                
+    # 回退到 AnimatedSprite2D 自身配置
     var frames = character_ani.sprite_frames
     if frames and frames.has_animation(mood):
         character_ani.play(mood)
@@ -57,6 +80,20 @@ func _update_character_ani() -> void:
             character_ani.play("idle")
         elif frames and frames.has_animation("default"):
             character_ani.play("default")
+
+func _set_sprite_texture(tex: Texture2D) -> void:
+    # 动态创建一个 Sprite2D 来替代 AnimatedSprite2D 的显示
+    var dynamic_sprite = get_node_or_null("DynamicSprite")
+    if not dynamic_sprite:
+        dynamic_sprite = Sprite2D.new()
+        dynamic_sprite.name = "DynamicSprite"
+        add_child(dynamic_sprite)
+    
+    dynamic_sprite.texture = tex
+    dynamic_sprite.show()
+    character_ani.hide()
+    if is_instance_valid(character_spine):
+        character_spine.hide()
 
 # 提供一个公共方法，允许外部强制更新 Spine 数据而不读取 Profile
 func load_spine_by_path(path: String) -> void:
@@ -79,6 +116,11 @@ func load_spine_by_path(path: String) -> void:
     # fallback to character_ani if spine load failed
     if is_instance_valid(character_spine):
         character_spine.hide()
+        
+    var dynamic_sprite = get_node_or_null("DynamicSprite")
+    if dynamic_sprite:
+        dynamic_sprite.hide()
+        
     if is_instance_valid(character_ani):
         character_ani.show()
         _update_character_ani()

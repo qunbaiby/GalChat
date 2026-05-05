@@ -60,6 +60,14 @@ func get_mood_by_keywords(text: String) -> String:
     return ""
 
 func get_mood_sprite_path(mood_id: String) -> String:
+    var ext_path = "user://game_data/characters/%s/avatar/%s.webp" % [GameDataManager.config.current_character_id, mood_id]
+    if FileAccess.file_exists(ext_path):
+        return ext_path
+        
+    ext_path = "user://game_data/characters/%s/avatar/%s.png" % [GameDataManager.config.current_character_id, mood_id]
+    if FileAccess.file_exists(ext_path):
+        return ext_path
+        
     if mood_configs.has(mood_id):
         return mood_configs[mood_id].get("sprite_path", "")
     return ""

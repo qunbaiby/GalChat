@@ -16,6 +16,11 @@ const MOBILE_CHAT_DYNAMIC_STYLES: Array[Dictionary] = [
     { "name": "双段手机连续", "weight": 50, "text": "【分段策略：双段连续】请将你的回答分成 2 段发送，模拟连发两条消息/说话停顿。要求：【绝对强制】你必须在两段之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段）！每段包含 10 到 30 字的真实对话（总字数不超过 80 字）。【绝对强制警告：这是实时语音/文字通话，系统只接受纯粹的台词！不要用括号、星号等任何符号包裹任何动作、神情、呼吸或心理描写（如(笑)、(深吸气)、*叹气*等全都不允许）！输出的内容必须全是角色嘴里说出来的话，否则系统会崩溃！】" }
 ]
 
+const NPC_EVENT_DYNAMIC_STYLES: Array[Dictionary] = [
+    { "name": "单段事件回复", "weight": 50, "text": "【分段策略：单段自然回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 10 到 30 字之间，保证说话内容的完整性和生动感。【强制要求：这段话中只能出现1个全角或半角圆括号动作描述，且必须在句首！绝对禁止使用星号等其他符号。】" },
+    { "name": "双段事件交流", "weight": 50, "text": "【分段策略：双段轻快交流】请将你的回答自然换行分成 2 段。每个分段的台词应在 15 到 40 字之间，表现出聊天的停顿感。【强制要求：每个换行的段落里，最多只能包含1个全角或半角圆括号动作描述，并且只能放在该段落的开头！绝对禁止使用星号等其他符号。】" }
+]
+
 # 缓存已加载的模板
 var templates: Dictionary = {}
 
@@ -266,4 +271,32 @@ func build_character_mood_prompt(character_message: String) -> String:
     return template.format({
         "mood_list": mood_list_text,
         "character_message": character_message
+    })
+
+func build_npc_event_prompt(npc_name: String, personality: String, protagonist_name: String, stage: int, stage_title: String, event_desc: String) -> String:
+    var template = load_template("npc_event")
+    if template == "":
+        return ""
+        
+    var current_styles = NPC_EVENT_DYNAMIC_STYLES.duplicate(true)
+    var total_weight = 0
+    for s in current_styles:
+        total_weight += s["weight"]
+        
+    var random_val = randi() % total_weight if total_weight > 0 else 0
+    var random_style = current_styles[0]["text"]
+    for s in current_styles:
+        random_val -= s["weight"]
+        if random_val < 0:
+            random_style = s["text"]
+            break
+        
+    return template.format({
+        "npc_name": npc_name,
+        "personality": personality,
+        "protagonist_name": protagonist_name,
+        "stage": str(stage),
+        "stage_title": stage_title,
+        "event_desc": event_desc,
+        "dynamic_style": random_style
     })

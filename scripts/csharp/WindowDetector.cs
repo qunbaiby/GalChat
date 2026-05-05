@@ -3,10 +3,15 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
-public partial class WindowDetector : Node
+namespace GalChat.Scripts.CSharp
 {
-    // P/Invoke 声明
+    public partial class WindowDetector : Node
+    {
+        // P/Invoke 声明
     [DllImport("user32.dll")]
     private static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
 
@@ -34,6 +39,74 @@ public partial class WindowDetector : Node
     public void SetMainHwnd(long hwnd)
     {
         _mainHwnd = new IntPtr(hwnd);
+    }
+
+    /// <summary>
+    /// 截取全屏并返回 Base64 编码的 JPEG 字符串（压缩质量为 60）
+    /// 适用于发送给多模态大模型进行屏幕内容分析
+    /// </summary>
+    /// <returns>Base64 Image String</returns>
+    public string CaptureScreenToBase64()
+    {
+        try
+        {
+            int screenLeft = 0;
+            int screenTop = 0;
+            int screenWidth = 0;
+            int screenHeight = 0;
+
+            // 计算所有显示器的总边界
+            int screenCount = Godot.DisplayServer.GetScreenCount();
+            for (int i = 0; i < screenCount; i++)
+            {
+                var pos = Godot.DisplayServer.ScreenGetPosition(i);
+                var size = Godot.DisplayServer.ScreenGetSize(i);
+                screenLeft = Math.Min(screenLeft, pos.X);
+                screenTop = Math.Min(screenTop, pos.Y);
+                screenWidth = Math.Max(screenWidth, pos.X + size.X - screenLeft);
+                screenHeight = Math.Max(screenHeight, pos.Y + size.Y - screenTop);
+            }
+
+            using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+            {
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    g.CopyFromScreen(screenLeft, screenTop, 0, 0, new Size(screenWidth, screenHeight), CopyPixelOperation.SourceCopy);
+                }
+
+                // 使用 JPEG 格式并压缩质量，减少 API 传输体积
+                ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 60L); // 60% 质量
+                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    bitmap.Save(ms, jpgEncoder, myEncoderParameters);
+                    byte[] imageBytes = ms.ToArray();
+                    return Convert.ToBase64String(imageBytes);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"截图失败: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    private ImageCodecInfo GetEncoder(ImageFormat format)
+    {
+        ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+        foreach (ImageCodecInfo codec in codecs)
+        {
+            if (codec.FormatID == format.Guid)
+            {
+                return codec;
+            }
+        }
+        return null;
     }
 
     /// <summary>
@@ -131,6 +204,57 @@ public partial class WindowDetector : Node
     private const int WS_EX_TRANSPARENT = 0x00000020;
     private const int WS_EX_LAYERED = 0x00080000;
     private const int WS_EX_TOOLWINDOW = 0x00000080;
+
+    /// <summary>
+    /// 截取当前前台焦点窗口并返回 Base64 编码的 JPEG 字符串
+    /// </summary>
+    /// <returns>Base64 Image String</returns>
+    public string CaptureForegroundWindowToBase64()
+    {
+        try
+        {
+            IntPtr hWnd = GetForegroundWindow();
+            if (hWnd == IntPtr.Zero || hWnd == GetDesktopWindow() || hWnd == GetShellWindow())
+            {
+                return CaptureScreenToBase64(); // 回退到全屏
+            }
+
+            if (GetWindowRect(hWnd, out RECT rect))
+            {
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
+
+                if (width <= 0 || height <= 0) return CaptureScreenToBase64();
+
+                using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(width, height, PixelFormat.Format32bppArgb))
+                {
+                    using (Graphics g = Graphics.FromImage(bitmap))
+                    {
+                        g.CopyFromScreen(rect.Left, rect.Top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
+                    }
+
+                    ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                    System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                    EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                    EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 60L);
+                    myEncoderParameters.Param[0] = myEncoderParameter;
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        bitmap.Save(ms, jpgEncoder, myEncoderParameters);
+                        byte[] imageBytes = ms.ToArray();
+                        return Convert.ToBase64String(imageBytes);
+                    }
+                }
+            }
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"前台窗口截图失败: {ex.Message}");
+            return string.Empty;
+        }
+    }
 
     /// <summary>
     /// 判断当前拥有焦点的窗口是否是全屏，如果不是，它会继续向下枚举找到最近的一个可见的全屏窗口。
@@ -313,4 +437,5 @@ public partial class WindowDetector : Node
 
         return true;
     }
+}
 }

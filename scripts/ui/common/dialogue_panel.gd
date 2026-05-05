@@ -84,11 +84,14 @@ func _start_typewriter():
     _typewriter_tween.tween_property(rich_text_label, "visible_ratio", 1.0, dur)
     
     if doubao_tts and GameDataManager.config.voice_enabled:
-        # 去掉动作描写括号()和（）用于发音
+        # 去掉动作描写括号()和（）以及星号**用于发音
         var tts_text = current_text
         var action_regex = RegEx.new()
-        action_regex.compile("（.*?）|\\(.*?\\)")
+        action_regex.compile("（.*?）|\\(.*?\\)|\\*.*?\\*|\\[.*?\\]|~.*?~")
         tts_text = action_regex.sub(tts_text, "", true).strip_edges()
+        
+        # 清理可能残留的独立星号
+        tts_text = tts_text.replace("*", "")
         
         if tts_text != "":
             var v_type = "ICL_zh_female_bingruoshaonv_tob"
