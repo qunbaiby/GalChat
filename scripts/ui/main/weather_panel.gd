@@ -31,35 +31,34 @@ func _ready() -> void:
 	add_child(weather_timer)
 
 func _update_time() -> void:
-	var time_dict = Time.get_time_dict_from_system()
-	var date_dict = Time.get_date_dict_from_system()
+	# 这里只做显示更新，不再让时间随现实秒数狂奔。
+	# 时间的推进将由剧情行动力消耗或事件系统（StoryTimeManager.advance_period 等）来手动触发。
+	var time_hour = GameDataManager.story_time_manager.current_hour
+	var time_minute = GameDataManager.story_time_manager.current_minute
+	var period_str = GameDataManager.story_time_manager.current_period
+	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
 	
-	time_label.text = "%02d:%02d" % [time_dict.hour, time_dict.minute]
-	period_label.text = "上午" if time_dict.hour < 12 else "下午"
+	time_label.text = "%02d:%02d" % [time_hour, time_minute]
+	period_label.text = period_str
 	
 	var weekday_str = ["日", "一", "二", "三", "四", "五", "六"]
 	date_label.text = "%d/%02d/%02d(周%s)" % [date_dict.year, date_dict.month, date_dict.day, weekday_str[date_dict.weekday]]
 
 func _simulate_weather() -> void:
-	# 模拟天气逻辑
-	var hour = Time.get_time_dict_from_system().hour
-	var is_day = hour >= 6 and hour < 18
+	# 从虚构的剧情时间系统读取固定的天气数据
+	var day_config = GameDataManager.story_time_manager.get_current_day_config()
+	var weather_type = day_config.get("weather", "sunny")
+	var temp = day_config.get("temperature", 20)
 	
-	var rand = randi() % 100
-	var weather_type = "sunny"
-	var temp_offset = randi_range(-3, 3)
-	var base_temp = 22 if is_day else 15
-	var temp = base_temp + temp_offset
-	
-	if rand < 60:
-		weather_type = "sunny"
+	if weather_type == "sunny":
 		weather_icon.texture = tex_sunny
-		loc_label.text = "东京 %d°C" % temp
-	elif rand < 85:
-		weather_type = "cloudy"
+		loc_label.text = "星律 %d°C" % temp
+	elif weather_type == "cloudy":
 		weather_icon.texture = tex_cloudy
-		loc_label.text = "东京 %d°C" % (temp - 2)
-	else:
-		weather_type = "rainy"
+		loc_label.text = "星律 %d°C" % temp
+	elif weather_type == "rainy":
 		weather_icon.texture = tex_rainy
-		loc_label.text = "东京 %d°C" % (temp - 4)
+		loc_label.text = "星律 %d°C" % temp
+	else:
+		weather_icon.texture = tex_sunny
+		loc_label.text = "星律 %d°C" % temp

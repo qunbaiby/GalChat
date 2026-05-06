@@ -47,7 +47,13 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     if template == "":
         return ""
         
-    var time_str = Time.get_datetime_string_from_system()
+    var time_str = ""
+    # 桌宠使用真实的现实时间，其他剧情对话使用虚构的剧情时间
+    if template_name == "desktop_pet":
+        time_str = Time.get_datetime_string_from_system()
+    else:
+        time_str = GameDataManager.story_time_manager.get_story_time_string()
+        
     var mood_desc = GameDataManager.mood_system.get_mood_description(profile.current_mood)
     var memory_desc = GameDataManager.memory_manager.get_memory_prompt(query_embedding)
     
@@ -71,6 +77,10 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     
     # 提取并替换占位符
     var safe_char_name = profile.char_name
+    var player_name = profile.player_title
+    if player_name.is_empty():
+        player_name = "指导人"
+        
     var world_bg = profile.description.replace("{char_name}", safe_char_name)
     var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
     var st_desc = stage_conf.get("stageDesc", "").replace("{char_name}", safe_char_name)
@@ -186,6 +196,7 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     # 动态注入
     var base_prompt = template.format({
         "name": safe_char_name,
+        "player_name": player_name,
         "age": str(profile.age),
         "world_background": world_bg,
         "stage_title": st_title,
@@ -258,9 +269,14 @@ func build_options_prompt(profile: CharacterProfile, recent_history: String) -> 
         stage_desc = stage_conf.get("stageTitle", "") + " - " + stage_conf.get("stageDesc", "")
         
     var option_constraints = GameDataManager.personality_system.get_option_constraints(profile)
+    
+    var player_name = profile.player_title
+    if player_name.is_empty():
+        player_name = "指导人"
         
     return template.format({
         "name": profile.char_name,
+        "player_name": player_name,
         "stage_desc": stage_desc,
         "option_constraints": option_constraints,
         "recent_history": recent_history

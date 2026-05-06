@@ -89,13 +89,13 @@ func get_option_constraints(profile: CharacterProfile) -> String:
 	
 	# 1. 神经质极高 (易碎/敏感状态)
 	if profile.neuroticism >= 80:
-		constraints.append("当前角色情绪极其敏感脆弱，**绝对禁止**生成任何'直球'、'沙雕'或'冷落敷衍'的选项，四个选项必须全都是极其温柔、小心翼翼安抚的口吻！")
+		constraints.append("当前角色情绪极其敏感脆弱，即使是负面选项，也请尽量表现为'严厉的关怀'或'恨铁不成钢'，不要生成纯粹的恶意冷落或谩骂！")
 		
 	# 2. 复合状态：傲娇
 	var comp = _get_composite_traits(profile)
 	for c in comp:
 		if "【傲娇" in c:
-			constraints.append("角色当前处于'傲娇'状态，请在生成的选项中加入至少一个'故意顺着她的话气她/逗她'的选项，以及一个'直接看穿她嘴硬心软并给予温柔暴击'的选项。")
+			constraints.append("角色当前处于'傲娇'状态，请在生成的选项中，正面选项可以尝试'直接看穿她嘴硬心软并给予温柔暴击'，负面选项可以尝试'故意顺着她的话气她/逗她'。")
 			
 		elif "【小恶魔" in c:
 			constraints.append("角色当前处于'腹黑/小恶魔'状态，请在生成的选项中加入至少一个'无奈妥协/求饶'的选项，以及一个'反客为主调戏回去'的选项。")

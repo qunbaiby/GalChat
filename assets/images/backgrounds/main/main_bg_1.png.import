@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc0v3forupmdx"
-path="res://.godot/imported/afternoon.png-7249b186f4987d0e76fa9641e5680054.ctex"
+uid="uid://5t4drr45b30t"
+path="res://.godot/imported/main_bg_1.png-4823feafa2d118ad295322e9f2de8a34.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png"
-dest_files=["res://.godot/imported/afternoon.png-7249b186f4987d0e76fa9641e5680054.ctex"]
+source_file="res://assets/images/backgrounds/main/main_bg_1.png"
+dest_files=["res://.godot/imported/main_bg_1.png-4823feafa2d118ad295322e9f2de8a34.ctex"]
 
 [params]
 

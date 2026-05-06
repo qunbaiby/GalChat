@@ -1,0 +1,34 @@
+{
+    "start_date": {
+        "year": 2026,
+        "month": 3,
+        "day": 7,
+        "weekday": 6
+    },
+    "daily_data": [
+        {
+            "day_offset": 0,
+            "weather": "sunny",
+            "temperature": 20,
+            "events": ["story_start", "meet_luna"]
+        },
+        {
+            "day_offset": 1,
+            "weather": "cloudy",
+            "temperature": 18,
+            "events": ["first_lesson"]
+        },
+        {
+            "day_offset": 2,
+            "weather": "rainy",
+            "temperature": 15,
+            "events": ["shelter_from_rain"]
+        },
+        {
+            "day_offset": 3,
+            "weather": "sunny",
+            "temperature": 22,
+            "events": []
+        }
+    ]
+}

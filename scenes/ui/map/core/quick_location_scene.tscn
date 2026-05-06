@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
-[ext_resource type="Texture2D" uid="uid://b1isdxijgpwrt" path="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png" id="2_3k4mg"]
+[ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png" id="2_3k4mg"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="2_dialogue"]
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="3_char"]
 

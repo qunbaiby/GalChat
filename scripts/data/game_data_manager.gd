@@ -12,6 +12,7 @@ var personality_system: Node
 var stats_system: Node
 var activity_manager: Node
 var gift_manager: Node
+var story_time_manager: Node
 var app_database: Dictionary = {}
 
 # 番茄钟与待办事项数据
@@ -60,6 +61,9 @@ func _ready() -> void:
     
     gift_manager = preload("res://scripts/data/gift_manager.gd").new()
     add_child(gift_manager)
+    
+    story_time_manager = preload("res://scripts/data/story_time_manager.gd").new()
+    add_child(story_time_manager)
     
     config = ConfigResource.new()
     config.load_config()

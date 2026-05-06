@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://31rttm1jhadv"]
+import os
+
+tscn_content = """[gd_scene load_steps=5 format=3 uid="uid://31rttm1jhadv"]
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
-[ext_resource type="StyleBox" uid="uid://cx1g6j2n0v2t2" path="res://assets/themes/dialogue_panel_style.tres" id="2_dialogue_style"]
-[ext_resource type="StyleBox" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
-[ext_resource type="StyleBox" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
+[ext_resource type="StyleBox" uid="uid://dfdfdsf" path="res://assets/themes/dialogue_panel_style.tres" id="2_dialogue_style"]
+[ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
+[ext_resource type="StyleBox" uid="uid://dfdfdsh" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
 
 [node name="DialoguePanel" type="Control"]
 layout_mode = 3
@@ -16,14 +18,14 @@ script = ExtResource("1_script")
 
 [node name="DialogueLayer" type="PanelContainer" parent="."]
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
+anchors_preset = 14
+anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -220.0
-offset_bottom = -100.0
+anchor_bottom = 0.5
+offset_top = 60.0
+offset_bottom = 100.0
 grow_horizontal = 2
-grow_vertical = 0
+grow_vertical = 2
 theme_override_styles/panel = ExtResource("2_dialogue_style")
 
 [node name="VBox" type="VBoxContainer" parent="DialogueLayer"]
@@ -53,10 +55,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -81.0
-offset_top = -298.0
-offset_right = -11.0
-offset_bottom = -267.0
+offset_left = -84.0
+offset_top = -49.0
+offset_right = -34.0
+offset_bottom = -18.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
@@ -72,10 +74,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -81.0
-offset_top = -258.0
-offset_right = -11.0
-offset_bottom = -227.0
+offset_left = -102.0
+offset_top = -596.0
+offset_right = -12.0
+offset_bottom = -565.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.8, 0.3, 0.3, 1)
@@ -90,8 +92,8 @@ anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_top = -100.0
-offset_bottom = 100.0
+offset_top = 160.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -106,15 +108,16 @@ grow_vertical = 2
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 0
 
-[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer/ScrollContainer"]
+[node name="QuickOptions" type="HFlowContainer" parent="QuickOptionLayer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 15
 alignment = 1
 
 [node name="InputLayer" type="Panel" parent="."]
-self_modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -126,6 +129,7 @@ offset_right = -56.0
 offset_bottom = -29.0
 grow_horizontal = 2
 grow_vertical = 0
+self_modulate = Color(1, 1, 1, 0)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="InputLayer"]
 layout_mode = 1
@@ -148,6 +152,9 @@ size_flags_horizontal = 3
 theme_override_styles/normal = ExtResource("3_input_normal")
 theme_override_styles/focus = ExtResource("4_input_focus")
 placeholder_text = "输入你想说的话..."
+wrap_mode = 0
+scroll_fit_content_height = false
+scroll_past_end_of_file = false
 
 [node name="CharCountLabel" type="Label" parent="InputLayer/HBoxContainer/InputField"]
 layout_mode = 1
@@ -176,3 +183,8 @@ text = "🎙"
 custom_minimum_size = Vector2(80, 48)
 layout_mode = 2
 text = "发送"
+"""
+
+with open(r"f:\GODOT游戏模板\aigame\gal-chat\scenes\ui\common\dialogue_panel.tscn", "w", encoding="utf-8") as f:
+    f.write(tscn_content)
+print("Updated dialogue_panel.tscn")

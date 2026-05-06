@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
-[ext_resource type="Texture2D" uid="uid://bcdkhcyyge81x" path="res://assets/images/backgrounds/main/ChatGPT Image 2026年5月5日 23_22_45.png" id="2_fvueq"]
+[ext_resource type="Texture2D" uid="uid://bcdkhcyyge81x" path="res://assets/images/backgrounds/main/main_bg_0.png" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="Texture2D" uid="uid://cmji1qjdnsskj" path="res://assets/images/backgrounds/cankao/6567c9588637f3143ce8c8da263474f6.png" id="4_6odu6"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
@@ -49,7 +49,6 @@ mouse_filter = 2
 color = Color(0.12549, 0.12549, 0.164706, 1)
 
 [node name="MainBg" type="TextureRect" parent="."]
-visible = false
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
