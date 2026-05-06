@@ -12,6 +12,11 @@ func generate_diary_illustration(diary_id: String, prompt: String) -> void:
 
 func _generate_async(diary_id: String, prompt: String) -> void:
 	var start_time = Time.get_ticks_msec()
+	
+	if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
+		image_generation_failed.emit.call_deferred(diary_id, "Image generation is disabled in settings.")
+		return
+		
 	var api_key = ""
 	var model = "doubao-seedream-5-0-260128"
 	

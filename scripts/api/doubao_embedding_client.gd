@@ -6,6 +6,9 @@ signal embedding_completed(result: Array)
 signal embedding_failed(error_msg: String)
 
 func get_embedding(text: String) -> Array:
+	if not GameDataManager.config.embedding_enabled:
+		return []
+		
 	var api_key = GameDataManager.config.doubao_embedding_api_key
 	var model = GameDataManager.config.doubao_embedding_model
 	

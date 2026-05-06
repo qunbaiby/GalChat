@@ -7,30 +7,20 @@ func _ready() -> void:
 	pass
 
 # ==========================================
-# 核心三维计算 (体、智、魅)
-# 根据公式：向下取整
+# 核心四维计算 (体、智、魅、感)
 # ==========================================
 
 func get_core_physical(profile: CharacterProfile) -> int:
-	# 体 = ⌊（身体素质×0.6 + 体能活力×0.4）÷ 10⌋
-	var physical_fitness = profile.physical_fitness
-	var vitality = profile.vitality
-	var raw_val = (physical_fitness * 0.6 + vitality * 0.4) / 10.0
-	return int(floor(raw_val))
+	return int(floor(profile.stat_stamina + profile.stat_body_management + profile.stat_focus + profile.stat_rhythm))
 
 func get_core_intelligence(profile: CharacterProfile) -> int:
-	# 智 = ⌊（学业素养×0.5 + 知识储备×0.5）÷ 10⌋
-	var academic_quality = profile.academic_quality
-	var knowledge_reserve = profile.knowledge_reserve
-	var raw_val = (academic_quality * 0.5 + knowledge_reserve * 0.5) / 10.0
-	return int(floor(raw_val))
+	return int(floor(profile.stat_artistic_literacy + profile.stat_verbal_expression + profile.stat_planning + profile.stat_art_theory))
 
 func get_core_charm(profile: CharacterProfile) -> int:
-	# 魅 = ⌊（社交情商×0.5 + 创意审美×0.5）÷ 8⌋
-	var social_eq = profile.social_eq
-	var creative_aesthetics = profile.creative_aesthetics
-	var raw_val = (social_eq * 0.5 + creative_aesthetics * 0.5) / 8.0
-	return int(floor(raw_val))
+	return int(floor(profile.stat_temperament + profile.stat_manner + profile.stat_emotional_infection + profile.stat_stage_performance))
+
+func get_core_sensibility(profile: CharacterProfile) -> int:
+	return int(floor(profile.stat_empathy + profile.stat_inspiration + profile.stat_aesthetics + profile.stat_art_perception))
 
 # ==========================================
 # 基础属性增加

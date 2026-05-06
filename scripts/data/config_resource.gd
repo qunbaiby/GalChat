@@ -7,6 +7,9 @@ var temperature: float = 0.7
 var max_tokens: int = 2048
 var ai_mode_enabled: bool = true
 
+# 豆包对话模型配置 (Doubao Chat)
+var doubao_chat_api_key: String = ""
+
 # 语音相关配置
 var doubao_app_id: String = "2557182005"
 var doubao_token: String = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
@@ -20,15 +23,19 @@ var character_voice_types: Dictionary = {
 var voice_enabled: bool = true
 
 # 向量模型配置 (Doubao Embedding)
+var embedding_enabled: bool = true
 var doubao_embedding_api_key: String = ""
 var doubao_embedding_model: String = "ep-xxxxxx"
 
 # 多模态视觉模型配置 (Vision Model)
+var vision_enabled: bool = true
 var vision_api_key: String = ""
 var vision_model: String = "ep-xxxxxx"
 var vision_base_url: String = "https://ark.cn-beijing.volces.com/api/v3"
 
 # 图像生成配置 (Image Generation)
+var image_generation_enabled: bool = true
+var default_image_path: String = "res://assets/graphics/bg/default_bg.jpg"
 var openai_image_api_key: String = ""
 var image_generation_provider: int = 0 # 0: OpenAI, 1: Doubao
 var doubao_image_api_key: String = ""
@@ -56,6 +63,7 @@ const CONFIG_PATH = "user://config.json"
 func save_config() -> void:
     var data = {
         "api_key": api_key,
+        "doubao_chat_api_key": doubao_chat_api_key,
         "model": model,
         "temperature": temperature,
         "max_tokens": max_tokens,
@@ -65,11 +73,15 @@ func save_config() -> void:
         "doubao_cluster": doubao_cluster,
         "character_voice_types": character_voice_types,
         "voice_enabled": voice_enabled,
+        "embedding_enabled": embedding_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
         "doubao_embedding_model": doubao_embedding_model,
+        "vision_enabled": vision_enabled,
         "vision_api_key": vision_api_key,
         "vision_model": vision_model,
         "vision_base_url": vision_base_url,
+        "image_generation_enabled": image_generation_enabled,
+        "default_image_path": default_image_path,
         "openai_image_api_key": openai_image_api_key,
         "image_generation_provider": image_generation_provider,
         "doubao_image_api_key": doubao_image_api_key,
@@ -103,6 +115,7 @@ func load_config() -> void:
             var data = json.get_data()
             if data is Dictionary:
                 api_key = data.get("api_key", api_key)
+                doubao_chat_api_key = data.get("doubao_chat_api_key", doubao_chat_api_key)
                 model = data.get("model", model)
                 temperature = data.get("temperature", temperature)
                 max_tokens = data.get("max_tokens", max_tokens)
@@ -120,11 +133,15 @@ func load_config() -> void:
                     character_voice_types["luna"] = data["doubao_voice_type"]
                 
                 voice_enabled = data.get("voice_enabled", voice_enabled)
+                embedding_enabled = data.get("embedding_enabled", embedding_enabled)
                 doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)
                 doubao_embedding_model = data.get("doubao_embedding_model", doubao_embedding_model)
+                vision_enabled = data.get("vision_enabled", vision_enabled)
                 vision_api_key = data.get("vision_api_key", vision_api_key)
                 vision_model = data.get("vision_model", vision_model)
                 vision_base_url = data.get("vision_base_url", vision_base_url)
+                image_generation_enabled = data.get("image_generation_enabled", image_generation_enabled)
+                default_image_path = data.get("default_image_path", default_image_path)
                 openai_image_api_key = data.get("openai_image_api_key", openai_image_api_key)
                 image_generation_provider = int(data.get("image_generation_provider", image_generation_provider))
                 doubao_image_api_key = data.get("doubao_image_api_key", doubao_image_api_key)

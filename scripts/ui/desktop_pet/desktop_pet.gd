@@ -338,7 +338,7 @@ func _check_active_window() -> void:
         
         # 尝试截图 (优先截取当前活动窗口)
         var base64_image = ""
-        if not GameDataManager.config.vision_api_key.is_empty():
+        if GameDataManager.config.vision_enabled and not GameDataManager.config.vision_api_key.is_empty():
             if _window_detector.has_method("CaptureForegroundWindowToBase64"):
                 base64_image = _window_detector.call("CaptureForegroundWindowToBase64")
             elif _window_detector.has_method("CaptureScreenToBase64"):

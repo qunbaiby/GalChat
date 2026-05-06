@@ -1,5 +1,6 @@
-[gd_scene load_steps=19 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=20 format=3 uid="uid://bl0bceh1xgj74"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="Texture2D" uid="uid://bcdkhcyyge81x" path="res://assets/images/backgrounds/main/ChatGPT Image 2026年5月5日 23_22_45.png" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
@@ -35,6 +36,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme = ExtResource("1_6p2kk")
 script = ExtResource("1_main")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -47,6 +49,7 @@ mouse_filter = 2
 color = Color(0.12549, 0.12549, 0.164706, 1)
 
 [node name="MainBg" type="TextureRect" parent="."]
+visible = false
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -157,10 +160,10 @@ text = "待办日程"
 
 [node name="MusicPlayer" parent="UIPanel" instance=ExtResource("10_music_player")]
 layout_mode = 0
-offset_left = 28.0
-offset_top = 388.0
-offset_right = 328.0
-offset_bottom = 448.0
+offset_left = 11.0
+offset_top = 324.0
+offset_right = 311.0
+offset_bottom = 384.0
 theme = null
 
 [node name="ActivityButton" type="Button" parent="UIPanel"]
@@ -229,11 +232,10 @@ theme = null
 
 [node name="StatsPanel" parent="UIPanel" instance=ExtResource("2_stats")]
 layout_mode = 1
-offset_left = 26.0
-offset_top = -236.0
-offset_right = 392.0
+offset_left = 9.0
+offset_top = -318.0
+offset_right = 451.0
 offset_bottom = -23.0
-theme = null
 
 [node name="SystemButton" type="VBoxContainer" parent="UIPanel"]
 layout_mode = 1
@@ -261,10 +263,6 @@ icon = ExtResource("7_eye")
 icon_alignment = 1
 expand_icon = true
 
-[node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]
-visible = false
-layout_mode = 1
-
 [node name="DiaryNotification" type="PanelContainer" parent="UIPanel"]
 layout_mode = 1
 anchors_preset = 6
@@ -290,10 +288,10 @@ layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 416.0
-offset_top = -201.0
-offset_right = 616.0
-offset_bottom = -11.0
+offset_left = 477.0
+offset_top = -220.0
+offset_right = 677.0
+offset_bottom = -30.0
 grow_vertical = 2
 theme_override_constants/separation = 20
 
@@ -309,11 +307,21 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "心灵疗愈"
 
+[node name="CookButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "做饭"
+
 [node name="RestButton" type="Button" parent="UIPanel/InteractGroup"]
 custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "休息"
+
+[node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]
+visible = false
+layout_mode = 1
 
 [node name="TopicPanel" type="Panel" parent="."]
 visible = false

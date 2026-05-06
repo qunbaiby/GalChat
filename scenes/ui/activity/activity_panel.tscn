@@ -226,11 +226,6 @@ custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 text = "体育"
 
-[node name="TabAcademic" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-text = "学术"
-
 [node name="TabContainer" type="TabContainer" parent="Panel/Margin/MainHBox/RightPanel"]
 layout_mode = 2
 size_flags_vertical = 3

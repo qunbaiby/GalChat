@@ -201,4 +201,11 @@ func _on_confirm_pressed() -> void:
 		"profession": "创奇引路人"
 	}
 	
+	# 保存至核心记忆
+	if GameDataManager.memory_manager:
+		var core_mem1 = "玩家的真实姓名是：%s，希望我称呼其为：%s" % [name_text, title_text]
+		var core_mem2 = "玩家的生理性别是：%s，生日是：%s（%s），MBTI人格类型为：%s" % [gender_text, player_info["birthday"], zodiac_label.text, selected_mbti]
+		GameDataManager.memory_manager.add_memory("core", core_mem1)
+		GameDataManager.memory_manager.add_memory("core", core_mem2)
+	
 	info_submitted.emit()

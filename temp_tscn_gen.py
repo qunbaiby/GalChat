@@ -1,10 +1,20 @@
 [gd_scene load_steps=12 format=3 uid="uid://esq41rrjvxf3"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://cgfv6p5l654kr" path="res://scripts/ui/stats/stats_panel.gd" id="1_stats"]
-[ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
-[ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
-[ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="tex_core_physical"]
+[ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
+[ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
+[ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(0.980392, 0.952941, 0.909804, 1)
+border_width_bottom = 2
+border_color = Color(0.831373, 0.768627, 0.658824, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarBg"]
 bg_color = Color(0.878431, 0.878431, 0.878431, 1)
@@ -13,15 +23,15 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
+color = Color(0.831373, 0.768627, 0.658824, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Phys"]
 bg_color = Color(0.905882, 0.435294, 0.317647, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
-color = Color(0.831373, 0.768627, 0.658824, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Int"]
 bg_color = Color(0.164706, 0.615686, 0.560784, 1)
@@ -52,6 +62,7 @@ offset_top = -213.0
 offset_right = 462.0
 offset_bottom = 3.0
 grow_vertical = 0
+theme = ExtResource("1_theme")
 script = ExtResource("1_stats")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -73,6 +84,7 @@ columns = 2
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Physical"]
 layout_mode = 2
@@ -226,6 +238,7 @@ text = "0"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence"]
 layout_mode = 2
@@ -379,6 +392,7 @@ text = "0"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Charm"]
 layout_mode = 2
@@ -532,6 +546,7 @@ text = "0"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Sensibility"]
 layout_mode = 2

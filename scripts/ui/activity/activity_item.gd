@@ -33,6 +33,10 @@ func setup(act_data: Dictionary) -> void:
 		
 	if act_data.has("icon_path") and act_data.icon_path != "":
 		var tex = load(act_data.icon_path)
+		if not tex:
+			var img = Image.new()
+			if img.load(ProjectSettings.globalize_path(act_data.icon_path)) == OK:
+				tex = ImageTexture.create_from_image(img)
 		if tex:
 			icon_rect.texture = tex
 

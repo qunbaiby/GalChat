@@ -358,6 +358,9 @@ func _play_intro_story() -> void:
 	# Finish intro story
 	_intro_playing = false
 	
+	# 设置刚刚完成开篇剧情的标记，供 main_scene 读取
+	GameDataManager.set_meta("just_finished_intro_story", true)
+	
 	# 淡入显示输入面板
 	input_layer.modulate.a = 0.0
 	input_layer.show()
@@ -1437,10 +1440,10 @@ func _process_single_message_line_async(raw_line: String, char_name: String) -> 
 	var display_text = clean_text
 	var color_regex_zh = RegEx.new()
 	color_regex_zh.compile("（(.*?)）")
-	display_text = color_regex_zh.sub(display_text, "[color=#aaaaaa]（$1）[/color]", true)
+	display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
 	var color_regex_en = RegEx.new()
 	color_regex_en.compile("\\((.*?)\\)")
-	display_text = color_regex_en.sub(display_text, "[color=#aaaaaa]($1)[/color]", true)
+	display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
 	
 	await _show_message_async(display_text, char_name, false, tts_text)
 

@@ -67,7 +67,16 @@ func _start_typewriter():
         _finish_single_line()
         return
         
-    rich_text_label.text = current_text
+    var display_text = current_text
+    var color_regex_zh = RegEx.new()
+    color_regex_zh.compile("（(.*?)）")
+    display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
+    var color_regex_en = RegEx.new()
+    color_regex_en.compile("\\((.*?)\\)")
+    display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
+        
+    rich_text_label.bbcode_enabled = true
+    rich_text_label.text = display_text
     rich_text_label.visible_ratio = 0.0
     
     if _typewriter_tween:

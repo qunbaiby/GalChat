@@ -1,7 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cycb3x2x4y5v1"]
 
-[ext_resource type="Script" path="res://scripts/ui/settings/settings_scene.gd" id="1_sc123"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://c2letthx3s2k7" path="res://scripts/ui/settings/settings_scene.gd" id="1_sc123"]
 
 [node name="SettingsScene" type="Control"]
 layout_mode = 3
@@ -11,7 +10,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_sc123")
-theme = ExtResource("1_theme")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -71,224 +69,453 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="AI 设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+[node name="AI 设置" type="MarginContainer" parent="ScrollContainer/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+metadata/_tab_index = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ScrollContainer/TabContainer/AI 设置"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
-[node name="APISectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="API 设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-text = "--- API 设置 ---"
-horizontal_alignment = 1
 
-[node name="ApiLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "API 设置"
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="ApiKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "DeepSeek API Key"
 
-[node name="ApiKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ApiKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 secret = true
 
-[node name="ModelLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="DoubaoChatKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "豆包 Chat API Key"
+
+[node name="DoubaoChatKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+secret = true
+
+[node name="ModelOptionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "模型选择"
 
-[node name="ModelOption" type="OptionButton" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ModelOption" type="OptionButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 item_count = 2
 popup/item_0/text = "deepseek-chat"
 popup/item_0/id = 0
 popup/item_1/text = "deepseek-coder"
 popup/item_1/id = 1
 
-[node name="TempLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="TempSliderLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "Temperature"
 
-[node name="TempSlider" type="HSlider" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="TempSlider" type="HSlider" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 min_value = 0.2
 max_value = 1.0
 step = 0.1
 value = 0.7
 
-[node name="TokensLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="TokensSpinBoxLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "最大 Tokens"
 
-[node name="TokensSpinBox" type="SpinBox" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="TokensSpinBox" type="SpinBox" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 100.0
 max_value = 4096.0
 value = 2048.0
 
-[node name="AIModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="AIModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "启用 AI 模式"
+
+[node name="AIModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 button_pressed = true
 
-[node name="ClearHistoryBtn" type="Button" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ClearHistoryBtnEmpty" type="Control" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
+
+[node name="ClearHistoryBtn" type="Button" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 text = "清除聊天记录"
 
-[node name="HSeparator1" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="语音设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
 
-[node name="VoiceSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel"]
 layout_mode = 2
-text = "--- 语音设置 ---"
-horizontal_alignment = 1
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
-[node name="VoiceModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "语音设置"
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="VoiceModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "启用语音合成 (TTS)"
+
+[node name="VoiceModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 button_pressed = true
 
-[node name="AppIdLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="AppIdInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "豆包 App ID"
 
-[node name="AppIdInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="AppIdInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "2557182005"
 
-[node name="TokenLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="TokenInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "豆包 Access Token"
 
-[node name="TokenInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="TokenInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
-secret = true
+size_flags_horizontal = 3
 text = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
+secret = true
 
-[node name="ClusterLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ClusterInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "豆包 Cluster"
 
-[node name="ClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "volcano_tts"
 
-[node name="HSeparator2" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="向量记忆设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
 
-[node name="VectorSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel"]
 layout_mode = 2
-text = "--- 向量设置 ---"
-horizontal_alignment = 1
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
-[node name="EmbedKeyLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "向量记忆设置"
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="EmbedModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "启用向量记忆 (Embedding)"
+
+[node name="EmbedModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+
+[node name="EmbedKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "豆包 Embedding API Key"
 
-[node name="EmbedKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="EmbedKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 secret = true
 
-[node name="EmbedModelLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="EmbedModelInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "Embedding 模型名称"
 
-[node name="EmbedModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="EmbedModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "ep-xxxxxx"
 
-[node name="HSeparator3" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="多模态视觉设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
 
-[node name="VisionSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel"]
 layout_mode = 2
-text = "--- 多模态视觉设置 ---"
-horizontal_alignment = 1
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
-[node name="VisionKeyLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "多模态视觉设置"
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="VisionModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "启用多模态视觉 (Vision)"
+
+[node name="VisionModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+
+[node name="VisionKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "视觉模型 API Key"
 
-[node name="VisionKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VisionKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 secret = true
 
-[node name="VisionModelLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VisionModelInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
-text = "视觉模型名称 (接入点 ep-xxx)"
+text = "视觉模型名称 (接入点)"
 
-[node name="VisionModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VisionModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "ep-xxxxxx"
 
-[node name="VisionBaseUrlLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VisionBaseUrlInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "视觉模型 Base URL"
 
-[node name="VisionBaseUrlInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VisionBaseUrlInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "https://ark.cn-beijing.volces.com/api/v3"
 
-[node name="HSeparator4" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="图像生成设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
 
-[node name="ImageSectionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel"]
 layout_mode = 2
-text = "--- 图像生成设置 ---"
-horizontal_alignment = 1
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
-[node name="ImageProviderLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "图像生成设置"
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="ImageGenModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "启用图像生成"
+
+[node name="ImageGenModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+
+[node name="DefaultImagePathInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "默认占位图片路径"
+
+[node name="DefaultImagePathInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "res://assets/graphics/bg/default_bg.jpg"
+
+[node name="ImageProviderOptionLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "图像生成模型"
 
-[node name="ImageProviderOption" type="OptionButton" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ImageProviderOption" type="OptionButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 item_count = 2
 popup/item_0/text = "OpenAI (DALL-E)"
 popup/item_0/id = 0
 popup/item_1/text = "豆包 (Doubao)"
 popup/item_1/id = 1
 
-[node name="ImageKeyLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ImageKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "ChatGPT Image2 API Key"
 
-[node name="ImageKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="ImageKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 secret = true
 
-[node name="DoubaoImageKeyLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="DoubaoImageKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "豆包图像生成 API Key"
 
-[node name="DoubaoImageKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="DoubaoImageKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 secret = true
 
-[node name="DoubaoImageModelLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="DoubaoImageModelInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
-text = "豆包图像生成模型 (接入点)"
+text = "豆包图像生成模型"
 
-[node name="DoubaoImageModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="DoubaoImageModelInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "doubao-seedream-5-0-260128"
 
-[node name="EnableAiIllustrationCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置"]
+[node name="EnableAiIllustrationCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "启用 AI 日记插画"
+
+[node name="EnableAiIllustrationCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 button_pressed = true
 
-[node name="画面设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+[node name="画面设置" type="MarginContainer" parent="ScrollContainer/TabContainer"]
 visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+metadata/_tab_index = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/TabContainer/画面设置"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="ResolutionLabel" type="Label" parent="ScrollContainer/TabContainer/画面设置"]
+[node name="ResolutionLabel" type="Label" parent="ScrollContainer/TabContainer/画面设置/VBoxContainer"]
 layout_mode = 2
 text = "分辨率"
 
-[node name="ResolutionOption" type="OptionButton" parent="ScrollContainer/TabContainer/画面设置"]
+[node name="ResolutionOption" type="OptionButton" parent="ScrollContainer/TabContainer/画面设置/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 item_count = 4
 popup/item_0/text = "1280x720"
@@ -300,11 +527,12 @@ popup/item_2/id = 2
 popup/item_3/text = "全屏幕"
 popup/item_3/id = 3
 
-[node name="FPSLabel" type="Label" parent="ScrollContainer/TabContainer/画面设置"]
+[node name="FPSLabel" type="Label" parent="ScrollContainer/TabContainer/画面设置/VBoxContainer"]
 layout_mode = 2
 text = "画面帧数"
 
-[node name="FPSOption" type="OptionButton" parent="ScrollContainer/TabContainer/画面设置"]
+[node name="FPSOption" type="OptionButton" parent="ScrollContainer/TabContainer/画面设置/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 item_count = 3
 popup/item_0/text = "30 FPS"
@@ -314,38 +542,50 @@ popup/item_1/id = 1
 popup/item_2/text = "120 FPS"
 popup/item_2/id = 2
 
-[node name="VsyncCheck" type="CheckButton" parent="ScrollContainer/TabContainer/画面设置"]
+[node name="VsyncCheck" type="CheckButton" parent="ScrollContainer/TabContainer/画面设置/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "垂直同步"
 button_pressed = true
+text = "垂直同步"
 
-[node name="声音设置" type="VBoxContainer" parent="ScrollContainer/TabContainer"]
+[node name="声音设置" type="MarginContainer" parent="ScrollContainer/TabContainer"]
 visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+metadata/_tab_index = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/TabContainer/声音设置"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="BGMLabel" type="Label" parent="ScrollContainer/TabContainer/声音设置"]
+[node name="BGMLabel" type="Label" parent="ScrollContainer/TabContainer/声音设置/VBoxContainer"]
 layout_mode = 2
 text = "背景音乐 (BGM)"
 
-[node name="BGMSlider" type="HSlider" parent="ScrollContainer/TabContainer/声音设置"]
+[node name="BGMSlider" type="HSlider" parent="ScrollContainer/TabContainer/声音设置/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
 
-[node name="VoiceLabel" type="Label" parent="ScrollContainer/TabContainer/声音设置"]
+[node name="VoiceLabel" type="Label" parent="ScrollContainer/TabContainer/声音设置/VBoxContainer"]
 layout_mode = 2
 text = "角色语音"
 
-[node name="VoiceSlider" type="HSlider" parent="ScrollContainer/TabContainer/声音设置"]
+[node name="VoiceSlider" type="HSlider" parent="ScrollContainer/TabContainer/声音设置/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
 
-[node name="VoiceTypeContainer" type="VBoxContainer" parent="ScrollContainer/TabContainer/声音设置"]
+[node name="VoiceTypeContainer" type="VBoxContainer" parent="ScrollContainer/TabContainer/声音设置/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
