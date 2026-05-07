@@ -1,10 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://b0y0v56ph6xgh"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://chfj5llffey4p" path="res://scripts/ui/mobile/chat/video_call_panel.gd" id="1_script"]
-[ext_resource type="SpineSkeletonDataResource" uid="uid://c02dfdata123" path="res://assets/spine/C02_DF/C02_DF_data.tres" id="2_1w88p"]
-[ext_resource type="Texture2D" uid="uid://b3etrvhj3jr3m" path="res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png" id="2_noiyw"]
-[ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="3_asr"]
+[ext_resource type="SpineSkeletonDataResource" path="res://assets/spine/C06_DF/C06_DF_data.tres" id="2_1w88p"]
+[ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png" id="2_noiyw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VideoBg"]
 bg_color = Color(0.050980393, 0.050980393, 0.050980393, 0.6313726)
@@ -33,7 +31,6 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-theme = ExtResource("2_theme")
 [node name="BackgroundTex" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -65,10 +62,11 @@ grow_vertical = 2
 [node name="SpineSprite" type="SpineSprite" parent="Panel/SpineContainer"]
 skeleton_data_res = ExtResource("2_1w88p")
 preview_skin = "default"
+preview_animation = "-- Empty --"
 preview_frame = false
 preview_time = 0.0
-position = Vector2(177, 821.00006)
-scale = Vector2(0.15, 0.15)
+position = Vector2(182, 456.00006)
+scale = Vector2(0.6, 0.6)
 
 [node name="VBox" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
@@ -146,5 +144,3 @@ layout_mode = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
-[node name="LocalWhisperASR" type="SpeechToText" parent="."]
-script = ExtResource("3_asr")

@@ -16,7 +16,8 @@ extends Window
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
 @onready var mic_capture: AudioStreamPlayer = $MicCapture
 
-@onready var local_whisper_asr = get_node_or_null("LocalWhisperASR")
+
+var qwen_asr_client = null
 @onready var pet_body = get_node_or_null("Control/PetBody")
 
 var dragging: bool = false
@@ -92,9 +93,14 @@ func _ready() -> void:
     voice_record_button.button_down.connect(_on_voice_record_down)
     voice_record_button.button_up.connect(_on_voice_record_up)
     
-    if local_whisper_asr:
-        local_whisper_asr.transcribe_completed.connect(_on_asr_success)
-        local_whisper_asr.transcribe_failed.connect(_on_asr_failed)
+    if GameDataManager.config.qwen_asr_enabled:
+        var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
+        if QwenASRClient:
+            qwen_asr_client = QwenASRClient.new()
+            qwen_asr_client.name = "QwenASRClient"
+            add_child(qwen_asr_client)
+            qwen_asr_client.transcribe_completed.connect(_on_asr_success)
+            qwen_asr_client.transcribe_failed.connect(_on_asr_failed)
         
     # 注意：TextEdit 没有 text_submitted，因此我们需要在 _input 里面监听回车或者单独处理。这里先移除之前的 line_edit 特有信号。
     # 监听 text_changed 拦截换行
@@ -219,17 +225,16 @@ func _on_voice_record_down() -> void:
     voice_record_button.modulate = Color(0.8, 0.2, 0.2)
     if mic_capture:
         mic_capture.play()
-    if local_whisper_asr:
-        local_whisper_asr.start_recording()
+    if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
+        qwen_asr_client.start_recording()
 
 func _on_voice_record_up() -> void:
     voice_record_button.text = "🎙"
     voice_record_button.modulate = Color(1, 1, 1)
     if mic_capture:
         mic_capture.stop()
-    if local_whisper_asr:
-        # Toast feedback could be added here if you have a toast system for the pet.
-        local_whisper_asr.stop_recording()
+    if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
+        qwen_asr_client.stop_recording()
 
 func _on_asr_success(text: String) -> void:
     if not text.is_empty():

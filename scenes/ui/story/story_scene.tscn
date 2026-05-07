@@ -1,14 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=11 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
-[ext_resource type="Texture2D" uid="uid://5t4drr45b30t" path="res://assets/images/backgrounds/main/main_bg_1.png" id="2_e410j"]
 [ext_resource type="Texture2D" uid="uid://cxe1scobxnrj6" path="res://assets/images/backgrounds/cankao/暴食對話框.png" id="3_7ns7o"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_buqdj"]
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="13_dialogue"]
-[ext_resource type="Script" uid="uid://blpt265d26pup" path="res://scripts/api/local_whisper_asr.gd" id="local_whisper_asr"]
-[ext_resource type="WhisperResource" uid="uid://y56yegog26y3" path="res://addons/godot_whisper/models/ggml-large-v3.bin" id="whisper_model_base"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
 content_margin_left = 20.0
@@ -40,17 +37,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 expand_mode = 1
-
-[node name="BedroomMorning" type="TextureRect" parent="."]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("2_e410j")
-expand_mode = 1
-stretch_mode = 6
 
 [node name="2#55673" type="Sprite2D" parent="."]
 visible = false
@@ -157,10 +143,6 @@ fit_content = true
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("3_buqdj")
 
-[node name="LocalWhisperASR" type="SpeechToText" parent="."]
-language = 2
-language_model = ExtResource("whisper_model_base")
-script = ExtResource("local_whisper_asr")
 
 [node name="MicCapture" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamMicrophone_1")

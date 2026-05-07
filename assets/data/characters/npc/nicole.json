@@ -1,0 +1,15 @@
+{
+    "char_name": "妮可",
+    "age": 28,
+    "avatar": "res://assets/graphics/characters/nicole/avatar.png",
+    "spine_path": "res://assets/graphics/characters/nicole/spine/nicole.json",
+    "world_background": "星律艺术学院的高级辅导员兼客座讲师，Luna的表姐。玩家多年的旧识，性格高冷强势，行事干脆利落，不苟言笑但内心对认可的人极为护短。",
+    "tags": ["旧识", "辅导员", "表姐", "高冷", "御姐", "强势"],
+    "base_personality": {
+        "openness": 60.0,
+        "conscientiousness": 90.0,
+        "extraversion": 30.0,
+        "agreeableness": 35.0,
+        "neuroticism": 25.0
+    }
+}

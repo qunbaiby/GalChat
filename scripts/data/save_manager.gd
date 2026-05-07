@@ -55,12 +55,15 @@ func get_save_slots() -> Array:
 
 func save_game(slot_id: String) -> bool:
     # 1. 强制各模块把当前数据保存到活动目录
-    if GameDataManager.profile:
-        GameDataManager.profile.save_profile()
-    if GameDataManager.history:
-        GameDataManager.history.save_history()
-    if GameDataManager.memory_manager:
-        GameDataManager.memory_manager.save_memory()
+    if GameDataManager.profile and not GameDataManager.profile.save_profile():
+        printerr("[SaveManager] Failed to save profile, aborting save_game.")
+        return false
+    if GameDataManager.history and not GameDataManager.history.save_history():
+        printerr("[SaveManager] Failed to save history, aborting save_game.")
+        return false
+    if GameDataManager.memory_manager and not GameDataManager.memory_manager.save_memory():
+        printerr("[SaveManager] Failed to save memory, aborting save_game.")
+        return false
         
     # 2. 准备槽位目录
     var slots_dir = get_slots_dir()
@@ -81,7 +84,10 @@ func save_game(slot_id: String) -> bool:
     if dir:
         for f in files_to_copy:
             if FileAccess.file_exists(active_dir + f):
-                dir.copy(active_dir + f, slot_dir + f)
+                var copy_result = dir.copy(active_dir + f, slot_dir + f)
+                if copy_result != OK:
+                    printerr("[SaveManager] Failed to copy file: ", f, ", error code: ", copy_result)
+                    return false
                 
     # 4. 生成 meta.json
     var meta = {

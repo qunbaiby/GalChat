@@ -45,7 +45,6 @@ project/assembly_name="GalChat"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_whisper/plugin.cfg")
 
 [file_customization]
 

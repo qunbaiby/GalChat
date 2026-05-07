@@ -392,7 +392,7 @@ func consume_energy(amount: float) -> bool:
         return true
     return false
 
-func save_profile() -> void:
+func save_profile() -> bool:
     var data = {
         "player_name": player_name,
         "player_title": player_title,
@@ -431,7 +431,7 @@ func save_profile() -> void:
         "finished_stories": finished_stories
     }
     var content = JSON.stringify(data, "\t")
-    SafeFileAccess.store_string(get_profile_path(), content)
+    return SafeFileAccess.store_string(get_profile_path(), content)
 
 func get_diaries() -> Array:
     return diaries

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c2letthx3s2k7" path="res://scripts/ui/settings/settings_scene.gd" id="1_sc123"]
 
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_Settings"]
+
 [node name="SettingsScene" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -264,6 +266,47 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "volcano_tts"
+
+[node name="AsrModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "启用千问流式语音识别 (ASR)"
+
+[node name="AsrModeCheck" type="CheckButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AsrClusterInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "千问 ASR API Key"
+
+[node name="AsrClusterInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+secret = true
+text = ""
+
+[node name="AsrTestLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "语音识别测试"
+
+[node name="AsrTestContainer" type="HBoxContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AsrTestButton" type="Button" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid/AsrTestContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "按住说话"
+
+[node name="AsrTestOutput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid/AsrTestContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+placeholder_text = "识别结果将显示在这里..."
 
 [node name="向量记忆设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
@@ -602,4 +645,12 @@ offset_right = -20.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
-text = "保存并返回"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "保存并应用"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="MicCapture" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamMicrophone_Settings")
+bus = &"Record"

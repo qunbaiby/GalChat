@@ -61,6 +61,16 @@ func _on_action_pressed() -> void:
 
 func _on_delete_pressed() -> void:
     if not is_empty:
-        GameDataManager.save_manager.delete_save(current_slot_id)
-        # 通知上层刷新
-        get_parent().get_parent().get_parent().get_parent().refresh_list()
+        var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
+        if confirm_scene:
+            var dialog = confirm_scene.instantiate()
+            # Find a suitable parent to add the dialog to (usually the root UI or the save panel)
+            var root = get_tree().get_root()
+            root.add_child(dialog)
+            dialog.setup("确定要删除这个存档吗？\n此操作不可撤销。", "删除", "取消")
+            
+            dialog.confirmed.connect(func():
+                GameDataManager.save_manager.delete_save(current_slot_id)
+                # 通知上层刷新
+                get_parent().get_parent().get_parent().get_parent().refresh_list()
+            )

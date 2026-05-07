@@ -4,36 +4,33 @@
         "start": {
             "events": [
                 {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "时光悄然滑过一千多个日夜，三年前的那场意外仍在我心底隐隐作痛。"
-                },
-                {
-                    "type": "show_player_info_popup"
+                    "type": "background",
+                    "bg_path": "res://assets/images/backgrounds/main/main_bg_1.png",
+                    "fade_time": 1.0
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "自从卸下“心灵护航师”的身份，我把自己关在这间工作室里，试图与过往的自责和解。"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "直到今天，好友Nicole——星律艺术学院的辅导员，硬是给我打来了一通电话。"
+                    "content": "一个月前，工作室的安静被一通电话打破，电话那头是许久未见的好友妮可，语气里满是熟稔的暖意与急切。"
                 },
                 {
                     "type": "voice_call",
-                    "call_id": "intro_call_ya"
+                    "call_id": "intro_call_nicole"
+                },
+                {
+                    "type": "background",
+                    "bg_path": "res://assets/images/story/cg/story_cg_0.png",
+                    "fade_time": 1.0
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "挂断电话，推开门，一个女孩正垂首站在门外。她紧紧抱着画板和速写本，眼神中透着大三学生特有的对未来的迷茫与不安。"
+                    "content": "话音刚落，不等我开口回应，妮可便轻快地挂断了电话。下一秒，工作室的门铃轻轻响起，清脆又带着几分小心翼翼。"
                 },
                 {
                     "type": "dialogue",
-                    "speaker": "player",
-                    "content": "是Nicole让你来的吧？别在外面站着了，进来吧。"
+                    "speaker": "旁白",
+                    "content": "我起身开门，暖光恰好落在门口少女的身上——Luna安静地立着，指尖紧紧攥着衣角，眉眼间藏着藏不住的拘谨与落寞，眼神怯生生的，却又带着一丝期待。"
                 },
                 {
                     "type": "show_character",
@@ -42,21 +39,14 @@
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "老师您好，我叫Luna，是星律艺术学院大三的学生……Nicole老师说，您是全星律市最优秀的护航师。"
+                    "content": "您好，请问这里是星律工作室吗？我叫Luna，是妮可老师推荐我来的，这是……这是她帮我准备好的委托书。"
                 },
                 {
-                    "type": "dialogue",
-                    "speaker": "luna",
-                    "content": "我……我对毕业和未来感到很迷茫，甚至有点害怕。希望您能指导我，可以吗？"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "（看着她忐忑却又带着一丝期盼的模样，我深吸了一口气，尘封三年的工作笔记，终于要再次翻开了。）"
+                    "type": "show_player_info_popup"
                 },
                 {
                     "type": "start_free_chat",
-                    "strategy": "请以心灵护航师的身份，温和地询问luna在星律艺术学院遇到的迷茫或学业压力，并给出初步的安慰与接纳。",
+                    "strategy": "玩家刚刚收下了妮可带来的委托书，同意指导Luna。请以Luna的身份，带着感激又有点怯生生的语气，向玩家做个简单的自我介绍，并表达自己对未来的迷茫。",
                     "max_rounds": 5
                 }
             ]

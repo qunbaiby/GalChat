@@ -15,6 +15,9 @@ var doubao_app_id: String = "2557182005"
 var doubao_token: String = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
 var doubao_cluster: String = "volcano_tts"
 
+var qwen_asr_enabled: bool = false
+var qwen_asr_api_key: String = ""
+
 # 角色独立音色配置，key 为 char_id，value 为音色 ID
 var character_voice_types: Dictionary = {
     "luna": "ICL_zh_female_bingruoshaonv_tob",
@@ -71,6 +74,8 @@ func save_config() -> void:
         "doubao_app_id": doubao_app_id,
         "doubao_token": doubao_token,
         "doubao_cluster": doubao_cluster,
+        "qwen_asr_enabled": qwen_asr_enabled,
+        "qwen_asr_api_key": qwen_asr_api_key,
         "character_voice_types": character_voice_types,
         "voice_enabled": voice_enabled,
         "embedding_enabled": embedding_enabled,
@@ -123,8 +128,8 @@ func load_config() -> void:
                 doubao_app_id = data.get("doubao_app_id", doubao_app_id)
                 doubao_token = data.get("doubao_token", doubao_token)
                 doubao_cluster = data.get("doubao_cluster", doubao_cluster)
-                
-                # 兼容旧版本的单变量配置
+                qwen_asr_enabled = data.get("qwen_asr_enabled", qwen_asr_enabled)
+                qwen_asr_api_key = data.get("qwen_asr_api_key", qwen_asr_api_key)
                 if data.has("character_voice_types"):
                     var dict_data = data["character_voice_types"]
                     if dict_data is Dictionary:

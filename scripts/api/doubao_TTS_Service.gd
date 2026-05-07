@@ -154,7 +154,7 @@ func _build_request_body(text: String, options: Dictionary) -> Dictionary:
             "pitch_ratio": pitch
         },
         "request": {
-            "reqid": str(Time.get_unix_time_from_system()),
+            "reqid": str(randi()) + str(int(Time.get_unix_time_from_system())),
             "text": text,
             "operation": "query",
             "with_frontend": 1,

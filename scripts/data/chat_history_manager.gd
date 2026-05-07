@@ -27,9 +27,9 @@ func add_message(speaker: String, text: String, voice_cache_key: String = "", ty
 	messages.append(record)
 	save_history()
 
-func save_history() -> void:
+func save_history() -> bool:
 	var content = JSON.stringify(messages, "\t")
-	SafeFileAccess.store_string(get_history_path(), content)
+	return SafeFileAccess.store_string(get_history_path(), content)
 
 func load_history() -> void:
 	var path = get_history_path()
