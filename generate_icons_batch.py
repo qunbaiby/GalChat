@@ -3,7 +3,7 @@ import json
 import urllib.request
 import urllib.error
 
-API_KEY = "ark-bc0f996a-e450-4b0e-9715-22dc0b07f3a6-03ba8"
+API_KEY = ""
 API_URL = "https://ark.cn-beijing.volces.com/api/v3/images/generations"
 MODEL = "doubao-seedream-5-0-260128"
 SIZE = "2K"

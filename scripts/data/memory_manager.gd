@@ -1,6 +1,7 @@
 class_name MemoryManager
 extends Node
 
+const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 const MEMORY_FILE_PATH = "user://player_memory.json"
 
 # 四级记忆分层架构，每层存储字典列表 [{"id": String, "content": String, "timestamp": String}]
@@ -64,12 +65,10 @@ func load_memory() -> void:
                 turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
 
 func save_memory() -> void:
-    var file = FileAccess.open(get_memory_file_path(), FileAccess.WRITE)
-    if file:
-        var data = memories.duplicate(true)
-        data["_turns_since_last_extract"] = turns_since_last_extract
-        file.store_string(JSON.stringify(data, "\t"))
-        file.close()
+    var data = memories.duplicate(true)
+    data["_turns_since_last_extract"] = turns_since_last_extract
+    var content = JSON.stringify(data, "\t")
+    SafeFileAccess.store_string(get_memory_file_path(), content)
 
 func _generate_id() -> String:
     return str(Time.get_unix_time_from_system() * 1000 + randi() % 1000)

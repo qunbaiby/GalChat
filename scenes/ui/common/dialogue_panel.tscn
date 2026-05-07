@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
 [ext_resource type="StyleBox" uid="uid://cx1g6j2n0v2t2" path="res://assets/themes/dialogue_panel_style.tres" id="2_dialogue_style"]
-[ext_resource type="StyleBox" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
-[ext_resource type="StyleBox" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
+[ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
+[ext_resource type="StyleBox" uid="uid://dfdfdsh" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
 
 [node name="DialoguePanel" type="Control"]
 layout_mode = 3
@@ -20,8 +20,8 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -220.0
-offset_bottom = -100.0
+offset_top = -205.0
+offset_bottom = -85.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = ExtResource("2_dialogue_style")
@@ -54,9 +54,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -81.0
-offset_top = -298.0
+offset_top = -242.0
 offset_right = -11.0
-offset_bottom = -267.0
+offset_bottom = -211.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
@@ -73,15 +73,15 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -81.0
-offset_top = -258.0
+offset_top = -282.0
 offset_right = -11.0
-offset_bottom = -227.0
+offset_bottom = -251.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.8, 0.3, 0.3, 1)
 theme_override_colors/font_hover_color = Color(1, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 16
-text = "跳过"
+text = "结束"
 flat = true
 
 [node name="QuickOptionLayer" type="Control" parent="."]
@@ -91,7 +91,7 @@ anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
 offset_top = -100.0
-offset_bottom = 100.0
+offset_bottom = 53.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -108,22 +108,21 @@ vertical_scroll_mode = 0
 
 [node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer/ScrollContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 6
 size_flags_vertical = 3
 mouse_filter = 2
 alignment = 1
 
 [node name="InputLayer" type="Panel" parent="."]
-self_modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 57.0
-offset_top = -77.0
+offset_top = -60.0
 offset_right = -56.0
-offset_bottom = -29.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -132,17 +131,21 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 6.5
+offset_right = -9.0
+offset_bottom = -5.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
 [node name="GiftButton" type="Button" parent="InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(48, 48)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 text = "🎁"
 
 [node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = ExtResource("3_input_normal")
@@ -168,11 +171,11 @@ text = "0/200"
 horizontal_alignment = 2
 
 [node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 48)
+custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 text = "🎙"
 
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
-custom_minimum_size = Vector2(80, 48)
+custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 text = "发送"

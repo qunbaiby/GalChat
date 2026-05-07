@@ -16,6 +16,16 @@ static func create_event(data: Dictionary): # 返回 ScriptEvent
             return preload("res://scripts/script_engine/events/event_ai_chat.gd").new(data)
         "background":
             return preload("res://scripts/script_engine/events/event_background.gd").new(data)
+        "show_character":
+            return preload("res://scripts/script_engine/events/event_show_character.gd").new(data)
+        "hide_character":
+            return preload("res://scripts/script_engine/events/event_hide_character.gd").new(data)
+        "voice_call":
+            return preload("res://scripts/script_engine/events/event_voice_call.gd").new(data)
+        "show_player_info_popup":
+            return preload("res://scripts/script_engine/events/event_show_player_info.gd").new(data)
+        "start_free_chat":
+            return preload("res://scripts/script_engine/events/event_start_free_chat.gd").new(data)
         _:
             push_warning("Unknown script event type: " + type)
             return preload("res://scripts/script_engine/script_event.gd").new(data) # Fallback to base

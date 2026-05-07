@@ -6,6 +6,11 @@ signal on_bgm_requested(audio_path: String, fade_time: float)
 signal on_background_requested(bg_path: String, fade_time: float)
 signal on_variable_set(var_name: String, var_value: Variant)
 signal on_ai_chat_requested(prompt_override: String)
+signal on_character_show_requested(animation: String)
+signal on_character_hide_requested(animation: String)
+signal on_player_info_requested()
+signal on_voice_call_requested(call_id: String)
+signal on_start_free_chat_requested(strategy: String, max_rounds: int)
 signal script_finished(script_id: String)
 
 var current_script_id: String = ""

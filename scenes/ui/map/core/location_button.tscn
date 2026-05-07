@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://df2mab5j1234"]
+[gd_scene load_steps=2 format=3 uid="uid://cyl826s4q3il3"]
 
 [ext_resource type="Script" uid="uid://3q4v0e4l7qj5" path="res://scripts/ui/map/core/location_button.gd" id="1_script"]
 

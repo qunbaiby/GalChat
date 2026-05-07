@@ -114,8 +114,8 @@ func _on_quick_option_added(node: Node):
         sb_normal.corner_radius_top_right = 2
         sb_normal.corner_radius_bottom_right = 2
         sb_normal.corner_radius_bottom_left = 2
-        sb_normal.content_margin_left = 100.0
-        sb_normal.content_margin_right = 100.0
+        sb_normal.content_margin_left = 40.0
+        sb_normal.content_margin_right = 40.0
         sb_normal.content_margin_top = 12.0
         sb_normal.content_margin_bottom = 12.0
         
@@ -252,6 +252,17 @@ func _start_typewriter():
         return
         
     var display_text = current_text
+    
+    # 强制清理：只保留最开头的一个动作描述，移除其余所有动作描述
+    var extract_regex = RegEx.new()
+    extract_regex.compile("（.*?）|\\(.*?\\)")
+    var matches = extract_regex.search_all(display_text)
+    if matches.size() > 0:
+        var first_action = matches[0].get_string()
+        var no_action_text = extract_regex.sub(display_text, "", true).strip_edges()
+        display_text = first_action + " " + no_action_text
+        current_text = display_text # Update current_text so TTS text also uses the cleaned version
+        
     var color_regex_zh = RegEx.new()
     color_regex_zh.compile("（(.*?)）")
     display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)

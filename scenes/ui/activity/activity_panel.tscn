@@ -1,6 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=6 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r1co8"]
+bg_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Loading"]
 bg_color = Color(0.95, 0.9, 0.85, 1)
@@ -44,7 +47,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.3)
+color = Color(0, 0, 0, 0.26666668)
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -59,6 +62,7 @@ offset_right = 500.0
 offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_r1co8")
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2

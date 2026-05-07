@@ -7,12 +7,8 @@ extends Control
 # Sub areas container
 @onready var sub_area_container: Control = $SubAreaContainer
 
-# Area buttons
-@onready var binhe_south_btn: Button = $BottomBar/ScrollContainer/AreaList/BinheSouthButton
-@onready var jia_nan_btn: Button = $BottomBar/ScrollContainer/AreaList/JiaNanButton
-@onready var north_btn: Button = $BottomBar/ScrollContainer/AreaList/NorthButton
-@onready var university_area_btn: Button = $BottomBar/ScrollContainer/AreaList/UniversityAreaButton
-@onready var qingyu_street_btn: Button = $BottomBar/ScrollContainer/AreaList/QingyuStreetButton
+# Area list container
+@onready var area_list_container: HBoxContainer = $BottomBar/ScrollContainer/AreaList
 
 var location_button_scene = preload("res://scenes/ui/map/core/location_button.tscn")
 
@@ -26,20 +22,38 @@ func _ready():
 	MapDataManager.is_quick_mode = true
 	_update_mode_button_text()
 	
-	binhe_south_btn.pressed.connect(_on_area_pressed.bind("binhe_south"))
-	jia_nan_btn.pressed.connect(_on_area_pressed.bind("jia_nan"))
-	north_btn.pressed.connect(_on_area_pressed.bind("north"))
-	university_area_btn.pressed.connect(_on_area_pressed.bind("university_area"))
-	qingyu_street_btn.pressed.connect(_on_area_pressed.bind("qingyu_street"))
+	# Clear any previous children (in case of re-initialization)
+	for child in area_list_container.get_children():
+		child.queue_free()
+		
+	# Dynamically load area buttons
+	var default_area_id = ""
+	for area_id in MapDataManager.areas:
+		if default_area_id == "":
+			default_area_id = area_id
+		var area_data = MapDataManager.areas[area_id]
+		var btn = Button.new()
+		btn.custom_minimum_size = Vector2(200, 0)
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.text = area_data.get("name", "未知区域")
+		btn.pressed.connect(_on_area_pressed.bind(area_id))
+		area_list_container.add_child(btn)
 	
-	# Select qingyu_street area by default if not coming from a sub-location
+	# Select default area
 	if not MapDataManager.has_method("get_last_area") or MapDataManager.get_last_area() == "":
 		_on_area_pressed("qingyu_street")
 	else:
 		var last = MapDataManager.get_last_area()
 		if last == "studio":
 			last = "qingyu_street"
-		_on_area_pressed(last)
+		# Verify last area still exists, else use fallback
+		if MapDataManager.areas.has(last):
+			_on_area_pressed(last)
+		else:
+			if MapDataManager.areas.has("qingyu_street"):
+				_on_area_pressed("qingyu_street")
+			elif default_area_id != "":
+				_on_area_pressed(default_area_id)
 
 func _update_mode_button_text():
 	if MapDataManager.is_quick_mode:

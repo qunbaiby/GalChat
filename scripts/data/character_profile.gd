@@ -1,6 +1,8 @@
 class_name CharacterProfile
 extends Resource
 
+const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
+
 var char_name: String = ""
 var player_name: String = ""
 var player_title: String = ""
@@ -57,6 +59,7 @@ var stress: float = 10.0 # 0-100
 var max_stress: float = 100.0
 
 var diaries: Array = []
+var finished_stories: Array = []
 
 signal stage_upgraded(new_stage: int, unlock_dialog: String)
 signal profile_updated()
@@ -177,6 +180,7 @@ func load_profile(force_char_id: String = "") -> void:
                 gold = int(str(data.get("gold", 500)))
                 stress = float(str(data.get("stress", 10.0)))
                 diaries = data.get("diaries", [])
+                finished_stories = data.get("finished_stories", [])
     else:
         # 尝试迁移旧存档
         var old_path = "user://character_profile.json"
@@ -219,12 +223,24 @@ func _get_static_data_path() -> String:
     var ext_path = "user://game_data/characters/%s/settings.json" % current_character_id
     if FileAccess.file_exists(ext_path):
         return ext_path
+    
+    # 兼容 npc 目录
+    var npc_path = "res://assets/data/characters/npc/%s.json" % current_character_id
+    if FileAccess.file_exists(npc_path):
+        return npc_path
+        
     return "res://assets/data/characters/%s.json" % current_character_id
 
 func _get_stage_data_path() -> String:
     var ext_path = "user://game_data/characters/%s/stages.json" % current_character_id
     if FileAccess.file_exists(ext_path):
         return ext_path
+        
+    # 兼容 npc 目录
+    var npc_path = "res://assets/data/characters/npc/%s_stages.json" % current_character_id
+    if FileAccess.file_exists(npc_path):
+        return npc_path
+        
     return "res://assets/data/characters/%s_stages.json" % current_character_id
 
 func _load_static_data() -> void:
@@ -359,6 +375,9 @@ func check_stage_upgrade() -> void:
         var next_stage_conf = get_current_stage_config()
         var unlock_dialog = next_stage_conf.get("unlockDialog", "")
         stage_upgraded.emit(current_stage, unlock_dialog)
+        
+        if GameDataManager.save_manager:
+            GameDataManager.save_manager.auto_save()
 
 func update_mood(new_mood: String) -> void:
     if GameDataManager.mood_system.is_valid_mood(new_mood):
@@ -408,12 +427,11 @@ func save_profile() -> void:
         "current_energy": current_energy,
         "gold": gold,
         "stress": stress,
-        "diaries": diaries
+        "diaries": diaries,
+        "finished_stories": finished_stories
     }
-    var file = FileAccess.open(get_profile_path(), FileAccess.WRITE)
-    if file:
-        file.store_string(JSON.stringify(data, "\t"))
-        file.close()
+    var content = JSON.stringify(data, "\t")
+    SafeFileAccess.store_string(get_profile_path(), content)
 
 func get_diaries() -> Array:
     return diaries
@@ -422,6 +440,16 @@ func add_diary(diary_entry: Dictionary) -> void:
     diaries.append(diary_entry)
     profile_updated.emit()
     save_profile()
+
+func mark_story_finished(story_id: String) -> void:
+    if not finished_stories.has(story_id):
+        finished_stories.append(story_id)
+        save_profile()
+        if GameDataManager.save_manager:
+            GameDataManager.save_manager.auto_save()
+
+func has_finished_story(story_id: String) -> bool:
+    return finished_stories.has(story_id)
     
 func get_recent_chat_history_text(limit: int = 10) -> String:
     var history_text = ""

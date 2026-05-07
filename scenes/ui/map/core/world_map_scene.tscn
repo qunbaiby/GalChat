@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://dx1mapscene"]
+[gd_scene load_steps=3 format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
 
@@ -62,36 +62,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="NorthButton" type="Button" parent="BottomBar/ScrollContainer/AreaList"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "北区"
-
-[node name="UniversityAreaButton" type="Button" parent="BottomBar/ScrollContainer/AreaList"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "默名大学"
-
-[node name="QingyuStreetButton" type="Button" parent="BottomBar/ScrollContainer/AreaList"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "青屿街"
-
-[node name="JiaNanButton" type="Button" parent="BottomBar/ScrollContainer/AreaList"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "嘉南区"
-
-[node name="BinheSouthButton" type="Button" parent="BottomBar/ScrollContainer/AreaList"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "滨海商业区"
-
 [node name="TopBar" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 10
@@ -134,5 +104,5 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 24
-text = "默名市地图"
+text = "星律市地图"
 horizontal_alignment = 1
