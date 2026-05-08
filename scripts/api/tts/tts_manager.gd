@@ -64,7 +64,7 @@ func synthesize(text: String, options: Dictionary = {}) -> void:
 		
 	# 【动态情绪注入】：如果外部没有指定 emotion，自动注入当前角色的心情
 	if not options.has("emotion") and GameDataManager.profile:
-		options["emotion"] = GameDataManager.profile.current_mood
+		options["emotion"] = GameDataManager.profile.current_expression
 		
 	# 兼容原有逻辑，注入当前的 voice_type
 	if not options.has("voice_type") and GameDataManager.profile and GameDataManager.config:

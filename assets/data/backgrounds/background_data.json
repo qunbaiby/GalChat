@@ -1,0 +1,40 @@
+{
+    "backgrounds": [
+        {
+            "id": "main_bg",
+            "path": "res://assets/images/backgrounds/main/main_bg.png"
+        },
+        {
+            "id": "main_bg_0",
+            "path": "res://assets/images/backgrounds/main/main_bg_0.png"
+        },
+        {
+            "id": "main_bg_1",
+            "path": "res://assets/images/backgrounds/main/main_bg_1.png"
+        },
+        {
+            "id": "main_bg_2",
+            "path": "res://assets/images/backgrounds/main/main_bg_2.png"
+        },
+        {
+            "id": "main_bg_3",
+            "path": "res://assets/images/backgrounds/main/main_bg_3.png"
+        },
+        {
+            "id": "moon_world_cafe_afternoon",
+            "path": "res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png"
+        },
+        {
+            "id": "mobile_wallpaper",
+            "path": "res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png"
+        },
+        {
+            "id": "desktop_pet_bg",
+            "path": "res://assets/images/backgrounds/desktop_pet/desktop_pet_bg.png"
+        },
+        {
+            "id": "story_cg_0",
+            "path": "res://assets/images/story/cg/story_cg_0.png"
+        }
+    ]
+}

@@ -81,8 +81,11 @@ func show_incoming_call(char_id: String, is_video: bool, is_fixed: bool = false)
 	tween.set_parallel(true)
 	tween.tween_property(self, "position:y", 20.0, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(self, "modulate:a", 1.0, 0.3)
+	
+	AudioManager.play_se("ringtone", true)
 
 func hide_notification() -> void:
+	AudioManager.stop_se("ringtone") # 我们需要在AudioManager加一个stop_se
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(self, "position:y", -100.0, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)

@@ -1,9 +1,32 @@
-[gd_scene load_steps=6 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=13 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
+[ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
+[ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
+[ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
+[ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="tex_core_physical"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r1co8"]
-bg_color = Color(0, 0, 0, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftPanel"]
+bg_color = Color(0.96, 0.96, 0.97, 1)
+corner_radius_top_left = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPanel"]
+bg_color = Color(0.22, 0.22, 0.26, 0.95)
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatBlock"]
+bg_color = Color(0.3, 0.3, 0.35, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
+color = Color(0.5, 0.5, 0.5, 0.5)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Loading"]
 bg_color = Color(0.95, 0.9, 0.85, 1)
@@ -31,6 +54,32 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
+bg_color = Color(0.2, 0.6, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BubbleNeg"]
+bg_color = Color(0.9, 0.4, 0.3, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 50
+corner_radius_top_right = 50
+corner_radius_bottom_right = 50
+corner_radius_bottom_left = 50
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.8, 1, 1)
+
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -47,286 +96,884 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.26666668)
+color = Color(0, 0, 0, 0.5)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -500.0
-offset_top = -320.0
-offset_right = 500.0
-offset_bottom = 320.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_r1co8")
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 40
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
+[node name="MainHBox" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="LeftPanel" type="PanelContainer" parent="Margin/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.8
+theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPanel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainHBox/LeftPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="TopHBox" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="BackButton" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "< 返回"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RoundInfo" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "第 1 回合"
+
+[node name="Spacer2" type="Control" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CategoryTabs" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActivityGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 2
+
+[node name="BottomHBox" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="ScheduleTitle" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+text = "已安排行程 0/10"
+
+[node name="ScheduleSlots" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="Slot1" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot2" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot3" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot4" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot5" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot6" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot7" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot8" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot9" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="Slot10" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+expand_icon = true
+
+[node name="ControlButtoon" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="UndoButton" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+size_flags_vertical = 8
+text = "撤销"
+
+[node name="ClearButton" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+size_flags_vertical = 8
+text = "清空"
+
+[node name="RightPanel" type="PanelContainer" parent="Margin/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+theme_override_styles/panel = SubResource("StyleBoxFlat_RightPanel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainHBox/RightPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="MainHBox" type="HBoxContainer" parent="Panel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="LeftPanel" type="VBoxContainer" parent="Panel/Margin/MainHBox"]
-custom_minimum_size = Vector2(350, 0)
+[node name="VBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="PreviewTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
+[node name="AvatarVBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
-text = "请选择课程"
-horizontal_alignment = 1
+theme_override_constants/separation = 8
 
-[node name="PreviewImage" type="TextureRect" parent="Panel/Margin/MainHBox/LeftPanel"]
-custom_minimum_size = Vector2(350, 200)
+[node name="AvatarCenter" type="CenterContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox"]
 layout_mode = 2
+
+[node name="AvatarPanel" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox/AvatarCenter"]
+clip_children = 1
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
+
+[node name="AvatarRect" type="TextureRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox/AvatarCenter/AvatarPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CharNameLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Luna"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="StatusHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 15
+
+[node name="EnergyControl" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+custom_minimum_size = Vector2(80, 30)
+layout_mode = 2
+
+[node name="EnergyLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "精力 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="EnergyBubble" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 55.0
+offset_top = -15.0
+offset_right = 85.0
+offset_bottom = 5.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
+theme_override_font_sizes/font_size = 12
+text = "+0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Sep1" type="ColorRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+custom_minimum_size = Vector2(2, 15)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="MoodControl" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+custom_minimum_size = Vector2(80, 30)
+layout_mode = 2
+
+[node name="MoodLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/MoodControl"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "心情 平静"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="Sep2" type="ColorRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+custom_minimum_size = Vector2(2, 15)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="StressControl" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+custom_minimum_size = Vector2(80, 30)
+layout_mode = 2
+
+[node name="StressLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/StressControl"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "压力 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="StressBubble" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/StressControl"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 55.0
+offset_top = -15.0
+offset_right = 85.0
+offset_bottom = 5.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_BubbleNeg")
+theme_override_font_sizes/font_size = 12
+text = "+0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BonusLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "收益增加0%"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="AttributeTitle" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "✦ 属性变化预测"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatsGrid" type="GridContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="Block_Physical" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("tex_core_physical")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ScheduleTitle" type="Label" parent="Panel/Margin/MainHBox/LeftPanel"]
+[node name="TitleVBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header"]
 layout_mode = 2
-text = "日程安排 (0/10)"
+size_flags_horizontal = 3
 
-[node name="ScheduleSlots" type="GridContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
+[node name="TitleHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "体力"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ValLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 > 0"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
+
+[node name="SubStats" type="GridContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 5
+theme_override_constants/v_separation = 4
+columns = 2
 
-[node name="Slot1" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Sub_stat_stamina" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
 layout_mode = 2
-expand_icon = true
+size_flags_horizontal = 3
 
-[node name="Slot2" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
 layout_mode = 2
-expand_icon = true
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "体能续航"
 
-[node name="Slot3" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
 layout_mode = 2
-expand_icon = true
+size_flags_horizontal = 3
 
-[node name="Slot4" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
 layout_mode = 2
-expand_icon = true
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
 
-[node name="Slot5" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Sub_stat_body_management" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
 layout_mode = 2
-expand_icon = true
+size_flags_horizontal = 3
 
-[node name="Slot6" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body_management"]
 layout_mode = 2
-expand_icon = true
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "形体管控"
 
-[node name="Slot7" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body_management"]
 layout_mode = 2
-expand_icon = true
+size_flags_horizontal = 3
 
-[node name="Slot8" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body_management"]
 layout_mode = 2
-expand_icon = true
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
 
-[node name="Slot9" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Sub_stat_focus" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
 layout_mode = 2
-expand_icon = true
+size_flags_horizontal = 3
 
-[node name="Slot10" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/ScheduleSlots"]
-custom_minimum_size = Vector2(60, 60)
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_focus"]
 layout_mode = 2
-expand_icon = true
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "凝心专注"
 
-[node name="OutcomePanel" type="PanelContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_focus"]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
 
-[node name="Margin" type="MarginContainer" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_focus"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_rhythm" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "律动反应"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Block_Intelligence" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_bottom = 8
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
 layout_mode = 2
-text = "学习成果"
-horizontal_alignment = 1
 
-[node name="OutcomeList" type="RichTextLabel" parent="Panel/Margin/MainHBox/LeftPanel/OutcomePanel/Margin/VBox"]
+[node name="Icon" type="TextureRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header"]
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
-size_flags_vertical = 3
-bbcode_enabled = true
+texture = ExtResource("tex_core_intelligence")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="BottomHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="UndoButton" type="Button" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox"]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-text = "撤销"
-
-[node name="RestHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox"]
+[node name="TitleVBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
-alignment = 2
 
-[node name="Label" type="Label" parent="Panel/Margin/MainHBox/LeftPanel/BottomHBox/RestHBox"]
+[node name="TitleHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox"]
 layout_mode = 2
-text = "休息"
 
-[node name="RightPanel" type="VBoxContainer" parent="Panel/Margin/MainHBox"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 15
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "智力"
 
-[node name="EnergyLabel" type="Label" parent="Panel/Margin/MainHBox/RightPanel"]
-layout_mode = 2
-text = "当前精力：100/100"
-horizontal_alignment = 2
-
-[node name="CategoryTabs" type="HBoxContainer" parent="Panel/Margin/MainHBox/RightPanel"]
-layout_mode = 2
-theme_override_constants/separation = 5
-alignment = 2
-
-[node name="TabTech" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-text = "科技"
-
-[node name="TabBusiness" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-text = "商业"
-
-[node name="TabArt" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-text = "艺术"
-
-[node name="TabSports" type="Button" parent="Panel/Margin/MainHBox/RightPanel/CategoryTabs"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-text = "体育"
-
-[node name="TabContainer" type="TabContainer" parent="Panel/Margin/MainHBox/RightPanel"]
-layout_mode = 2
-size_flags_vertical = 3
-current_tab = 0
-tabs_visible = false
-
-[node name="TechList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 0
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/TechList"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/TechList/ScrollContainer"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
 
-[node name="BusinessList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
-visible = false
+[node name="ValLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 1
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 > 0"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/BusinessList"]
+[node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_constants/separation = 8
+theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/BusinessList/ScrollContainer"]
+[node name="SubStats" type="GridContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 4
+columns = 2
 
-[node name="ArtList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/ArtList"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/ArtList/ScrollContainer"]
+[node name="Sub_stat_artistic_literacy" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
 
-[node name="SportsList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
-visible = false
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_artistic_literacy"]
 layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 3
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "艺术素养"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/SportsList"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/SportsList/ScrollContainer"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_artistic_literacy"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
 
-[node name="AcademicList" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer"]
-visible = false
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_artistic_literacy"]
 layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 4
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/AcademicList"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin/MainHBox/RightPanel/TabContainer/AcademicList/ScrollContainer"]
+[node name="Sub_stat_verbal_expression" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
 
-[node name="BottomHBox" type="HBoxContainer" parent="Panel/Margin/MainHBox/RightPanel"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_verbal_expression"]
 layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "言辞表达"
 
-[node name="CloseButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
-custom_minimum_size = Vector2(120, 50)
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_verbal_expression"]
 layout_mode = 2
-text = "返回"
+size_flags_horizontal = 3
 
-[node name="ExecuteButton" type="Button" parent="Panel/Margin/MainHBox/RightPanel/BottomHBox"]
-custom_minimum_size = Vector2(150, 50)
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_verbal_expression"]
 layout_mode = 2
-disabled = true
-text = "执行安排"
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_planning" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_planning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "统筹企划"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_planning"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_planning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_art_theory" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_art_theory"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "艺理钻研"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_art_theory"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_art_theory"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Block_Charm" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("tex_core_charm")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleVBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "魅力"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ValLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 > 0"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
+
+[node name="SubStats" type="GridContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="Sub_stat_temperament" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "格调气质"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_manner" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_manner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "举止仪范"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_manner"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_manner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_emotional_infection" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_emotional_infection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "共情感染"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_emotional_infection"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_emotional_infection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_stage_performance" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage_performance"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "舞台表现"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage_performance"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage_performance"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Block_Sensibility" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("tex_aesthetics")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleVBox" type="VBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "感性"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ValLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 > 0"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
+
+[node name="SubStats" type="GridContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="Sub_stat_empathy" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_empathy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "情思体悟"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_empathy"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_empathy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_inspiration" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_inspiration"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "创想灵感"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_inspiration"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_inspiration"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_aesthetics" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "美学品鉴"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="Sub_stat_art_perception" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_art_perception"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "艺术感知"
+
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_art_perception"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_art_perception"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "-"
+
+[node name="ExecuteButton" type="Button" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "开始下一回合"
 
 [node name="LoadingOverlay" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

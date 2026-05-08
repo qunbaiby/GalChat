@@ -1,0 +1,19 @@
+{
+  "bgm": [
+    {
+      "id": "luna_bgm",
+      "path": "res://assets/audio/bgm/Luna.mp3"
+    }
+  ],
+  "bgs": [],
+  "se": [
+    {
+      "id": "doorbell",
+      "path": "res://assets/audio/se/doorbell.mp3"
+    },
+    {
+      "id": "ringtone",
+      "path": "res://assets/audio/se/ringtone.mp3"
+    }
+  ]
+}

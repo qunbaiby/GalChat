@@ -72,13 +72,22 @@ func _on_start_pressed() -> void:
             GameDataManager.history.clear_history()
             
         GameDataManager.set_meta("play_intro_story", true)
-        get_tree().change_scene_to_file("res://scenes/ui/story/story_scene.tscn")
+        if get_tree().root.has_node("SceneTransitionManager"):
+            get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/story/story_scene.tscn")
+        else:
+            get_tree().change_scene_to_file("res://scenes/ui/story/story_scene.tscn")
     else:
         # Load auto save by default if available, otherwise just go to main
         if GameDataManager.save_manager.load_game("auto"):
-            get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+            if get_tree().root.has_node("SceneTransitionManager"):
+                get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+            else:
+                get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
         else:
-            get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+            if get_tree().root.has_node("SceneTransitionManager"):
+                get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+            else:
+                get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 
 func _on_load_pressed() -> void:
     _animate_button(load_button)

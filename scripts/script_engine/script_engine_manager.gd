@@ -3,7 +3,8 @@ extends Node
 
 signal on_dialogue_requested(speaker: String, content: String, mood: String)
 signal on_bgm_requested(audio_path: String, fade_time: float)
-signal on_background_requested(bg_path: String, fade_time: float)
+signal on_background_requested(bg_path: String, duration: float, transition_type: String)
+signal on_audio_requested(audio_type: String, action: String, audio_id: String, fade_time: float, loop: bool)
 signal on_variable_set(var_name: String, var_value: Variant)
 signal on_ai_chat_requested(prompt_override: String)
 signal on_character_show_requested(animation: String)

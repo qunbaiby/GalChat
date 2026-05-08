@@ -54,7 +54,14 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     else:
         time_str = GameDataManager.story_time_manager.get_story_time_string()
         
-    var mood_desc = GameDataManager.mood_system.get_mood_description(profile.current_mood)
+    var mood_desc = ""
+    var current_expression = profile.current_expression
+    if current_expression != "calm" and current_expression != "":
+        var expression_desc = GameDataManager.expression_system.get_expression_description(current_expression)
+        mood_desc += "【角色当前瞬时表情】：\n" + expression_desc + "\n"
+        
+    var mood_name = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
+    mood_desc += "【角色当前整体心情】：\n" + mood_name + "\n"
     var memory_desc = GameDataManager.memory_manager.get_memory_prompt(query_embedding)
     
     # 注入近期日记作为长期上下文摘要
@@ -227,7 +234,7 @@ func build_emotion_prompt(profile: CharacterProfile) -> String:
         
     var stage_conf = profile.get_current_stage_config()
     var stage_desc = stage_conf.get("stageTitle", "") + " - " + stage_conf.get("stageDesc", "")
-    var mood_name = profile.current_mood
+    var mood_name = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
     
     # Load interaction behaviors
     var behaviors_text = ""

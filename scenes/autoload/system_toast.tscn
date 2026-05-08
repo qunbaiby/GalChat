@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3 uid="uid://sys_toast_1234"]
+
+[ext_resource type="Script" path="res://scripts/autoload/system_toast.gd" id="1_script"]
+
+[node name="SystemToast" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "系统提示"
+horizontal_alignment = 1
+vertical_alignment = 1

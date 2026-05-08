@@ -22,6 +22,10 @@ input/transcribe/max_tokens=500
 
 [autoload]
 
+SceneTransitionManager="*res://scenes/autoload/scene_transition_manager.tscn"
+ToastManager="*res://scenes/autoload/toast_manager.tscn"
+AudioManager="*res://scripts/autoload/audio_manager.gd"
+BackgroundManager="*res://scripts/autoload/background_manager.gd"
 GameDataManager="*res://scripts/data/game_data_manager.gd"
 PromptManager="*res://scripts/data/prompt_manager.gd"
 DoubaoEmbeddingClient="*res://scripts/api/doubao_embedding_client.gd"
@@ -42,9 +46,6 @@ window/per_pixel_transparency/allowed=true
 [dotnet]
 
 project/assembly_name="GalChat"
-
-[editor_plugins]
-
 
 [file_customization]
 

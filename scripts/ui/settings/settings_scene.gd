@@ -51,397 +51,397 @@ var _test_asr_client = null
 var _is_testing_asr: bool = false
 
 func _ready() -> void:
-    back_button.pressed.connect(_on_back_pressed)
-    save_button.pressed.connect(_on_save_pressed)
-    clear_history_btn.pressed.connect(_on_clear_history_pressed)
-    TTSManager.tts_success.connect(_on_tts_success)
-    TTSManager.tts_failed.connect(_on_tts_failed)
-    
-    # 动态连接设置变化
-    resolution_option.item_selected.connect(_on_resolution_changed)
-    fps_option.item_selected.connect(_on_fps_changed)
-    vsync_check.toggled.connect(_on_vsync_changed)
-    bgm_slider.value_changed.connect(_on_bgm_changed)
-    voice_slider.value_changed.connect(_on_voice_changed)
-    model_option.item_selected.connect(_on_model_changed)
-    image_provider_option.item_selected.connect(_on_image_provider_changed)
-    image_gen_mode_check.toggled.connect(_on_image_gen_toggled)
-    
-    asr_test_button.button_down.connect(_on_asr_test_down)
-    asr_test_button.button_up.connect(_on_asr_test_up)
-    
-    model_option.clear()
-    model_option.add_item("deepseek-chat (V3)")
-    model_option.set_item_metadata(0, "deepseek-chat")
-    model_option.add_item("deepseek-coder")
-    model_option.set_item_metadata(1, "deepseek-coder")
-    model_option.add_item("deepseek-reasoner (R1/V4)")
-    model_option.set_item_metadata(2, "deepseek-reasoner")
-    model_option.add_item("doubao-seed-character (豆包)")
-    model_option.set_item_metadata(3, "doubao-seed-character-251128")
-    
-    _load_ui_data()
+	back_button.pressed.connect(_on_back_pressed)
+	save_button.pressed.connect(_on_save_pressed)
+	clear_history_btn.pressed.connect(_on_clear_history_pressed)
+	TTSManager.tts_success.connect(_on_tts_success)
+	TTSManager.tts_failed.connect(_on_tts_failed)
+	
+	# 动态连接设置变化
+	resolution_option.item_selected.connect(_on_resolution_changed)
+	fps_option.item_selected.connect(_on_fps_changed)
+	vsync_check.toggled.connect(_on_vsync_changed)
+	bgm_slider.value_changed.connect(_on_bgm_changed)
+	voice_slider.value_changed.connect(_on_voice_changed)
+	model_option.item_selected.connect(_on_model_changed)
+	image_provider_option.item_selected.connect(_on_image_provider_changed)
+	image_gen_mode_check.toggled.connect(_on_image_gen_toggled)
+	
+	asr_test_button.button_down.connect(_on_asr_test_down)
+	asr_test_button.button_up.connect(_on_asr_test_up)
+	
+	model_option.clear()
+	model_option.add_item("deepseek-chat (V3)")
+	model_option.set_item_metadata(0, "deepseek-chat")
+	model_option.add_item("deepseek-coder")
+	model_option.set_item_metadata(1, "deepseek-coder")
+	model_option.add_item("deepseek-reasoner (R1/V4)")
+	model_option.set_item_metadata(2, "deepseek-reasoner")
+	model_option.add_item("doubao-seed-character (豆包)")
+	model_option.set_item_metadata(3, "doubao-seed-character-251128")
+	
+	_load_ui_data()
 
 func show_panel() -> void:
-    _load_ui_data()
-    show()
-    # Add a simple popup animation
-    modulate.a = 0.0
-    var tween = create_tween()
-    tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-    tween.tween_property(self, "modulate:a", 1.0, 0.3)
-    
-    # Scale animation on the inner container if we want, but let's just animate the whole panel scale from 0.9 to 1.0
-    scale = Vector2(0.9, 0.9)
-    pivot_offset = get_viewport_rect().size / 2.0
-    var scale_tween = create_tween()
-    scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-    scale_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.3)
+	_load_ui_data()
+	show()
+	# Add a simple popup animation
+	modulate.a = 0.0
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(self, "modulate:a", 1.0, 0.3)
+	
+	# Scale animation on the inner container if we want, but let's just animate the whole panel scale from 0.9 to 1.0
+	scale = Vector2(0.9, 0.9)
+	pivot_offset = get_viewport_rect().size / 2.0
+	var scale_tween = create_tween()
+	scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	scale_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.3)
 
 func hide_panel() -> void:
-    var tween = create_tween()
-    tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
-    tween.tween_property(self, "modulate:a", 0.0, 0.2)
-    var scale_tween = create_tween()
-    scale_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
-    scale_tween.tween_property(self, "scale", Vector2(0.9, 0.9), 0.2)
-    scale_tween.finished.connect(hide)
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(self, "modulate:a", 0.0, 0.2)
+	var scale_tween = create_tween()
+	scale_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	scale_tween.tween_property(self, "scale", Vector2(0.9, 0.9), 0.2)
+	scale_tween.finished.connect(hide)
 
 func _load_ui_data() -> void:
-    var config = GameDataManager.config
-    api_key_input.text = config.api_key
-    doubao_chat_key_input.text = config.doubao_chat_api_key
-    
-    if config.model == "deepseek-coder":
-        model_option.selected = 1
-    elif config.model == "deepseek-reasoner":
-        model_option.selected = 2
-    elif config.model.begins_with("doubao"):
-        model_option.selected = 3
-    else:
-        model_option.selected = 0
-        
-    temp_slider.value = config.temperature
-    tokens_spinbox.value = config.max_tokens
-    ai_mode_check.button_pressed = config.ai_mode_enabled
-    
-    voice_mode_check.button_pressed = config.voice_enabled
-    app_id_input.text = config.doubao_app_id
-    token_input.text = config.doubao_token
-    cluster_input.text = config.doubao_cluster
-    asr_mode_check.button_pressed = config.qwen_asr_enabled
-    asr_cluster_input.text = config.qwen_asr_api_key
-    
-    # 动态生成所有角色的音色输入框
-    for child in voice_type_container.get_children():
-        child.queue_free()
-        
-    # 主角色
-    var dir = DirAccess.open("res://assets/data/characters")
-    if dir:
-        dir.list_dir_begin()
-        var file_name = dir.get_next()
-        while file_name != "":
-            if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
-                var char_id = file_name.replace(".json", "")
-                _create_voice_type_input(char_id, config, "主线角色")
-            file_name = dir.get_next()
-            
-    # NPC
-    var npc_dir = DirAccess.open("res://assets/data/characters/npc")
-    if npc_dir:
-        npc_dir.list_dir_begin()
-        var npc_file = npc_dir.get_next()
-        while npc_file != "":
-            if npc_file.ends_with(".json") and not npc_file.ends_with("_stages.json"):
-                var npc_id = npc_file.replace(".json", "")
-                _create_voice_type_input(npc_id, config, "NPC")
-            npc_file = npc_dir.get_next()
-    
-    embed_mode_check.button_pressed = config.embedding_enabled
-    embed_key_input.text = config.doubao_embedding_api_key
-    embed_model_input.text = config.doubao_embedding_model
+	var config = GameDataManager.config
+	api_key_input.text = config.api_key
+	doubao_chat_key_input.text = config.doubao_chat_api_key
+	
+	if config.model == "deepseek-coder":
+		model_option.selected = 1
+	elif config.model == "deepseek-reasoner":
+		model_option.selected = 2
+	elif config.model.begins_with("doubao"):
+		model_option.selected = 3
+	else:
+		model_option.selected = 0
+		
+	temp_slider.value = config.temperature
+	tokens_spinbox.value = config.max_tokens
+	ai_mode_check.button_pressed = config.ai_mode_enabled
+	
+	voice_mode_check.button_pressed = config.voice_enabled
+	app_id_input.text = config.doubao_app_id
+	token_input.text = config.doubao_token
+	cluster_input.text = config.doubao_cluster
+	asr_mode_check.button_pressed = config.qwen_asr_enabled
+	asr_cluster_input.text = config.qwen_asr_api_key
+	
+	# 动态生成所有角色的音色输入框
+	for child in voice_type_container.get_children():
+		child.queue_free()
+		
+	# 主角色
+	var dir = DirAccess.open("res://assets/data/characters")
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
+				var char_id = file_name.replace(".json", "")
+				_create_voice_type_input(char_id, config, "主线角色")
+			file_name = dir.get_next()
+			
+	# NPC
+	var npc_dir = DirAccess.open("res://assets/data/characters/npc")
+	if npc_dir:
+		npc_dir.list_dir_begin()
+		var npc_file = npc_dir.get_next()
+		while npc_file != "":
+			if npc_file.ends_with(".json") and not npc_file.ends_with("_stages.json"):
+				var npc_id = npc_file.replace(".json", "")
+				_create_voice_type_input(npc_id, config, "NPC")
+			npc_file = npc_dir.get_next()
+	
+	embed_mode_check.button_pressed = config.embedding_enabled
+	embed_key_input.text = config.doubao_embedding_api_key
+	embed_model_input.text = config.doubao_embedding_model
 
-    vision_mode_check.button_pressed = config.vision_enabled
-    vision_key_input.text = config.vision_api_key
-    vision_model_input.text = config.vision_model
-    vision_base_url_input.text = config.vision_base_url
+	vision_mode_check.button_pressed = config.vision_enabled
+	vision_key_input.text = config.vision_api_key
+	vision_model_input.text = config.vision_model
+	vision_base_url_input.text = config.vision_base_url
 
-    image_gen_mode_check.button_pressed = config.image_generation_enabled
-    default_image_path_input.text = config.default_image_path
-    image_provider_option.selected = config.image_generation_provider
-    image_key_input.text = config.openai_image_api_key
-    doubao_image_key_input.text = config.doubao_image_api_key
-    doubao_image_model_input.text = config.doubao_image_model
-    enable_ai_illustration_check.button_pressed = config.enable_ai_diary_illustration
-    
-    _update_model_ui()
-    _update_image_gen_ui()
+	image_gen_mode_check.button_pressed = config.image_generation_enabled
+	default_image_path_input.text = config.default_image_path
+	image_provider_option.selected = config.image_generation_provider
+	image_key_input.text = config.openai_image_api_key
+	doubao_image_key_input.text = config.doubao_image_api_key
+	doubao_image_model_input.text = config.doubao_image_model
+	enable_ai_illustration_check.button_pressed = config.enable_ai_diary_illustration
+	
+	_update_model_ui()
+	_update_image_gen_ui()
 
-    # 加载音画设置
-    resolution_option.selected = config.resolution_idx
-    fps_option.selected = config.fps_idx
-    vsync_check.button_pressed = config.vsync_enabled
-    bgm_slider.value = config.bgm_volume
-    voice_slider.value = config.voice_volume
+	# 加载音画设置
+	resolution_option.selected = config.resolution_idx
+	fps_option.selected = config.fps_idx
+	vsync_check.button_pressed = config.vsync_enabled
+	bgm_slider.value = config.bgm_volume
+	voice_slider.value = config.voice_volume
 
 func _create_voice_type_input(char_id: String, config, tag: String = "") -> void:
-    var vbox = VBoxContainer.new()
-    voice_type_container.add_child(vbox)
-    
-    var label = Label.new()
-    if tag != "":
-        label.text = "[%s] %s 音色 (Voice Type)" % [tag, char_id.capitalize()]
-    else:
-        label.text = char_id.capitalize() + " 音色 (Voice Type)"
-    vbox.add_child(label)
-    
-    var line_edit = LineEdit.new()
-    line_edit.name = "Input_" + char_id
-    line_edit.text = config.character_voice_types.get(char_id, "ICL_zh_female_bingruoshaonv_tob")
-    line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    
-    var preview_btn = Button.new()
-    preview_btn.text = "试听"
-    preview_btn.pressed.connect(_on_preview_voice_pressed.bind(line_edit, char_id))
-    
-    var hbox = HBoxContainer.new()
-    hbox.add_child(line_edit)
-    hbox.add_child(preview_btn)
-    
-    vbox.add_child(hbox)
+	var vbox = VBoxContainer.new()
+	voice_type_container.add_child(vbox)
+	
+	var label = Label.new()
+	if tag != "":
+		label.text = "[%s] %s 音色 (Voice Type)" % [tag, char_id.capitalize()]
+	else:
+		label.text = char_id.capitalize() + " 音色 (Voice Type)"
+	vbox.add_child(label)
+	
+	var line_edit = LineEdit.new()
+	line_edit.name = "Input_" + char_id
+	line_edit.text = config.character_voice_types.get(char_id, "ICL_zh_female_bingruoshaonv_tob")
+	line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var preview_btn = Button.new()
+	preview_btn.text = "试听"
+	preview_btn.pressed.connect(_on_preview_voice_pressed.bind(line_edit, char_id))
+	
+	var hbox = HBoxContainer.new()
+	hbox.add_child(line_edit)
+	hbox.add_child(preview_btn)
+	
+	vbox.add_child(hbox)
 
 func _save_ui_data() -> void:
-    var config = GameDataManager.config
-    config.api_key = api_key_input.text
-    config.doubao_chat_api_key = doubao_chat_key_input.text
-    if model_option.selected == 1:
-        config.model = "deepseek-coder"
-    elif model_option.selected == 2:
-        config.model = "deepseek-reasoner"
-    elif model_option.selected == 3:
-        config.model = "doubao-seed-character-251128"
-    else:
-        config.model = "deepseek-chat"
-    config.temperature = temp_slider.value
-    config.max_tokens = tokens_spinbox.value
-    config.ai_mode_enabled = ai_mode_check.button_pressed
-    
-    config.voice_enabled = voice_mode_check.button_pressed
-    config.doubao_app_id = app_id_input.text
-    config.doubao_token = token_input.text
-    config.doubao_cluster = cluster_input.text
-    config.qwen_asr_enabled = asr_mode_check.button_pressed
-    config.qwen_asr_api_key = asr_cluster_input.text
-    
-    # 保存所有动态生成的角色音色配置
-    for vbox in voice_type_container.get_children():
-        for hbox in vbox.get_children():
-            if hbox is HBoxContainer:
-                for child in hbox.get_children():
-                    if child is LineEdit and child.name.begins_with("Input_"):
-                        var char_id = child.name.replace("Input_", "")
-                        config.character_voice_types[char_id] = child.text
-    
-    config.embedding_enabled = embed_mode_check.button_pressed
-    config.doubao_embedding_api_key = embed_key_input.text
-    config.doubao_embedding_model = embed_model_input.text
-    
-    config.vision_enabled = vision_mode_check.button_pressed
-    config.vision_api_key = vision_key_input.text
-    config.vision_model = vision_model_input.text
-    config.vision_base_url = vision_base_url_input.text
-    
-    config.image_generation_enabled = image_gen_mode_check.button_pressed
-    config.default_image_path = default_image_path_input.text
-    config.image_generation_provider = image_provider_option.selected
-    config.openai_image_api_key = image_key_input.text
-    config.doubao_image_api_key = doubao_image_key_input.text
-    config.doubao_image_model = doubao_image_model_input.text
-    config.enable_ai_diary_illustration = enable_ai_illustration_check.button_pressed
-    
-    config.resolution_idx = resolution_option.selected
-    config.fps_idx = fps_option.selected
-    config.vsync_enabled = vsync_check.button_pressed
-    config.bgm_volume = bgm_slider.value
-    config.voice_volume = voice_slider.value
-    
-    config.save_config()
-    config.apply_settings()
+	var config = GameDataManager.config
+	config.api_key = api_key_input.text
+	config.doubao_chat_api_key = doubao_chat_key_input.text
+	if model_option.selected == 1:
+		config.model = "deepseek-coder"
+	elif model_option.selected == 2:
+		config.model = "deepseek-reasoner"
+	elif model_option.selected == 3:
+		config.model = "doubao-seed-character-251128"
+	else:
+		config.model = "deepseek-chat"
+	config.temperature = temp_slider.value
+	config.max_tokens = tokens_spinbox.value
+	config.ai_mode_enabled = ai_mode_check.button_pressed
+	
+	config.voice_enabled = voice_mode_check.button_pressed
+	config.doubao_app_id = app_id_input.text
+	config.doubao_token = token_input.text
+	config.doubao_cluster = cluster_input.text
+	config.qwen_asr_enabled = asr_mode_check.button_pressed
+	config.qwen_asr_api_key = asr_cluster_input.text
+	
+	# 保存所有动态生成的角色音色配置
+	for vbox in voice_type_container.get_children():
+		for hbox in vbox.get_children():
+			if hbox is HBoxContainer:
+				for child in hbox.get_children():
+					if child is LineEdit and child.name.begins_with("Input_"):
+						var char_id = child.name.replace("Input_", "")
+						config.character_voice_types[char_id] = child.text
+	
+	config.embedding_enabled = embed_mode_check.button_pressed
+	config.doubao_embedding_api_key = embed_key_input.text
+	config.doubao_embedding_model = embed_model_input.text
+	
+	config.vision_enabled = vision_mode_check.button_pressed
+	config.vision_api_key = vision_key_input.text
+	config.vision_model = vision_model_input.text
+	config.vision_base_url = vision_base_url_input.text
+	
+	config.image_generation_enabled = image_gen_mode_check.button_pressed
+	config.default_image_path = default_image_path_input.text
+	config.image_generation_provider = image_provider_option.selected
+	config.openai_image_api_key = image_key_input.text
+	config.doubao_image_api_key = doubao_image_key_input.text
+	config.doubao_image_model = doubao_image_model_input.text
+	config.enable_ai_diary_illustration = enable_ai_illustration_check.button_pressed
+	
+	config.resolution_idx = resolution_option.selected
+	config.fps_idx = fps_option.selected
+	config.vsync_enabled = vsync_check.button_pressed
+	config.bgm_volume = bgm_slider.value
+	config.voice_volume = voice_slider.value
+	
+	config.save_config()
+	config.apply_settings()
 
 func _on_resolution_changed(idx: int) -> void:
-    GameDataManager.config.resolution_idx = idx
-    GameDataManager.config.apply_settings()
-    GameDataManager.config.save_config()
+	GameDataManager.config.resolution_idx = idx
+	GameDataManager.config.apply_settings()
+	GameDataManager.config.save_config()
 
 func _on_fps_changed(idx: int) -> void:
-    GameDataManager.config.fps_idx = idx
-    GameDataManager.config.apply_settings()
-    GameDataManager.config.save_config()
+	GameDataManager.config.fps_idx = idx
+	GameDataManager.config.apply_settings()
+	GameDataManager.config.save_config()
 
 func _on_vsync_changed(toggled: bool) -> void:
-    GameDataManager.config.vsync_enabled = toggled
-    GameDataManager.config.apply_settings()
-    GameDataManager.config.save_config()
+	GameDataManager.config.vsync_enabled = toggled
+	GameDataManager.config.apply_settings()
+	GameDataManager.config.save_config()
 
 func _on_bgm_changed(value: float) -> void:
-    GameDataManager.config.bgm_volume = value
-    GameDataManager.config.apply_settings()
-    GameDataManager.config.save_config()
+	GameDataManager.config.bgm_volume = value
+	GameDataManager.config.apply_settings()
+	GameDataManager.config.save_config()
 
 func _on_voice_changed(value: float) -> void:
-    GameDataManager.config.voice_volume = value
-    GameDataManager.config.apply_settings()
-    GameDataManager.config.save_config()
+	GameDataManager.config.voice_volume = value
+	GameDataManager.config.apply_settings()
+	GameDataManager.config.save_config()
 
 func _on_model_changed(_idx: int) -> void:
-    _update_model_ui()
+	_update_model_ui()
 
 func _update_model_ui() -> void:
-    var set_visibility = func(node: Control, should_visible: bool):
-        node.visible = should_visible
-        var label_name = node.name + "Label"
-        var label = node.get_parent().get_node_or_null(label_name)
-        if label:
-            label.visible = should_visible
-            
-    var provider = model_option.selected
-    if provider == 3: # Doubao
-        set_visibility.call(api_key_input, false)
-        set_visibility.call(doubao_chat_key_input, true)
-    else: # DeepSeek
-        set_visibility.call(api_key_input, true)
-        set_visibility.call(doubao_chat_key_input, false)
+	var set_visibility = func(node: Control, should_visible: bool):
+		node.visible = should_visible
+		var label_name = node.name + "Label"
+		var label = node.get_parent().get_node_or_null(label_name)
+		if label:
+			label.visible = should_visible
+			
+	var provider = model_option.selected
+	if provider == 3: # Doubao
+		set_visibility.call(api_key_input, false)
+		set_visibility.call(doubao_chat_key_input, true)
+	else: # DeepSeek
+		set_visibility.call(api_key_input, true)
+		set_visibility.call(doubao_chat_key_input, false)
 
 func _on_image_provider_changed(_idx: int) -> void:
-    _update_image_gen_ui()
+	_update_image_gen_ui()
 
 func _on_image_gen_toggled(_toggled: bool) -> void:
-    _update_image_gen_ui()
+	_update_image_gen_ui()
 
 func _update_image_gen_ui() -> void:
-    var enabled = image_gen_mode_check.button_pressed
-    
-    var set_visibility = func(node: Control, should_visible: bool):
-        node.visible = should_visible
-        var label_name = node.name + "Label"
-        var label = node.get_parent().get_node_or_null(label_name)
-        if label:
-            label.visible = should_visible
-    
-    set_visibility.call(image_provider_option, enabled)
-    
-    if not enabled:
-        set_visibility.call(image_key_input, false)
-        set_visibility.call(doubao_image_key_input, false)
-        set_visibility.call(doubao_image_model_input, false)
-        return
-        
-    var provider = image_provider_option.selected
-    if provider == 0: # OpenAI
-        set_visibility.call(image_key_input, true)
-        set_visibility.call(doubao_image_key_input, false)
-        set_visibility.call(doubao_image_model_input, false)
-    else: # Doubao
-        set_visibility.call(image_key_input, false)
-        set_visibility.call(doubao_image_key_input, true)
-        set_visibility.call(doubao_image_model_input, true)
+	var enabled = image_gen_mode_check.button_pressed
+	
+	var set_visibility = func(node: Control, should_visible: bool):
+		node.visible = should_visible
+		var label_name = node.name + "Label"
+		var label = node.get_parent().get_node_or_null(label_name)
+		if label:
+			label.visible = should_visible
+	
+	set_visibility.call(image_provider_option, enabled)
+	
+	if not enabled:
+		set_visibility.call(image_key_input, false)
+		set_visibility.call(doubao_image_key_input, false)
+		set_visibility.call(doubao_image_model_input, false)
+		return
+		
+	var provider = image_provider_option.selected
+	if provider == 0: # OpenAI
+		set_visibility.call(image_key_input, true)
+		set_visibility.call(doubao_image_key_input, false)
+		set_visibility.call(doubao_image_model_input, false)
+	else: # Doubao
+		set_visibility.call(image_key_input, false)
+		set_visibility.call(doubao_image_key_input, true)
+		set_visibility.call(doubao_image_model_input, true)
 
 func _on_back_pressed() -> void:
-    hide_panel()
+	hide_panel()
 
 func _on_save_pressed() -> void:
-    _save_ui_data()
-    hide_panel()
+	_save_ui_data()
+	hide_panel()
 
 func _on_preview_voice_pressed(line_edit: LineEdit, char_id: String) -> void:
-    var voice_type = line_edit.text.strip_edges()
-    if voice_type == "":
-        print("音色配置为空，无法试听")
-        return
-        
-    var test_text = ""
-    if char_id == "nicole":
-        test_text = "哼，别在那发呆了，我叫妮可。"
-    elif char_id == "luna":
-        test_text = "您、您好……我是Luna，请多指教。"
-    elif char_id == "ya":
-        test_text = "你好呀！我是雅，很高兴认识你哦～"
-    else:
-        test_text = "你好，这是一段默认的音色试听文本，测试声音是否正常。"
-        
-    print("正在请求试听音色: ", voice_type, " | 文本: ", test_text)
-    
-    if audio_player.playing:
-        audio_player.stop()
-        
-    var options = {"voice_type": voice_type}
-    TTSManager.synthesize(test_text, options)
+	var voice_type = line_edit.text.strip_edges()
+	if voice_type == "":
+		print("音色配置为空，无法试听")
+		return
+		
+	var test_text = ""
+	if char_id == "nicole":
+		test_text = "哼，别在那发呆了，我叫妮可。"
+	elif char_id == "luna":
+		test_text = "您、您好……我是Luna，请多指教。"
+	elif char_id == "ya":
+		test_text = "你好呀！我是雅，很高兴认识你哦～"
+	else:
+		test_text = "你好，这是一段默认的音色试听文本，测试声音是否正常。"
+		
+	print("正在请求试听音色: ", voice_type, " | 文本: ", test_text)
+	
+	if audio_player.playing:
+		audio_player.stop()
+		
+	var options = {"voice_type": voice_type}
+	TTSManager.synthesize(test_text, options)
 
 func _on_tts_success(audio_stream: AudioStream, _text: String) -> void:
-    if audio_player and is_inside_tree() and visible:
-        audio_player.stream = audio_stream
-        audio_player.play()
+	if audio_player and is_inside_tree() and visible:
+		audio_player.stream = audio_stream
+		audio_player.play()
 
 func _on_tts_failed(error_msg: String, _text: String) -> void:
-    if is_inside_tree() and visible:
-        print("音色试听失败: ", error_msg)
+	if is_inside_tree() and visible:
+		print("音色试听失败: ", error_msg)
 
 func _on_clear_history_pressed() -> void:
-    # 待实现清除历史记录的逻辑
-    print("聊天记录已清除（模拟）")
+	# 待实现清除历史记录的逻辑
+	print("聊天记录已清除（模拟）")
 
 func _on_asr_test_down() -> void:
-    if _is_testing_asr: return
-    _is_testing_asr = true
-    asr_test_button.text = "松开结束"
-    asr_test_button.modulate = Color(0.8, 0.2, 0.2)
-    asr_test_output.text = ""
-    asr_test_output.placeholder_text = "聆听中..."
-    
-    if mic_capture:
-        mic_capture.play()
-        
-    if asr_mode_check.button_pressed:
-        if _test_asr_client == null:
-            var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
-            if QwenASRClient:
-                _test_asr_client = QwenASRClient.new()
-                _test_asr_client.name = "TestQwenASR"
-                add_child(_test_asr_client)
-                _test_asr_client.transcribe_completed.connect(_on_asr_test_success)
-                _test_asr_client.transcribe_failed.connect(_on_asr_test_failed)
-        if _test_asr_client:
-            # 应用当前输入框的配置，而不是只读 config 的，方便玩家不保存直接测
-            GameDataManager.config.qwen_asr_api_key = asr_cluster_input.text
-            _test_asr_client.start_recording()
-    else:
-        asr_test_output.placeholder_text = "请先开启流式语音识别开关"
-        _is_testing_asr = false
-        asr_test_button.text = "按住说话"
-        asr_test_button.modulate = Color(1, 1, 1)
+	if _is_testing_asr: return
+	_is_testing_asr = true
+	asr_test_button.text = "松开结束"
+	asr_test_button.modulate = Color(0.8, 0.2, 0.2)
+	asr_test_output.text = ""
+	asr_test_output.placeholder_text = "聆听中..."
+	
+	if mic_capture:
+		mic_capture.play()
+		
+	if asr_mode_check.button_pressed:
+		if _test_asr_client == null:
+			var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
+			if QwenASRClient:
+				_test_asr_client = QwenASRClient.new()
+				_test_asr_client.name = "TestQwenASR"
+				add_child(_test_asr_client)
+				_test_asr_client.transcribe_completed.connect(_on_asr_test_success)
+				_test_asr_client.transcribe_failed.connect(_on_asr_test_failed)
+		if _test_asr_client:
+			# 应用当前输入框的配置，而不是只读 config 的，方便玩家不保存直接测
+			GameDataManager.config.qwen_asr_api_key = asr_cluster_input.text
+			_test_asr_client.start_recording()
+	else:
+		asr_test_output.placeholder_text = "请先开启流式语音识别开关"
+		_is_testing_asr = false
+		asr_test_button.text = "按住说话"
+		asr_test_button.modulate = Color(1, 1, 1)
 
 func _on_asr_test_up() -> void:
-    if not _is_testing_asr: return
-    _is_testing_asr = false
-    asr_test_button.text = "转换中..."
-    asr_test_button.disabled = true
-    asr_test_button.modulate = Color(1, 1, 1)
-    asr_test_output.placeholder_text = "转换中..."
-    
-    if mic_capture:
-        mic_capture.stop()
-        
-    if _test_asr_client:
-        _test_asr_client.stop_recording()
+	if not _is_testing_asr: return
+	_is_testing_asr = false
+	asr_test_button.text = "转换中..."
+	asr_test_button.disabled = true
+	asr_test_button.modulate = Color(1, 1, 1)
+	asr_test_output.placeholder_text = "转换中..."
+	
+	if mic_capture:
+		mic_capture.stop()
+		
+	if _test_asr_client:
+		_test_asr_client.stop_recording()
 
 func _on_asr_test_success(text: String) -> void:
-    asr_test_button.text = "按住说话"
-    asr_test_button.disabled = false
-    asr_test_output.text = text
-    
+	asr_test_button.text = "按住说话"
+	asr_test_button.disabled = false
+	asr_test_output.text = text
+	
 func _on_asr_test_failed(err: String) -> void:
-    asr_test_button.text = "按住说话"
-    asr_test_button.disabled = false
-    asr_test_output.text = ""
-    asr_test_output.placeholder_text = "识别失败: " + err
+	asr_test_button.text = "按住说话"
+	asr_test_button.disabled = false
+	asr_test_output.text = ""
+	asr_test_output.placeholder_text = "识别失败: " + err

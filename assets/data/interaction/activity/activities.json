@@ -15,6 +15,10 @@
     {
       "id": "creation_aesthetics",
       "name": "创作美学类"
+    },
+    {
+      "id": "rest",
+      "name": "休息类"
     }
   ],
   "activities": [
@@ -169,12 +173,11 @@
         ]
       },
       "preview_image": "res://assets/images/activities/creative_inspiration.png"
-    }
-  ],
-  "rest_activities": [
+    },
     {
       "id": "rest_at_home",
       "name": "在家休息",
+      "category_id": "rest",
       "desc": "什么也不做，在家睡个好觉。恢复 30~50 点精力。",
       "energy_cost": 0,
       "icon_path": "res://assets/images/activities/rest_at_home.png",
@@ -189,6 +192,7 @@
     {
       "id": "cafe_break",
       "name": "咖啡馆小憩",
+      "category_id": "rest",
       "desc": "去咖啡馆喝杯咖啡，放松心情。恢复 20~30 点精力。",
       "energy_cost": 0,
       "icon_path": "res://assets/images/activities/cafe_break.png",

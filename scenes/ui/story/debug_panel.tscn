@@ -73,19 +73,30 @@ text = "强制切换阶段："
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="心情" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
+[node name="状态与表情" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
 metadata/_tab_index = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/心情"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/心情/HBoxContainer"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情/HBoxContainer"]
 layout_mode = 2
-text = "强制切换心情："
+text = "强制切换瞬时表情："
 
-[node name="MoodOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/心情/HBoxContainer"]
+[node name="MoodOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情/HBoxContainer2"]
+layout_mode = 2
+text = "强制切换宏观心情："
+
+[node name="MacroMoodOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 

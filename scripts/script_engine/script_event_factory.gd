@@ -8,6 +8,8 @@ static func create_event(data: Dictionary): # 返回 ScriptEvent
             return preload("res://scripts/script_engine/events/event_dialogue.gd").new(data)
         "bgm":
             return preload("res://scripts/script_engine/events/event_bgm.gd").new(data)
+        "audio":
+            return preload("res://scripts/script_engine/events/event_audio.gd").new(data)
         "jump":
             return preload("res://scripts/script_engine/events/event_jump.gd").new(data)
         "set_variable":

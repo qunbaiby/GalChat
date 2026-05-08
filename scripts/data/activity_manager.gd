@@ -27,8 +27,11 @@ func _load_activities_db() -> void:
 			categories = data["categories"]
 		if data.has("activities"):
 			activities = data["activities"]
-		if data.has("rest_activities"):
-			rest_activities = data["rest_activities"]
+			# Also populate rest_activities for backward compatibility
+			rest_activities.clear()
+			for act in activities:
+				if act.has("category_id") and act["category_id"] == "rest":
+					rest_activities.append(act)
 		print("Loaded activities DB: %d categories, %d activities, %d rest activities" % [categories.size(), activities.size(), rest_activities.size()])
 	else:
 		printerr("Failed to parse activities JSON: ", json.get_error_message())

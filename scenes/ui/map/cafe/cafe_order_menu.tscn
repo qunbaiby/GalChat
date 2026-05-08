@@ -1,87 +1,313 @@
-[gd_scene load_steps=2 format=3 uid="uid://dxcafeordermenu"]
+[gd_scene load_steps=15 format=3 uid="uid://dxcafeordermenu"]
 
 [ext_resource type="Script" path="res://scripts/ui/map/cafe/cafe_order_menu.gd" id="1_script"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainBg"]
+bg_color = Color(0.93, 0.94, 0.95, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.15, 0.15, 0.15, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPanel"]
+bg_color = Color(1, 1, 1, 1)
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemNormal"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemSelected"]
+bg_color = Color(0.9, 0.95, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.7, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemPrice"]
+bg_color = Color(0.3, 0.3, 0.3, 1)
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ImageBg"]
+bg_color = Color(0.95, 0.95, 0.95, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.7, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Tag"]
+bg_color = Color(0.4, 0.8, 0.7, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BuyBtn"]
+bg_color = Color(0.3, 0.7, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BuyBtnHover"]
+bg_color = Color(0.4, 0.8, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BuyBtnPressed"]
+bg_color = Color(0.2, 0.6, 0.9, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_CatSep"]
+color = Color(0.8, 0.8, 0.8, 1)
+thickness = 2
+
 [node name="CafeOrderMenu" type="CanvasLayer"]
+layer = 100
 script = ExtResource("1_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.6)
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
 
-[node name="Panel" type="Panel" parent="."]
+[node name="MainPanel" type="Panel" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -250.0
-offset_right = 300.0
-offset_bottom = 250.0
+offset_left = -450.0
+offset_top = -300.0
+offset_right = 450.0
+offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_MainBg")
 
-[node name="TitleLabel" type="Label" parent="Panel"]
+[node name="TopBar" type="Panel" parent="MainPanel"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 10.0
-offset_bottom = 44.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 24
-text = "月世界咖啡厅 - 点单"
-horizontal_alignment = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="CloseButton" type="Button" parent="Panel"]
+[node name="ColorRect" type="ColorRect" parent="MainPanel/TopBar"]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
-offset_left = -50.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 50.0
-grow_horizontal = 0
-text = "X"
+anchor_bottom = 1.0
+offset_top = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.3, 0.7, 1, 1)
 
-[node name="CurrencyLabel" type="Label" parent="Panel"]
-layout_mode = 1
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 150.0
-offset_bottom = 43.0
-text = "余额: 999 银币"
-
-[node name="TabContainer" type="TabContainer" parent="Panel"]
+[node name="TitleLabel" type="Label" parent="MainPanel/TopBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 60.0
-offset_right = -20.0
-offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_font_sizes/font_size = 24
+text = "商店"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="咖啡" type="ScrollContainer" parent="Panel/TabContainer"]
-layout_mode = 2
+[node name="CloseButton" type="Button" parent="MainPanel/TopBar"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -60.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 28
+text = "×"
+flat = true
 
-[node name="CoffeeVBox" type="VBoxContainer" parent="Panel/TabContainer/咖啡"]
+[node name="ContentHBox" type="HBoxContainer" parent="MainPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="LeftPanel" type="Control" parent="MainPanel/ContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+size_flags_stretch_ratio = 1.8
 
-[node name="甜点" type="ScrollContainer" parent="Panel/TabContainer"]
-visible = false
-layout_mode = 2
+[node name="ScrollContainer" type="ScrollContainer" parent="MainPanel/ContentHBox/LeftPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
 
-[node name="DessertVBox" type="VBoxContainer" parent="Panel/TabContainer/甜点"]
+[node name="ListVBox" type="VBoxContainer" parent="MainPanel/ContentHBox/LeftPanel/ScrollContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 20
 
-[connection signal="pressed" from="Panel/CloseButton" to="." method="_on_close_button_pressed"]
+[node name="CurrencyLabel" type="Label" parent="MainPanel/ContentHBox/LeftPanel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -30.0
+offset_right = 240.0
+offset_bottom = -10.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+text = "当前银币：0"
+
+[node name="NoticeLabel" type="Label" parent="MainPanel/ContentHBox/LeftPanel"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 200.0
+offset_top = -30.0
+offset_right = 400.0
+offset_bottom = -10.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+text = "※此商店商品每1周刷新"
+
+[node name="RightPanel" type="Panel" parent="MainPanel/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_RightPanel")
+
+[node name="Margin" type="MarginContainer" parent="MainPanel/ContentHBox/RightPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="DetailVBox" type="VBoxContainer" parent="MainPanel/ContentHBox/RightPanel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="NameLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "▪ 商品名称"
+
+[node name="DescLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+text = "商品描述..."
+autowrap_mode = 2
+
+[node name="PreviewRect" type="TextureRect" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TagMargin" type="MarginContainer" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="TagLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox/TagMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_Tag")
+text = " ☺ 心情 +1 "
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PriceHBox" type="HBoxContainer" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="TotalLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox/PriceHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 20
+text = "合计："
+
+[node name="PriceValue" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox/PriceHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 22
+text = "0"
+
+[node name="BuyButton" type="Button" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_BuyBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BuyBtnHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BuyBtnPressed")
+text = "购 买"
+
+[node name="EmptyLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+text = "请在左侧选择商品"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -32,8 +32,10 @@ func _ready() -> void:
 
 func _on_stage_hover_entered() -> void:
     tooltip_panel.show()
-    # Position tooltip near the title label explicitly (on its right side)
-    tooltip_panel.global_position = title_label.global_position + Vector2(title_label.size.x + 10, -20)
+    # 强制更新一下大小
+    tooltip_panel.reset_size()
+    # 将 tooltip 显示在 title_label 的左侧，向左偏移自身宽度和一段间距
+    tooltip_panel.global_position = title_label.global_position - Vector2(tooltip_panel.size.x + 10, 20)
     
     # Fade in animation
     tooltip_panel.modulate.a = 0.0

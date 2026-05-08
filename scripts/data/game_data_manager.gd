@@ -7,6 +7,7 @@ var prompt_manager: Node
 var audit_logger: Node
 var persona_lock: Node
 var mood_system: Node
+var expression_system: Node
 var memory_manager: MemoryManager
 var personality_system: Node
 var stats_system: Node
@@ -47,6 +48,9 @@ func _ready() -> void:
     
     mood_system = preload("res://scripts/data/mood_system.gd").new()
     add_child(mood_system)
+    
+    expression_system = preload("res://scripts/data/expression_system.gd").new()
+    add_child(expression_system)
     
     memory_manager = preload("res://scripts/data/memory_manager.gd").new()
     add_child(memory_manager)

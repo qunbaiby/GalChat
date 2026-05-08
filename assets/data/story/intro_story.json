@@ -5,8 +5,9 @@
             "events": [
                 {
                     "type": "background",
-                    "bg_path": "res://assets/images/backgrounds/main/main_bg_1.png",
-                    "fade_time": 1.0
+                    "bg_id": "main_bg_1",
+                    "transition_type": "fade",
+                    "duration": 0.1
                 },
                 {
                     "type": "dialogue",
@@ -18,20 +19,37 @@
                     "call_id": "intro_call_nicole"
                 },
                 {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "话音刚落，不等我开口回应，妮可便轻快地挂断了电话。"
+                },
+                {
+                    "type": "audio",
+                    "audio_id": "doorbell",
+                    "audio_type": "se",
+                    "action": "play"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "下一秒，工作室的门铃轻轻响起，清脆又带着几分小心翼翼。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "我起身开门——"
+                },                
+                {
                     "type": "background",
-                    "bg_path": "res://assets/images/story/cg/story_cg_0.png",
-                    "fade_time": 1.0
+                    "bg_id": "story_cg_0",
+                    "transition_type": "blur",
+                    "duration": 1.5
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "话音刚落，不等我开口回应，妮可便轻快地挂断了电话。下一秒，工作室的门铃轻轻响起，清脆又带着几分小心翼翼。"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "我起身开门，暖光恰好落在门口少女的身上——Luna安静地立着，指尖紧紧攥着衣角，眉眼间藏着藏不住的拘谨与落寞，眼神怯生生的，却又带着一丝期待。"
-                },
+                    "content": "暖光恰好落在门口少女的身上，Luna安静地立着，指尖紧紧攥着衣角，眉眼间藏着藏不住的拘谨与落寞，眼神怯生生的，却又带着一丝期待。"
+                },   
                 {
                     "type": "show_character",
                     "animation": "fade_in"

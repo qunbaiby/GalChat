@@ -64,11 +64,11 @@ func load_memory() -> void:
                         memories[key] = layer_mems
                 turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
 
-func save_memory() -> bool:
+func save_memory() -> void:
     var data = memories.duplicate(true)
     data["_turns_since_last_extract"] = turns_since_last_extract
     var content = JSON.stringify(data, "\t")
-    return SafeFileAccess.store_string(get_memory_file_path(), content)
+    SafeFileAccess.store_string(get_memory_file_path(), content)
 
 func _generate_id() -> String:
     return str(Time.get_unix_time_from_system() * 1000 + randi() % 1000)

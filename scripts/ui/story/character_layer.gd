@@ -48,10 +48,11 @@ func _update_spine_data() -> void:
 # 新增：更新立绘动画状态
 func _update_character_ani() -> void:
     if not is_instance_valid(character_ani): return
-    var mood = GameDataManager.profile.current_mood
+    # 首先尝试获取表情对应的立绘
+    var expression = GameDataManager.profile.current_expression
     
     # 获取图片路径
-    var sprite_path = GameDataManager.mood_system.get_mood_sprite_path(mood)
+    var sprite_path = GameDataManager.expression_system.get_expression_sprite_path(expression)
     if sprite_path != "":
         # 如果是外部文件
         if sprite_path.begins_with("user://"):
@@ -70,8 +71,8 @@ func _update_character_ani() -> void:
                 
     # 回退到 AnimatedSprite2D 自身配置
     var frames = character_ani.sprite_frames
-    if frames and frames.has_animation(mood):
-        character_ani.play(mood)
+    if frames and frames.has_animation(expression):
+        character_ani.play(expression)
     else:
         # 如果没有对应心情的动画，尝试回退到 "calm" 或 "idle" 等默认动画
         if frames and frames.has_animation("calm"):
