@@ -20,17 +20,17 @@ shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
 bg_color = Color(0.8, 0.2, 0.2, 1)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
+corner_radius_top_left = 35
+corner_radius_top_right = 35
+corner_radius_bottom_right = 35
+corner_radius_bottom_left = 35
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
 bg_color = Color(0.2, 0.6, 0.2, 1)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
+corner_radius_top_left = 35
+corner_radius_top_right = 35
+corner_radius_bottom_right = 35
+corner_radius_bottom_left = 35
 
 [node name="VoiceCallPanel" type="Control"]
 custom_minimum_size = Vector2(400, 0)
@@ -121,25 +121,51 @@ layout_mode = 2
 theme_override_constants/separation = 80
 alignment = 1
 
-[node name="HangupBtn" type="Button" parent="Panel/VBox/BottomBar"]
-custom_minimum_size = Vector2(60, 60)
+[node name="HangupVBox" type="VBoxContainer" parent="Panel/VBox/BottomBar"]
 layout_mode = 2
-size_flags_vertical = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="HangupBtn" type="Button" parent="Panel/VBox/BottomBar/HangupVBox"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_HangupBtn")
-text = "挂断"
+text = "☎"
 
-[node name="RecordBtn" type="Button" parent="Panel/VBox/BottomBar"]
-custom_minimum_size = Vector2(60, 60)
+[node name="HangupLabel" type="Label" parent="Panel/VBox/BottomBar/HangupVBox"]
 layout_mode = 2
-size_flags_vertical = 4
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "挂断"
+horizontal_alignment = 1
+
+[node name="RecordVBox" type="VBoxContainer" parent="Panel/VBox/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="RecordBtn" type="Button" parent="Panel/VBox/BottomBar/RecordVBox"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_RecordBtn")
+text = "🎙"
+
+[node name="RecordLabel" type="Label" parent="Panel/VBox/BottomBar/RecordVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 text = "按住说话"
+horizontal_alignment = 1
 
 [node name="BottomSpacer" type="Control" parent="Panel/VBox"]
 custom_minimum_size = Vector2(0, 30)

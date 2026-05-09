@@ -3,21 +3,20 @@ extends Control
 @onready var ui_panel: Panel = $UIPanel
 @onready var galchat_button: Button = $UIPanel/StoryButton
 @onready var activity_button: Button = $UIPanel/ActivityButton
-@onready var desktop_pet_button: Button = $UIPanel/BottomPanel/BottomButton/DesktopPetButton
+@onready var desktop_pet_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DesktopPetButton
 @onready var hide_ui_button: Button = $UIPanel/SystemButton/HideUIButton
 @onready var settings_button: Button = $UIPanel/SystemButton/SettingsButton
 @onready var save_button: Button = $UIPanel/SystemButton/SaveButton
 @onready var load_button: Button = $UIPanel/SystemButton/LoadButton
 @onready var affection_button: Button = $UIPanel/AffectionButton
-@onready var phone_button: Button = $UIPanel/BottomPanel/BottomButton/PhoneButton
-@onready var diary_button: Button = $UIPanel/BottomPanel/BottomButton/DiaryButton
-@onready var pomodoro_button: Button = $UIPanel/BottomPanel/BottomButton/PomodoroButton
-@onready var schedule_button: Button = $UIPanel/BottomPanel/BottomButton/ScheduleButton
+@onready var phone_button: Button = $UIPanel/BottomBarHBox/BtnHBox/PhoneButton
+@onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
+@onready var pomodoro_button: Button = $UIPanel/PomodoroButton
 @onready var map_button: Button = $UIPanel/MapButton
 @onready var stats_panel = $UIPanel/StatsPanel
 @onready var top_status_panel = $UIPanel/TopStatusPanel
 @onready var bgm: AudioStreamPlayer = $BGM
-@onready var music_player: Panel = $UIPanel/MusicPlayer
+@onready var music_player: Panel = $UIPanel/BottomBarHBox/MusicPlayer
 @onready var diary_panel: Control = $UIPanel/DiaryPanel
 @onready var diary_notification: PanelContainer = $UIPanel/DiaryNotification
 @onready var topic_panel: Panel = $TopicPanel
@@ -35,6 +34,7 @@ extends Control
 @onready var deepseek_client = $DeepSeekClient
 
 @onready var chat_button: Button = $UIPanel/InteractGroup/ChatButton
+@onready var gift_button: Button = $UIPanel/InteractGroup/GiftButton
 @onready var rest_button: Button = $UIPanel/InteractGroup/RestButton
 
 var activity_panel_instance = null
@@ -209,6 +209,59 @@ func _on_topic_selected(topic: String) -> void:
 	deepseek_client.send_chat_message_stream(user_msg, "main_chat")
 
 var is_ending_chat: bool = false
+
+func _on_gift_pressed() -> void:
+	_animate_button(gift_button)
+	
+	var gift_popup_path = "res://scenes/ui/gift/gift_panel.tscn"
+	if FileAccess.file_exists(gift_popup_path):
+		var gift_popup_scene = load(gift_popup_path)
+		if gift_popup_scene:
+			var popup = gift_popup_scene.instantiate()
+			ui_panel.add_child(popup)
+			
+			if popup.has_signal("gift_sent"):
+				popup.gift_sent.connect(_on_gift_sent)
+				
+			if popup.has_method("show_panel"):
+				popup.show_panel()
+
+func _on_gift_sent(gift_data: Dictionary) -> void:
+	# 送礼后触发对话面板和特定话题
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
+	
+	dialogue_panel.visible = true
+	dialogue_panel.modulate.a = 0.0
+	var d_tween = create_tween()
+	d_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
+	
+	dialogue_name_label.text = GameDataManager.profile.char_name
+	dialogue_text.text = "..."
+	input_field.text = ""
+	input_field.editable = false
+	send_btn.disabled = true
+	
+	if end_chat_btn:
+		end_chat_btn.show()
+	if history_btn:
+		history_btn.show()
+	
+	for child in quick_options_container.get_children():
+		child.queue_free()
+		
+	var gift_name = gift_data.get("name", "礼物")
+	var stage_conf = GameDataManager.profile.get_current_stage_config()
+	var stage_desc = stage_conf.get("stageDesc", "")
+	var player_name = GameDataManager.profile.player_title
+	if player_name.is_empty():
+		player_name = "指导人"
+		
+	var user_msg = "【系统提示】玩家（当前身份：" + player_name + "）刚刚送给你一份礼物：【" + gift_name + "】。当前情感阶段是：" + stage_desc + "。请结合你的性格、心情和这份礼物的特点，主动对玩家说出你的感谢和反应（必须包含动作描写）。不要复述系统提示，直接给出台词。"
+	deepseek_client.send_chat_message_stream(user_msg, "main_chat")
 
 func _on_rest_pressed() -> void:
 	_animate_button(rest_button)
@@ -800,12 +853,12 @@ func _ready() -> void:
 	desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
 	diary_button.pressed.connect(_on_diary_pressed)
 	pomodoro_button.pressed.connect(_on_pomodoro_pressed)
-	schedule_button.pressed.connect(_on_schedule_pressed)
 	
 	if has_node("UIPanel/MapButton"):
 		$UIPanel/MapButton.pressed.connect(_on_map_pressed)
 		
 	chat_button.pressed.connect(_on_main_chat_pressed)
+	gift_button.pressed.connect(_on_gift_pressed)
 	rest_button.pressed.connect(_on_rest_pressed)
 	if end_chat_btn:
 		end_chat_btn.pressed.connect(_on_end_chat_pressed)
@@ -1165,15 +1218,6 @@ func _on_pomodoro_pressed() -> void:
 		add_child(pomodoro_panel_instance)
 		pomodoro_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	pomodoro_panel_instance.show()
-
-func _on_schedule_pressed() -> void:
-	_animate_button(schedule_button)
-	if schedule_panel_instance == null:
-		var SchedulePanelObj = load("res://scenes/ui/main/schedule_panel.tscn")
-		schedule_panel_instance = SchedulePanelObj.instantiate()
-		add_child(schedule_panel_instance)
-		schedule_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	schedule_panel_instance.show()
 
 func _on_map_pressed() -> void:
 	_animate_button(map_button)

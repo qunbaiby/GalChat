@@ -11,7 +11,6 @@ extends Control
 @onready var input_field = $InputLayer/HBoxContainer/InputField if has_node("InputLayer/HBoxContainer/InputField") else null
 @onready var char_count_label = $InputLayer/HBoxContainer/InputField/CharCountLabel if has_node("InputLayer/HBoxContainer/InputField/CharCountLabel") else null
 @onready var send_btn = $InputLayer/HBoxContainer/SendButton if has_node("InputLayer/HBoxContainer/SendButton") else null
-@onready var gift_btn = $InputLayer/HBoxContainer/GiftButton if has_node("InputLayer/HBoxContainer/GiftButton") else null
 @onready var quick_options_container = $QuickOptionLayer/ScrollContainer/QuickOptions if has_node("QuickOptionLayer/ScrollContainer/QuickOptions") else null
 
 signal dialogue_finished
@@ -56,45 +55,12 @@ func _ready():
         input_field.text_changed.connect(_on_input_text_changed)
         input_field.gui_input.connect(_on_input_gui_input)
         _update_char_count()
-
-    # Gift Button logic
-    if gift_btn:
-        if not gift_btn.pressed.is_connected(_on_gift_pressed):
-            gift_btn.pressed.connect(_on_gift_pressed)
         
     if quick_options_container:
         quick_options_container.child_entered_tree.connect(_on_quick_option_added)
 
 func set_story_mode(enabled: bool) -> void:
     is_story_mode = enabled
-    if gift_btn:
-        gift_btn.visible = !is_story_mode
-        if is_story_mode:
-            if gift_btn.pressed.is_connected(_on_gift_pressed):
-                gift_btn.pressed.disconnect(_on_gift_pressed)
-        else:
-            if not gift_btn.pressed.is_connected(_on_gift_pressed):
-                gift_btn.pressed.connect(_on_gift_pressed)
-
-func _on_gift_pressed():
-    var gift_popup_path = "res://scenes/ui/gift/gift_panel.tscn"
-    if FileAccess.file_exists(gift_popup_path):
-        var gift_popup_scene = load(gift_popup_path)
-        if gift_popup_scene:
-            var popup = gift_popup_scene.instantiate()
-            add_child(popup)
-            # Try to connect the gift_sent signal to main_scene/dialogue_manager if needed
-            var parent = get_parent()
-            while parent:
-                if parent.has_method("_on_gift_sent"):
-                    popup.gift_sent.connect(parent._on_gift_sent)
-                    break
-                parent = parent.get_parent()
-            
-            if popup.has_method("show_panel"):
-                popup.show_panel()
-    else:
-        print("[DialoguePanel] Gift panel scene not found at ", gift_popup_path)
 
 func _on_quick_option_added(node: Node):
     if node is Button:

@@ -6,7 +6,7 @@
         },
         {
             "id": "main_bg_0",
-            "path": "res://assets/images/backgrounds/main/main_bg_0.png"
+            "path": "res://assets/images/backgrounds/main/galchat_cg_00016_.png"
         },
         {
             "id": "main_bg_1",
@@ -34,7 +34,7 @@
         },
         {
             "id": "story_cg_0",
-            "path": "res://assets/images/story/cg/story_cg_0.png"
+            "path": "res://assets/images/story/cg/galchat_cg_00015_.png"
         }
     ]
 }

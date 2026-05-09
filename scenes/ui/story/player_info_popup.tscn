@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://wxfo2ad86y3e"]
+[gd_scene load_steps=4 format=3 uid="uid://wxfo2ad86y3e"]
 
 [ext_resource type="Script" uid="uid://d2g72uekyv7s" path="res://scripts/ui/story/player_info_popup.gd" id="1_x0y1z"]
 
@@ -15,18 +15,6 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avatar"]
-bg_color = Color(0.8, 0.8, 0.8, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mbti_panel"]
 bg_color = Color(0.15, 0.15, 0.18, 0.98)
@@ -59,17 +47,16 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.8)
 
 [node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(700, 480)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -350.0
+offset_left = -199.5
 offset_top = -240.0
-offset_right = 350.0
-offset_bottom = 240.0
+offset_right = 199.5
+offset_bottom = 193.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -90,47 +77,11 @@ theme_override_constants/margin_bottom = 30
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="TitleLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 28
-text = "—— 玩家身份信息 ——"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
 [node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 40
 alignment = 1
-
-[node name="LeftBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 15
-alignment = 1
-
-[node name="AvatarBg" type="PanelContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/LeftBox"]
-custom_minimum_size = Vector2(160, 200)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_avatar")
-
-[node name="AvatarRect" type="TextureRect" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/LeftBox/AvatarBg"]
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="IDLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/LeftBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 18
-text = "ID: 档案建立中..."
-horizontal_alignment = 1
-
-[node name="VSeparator" type="VSeparator" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
 
 [node name="RightBox" type="GridContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -217,7 +168,7 @@ alignment = 1
 custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "建档完成"
+text = "确认"
 
 [node name="MBTIPopup" type="Panel" parent="."]
 visible = false

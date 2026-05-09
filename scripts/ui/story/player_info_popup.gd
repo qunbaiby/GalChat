@@ -34,8 +34,6 @@ const MBTI_TYPES = [
 @onready var mbti_button: Button = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/MBTIButton
 @onready var confirm_btn: Button = $Panel/MarginContainer/VBoxContainer/BtnHBox/ConfirmBtn
 
-@onready var avatar_rect: TextureRect = $Panel/MarginContainer/VBoxContainer/HBoxContainer/LeftBox/AvatarBg/AvatarRect
-
 @onready var mbti_popup: Panel = $MBTIPopup
 @onready var mbti_grid: GridContainer = $MBTIPopup/Margin/VBox/Scroll/Grid
 @onready var close_mbti_btn: Button = $MBTIPopup/Margin/VBox/CloseMBTI
@@ -45,7 +43,6 @@ func _ready() -> void:
 	gender_option.add_item("男", 0)
 	gender_option.add_item("女", 1)
 	gender_option.add_item("其他", 2)
-	gender_option.item_selected.connect(_on_gender_selected)
 	
 	# 生日选择
 	for m in range(1, 13):
@@ -55,7 +52,6 @@ func _ready() -> void:
 	
 	_update_days(1)
 	_update_zodiac()
-	_update_avatar(0)
 	
 	# MBTI 面板初始化
 	_init_mbti_grid()
@@ -92,9 +88,6 @@ func _on_month_selected(index: int) -> void:
 func _on_day_selected(index: int) -> void:
 	_update_zodiac()
 
-func _on_gender_selected(index: int) -> void:
-	_update_avatar(index)
-
 func _update_zodiac() -> void:
 	var month = month_option.get_item_id(month_option.selected)
 	var day = day_option.get_item_id(day_option.selected)
@@ -114,41 +107,6 @@ func _get_zodiac_name(month: int, day: int) -> String:
 	elif (month == 1 and day >= 20) or (month == 2 and day <= 18): return "水瓶座 ♒"
 	elif (month == 2 and day >= 19) or (month == 3 and day <= 20): return "双鱼座 ♓"
 	return "未知"
-
-func _update_avatar(gender_index: int) -> void:
-	var img = Image.create(160, 200, false, Image.FORMAT_RGBA8)
-	# 背景透明
-	img.fill(Color(0, 0, 0, 0))
-	
-	var is_female = (gender_index == 1)
-	
-	var head_center = Vector2(80, 60)
-	var head_radius = 35
-	
-	for y in range(200):
-		for x in range(160):
-			var p = Vector2(x, y)
-			# 画头
-			if p.distance_to(head_center) < head_radius:
-				img.set_pixel(x, y, Color(0.2, 0.2, 0.25, 1))
-			
-			# 画身体（简单的圆角矩形/梯形）
-			elif y >= 110:
-				var dy = y - 110
-				var dx = abs(x - 80)
-				if dx < 40 + dy * 0.4:
-					img.set_pixel(x, y, Color(0.2, 0.2, 0.25, 1))
-			
-			# 女性加点头发剪影
-			if is_female:
-				if y > 40 and y < 140 and abs(x - 80) > 25 and abs(x - 80) < 55:
-					# 简单的长发轮廓
-					var hair_dx = abs(x - 80)
-					if hair_dx < 55 - (y - 40) * 0.1:
-						img.set_pixel(x, y, Color(0.2, 0.2, 0.25, 1))
-
-	var tex = ImageTexture.create_from_image(img)
-	avatar_rect.texture = tex
 
 func _init_mbti_grid() -> void:
 	for child in mbti_grid.get_children():

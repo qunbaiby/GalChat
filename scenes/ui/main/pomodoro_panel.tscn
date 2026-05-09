@@ -1,7 +1,15 @@
 [gd_scene load_steps=5 format=3 uid="uid://dxxxxxxxxxx"]
 
 [ext_resource type="Script" path="res://scripts/ui/main/pomodoro_panel.gd" id="1_pomodoro"]
-[ext_resource type="Script" path="res://scripts/ui/main/pomodoro_ring.gd" id="2_ring"]
+[ext_resource type="Shader" path="res://assets/shaders/rainbow_border.gdshader" id="3_shader_file"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rainbow"]
+shader = ExtResource("3_shader_file")
+shader_parameter/color1 = Color(0, 0.8, 1, 1)
+shader_parameter/color2 = Color(1, 0, 0.5, 1)
+shader_parameter/speed = 1.0
+shader_parameter/border_width = 0.015
+shader_parameter/blur = 0.005
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.08, 0.1, 0.15, 0.95)
@@ -60,24 +68,24 @@ flat = true
 
 [node name="MarginContainer" type="MarginContainer" parent="Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 30
-theme_override_constants/margin_bottom = 30
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 mouse_filter = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 30
+theme_override_constants/separation = 10
 mouse_filter = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Ring" type="Control" parent="Panel/MarginContainer/VBoxContainer/CenterContainer"]
+[node name="Ring" type="ColorRect" parent="Panel/MarginContainer/VBoxContainer/CenterContainer"]
+material = SubResource("ShaderMaterial_rainbow")
 custom_minimum_size = Vector2(240, 240)
 layout_mode = 2
-script = ExtResource("2_ring")
 
 [node name="VBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring"]
 layout_mode = 1
@@ -119,43 +127,43 @@ horizontal_alignment = 1
 [node name="Controls" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 20
+theme_override_constants/separation = 10
 
 [node name="PlayButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 20
 text = "▶"
 
 [node name="PauseButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 20
 text = "||"
 
 [node name="ResetButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 20
 text = "↻"
 
 [node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 5
 
 [node name="Settings" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 30
+theme_override_constants/separation = 10
 
 [node name="WorkSet" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/Settings"]
 layout_mode = 2

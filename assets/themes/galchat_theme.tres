@@ -1,7 +1,7 @@
-[gd_resource type="Theme" load_steps=14 format=3 uid="uid://cx6y837p8y74k"]
+[gd_resource type="Theme" load_steps=15 format=3 uid="uid://cx6y837p8y74k"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d5sak"]
-bg_color = Color(0.18, 0.18, 0.25, 0.85)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -13,28 +13,28 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnHover"]
-bg_color = Color(0.18, 0.18, 0.25, 0.85)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.3, 0.3, 0.4, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnNormal"]
-bg_color = Color(0.14, 0.14, 0.2, 0.85)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.25, 0.25, 0.35, 0.8)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnPressed"]
 bg_color = Color(0.1, 0.1, 0.15, 0.85)
@@ -43,13 +43,13 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.2, 0.2, 0.3, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LineEdit"]
-bg_color = Color(0.08, 0.08, 0.11, 0.8)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -61,7 +61,7 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.1, 0.1, 0.14, 0.9)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -73,7 +73,7 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelContainer"]
-bg_color = Color(0.1, 0.1, 0.14, 0.9)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -85,7 +85,14 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yegx0"]
-bg_color = Color(0.18, 0.18, 0.24, 0.8)
+bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_55yp5"]
+bg_color = Color(0.34314227, 0.5422464, 0.51125723, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
@@ -153,6 +160,7 @@ OptionButton/colors/font_color = Color(0.95, 0.95, 0.95, 1)
 Panel/styles/panel = SubResource("StyleBoxFlat_Panel")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_PanelContainer")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_yegx0")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_55yp5")
 RichTextLabel/colors/default_color = Color(0.95, 0.95, 0.95, 1)
 TabContainer/colors/font_selected_color = Color(1, 1, 1, 1)
 TabContainer/colors/font_unselected_color = Color(0.6, 0.6, 0.65, 1)

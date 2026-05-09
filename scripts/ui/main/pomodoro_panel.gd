@@ -146,8 +146,25 @@ func _update_ui() -> void:
     if total_time > 0:
         p = 1.0 - (float(time_left) / float(total_time))
     
-    var color = WORK_COLOR if current_state == "work" else REST_COLOR
-    if current_state == "idle" or current_state == "paused":
-        color = Color(0.3, 0.7, 1.0) if mode_label.text == "工作" else REST_COLOR
+    # 根据状态设置颜色
+    var color1 = Color(0.0, 0.8, 1.0)
+    var color2 = Color(1.0, 0.0, 0.5)
+    
+    if current_state == "work":
+        color1 = Color(1.0, 0.2, 0.4)
+        color2 = Color(1.0, 0.6, 0.0)
+    elif current_state == "rest":
+        color1 = Color(0.2, 1.0, 0.4)
+        color2 = Color(0.0, 0.8, 0.8)
         
-    ring.set_progress(p, color)
+    if current_state == "idle" or current_state == "paused":
+        if mode_label.text == "工作":
+            color1 = Color(0.3, 0.7, 1.0)
+            color2 = Color(0.0, 0.4, 0.8)
+        else:
+            color1 = Color(0.2, 1.0, 0.4)
+            color2 = Color(0.0, 0.8, 0.8)
+            
+    ring.material.set_shader_parameter("progress", p)
+    ring.material.set_shader_parameter("color1", color1)
+    ring.material.set_shader_parameter("color2", color2)

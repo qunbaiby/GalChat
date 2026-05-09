@@ -7,8 +7,8 @@ signal message_sent(text) # 发送给 mobile chat
 @onready var name_label: Label = $Panel/VBox/NameLabel
 @onready var status_label: Label = $Panel/VBox/StatusLabel
 @onready var message_label: RichTextLabel = $Panel/VBox/MessageCenter/MessageLabel
-@onready var hangup_btn: Button = $Panel/VBox/BottomBar/HangupBtn
-@onready var record_btn: Button = $Panel/VBox/BottomBar/RecordBtn
+@onready var hangup_btn: Button = $Panel/VBox/BottomBar/HangupVBox/HangupBtn
+@onready var record_btn: Button = $Panel/VBox/BottomBar/RecordVBox/RecordBtn
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
 var qwen_asr_client = null
 
