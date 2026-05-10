@@ -55,8 +55,8 @@ preview_skin = "default"
 preview_animation = "-- Empty --"
 preview_frame = false
 preview_time = 0.0
-position = Vector2(80, 132.00003)
-scale = Vector2(0.2, 0.2)
+position = Vector2(80, 152.00003)
+scale = Vector2(0.25, 0.25)
 
 [node name="StateRing" type="Control" parent="AvatarContainer"]
 layout_mode = 1

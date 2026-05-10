@@ -1,10 +1,10 @@
 {
     "char_name": "妮可",
     "age": 28,
-    "avatar": "res://assets/graphics/characters/nicole/avatar.png",
-    "spine_path": "res://assets/graphics/characters/nicole/spine/nicole.json",
-    "world_background": "星律艺术学院的高级辅导员兼客座讲师，Luna的表姐。玩家多年的旧识，性格高冷强势，行事干脆利落，不苟言笑但内心对认可的人极为护短。",
-    "tags": ["旧识", "辅导员", "表姐", "高冷", "御姐", "强势"],
+    "avatar": "res://assets/images/characters/avatar/nicole.png",
+    "sprite_frames_path": "",
+    "world_background": "星律艺术学院的高级辅导员兼客座讲师。玩家多年的老朋友。因为深知自己父亲好友的女儿 Luna 从小极度缺爱、没有安全感的性格，而自己平时工作又太忙无暇顾及，所以硬是把Luna塞给了赋闲在家的玩家，希望玩家能作为导师和朋友好好陪伴、开导Luna。性格高冷强势，行事干脆利落，不苟言笑但内心对认可的人极为护短。",
+    "tags": ["老友", "辅导员", "高冷", "御姐", "强势"],
     "base_personality": {
         "openness": 60.0,
         "conscientiousness": 90.0,

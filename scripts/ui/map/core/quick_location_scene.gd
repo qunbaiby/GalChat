@@ -84,7 +84,7 @@ func _on_npc_clicked(npc_id: String):
 	if npc_id == "luna":
 		char_file_path = "res://assets/data/characters/luna.json"
 		
-	var spine_path = ""
+	var sprite_frames_path = ""
 	var static_portrait_path = ""
 	var npc_title = "未知"
 	
@@ -95,7 +95,7 @@ func _on_npc_clicked(npc_id: String):
 			var data = json.get_data()
 			if data is Dictionary:
 				npc_name = data.get("char_name", npc_name)
-				spine_path = data.get("spine_path", "")
+				sprite_frames_path = data.get("sprite_frames_path", "")
 				static_portrait_path = data.get("static_portrait", data.get("avatar", ""))
 				npc_title = data.get("title", npc_title)
 				
@@ -148,16 +148,16 @@ func _on_npc_clicked(npc_id: String):
 	if character_layer:
 		character_layer.hide_character("none")
 		
-	var loaded_spine = false
-	if not spine_path.is_empty() and ResourceLoader.exists(spine_path) and character_layer:
-		character_layer.load_spine_by_path(spine_path)
+	var loaded_sprite = false
+	if not sprite_frames_path.is_empty() and ResourceLoader.exists(sprite_frames_path) and character_layer:
+		character_layer.load_sprite_frames_by_path(sprite_frames_path)
 		character_layer.show_character("none")
-		loaded_spine = true
+		loaded_sprite = true
 			
-	if not loaded_spine:
-		# Fallback: 如果没有 Spine，尝试显示静态立绘或者 CharacterAni
+	if not loaded_sprite:
+		# Fallback: 如果没有立绘动画帧，尝试显示静态立绘或者默认配置
 		if character_layer:
-			character_layer.load_spine_by_path("") # 传入空路径以触发 fallback 逻辑
+			character_layer.load_sprite_frames_by_path("") # 传入空路径以触发 fallback 逻辑
 			character_layer.show_character("none")
 
 	# Clear existing buttons

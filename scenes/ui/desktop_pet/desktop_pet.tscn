@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://dbwmyour8af3m"]
+[gd_scene load_steps=5 format=3 uid="uid://dbwmyour8af3m"]
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
@@ -10,7 +10,7 @@
 transparent_bg = true
 oversampling_override = 1.0
 title = "桌宠"
-size = Vector2i(400, 500)
+size = Vector2i(400, 720)
 visible = false
 unresizable = true
 borderless = true
@@ -20,9 +20,9 @@ script = ExtResource("1_script")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
-anchor_right = 0.749
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 45.399994
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -40,14 +40,14 @@ grow_vertical = 0
 size_flags_stretch_ratio = 1.5
 
 [node name="PetBody" parent="Control" instance=ExtResource("3_yofv2")]
-position = Vector2(174, 291)
+position = Vector2(174, 489)
 
 [node name="UIContainer" type="VBoxContainer" parent="Control"]
 layout_mode = 0
 offset_left = 251.0
-offset_top = 276.0
+offset_top = 474.0
 offset_right = 332.0
-offset_bottom = 434.0
+offset_bottom = 632.0
 theme_override_constants/separation = 10
 
 [node name="MainWindowButton" type="Button" parent="Control/UIContainer"]
@@ -121,7 +121,6 @@ text = "关闭"
 
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("3_api")
-
 
 [node name="MicCapture" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamMicrophone_1")

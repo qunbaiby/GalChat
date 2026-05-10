@@ -3,8 +3,8 @@
         {
             "stage": 1,
             "threshold": 0,
-            "name": "旧识",
-            "description": "曾经有过交集，但维持着清冷克制的距离感。",
+            "name": "老友",
+            "description": "相识多年的损友，经常毫不客气地把麻烦事（比如照顾Luna）甩给你，但关键时刻非常靠谱。",
             "intimacy_multiplier": 1.0,
             "mood_switch": "neutral"
         }

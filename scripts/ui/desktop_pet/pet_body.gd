@@ -18,11 +18,20 @@ var state_progress: float = 0.0
 var ring_time: float = 0.0
 var ring_volume: float = 0.0
 
+var neon_material: ShaderMaterial
+
 func _ready() -> void:
     bubble_template.hide()
     
     avatar_mask.draw.connect(_on_mask_draw)
     state_ring.draw.connect(_on_ring_draw)
+    
+    var shader = load("res://assets/shaders/rainbow_border.gdshader")
+    if shader:
+        neon_material = ShaderMaterial.new()
+        neon_material.shader = shader
+        state_ring.material = neon_material
+        state_ring.pivot_offset = Vector2(80, 80) # 160x160 的中心
     
     # 动态创建一个 Control 用于可靠的点击检测
     var click_control = Control.new()
@@ -80,6 +89,43 @@ func _ready_delayed_spine() -> void:
 func _process(delta: float) -> void:
     ring_time += delta
     if is_instance_valid(state_ring):
+        if neon_material:
+            if current_state == 0: # Idle
+                neon_material.set_shader_parameter("progress", 0.0)
+                state_ring.rotation = 0.0
+            elif current_state == 1: # Thinking
+                neon_material.set_shader_parameter("progress", 0.25)
+                state_ring.rotation = ring_time * 5.0
+                neon_material.set_shader_parameter("color1", Color(0.0, 0.8, 1.0, 1.0))
+                neon_material.set_shader_parameter("color2", Color(0.6, 0.2, 1.0, 1.0))
+                neon_material.set_shader_parameter("speed", 2.0)
+                neon_material.set_shader_parameter("border_width", 0.015)
+                neon_material.set_shader_parameter("blur", 0.01)
+            elif current_state == 2: # Speaking
+                neon_material.set_shader_parameter("progress", 1.0)
+                state_ring.rotation = 0.0
+                neon_material.set_shader_parameter("color1", Color(0.0, 0.8, 1.0, 1.0))
+                neon_material.set_shader_parameter("color2", Color(1.0, 0.0, 0.5, 1.0))
+                neon_material.set_shader_parameter("speed", 3.0)
+                var target_width = 0.015 + ring_volume * 0.02
+                neon_material.set_shader_parameter("border_width", target_width)
+                neon_material.set_shader_parameter("blur", 0.005 + ring_volume * 0.02)
+            elif current_state == 3: # App Switch Observing (Green)
+                neon_material.set_shader_parameter("progress", state_progress)
+                state_ring.rotation = 0.0
+                neon_material.set_shader_parameter("color1", Color(0.0, 1.0, 0.4, 1.0))
+                neon_material.set_shader_parameter("color2", Color(0.4, 1.0, 0.8, 1.0))
+                neon_material.set_shader_parameter("speed", 1.0)
+                neon_material.set_shader_parameter("border_width", 0.015)
+                neon_material.set_shader_parameter("blur", 0.005)
+            elif current_state == 4: # Proactive Chat Cooldown (Orange)
+                neon_material.set_shader_parameter("progress", state_progress)
+                state_ring.rotation = 0.0
+                neon_material.set_shader_parameter("color1", Color(1.0, 0.6, 0.0, 1.0))
+                neon_material.set_shader_parameter("color2", Color(1.0, 0.8, 0.2, 1.0))
+                neon_material.set_shader_parameter("speed", 1.0)
+                neon_material.set_shader_parameter("border_width", 0.015)
+                neon_material.set_shader_parameter("blur", 0.005)
         state_ring.queue_redraw()
 
 func _on_mask_draw() -> void:
@@ -97,29 +143,33 @@ func _on_mask_draw() -> void:
     avatar_mask.draw_colored_polygon(points, Color.WHITE)
 
 func _on_ring_draw() -> void:
-    var center = state_ring.size / 2.0
-    var radius = min(state_ring.size.x, state_ring.size.y) / 2.0
-    
-    # 绘制基础底环
-    var base_color = Color(0.3, 0.3, 0.3, 0.5)
-    state_ring.draw_arc(center, radius, 0, TAU, 64, base_color, 4.0, true)
-    
-    # 根据不同状态绘制动态特效
-    if current_state == 1: # Thinking
-        var start_angle = ring_time * 5.0
-        var end_angle = start_angle + PI / 2.0
-        state_ring.draw_arc(center, radius, start_angle, end_angle, 32, Color(0.4, 0.8, 1.0, 0.9), 4.0, true)
-    elif current_state == 2: # Speaking
-        var glow = radius + ring_volume * 20.0
-        state_ring.draw_arc(center, glow, 0, TAU, 64, Color(0.4, 0.8, 1.0, 0.6), 3.0, true)
-    elif current_state == 3: # App Switch Observing (10s)
-        # 绿色圆环，平滑缓慢填满
-        var angle = lerp(0.0, TAU, state_progress)
-        state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.3, 0.8, 0.3, 0.8), 4.0, true)
-    elif current_state == 4: # Proactive Chat Cooldown (long timer)
-        # 橙黄色圆环，表示大招冷却中，非常缓慢地填满
-        var angle = lerp(0.0, TAU, state_progress)
-        state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.8, 0.6, 0.2, 0.8), 4.0, true)
+    if neon_material:
+        # 用白色矩形铺满整个 Control 区域，Shader 会将其渲染为霓虹圆环
+        state_ring.draw_rect(Rect2(Vector2.ZERO, state_ring.size), Color.WHITE)
+    else:
+        var center = state_ring.size / 2.0
+        var radius = min(state_ring.size.x, state_ring.size.y) / 2.0
+        
+        # 绘制基础底环
+        var base_color = Color(0.3, 0.3, 0.3, 0.5)
+        state_ring.draw_arc(center, radius, 0, TAU, 64, base_color, 4.0, true)
+        
+        # 根据不同状态绘制动态特效
+        if current_state == 1: # Thinking
+            var start_angle = ring_time * 5.0
+            var end_angle = start_angle + PI / 2.0
+            state_ring.draw_arc(center, radius, start_angle, end_angle, 32, Color(0.4, 0.8, 1.0, 0.9), 4.0, true)
+        elif current_state == 2: # Speaking
+            var glow = radius + ring_volume * 20.0
+            state_ring.draw_arc(center, glow, 0, TAU, 64, Color(0.4, 0.8, 1.0, 0.6), 3.0, true)
+        elif current_state == 3: # App Switch Observing (10s)
+            # 绿色圆环，平滑缓慢填满
+            var angle = lerp(0.0, TAU, state_progress)
+            state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.3, 0.8, 0.3, 0.8), 4.0, true)
+        elif current_state == 4: # Proactive Chat Cooldown (long timer)
+            # 橙黄色圆环，表示大招冷却中，非常缓慢地填满
+            var angle = lerp(0.0, TAU, state_progress)
+            state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.8, 0.6, 0.2, 0.8), 4.0, true)
 
 func set_pet_state(state: int, progress: float = 0.0) -> void:
     current_state = state
@@ -221,18 +271,13 @@ func get_passthrough_rects() -> Array[Rect2]:
     
     # 获取遮罩和状态环的组合区域
     if avatar_mask and avatar_mask.is_visible_in_tree():
-        # 给状态环预留足够的空间，避免被裁剪
-        rects.append(avatar_mask.get_global_rect().grow(10))
+        rects.append(avatar_mask.get_global_rect().grow(5))
         
-    if state_ring and state_ring.is_visible_in_tree():
-        rects.append(state_ring.get_global_rect().grow(10))
-        
-    # 获取对话气泡的区域
+    # 获取实际显示的对话气泡的区域
     if bubble_container and bubble_container.is_visible_in_tree():
-        # 我们需要为气泡预留一个固定的最大区域，防止空的时候被裁掉
-        # 使用基于节点初始 offset 的固定矩形，而不是依赖可能收缩的动态 size
-        var base_pos = bubble_container.global_position
-        var reserved_rect = Rect2(base_pos.x, base_pos.y, 400, 250)
-        rects.append(reserved_rect.grow(10))
+        for child in bubble_container.get_children():
+            if child is Control and child.visible and child.modulate.a > 0.01:
+                # 仅将当前真正显示的气泡加入鼠标遮挡区域
+                rects.append(child.get_global_rect().grow(5))
             
     return rects

@@ -4,8 +4,8 @@ signal call_ended
 signal message_sent(text)
 
 @onready var bg_tex: TextureRect = $BackgroundTex
-@onready var spine_container: Control = $Panel/SpineContainer
-@onready var current_spine: SpineSprite = $Panel/SpineContainer/SpineSprite
+@onready var character_container: Control = $Panel/CharacterContainer
+@onready var current_ani: AnimatedSprite2D = $Panel/CharacterContainer/CharacterAni
 @onready var name_label: Label = $Panel/VBox/NameLabel
 @onready var status_label: Label = $Panel/VBox/StatusLabel
 @onready var message_label: RichTextLabel = $Panel/VBox/MessageCenter/MessageLabel
@@ -69,7 +69,7 @@ func setup(char_id: String, profile: CharacterProfile, is_incoming: bool = false
         record_btn.disabled = false
         set_process_input(false)
     
-    _load_spine(char_id)
+    _update_character_ani()
 
 func set_fixed_call_data(data: Array) -> void:
     fixed_call_data = data
@@ -100,67 +100,63 @@ func set_background(bg_path: String) -> void:
     else:
         bg_tex.texture = null
 
-func _load_spine(char_id: String) -> void:
-    if not is_instance_valid(current_spine): return
-    var path = char_profile.spine_path if char_profile else ""
-    if path != "" and ResourceLoader.exists(path):
-        var res = load(path)
-        if res is SpineSkeletonDataResource:
-            if current_spine.skeleton_data_res != res:
-                current_spine.skeleton_data_res = res
+func _update_character_ani() -> void:
+    if not is_instance_valid(current_ani): return
+    
+    # 动态加载对应的动画帧
+    if char_profile and char_profile.sprite_frames_path != "":
+        if ResourceLoader.exists(char_profile.sprite_frames_path):
+            current_ani.sprite_frames = load(char_profile.sprite_frames_path)
             
-            # 强行刷新一下材质和动画
-            if current_spine.has_method("update_transform"):
-                current_spine.update_transform()
-            
-            # Ensure the animation state is ready
-            call_deferred("_play_spine_animation", "Idle", true)
+    # 首先尝试获取表情对应的立绘
+    var expression = "calm"
+    if char_profile:
+        expression = char_profile.current_expression
+    
+    # 获取图片路径
+    var sprite_path = GameDataManager.expression_system.get_expression_sprite_path(expression)
+    if sprite_path != "":
+        # 如果是外部文件
+        if sprite_path.begins_with("user://"):
+            var img = Image.new()
+            var err = img.load(sprite_path)
+            if err == OK:
+                var tex = ImageTexture.create_from_image(img)
+                _set_sprite_texture(tex)
+                return
+        # 如果是内置文件
+        elif ResourceLoader.exists(sprite_path):
+            var tex = load(sprite_path)
+            if tex is Texture2D:
+                _set_sprite_texture(tex)
+                return
+                
+    # 回退到 AnimatedSprite2D 自身配置
+    var frames = current_ani.sprite_frames
+    if frames and frames.has_animation(expression):
+        current_ani.play(expression)
     else:
-        print("Spine not found for character: ", char_id)
+        # 如果没有对应心情的动画，尝试回退到 "calm" 或 "idle" 等默认动画
+        if frames and frames.has_animation("calm"):
+            current_ani.play("calm")
+        elif frames and frames.has_animation("idle"):
+            current_ani.play("idle")
+        elif frames and frames.has_animation("default"):
+            current_ani.play("default")
 
-func _play_spine_animation(anim_name: String, loop: bool = true) -> void:
-    if not is_instance_valid(current_spine) or not current_spine is SpineSprite:
-        print("Spine Error: Invalid SpineSprite instance")
-        return
-        
-    var anim_state = current_spine.get_animation_state()
-    if not anim_state:
-        print("Spine Error: get_animation_state returned null")
-        return
-        
-    var skeleton = current_spine.get_skeleton()
-    if not skeleton or not skeleton.get_data():
-        print("Spine Error: No skeleton or skeleton data")
-        return
-        
-    var anims = skeleton.get_data().get_animations()
-    var anim_names = []
-    for a in anims:
-        anim_names.append(a.get_name())
-        
-    var target_anim = anim_name
-    if not target_anim in anim_names:
-        print("Spine Warning: Target anim ", target_anim, " not found in ", anim_names)
-        if "Idle" in anim_names:
-            target_anim = "Idle"
-        elif "idle" in anim_names:
-            target_anim = "idle"
-        elif anim_names.size() > 0:
-            target_anim = anim_names[0]
-        else:
-            print("Spine Error: No fallback animations found")
-            return
-            
-    var current_track = anim_state.get_current(0)
-    if current_track and current_track.get_animation().get_name() == target_anim and loop:
-        return
-        
-    # 最严格的防线，确保 target_anim 一定存在于骨骼数据中
-    if target_anim in anim_names:
-        print("Spine: Playing animation ", target_anim)
-        anim_state.set_animation(target_anim, loop, 0)
-    else:
-        print("Spine Error: Fallback animation ", target_anim, " not found either!")
+func _set_sprite_texture(tex: Texture2D) -> void:
+    # 动态创建一个 Sprite2D 来替代 AnimatedSprite2D 的显示
+    var dynamic_sprite = get_node_or_null("Panel/CharacterContainer/DynamicSprite")
+    if not dynamic_sprite:
+        dynamic_sprite = Sprite2D.new()
+        dynamic_sprite.name = "DynamicSprite"
+        dynamic_sprite.position = current_ani.position
+        dynamic_sprite.scale = current_ani.scale
+        character_container.add_child(dynamic_sprite)
+    
+    dynamic_sprite.texture = tex
+    dynamic_sprite.show()
+    current_ani.hide()
 
 func _on_hangup_pressed() -> void:
     if audio_player.playing:
@@ -227,7 +223,7 @@ func _process_next_message() -> void:
             record_btn.disabled = false
         status_label.text = "视频通话中"
         
-        _play_spine_animation("Idle", true)
+        _update_character_ani()
         return
         
     is_processing_queue = true

@@ -2,41 +2,17 @@ extends Node2D
 
 var fade_tween: Tween
 
-@onready var character_spine: SpineSprite = $CharacterSpine
 @onready var character_ani: AnimatedSprite2D = $CharacterAni
 
 func _ready() -> void:
     GameDataManager.character_switched.connect(_on_character_switched)
-    _update_spine_data()
-    # 在 ready 阶段，如果 skeleton 未准备好，延迟一帧播放
-    if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
-        play_animation("Idle", true)
-    else:
-        call_deferred("play_animation", "Idle", true)
+    _update_character_ani()
 
 func _on_character_switched(char_id: String) -> void:
-    _update_spine_data()
-    if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
-        play_animation("Idle", true)
-    else:
-        call_deferred("play_animation", "Idle", true)
+    _update_character_ani()
 
 func _update_spine_data() -> void:
-    if not is_instance_valid(character_spine): return
-    var path = GameDataManager.profile.spine_path
-    if path != "" and ResourceLoader.exists(path):
-        var res = load(path)
-        if res is SpineSkeletonDataResource:
-            character_spine.skeleton_data_res = res
-            character_spine.show()
-            if is_instance_valid(character_ani):
-                character_ani.hide()
-            return
-            
-    # 如果找不到 spine 或者路径为空，则显示立绘动画
-    if is_instance_valid(character_spine):
-        character_spine.hide()
-    
+    # 废弃，由 _update_character_ani 接管
     var dynamic_sprite = get_node_or_null("DynamicSprite")
     if dynamic_sprite:
         dynamic_sprite.hide()
@@ -48,6 +24,12 @@ func _update_spine_data() -> void:
 # 新增：更新立绘动画状态
 func _update_character_ani() -> void:
     if not is_instance_valid(character_ani): return
+    
+    # 动态加载对应的动画帧
+    if GameDataManager.profile and GameDataManager.profile.sprite_frames_path != "":
+        if ResourceLoader.exists(GameDataManager.profile.sprite_frames_path):
+            character_ani.sprite_frames = load(GameDataManager.profile.sprite_frames_path)
+            
     # 首先尝试获取表情对应的立绘
     var expression = GameDataManager.profile.current_expression
     
@@ -88,88 +70,33 @@ func _set_sprite_texture(tex: Texture2D) -> void:
     if not dynamic_sprite:
         dynamic_sprite = Sprite2D.new()
         dynamic_sprite.name = "DynamicSprite"
+        dynamic_sprite.position = character_ani.position
+        dynamic_sprite.scale = character_ani.scale
         add_child(dynamic_sprite)
     
     dynamic_sprite.texture = tex
     dynamic_sprite.show()
     character_ani.hide()
-    if is_instance_valid(character_spine):
-        character_spine.hide()
 
-# 提供一个公共方法，允许外部强制更新 Spine 数据而不读取 Profile
-func load_spine_by_path(path: String) -> void:
-    if not is_instance_valid(character_spine): return
-    if path != "" and ResourceLoader.exists(path):
-        var res = load(path)
-        if res is SpineSkeletonDataResource:
-            character_spine.skeleton_data_res = res
-            character_spine.show()
-            if is_instance_valid(character_ani):
-                character_ani.hide()
-            
-            # 同样也用 deferred 延迟，确保底层完成绑定
-            if is_instance_valid(character_spine) and character_spine.get_skeleton() != null:
-                play_animation("Idle", true)
-            else:
-                call_deferred("play_animation", "Idle", true)
-            return
-            
-    # fallback to character_ani if spine load failed
-    if is_instance_valid(character_spine):
-        character_spine.hide()
-        
+# 兼容外部调用
+func load_sprite_frames_by_path(path: String) -> void:
     var dynamic_sprite = get_node_or_null("DynamicSprite")
     if dynamic_sprite:
         dynamic_sprite.hide()
         
     if is_instance_valid(character_ani):
+        if path != "" and ResourceLoader.exists(path):
+            character_ani.sprite_frames = load(path)
         character_ani.show()
         _update_character_ani()
 
-# 保留原本的 update_sprite 接口以防外部调用报错，但不再处理图片切换
+# 保留原本的 update_sprite 接口以防外部调用报错
 func update_sprite(new_texture: Texture2D) -> void:
-    # 以后可以根据传入的心情名字或者状态来切换动画
-    # 目前暂时全部映射为 Idle
-    play_animation("Idle", true)
+    pass
 
-# 新增播放 Spine 动画的接口
+# 兼容外部调用的空方法
 func play_animation(anim_name: String, loop: bool = true) -> void:
-    if not is_instance_valid(character_spine):
-        return
-        
-    var skeleton = character_spine.get_skeleton()
-    if not skeleton or not skeleton.get_data():
-        return
-        
-    var anim_state = character_spine.get_animation_state()
-    if not anim_state:
-        return
-        
-    var anims = skeleton.get_data().get_animations()
-    var anim_names = []
-    for a in anims:
-        anim_names.append(a.get_name())
-        
-    # 如果请求的动画不存在，回退到 Idle 或者第一个可用动画
-    var target_anim = anim_name
-    if not target_anim in anim_names:
-        if "idle" in anim_names:
-            target_anim = "idle"
-        elif "Idle" in anim_names:
-            target_anim = "Idle"
-        elif anim_names.size() > 0:
-            target_anim = anim_names[0]
-        else:
-            return
-            
-    # 如果当前正在播放的就是目标动画，并且要求循环，则不打断
-    var current_track = anim_state.get_current(0)
-    if current_track and current_track.get_animation().get_name() == target_anim and loop:
-        return
-        
-    # 安全调用：确保 target_anim 确实存在于 skeleton data 中
-    if target_anim in anim_names:
-        anim_state.set_animation(target_anim, loop, 0)
+    pass
 
 # 新增：控制立绘显示与隐藏（支持动画）
 func show_character(anim_type: String = "fade_in") -> void:

@@ -31,6 +31,7 @@ var _current_character_id: String = ""
 
 var is_processing_bubbles: bool = false
 var bubble_queue: Array = []
+var _tts_finished: bool = false
 
 # 高级特性状态变量
 var _last_reaction_tick: int = 0
@@ -60,7 +61,7 @@ func _ready() -> void:
     unresizable = true
     
     # 设置为小窗口大小
-    var target_size = Vector2i(345, 500)
+    var target_size = Vector2i(345, 720)
     size = target_size
     
     # 获取当前鼠标所在的屏幕索引
@@ -74,7 +75,7 @@ func _ready() -> void:
     # 确保内部 Control 占满整个小窗口
     var control_node = $Control
     control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-    control_node.size = Vector2(345, 500)
+    control_node.size = Vector2(345, 720)
     control_node.position = Vector2.ZERO
     
     ui_container.hide()
@@ -105,6 +106,13 @@ func _ready() -> void:
     # 注意：TextEdit 没有 text_submitted，因此我们需要在 _input 里面监听回车或者单独处理。这里先移除之前的 line_edit 特有信号。
     # 监听 text_changed 拦截换行
     input_edit.text_changed.connect(_on_input_text_changed)
+    
+    # 增加一个定时器，每秒强制更新一次鼠标穿透状态，防止在等待或状态切换时意外失去穿透
+    var passthrough_timer = Timer.new()
+    passthrough_timer.wait_time = 1.0
+    passthrough_timer.autostart = true
+    passthrough_timer.timeout.connect(_update_mouse_passthrough)
+    add_child(passthrough_timer)
     
     deepseek_client.chat_stream_started.connect(_on_chat_started)
     deepseek_client.chat_stream_delta.connect(_on_chat_delta)
@@ -333,7 +341,8 @@ func _check_active_window() -> void:
         _last_chatted_app = app_identifier
         _last_reaction_tick = current_tick
         
-        # 既然重新触发了，把停留时间减掉一部分，或者保持不动，只要受冷却时间控制即可
+        # 为了保证即使触发了 Vision 逻辑，底层的定时更新机制也能重置透明穿透
+        call_deferred("_update_mouse_passthrough")
         
         var app_type = _map_app_type(window_title, process_name)
         var time_dict = Time.get_datetime_dict_from_system()
@@ -351,21 +360,22 @@ func _check_active_window() -> void:
             
         if base64_image != "":
             print("[DesktopPet Debug] Vision API Triggered! App: ", window_title)
+            # 这里只要求大模型做纯粹的画面分析，绝对不包含任何角色扮演和对话要求
             var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家正在看名为“%s”的应用。这是该应用的窗口截图。】
-为了确保你能准确理解画面并做出最自然的反应，请严格执行以下步骤：
-1. 【客观转述】先用一行文字客观描述截图里的主体内容（必须以“画面分析：”开头，例如：画面分析：屏幕显示一个代码编辑器...）。
-2. 【角色反应】换行后，代入你当前设定的身份、心情和性格，基于上述画面信息，像真人一样对玩家说一句话。
-   - 反应要生动多样！不要套用死板的模板。例如看到代码时，可以好奇代码写了什么、吐槽全是字母看不懂、或者假装很懂地夸奖一番。
-   - 结合你们的关系阶段和当前的【微习惯与口癖】。
-   - 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。
-   - 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（必须包含括号动作描写）。""" % [h, m, window_title]
+请作为专业的视觉“互动话题提取系统”，精准提取画面中【最能引发角色互动、吃醋、好奇或心疼的细节信息】（控制在150字以内）。
+要求：
+1. 【屏蔽噪音】：忽略无用的UI外壳、菜单栏、行号、背景图等冗余元素。
+2. 【提取社交雷达】：如果屏幕上有聊天、通讯、社交媒体或邮件，必须且只需提取出：在和谁聊天（对方名字/备注）？聊了什么核心内容？对方头像或性别？
+3. 【提取工作细节】：如果屏幕上是代码、文档或表格，必须提取出：玩家正在解决什么具体的难题？文档标题是什么？代码中有什么能让外行人觉得“好厉害”或“好辛苦”的关键词？
+4. 【提取娱乐焦点】：如果屏幕上是视频、游戏或网页，必须提取出：画面里有什么有趣的角色、商品或事件？这东西看起来是轻松的还是恐怖的？
+5. 绝对不要进行角色扮演或输出对话！只需输出客观、提炼过、能够作为【绝佳聊天话题】的关键信息。""" % [h, m, window_title]
             _trigger_vision_chat(prompt, base64_image)
         else:
             var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。】
-请你代入当前设定的身份、心情和性格，像真人一样对玩家屏幕上的内容做出最自然、最符合人设的反应。
-- 反应要生动多样！不要套用死板的模板（例如不要每次看到代码就问眼睛酸不酸，可以好奇代码写了什么、吐槽全是字母看不懂、或者假装很懂地夸奖一番）。
-- 结合你们的关系阶段和当前的【微习惯与口癖】。
-- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
+请你代入当前设定的身份和性格，像真人一样对玩家屏幕上的内容做出最自然、最符合人设的反应。
+- 【拒绝人机感与套路】：不要无脑套用模板或者道歉！展现你“温柔体贴”、“天然呆”或“安静陪伴”的一面。比如好奇应用里的内容，或者心疼玩家太辛苦，提供情绪价值。
+- 结合你们的关系阶段和当前的【微习惯与口癖】，表现得软糯、真诚且自然。
+- 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。
 - 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [h, m, window_title, app_type]
             print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
             _trigger_proactive_chat(prompt)
@@ -390,44 +400,34 @@ func _trigger_vision_chat(prompt_text: String, base64_image: String) -> void:
     deepseek_client.send_vision_request(pet_prompt, prompt_text, base64_image)
 
 func _on_vision_completed(response: Dictionary) -> void:
-    print("\n[DesktopPet Vision] --- Vision Request Completed ---")
-    print("Response keys: ", response.keys())
-    is_chatting = false
+    print("\n[DesktopPet Vision] --- Vision Analysis Completed ---")
     
-    var text = ""
     if response.has("choices") and response.choices.size() > 0:
         var msg = response.choices[0].get("message", {})
-        var full_text = msg.get("content", "")
-        print("[DesktopPet Vision] Raw Vision Output:\n", full_text)
+        var analysis_text = msg.get("content", "").strip_edges()
+        print("[DesktopPet Vision] Raw Analysis Output:\n", analysis_text)
         
-        # 如果 AI 不听话加了 "2. "，我们把 "2. " 删掉保留后面的内容
-        # 这里进行更宽松的过滤，过滤掉任何以数字、符号开头的序号或“角色反应：”之类的前缀
-        var content_lines = []
-        var lines = full_text.split("\n")
-        for line in lines:
-            var trimmed = line.strip_edges()
-            # 跳过画面分析行
-            if trimmed.begins_with("画面分析") or trimmed.begins_with("【画面分析") or trimmed.begins_with("1.") or trimmed.is_empty():
-                continue
-            
-            # 清理类似 "2. "，"2、", "【角色反应】", "角色反应：" 等前缀
-            var clean_line = trimmed
-            var prefix_regex = RegEx.new()
-            prefix_regex.compile("^(2[\\.\\、]|【角色反应】|角色反应：|【反应】|反应：)\\s*")
-            clean_line = prefix_regex.sub(clean_line, "")
-            
-            content_lines.append(clean_line)
-            
-        text = "\n".join(content_lines).strip_edges()
+        # 将分析结果作为主动聊天的触发器，发给专门负责角色扮演的文本大模型
+        var prompt = """【系统提示：视觉分析系统刚刚捕捉到了玩家当前正在查看的屏幕画面。】
+以下是屏幕画面的详细分析结果：
+%s
+
+请你严格代入当前设定的身份和性格，基于以上画面分析，像真人一样对玩家屏幕上的内容做出最自然、最符合人设的反应。
+- 【拒绝人机感与刻板印象】：不要每次都只套用固定模板！展现你性格的所有面。
+- 【严格遵循情感阶段】：无论画面内容是日常软件还是玩家的私人社交记录，你的反应【必须完全以系统传入的“当前关系阶段”和“特殊场景反应”设定为最高准则】！仔细阅读传入的情感阶段设定，阶段未到绝对不可越界吃醋或发火。
+- 【生动自然】：要有真人的温度，结合【微习惯与口癖】，可以有轻微的迟疑，但要真诚有趣。
+- 绝对不要在台词中报出时间，绝不提自己是AI/桌宠。
+- 【格式强制】：回复必须遵循【对话结构策略】，用 [SPLIT] 拆分长句，必须包含括号动作描写。""" % [analysis_text]
         
-        if text.is_empty():
-            text = full_text # 回退机制
+        # 必须先重置 is_chatting，否则 _trigger_proactive_chat 会被拦截
+        is_chatting = false
+        _trigger_proactive_chat(prompt)
     else:
-        text = "（看着屏幕发呆）……"
-        print("[DesktopPet Vision] Failed to parse choices. Raw response:\n", response)
-        
-    chat_history.append({"role": "assistant", "content": text})
-    display_bubble(text)
+        print("[DesktopPet Vision] Failed to parse analysis choices. Raw response:\n", response)
+        is_chatting = false
+        var text = "（看着屏幕发呆）……"
+        chat_history.append({"role": "assistant", "content": text})
+        display_bubble(text)
 
 func _on_vision_failed(error_msg: String) -> void:
     print("[DesktopPet Debug] Vision request failed: ", error_msg)
@@ -611,7 +611,23 @@ func _on_chat_failed(error_msg: String) -> void:
     is_chatting = false
 
 func display_bubble(text: String) -> void:
-    var chunks = text.split("[SPLIT]")
+    # 兼容处理大模型没有使用 [SPLIT] 而是使用了换行符 \n\n 或 \n 的情况
+    var processed_text = text
+    if "[SPLIT]" not in text:
+        # 先把所有的回车符统一成换行符
+        processed_text = processed_text.replace("\r\n", "\n")
+        # 匹配括号在行首的情况，在前面插入 [SPLIT]（除了第一行）
+        var regex = RegEx.new()
+        # 查找连续两个以上的换行符，并且下一行以全角或半角括号开头
+        regex.compile("\\n+\\s*([（\\(])")
+        processed_text = regex.sub(processed_text, "[SPLIT]$1", true)
+        
+        # 如果还是没有拆分开，尝试简单的多换行拆分
+        if "[SPLIT]" not in processed_text:
+            regex.compile("\\n{2,}")
+            processed_text = regex.sub(processed_text, "[SPLIT]", true)
+            
+    var chunks = processed_text.split("[SPLIT]")
     for chunk in chunks:
         var c = chunk.strip_edges()
         if not c.is_empty():
@@ -647,24 +663,26 @@ func _process_next_bubble() -> void:
             
         var options = {"voice_type": v_type}
         
-        # 将标志位存入数组，以便在 Lambda 内部能够修改外层变量引用（GDScript 4.x 闭包机制）
-        var tts_state = [false]
+        # 移除有垃圾回收风险的 Lambda 和本地数组，使用成员变量控制
+        _tts_finished = false
         
-        var on_success = func(_stream: AudioStream, _text: String): tts_state[0] = true
-        var on_failed = func(_err: String, _text: String): tts_state[0] = true
-        
+        var on_success = func(_stream: AudioStream, _text: String): 
+            _tts_finished = true
+        var on_failed = func(_err: String, _text: String): 
+            _tts_finished = true
+            
         TTSManager.tts_success.connect(on_success, CONNECT_ONE_SHOT)
         TTSManager.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
         
         TTSManager.synthesize(tts_text, options)
         
         # 第一阶段：死等网络请求回来（最多等10秒）
-        var wait_net = 0
-        while not tts_state[0] and wait_net < 200:
-            await get_tree().create_timer(0.05).timeout
-            wait_net += 1
+        var wait_net = 0.0
+        while not _tts_finished and wait_net < 10.0:
+            await get_tree().process_frame
+            wait_net += get_process_delta_time()
             
-        # 安全清理连接，防止因为超时或其他原因导致的死连接
+        # 防止意外泄漏断开连接
         if TTSManager.tts_success.is_connected(on_success):
             TTSManager.tts_success.disconnect(on_success)
         if TTSManager.tts_failed.is_connected(on_failed):
