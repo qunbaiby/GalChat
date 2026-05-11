@@ -10,9 +10,11 @@ var current_adapter: TTSAdapter = null
 var current_adapter_type: String = ""
 
 func _ready():
-	# 默认初始化豆包 TTS
-	# 以后可以根据用户设置（GameDataManager.config.tts_backend）来决定
-	set_adapter("doubao")
+	# 根据用户设置初始化 TTS 后端
+	if GameDataManager.config and GameDataManager.config.tts_backend != "":
+		set_adapter(GameDataManager.config.tts_backend)
+	else:
+		set_adapter("qwen_tts")
 
 # 切换 TTS 适配器
 func set_adapter(adapter_type: String) -> void:
@@ -31,6 +33,10 @@ func set_adapter(adapter_type: String) -> void:
 			var DoubaoAdapter = load("res://scripts/api/doubao_TTS_Service.gd") 
 			if DoubaoAdapter:
 				current_adapter = DoubaoAdapter.new()
+		"qwen_tts":
+			var QwenTTSAdapter = load("res://scripts/api/tts/qwen_tts_adapter.gd")
+			if QwenTTSAdapter:
+				current_adapter = QwenTTSAdapter.new()
 		"gpt_sovits":
 			# TODO: 预留给本地免费 GPT-SoVITS 的适配器
 			print("[TTSManager] GPT-SoVITS adapter not implemented yet.")
@@ -52,7 +58,8 @@ func _setup_current_adapter_auth() -> void:
 		var config_dict = {
 			"app_id": GameDataManager.config.doubao_app_id,
 			"token": GameDataManager.config.doubao_token,
-			"cluster": GameDataManager.config.doubao_cluster
+			"cluster": GameDataManager.config.doubao_cluster,
+			"qwen_tts_api_key": GameDataManager.config.qwen_tts_api_key
 		}
 		current_adapter.setup_auth(config_dict)
 
@@ -66,11 +73,15 @@ func synthesize(text: String, options: Dictionary = {}) -> void:
 	if not options.has("emotion") and GameDataManager.profile:
 		options["emotion"] = GameDataManager.profile.current_expression
 		
-	# 兼容原有逻辑，注入当前的 voice_type
-	if not options.has("voice_type") and GameDataManager.profile and GameDataManager.config:
+	# 兼容原有逻辑，注入当前的 voice_type 或 voice_seed
+	if GameDataManager.profile and GameDataManager.config:
 		var char_id = GameDataManager.config.current_character_id
-		if GameDataManager.config.character_voice_types.has(char_id):
-			options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
+		if current_adapter_type == "doubao":
+			if not options.has("voice_type") and GameDataManager.config.character_voice_types.has(char_id):
+				options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
+		elif current_adapter_type == "qwen_tts":
+			if not options.has("voice_type") and GameDataManager.config.qwen_tts_voice_types.has(char_id):
+				options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[char_id]
 			
 	current_adapter.synthesize(text, options)
 

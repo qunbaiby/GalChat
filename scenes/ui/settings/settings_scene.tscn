@@ -226,6 +226,20 @@ theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 12
 columns = 2
 
+[node name="TtsBackendLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "语音合成引擎 (TTS Backend)"
+
+[node name="TtsBackendOption" type="OptionButton" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 2
+popup/item_0/text = "豆包 (Doubao)"
+popup/item_0/id = 0
+popup/item_1/text = "阿里云 (Qwen3-TTS)"
+popup/item_1/id = 1
+
 [node name="VoiceModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
 layout_mode = 2
 text = "启用语音合成 (TTS)"
@@ -266,6 +280,17 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "volcano_tts"
+
+[node name="QwenTtsKeyInputLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+layout_mode = 2
+text = "Qwen3-TTS API Key"
+
+[node name="QwenTtsKeyInput" type="LineEdit" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "sk-..."
+secret = true
 
 [node name="AsrModeCheckLabel" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/Grid"]
 layout_mode = 2

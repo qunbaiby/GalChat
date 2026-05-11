@@ -5,14 +5,14 @@
             "events": [
                 {
                     "type": "background",
-                    "bg_id": "main_bg_1",
+                    "bg_id": "main_bg_0",
                     "transition_type": "fade",
                     "duration": 0.1
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "一个月前，工作室的宁静被一阵电话铃声打破，来电的是许久未见的好友妮可。"
+                    "content": "一个月前，工作室的宁静被一阵电话铃声打破，来电的是断联许久的好友妮可。"
                 },
                 {
                     "type": "voice_call",
@@ -21,7 +21,7 @@
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "一如既往地没给我任何反驳的机会，妮可便轻巧地挂断了电话。"
+                    "content": "妮可一如既往地没给我反驳的余地就挂了电话。"
                 },
                 {
                     "type": "audio",
@@ -32,24 +32,46 @@
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "几乎就在下一秒，工作室的门铃轻轻响起，声音清脆，又带着一丝小心翼翼。"
+                    "content": "几乎同时，工作室的门铃轻轻响起，清脆又带着几分小心翼翼，生怕惊扰了屋里的宁静。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "我起身开门，午后的暖光正好洒落在门口的少女身上——"
-                },                      
+                    "content": "我起身开门，午后的暖光洒在门口少女身上，那一刻我忽然恍惚——"
+                },
                 {
                     "type": "background",
                     "bg_id": "story_cg_0",
+                    "transition_type": "fade",
+                    "duration": 1.5
+                },
+                {
+                    "type": "background",
+                    "bg_id": "story_cg_1",
                     "transition_type": "blur",
                     "duration": 1.5
                 },
                 {
+                    "type": "background",
+                    "bg_id": "story_cg_0",
+                    "transition_type": "blur",
+                    "duration": 1.0
+                },
+                {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她安静地站着，手指不自觉地攥着衣角，眉间藏着掩不住的迷茫与落寞。她的目光怯生生的，却又隐约透出一点期待。"
-                },   
+                    "content": "我下意识开口，声音带着不易察觉的怔忡。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "我",
+                    "content": "……ava？"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "少女身体微僵，怯生生的目光里多了几分茫然，懵懂地望着我。"
+                },
                 {
                     "type": "show_character",
                     "animation": "fade_in"
@@ -57,30 +79,44 @@
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "您好，我是Luna，是妮可老师让我来的……请问您就是……呃……\n（她挠了挠头，像是努力回想什么。我猜她大概是忘了我的名字）"
+                    "content": "您好，我是Luna，是妮可老师推荐我来的……请问您就是……呃……"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她挠了挠头，眉头微蹙，像是在回想我的名字，又像是被我刚才的呼唤打乱了思绪，一时语塞。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "我猜她大抵忘了我的名字，也疑惑我为何忽然叫出一个不属于她的名字。"
                 },
                 {
                     "type": "show_player_info_popup"
                 },
                 {
                     "type": "dialogue",
+                    "speaker": "player",
+                    "content": "你好Luna，我叫{player_name}。"
+                },
+                {
+                    "type": "dialogue",
                     "speaker": "luna",
-                    "content": "【玩家名称】老师好！妮可老师说你在那方面非常厉害，拜托您帮帮我～"
+                    "content": "{player_name}{player_title}好！妮可老师说您再那方面很厉害，拜托您帮帮我～"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "只是这样一句简单的问候，我似乎就明白了妮可提起她时为何会欲言又止。"
+                    "content": "与记忆中的女孩截然不同而又别开生面的问候，吹散了我的恍惚。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "而我与这位少女的故事，也由此悄然开始……"
+                    "content": "她并不是她，而我与她的故事也自此开始……"
                 },
                 {
-                    "type": "start_free_chat",
-                    "strategy": "玩家刚刚收下了妮可带来的委托，同意指导Luna。请以Luna的身份，带着感激又有点怯生生的语气，向玩家做个简单的自我介绍，并表达自己对未来的迷茫。",
-                    "max_rounds": 5
+                    "type": "jump",
+                    "target_chapter": "end"
                 }
             ]
         }

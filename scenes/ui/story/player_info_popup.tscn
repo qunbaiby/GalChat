@@ -1,32 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://wxfo2ad86y3e"]
+[gd_scene load_steps=3 format=3 uid="uid://wxfo2ad86y3e"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_ol4fl"]
 [ext_resource type="Script" uid="uid://d2g72uekyv7s" path="res://scripts/ui/story/player_info_popup.gd" id="1_x0y1z"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.12, 0.12, 0.15, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.6, 0.8, 0.5)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mbti_panel"]
-bg_color = Color(0.15, 0.15, 0.18, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.5, 0.5, 0.6, 0.8)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 
 [node name="PlayerInfoPopup" type="Control"]
 layout_mode = 3
@@ -35,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_ol4fl")
 script = ExtResource("1_x0y1z")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -44,7 +20,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.8)
+color = Color(0, 0, 0, 0.5)
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -53,15 +29,171 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -199.5
-offset_top = -240.0
-offset_right = 199.5
-offset_bottom = 193.0
+offset_left = -220.0
+offset_top = -319.5
+offset_right = 220.0
+offset_bottom = 319.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="MainTitle" type="Label" parent="Panel/MarginContainer/VBoxContainer/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "完善资料"
+horizontal_alignment = 1
+
+[node name="SubTitle" type="Label" parent="Panel/MarginContainer/VBoxContainer/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "让Luna更好地了解你"
+horizontal_alignment = 1
+
+[node name="FormBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="NameField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/NameField"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "起个好听的名字"
+
+[node name="NameInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/FormBox/NameField"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "请输入真实姓名"
+alignment = 1
+
+[node name="TitleField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/TitleField"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "希望Luna怎么称呼你？"
+
+[node name="TitleInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/FormBox/TitleField"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "如：老师、哥哥、主人等"
+alignment = 1
+
+[node name="GenderField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/GenderField"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "选择你的性别"
+
+[node name="GenderOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/FormBox/GenderField"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+alignment = 1
+
+[node name="BirthdayField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "选择你的生日"
+
+[node name="BirthdayBox" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MonthOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField/BirthdayBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="DayOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField/BirthdayBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="MBTIField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TopBox" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField/TopBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "人格类型"
+
+[node name="ZodiacLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField/TopBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.53, 0.5, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "未知星座"
+horizontal_alignment = 2
+
+[node name="MBTIButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6378432, 0.6378432, 0.63784313, 1)
+text = "点击选择 MBTI"
+
+[node name="ConfirmBtn" type="Button" parent="Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "完成"
+
+[node name="MBTIPopup" type="Panel" parent="."]
+visible = false
+custom_minimum_size = Vector2(600, 450)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -315.0
+offset_right = 300.0
+offset_bottom = 316.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="MBTIPopup"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -73,160 +205,35 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="MBTIPopup/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 40
-alignment = 1
-
-[node name="RightBox" type="GridContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
-columns = 2
-
-[node name="NameLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-text = "真实姓名："
-horizontal_alignment = 2
-
-[node name="NameInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-custom_minimum_size = Vector2(250, 40)
-layout_mode = 2
-placeholder_text = "请输入真实姓名"
-
-[node name="TitleLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-text = "期望称呼："
-horizontal_alignment = 2
-
-[node name="TitleInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-custom_minimum_size = Vector2(250, 40)
-layout_mode = 2
-placeholder_text = "如：老师、哥哥、主人等"
-
-[node name="GenderLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-text = "生理性别："
-horizontal_alignment = 2
-
-[node name="GenderOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-custom_minimum_size = Vector2(250, 40)
-layout_mode = 2
-
-[node name="BirthdayLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-text = "出生日期："
-horizontal_alignment = 2
-
-[node name="BirthdayBox" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-
-[node name="MonthOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/BirthdayBox"]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="DayOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/BirthdayBox"]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ZodiacLabelTitle" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-text = "匹配星座："
-horizontal_alignment = 2
-
-[node name="ZodiacLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
-text = "未知"
-
-[node name="MBTILabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-layout_mode = 2
-text = "人格类型："
-horizontal_alignment = 2
-
-[node name="MBTIButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox"]
-custom_minimum_size = Vector2(250, 40)
-layout_mode = 2
-text = "点击选择 MBTI"
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="BtnHBox" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="ConfirmBtn" type="Button" parent="Panel/MarginContainer/VBoxContainer/BtnHBox"]
-custom_minimum_size = Vector2(200, 50)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "确认"
-
-[node name="MBTIPopup" type="Panel" parent="."]
-visible = false
-custom_minimum_size = Vector2(800, 560)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -280.0
-offset_right = 400.0
-offset_bottom = 280.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_mbti_panel")
-
-[node name="Margin" type="MarginContainer" parent="MBTIPopup"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
-
-[node name="VBox" type="VBoxContainer" parent="MBTIPopup/Margin"]
-layout_mode = 2
-
 [node name="Label" type="Label" parent="MBTIPopup/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "请选择你的 MBTI 人格类型"
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
+theme_override_font_sizes/font_size = 20
+text = "选择你的 MBTI"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="MBTIPopup/Margin/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="Scroll" type="ScrollContainer" parent="MBTIPopup/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Grid" type="GridContainer" parent="MBTIPopup/Margin/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 2
-
-[node name="HSeparator2" type="HSeparator" parent="MBTIPopup/Margin/VBox"]
-layout_mode = 2
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
 
 [node name="CloseMBTI" type="Button" parent="MBTIPopup/Margin/VBox"]
-custom_minimum_size = Vector2(150, 40)
+custom_minimum_size = Vector2(150, 45)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "返回"

@@ -243,17 +243,6 @@ func _on_voice_call_ended() -> void:
 	input_edit.editable = true
 	send_btn.disabled = false
 		
-	# 把当前通话历史同步到全局聊天记录（作为 fixed_call 或 normal_call，此处假设我们统称为 fixed_call 或者根据 is_fixed 判断）
-	# 因为这里 mobile_chat_panel 自身并不知道 is_fixed 状态，我们可以统一保存为普通对话，或者把 is_fixed 存起来。
-	# 为简单起见，既然需求提到固定剧情音视频通话，我们就直接追加到 GameDataManager.history 中：
-	var is_fixed = voice_call_panel_instance.is_fixed_mode if voice_call_panel_instance else false
-	var type_str = "fixed_call" if is_fixed else "normal"
-	for msg in current_call_history:
-		var msg_speaker = msg.get("speaker", msg.get("role", ""))
-		var msg_text = msg.get("text", msg.get("content", ""))
-		var s_name = "我" if msg_speaker == "player" or msg_speaker == "user" else current_char_id.capitalize()
-		GameDataManager.history.add_message(s_name, "【语音通话】" + msg_text, "", type_str)
-		
 	if _current_call_is_incoming:
 		incoming_call_ended.emit()
 
@@ -294,14 +283,6 @@ func _on_video_call_ended() -> void:
 		
 	input_edit.editable = true
 	send_btn.disabled = false
-		
-	var is_fixed = video_call_panel_instance.is_fixed_mode if video_call_panel_instance else false
-	var type_str = "fixed_call" if is_fixed else "normal"
-	for msg in current_call_history:
-		var msg_speaker = msg.get("speaker", msg.get("role", ""))
-		var msg_text = msg.get("text", msg.get("content", ""))
-		var s_name = "我" if msg_speaker == "player" or msg_speaker == "user" else current_char_id.capitalize()
-		GameDataManager.history.add_message(s_name, "【视频通话】" + msg_text, "", type_str)
 		
 	if _current_call_is_incoming:
 		incoming_call_ended.emit()

@@ -19,4 +19,12 @@ animations = [{
 "loop": true,
 "name": &"default",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_38c60")
+}],
+"loop": true,
+"name": &"defult",
+"speed": 5.0
 }]

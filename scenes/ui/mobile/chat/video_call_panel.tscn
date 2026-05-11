@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b0y0v56ph6xgh"]
+[gd_scene load_steps=8 format=3 uid="uid://b0y0v56ph6xgh"]
 
 [ext_resource type="Script" uid="uid://chfj5llffey4p" path="res://scripts/ui/mobile/chat/video_call_panel.gd" id="1_script"]
 [ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="2_luna_frames"]
@@ -14,8 +14,15 @@ corner_radius_top_right = 35
 corner_radius_bottom_right = 35
 corner_radius_bottom_left = 35
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xi0o"]
+bg_color = Color(0.44875467, 0.062193282, 0.06840681, 1)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
-bg_color = Color(0.2, 0.6, 0.2, 1)
+bg_color = Color(0.10227265, 0.3329983, 0.10143649, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
@@ -129,6 +136,7 @@ theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_HangupBtn")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_4xi0o")
 text = "☎"
 
 [node name="HangupLabel" type="Label" parent="Panel/VBox/BottomBar/HangupVBox"]
@@ -154,6 +162,7 @@ theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_RecordBtn")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_RecordBtn")
 text = "🎙"
 
 [node name="RecordLabel" type="Label" parent="Panel/VBox/BottomBar/RecordVBox"]

@@ -193,6 +193,12 @@ func _on_asr_completed(text: String) -> void:
         record_btn.disabled = false
         return
         
+    # Save player message to history
+    if is_fixed_mode:
+        GameDataManager.history.add_message("我", text, "", "fixed_story")
+    else:
+        GameDataManager.history.add_message("我", text, "", "story_chat")
+        
     await _typewriter_effect("[color=#88ccff]" + text + "[/color]")
     
     await get_tree().create_timer(0.5).timeout
@@ -224,6 +230,11 @@ func _process_next_message() -> void:
         status_label.text = "视频通话中"
         
         _update_character_ani()
+        
+        if is_fixed_mode:
+            await get_tree().create_timer(0.6).timeout
+            if visible and not is_character_speaking:
+                _advance_fixed_call()
         return
         
     is_processing_queue = true
@@ -234,6 +245,13 @@ func _process_next_message() -> void:
     var chunk = message_queue.pop_front()
     var display_text = _extract_dialogue_text(chunk)
     var tts_text = display_text
+    
+    # Save to history
+    var char_name = char_profile.char_name if char_profile else current_char_id
+    if is_fixed_mode:
+        GameDataManager.history.add_message(char_name, chunk, "", "fixed_story")
+    else:
+        GameDataManager.history.add_message(char_name, chunk, "", "story_chat")
     
     var raw_action = _extract_action_only(chunk)
     # 开始 TTS
@@ -259,7 +277,7 @@ func _process_next_message() -> void:
         await get_tree().create_timer(0.3).timeout
     else:
         await _typewriter_effect("[color=#ffffff]" + display_text + "[/color]")
-        await get_tree().create_timer(1.0).timeout
+        await get_tree().create_timer(0.6).timeout
         
     _process_next_message()
 

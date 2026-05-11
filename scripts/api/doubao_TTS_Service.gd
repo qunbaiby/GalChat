@@ -115,8 +115,15 @@ func _on_request_completed(result, response_code, headers, body, http_node: HTTP
         var audio_data = Marshalls.base64_to_raw(audio_base64)
         _save_and_emit_audio(audio_data, cache_path, text)
     else:
-         var msg = response_data.get("message", "Unknown Error")
-         _handle_failure("API Service Error: " + msg, text, options, cache_path, attempt)
+        var msg = "Unknown Error"
+        if response_data.has("header"):
+            var header_data = response_data["header"]
+            if header_data.has("message"):
+                msg = header_data["message"]
+        elif response_data.has("message"):
+            msg = response_data.get("message", "Unknown Error")
+            
+        _handle_failure("API Service Error: " + msg, text, options, cache_path, attempt)
 
 # 内部：处理失败与重试
 func _handle_failure(error_msg: String, text: String, options: Dictionary, cache_path: String, attempt: int):
@@ -140,7 +147,7 @@ func _build_request_body(text: String, options: Dictionary) -> Dictionary:
     return {
         "app": {
             "appid": app_id,
-            "token": access_token, # 修复：使用变量而非字符串字面量
+            "token": access_token,
             "cluster": cluster
         },
         "user": {

@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3 uid="uid://dd672vc32bva5"]
 
-[ext_resource type="Script" path="res://scripts/ui/main/incoming_call_notification.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://doma8ddg8jemb" path="res://scripts/ui/main/incoming_call_notification.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1eh7l"]
 bg_color = Color(0.15, 0.15, 0.2, 0.95)
@@ -19,8 +19,15 @@ corner_radius_top_right = 25
 corner_radius_bottom_right = 25
 corner_radius_bottom_left = 25
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k5ilk"]
+bg_color = Color(0.10227265, 0.3329983, 0.10143649, 1)
+corner_radius_top_left = 35
+corner_radius_top_right = 35
+corner_radius_bottom_right = 35
+corner_radius_bottom_left = 35
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xi0o"]
-bg_color = Color(0.9, 0.2, 0.2, 1)
+bg_color = Color(0.44875467, 0.062193282, 0.06840681, 1)
 corner_radius_top_left = 25
 corner_radius_top_right = 25
 corner_radius_bottom_right = 25
@@ -72,26 +79,28 @@ text = "Name"
 
 [node name="TypeLabel" type="Label" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "语音通话"
 
 [node name="AcceptButton" type="Button" parent="HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_nnwi5")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_nnwi5")
 theme_override_styles/hover = SubResource("StyleBoxFlat_nnwi5")
-theme_override_font_sizes/font_size = 24
+theme_override_styles/disabled = SubResource("StyleBoxFlat_k5ilk")
 text = "📞"
 
 [node name="RejectButton" type="Button" parent="HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_4xi0o")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_4xi0o")
 theme_override_styles/hover = SubResource("StyleBoxFlat_4xi0o")
-theme_override_font_sizes/font_size = 24
+theme_override_styles/disabled = SubResource("StyleBoxFlat_4xi0o")
 text = "☎"

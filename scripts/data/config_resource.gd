@@ -11,9 +11,12 @@ var ai_mode_enabled: bool = true
 var doubao_chat_api_key: String = ""
 
 # 语音相关配置
+var tts_backend: String = "qwen_tts" # "doubao" 或 "qwen_tts"
 var doubao_app_id: String = "2557182005"
 var doubao_token: String = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
 var doubao_cluster: String = "volcano_tts"
+
+var qwen_tts_api_key: String = ""
 
 var qwen_asr_enabled: bool = false
 var qwen_asr_api_key: String = ""
@@ -23,6 +26,12 @@ var character_voice_types: Dictionary = {
     "luna": "ICL_zh_female_bingruoshaonv_tob",
     "ya": "ICL_zh_female_yujie_tob"
 }
+
+var qwen_tts_voice_types: Dictionary = {
+    "luna": "Cherry",
+    "ya": "Jielin"
+}
+
 var voice_enabled: bool = true
 
 # 向量模型配置 (Doubao Embedding)
@@ -71,12 +80,15 @@ func save_config() -> void:
         "temperature": temperature,
         "max_tokens": max_tokens,
         "ai_mode_enabled": ai_mode_enabled,
+        "tts_backend": tts_backend,
         "doubao_app_id": doubao_app_id,
         "doubao_token": doubao_token,
         "doubao_cluster": doubao_cluster,
+        "qwen_tts_api_key": qwen_tts_api_key,
         "qwen_asr_enabled": qwen_asr_enabled,
         "qwen_asr_api_key": qwen_asr_api_key,
         "character_voice_types": character_voice_types,
+        "qwen_tts_voice_types": qwen_tts_voice_types,
         "voice_enabled": voice_enabled,
         "embedding_enabled": embedding_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
@@ -125,9 +137,13 @@ func load_config() -> void:
                 temperature = data.get("temperature", temperature)
                 max_tokens = data.get("max_tokens", max_tokens)
                 ai_mode_enabled = data.get("ai_mode_enabled", ai_mode_enabled)
+                tts_backend = data.get("tts_backend", tts_backend)
+                if tts_backend == "chattts":
+                    tts_backend = "qwen_tts"
                 doubao_app_id = data.get("doubao_app_id", doubao_app_id)
                 doubao_token = data.get("doubao_token", doubao_token)
                 doubao_cluster = data.get("doubao_cluster", doubao_cluster)
+                qwen_tts_api_key = data.get("qwen_tts_api_key", qwen_tts_api_key)
                 qwen_asr_enabled = data.get("qwen_asr_enabled", qwen_asr_enabled)
                 qwen_asr_api_key = data.get("qwen_asr_api_key", qwen_asr_api_key)
                 if data.has("character_voice_types"):
@@ -136,6 +152,11 @@ func load_config() -> void:
                         character_voice_types = dict_data
                 elif data.has("doubao_voice_type"):
                     character_voice_types["luna"] = data["doubao_voice_type"]
+                
+                if data.has("qwen_tts_voice_types"):
+                    var seeds_data = data["qwen_tts_voice_types"]
+                    if seeds_data is Dictionary:
+                        qwen_tts_voice_types = seeds_data
                 
                 voice_enabled = data.get("voice_enabled", voice_enabled)
                 embedding_enabled = data.get("embedding_enabled", embedding_enabled)

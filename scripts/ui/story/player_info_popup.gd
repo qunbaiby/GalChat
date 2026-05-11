@@ -25,14 +25,14 @@ const MBTI_TYPES = [
 ]
 
 @onready var panel: Panel = $Panel
-@onready var name_input: LineEdit = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/NameInput
-@onready var title_input: LineEdit = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/TitleInput
-@onready var gender_option: OptionButton = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/GenderOption
-@onready var month_option: OptionButton = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/BirthdayBox/MonthOption
-@onready var day_option: OptionButton = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/BirthdayBox/DayOption
-@onready var zodiac_label: Label = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/ZodiacLabel
-@onready var mbti_button: Button = $Panel/MarginContainer/VBoxContainer/HBoxContainer/RightBox/MBTIButton
-@onready var confirm_btn: Button = $Panel/MarginContainer/VBoxContainer/BtnHBox/ConfirmBtn
+@onready var name_input: LineEdit = $Panel/MarginContainer/VBoxContainer/FormBox/NameField/NameInput
+@onready var title_input: LineEdit = $Panel/MarginContainer/VBoxContainer/FormBox/TitleField/TitleInput
+@onready var gender_option: OptionButton = $Panel/MarginContainer/VBoxContainer/FormBox/GenderField/GenderOption
+@onready var month_option: OptionButton = $Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField/BirthdayBox/MonthOption
+@onready var day_option: OptionButton = $Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField/BirthdayBox/DayOption
+@onready var zodiac_label: Label = $Panel/MarginContainer/VBoxContainer/FormBox/MBTIField/TopBox/ZodiacLabel
+@onready var mbti_button: Button = $Panel/MarginContainer/VBoxContainer/FormBox/MBTIField/MBTIButton
+@onready var confirm_btn: Button = $Panel/MarginContainer/VBoxContainer/ConfirmBtn
 
 @onready var mbti_popup: Panel = $MBTIPopup
 @onready var mbti_grid: GridContainer = $MBTIPopup/Margin/VBox/Scroll/Grid
