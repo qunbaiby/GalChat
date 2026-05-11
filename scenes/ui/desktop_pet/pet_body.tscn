@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://d0vnlpr3gjrac"]
 
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/spine/C06_DF/C06_DF_data.tres" id="1_f5jw8"]
 [ext_resource type="Script" uid="uid://b5ponp1xixff7" path="res://scripts/ui/desktop_pet/pet_body.gd" id="2_script"]
+[ext_resource type="SpriteFrames" uid="uid://d3nrsw7qynsyj" path="res://assets/images/characters/desktop_pet/luna_desktop.tres" id="2_vn3qc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
 size = Vector2(133.5, 179)
@@ -49,14 +49,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SpineSprite" type="SpineSprite" parent="AvatarContainer/AvatarMask"]
-skeleton_data_res = ExtResource("1_f5jw8")
-preview_skin = "default"
-preview_animation = "-- Empty --"
-preview_frame = false
-preview_time = 0.0
-position = Vector2(80, 152.00003)
-scale = Vector2(0.25, 0.25)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AvatarContainer/AvatarMask"]
+position = Vector2(80, 91)
+scale = Vector2(0.2, 0.2)
+sprite_frames = ExtResource("2_vn3qc")
 
 [node name="StateRing" type="Control" parent="AvatarContainer"]
 layout_mode = 1

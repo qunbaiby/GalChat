@@ -5,7 +5,7 @@ signal bubbles_changed()
 
 @onready var avatar_mask: Control = $AvatarContainer/AvatarMask
 @onready var state_ring: Control = $AvatarContainer/StateRing
-@onready var pet_sprite: AnimatedSprite2D = $AvatarContainer/AvatarMask/AnimatedSprite2D
+@onready var pet_sprite: Sprite2D = $AvatarContainer/AvatarMask/PetSprite
 @onready var bubble_container: VBoxContainer = $BubbleContainer
 @onready var bubble_template: PanelContainer = $BubbleContainer/SpeechBubble
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -19,7 +19,6 @@ var ring_time: float = 0.0
 var ring_volume: float = 0.0
 
 var neon_material: ShaderMaterial
-var _breath_tween: Tween
 
 func _ready() -> void:
     bubble_template.hide()
@@ -52,37 +51,10 @@ func _ready() -> void:
     add_child(click_control)
     
     if pet_sprite:
-        _update_sprite_scale()
-        
-        # 尝试加载当前角色的桌宠立绘序列帧
-        if GameDataManager.profile:
-            var anim_path = GameDataManager.profile.desktop_pet_frames_path
-            if anim_path == "" or not ResourceLoader.exists(anim_path):
-                # 如果没有专门配置桌宠动画，则降级使用主立绘动画
-                anim_path = GameDataManager.profile.sprite_frames_path
-                
-            if anim_path != "" and ResourceLoader.exists(anim_path):
-                pet_sprite.sprite_frames = load(anim_path)
-                pet_sprite.play("default")
-
-func _update_sprite_scale() -> void:
-    if not pet_sprite: return
-    
-    if _breath_tween:
-        _breath_tween.kill()
-        
-    var base_scale = 0.5
-    if GameDataManager.config:
-        base_scale *= float(GameDataManager.config.pet_scale_multiplier)
-        
-    pet_sprite.scale = Vector2(base_scale, base_scale)
-    
-    var scale_max_x = base_scale * (0.52 / 0.5)
-    var scale_min_y = base_scale * (0.48 / 0.5)
-    
-    _breath_tween = create_tween().set_loops()
-    _breath_tween.tween_property(pet_sprite, "scale", Vector2(scale_max_x, scale_min_y), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-    _breath_tween.tween_property(pet_sprite, "scale", Vector2(base_scale, base_scale), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+        # 你可以在这里添加精灵的简单动画效果，比如呼吸动画
+        var tween = create_tween().set_loops()
+        tween.tween_property(pet_sprite, "scale", Vector2(0.52, 0.48), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+        tween.tween_property(pet_sprite, "scale", Vector2(0.5, 0.5), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _process(delta: float) -> void:
     ring_time += delta
@@ -191,23 +163,10 @@ func _on_click_control_gui_input(event: InputEvent) -> void:
 func _play_interact_anim() -> void:
     if not pet_sprite: return
     
-    if _breath_tween:
-        _breath_tween.kill()
-        
-    var base_scale = 0.5
-    if GameDataManager.config:
-        base_scale *= float(GameDataManager.config.pet_scale_multiplier)
-        
-    var scale_1_x = base_scale * (0.55 / 0.5)
-    var scale_1_y = base_scale * (0.45 / 0.5)
-    var scale_2_x = base_scale * (0.48 / 0.5)
-    var scale_2_y = base_scale * (0.52 / 0.5)
-    
     var tween = create_tween()
-    tween.tween_property(pet_sprite, "scale", Vector2(scale_1_x, scale_1_y), 0.1).set_trans(Tween.TRANS_QUAD)
-    tween.tween_property(pet_sprite, "scale", Vector2(scale_2_x, scale_2_y), 0.15).set_trans(Tween.TRANS_BOUNCE)
-    tween.tween_property(pet_sprite, "scale", Vector2(base_scale, base_scale), 0.1).set_trans(Tween.TRANS_QUAD)
-    tween.finished.connect(_update_sprite_scale)
+    tween.tween_property(pet_sprite, "scale", Vector2(0.55, 0.45), 0.1).set_trans(Tween.TRANS_QUAD)
+    tween.tween_property(pet_sprite, "scale", Vector2(0.48, 0.52), 0.15).set_trans(Tween.TRANS_BOUNCE)
+    tween.tween_property(pet_sprite, "scale", Vector2(0.5, 0.5), 0.1).set_trans(Tween.TRANS_QUAD)
 
 func clear_bubbles() -> void:
     for child in bubble_container.get_children():
@@ -224,13 +183,14 @@ func add_bubble(text: String, is_typewriter: bool = false) -> void:
     label.text = text
     
     if is_typewriter:
-        label.visible_ratio = 0.0
+        label.visible_characters = 0
         var plain_text = text.replace("[color=green]", "").replace("[/color]", "")
         var parsed_len = plain_text.length()
         var duration = parsed_len * 0.05
         if duration <= 0: duration = 0.5
         var tween = create_tween()
         tween.tween_property(label, "visible_ratio", 1.0, duration)
+        tween.finished.connect(func(): label.visible_characters = -1)
     
     var bubbles = bubble_container.get_children()
     if bubbles.size() > 4: # 包括隐藏的template

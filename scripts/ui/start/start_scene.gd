@@ -2,10 +2,12 @@ extends Control
 
 @onready var start_button: Button = $VBoxContainer/StartButton
 @onready var load_button: Button = $VBoxContainer/LoadButton
+@onready var desktop_pet_button: Button = $VBoxContainer/DesktopPetButton
 @onready var settings_button: Button = $VBoxContainer/SettingsButton
 
 var settings_panel_instance = null
 var save_load_panel_instance = null
+var desktop_pet_instance: Window = null
 
 func _ready() -> void:
     if GameDataManager.config:
@@ -27,11 +29,13 @@ func _ready() -> void:
     window.close_requested.connect(_on_close_requested)
     start_button.pressed.connect(_on_start_pressed)
     load_button.pressed.connect(_on_load_pressed)
+    desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
     settings_button.pressed.connect(_on_settings_pressed)
     
     # 动画：按钮点击弹性反馈
     start_button.pivot_offset = start_button.size / 2
     load_button.pivot_offset = load_button.size / 2
+    desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
     settings_button.pivot_offset = settings_button.size / 2
 
 func _on_close_requested() -> void:
@@ -97,6 +101,25 @@ func _on_load_pressed() -> void:
         add_child(save_load_panel_instance)
         save_load_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     save_load_panel_instance.show_panel(false)
+
+func _on_desktop_pet_pressed() -> void:
+    _animate_button(desktop_pet_button)
+    
+    # 初始化 GameDataManager 的必要组件（如果没有的话）
+    if GameDataManager.profile == null:
+        GameDataManager.profile = CharacterProfile.new()
+        GameDataManager.profile.load_profile()
+        
+    if desktop_pet_instance == null:
+        var DesktopPetObj = load("res://scenes/ui/desktop_pet/desktop_pet.tscn")
+        desktop_pet_instance = DesktopPetObj.instantiate()
+        desktop_pet_instance.is_standalone_mode = true
+        get_tree().root.add_child(desktop_pet_instance)
+        
+        # 监听桌宠的关闭事件，清理引用
+        desktop_pet_instance.tree_exited.connect(func():
+            desktop_pet_instance = null
+        )
 
 func _on_settings_pressed() -> void:
     _animate_button(settings_button)

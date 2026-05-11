@@ -10,6 +10,12 @@
                     "duration": 0.1
                 },
                 {
+                    "type": "audio",
+                    "audio_id": "luna_bgm",
+                    "audio_type": "bgm",
+                    "action": "play"
+                },
+                {
                     "type": "dialogue",
                     "speaker": "旁白",
                     "content": "一个月前，工作室的宁静被一阵电话铃声打破，来电的是断联许久的好友妮可。"
@@ -73,10 +79,6 @@
                     "content": "少女身体微僵，怯生生的目光里多了几分茫然，懵懂地望着我。"
                 },
                 {
-                    "type": "show_character",
-                    "animation": "fade_in"
-                },
-                {
                     "type": "dialogue",
                     "speaker": "luna",
                     "content": "您好，我是Luna，是妮可老师推荐我来的……请问您就是……呃……"
@@ -102,17 +104,22 @@
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "{player_name}{player_title}好！妮可老师说您再那方面很厉害，拜托您帮帮我～"
+                    "content": "{player_name}{player_title}好！妮可老师说您在那方面很厉害，拜托您帮帮我～"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "与记忆中的女孩截然不同而又别开生面的问候，吹散了我的恍惚。"
+                    "content": "与记忆中的女孩截然不同而又别开生面的问候，驱散了我的恍惚。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她并不是她，而我与她的故事也自此开始……"
+                    "content": "她并不是她，也不可能是她……"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "而我与她的故事也自那天开始……"
                 },
                 {
                     "type": "jump",

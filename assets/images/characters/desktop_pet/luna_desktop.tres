@@ -1,0 +1,14 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://d3nrsw7qynsyj"]
+
+[ext_resource type="Texture2D" uid="uid://dhdx110iute65" path="res://assets/images/characters/desktop_pet/Q_desktop.png" id="1_46uh7"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_46uh7")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]

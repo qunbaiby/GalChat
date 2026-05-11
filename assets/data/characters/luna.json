@@ -4,6 +4,7 @@
     "avatar": "res://assets/images/characters/Luna/avatar/luna.png",
     "static_portrait": "res://assets/images/characters/Luna/avatar/luna.png",
     "sprite_frames_path": "res://assets/images/characters/Luna/luna.tres",
+    "desktop_pet_frames_path": "res://assets/images/characters/desktop_pet/luna_desktop.tres",
     "world_background": "故事发生在【星律市】。Luna（21岁）是星律艺术学院的大三学生。父母常年出国务工，自小缺少陪伴，由父亲好友的女儿妮可（Nicole）偶尔照看。因为极度缺乏安全感，她总是习惯性地讨好和迁就周围的一切。经妮可介绍，她来到了玩家的独立工作室寻求学业指导与陪伴。玩家以一位值得信赖的年长前辈、私人导师和朋友的身份，陪伴她度过这段充满迷茫的时期。在相处中，Luna从最初总是小心翼翼怕添麻烦、习惯性委屈自己，逐渐被玩家的温柔所包容，卸下防备，展现出最柔软、毫无保留的依恋，展开一段互相陪伴与治愈的成长之旅。",
     "base_personality": {
         "openness": 50.0,

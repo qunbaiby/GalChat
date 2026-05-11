@@ -1,17 +1,19 @@
-extends Window
+extends CanvasLayer
 
 @onready var input_edit: TextEdit = $Control/InputLayer/MarginContainer/HBoxContainer/InputField
 @onready var send_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/SendButton
 @onready var main_window_button: Button = $Control/UIContainer/MainWindowButton
 @onready var close_button: Button = $Control/UIContainer/CloseButton
+@onready var settings_button: Button = $Control/UIContainer/SettingsButton
 @onready var dialogue_button: Button = $Control/UIContainer/DialogueButton
+@onready var pomodoro_button: Button = $Control/UIContainer/PomodoroButton
 
 @onready var ui_container: VBoxContainer = $Control/UIContainer
 @onready var input_layer: PanelContainer = $Control/InputLayer
 @onready var voice_record_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/VoiceRecordButton
 @onready var close_input_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/Close
 
-@onready var deepseek_client: DeepSeekClient = $DeepSeekClient
+@onready var deepseek_client: Node = $DeepSeekClient
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
 @onready var mic_capture: AudioStreamPlayer = $MicCapture
 
@@ -44,45 +46,48 @@ var _current_app_name: String = ""
 var _last_chatted_app: String = ""
 
 var is_dialogue_panel_open: bool = false
+var settings_panel_instance = null
 var pomodoro_panel_instance = null
 var _spectrum_analyzer: AudioEffectSpectrumAnalyzerInstance
-var is_standalone_mode: bool = false
 
 func _ready() -> void:
     _current_character_id = GameDataManager.config.current_character_id
     # 初始化上次交互时间为 0，避免启动后立刻触发被拦截
     # _last_reaction_tick = 0
     
-    # 设置窗口属性：无边框透明
-    transparent_bg = true
-    transparent = true
-    borderless = true
-    always_on_top = true
-    unresizable = true
-    
-    # 设置为小窗口大小
-    var target_size = Vector2i(345, 720)
-    size = target_size
+    # 此时 DesktopPet 已经是一个 CanvasLayer 并且附着在系统默认主窗口上
+    # 我们通过 get_window() 获取根窗口，并配置它
+    var main_window = get_window()
+    main_window.transparent_bg = true
+    main_window.transparent = true
+    main_window.borderless = true
+    main_window.always_on_top = true
+    main_window.unresizable = true
     
     # 获取当前鼠标所在的屏幕索引
     var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(DisplayServer.mouse_get_position(), Vector2i.ONE))
     var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
     
-    # 初始位置：右下角
-    var init_pos = Vector2i(screen_rect.end.x - target_size.x - 20, screen_rect.end.y - target_size.y - 20)
-    position = init_pos
+    # 伪全屏逻辑：左右和上下留 1 像素空间，避免真全屏影响透明穿透
+    var target_size = Vector2i(screen_rect.size.x - 2, screen_rect.size.y - 2)
+    main_window.size = target_size
+    main_window.position = Vector2i(screen_rect.position.x + 1, screen_rect.position.y + 1)
     
-    # 确保内部 Control 占满整个小窗口
+    # 确保内部 Control 保持原始桌宠区域的相对大小 (约 250x550) 并靠在屏幕右下角
     var control_node = $Control
-    control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-    control_node.size = Vector2(345, 720)
-    control_node.position = Vector2.ZERO
+    control_node.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+    control_node.size = Vector2(250, 550)
+    control_node.position = Vector2(target_size.x - 250, target_size.y - 550)
     
-    if is_standalone_mode:
-        pass # 不再修改文字，保持 "主界面"
-        
+    # 设置内部 Control 的鼠标过滤器为 IGNORE，防止阻挡穿透
+    control_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    
     ui_container.hide()
     input_layer.hide()
+    
+    # 隐藏独立桌宠不需要的按钮
+    main_window_button.hide()
+    pomodoro_button.hide()
     
     # TTSManager 已在全局自动处理配置，这里不需要额外配置
     
@@ -90,17 +95,19 @@ func _ready() -> void:
     send_button.pressed.connect(_on_send_pressed)
     main_window_button.pressed.connect(_on_main_window_pressed)
     close_button.pressed.connect(_on_close_pressed)
+    pomodoro_button.pressed.connect(_on_pomodoro_pressed)
     
+    settings_button.pressed.connect(_on_settings_pressed)
     dialogue_button.pressed.connect(_on_dialogue_button_pressed)
     close_input_button.pressed.connect(_on_close_input_pressed)
     voice_record_button.button_down.connect(_on_voice_record_down)
     voice_record_button.button_up.connect(_on_voice_record_up)
     
     if GameDataManager.config.qwen_asr_enabled:
-        var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
-        if QwenASRClient:
-            qwen_asr_client = QwenASRClient.new()
-            qwen_asr_client.name = "QwenASRClient"
+        var qwen_asr_client_class = load("res://scripts/api/qwen_asr_client.gd")
+        if qwen_asr_client_class:
+            qwen_asr_client = qwen_asr_client_class.new()
+            qwen_asr_client.name = "QwenASRClientNode"
             add_child(qwen_asr_client)
             qwen_asr_client.transcribe_completed.connect(_on_asr_success)
             qwen_asr_client.transcribe_failed.connect(_on_asr_failed)
@@ -137,6 +144,10 @@ func _ready() -> void:
                 break
     
     _load_prompt()
+    
+    # 设置各个 UI 容器的尺寸和锚点，避免它们自动拉伸占满整个屏幕从而阻挡穿透
+    ui_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
+    input_layer.set_anchors_preset(Control.PRESET_TOP_LEFT)
     
     # 连接 Control 面板的输入信号以处理拖拽
     control_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -195,19 +206,14 @@ func _process(delta: float) -> void:
             
             var target_progress = 0.0
             
-            # 获取配置
-            var observe_time = max(0.1, float(GameDataManager.config.pet_new_app_observe_time))
-            var global_cd = max(0.1, float(GameDataManager.config.pet_global_cooldown) * 1000.0)
-            var same_app_cd = max(0.1, float(GameDataManager.config.pet_same_app_cooldown) * 1000.0)
-            
             if _current_app_name != "" and _last_chatted_app != _current_app_name:
-                # 新应用：需要停留 observe_time 秒，且距离上次聊天至少 global_cd 秒
-                var switch_progress = _time_since_last_switch / observe_time
-                var reaction_progress = float(time_since_last_reaction) / global_cd
+                # 新应用：需要停留5秒，且距离上次聊天至少5秒
+                var switch_progress = _time_since_last_switch / 5.0
+                var reaction_progress = float(time_since_last_reaction) / 5000.0
                 target_progress = min(switch_progress, reaction_progress)
             else:
-                # 相同应用：只需要满足 same_app_cd 的冷却
-                target_progress = float(time_since_last_reaction) / same_app_cd
+                # 相同应用：只需要满足120秒的冷却
+                target_progress = float(time_since_last_reaction) / 120000.0
                 
             if target_progress < 1.0 and _current_app_name != "":
                 pet_body.set_pet_state(3, target_progress) # 统一使用绿色状态环
@@ -220,6 +226,38 @@ func _on_dialogue_button_pressed() -> void:
     input_layer.show()
     is_dialogue_panel_open = true
     ui_container.hide()
+
+func _on_settings_pressed() -> void:
+    if settings_panel_instance == null:
+        var SettingsPanelObj = load("res://scenes/ui/settings/settings_scene.tscn")
+        if SettingsPanelObj:
+            settings_panel_instance = SettingsPanelObj.instantiate()
+            $Control.add_child(settings_panel_instance)
+            
+            # 将设置面板的尺寸保持较大比例，并将其在全屏幕居中显示
+            settings_panel_instance.set_anchors_preset(Control.PRESET_TOP_LEFT)
+            settings_panel_instance.size = Vector2(1280, 720)
+            var screen_size = DisplayServer.screen_get_size()
+            settings_panel_instance.position = (Vector2(screen_size) - settings_panel_instance.size) / 2.0 - $Control.position
+            
+            # Ensure it can receive mouse events to block passthrough
+            settings_panel_instance.mouse_filter = Control.MOUSE_FILTER_STOP
+            
+            # Connect visibility changed to update passthrough
+            if settings_panel_instance.has_signal("visibility_changed"):
+                settings_panel_instance.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+            # Connect tree_exited to handle panel removal
+            settings_panel_instance.tree_exited.connect(func(): 
+                settings_panel_instance = null
+                call_deferred("_update_mouse_passthrough")
+            )
+            
+    if settings_panel_instance:
+        settings_panel_instance.show()
+        call_deferred("_update_mouse_passthrough")
+
+func _on_pomodoro_pressed() -> void:
+    pass # 独立桌宠版本移除了番茄钟联动
 
 func _on_close_input_pressed() -> void:
     input_layer.hide()
@@ -268,9 +306,10 @@ func _load_prompt() -> void:
         _current_character_id = current_id
         chat_history.clear()
         
-    # 强制在每次生成时都使用最新的系统提示词
-    pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet")
-    if pet_prompt.is_empty():
+    # 不再强制每次重新生成，依赖 PromptManager 的能力
+    if GameDataManager.prompt_manager and GameDataManager.prompt_manager.has_method("build_system_prompt"):
+        pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet")
+    else:
         pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
         var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
         pet_prompt = pet_prompt.replace("{name}", char_name)
@@ -316,22 +355,18 @@ func _check_active_window() -> void:
         _current_app_name = app_identifier
         _time_since_last_switch = 0.0
         
-    var observe_time = float(GameDataManager.config.pet_new_app_observe_time)
-    var global_cd = float(GameDataManager.config.pet_global_cooldown) * 1000.0
-    var same_app_cd = float(GameDataManager.config.pet_same_app_cooldown) * 1000.0
-
-    # 打印前置的停留倒计时
-    if _time_since_last_switch < observe_time:
-        var remain = observe_time - _time_since_last_switch
+    # 打印前置的 5 秒停留倒计时
+    if _time_since_last_switch < 5.0:
+        var remain = 5.0 - _time_since_last_switch
         print("[DesktopPet Debug] 观察新应用中 (%s)... 触发还需: %.1f 秒" % [process_name, remain])
         
     var current_tick = Time.get_ticks_msec()
     
-    # 修改逻辑：当停留超过设定时间时，允许触发
-    if _time_since_last_switch >= observe_time:
-        var cooldown_time = same_app_cd # 同一个应用连续停留，按配置冷却
+    # 修改逻辑：当停留超过5秒时，允许触发
+    if _time_since_last_switch >= 5.0:
+        var cooldown_time = 120000 # 同一个应用连续停留，每2分钟可以再次吐槽一次
         if _last_chatted_app != app_identifier:
-            cooldown_time = global_cd # 刚切到新应用，只需要和上一次任何对话间隔全局冷却
+            cooldown_time = 5000 # 刚切到新应用，只需要和上一次任何对话间隔5秒即可
             
         if current_tick - _last_reaction_tick < cooldown_time:
             # 还在冷却中
@@ -349,11 +384,10 @@ func _check_active_window() -> void:
         var time_dict = Time.get_datetime_dict_from_system()
         var h = time_dict["hour"]
         var m = time_dict["minute"]
-        var time_constraint = _get_time_constraint(h)
+        var _time_constraint = _get_time_constraint(h)
         
         # 尝试截图 (优先截取当前活动窗口)
         var base64_image = ""
-        # 强制添加判断：只有在全局配置中开启了视觉，才调用截图和多模态 API
         if GameDataManager.config.vision_enabled and not GameDataManager.config.vision_api_key.is_empty():
             if _window_detector.has_method("CaptureForegroundWindowToBase64"):
                 base64_image = _window_detector.call("CaptureForegroundWindowToBase64")
@@ -405,26 +439,42 @@ func _on_vision_completed(response: Dictionary) -> void:
     print("\n[DesktopPet Vision] --- Vision Analysis Completed ---")
     
     var analysis_text = ""
+    var is_valid = false
     
-    # 兼容原版 OpenAI/Chat 接口格式 (choices)
+    # OpenAI format (choices[0].message.content)
     if response.has("choices") and response.choices.size() > 0:
         var msg = response.choices[0].get("message", {})
         analysis_text = msg.get("content", "").strip_edges()
-        
-    # 兼容 Volcengine v3 Responses 接口格式 (output)
-    elif response.has("output") and typeof(response["output"]) == TYPE_ARRAY:
+        is_valid = true
+    # Doubao Seed/Other formats fallback
+    elif response.has("output") and typeof(response["output"]) == TYPE_ARRAY and response["output"].size() > 0:
         for item in response["output"]:
-            if item.get("type") == "message" and item.has("content"):
-                var contents = item["content"]
-                if typeof(contents) == TYPE_ARRAY and contents.size() > 0:
-                    for c in contents:
-                        if c.get("type") == "output_text":
-                            analysis_text += c.get("text", "")
-                            
-    analysis_text = analysis_text.strip_edges()
+            if typeof(item) == TYPE_DICTIONARY:
+                if item.has("text") and typeof(item["text"]) == TYPE_STRING:
+                    analysis_text += item["text"]
+                elif item.has("content") and typeof(item["content"]) == TYPE_STRING:
+                    analysis_text += item["content"]
+        analysis_text = analysis_text.strip_edges()
+        is_valid = true
+    # Simple text output fallback
+    elif response.has("output") and typeof(response["output"]) == TYPE_STRING:
+        analysis_text = response["output"].strip_edges()
+        is_valid = true
+    # Message structure fallback
+    elif response.has("message") and typeof(response["message"]) == TYPE_DICTIONARY:
+        var msg = response["message"]
+        if msg.has("content"):
+            analysis_text = str(msg["content"]).strip_edges()
+            is_valid = true
     
-    if analysis_text != "":
-        print("[DesktopPet Vision] Raw Analysis Output:\n", analysis_text)
+    # Full raw dump for debug
+    if not is_valid:
+        print("[DesktopPet Vision Debug] Unrecognized response format. Raw dump: ", JSON.stringify(response))
+        analysis_text = JSON.stringify(response)
+        is_valid = true
+    
+    if is_valid:
+        print("[DesktopPet Vision] Extracted Analysis Output:\n", analysis_text)
         
         # 将分析结果作为主动聊天的触发器，发给专门负责角色扮演的文本大模型
         var prompt = """【系统提示：视觉分析系统刚刚捕捉到了玩家当前正在查看的屏幕画面。】
@@ -450,18 +500,8 @@ func _on_vision_completed(response: Dictionary) -> void:
 
 func _on_vision_failed(error_msg: String) -> void:
     print("[DesktopPet Debug] Vision request failed: ", error_msg)
-    
-    # 特别处理 429 频率限制错误
-    if "429" in error_msg or "频率" in error_msg or "请求过于频繁" in error_msg:
-        # 当遇到频率限制时，将下次触发时间惩罚性地延后 5 分钟 (300,000 毫秒)
-        # 因为豆包 Lite 模型的 RPM 限制通常按分钟重置，60秒可能不够安全
-        _last_reaction_tick = Time.get_ticks_msec() + 300000
-        if pet_body:
-            pet_body.add_bubble("[color=orange]（AI服务商频率受限，休息一下...）[/color]")
-    else:
-        if pet_body:
-            pet_body.add_bubble("[color=red]视觉感知失败: " + error_msg + "[/color]")
-            
+    if pet_body:
+        pet_body.add_bubble("[color=red]视觉感知失败: " + error_msg + "[/color]")
     is_chatting = false
 
 func _map_app_type(window_title_str: String, process: String) -> String:
@@ -516,7 +556,7 @@ func _check_hourly_chime() -> void:
         _last_hourly_chime_hour = current_hour
         _last_reaction_tick = current_tick
         
-        var time_constraint = _get_time_constraint(current_hour)
+        var _time_constraint = _get_time_constraint(current_hour)
         var prompt = """【系统提示：现在是现实时间 %02d:00。】
 请你结合当前时间作为隐性语境，代入当前设定的身份、心情和性格，像真人一样对玩家进行整点报时或吐槽。
 - 反应要生动多样！结合你们的【微习惯与口癖】。
@@ -557,7 +597,10 @@ func _trigger_proactive_chat(prompt_text: String) -> void:
     for msg in proactive_history:
         pet_messages.append(msg)
         
-    deepseek_client._start_stream_request(pet_messages)
+    if deepseek_client.has_method("_start_stream_request"):
+        deepseek_client._start_stream_request(pet_messages)
+    elif deepseek_client.has_method("send_chat_message_stream"):
+        deepseek_client.send_chat_message_stream(prompt_text, "desktop_pet")
 
 func _on_send_pressed() -> void:
     var text = input_edit.text.strip_edges()
@@ -594,7 +637,10 @@ func _on_send_pressed() -> void:
     for msg in chat_history:
         pet_messages.append(msg)
         
-    deepseek_client._start_stream_request(pet_messages)
+    if deepseek_client.has_method("_start_stream_request"):
+        deepseek_client._start_stream_request(pet_messages)
+    elif deepseek_client.has_method("send_chat_message_stream"):
+        deepseek_client.send_chat_message_stream(text, "desktop_pet")
 
 func _on_chat_started() -> void:
     current_response = ""
@@ -687,7 +733,7 @@ func _process_next_bubble() -> void:
     if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
         var char_id = GameDataManager.config.current_character_id
         var v_type = "ICL_zh_female_bingruoshaonv_tob"
-        if GameDataManager.config.character_voice_types.has(char_id):
+        if "character_voice_types" in GameDataManager.config and GameDataManager.config.character_voice_types.has(char_id):
             v_type = GameDataManager.config.character_voice_types[char_id]
             
         var options = {"voice_type": v_type}
@@ -769,15 +815,7 @@ func _on_tts_failed(error_msg: String, _text: String) -> void:
     print("Desktop Pet TTS failed: ", error_msg)
 
 func _on_main_window_pressed() -> void:
-    # 请求主窗口焦点
-    var root_window = get_tree().root.get_window()
-    root_window.show()
-    if root_window.mode == Window.MODE_MINIMIZED:
-        root_window.mode = Window.MODE_WINDOWED
-    DisplayServer.window_request_attention()
-    
-    # 强制关闭桌宠窗口
-    _on_close_pressed()
+    pass # 独立桌宠版本移除了主界面联动
 
 func _on_close_pressed() -> void:
     # 先隐藏窗口并切断输入流，防止 _push_unhandled_input_internal 报错
@@ -789,14 +827,15 @@ func _on_close_pressed() -> void:
     if focused_node:
         focused_node.release_focus()
         
-    queue_free()
-    
-    # 如果关闭桌宠时，主窗口被隐藏了，则彻底退出
-    var current_scene = get_tree().current_scene
-    if current_scene and not get_tree().root.visible:
-        get_tree().quit()
+    # 如果 DesktopPet 是根节点（主场景），关闭桌宠就意味着退出程序
+    get_tree().quit()
 
 func _unhandled_input(event: InputEvent) -> void:
+    # 如果打开了设置界面，禁止拖拽和右键菜单
+    if settings_panel_instance and settings_panel_instance.is_visible_in_tree():
+        dragging = false
+        return
+        
     if event is InputEventMouseButton:
         if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
             # 右键点击背景：切换 UI 面板显示/隐藏
@@ -807,25 +846,22 @@ func _unhandled_input(event: InputEvent) -> void:
         elif event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed:
                 dragging = true
-                # 使用绝对屏幕坐标计算偏移，避免视口缩放导致的坐标错位
-                drag_offset = DisplayServer.mouse_get_position() - position
+                # 因为现在是伪全屏，拖拽的是内部的 Control 节点而不是窗口
+                var control_node = $Control
+                drag_offset = Vector2i(get_viewport().get_mouse_position()) - Vector2i(control_node.position)
             else:
                 dragging = false
     elif event is InputEventMouseMotion and dragging:
-        var new_pos = DisplayServer.mouse_get_position() - drag_offset
+        var control_node = $Control
+        var new_pos = Vector2i(get_viewport().get_mouse_position()) - drag_offset
+        var screen_size = DisplayServer.screen_get_size()
         
-        # 使用鼠标所在位置获取目标屏幕索引，这样才能允许跨屏幕拖拽
-        var mouse_pos = DisplayServer.mouse_get_position()
-        var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(mouse_pos, Vector2i.ONE))
+        # 控制节点现在是真实的小尺寸，正常限制在屏幕范围内即可，允许稍微超出一点边缘
+        new_pos.x = clampi(new_pos.x, -100, screen_size.x - int(control_node.size.x) + 100)
+        new_pos.y = clampi(new_pos.y, -100, screen_size.y - int(control_node.size.y) + 100)
         
-        # 获取该屏幕的实际可用区域（排除任务栏等）
-        var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
-        
-        # 限制在新屏幕的边界范围内
-        new_pos.x = clampi(new_pos.x, screen_rect.position.x, screen_rect.end.x - size.x)
-        new_pos.y = clampi(new_pos.y, screen_rect.position.y, screen_rect.end.y - size.y)
-        
-        position = new_pos
+        control_node.position = new_pos
+        call_deferred("_update_mouse_passthrough")
 
 func _trigger_pet_touch() -> void:
     if is_dialogue_panel_open: return
@@ -842,7 +878,7 @@ func _trigger_pet_touch() -> void:
         var time_dict = Time.get_datetime_dict_from_system()
         var h = time_dict["hour"]
         var m = time_dict["minute"]
-        var time_constraint = _get_time_constraint(h)
+        var _time_constraint = _get_time_constraint(h)
         var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。】
 请你结合当前时间作为隐性语境，代入你的性格和当前心情，像真人一样对玩家的触碰做出最自然的反应。
 - 反应要生动多样！可以是撒娇、傲娇吐槽、疑惑等，取决于你们的关系和心情。
@@ -858,17 +894,18 @@ func _update_mouse_passthrough() -> void:
         print("[DesktopPet Debug] Window not in tree or queued for deletion")
         return
         
-    var win_id = get_window_id()
+    var main_window = get_window()
+    if not main_window:
+        return
+        
+    var win_id = main_window.get_window_id()
     if win_id == DisplayServer.INVALID_WINDOW_ID:
         print("[DesktopPet Debug] INVALID_WINDOW_ID")
         return
         
     print("[DesktopPet Debug] Gathering rects...")
     var rects: Array[Rect2] = []
-    
-    # 始终包含左侧和底部边缘的一小块区域作为拖拽抓手，防止全透明后彻底丢失窗口控制权
-    rects.append(Rect2(0, size.y - 40, 40, 40))
-        
+
     var u_container = get_node_or_null("Control/UIContainer")
     if u_container and u_container.is_visible_in_tree():
         var ui_rect = u_container.get_global_rect()
@@ -880,7 +917,13 @@ func _update_mouse_passthrough() -> void:
         var in_rect = i_layer.get_global_rect()
         if in_rect.size.x > 0 and in_rect.size.y > 0:
             rects.append(in_rect.grow(5))
-        
+            
+    # 如果打开了设置面板，只拦截设置面板本身所在的区域
+    if settings_panel_instance and settings_panel_instance.is_visible_in_tree():
+        # 计算设置面板在全局屏幕上的实际位置
+        var global_pos = $Control.position + settings_panel_instance.position
+        rects.append(Rect2(global_pos, settings_panel_instance.size))
+
     if pet_body and pet_body.is_visible_in_tree():
         if pet_body.has_method("get_passthrough_rects"):
             var pet_rects = pet_body.get_passthrough_rects()
