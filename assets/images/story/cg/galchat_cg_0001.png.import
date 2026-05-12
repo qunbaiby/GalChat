@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhbgpdrweqx7l"
-path="res://.godot/imported/main_bg.png-0b94eda18c0646754560f8f4536e379d.ctex"
+uid="uid://ch5hkgrxfpnme"
+path="res://.godot/imported/galchat_cg_0001.png-f9e23d46bb4504fdc28561c4ad699644.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/backgrounds/main/main_bg.png"
-dest_files=["res://.godot/imported/main_bg.png-0b94eda18c0646754560f8f4536e379d.ctex"]
+source_file="res://assets/images/story/cg/galchat_cg_0001.png"
+dest_files=["res://.godot/imported/galchat_cg_0001.png-f9e23d46bb4504fdc28561c4ad699644.ctex"]
 
 [params]
 

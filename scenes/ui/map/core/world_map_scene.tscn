@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://c1wbpr22f0ufh"]
+[gd_scene load_steps=5 format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapBg"]
-bg_color = Color(0.95, 0.95, 0.98, 1)
+[ext_resource type="Texture2D" uid="uid://cltaiui4vjvb" path="res://assets/images/backgrounds/map/background/8a99bc600482e9722664b74cc69997b0.jpg" id="2_qqsue"]
+[ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="3_weather"]
+[ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="4_status"]
 
 [node name="WorldMapScene" type="Control"]
 layout_mode = 3
@@ -14,32 +14,35 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="Panel" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_MapBg")
+texture = ExtResource("2_qqsue")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="SubAreaContainer" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 80.0
-offset_bottom = -120.0
+offset_top = 84.0
+offset_bottom = -264.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BottomBar" type="Panel" parent="."]
+[node name="BottomBar" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 260)
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -120.0
+offset_top = -260.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -48,18 +51,24 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+horizontal_scroll_mode = 3
 vertical_scroll_mode = 0
 
-[node name="AreaList" type="HBoxContainer" parent="BottomBar/ScrollContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="BottomBar/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 23
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 23
+
+[node name="AreaList" type="HBoxContainer" parent="BottomBar/ScrollContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_constants/separation = 20
 
 [node name="TopBar" type="Control" parent="."]
@@ -69,15 +78,39 @@ anchor_right = 1.0
 offset_bottom = 80.0
 grow_horizontal = 2
 
-[node name="BackButton" type="Button" parent="TopBar"]
-layout_mode = 0
+[node name="WeatherPanel" parent="TopBar" instance=ExtResource("3_weather")]
+layout_mode = 1
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 100.0
-offset_bottom = 60.0
+offset_right = 260.0
+offset_bottom = 120.0
+theme = null
+
+[node name="TopStatusPanel" parent="TopBar" instance=ExtResource("4_status")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -601.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 90.0
+grow_horizontal = 0
+
+[node name="BackButton" type="Button" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 100.0
+offset_right = -20.0
+offset_bottom = 140.0
+grow_horizontal = 0
 text = "< 返回"
 
 [node name="ModeToggleButton" type="Button" parent="TopBar"]
+visible = false
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0

@@ -5,7 +5,7 @@
             "events": [
                 {
                     "type": "background",
-                    "bg_id": "main_bg_0",
+                    "bg_id": "story_cg_1",
                     "transition_type": "fade",
                     "duration": 0.1
                 },
@@ -18,108 +18,103 @@
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "一个月前，工作室的宁静被一阵电话铃声打破，来电的是断联许久的好友妮可。"
-                },
-                {
-                    "type": "voice_call",
-                    "call_id": "intro_call_nicole"
+                    "content": "清晨的柔光漫过窗沿，落在书桌的手绘屏上，泛着一层淡淡的暖光。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "妮可一如既往地没给我反驳的余地就挂了电话。"
-                },
-                {
-                    "type": "audio",
-                    "audio_id": "doorbell",
-                    "audio_type": "se",
-                    "action": "play"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "几乎同时，工作室的门铃轻轻响起，清脆又带着几分小心翼翼，生怕惊扰了屋里的宁静。"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "我起身开门，午后的暖光洒在门口少女身上，那一刻我忽然恍惚——"
+                    "content": "Luna端坐桌前，眉眼轻轻垂着，指尖握着压感笔，认真地在手绘屏上勾勒线条，细微的划屏声，在安静的清晨里格外清晰。"
                 },
                 {
                     "type": "background",
-                    "bg_id": "story_cg_0",
+                    "bg_id": "story_cg_2",
                     "transition_type": "fade",
-                    "duration": 1.5
-                },
-                {
-                    "type": "background",
-                    "bg_id": "story_cg_1",
-                    "transition_type": "blur",
-                    "duration": 1.5
-                },
-                {
-                    "type": "background",
-                    "bg_id": "story_cg_0",
-                    "transition_type": "blur",
-                    "duration": 1.0
+                    "duration": 0.5
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "我下意识开口，声音带着不易察觉的怔忡。"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "我",
-                    "content": "……ava？"
-                },
-                {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "少女身体微僵，怯生生的目光里多了几分茫然，懵懂地望着我。"
+                    "content": "听到我的脚步声，她握笔顿了顿，转头看清是我后，眼尾悄悄弯起，脸上漾开一抹浅笑。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "您好，我是Luna，是妮可老师推荐我来的……请问您就是……呃……"
+                    "content": "老师，你来啦～ 我一早就开始赶画稿了，一直很认真哦！"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她挠了挠头，眉头微蹙，像是在回想我的名字，又像是被我刚才的呼唤打乱了思绪，一时语塞。"
+                    "content": "比起初见时的胆怯躲闪，她现在看上去自在多了。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "我猜她大抵忘了我的名字，也疑惑我为何忽然叫出一个不属于她的名字。"
+                    "content": "想起一个月前那个黄昏——"
+                },
+                {
+                    "type": "background",
+                    "bg_id": "story_cg_3",
+                    "transition_type": "blur",
+                    "duration": 1.5
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "那抹娇俏的身影怯怯地站在工作室门口，双手紧紧攥着门边，肩膀微微发颤，连头都不敢抬。"
+                },
+                {
+                    "type": "background",
+                    "bg_id": "story_cg_2",
+                    "transition_type": "blur",
+                    "duration": 1.5
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "一转眼，我们已经相处一个月了，只不过“老师”这个称呼，还是有些生分。"
                 },
                 {
                     "type": "show_player_info_popup"
                 },
                 {
                     "type": "dialogue",
-                    "speaker": "player",
-                    "content": "你好Luna，我叫{player_name}。"
+                    "speaker": "旁白",
+                    "content": "她愣了两秒，脸颊泛起淡淡的红晕，耳尖也悄悄发烫，有些害羞地埋着头，声音细若蚊蚋地唤道："
                 },
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "{player_name}{player_title}好！妮可老师说您在那方面很厉害，拜托您帮帮我～"
+                    "content": "{player_title}……"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "与记忆中的女孩截然不同而又别开生面的问候，驱散了我的恍惚。"
+                    "content": "我看着她的模样，笑着转移话题。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "player",
+                    "content": "还有一个多月就是大艺赛了，你准备得怎么样了？"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她并不是她，也不可能是她……"
+                    "content": "Luna抬头，眼神里先闪过一丝认真，随即就被浓浓的迷茫覆盖，眉头轻轻蹙起，带着几分无措。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "我真的很认真在准备！可越练越没底，实在不知道该往哪个方向努力才好……"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "而我与她的故事也自那天开始……"
+                    "content": "她轻轻低下头，语气软乎乎的，带着几分小心翼翼的恳求。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "{player_title}，这一周的基础课程规划，就再拜托你啦……\n在你的帮助下，我会慢慢找到方向的。"
                 },
                 {
                     "type": "jump",

@@ -9,7 +9,7 @@ gradient = SubResource("Gradient_p1a2b")
 
 [resource]
 content_margin_left = 100.0
-content_margin_top = 20.0
+content_margin_top = 5.0
 content_margin_right = 100.0
 content_margin_bottom = 20.0
 texture = SubResource("GradientTexture2D_c3d4e")

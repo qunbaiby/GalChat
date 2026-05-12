@@ -8,8 +8,9 @@ extends Control
 @onready var sub_area_container: Control = $SubAreaContainer
 
 # Area list container
-@onready var area_list_container: HBoxContainer = $BottomBar/ScrollContainer/AreaList
+@onready var area_list_container: HBoxContainer = $BottomBar/ScrollContainer/MarginContainer/AreaList
 
+var area_item_scene = preload("res://scenes/ui/map/core/area_item.tscn")
 var location_button_scene = preload("res://scenes/ui/map/core/location_button.tscn")
 
 signal location_selected(location_id: String)
@@ -32,12 +33,10 @@ func _ready():
 		if default_area_id == "":
 			default_area_id = area_id
 		var area_data = MapDataManager.areas[area_id]
-		var btn = Button.new()
-		btn.custom_minimum_size = Vector2(200, 0)
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn.text = area_data.get("name", "未知区域")
-		btn.pressed.connect(_on_area_pressed.bind(area_id))
-		area_list_container.add_child(btn)
+		var item = area_item_scene.instantiate()
+		area_list_container.add_child(item)
+		item.setup(area_id, area_data)
+		item.pressed.connect(_on_area_pressed)
 	
 	# Select default area
 	if not MapDataManager.has_method("get_last_area") or MapDataManager.get_last_area() == "":

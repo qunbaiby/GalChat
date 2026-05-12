@@ -33,12 +33,17 @@
             "path": "res://assets/images/backgrounds/desktop_pet/desktop_pet_bg.png"
         },
         {
-            "id": "story_cg_0",
-            "path": "res://assets/images/story/cg/ChatGPT Image 2026年5月11日 17_50_20.png"
-        },
-                {
             "id": "story_cg_1",
-            "path": "res://assets/images/story/cg/ChatGPT Image 2026年5月11日 17_48_08.png"
+            "path": "res://assets/images/story/cg/galchat_cg_0001.png"
+        },
+        {
+            "id": "story_cg_2",
+            "path": "res://assets/images/story/cg/galchat_cg_0002.jpg"
+        },
+        {
+            "id": "story_cg_3",
+            "path": "res://assets/images/story/cg/galchat_cg_0003.png"
         }
+        
     ]
 }
