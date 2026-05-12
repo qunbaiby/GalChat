@@ -88,52 +88,85 @@ func _process(delta: float) -> void:
     ring_time += delta
     if is_instance_valid(state_ring):
         if neon_material:
-            if current_state == 0: # Idle
-                neon_material.set_shader_parameter("progress", 0.0)
-                state_ring.rotation = 0.0
-            elif current_state == 1: # Thinking
-                neon_material.set_shader_parameter("progress", 0.25)
-                state_ring.rotation = ring_time * 5.0
-                neon_material.set_shader_parameter("color1", Color(0.0, 0.8, 1.0, 1.0))
-                neon_material.set_shader_parameter("color2", Color(0.6, 0.2, 1.0, 1.0))
-                neon_material.set_shader_parameter("speed", 2.0)
-                neon_material.set_shader_parameter("border_width", 0.015)
-                neon_material.set_shader_parameter("blur", 0.01)
-            elif current_state == 2: # Speaking
+            # 统一定义基础宽度，保证切换状态时视觉大小严格一致
+            var BASE_WIDTH = 0.022
+            var BASE_BLUR = 0.015
+            
+            if current_state == 0: # Idle (常驻完整光环)
                 neon_material.set_shader_parameter("progress", 1.0)
                 state_ring.rotation = 0.0
-                neon_material.set_shader_parameter("color1", Color(0.0, 0.8, 1.0, 1.0))
-                neon_material.set_shader_parameter("color2", Color(1.0, 0.0, 0.5, 1.0))
+                
+                # 【强化版呼吸灯效果】大幅增加透明度跨度，并让光晕随之扩散，但实体线条粗细保持稳定
+                var breath = (sin(ring_time * 2.5) + 1.0) * 0.5 # 呼吸频率稍微调快一点点，显得更有生机
+                var alpha_mod = lerp(0.15, 0.95, breath) # 从极暗到极亮，对比度拉满
+                var current_blur = lerp(BASE_BLUR, BASE_BLUR + 0.012, breath) # 让发光范围也跟着呼吸膨胀
+                
+                neon_material.set_shader_parameter("color1", Color(0.4, 0.75, 1.0, alpha_mod))
+                neon_material.set_shader_parameter("color2", Color(0.7, 0.95, 1.0, alpha_mod))
+                neon_material.set_shader_parameter("speed", 0.4)
+                neon_material.set_shader_parameter("border_width", BASE_WIDTH) # 核心边界死死钉住，防止锯齿
+                neon_material.set_shader_parameter("blur", current_blur)
+                
+            elif current_state == 1: # Thinking
+                neon_material.set_shader_parameter("progress", 0.35)
+                state_ring.rotation = ring_time * 6.0
+                
+                # 【强烈的霓虹爆闪与流动感】
+                var flicker = (sin(ring_time * 12.0) + 1.0) * 0.5
+                neon_material.set_shader_parameter("color1", Color(0.1, 0.8, 1.0, 1.0))
+                neon_material.set_shader_parameter("color2", Color(0.8, 0.2, 1.0, 1.0))
+                neon_material.set_shader_parameter("speed", 4.0)
+                neon_material.set_shader_parameter("border_width", BASE_WIDTH)
+                neon_material.set_shader_parameter("blur", BASE_BLUR + flicker * 0.01)
+                
+            elif current_state == 2: # Speaking
+                neon_material.set_shader_parameter("progress", 1.0)
+                state_ring.rotation = ring_time * 1.5
+                
+                # 【随声浪起伏的动感音波】
+                neon_material.set_shader_parameter("color1", Color(1.0, 0.2, 0.5, 1.0))
+                neon_material.set_shader_parameter("color2", Color(1.0, 0.6, 0.2, 1.0))
                 neon_material.set_shader_parameter("speed", 3.0)
-                var target_width = 0.015 + ring_volume * 0.02
+                
+                # 说话时允许增粗，但基础值严格对齐
+                var target_width = BASE_WIDTH + ring_volume * 0.04
+                var target_blur = BASE_BLUR + ring_volume * 0.05
                 neon_material.set_shader_parameter("border_width", target_width)
-                neon_material.set_shader_parameter("blur", 0.005 + ring_volume * 0.02)
+                neon_material.set_shader_parameter("blur", target_blur)
+                
             elif current_state == 3: # App Switch Observing (Green)
                 neon_material.set_shader_parameter("progress", state_progress)
                 state_ring.rotation = 0.0
-                neon_material.set_shader_parameter("color1", Color(0.0, 1.0, 0.4, 1.0))
-                neon_material.set_shader_parameter("color2", Color(0.4, 1.0, 0.8, 1.0))
-                neon_material.set_shader_parameter("speed", 1.0)
-                neon_material.set_shader_parameter("border_width", 0.015)
-                neon_material.set_shader_parameter("blur", 0.005)
+                
+                # 【倒计时的脉冲充能感】
+                var pulse = (sin(ring_time * 5.0) + 1.0) * 0.5
+                neon_material.set_shader_parameter("color1", Color(0.1, 1.0, 0.4, 0.8 + pulse * 0.2))
+                neon_material.set_shader_parameter("color2", Color(0.5, 1.0, 0.8, 0.8 + pulse * 0.2))
+                neon_material.set_shader_parameter("speed", 1.5)
+                neon_material.set_shader_parameter("border_width", BASE_WIDTH)
+                neon_material.set_shader_parameter("blur", BASE_BLUR + pulse * 0.01)
+                
             elif current_state == 4: # Proactive Chat Cooldown (Orange)
                 neon_material.set_shader_parameter("progress", state_progress)
                 state_ring.rotation = 0.0
-                neon_material.set_shader_parameter("color1", Color(1.0, 0.6, 0.0, 1.0))
-                neon_material.set_shader_parameter("color2", Color(1.0, 0.8, 0.2, 1.0))
+                
+                var pulse = (sin(ring_time * 3.0) + 1.0) * 0.5
+                neon_material.set_shader_parameter("color1", Color(1.0, 0.4, 0.0, 0.8 + pulse * 0.2))
+                neon_material.set_shader_parameter("color2", Color(1.0, 0.8, 0.1, 0.8 + pulse * 0.2))
                 neon_material.set_shader_parameter("speed", 1.0)
-                neon_material.set_shader_parameter("border_width", 0.015)
-                neon_material.set_shader_parameter("blur", 0.005)
+                neon_material.set_shader_parameter("border_width", BASE_WIDTH)
+                neon_material.set_shader_parameter("blur", BASE_BLUR + pulse * 0.01)
         state_ring.queue_redraw()
 
 func _on_mask_draw() -> void:
     var center = avatar_mask.size / 2.0
-    var radius = min(avatar_mask.size.x, avatar_mask.size.y) / 2.0
+    # 将遮罩半径往内缩小3个像素，使其完美隐藏在状态环的内侧，避免边缘锯齿漏出
+    var radius = (min(avatar_mask.size.x, avatar_mask.size.y) / 2.0) - 3.0
     
     # 绘制一个带抗锯齿效果的高分辨率多边形近似圆，填充纯白色，背景保持透明
     # Godot 4.x 的 clip_children 如果使用 draw_circle 在透明窗口下会产生黑色背景Bug
     var points = PackedVector2Array()
-    var num_points = 64
+    var num_points = 128 # 增加多边形顶点数，使圆形边缘更平滑
     for i in range(num_points):
         var angle = i * TAU / num_points
         points.append(center + Vector2(cos(angle), sin(angle)) * radius)
@@ -146,28 +179,31 @@ func _on_ring_draw() -> void:
         state_ring.draw_rect(Rect2(Vector2.ZERO, state_ring.size), Color.WHITE)
     else:
         var center = state_ring.size / 2.0
-        var radius = min(state_ring.size.x, state_ring.size.y) / 2.0
+        # 让底环也往内缩一点，匹配遮罩的尺寸并避免被控件边缘裁切
+        var radius = (min(state_ring.size.x, state_ring.size.y) / 2.0) - 3.0
         
         # 绘制基础底环
         var base_color = Color(0.3, 0.3, 0.3, 0.5)
-        state_ring.draw_arc(center, radius, 0, TAU, 64, base_color, 4.0, true)
+        state_ring.draw_arc(center, radius, 0, TAU, 128, base_color, 6.0, true)
         
         # 根据不同状态绘制动态特效
-        if current_state == 1: # Thinking
+        if current_state == 0: # Idle
+            state_ring.draw_arc(center, radius, 0, TAU, 128, Color(0.8, 0.8, 0.9, 0.5), 6.0, true)
+        elif current_state == 1: # Thinking
             var start_angle = ring_time * 5.0
             var end_angle = start_angle + PI / 2.0
-            state_ring.draw_arc(center, radius, start_angle, end_angle, 32, Color(0.4, 0.8, 1.0, 0.9), 4.0, true)
+            state_ring.draw_arc(center, radius, start_angle, end_angle, 64, Color(0.4, 0.8, 1.0, 0.9), 6.0, true)
         elif current_state == 2: # Speaking
-            var glow = radius + ring_volume * 20.0
-            state_ring.draw_arc(center, glow, 0, TAU, 64, Color(0.4, 0.8, 1.0, 0.6), 3.0, true)
+            var glow = radius + ring_volume * 25.0
+            state_ring.draw_arc(center, glow, 0, TAU, 128, Color(0.4, 0.8, 1.0, 0.6), 5.0, true)
         elif current_state == 3: # App Switch Observing (10s)
             # 绿色圆环，平滑缓慢填满
             var angle = lerp(0.0, TAU, state_progress)
-            state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.3, 0.8, 0.3, 0.8), 4.0, true)
+            state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 128, Color(0.3, 0.8, 0.3, 0.8), 6.0, true)
         elif current_state == 4: # Proactive Chat Cooldown (long timer)
             # 橙黄色圆环，表示大招冷却中，非常缓慢地填满
             var angle = lerp(0.0, TAU, state_progress)
-            state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 64, Color(0.8, 0.6, 0.2, 0.8), 4.0, true)
+            state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 128, Color(0.8, 0.6, 0.2, 0.8), 6.0, true)
 
 func set_pet_state(state: int, progress: float = 0.0) -> void:
     current_state = state
@@ -222,6 +258,34 @@ func add_bubble(text: String, is_typewriter: bool = false) -> void:
     
     var label: RichTextLabel = bubble.get_node("MarginContainer/RichTextLabel")
     label.text = text
+    
+    # 彻底解决导出后气泡不换行、不撑开高度的终极方案：
+    # 1. 强制赋予绝对宽度，让底层 TextServer 有换行的物理依据
+    label.custom_minimum_size.x = 250
+    label.size.x = 250
+    
+    # 2. 强制重置状态，清除从隐藏模板 Duplicate 带来的缓存 Bug
+    label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+    label.fit_content = false
+    label.fit_content = true
+    
+    # 3. 给予极小延迟，等待底层字体排版完成后，连续强制赋高度
+    var check_timer = get_tree().create_timer(0.01)
+    check_timer.timeout.connect(func():
+        if is_instance_valid(label) and is_instance_valid(bubble):
+            label.size.x = 250
+            var content_h = label.get_content_height()
+            if content_h > 0:
+                label.custom_minimum_size.y = content_h
+                bubble.size = Vector2.ZERO # 强制父级 PanelContainer 贴合收缩
+                
+                # 再次延迟一帧进行最终画面确认
+                get_tree().process_frame.connect(func():
+                    if is_instance_valid(label) and is_instance_valid(bubble):
+                        label.custom_minimum_size.y = label.get_content_height()
+                        bubble.size = Vector2.ZERO
+                , CONNECT_ONE_SHOT)
+    )
     
     if is_typewriter:
         label.visible_ratio = 0.0

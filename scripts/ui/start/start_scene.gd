@@ -7,6 +7,7 @@ extends Control
 
 var settings_panel_instance = null
 var save_load_panel_instance = null
+var debug_panel_instance = null
 var desktop_pet_instance: Window = null
 
 func _ready() -> void:
@@ -44,6 +45,11 @@ func _on_close_requested() -> void:
 func _notification(what: int) -> void:
     if what == NOTIFICATION_WM_CLOSE_REQUEST:
         get_tree().quit()
+
+func _unhandled_input(event: InputEvent) -> void:
+    if event is InputEventKey and event.pressed:
+        if event.keycode == KEY_F12:
+            _open_debug_panel()
 
 func _on_start_pressed() -> void:
     _animate_button(start_button)
@@ -129,6 +135,19 @@ func _on_settings_pressed() -> void:
         add_child(settings_panel_instance)
         settings_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     settings_panel_instance.show_panel()
+
+func _open_debug_panel() -> void:
+    if debug_panel_instance == null:
+        var DebugPanelObj = load("res://scenes/ui/story/debug_panel.tscn")
+        debug_panel_instance = DebugPanelObj.instantiate()
+        add_child(debug_panel_instance)
+        debug_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        debug_panel_instance.is_from_title = true
+    
+    if debug_panel_instance.visible:
+        debug_panel_instance.hide()
+    else:
+        debug_panel_instance.show_panel()
 
 func _animate_button(btn: Button) -> void:
     var tween = create_tween()

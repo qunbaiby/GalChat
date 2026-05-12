@@ -42,6 +42,53 @@ namespace GalChat.Scripts.CSharp
     }
 
     /// <summary>
+    /// 获取系统的空闲时间（毫秒），即用户最后一次鼠标或键盘输入距今的时间
+    /// </summary>
+    /// <returns>空闲毫秒数</returns>
+    public uint GetIdleTimeMs()
+    {
+        LASTINPUTINFO lastInputInfo = new LASTINPUTINFO();
+        lastInputInfo.cbSize = (uint)Marshal.SizeOf(lastInputInfo);
+        lastInputInfo.dwTime = 0;
+
+        if (GetLastInputInfo(ref lastInputInfo))
+        {
+            uint envTicks = (uint)System.Environment.TickCount;
+            if (envTicks >= lastInputInfo.dwTime)
+                return envTicks - lastInputInfo.dwTime;
+            else
+                return 0;
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// 调整 Bitmap 的尺寸，等比例缩放到指定的最大宽/高
+    /// </summary>
+    private System.Drawing.Bitmap ResizeBitmap(System.Drawing.Bitmap original, int maxWidth, int maxHeight)
+    {
+        if (original.Width <= maxWidth && original.Height <= maxHeight)
+        {
+            return new System.Drawing.Bitmap(original); // 返回副本避免原图被销毁影响
+        }
+
+        float ratioX = (float)maxWidth / original.Width;
+        float ratioY = (float)maxHeight / original.Height;
+        float ratio = Math.Min(ratioX, ratioY);
+
+        int newWidth = (int)(original.Width * ratio);
+        int newHeight = (int)(original.Height * ratio);
+
+        System.Drawing.Bitmap newImage = new System.Drawing.Bitmap(newWidth, newHeight, PixelFormat.Format32bppArgb);
+        using (Graphics g = Graphics.FromImage(newImage))
+        {
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.DrawImage(original, 0, 0, newWidth, newHeight);
+        }
+        return newImage;
+    }
+
+    /// <summary>
     /// 截取全屏并返回 Base64 编码的 JPEG 字符串（压缩质量为 60）
     /// 适用于发送给多模态大模型进行屏幕内容分析
     /// </summary>
@@ -74,18 +121,22 @@ namespace GalChat.Scripts.CSharp
                     g.CopyFromScreen(screenLeft, screenTop, 0, 0, new Size(screenWidth, screenHeight), CopyPixelOperation.SourceCopy);
                 }
 
-                // 使用 JPEG 格式并压缩质量，减少 API 传输体积
-                ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
-                EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 60L); // 60% 质量
-                myEncoderParameters.Param[0] = myEncoderParameter;
-
-                using (MemoryStream ms = new MemoryStream())
+                // 压缩图像分辨率以减少 Token 消耗并提升响应速度，限制最大尺寸为 1280x720
+                using (System.Drawing.Bitmap resizedBitmap = ResizeBitmap(bitmap, 1280, 720))
                 {
-                    bitmap.Save(ms, jpgEncoder, myEncoderParameters);
-                    byte[] imageBytes = ms.ToArray();
-                    return Convert.ToBase64String(imageBytes);
+                    // 使用 JPEG 格式并压缩质量，减少 API 传输体积
+                    ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                    System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                    EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                    EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 60L); // 60% 质量
+                    myEncoderParameters.Param[0] = myEncoderParameter;
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        resizedBitmap.Save(ms, jpgEncoder, myEncoderParameters);
+                        byte[] imageBytes = ms.ToArray();
+                        return Convert.ToBase64String(imageBytes);
+                    }
                 }
             }
         }
@@ -200,6 +251,16 @@ namespace GalChat.Scripts.CSharp
     [DllImport("user32.dll")]
     private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
+    [DllImport("user32.dll")]
+    private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct LASTINPUTINFO
+    {
+        public uint cbSize;
+        public uint dwTime;
+    }
+
     private const int GWL_EXSTYLE = -20;
     private const int WS_EX_TRANSPARENT = 0x00000020;
     private const int WS_EX_LAYERED = 0x00080000;
@@ -233,17 +294,21 @@ namespace GalChat.Scripts.CSharp
                         g.CopyFromScreen(rect.Left, rect.Top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
                     }
 
-                    ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-                    System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
-                    EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                    EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 60L);
-                    myEncoderParameters.Param[0] = myEncoderParameter;
-
-                    using (MemoryStream ms = new MemoryStream())
+                    // 压缩图像分辨率以减少 Token 消耗并提升响应速度，限制最大尺寸为 1280x720
+                    using (System.Drawing.Bitmap resizedBitmap = ResizeBitmap(bitmap, 1280, 720))
                     {
-                        bitmap.Save(ms, jpgEncoder, myEncoderParameters);
-                        byte[] imageBytes = ms.ToArray();
-                        return Convert.ToBase64String(imageBytes);
+                        ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                        System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                        EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                        EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 60L);
+                        myEncoderParameters.Param[0] = myEncoderParameter;
+
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            resizedBitmap.Save(ms, jpgEncoder, myEncoderParameters);
+                            byte[] imageBytes = ms.ToArray();
+                            return Convert.ToBase64String(imageBytes);
+                        }
                     }
                 }
             }

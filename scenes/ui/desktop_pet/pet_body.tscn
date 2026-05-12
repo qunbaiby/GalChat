@@ -99,4 +99,5 @@ mouse_filter = 2
 theme_override_colors/default_color = Color(0.9, 0.9, 0.95, 1)
 bbcode_enabled = true
 fit_content = true
+scroll_active = false
 autowrap_mode = 2

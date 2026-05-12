@@ -39,17 +39,26 @@ var embedding_enabled: bool = true
 var doubao_embedding_api_key: String = ""
 var doubao_embedding_model: String = "ep-xxxxxx"
 
-# 多模态视觉模型配置 (Vision Model)
+# 桌宠多模态视觉限制
+var vision_use_count: int = 0
+var max_vision_uses: int = 10
+var vision_last_recovery_time: int = 0 # 上次恢复多模态次数的时间戳（秒）
+
+# 玩家称呼设置
+var player_nickname: String = "哥哥"
 var vision_enabled: bool = true
 var vision_api_key: String = ""
 var vision_model: String = "doubao-seed-2-0-mini-260428"
 var vision_base_url: String = "https://ark.cn-beijing.volces.com/api/v3"
 
 # 桌宠交互配置
-var pet_new_app_observe_time: int = 5    # 新应用观察停留时间 (秒)
-var pet_same_app_cooldown: int = 120     # 同应用再次吐槽冷却时间 (秒)
-var pet_global_cooldown: int = 5         # 全局主动发言最小冷却时间 (秒)
+var pet_new_app_observe_time: int = 10    # 新应用观察停留时间 (秒)
+var pet_same_app_cooldown: int = 180     # 同应用再次吐槽冷却时间 (秒)
+var pet_global_cooldown: int = 10         # 全局主动发言最小冷却时间 (秒)
 var pet_scale_multiplier: float = 1.0    # 桌宠立绘缩放倍率
+var pet_enable_app_observe: bool = true  # 允许应用观察
+var pet_enable_hourly_chime: bool = true # 允许整点报时
+var pet_enable_afk_greeting: bool = true # 允许闲置问候
 
 # 图像生成配置 (Image Generation)
 var image_generation_enabled: bool = true
@@ -99,6 +108,9 @@ func save_config() -> void:
         "embedding_enabled": embedding_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
         "doubao_embedding_model": doubao_embedding_model,
+        "vision_use_count": vision_use_count,
+        "vision_last_recovery_time": vision_last_recovery_time,
+        "player_nickname": player_nickname,
         "vision_enabled": vision_enabled,
         "vision_api_key": vision_api_key,
         "vision_model": vision_model,
@@ -107,6 +119,9 @@ func save_config() -> void:
         "pet_same_app_cooldown": pet_same_app_cooldown,
         "pet_global_cooldown": pet_global_cooldown,
         "pet_scale_multiplier": pet_scale_multiplier,
+        "pet_enable_app_observe": pet_enable_app_observe,
+        "pet_enable_hourly_chime": pet_enable_hourly_chime,
+        "pet_enable_afk_greeting": pet_enable_afk_greeting,
         "image_generation_enabled": image_generation_enabled,
         "default_image_path": default_image_path,
         "openai_image_api_key": openai_image_api_key,
@@ -172,6 +187,9 @@ func load_config() -> void:
                 embedding_enabled = data.get("embedding_enabled", embedding_enabled)
                 doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)
                 doubao_embedding_model = data.get("doubao_embedding_model", doubao_embedding_model)
+                vision_use_count = data.get("vision_use_count", vision_use_count)
+                vision_last_recovery_time = data.get("vision_last_recovery_time", vision_last_recovery_time)
+                player_nickname = data.get("player_nickname", player_nickname)
                 vision_enabled = data.get("vision_enabled", vision_enabled)
                 vision_api_key = data.get("vision_api_key", vision_api_key)
                 vision_model = data.get("vision_model", vision_model)
@@ -181,6 +199,9 @@ func load_config() -> void:
                 pet_same_app_cooldown = data.get("pet_same_app_cooldown", pet_same_app_cooldown)
                 pet_global_cooldown = data.get("pet_global_cooldown", pet_global_cooldown)
                 pet_scale_multiplier = data.get("pet_scale_multiplier", pet_scale_multiplier)
+                pet_enable_app_observe = data.get("pet_enable_app_observe", pet_enable_app_observe)
+                pet_enable_hourly_chime = data.get("pet_enable_hourly_chime", pet_enable_hourly_chime)
+                pet_enable_afk_greeting = data.get("pet_enable_afk_greeting", pet_enable_afk_greeting)
                 
                 image_generation_enabled = data.get("image_generation_enabled", image_generation_enabled)
                 default_image_path = data.get("default_image_path", default_image_path)
