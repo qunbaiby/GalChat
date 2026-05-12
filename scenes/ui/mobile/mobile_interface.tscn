@@ -510,6 +510,15 @@ theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 theme_override_font_sizes/font_size = 14
 text = "暂时没有新的消息。"
 
+[node name="SmsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
 [node name="L1_Icon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
 layout_mode = 0
 offset_left = 285.0
@@ -528,7 +537,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 30
 text = "✉"
 
-[node name="SmsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
+[node name="MomentsButton" type="Button" parent="PhonePanel/MainMargin/VBox/ListVBox/List1/L1_Icon"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

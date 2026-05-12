@@ -13,6 +13,7 @@ signal photo_picked(path: String)
 
 var _photo_paths: Array = []
 var _is_picker_mode: bool = false
+var _picker_btn_text: String = "确定"
 var _current_viewing_path: String = ""
 
 func _ready() -> void:
@@ -20,8 +21,9 @@ func _ready() -> void:
     close_viewer_btn.pressed.connect(_on_close_viewer_pressed)
     send_btn.pressed.connect(_on_send_pressed)
 
-func set_picker_mode(is_picker: bool) -> void:
+func set_picker_mode(is_picker: bool, btn_text: String = "确定") -> void:
     _is_picker_mode = is_picker
+    _picker_btn_text = btn_text
 
 func show_panel() -> void:
     show()
@@ -105,6 +107,7 @@ func _on_photo_clicked(tex: Texture2D, path: String = "") -> void:
     fullscreen_viewer.show()
     
     if _is_picker_mode and path != "":
+        send_btn.text = _picker_btn_text
         send_btn.show()
     else:
         send_btn.hide()
@@ -126,5 +129,6 @@ func _on_close_viewer_pressed() -> void:
 
 func _on_send_pressed() -> void:
     if _current_viewing_path != "":
+        print("[AlbumPanel] Photo picked, emitting signal with path: ", _current_viewing_path)
         photo_picked.emit(_current_viewing_path)
         _on_close_viewer_pressed()

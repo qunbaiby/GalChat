@@ -82,6 +82,7 @@ var voice_volume: float = 1.0
 # 玩家基本信息
 var player_name: String = "开拓者"
 var player_bio: String = "暂无简介"
+var moments_cover_path: String = ""
 var player_level: int = 70
 var player_eq_level: int = 6
 
@@ -137,6 +138,7 @@ func save_config() -> void:
         "voice_volume": voice_volume,
         "player_name": player_name,
         "player_bio": player_bio,
+        "moments_cover_path": moments_cover_path,
         "player_level": player_level,
         "player_eq_level": player_eq_level
     }
@@ -218,6 +220,7 @@ func load_config() -> void:
                 voice_volume = data.get("voice_volume", voice_volume)
                 player_name = data.get("player_name", player_name)
                 player_bio = data.get("player_bio", player_bio)
+                moments_cover_path = data.get("moments_cover_path", moments_cover_path)
                 player_level = data.get("player_level", player_level)
                 player_eq_level = data.get("player_eq_level", player_eq_level)
     

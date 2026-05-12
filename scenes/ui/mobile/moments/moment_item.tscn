@@ -1,0 +1,110 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mobile/moments/moment_item.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CommentsBg"]
+bg_color = Color(0.1, 0.1, 0.12, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="MomentItem" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+script = ExtResource("1_script")
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Avatar" type="TextureRect" parent="Header"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.4, 0.6, 0.9, 1)
+text = "Author Name"
+
+[node name="Content" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Moment content goes here..."
+autowrap_mode = 3
+
+[node name="ImagesGrid" type="GridContainer" parent="."]
+layout_mode = 2
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+columns = 3
+
+[node name="Actions" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TimeLabel" type="Label" parent="Actions"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+text = "刚刚"
+
+[node name="Spacer" type="Control" parent="Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LikeBtn" type="Button" parent="Actions"]
+custom_minimum_size = Vector2(50, 24)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "点赞"
+
+[node name="CommentBtn" type="Button" parent="Actions"]
+custom_minimum_size = Vector2(50, 24)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "评论"
+
+[node name="CommentsArea" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_CommentsBg")
+
+[node name="Margin" type="MarginContainer" parent="CommentsArea"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="CommentsArea/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="LikesLabel" type="Label" parent="CommentsArea/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.4, 0.6, 0.9, 1)
+
+[node name="HSeparator" type="HSeparator" parent="CommentsArea/Margin/VBox"]
+layout_mode = 2
+
+[node name="CommentsList" type="VBoxContainer" parent="CommentsArea/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CommentInputArea" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="CommentInputArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "说点什么..."
+
+[node name="SendBtn" type="Button" parent="CommentInputArea"]
+layout_mode = 2
+text = "发送"

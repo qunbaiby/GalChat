@@ -10,6 +10,7 @@ signal app_opened(app_name: String)
 @onready var album_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/Card4/AlbumBtn
 @onready var power_btn: Button = $PhonePanel/MainMargin/VBox/PowerBtn
 @onready var sms_btn: Button = $PhonePanel/MainMargin/VBox/ListVBox/List1/SmsBtn
+@onready var moments_btn: Button = $PhonePanel/MainMargin/VBox/ListVBox/List1/L1_Icon/MomentsButton
 
 @onready var player_name_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/MainInfo/NameAndLevel/PlayerName
 @onready var eq_level_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/MainInfo/NameAndLevel/EqLevel
@@ -22,6 +23,7 @@ var contact_list_instance = null
 var chat_panel_instance = null
 var camera_panel_instance = null
 var album_panel_instance = null
+var moments_panel_instance = null
 
 func _ready() -> void:
     animation_player.animation_finished.connect(_on_animation_finished)
@@ -30,6 +32,7 @@ func _ready() -> void:
     archive_btn.pressed.connect(_on_archive_app_pressed)
     power_btn.pressed.connect(_on_close_pressed)
     sms_btn.pressed.connect(_on_sms_app_pressed)
+    moments_btn.pressed.connect(_on_moments_button_pressed)
     
     camera_btn.pressed.connect(_on_camera_app_pressed)
     album_btn.pressed.connect(_on_album_app_pressed)
@@ -104,6 +107,8 @@ func _on_album_app_pressed() -> void:
         
     # Reset picker mode when opening directly from app list
     album_panel_instance.set_picker_mode(false)
+    if album_panel_instance.photo_picked.is_connected(_on_album_photo_picked_for_cover):
+        album_panel_instance.photo_picked.disconnect(_on_album_photo_picked_for_cover)
     album_panel_instance.show_panel()
 
 func _on_sms_app_pressed() -> void:
@@ -117,6 +122,40 @@ func _on_sms_app_pressed() -> void:
     else:
         phone_panel.move_child(contact_list_instance, -1)
     contact_list_instance.show_panel()
+
+func _on_moments_button_pressed() -> void:
+    if moments_panel_instance == null:
+        var MomentsPanelObj = load("res://scenes/ui/mobile/moments/moments_panel.tscn")
+        moments_panel_instance = MomentsPanelObj.instantiate()
+        phone_panel.add_child(moments_panel_instance)
+        moments_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        moments_panel_instance.cover_pick_requested.connect(_on_moments_cover_pick_requested)
+    else:
+        phone_panel.move_child(moments_panel_instance, -1)
+    moments_panel_instance.show_panel()
+
+func _on_moments_cover_pick_requested() -> void:
+    if album_panel_instance == null:
+        var AlbumPanelObj = load("res://scenes/ui/mobile/album_panel.tscn")
+        album_panel_instance = AlbumPanelObj.instantiate()
+        phone_panel.add_child(album_panel_instance)
+        album_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    else:
+        phone_panel.move_child(album_panel_instance, -1)
+        
+    album_panel_instance.set_picker_mode(true, "更换封面")
+    if not album_panel_instance.photo_picked.is_connected(_on_album_photo_picked_for_cover):
+        album_panel_instance.photo_picked.connect(_on_album_photo_picked_for_cover)
+    album_panel_instance.show_panel()
+
+func _on_album_photo_picked_for_cover(path: String) -> void:
+    if album_panel_instance:
+        if album_panel_instance.photo_picked.is_connected(_on_album_photo_picked_for_cover):
+            album_panel_instance.photo_picked.disconnect(_on_album_photo_picked_for_cover)
+        album_panel_instance.hide_panel()
+        
+    if moments_panel_instance:
+        moments_panel_instance.update_cover_from_album(path)
 
 func _on_contact_list_back() -> void:
     if contact_list_instance:

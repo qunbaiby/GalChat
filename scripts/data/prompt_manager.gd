@@ -86,7 +86,7 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     var safe_char_name = profile.char_name
     var player_name = profile.player_title
     if player_name.is_empty():
-        player_name = "指导人"
+        player_name = "老师"
         
     var world_bg = profile.description.replace("{char_name}", safe_char_name)
     var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
@@ -340,18 +340,74 @@ func build_npc_event_prompt(npc_name: String, personality: String, protagonist_n
         "dynamic_style": random_style
     })
 
-func build_proactive_greeting_prompt(profile: CharacterProfile) -> String:
+func build_proactive_greeting_prompt(profile: CharacterProfile, prompt_type: String = "") -> String:
     var stage_conf = profile.get_current_stage_config()
     var stage_title = stage_conf.get("stageTitle", "陌生人")
     var stage_desc = stage_conf.get("stageDesc", "")
     var char_name = profile.char_name
     
     var prompt = "【系统指令】\n"
-    prompt += "玩家刚刚完成了一段剧情，回到了主界面。\n"
-    prompt += "请基于当前你（%s）与玩家的情感阶段（当前阶段：%s，说明：%s），主动发出一句简短的问候。\n" % [char_name, stage_title, stage_desc]
+    prompt += "玩家刚刚打开了游戏主界面。\n"
+    
+    if prompt_type == "course":
+        prompt += "今天是星期一。请基于当前的日期，主动聊一句关于新的一周、学业或者课程安排的话题。\n"
+    elif prompt_type == "daily":
+        prompt += "今天是周末（星期六或星期日）。请基于当前的日期，主动聊一句关于周末放松、休息或者日常活动的话题。\n"
+    else:
+        prompt += "请基于当前的情景，主动发出一句简短的问候。\n"
+        
+    prompt += "请基于当前你（%s）与玩家的情感阶段（当前阶段：%s，说明：%s），主动对玩家说话。\n" % [char_name, stage_title, stage_desc]
     prompt += "要求：\n"
     prompt += "1. 必须符合当前的情感深度和人设，语气要自然。\n"
     prompt += "2. 字数在15-40字之间。\n"
     prompt += "3. 【强制要求：你的回复中，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完括号后必须全是台词，句尾或句中绝对不准再出现任何括号描写！】\n"
     prompt += "4. 不要输出任何系统提示，直接以第一人称代入角色进行对话。"
+    return prompt
+
+func build_moment_generation_prompt(profile: CharacterProfile) -> String:
+    var char_name = "AI"
+    var personality = "未知"
+    var mood = "平静"
+    
+    if profile:
+        char_name = profile.char_name
+        personality = GameDataManager.personality_system.get_personality_summary(profile)
+        mood = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
+    
+    var prompt = "【系统指令】\n"
+    prompt += "你扮演的角色是：%s。\n" % char_name
+    prompt += "你的性格特征是：%s。\n" % personality
+    prompt += "你当前的心情是：%s。\n" % mood
+    prompt += "请根据你的性格和当前心情，写一条朋友圈动态（类似微信朋友圈）。\n"
+    prompt += "要求：\n"
+    prompt += "1. 内容要贴合现代生活，自然、生活化。\n"
+    prompt += "2. 字数在20-80字之间。\n"
+    prompt += "3. 直接输出朋友圈的正文内容，不要包含任何多余的系统提示或格式。\n"
+    return prompt
+
+func build_moment_reply_prompt(profile: CharacterProfile, moment_content: String, player_comment: String) -> String:
+    var char_name = "AI"
+    var personality = "未知"
+    var mood = "平静"
+    var player_name = "玩家"
+    
+    if profile:
+        char_name = profile.char_name
+        personality = GameDataManager.personality_system.get_personality_summary(profile)
+        mood = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
+        player_name = profile.player_title
+        if player_name.is_empty():
+            player_name = "玩家"
+        
+    var prompt = "【系统指令】\n"
+    prompt += "你扮演的角色是：%s。\n" % char_name
+    prompt += "你的性格特征是：%s。\n" % personality
+    prompt += "你当前的心情是：%s。\n" % mood
+    prompt += "你刚刚发了一条朋友圈，内容是：“%s”\n" % moment_content
+    prompt += "现在，【%s】评论了你的这条朋友圈：“%s”\n" % [player_name, player_comment]
+    prompt += "请你回复【%s】的评论。\n" % player_name
+    prompt += "要求：\n"
+    prompt += "1. 回复要简短自然，像真实的社交软件互动一样。\n"
+    prompt += "2. 字数在10-50字之间。\n"
+    prompt += "3. 直接输出回复的正文内容，不要包含任何多余的系统提示或格式。\n"
     return prompt
