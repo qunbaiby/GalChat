@@ -77,8 +77,11 @@ shader = ExtResource("15_trapezoid_shader")
 shader_parameter/slant = 0.30000001425
 shader_parameter/corner_radius = 0.05600000266
 shader_parameter/aspect_ratio = 2.21
+shader_parameter/padding = 0.0
 shader_parameter/border_width = 0.002000000095
 shader_parameter/border_color = Color(0.17092904, 0.23729098, 0.3061503, 0.8)
+shader_parameter/glow_size = 0.0
+shader_parameter/glow_color = Color(0, 0.8, 1, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6p2kk"]
 bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
@@ -203,6 +206,7 @@ grow_vertical = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_fvueq")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fmm1x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_rntma")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_rntma")
 text = "行程安排"
 
 [node name="StoryButton" type="Button" parent="UIPanel"]
@@ -249,6 +253,7 @@ offset_bottom = -10.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_6p2kk")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_6p2kk")
 text = "外出"
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
@@ -340,9 +345,9 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = 300.0
+offset_left = 1.0
 offset_top = -162.0
-offset_right = 550.0
+offset_right = 251.0
 offset_bottom = -102.0
 grow_horizontal = 0
 grow_vertical = 2

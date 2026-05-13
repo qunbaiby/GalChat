@@ -81,8 +81,14 @@ func show_panel() -> void:
     _on_scroll_changed(scroll.scroll_vertical)
 
 func _on_scroll_changed(value: float) -> void:
-    # 顶部渐变黑底
-    var alpha = clamp(value / 150.0, 0.0, 0.95)
+    # 顶部渐变黑底和文字，只有当滚动超过封面高度的一大半时才开始渐现
+    var fade_start = _original_header_height - 120.0
+    var fade_end = _original_header_height - 20.0
+    
+    var alpha = 0.0
+    if value > fade_start:
+        alpha = clamp((value - fade_start) / (fade_end - fade_start), 0.0, 0.95)
+        
     top_bar_bg.color = Color(0.15, 0.15, 0.18, alpha)
     title_label.modulate.a = alpha
 

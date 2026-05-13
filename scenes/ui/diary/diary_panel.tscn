@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://cy8xxa3qqt4m1"]
+[gd_scene load_steps=5 format=3 uid="uid://cy8xxa3qqt4m1"]
 
 [ext_resource type="Script" uid="uid://bscfneq0ojqtm" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
 
@@ -17,14 +17,14 @@ shadow_color = Color(0, 0, 0, 0.2)
 shadow_size = 15
 shadow_offset = Vector2(0, 5)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Divider"]
-bg_color = Color(0.8, 0.75, 0.7, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Polaroid"]
 bg_color = Color(1, 1, 1, 1)
 shadow_color = Color(0, 0, 0, 0.15)
 shadow_size = 10
 shadow_offset = Vector2(2, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Divider"]
+bg_color = Color(0.8, 0.75, 0.7, 1)
 
 [node name="DiaryPanel" type="Control"]
 layout_mode = 3
@@ -146,6 +146,7 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage"]
+visible = false
 layout_mode = 2
 alignment = 1
 
@@ -198,6 +199,8 @@ horizontal_alignment = 1
 [node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 3
 
 [node name="ContentText" type="RichTextLabel" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/ScrollContainer"]
 layout_mode = 2
@@ -208,6 +211,7 @@ theme_override_constants/line_separation = 10
 theme_override_font_sizes/normal_font_size = 18
 text = "　　今天发生了一些有趣的事情..."
 fit_content = true
+scroll_active = false
 
 [node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
 layout_mode = 2
@@ -222,6 +226,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="NextButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+visible = false
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 text = "下一页"

@@ -80,7 +80,7 @@ var bgm_volume: float = 1.0
 var voice_volume: float = 1.0
 
 # 玩家基本信息
-var player_name: String = "开拓者"
+var player_name: String = "玩家"
 var player_bio: String = "暂无简介"
 var moments_cover_path: String = ""
 var player_level: int = 70
