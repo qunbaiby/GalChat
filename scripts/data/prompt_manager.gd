@@ -49,8 +49,11 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
         
     var time_str = ""
     # 桌宠使用真实的现实时间，其他剧情对话使用虚构的剧情时间
+    var weather_context = ""
     if template_name == "desktop_pet":
         time_str = Time.get_datetime_string_from_system()
+        if GameDataManager.weather_manager and GameDataManager.weather_manager.is_weather_ready:
+            weather_context = "【现实天气】：你感知到玩家窗外现在是%s，气温大约%d度。可以在适当时机自然地融入你的关心或吐槽中。" % [GameDataManager.weather_manager.current_weather_desc, GameDataManager.weather_manager.current_temp]
     else:
         time_str = GameDataManager.story_time_manager.get_story_time_string()
         
@@ -214,6 +217,7 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
         "scene_setting": scene_set,
         "important_notes": imp_notes,
         "time": time_str,
+        "weather": weather_context,
         "mood_desc": mood_desc,
         "memory_desc": memory_desc,
         "dynamic_style": random_style
@@ -364,7 +368,33 @@ func build_proactive_greeting_prompt(profile: CharacterProfile, prompt_type: Str
     prompt += "4. 不要输出任何系统提示，直接以第一人称代入角色进行对话。"
     return prompt
 
+func build_schedule_event_prompt(course_name: String, course_desc: String) -> String:
+    var prompt = "你是一个生活事件生成器。请根据给定的课程/活动名称和描述，生成一个可能在进行该活动时发生的突发小事件。\n"
+    prompt += "输出必须是纯 JSON 格式，不含任何其他内容，字段如下：\n"
+    prompt += "{\n"
+    prompt += "  \"description\": \"事件描述（50字以内）\",\n"
+    prompt += "  \"option1\": \"选项1（10字以内）\",\n"
+    prompt += "  \"option2\": \"选项2（10字以内）\"\n"
+    prompt += "}\n"
+    return prompt
+
+func build_schedule_resolve_prompt() -> String:
+    var prompt = "你是一个事件结算生成器。请根据事件描述和用户选择的选项，给出事件的结果。\n"
+    prompt += "输出必须是纯 JSON 格式，包含结算描述以及属性变化，字段如下：\n"
+    prompt += "{\n"
+    prompt += "  \"result_desc\": \"结果描述（50字以内）\",\n"
+    prompt += "  \"rewards\": {\n"
+    prompt += "    \"vitality\": 0,\n"
+    prompt += "    \"social\": 0,\n"
+    prompt += "    \"knowledge\": 0,\n"
+    prompt += "    \"gold\": 0\n"
+    prompt += "  }\n"
+    prompt += "}\n"
+    prompt += "属性变化可以为正数或负数，范围通常在 -10 到 10 之间。未提到的属性视为不变。\n"
+    return prompt
+
 func build_moment_generation_prompt(profile: CharacterProfile) -> String:
+
     var char_name = "AI"
     var personality = "未知"
     var mood = "平静"

@@ -395,6 +395,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "休息"
 
+[node name="CoCreateButton" type="Button" parent="UIPanel/InteractGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "共创画板"
+
 [node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]
 visible = false
 layout_mode = 1

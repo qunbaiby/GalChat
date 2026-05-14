@@ -6,6 +6,8 @@ signal schedule_finished
 
 @export var slot_scene: PackedScene
 
+const ScheduleEventPanelScene = preload("res://scenes/ui/activity/schedule_event_panel.tscn")
+
 @onready var top_image_rect: TextureRect = $MainPanel/TopImageRect
 @onready var title_label: Label = $MainPanel/TopImageRect/TitleContainer/TitleLabel
 @onready var desc_label: Label = $MainPanel/DescLabel
@@ -25,6 +27,10 @@ var _end_attrs: Dictionary
 var _current_slot_index: int = 0
 var _is_moving: bool = false
 var _slots: Array = []
+
+var _current_event_panel: Node = null
+var _current_event_desc: String = ""
+var _current_event_options: Array = []
 
 func _ready() -> void:
 	click_area.pressed.connect(_on_click_area_pressed)
@@ -148,17 +154,191 @@ func _on_click_area_pressed() -> void:
 	
 	tween.finished.connect(func():
 		_current_slot_index = next_index
-		_is_moving = false
 		
-		# 走到下一个槽位时，立刻刷新顶部的当前课程图文信息
-		_update_course_info(_current_slot_index)
+		if randf() < 0.2:
+			_trigger_schedule_event()
+		else:
+			_finish_slot_move()
+	)
+
+func _finish_slot_move() -> void:
+	_is_moving = false
+	
+	# 走到下一个槽位时，立刻刷新顶部的当前课程图文信息
+	_update_course_info(_current_slot_index)
+	
+	# 每完成2个课程，时间推进一天 (2, 4, 6, 8)
+	if _current_slot_index % 2 == 0 and _current_slot_index < 10:
+		GameDataManager.time_system.advance_time(1, 0, 0)
 		
-		if _current_slot_index == 9:
-			# 走到最后一个槽位时，立刻将最后一个也标为完成
-			set_slot_status(_current_slot_index, true)
-			course_completed.emit(_current_slot_index)
-			all_courses_completed.emit()
-			_show_result_popup()
+	if _current_slot_index == 9:
+		# 走到最后一个槽位时，立刻将最后一个也标为完成
+		set_slot_status(_current_slot_index, true)
+		course_completed.emit(_current_slot_index)
+		all_courses_completed.emit()
+		# 第10个课程完成，推进最后一天
+		GameDataManager.time_system.advance_time(1, 0, 0)
+		_show_result_popup()
+
+func _get_deepseek_client() -> Node:
+	if get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
+		return get_tree().current_scene.get_node("DeepSeekClient")
+	if get_node_or_null("/root/DeepSeekClient"):
+		return get_node("/root/DeepSeekClient")
+	if get_tree().root.has_node("MainScene/DeepSeekClient"):
+		return get_node("/root/MainScene/DeepSeekClient")
+	return null
+
+func _trigger_schedule_event() -> void:
+	var client = _get_deepseek_client()
+	if not client:
+		_finish_slot_move()
+		return
+		
+	var course_data = _courses_data[_current_slot_index]
+	var course_name = course_data.get("name", "未知课程")
+	var course_desc = course_data.get("desc", "")
+	
+	var loading_label = Label.new()
+	loading_label.text = "突发事件生成中..."
+	loading_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	loading_label.add_theme_font_size_override("font_size", 32)
+	loading_label.add_theme_color_override("font_color", Color(1, 1, 1))
+	loading_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	loading_label.add_theme_constant_override("outline_size", 4)
+	loading_label.name = "EventLoadingLabel"
+	add_child(loading_label)
+	
+	if not client.is_connected("schedule_event_generated", _on_schedule_event_generated):
+		client.schedule_event_generated.connect(_on_schedule_event_generated)
+	if not client.is_connected("schedule_event_error", _on_schedule_event_error):
+		client.schedule_event_error.connect(_on_schedule_event_error)
+		
+	client.generate_schedule_event(course_name, course_desc)
+
+func _on_schedule_event_generated(event_data: Dictionary) -> void:
+	var loading = get_node_or_null("EventLoadingLabel")
+	if loading:
+		loading.queue_free()
+		
+	var client = _get_deepseek_client()
+	if client:
+		if client.is_connected("schedule_event_generated", _on_schedule_event_generated):
+			client.schedule_event_generated.disconnect(_on_schedule_event_generated)
+		if client.is_connected("schedule_event_error", _on_schedule_event_error):
+			client.schedule_event_error.disconnect(_on_schedule_event_error)
+			
+	_current_event_panel = ScheduleEventPanelScene.instantiate()
+	add_child(_current_event_panel)
+	
+	_current_event_desc = event_data.get("event_desc", "发生了一个随机事件。")
+	var options = event_data.get("options", [])
+	_current_event_options.clear()
+	
+	var opt1 = "选项 1"
+	var opt2 = "选项 2"
+	if options.size() > 0:
+		opt1 = options[0].get("text", "选项 1")
+		_current_event_options.append(opt1)
+	if options.size() > 1:
+		opt2 = options[1].get("text", "选项 2")
+		_current_event_options.append(opt2)
+		
+	_current_event_panel.setup(_current_event_desc, opt1, opt2)
+	_current_event_panel.option_selected.connect(_on_event_option_selected)
+
+func _on_schedule_event_error(_error_msg: String) -> void:
+	var loading = get_node_or_null("EventLoadingLabel")
+	if loading:
+		loading.queue_free()
+		
+	var client = _get_deepseek_client()
+	if client:
+		if client.is_connected("schedule_event_generated", _on_schedule_event_generated):
+			client.schedule_event_generated.disconnect(_on_schedule_event_generated)
+		if client.is_connected("schedule_event_error", _on_schedule_event_error):
+			client.schedule_event_error.disconnect(_on_schedule_event_error)
+			
+	_finish_slot_move()
+
+func _on_event_option_selected(idx: int) -> void:
+	if _current_event_panel:
+		_current_event_panel.hide()
+		
+	var loading_label = Label.new()
+	loading_label.text = "事件结算中..."
+	loading_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	loading_label.add_theme_font_size_override("font_size", 32)
+	loading_label.add_theme_color_override("font_color", Color(1, 1, 1))
+	loading_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	loading_label.add_theme_constant_override("outline_size", 4)
+	loading_label.name = "EventResolvingLabel"
+	add_child(loading_label)
+	
+	var client = _get_deepseek_client()
+	var course_data = _courses_data[_current_slot_index]
+	var course_name = course_data.get("name", "未知课程")
+	
+	var chosen_option = "未知选项"
+	if idx >= 0 and idx < _current_event_options.size():
+		chosen_option = _current_event_options[idx]
+		
+	if not client.is_connected("schedule_event_resolved", _on_schedule_event_resolved):
+		client.schedule_event_resolved.connect(_on_schedule_event_resolved)
+	if not client.is_connected("schedule_event_resolve_error", _on_schedule_event_resolve_error):
+		client.schedule_event_resolve_error.connect(_on_schedule_event_resolve_error)
+		
+	client.resolve_schedule_event(course_name, _current_event_desc, chosen_option)
+
+func _cleanup_resolve_state() -> void:
+	var loading = get_node_or_null("EventResolvingLabel")
+	if loading:
+		loading.queue_free()
+		
+	if _current_event_panel:
+		_current_event_panel.queue_free()
+		_current_event_panel = null
+		
+	var client = _get_deepseek_client()
+	if client:
+		if client.is_connected("schedule_event_resolved", _on_schedule_event_resolved):
+			client.schedule_event_resolved.disconnect(_on_schedule_event_resolved)
+		if client.is_connected("schedule_event_resolve_error", _on_schedule_event_resolve_error):
+			client.schedule_event_resolve_error.disconnect(_on_schedule_event_resolve_error)
+
+func _on_schedule_event_resolved(result_data: Dictionary) -> void:
+	_cleanup_resolve_state()
+	
+	var changes = result_data.get("stat_changes", {})
+	for attr in changes.keys():
+		var val = changes[attr]
+		if _end_attrs.has(attr):
+			_end_attrs[attr] += val
+		else:
+			_end_attrs[attr] = _start_attrs.get(attr, 0) + val
+			
+	_show_event_result_toast(result_data.get("result_desc", "事件已解决。"))
+
+func _on_schedule_event_resolve_error(_error_msg: String) -> void:
+	_cleanup_resolve_state()
+	_finish_slot_move()
+
+func _show_event_result_toast(msg: String) -> void:
+	var toast = Label.new()
+	toast.text = msg
+	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	toast.add_theme_font_size_override("font_size", 24)
+	toast.add_theme_color_override("font_color", Color(0.2, 0.8, 0.2))
+	toast.add_theme_color_override("font_outline_color", Color(1, 1, 1))
+	toast.add_theme_constant_override("outline_size", 4)
+	add_child(toast)
+	
+	var t = create_tween().set_parallel(true)
+	t.tween_property(toast, "position:y", toast.position.y - 50, 2.0)
+	t.tween_property(toast, "modulate:a", 0.0, 2.0)
+	t.chain().tween_callback(func():
+		toast.queue_free()
+		_finish_slot_move()
 	)
 
 func set_slot_status(index: int, completed: bool) -> void:

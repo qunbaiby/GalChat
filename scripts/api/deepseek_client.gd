@@ -35,6 +35,14 @@ signal moment_error(error_msg: String)
 signal moment_reply_generated(post_id: String, reply_text: String)
 signal moment_reply_error(error_msg: String)
 
+signal schedule_event_generated(event_data: Dictionary)
+signal schedule_event_error(error_msg: String)
+signal schedule_event_resolved(result_data: Dictionary)
+signal schedule_event_resolve_error(error_msg: String)
+
+signal image_to_image_completed(image_path: String)
+signal image_to_image_failed(error_message: String)
+
 var chat_http: HTTPRequest
 var emotion_http: HTTPRequest
 var memory_http: HTTPRequest
@@ -46,6 +54,8 @@ var diary_http: HTTPRequest
 var vision_http: HTTPRequest
 var moment_http: HTTPRequest
 var moment_reply_http: HTTPRequest
+var schedule_event_http: HTTPRequest
+var schedule_resolve_http: HTTPRequest
 
 var _chat_stream_client: HTTPClient
 var _chat_stream_active: bool = false
@@ -102,6 +112,8 @@ func _reinitialize_http_nodes() -> void:
 	vision_http = reset_node.call("VisionHTTP", 30.0, "request_completed", "_on_vision_completed")
 	moment_http = reset_node.call("MomentHTTP", 0.0, "request_completed", "_on_moment_request_completed")
 	moment_reply_http = reset_node.call("MomentReplyHTTP", 15.0, "request_completed", "_on_moment_reply_request_completed")
+	schedule_event_http = reset_node.call("ScheduleEventHTTP", 20.0, "request_completed", "_on_schedule_event_completed")
+	schedule_resolve_http = reset_node.call("ScheduleResolveHTTP", 20.0, "request_completed", "_on_schedule_resolve_completed")
 
 func _is_api_key_empty() -> bool:
 	return GameDataManager.config.api_key.is_empty()
@@ -175,10 +187,8 @@ func send_chat_message_stream(user_message: String, history_type: String = "all"
 	
 	_start_stream_request(api_messages)
 	
-	# Trigger emotion and memory agents in parallel
+	# Trigger emotion agent in parallel
 	_send_emotion_analysis(user_message)
-	if GameDataManager.memory_manager.add_turn():
-		_send_memory_extraction(history_type)
 
 
 
@@ -326,6 +336,40 @@ func _send_memory_extraction(history_type: String = "story_chat") -> void:
 		body["response_format"] = {"type": "json_object"}
 	
 	memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
+func extract_memory_from_chat(user_text: String, ai_reply: String) -> void:
+	_update_script()
+	if not is_inside_tree() or _is_api_key_empty():
+		return
+		
+	if memory_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		memory_http.cancel_request()
+		
+	var system_prompt = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile)
+	
+	var char_name = GameDataManager.profile.char_name
+	if char_name == "":
+		char_name = "AI"
+		
+	var safe_user_prompt = "以下是一次对话交换：\n玩家: " + user_text + "\n" + char_name + ": " + ai_reply + "\n\n【系统强制指令：请作为专业的记忆提取系统，严格按照规定的 JSON 格式输出操作数组。如果没有需要提取的记忆，请输出空的 operations 数组。绝对不要进行角色扮演！不要回复任何对话！】"
+	
+	var api_messages = [
+		{"role": "system", "content": system_prompt},
+		{"role": "user", "content": safe_user_prompt}
+	]
+	
+	var body = {
+		"model": GameDataManager.config.model,
+		"messages": api_messages,
+		"temperature": 0.1,
+		"max_tokens": 200
+	}
+	
+	if not GameDataManager.config.model.begins_with("doubao"):
+		body["response_format"] = {"type": "json_object"}
+	
+	memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
 
 func call_chat_api_non_stream(api_messages: Array) -> void:
 	_update_script()
@@ -879,6 +923,60 @@ func _on_emotion_completed(result: int, response_code: int, _headers: PackedStri
 	_handle_response(result, response_code, body, emotion_request_completed, emotion_request_failed)
 
 func _on_memory_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
+		var json = JSON.new()
+		if json.parse(body.get_string_from_utf8()) == OK:
+			var response_data = json.get_data()
+			if response_data is Dictionary and response_data.has("choices") and response_data["choices"].size() > 0:
+				var reply = response_data["choices"][0]["message"]["content"].strip_edges()
+				
+				print("\n========== [Memory Agent Output] ==========")
+				print(reply)
+				print("===========================================\n")
+				
+				var json_str = reply
+				var regex = RegEx.new()
+				regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
+				var match = regex.search(reply)
+				if match:
+					json_str = match.get_string(1).strip_edges()
+				else:
+					var start_idx = reply.find("{")
+					var end_idx = reply.rfind("}")
+					if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+						json_str = reply.substr(start_idx, end_idx - start_idx + 1)
+					
+				if json_str != "" and json_str != "无新增记忆":
+					var parse_json = JSON.new()
+					if parse_json.parse(json_str) == OK:
+						var data = parse_json.get_data()
+						if data is Dictionary and data.has("operations") and data["operations"] is Array:
+							var plain_text_changes = ""
+							for op in data["operations"]:
+								if not op is Dictionary or not op.has("action") or not op.has("layer"):
+									continue
+									
+								var action = op["action"]
+								var layer = op["layer"]
+								var content = op.get("content", "")
+								var id = op.get("id", "")
+								
+								if action == "ADD":
+									await GameDataManager.memory_manager.add_memory(layer, content)
+									plain_text_changes += "新增记忆: %s\n" % content
+								elif action == "UPDATE":
+									var success = await GameDataManager.memory_manager.update_memory(layer, id, content)
+									if success:
+										plain_text_changes += "更新记忆: %s\n" % content
+								elif action == "DELETE":
+									if GameDataManager.memory_manager.delete_memory(layer, id):
+										plain_text_changes += "删除记忆 [%s]\n" % id
+										
+							if plain_text_changes != "":
+								print("记忆系统更新: ", plain_text_changes.strip_edges())
+					else:
+						print("Memory Agent 无法解析JSON: ", parse_json.get_error_message())
+						
 	_handle_response(result, response_code, body, memory_request_completed, memory_request_failed)
 
 func _on_options_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
@@ -1310,3 +1408,143 @@ func _on_moment_reply_request_completed(result: int, response_code: int, _header
 		if json.parse(body.get_string_from_utf8()) == OK and json.data is Dictionary and json.data.has("error"):
 			err_msg += " - " + json.data["error"].get("message", "")
 	moment_reply_error.emit(err_msg)
+
+func generate_schedule_event(course_name: String, course_desc: String) -> void:
+	_update_script()
+	if _is_api_key_empty():
+		schedule_event_error.emit("API Key未设置")
+		return
+		
+	while not is_inside_tree():
+		await Engine.get_main_loop().process_frame
+		
+	var system_prompt = GameDataManager.prompt_manager.build_schedule_event_prompt(course_name, course_desc)
+	var user_prompt = "课程/活动名称：%s\n课程/活动描述：%s" % [course_name, course_desc]
+	
+	var api_messages = [
+		{"role": "system", "content": system_prompt},
+		{"role": "user", "content": user_prompt}
+	]
+	
+	var body = {
+		"model": GameDataManager.config.model,
+		"messages": api_messages,
+		"temperature": 0.7,
+		"max_tokens": 150
+	}
+	if not GameDataManager.config.model.begins_with("doubao"):
+		body["response_format"] = {"type": "json_object"}
+	
+	schedule_event_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
+func resolve_schedule_event(course_name: String, event_desc: String, chosen_option: String) -> void:
+	_update_script()
+	if _is_api_key_empty():
+		schedule_event_resolve_error.emit("API Key未设置")
+		return
+		
+	while not is_inside_tree():
+		await Engine.get_main_loop().process_frame
+		
+	var system_prompt = GameDataManager.prompt_manager.build_schedule_resolve_prompt()
+	var user_prompt = "当前课程：%s\n事件描述：%s\n用户选择：%s" % [course_name, event_desc, chosen_option]
+	
+	var api_messages = [
+		{"role": "system", "content": system_prompt},
+		{"role": "user", "content": user_prompt}
+	]
+	
+	var body = {
+		"model": GameDataManager.config.model,
+		"messages": api_messages,
+		"temperature": 0.7,
+		"max_tokens": 150
+	}
+	if not GameDataManager.config.model.begins_with("doubao"):
+		body["response_format"] = {"type": "json_object"}
+	
+	schedule_resolve_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
+func _on_schedule_event_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
+		var json = JSON.new()
+		if json.parse(body.get_string_from_utf8()) == OK:
+			var data = json.get_data()
+			if data is Dictionary and data.has("choices") and data["choices"].size() > 0:
+				var content = data["choices"][0]["message"]["content"]
+				var content_json = JSON.new()
+				var clean_content = content.strip_edges()
+				if clean_content.begins_with("```json"):
+					clean_content = clean_content.replace("```json", "")
+				if clean_content.begins_with("```"):
+					clean_content = clean_content.replace("```", "")
+				if clean_content.ends_with("```"):
+					clean_content = clean_content.substr(0, clean_content.length() - 3)
+				clean_content = clean_content.strip_edges()
+				
+				if content_json.parse(clean_content) == OK:
+					schedule_event_generated.emit(content_json.get_data())
+					return
+	schedule_event_error.emit("事件生成失败 (Code: %d)" % response_code)
+
+func _on_schedule_resolve_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
+		var json = JSON.new()
+		if json.parse(body.get_string_from_utf8()) == OK:
+			var data = json.get_data()
+			if data is Dictionary and data.has("choices") and data["choices"].size() > 0:
+				var content = data["choices"][0]["message"]["content"]
+				var content_json = JSON.new()
+				var clean_content = content.strip_edges()
+				if clean_content.begins_with("```json"):
+					clean_content = clean_content.replace("```json", "")
+				if clean_content.begins_with("```"):
+					clean_content = clean_content.replace("```", "")
+				if clean_content.ends_with("```"):
+					clean_content = clean_content.substr(0, clean_content.length() - 3)
+				clean_content = clean_content.strip_edges()
+				
+				if content_json.parse(clean_content) == OK:
+					schedule_event_resolved.emit(content_json.get_data())
+					return
+	schedule_event_resolve_error.emit("事件结算失败 (Code: %d)" % response_code)
+
+func send_image_to_image_request(base64_image: String, prompt: String) -> void:
+	_update_script()
+	if not is_inside_tree():
+		await Engine.get_main_loop().process_frame
+		
+	print("[DeepSeekClient] 收到 Image-to-Image 请求, 提示词: ", prompt)
+	# 如果以后API支持真实的I2I（如ControlNet），可以将 base64_image 作为参考图传入。
+	# 目前我们使用现有的图像生成客户端 (Text-to-Image) 来模拟I2I请求，
+	# 并在后台保存图片，随后返回本地路径。
+	
+	if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
+		image_to_image_failed.emit("图像生成功能已在设置中禁用。")
+		return
+		
+	var provider = 0
+	if GameDataManager.config and "image_generation_provider" in GameDataManager.config:
+		provider = GameDataManager.config.image_generation_provider
+		
+	var image_client
+	if provider == 1:
+		image_client = preload("res://scripts/api/doubao_image_client.gd").new()
+	else:
+		image_client = preload("res://scripts/api/openai_image_client.gd").new()
+		
+	add_child(image_client)
+	
+	var on_success = func(_id: String, local_path: String, _metadata: Dictionary):
+		image_client.queue_free()
+		image_to_image_completed.emit(local_path)
+		
+	var on_failed = func(_id: String, error_msg: String):
+		image_client.queue_free()
+		image_to_image_failed.emit(error_msg)
+		
+	image_client.image_generated.connect(on_success)
+	image_client.image_generation_failed.connect(on_failed)
+	
+	# 使用 "i2i" 作为ID标识，底层会复用生成逻辑并返回保存的路径
+	image_client.generate_diary_illustration("i2i", prompt)

@@ -683,11 +683,15 @@ func _check_hourly_chime() -> void:
 		else: # 2~6
 			time_context = "现在是凌晨，非常晚了，强制要求玩家去睡觉，或者表现出极度的困倦和迷糊。"
 
-		var base_prompt = """【系统提示：现在是现实时间 %02d:00。】
-请你结合当前时间作为隐性语境，代入当前身份，像真人一样对玩家进行整点报时。
+		var weather_context = ""
+		if GameDataManager.weather_manager and GameDataManager.weather_manager.is_weather_ready:
+			weather_context = "当前天气是%s，气温约%d度。" % [GameDataManager.weather_manager.current_weather_desc, GameDataManager.weather_manager.current_temp]
+
+		var base_prompt = """【系统提示：现在是现实时间 %02d:00。%s】
+请你结合当前时间与天气作为隐性语境，代入当前身份，像真人一样对玩家进行整点报时。
 【时间段特定话题】：%s
-- 反应要生动多样！切忌千篇一律。不要总是说“我看你在忙”，要根据时间段提供独特的生活化话题。
-- 【格式强制】：必须包含括号动作描写，严格遵循系统设定的口癖。绝对不能提到你是AI或桌宠。""" % [current_hour, time_context]
+- 反应要生动多样！切忌千篇一律。不要总是说“我看你在忙”，要根据时间段或天气提供独特的生活化话题。
+- 【格式强制】：必须包含括号动作描写，严格遵循系统设定的口癖。绝对不能提到你是AI或桌宠。""" % [current_hour, weather_context, time_context]
 
 		var current_tick = Time.get_ticks_msec()
 		var global_cd = float(GameDataManager.config.pet_global_cooldown) * 1000.0
@@ -845,6 +849,15 @@ func _on_chat_completed(response: Dictionary) -> void:
 		
 	# Add assistant message to history
 	chat_history.append({"role": "assistant", "content": text})
+		
+	var user_text = ""
+	if chat_history.size() >= 2:
+		var last_msg = chat_history[chat_history.size() - 2]
+		if last_msg.has("role") and last_msg["role"] == "user":
+			user_text = last_msg["content"]
+			
+	if user_text != "" and GameDataManager.memory_manager.add_turn():
+		deepseek_client.extract_memory_from_chat(user_text, text)
 		
 	display_bubble(text)
 

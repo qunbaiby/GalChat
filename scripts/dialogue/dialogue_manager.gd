@@ -1017,7 +1017,16 @@ func _on_chat_response(response: Dictionary) -> void:
 		
 		# 当流式接收彻底完毕时，因为此时历史记录中还没有保存AI刚刚说的这句话，我们需要手动将它传给选项生成器
 		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit:
-			deepseek_client.send_options_generation(deepseek_client._chat_stream_full_text, free_chat_strategy if is_free_chat_mode else "")
+			var ai_reply = deepseek_client._chat_stream_full_text
+			deepseek_client.send_options_generation(ai_reply, free_chat_strategy if is_free_chat_mode else "")
+			
+			# 触发记忆提取
+			var messages = GameDataManager.history.get_messages_by_type("story_chat")
+			if messages.size() > 0:
+				var last_msg = messages[messages.size() - 1]
+				if last_msg["speaker"] == "我" and GameDataManager.memory_manager.add_turn():
+					deepseek_client.extract_memory_from_chat(last_msg["text"], ai_reply)
+					
 		return
 		
 	if response.has("choices") and response["choices"].size() > 0:
@@ -1026,6 +1035,13 @@ func _on_chat_response(response: Dictionary) -> void:
 		# 非流式模式下，收到完整回复后也立刻提前触发选项生成，并手动传入最新回复
 		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit:
 			deepseek_client.send_options_generation(reply, free_chat_strategy if is_free_chat_mode else "")
+			
+			# 触发记忆提取
+			var messages = GameDataManager.history.get_messages_by_type("story_chat")
+			if messages.size() > 0:
+				var last_msg = messages[messages.size() - 1]
+				if last_msg["speaker"] == "我" and GameDataManager.memory_manager.add_turn():
+					deepseek_client.extract_memory_from_chat(last_msg["text"], reply)
 			
 		# 拦截 reply 进行预处理，提取纯净的消息序列
 		var lines = _parse_reply_to_lines(reply)
@@ -1113,62 +1129,8 @@ func _on_emotion_error(error_msg: String) -> void:
 	print("Emotion Agent Failed: ", error_msg)
 
 func _on_memory_response(response: Dictionary) -> void:
-	if response.has("choices") and response["choices"].size() > 0:
-		var reply = response["choices"][0]["message"]["content"].strip_edges()
-		
-		print("\n========== [Memory Agent Output] ==========")
-		print(reply)
-		print("===========================================\n")
-		
-		# 提取可能的 JSON 代码块
-		var json_str = reply
-		var regex = RegEx.new()
-		regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
-		var match = regex.search(reply)
-		if match:
-			json_str = match.get_string(1).strip_edges()
-		else:
-			# 尝试直接找到第一个 { 和最后一个 }
-			var start_idx = reply.find("{")
-			var end_idx = reply.rfind("}")
-			if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-				json_str = reply.substr(start_idx, end_idx - start_idx + 1)
-			
-		if json_str == "" or json_str == "无新增记忆":
-			return
-			
-		var json = JSON.new()
-		if json.parse(json_str) == OK:
-			var data = json.get_data()
-			if data is Dictionary and data.has("operations") and data["operations"] is Array:
-				if data["operations"].size() == 0:
-					return
-				
-				var plain_text_changes = ""
-				for op in data["operations"]:
-					if not op is Dictionary or not op.has("action") or not op.has("layer"):
-						continue
-						
-					var action = op["action"]
-					var layer = op["layer"]
-					var content = op.get("content", "")
-					var id = op.get("id", "")
-					
-					if action == "ADD":
-						await GameDataManager.memory_manager.add_memory(layer, content)
-						plain_text_changes += "新增记忆: %s\n" % content
-					elif action == "UPDATE":
-						var success = await GameDataManager.memory_manager.update_memory(layer, id, content)
-						if success:
-							plain_text_changes += "更新记忆: %s\n" % content
-					elif action == "DELETE":
-						if GameDataManager.memory_manager.delete_memory(layer, id):
-							plain_text_changes += "删除记忆 [%s]\n" % id
-							
-				if plain_text_changes != "":
-					print("记忆系统更新（不弹窗）: ", plain_text_changes.strip_edges())
-		else:
-			print("Memory Agent 无法解析JSON: ", json.get_error_message())
+	# 记忆的解析和存储现在已移至 deepseek_client.gd 的 _on_memory_completed 中集中处理。
+	pass
 
 func _on_memory_error(error_msg: String) -> void:
 	print("Memory Agent Failed: ", error_msg)

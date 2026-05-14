@@ -20,6 +20,7 @@ var ring_volume: float = 0.0
 
 var neon_material: ShaderMaterial
 var _breath_tween: Tween
+var _current_modulate: Color = Color.WHITE
 
 func _ready() -> void:
     bubble_template.hide()
@@ -84,7 +85,40 @@ func _update_sprite_scale() -> void:
     _breath_tween.tween_property(pet_sprite, "scale", Vector2(scale_max_x, scale_min_y), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
     _breath_tween.tween_property(pet_sprite, "scale", Vector2(base_scale, base_scale), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
+func _update_time_based_lighting() -> void:
+    if not pet_sprite: return
+    
+    var time_dict = Time.get_datetime_dict_from_system()
+    var hour = time_dict["hour"]
+    
+    var target_color = Color.WHITE
+    
+    # 根据现实时间调整立绘和光环的整体色调与亮度
+    if hour >= 6 and hour < 9:
+        # 清晨：带点晨雾的偏蓝冷色，亮度正常
+        target_color = Color(0.95, 0.98, 1.0, 1.0)
+    elif hour >= 9 and hour < 16:
+        # 白天：正常明亮
+        target_color = Color.WHITE
+    elif hour >= 16 and hour < 19:
+        # 黄昏：偏暖黄/橙色，夕阳感
+        target_color = Color(1.0, 0.95, 0.9, 1.0)
+    elif hour >= 19 and hour < 22:
+        # 傍晚：稍微变暗，轻微偏蓝紫
+        target_color = Color(0.9, 0.9, 0.95, 1.0)
+    else:
+        # 深夜 (22~6)：明显变暗，降低刺眼感（夜间模式）
+        target_color = Color(0.75, 0.75, 0.85, 1.0)
+        
+    # 平滑过渡颜色
+    _current_modulate = _current_modulate.lerp(target_color, 0.05)
+    pet_sprite.modulate = _current_modulate
+    if is_instance_valid(state_ring):
+        state_ring.modulate = _current_modulate
+
 func _process(delta: float) -> void:
+    _update_time_based_lighting()
+    
     ring_time += delta
     if is_instance_valid(state_ring):
         if neon_material:

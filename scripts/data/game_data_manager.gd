@@ -15,6 +15,7 @@ var activity_manager: Node
 var gift_manager: Node
 var story_time_manager: Node
 var save_manager: Node
+var weather_manager: Node
 var app_database: Dictionary = {}
 
 # 番茄钟与待办事项数据
@@ -53,6 +54,7 @@ func _ready() -> void:
     add_child(expression_system)
     
     memory_manager = preload("res://scripts/data/memory_manager.gd").new()
+    memory_manager.name = "MemoryManager"
     add_child(memory_manager)
     
     personality_system = preload("res://scripts/data/personality_system.gd").new()
@@ -72,6 +74,10 @@ func _ready() -> void:
     
     save_manager = preload("res://scripts/data/save_manager.gd").new()
     add_child(save_manager)
+
+    weather_manager = preload("res://scripts/data/weather_manager.gd").new()
+    weather_manager.name = "WeatherManager"
+    add_child(weather_manager)
     
     config = ConfigResource.new()
     config.load_config()
@@ -81,9 +87,6 @@ func _ready() -> void:
     
     history = ChatHistoryManager.new()
     history.load_history()
-    
-    # 需要在 config 加载后调用 memory_manager.load_memory()
-    memory_manager.load_memory()
     
     prompt_manager = preload("res://scripts/data/prompt_manager.gd").new()
     add_child(prompt_manager)
@@ -138,7 +141,6 @@ func switch_character(char_id: String) -> void:
     # 保存当前角色数据
     if profile: profile.save_profile()
     if history: history.save_history()
-    if memory_manager: memory_manager.save_memory()
     
     # 更新配置并重新加载
     config.current_character_id = char_id
@@ -146,7 +148,6 @@ func switch_character(char_id: String) -> void:
     
     profile.load_profile(char_id)
     history.load_history()
-    memory_manager.load_memory()
     
     persona_lock.check_and_lock_character(profile.char_name)
     

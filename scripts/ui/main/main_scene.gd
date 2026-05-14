@@ -36,8 +36,10 @@ extends Control
 @onready var chat_button: Button = $UIPanel/InteractGroup/ChatButton
 @onready var gift_button: Button = $UIPanel/InteractGroup/GiftButton
 @onready var rest_button: Button = $UIPanel/InteractGroup/RestButton
+@onready var co_create_button: Button = $UIPanel/InteractGroup/CoCreateButton
 
 var activity_panel_instance = null
+var drawing_board_instance = null
 
 var _chat_tween: Tween = null
 var _typewriter_tween: Tween = null
@@ -92,6 +94,7 @@ var stream_live_done: bool = false
 
 var is_proactive_greeting: bool = false
 var proactive_greeting_step: int = 0
+var _generated_image_panel: Panel = null
 
 var _waiting_for_chat_click: bool = false
 signal _chat_click_proceed
@@ -268,12 +271,118 @@ func _on_rest_pressed() -> void:
 	_animate_button(rest_button)
 	print("[MainScene] 休息按钮被点击，预留接口")
 
+func _on_co_create_pressed() -> void:
+	_animate_button(co_create_button)
+	if drawing_board_instance == null:
+		var DrawingBoardObj = load("res://scenes/ui/activity/drawing_board_panel.tscn")
+		drawing_board_instance = DrawingBoardObj.instantiate()
+		ui_panel.add_child(drawing_board_instance)
+		drawing_board_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		if drawing_board_instance.has_signal("image_captured"):
+			drawing_board_instance.image_captured.connect(_on_drawing_image_captured)
+		if drawing_board_instance.has_signal("close_requested"):
+			drawing_board_instance.close_requested.connect(func(): drawing_board_instance.hide())
+	drawing_board_instance.show()
+
+func _on_drawing_image_captured(base64_image: String) -> void:
+	if drawing_board_instance and drawing_board_instance.has_method("show_loading"):
+		drawing_board_instance.show_loading("Luna正在认真画画...")
+	deepseek_client.send_image_to_image_request(base64_image, "请根据这幅草图，画一幅精美的二次元插画，保持线条的意境")
+
+func _on_image_to_image_completed(image_path: String) -> void:
+	if drawing_board_instance and drawing_board_instance.has_method("hide_loading"):
+		drawing_board_instance.hide_loading()
+	
+	if drawing_board_instance:
+		drawing_board_instance.hide()
+		
+	# 显示图片和对话
+	_show_generated_image_and_dialogue(image_path)
+
+func _on_image_to_image_failed(error_msg: String) -> void:
+	if drawing_board_instance and drawing_board_instance.has_method("hide_loading"):
+		drawing_board_instance.hide_loading()
+	ToastManager.show_system_toast("生成失败: " + error_msg, Color.RED)
+
+func _show_generated_image_and_dialogue(image_path: String) -> void:
+	if is_instance_valid(_generated_image_panel):
+		_generated_image_panel.queue_free()
+	_generated_image_panel = null
+
+	# 利用系统的图库面板或者创建临时的面板显示图片
+	var tex = ImageTexture.create_from_image(Image.load_from_file(image_path))
+	if tex == null:
+		ToastManager.show_system_toast("无法加载生成的图片", Color.RED)
+		return
+		
+	var tex_rect = TextureRect.new()
+	tex_rect.texture = tex
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	
+	var panel = Panel.new()
+	_generated_image_panel = panel
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0, 0, 0, 0.8)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	tex_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(tex_rect)
+	
+	var close_btn = Button.new()
+	close_btn.text = "关闭"
+	close_btn.position = Vector2(20, 20)
+	close_btn.add_theme_font_size_override("font_size", 24)
+	close_btn.pressed.connect(func(): panel.queue_free())
+	panel.add_child(close_btn)
+	
+	add_child(panel)
+	move_child(panel, dialogue_panel.get_index())
+	
+	# 显示对话
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
+	
+	dialogue_panel.visible = true
+	dialogue_panel.modulate.a = 0.0
+	var d_tween = create_tween()
+	d_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
+	
+	dialogue_name_label.text = GameDataManager.profile.char_name
+	dialogue_text.text = "哥哥，我根据你画的草图，丰富了一下细节，你看好看吗？"
+	dialogue_text.visible_ratio = 0.0
+	
+	if _typewriter_tween:
+		_typewriter_tween.kill()
+	_typewriter_tween = create_tween()
+	_typewriter_tween.tween_property(dialogue_text, "visible_ratio", 1.0, 1.5)
+	
+	input_field.text = ""
+	input_field.editable = true
+	send_btn.disabled = false
+	
+	if end_chat_btn:
+		end_chat_btn.show()
+	if history_btn:
+		history_btn.show()
+	
+	for child in quick_options_container.get_children():
+		child.queue_free()
+
 func _on_end_chat_pressed() -> void:
 	var event_manager = get_node_or_null("/root/EventManager")
 	if event_manager and event_manager.has_method("execute_event"):
 		event_manager.execute_event("farewell")
 
 func _close_chat_panel() -> void:
+	if is_instance_valid(_generated_image_panel):
+		_generated_image_panel.queue_free()
+	_generated_image_panel = null
+
 	_show_accumulated_stats()
 	
 	var d_tween = create_tween()
@@ -831,6 +940,7 @@ func _ready() -> void:
 	chat_button.pressed.connect(_on_main_chat_pressed)
 	gift_button.pressed.connect(_on_gift_pressed)
 	rest_button.pressed.connect(_on_rest_pressed)
+	co_create_button.pressed.connect(_on_co_create_pressed)
 	if end_chat_btn:
 		end_chat_btn.pressed.connect(_on_end_chat_pressed)
 	if history_btn:
@@ -843,6 +953,8 @@ func _ready() -> void:
 	deepseek_client.chat_request_completed.connect(_on_chat_response)
 	deepseek_client.options_request_completed.connect(_on_options_response)
 	deepseek_client.emotion_request_completed.connect(_on_emotion_response)
+	deepseek_client.image_to_image_completed.connect(_on_image_to_image_completed)
+	deepseek_client.image_to_image_failed.connect(_on_image_to_image_failed)
 	
 	topic_panel.visible = false
 	topic_panel.modulate.a = 0.0

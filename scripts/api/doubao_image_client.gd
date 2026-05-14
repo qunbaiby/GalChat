@@ -149,14 +149,14 @@ func _generate_async(diary_id: String, prompt: String) -> void:
 	var date_str = "%04d-%02d-%02d" % [time_dict.year, time_dict.month, time_dict.day]
 	var timestamp = int(Time.get_unix_time_from_system())
 	
-	var dir_path = "user://diary_images/" + date_str
+	var dir_path = "user://generated_images/" + date_str
 	if not DirAccess.dir_exists_absolute(dir_path):
 		var dir_err = DirAccess.make_dir_recursive_absolute(dir_path)
 		if dir_err != OK:
 			image_generation_failed.emit.call_deferred(diary_id, "无法创建目录: " + dir_path)
 			return
 			
-	var file_name = "diary_%s_%d.png" % [diary_id, timestamp]
+	var file_name = "img_%s_%d.png" % [diary_id, timestamp]
 	var file_path = dir_path + "/" + file_name
 	
 	# 统一保存为 PNG

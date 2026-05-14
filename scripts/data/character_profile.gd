@@ -192,7 +192,7 @@ func load_profile(force_char_id: String = "") -> void:
 				stat_art_perception = float(str(data.get("stat_art_perception", 0.0)))
 				current_energy = float(str(data.get("current_energy", max_energy)))
 				gold = int(str(data.get("gold", 500)))
-				stress = float(str(data.get("stress", 10.0)))
+				stress = data.get("stress", 10.0)
 				diaries = data.get("diaries", [])
 				finished_stories = data.get("finished_stories", [])
 	else:
