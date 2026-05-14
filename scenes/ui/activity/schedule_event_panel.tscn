@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://schedule_event_panel_x"]
 
-[ext_resource type="Script" path="res://scenes/ui/activity/schedule_event_panel.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.98, 0.88, 0.72, 1)
