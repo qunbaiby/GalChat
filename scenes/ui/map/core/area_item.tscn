@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://ddy2f3r6a5c1x"]
+[gd_scene load_steps=6 format=3 uid="uid://ddy2f3r6a5c1x"]
 
-[ext_resource type="Script" uid="uid://bgwghmw24ndbb" path="res://scripts/ui/map/core/area_item.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/map/core/area_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 1)
@@ -27,10 +27,10 @@ corner_radius_bottom_left = 12
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x8d2v"]
 
 [node name="AreaItem" type="PanelContainer"]
-custom_minimum_size = Vector2(160, 213)
-offset_right = 160.0
-offset_bottom = 213.0
-pivot_offset = Vector2(80, 106.5)
+custom_minimum_size = Vector2(140, 180)
+offset_right = 140.0
+offset_bottom = 180.0
+pivot_offset = Vector2(70, 90)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 script = ExtResource("1_script")
 

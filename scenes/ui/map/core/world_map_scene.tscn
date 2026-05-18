@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://cltaiui4vjvb" path="res://assets/images/backgrounds/map/background/8a99bc600482e9722664b74cc69997b0.jpg" id="2_qqsue"]
+[ext_resource type="Texture2D" uid="uid://duul0wbegxqei" path="res://assets/images/backgrounds/map/background/生成图片.png" id="2_qqsue"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="3_weather"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="4_status"]
 
@@ -19,6 +19,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -373.0
+offset_top = -176.0
+offset_right = 395.0
+offset_bottom = 256.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_qqsue")
@@ -36,13 +40,13 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="BottomBar" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 260)
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -260.0
+offset_top = -200.0
 grow_horizontal = 2
 grow_vertical = 0
 
