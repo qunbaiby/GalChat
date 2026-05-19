@@ -156,7 +156,7 @@ func _on_asr_failed(err_msg: String) -> void:
 # 当 AI 有回复时调用
 func add_character_message(text: String) -> void:
     # 拆分 [SPLIT]
-    var parts = text.split("[SPLIT]")
+    var parts = ChatSplitHelper.merge_incomplete_parentheses(text.split("[SPLIT]"))
     for p in parts:
         var c = p.strip_edges()
         if c != "":

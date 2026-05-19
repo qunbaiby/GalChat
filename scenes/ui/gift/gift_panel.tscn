@@ -1,16 +1,88 @@
-[gd_scene load_steps=3 format=3 uid="uid://gift_panel"]
+[gd_scene load_steps=8 format=3 uid="uid://b438gkrhdtx2f"]
 
-[ext_resource type="Script" path="res://scripts/ui/gift/gift_panel.gd" id="1_gift"]
+[ext_resource type="Script" uid="uid://cah8nwa6x0yds" path="res://scripts/ui/gift/gift_panel.gd" id="1_gift"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainCard"]
+bg_color = Color(0.94902, 0.980392, 0.976471, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.513726, 0.678431, 0.67451, 0.85)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 10
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.180392, 0.203922, 0.207843, 0.9)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.921569, 0.960784, 0.956863, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.788235, 0.847059, 0.843137, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnSecondary"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.898039, 0.94902, 0.94902, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.521569, 0.741176, 0.737255, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnPrimary"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.564706, 0.807843, 0.803922, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.439216, 0.662745, 0.658824, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [node name="GiftPanel" type="Control"]
-theme = ExtResource("1_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_theme")
 script = ExtResource("1_gift")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -20,79 +92,119 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.3)
+color = Color(0, 0, 0, 0.22)
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -340.0
-offset_top = -320.0
-offset_right = 340.0
-offset_bottom = 320.0
+offset_left = -281.71622
+offset_top = -289.54166
+offset_right = 281.71622
+offset_bottom = 289.54166
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_MainCard")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 15
-
-[node name="Title" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
-text = "送出礼物"
-horizontal_alignment = 1
+theme_override_constants/separation = 12
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+[node name="TopBar" type="PanelContainer" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="EnergyLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="TopBarHBox" type="HBoxContainer" parent="Panel/VBoxContainer/TopBar"]
 layout_mode = 2
-text = "当前精力：100/100"
-horizontal_alignment = 1
+theme_override_constants/separation = 10
+alignment = 1
 
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="GridContainer" type="GridContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+[node name="Title" type="Label" parent="Panel/VBoxContainer/TopBar/TopBarHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
+theme_override_colors/font_color = Color(0.886275, 0.937255, 0.929412, 1)
+theme_override_font_sizes/font_size = 20
+text = "礼物"
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="Panel/VBoxContainer/TopBar/TopBarHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer/TopBar/TopBarHBox"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.870588, 0.929412, 0.921569, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "✕"
+flat = true
+
+[node name="EnergyLabel" type="Label" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 3
+
+[node name="GridContainer" type="GridContainer" parent="Panel/VBoxContainer/Content/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
 columns = 4
 
-[node name="HSeparator3" type="HSeparator" parent="Panel/VBoxContainer"]
+[node name="DetailPanel" type="PanelContainer" parent="Panel/VBoxContainer/Content"]
+custom_minimum_size = Vector2(0, 118)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Detail")
 
-[node name="DetailLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 100)
+[node name="DetailLabel" type="RichTextLabel" parent="Panel/VBoxContainer/Content/DetailPanel"]
+custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
+theme_override_colors/default_color = Color(0.254902, 0.286275, 0.298039, 1)
+theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
-text = "请选择一件礼物..."
+fit_content = true
+scroll_active = false
 autowrap_mode = 2
 
-[node name="SendButton" type="Button" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 60)
+[node name="BottomBar" type="HBoxContainer" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
-disabled = true
-text = "送出礼物"
+theme_override_constants/separation = 14
 
-[node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 60)
+[node name="ShopButton" type="Button" parent="Panel/VBoxContainer/BottomBar"]
+custom_minimum_size = Vector2(150, 56)
 layout_mode = 2
-text = "返回"
+theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnSecondary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
+text = "商城"
+
+[node name="SendButton" type="Button" parent="Panel/VBoxContainer/BottomBar"]
+custom_minimum_size = Vector2(210, 56)
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_colors/font_color = Color(0.101961, 0.168627, 0.176471, 1)
+theme_override_colors/font_disabled_color = Color(0.25098, 0.309804, 0.337255, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnPrimary")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_BtnSecondary")
+disabled = true
+text = "送出"

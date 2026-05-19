@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
-[ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/galchat_cg_0002.jpg" id="2_fvueq"]
+[ext_resource type="PackedScene" uid="uid://dxe3r2b5g7na" path="res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
@@ -17,37 +17,43 @@
 [ext_resource type="Shader" uid="uid://bvr4ey2nio3wm" path="res://assets/shaders/left_trapezoid.gdshader" id="15_trapezoid_shader"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnCircle"]
-bg_color = Color(0.15, 0.15, 0.18, 0.8)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.4, 0.5, 1)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
+bg_color = Color(1, 1, 1, 0.35)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.1, 0.4, 0.3, 0.15)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnCircle_Hover"]
-bg_color = Color(0.25, 0.25, 0.28, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.6, 0.6, 0.7, 1)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
+bg_color = Color(1, 1, 1, 0.5)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.1, 0.4, 0.3, 0.25)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
 shader = ExtResource("15_trapezoid_shader")
 shader_parameter/slant = 0.30000001425
-shader_parameter/corner_radius = 0.05600000266
+shader_parameter/corner_radius = 0.0930000044175
 shader_parameter/aspect_ratio = 2.21
 shader_parameter/padding = 0.0
-shader_parameter/border_width = 0.002000000095
-shader_parameter/border_color = Color(0.17092904, 0.23729098, 0.3061503, 0.8)
+shader_parameter/border_width = 0.0
+shader_parameter/border_color = Color(0.85, 0.94, 0.92, 0.95)
 shader_parameter/glow_size = 0.0
 shader_parameter/glow_color = Color(0, 0.8, 1, 0)
 
@@ -109,25 +115,17 @@ mouse_filter = 2
 theme = ExtResource("1_6p2kk")
 script = ExtResource("1_main")
 
-[node name="Background" type="ColorRect" parent="."]
-layout_mode = 0
+[node name="BackgroundContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.12549, 0.12549, 0.164706, 1)
 
-[node name="MainBg" type="TextureRect" parent="."]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("2_fvueq")
-expand_mode = 1
-stretch_mode = 6
+[node name="DefaultRoomBg" parent="BackgroundContainer" instance=ExtResource("2_fvueq")]
+layout_mode = 1
 
 [node name="DialoguePanel" parent="." instance=ExtResource("14_dialogue")]
 visible = false

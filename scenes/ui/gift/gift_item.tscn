@@ -1,0 +1,226 @@
+[gd_scene load_steps=7 format=3 uid="uid://gift_item"]
+
+[ext_resource type="Script" path="res://scripts/ui/gift/gift_item.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemNormal"]
+bg_color = Color(0.949, 0.976, 0.976, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.82, 0.88, 0.88, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+content_margin_left = 10.0
+content_margin_right = 10.0
+content_margin_top = 10.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemHover"]
+bg_color = Color(0.93, 0.98, 0.98, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.62, 0.78, 0.78, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+content_margin_left = 10.0
+content_margin_right = 10.0
+content_margin_top = 10.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
+bg_color = Color(0.980392, 0.509804, 0.309804, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Focus"]
+
+[node name="GiftItem" type="Button"]
+theme = ExtResource("1_theme")
+custom_minimum_size = Vector2(130, 140)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_ItemNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ItemHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ItemHover")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_Focus")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.235294, 0.290196, 0.313726, 1)
+text = ""
+clip_text = true
+script = ExtResource("1_script")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="NewBadge" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -46.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 28.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
+
+[node name="Label" type="Label" parent="NewBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "NEW"
+
+[node name="SelectedCorners" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TL_H" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 22.0
+offset_bottom = 9.0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="TL_V" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 9.0
+offset_bottom = 22.0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="TR_H" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -22.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 9.0
+grow_horizontal = 0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="TR_V" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -9.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 22.0
+grow_horizontal = 0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="BL_H" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -9.0
+offset_right = 22.0
+offset_bottom = -6.0
+grow_vertical = 0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="BL_V" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -22.0
+offset_right = 9.0
+offset_bottom = -6.0
+grow_vertical = 0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="BR_H" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -22.0
+offset_top = -9.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 0
+grow_vertical = 0
+color = Color(0.968627, 0.752941, 0.278431, 1)
+
+[node name="BR_V" type="ColorRect" parent="SelectedCorners"]
+layout_mode = 0
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -9.0
+offset_top = -22.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 0
+grow_vertical = 0
+color = Color(0.968627, 0.752941, 0.278431, 1)

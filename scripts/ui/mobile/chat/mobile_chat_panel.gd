@@ -418,7 +418,7 @@ func _on_ai_response(response: Dictionary) -> void:
 		# Split by [SPLIT] if any (注意，如果AI依然输出了 [SPLIT]，上面的正则可能会把它当成括号过滤掉。所以我们需要先把 [SPLIT] 替换成安全字符，过滤完再替换回来，或者修改正则不要过滤大写的SPLIT)
 		# 更好的做法是，先按照 [SPLIT] 拆分，然后对每部分分别过滤
 		
-		var parts = content.split("[SPLIT]")
+		var parts = ChatSplitHelper.merge_incomplete_parentheses(content.split("[SPLIT]"))
 		
 		if is_voice_call_mode:
 			if voice_call_panel_instance and voice_call_panel_instance.visible:
