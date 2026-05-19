@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=24 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
@@ -40,8 +40,22 @@ corner_radius_top_right = 30
 corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
+shader = ExtResource("15_trapezoid_shader")
+shader_parameter/slant = 0.30000001425
+shader_parameter/corner_radius = 0.05600000266
+shader_parameter/aspect_ratio = 2.21
+shader_parameter/padding = 0.0
+shader_parameter/border_width = 0.002000000095
+shader_parameter/border_color = Color(0.17092904, 0.23729098, 0.3061503, 0.8)
+shader_parameter/glow_size = 0.0
+shader_parameter/glow_color = Color(0, 0.8, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapDisabled"]
+bg_color = Color(0.8, 0.8, 0.8, 0.5)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fvueq"]
-bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
+bg_color = Color(1, 0.98, 0.95, 0.95)
 skew = Vector2(0.3, 0)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -72,19 +86,17 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
-shader = ExtResource("15_trapezoid_shader")
-shader_parameter/slant = 0.30000001425
-shader_parameter/corner_radius = 0.05600000266
-shader_parameter/aspect_ratio = 2.21
-shader_parameter/padding = 0.0
-shader_parameter/border_width = 0.002000000095
-shader_parameter/border_color = Color(0.17092904, 0.23729098, 0.3061503, 0.8)
-shader_parameter/glow_size = 0.0
-shader_parameter/glow_color = Color(0, 0.8, 1, 0)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6p2kk"]
-bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActivityDisabled"]
+bg_color = Color(0.8, 0.8, 0.8, 0.5)
+skew = Vector2(0.3, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="MainScene" type="Control"]
 layout_mode = 3
@@ -190,6 +202,23 @@ layout_mode = 2
 size_flags_vertical = 4
 theme = null
 
+[node name="MapButton" type="Button" parent="UIPanel"]
+material = SubResource("ShaderMaterial_trapezoid_map")
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -214.0
+offset_top = -97.0
+offset_right = -11.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_styles/disabled = SubResource("StyleBoxFlat_MapDisabled")
+text = "外出"
+
 [node name="ActivityButton" type="Button" parent="UIPanel"]
 layout_mode = 1
 anchors_preset = 3
@@ -206,7 +235,7 @@ grow_vertical = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_fvueq")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fmm1x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_rntma")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_rntma")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_ActivityDisabled")
 text = "行程安排"
 
 [node name="StoryButton" type="Button" parent="UIPanel"]
@@ -237,24 +266,6 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCircle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCircle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCircle_Hover")
 text = "⏱"
-
-[node name="MapButton" type="Button" parent="UIPanel"]
-material = SubResource("ShaderMaterial_trapezoid_map")
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -214.0
-offset_top = -97.0
-offset_right = -11.0
-offset_bottom = -10.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_styles/normal = SubResource("StyleBoxFlat_6p2kk")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_6p2kk")
-text = "外出"
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
 custom_minimum_size = Vector2(80, 35)

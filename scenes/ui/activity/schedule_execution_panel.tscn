@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://schedule_execution_panel"]
+[gd_scene load_steps=8 format=3 uid="uid://dg38tk2bw0yfk"]
 
-[ext_resource type="Script" path="res://scripts/ui/activity/schedule_execution_panel.gd" id="1_exec"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
-[ext_resource type="PackedScene" path="res://scenes/ui/activity/course_slot.tscn" id="2_slot"]
+[ext_resource type="Theme" uid="uid://dsv2o3vj0f00f" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://b38a0dd45yqk4" path="res://scripts/ui/activity/schedule_execution_panel.gd" id="1_exec"]
+[ext_resource type="PackedScene" uid="uid://bg7h8fad1f" path="res://scenes/ui/activity/course_slot.tscn" id="2_slot"]
+[ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="3_cgj2u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainPanel"]
 bg_color = Color(0.95, 0.9, 0.85, 1)
@@ -13,8 +14,15 @@ border_width_bottom = 6
 border_color = Color(0.3, 0.2, 0.15, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
-corner_radius_bottom_left = 20
 corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleBg"]
+bg_color = Color(0.45, 0.25, 0.15, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultPanel"]
 bg_color = Color(0.98, 0.88, 0.72, 1)
@@ -25,15 +33,8 @@ border_width_bottom = 4
 border_color = Color(0.85, 0.65, 0.45, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
-corner_radius_bottom_left = 16
 corner_radius_bottom_right = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleBg"]
-bg_color = Color(0.45, 0.25, 0.15, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_left = 8
-corner_radius_bottom_right = 8
+corner_radius_bottom_left = 16
 
 [node name="ScheduleExecutionPanel" type="Control"]
 layout_mode = 3
@@ -171,24 +172,11 @@ grow_vertical = 0
 theme_override_constants/separation = 5
 alignment = 1
 
-[node name="CharacterIcon" type="ColorRect" parent="MainPanel/TrackContainer"]
+[node name="CharacterIcon" type="AnimatedSprite2D" parent="MainPanel/TrackContainer"]
 z_index = 1
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-color = Color(0.8, 0.4, 0.2, 1)
-
-[node name="Label" type="Label" parent="MainPanel/TrackContainer/CharacterIcon"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "我"
-horizontal_alignment = 1
-vertical_alignment = 1
+position = Vector2(412, 7)
+scale = Vector2(0.10058594, 0.10058594)
+sprite_frames = ExtResource("3_cgj2u")
 
 [node name="ClickArea" type="Button" parent="."]
 layout_mode = 1
@@ -197,8 +185,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-flat = true
 focus_mode = 0
+flat = true
 
 [node name="ResultPopup" type="Control" parent="."]
 visible = false

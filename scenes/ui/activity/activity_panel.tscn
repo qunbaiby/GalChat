@@ -1,6 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=18 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_aivhu"]
+[ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="6_3k5eb"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
 [ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
@@ -17,6 +19,32 @@ shadow_size = 10
 bg_color = Color(0.22, 0.22, 0.26, 0.95)
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.8, 1, 1)
+corner_radius_top_left = 50
+corner_radius_top_right = 50
+corner_radius_bottom_right = 50
+corner_radius_bottom_left = 50
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
+bg_color = Color(0.2, 0.6, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BubbleNeg"]
+bg_color = Color(0.9, 0.4, 0.3, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatBlock"]
 bg_color = Color(0.3, 0.3, 0.35, 0.5)
@@ -54,32 +82,6 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
-bg_color = Color(0.2, 0.6, 1, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BubbleNeg"]
-bg_color = Color(0.9, 0.4, 0.3, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 50
-corner_radius_top_right = 50
-corner_radius_bottom_right = 50
-corner_radius_bottom_left = 50
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.5, 0.8, 1, 1)
-
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -87,6 +89,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_aivhu")
 script = ExtResource("1_act")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -140,19 +143,11 @@ custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 text = "< 返回"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-
 [node name="RoundInfo" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 20
-text = "第 1 回合"
-
-[node name="Spacer2" type="Control" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
+text = "第 1 周"
 
 [node name="CategoryTabs" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox"]
 layout_mode = 2
@@ -176,7 +171,9 @@ theme_override_constants/separation = 20
 [node name="ScheduleTitle" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-text = "已安排行程 0/10"
+text = "已安排行程
+0/10"
+horizontal_alignment = 1
 
 [node name="ScheduleSlots" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
 layout_mode = 2
@@ -290,15 +287,15 @@ stretch_mode = 6
 [node name="CharNameLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Luna"
-horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 18
+text = "Luna"
+horizontal_alignment = 1
 
 [node name="StatusHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 15
+alignment = 1
 
 [node name="EnergyControl" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
 custom_minimum_size = Vector2(80, 30)
@@ -310,10 +307,12 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 text = "精力 100"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 
 [node name="EnergyBubble" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl"]
 unique_name_in_owner = true
@@ -323,8 +322,8 @@ offset_left = 55.0
 offset_top = -15.0
 offset_right = 85.0
 offset_bottom = 5.0
-theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
 theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
 text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -345,10 +344,12 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 text = "心情 平静"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 
 [node name="Sep2" type="ColorRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
 custom_minimum_size = Vector2(2, 15)
@@ -366,10 +367,12 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 text = "压力 0"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 
 [node name="StressBubble" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/StressControl"]
 unique_name_in_owner = true
@@ -379,8 +382,8 @@ offset_left = 55.0
 offset_top = -15.0
 offset_right = 85.0
 offset_bottom = 5.0
-theme_override_styles/normal = SubResource("StyleBoxFlat_BubbleNeg")
 theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_BubbleNeg")
 text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -388,9 +391,9 @@ vertical_alignment = 1
 [node name="BonusLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 text = "收益增加0%"
 horizontal_alignment = 1
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
@@ -970,7 +973,7 @@ text = "-"
 [node name="ExecuteButton" type="Button" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "开始下一回合"
+text = "开始执行安排"
 
 [node name="LoadingOverlay" type="Control" parent="."]
 visible = false
@@ -1031,23 +1034,10 @@ offset_bottom = -64.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="WalkerIcon" type="ColorRect" parent="LoadingOverlay/LoadingPanel/TrackControl"]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 0
-offset_top = -40.0
-offset_right = 40.0
-color = Color(0.8, 0.4, 0.2, 1)
-
-[node name="Label" type="Label" parent="LoadingOverlay/LoadingPanel/TrackControl/WalkerIcon"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "我"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="WalkerIcon" type="AnimatedSprite2D" parent="LoadingOverlay/LoadingPanel/TrackControl"]
+position = Vector2(29.25, -20.25)
+scale = Vector2(0.095214844, 0.095214844)
+sprite_frames = ExtResource("6_3k5eb")
 
 [node name="ProgressBar" type="ProgressBar" parent="LoadingOverlay/LoadingPanel"]
 layout_mode = 1

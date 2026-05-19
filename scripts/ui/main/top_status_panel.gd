@@ -53,15 +53,6 @@ func _update_ui() -> void:
     stress_value.text = str(int(stress_percent)) + "%"
     stress_progress.max_value = max_stress
     stress_progress.value = curr_stress
-    
-    # Colorize progress bars
-    var energy_style = StyleBoxFlat.new()
-    energy_style.bg_color = Color("#00a2e8") # Cyan blue
-    energy_progress.add_theme_stylebox_override("fill", energy_style)
-    
-    var stress_style = StyleBoxFlat.new()
-    stress_style.bg_color = Color("#ff7f27") # Orange
-    stress_progress.add_theme_stylebox_override("fill", stress_style)
 
 func _on_gold_gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:

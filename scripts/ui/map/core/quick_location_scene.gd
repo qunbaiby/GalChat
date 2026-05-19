@@ -52,9 +52,15 @@ func _load_location_data():
 	desc_label.text = loc_data.get("description", "没有描述")
 	
 	# 设置背景图
-	var bg_path = loc_data.get("bg_path", "")
-	if not bg_path.is_empty() and ResourceLoader.exists(bg_path):
-		bg_texture.texture = load(bg_path)
+	var bg_id = loc_data.get("bg_id", loc_data.get("bg_path", ""))
+	var real_path = ""
+	if not bg_id.is_empty():
+		real_path = ImageManager.get_image_path(bg_id)
+		if real_path.is_empty():
+			real_path = bg_id # Fallback
+			
+	if not real_path.is_empty() and ResourceLoader.exists(real_path):
+		bg_texture.texture = load(real_path)
 	else:
 		bg_texture.texture = null
 	
@@ -72,6 +78,15 @@ func _load_location_data():
 			npc_node.npc_clicked.connect(_on_npc_clicked)
 
 func _on_npc_clicked(npc_id: String):
+	# 如果 NPC 身上配置了专属的动态剧情脚本，则直接跳转至 AVG 剧情模式
+	var trigger_script = MapDataManager.get_npc_trigger_script(npc_id)
+	if trigger_script != "":
+		GameDataManager.set_meta("play_specific_story", trigger_script)
+		var story_scene = load("res://scenes/ui/story/story_scene.tscn")
+		get_tree().change_scene_to_packed(story_scene)
+		queue_free()
+		return
+		
 	current_interacting_npc_id = npc_id
 	npc_container.hide()
 	interaction_menu.show()

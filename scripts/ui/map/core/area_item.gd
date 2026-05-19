@@ -41,14 +41,24 @@ func setup(id: String, area_data: Dictionary):
 	en_name_label.text = area_data.get("en_name", en_names.get(id, "AREA"))
 	
 	# Load background image
-	var bg_path = area_data.get("bg_path", "")
+	var bg_id = area_data.get("bg_id", area_data.get("bg_path", ""))
+	var bg_path = ""
+	
+	if bg_id != "":
+		bg_path = ImageManager.get_image_path(bg_id)
+		if bg_path == "":
+			bg_path = bg_id # Fallback
+			
 	if bg_path == "" or not ResourceLoader.exists(bg_path):
 		# Try to find a fallback background based on locations
 		var locs = area_data.get("locations", [])
 		if locs.size() > 0:
 			var first_loc = MapDataManager.get_location(locs[0])
-			if first_loc.has("bg_path") and ResourceLoader.exists(first_loc["bg_path"]):
-				bg_path = first_loc["bg_path"]
+			var loc_bg_id = first_loc.get("bg_id", first_loc.get("bg_path", ""))
+			if loc_bg_id != "":
+				bg_path = ImageManager.get_image_path(loc_bg_id)
+				if bg_path == "":
+					bg_path = loc_bg_id # Fallback
 	
 	if bg_path != "" and ResourceLoader.exists(bg_path):
 		background.texture = load(bg_path)

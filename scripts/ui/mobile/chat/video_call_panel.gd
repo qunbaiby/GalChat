@@ -94,7 +94,11 @@ func set_loading_state() -> void:
     status_label.text = "对方正在连接..."
     record_btn.disabled = true
 
-func set_background(bg_path: String) -> void:
+func set_background(bg_id: String) -> void:
+    var bg_path = ImageManager.get_image_path(bg_id)
+    if bg_path == "":
+        bg_path = bg_id # Fallback
+        
     if bg_path != "" and ResourceLoader.exists(bg_path):
         bg_tex.texture = load(bg_path)
     else:

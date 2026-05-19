@@ -21,17 +21,21 @@
             "path": "res://assets/images/backgrounds/main/main_bg_3.png"
         },
         {
+            "id": "bedroom_morning",
+            "path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png"
+        },
+        {
             "id": "moon_world_cafe_afternoon",
             "path": "res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png"
-        },
+        }
+    ],
+    "maps": [
         {
-            "id": "mobile_wallpaper",
-            "path": "res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png"
-        },
-        {
-            "id": "desktop_pet_bg",
-            "path": "res://assets/images/backgrounds/desktop_pet/desktop_pet_bg.png"
-        },
+            "id": "world_map_bg",
+            "path": "res://assets/images/backgrounds/map/background/生成图片.png"
+        }
+    ],
+    "cgs": [
         {
             "id": "story_cg_1",
             "path": "res://assets/images/story/cg/galchat_cg_0001.png"
@@ -43,7 +47,20 @@
         {
             "id": "story_cg_3",
             "path": "res://assets/images/story/cg/galchat_cg_0003.png"
+        },
+        {
+            "id": "music_room",
+            "path": "res://assets/images/story/cg/galchat_cg_0003.png"
         }
-        
+    ],
+    "ui": [
+        {
+            "id": "mobile_wallpaper",
+            "path": "res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png"
+        },
+        {
+            "id": "desktop_pet_bg",
+            "path": "res://assets/images/backgrounds/desktop_pet/desktop_pet_bg.png"
+        }
     ]
 }

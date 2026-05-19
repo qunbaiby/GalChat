@@ -1,9 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://c1wbpr22f0ufh"]
+[gd_scene load_steps=3 format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://duul0wbegxqei" path="res://assets/images/backgrounds/map/background/生成图片.png" id="2_qqsue"]
-[ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="3_weather"]
-[ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="4_status"]
 
 [node name="WorldMapScene" type="Control"]
 layout_mode = 3
@@ -82,35 +80,12 @@ anchor_right = 1.0
 offset_bottom = 80.0
 grow_horizontal = 2
 
-[node name="WeatherPanel" parent="TopBar" instance=ExtResource("3_weather")]
-layout_mode = 1
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 260.0
-offset_bottom = 120.0
-theme = null
-
-[node name="TopStatusPanel" parent="TopBar" instance=ExtResource("4_status")]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -601.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = 90.0
-grow_horizontal = 0
-
 [node name="BackButton" type="Button" parent="TopBar"]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -100.0
-offset_top = 100.0
-offset_right = -20.0
-offset_bottom = 140.0
-grow_horizontal = 0
+offset_left = 45.0
+offset_top = 31.0
+offset_right = 125.0
+offset_bottom = 71.0
 text = "< 返回"
 
 [node name="ModeToggleButton" type="Button" parent="TopBar"]

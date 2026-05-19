@@ -36,10 +36,9 @@
       "id": "studio",
       "name": "工作室",
       "description": "你的专属工作与生活空间。",
-      "bg_path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png",
+      "bg_id": "bedroom_morning",
       "map_position": {"x": 500, "y": 200},
       "resident_npcs": [],
-      "random_npcs": [],
       "events": []
     },
     "library": {
@@ -47,10 +46,18 @@
       "name": "音像图书馆",
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
       "scene_path": "res://scenes/map/locations/library.tscn",
-      "bg_path": "res://assets/images/backgrounds/cankao/3c6e9491b29a2c351dbcc959a4dc5ce6.png",
+      "bg_id": "story_cg_1",
       "map_position": {"x": 150, "y": 100},
       "resident_npcs": ["librarian"],
-      "random_npcs": ["luna"],
+      "scheduled_npcs": [
+        {
+          "id": "luna",
+          "events": ["shelter_from_rain"],
+          "periods": ["上午", "下午"],
+          "priority": 100,
+          "trigger_script": "res://assets/data/story/scripts/main/intro_story.json"
+        }
+      ],
       "events": ["main", "bond"]
     },
     "dance_studio": {
@@ -59,7 +66,15 @@
       "description": "阳光洒满木地板，常能听到练习舞蹈的脚步声。",
       "map_position": {"x": 500, "y": 250},
       "resident_npcs": [],
-      "random_npcs": ["luna"],
+      "scheduled_npcs": [
+        {
+          "id": "luna",
+          "day_offsets": [3],
+          "weather": ["sunny"],
+          "min_stage": 2,
+          "max_stage": 9
+        }
+      ],
       "events": ["side"]
     },
     "art_studio": {
@@ -68,7 +83,12 @@
       "description": "空气中弥漫着颜料与松节油的气味。",
       "map_position": {"x": 850, "y": 80},
       "resident_npcs": [],
-      "random_npcs": ["luna"],
+      "scheduled_npcs": [
+        {
+          "id": "luna",
+          "events": ["first_lesson", "meet_luna"]
+        }
+      ],
       "events": []
     },
     "recording_studio": {
@@ -77,7 +97,6 @@
       "description": "隔音极佳的顶级声学实验室。",
       "map_position": {"x": 1000, "y": 280},
       "resident_npcs": [],
-      "random_npcs": [],
       "events": []
     },
     "moon_world_cafe": {
@@ -85,7 +104,7 @@
       "name": "月世界咖啡厅",
       "description": "雅经营的优雅咖啡厅，环境安静，咖啡香醇。",
       "scene_path": "res://scenes/map/locations/moon_world_cafe.tscn",
-      "bg_path": "res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png",
+      "bg_id": "moon_world_cafe_afternoon",
       "map_position": {"x": 250, "y": 250},
       "resident_npcs": ["ya"],
       "events": ["bond"]

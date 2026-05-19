@@ -192,10 +192,14 @@ func _update_header() -> void:
                     img_loaded = true
                     
             if not img_loaded:
-                cover_image.texture = preload("res://assets/images/story/cg/galchat_cg_0002.jpg")
+                var fallback_path = ImageManager.get_image_path("story_cg_2")
+                if fallback_path != "" and ResourceLoader.exists(fallback_path):
+                    cover_image.texture = load(fallback_path)
                 
         else:
-            cover_image.texture = preload("res://assets/images/story/cg/galchat_cg_0002.jpg")
+            var fallback_path = ImageManager.get_image_path("story_cg_2")
+            if fallback_path != "" and ResourceLoader.exists(fallback_path):
+                cover_image.texture = load(fallback_path)
     
     # Avatar
     var profile = GameDataManager.profile

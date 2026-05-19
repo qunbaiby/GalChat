@@ -1,5 +1,7 @@
 {
     "script_id": "intro_story",
+    "cover_image": "story_cg_1",
+    "summary": "清晨的画室里，Luna正在认真地赶画稿，阳光洒在她的侧脸上...",
     "chapters": {
         "start": {
             "events": [

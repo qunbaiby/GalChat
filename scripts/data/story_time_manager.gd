@@ -71,7 +71,8 @@ func advance_day(days: int = 1) -> void:
     current_period = PERIOD_MORNING
     current_hour = 8
     current_minute = 0
-    save_data()
+    # 移除自动保存，交由游戏核心的存档系统管理
+    # save_data()
     time_advanced.emit(days, current_period)
 
 # 推进时段
@@ -90,7 +91,8 @@ func advance_period() -> void:
         advance_day(1)
         return
     current_minute = 0
-    save_data()
+    # 移除自动保存，交由游戏核心的存档系统管理
+    # save_data()
     time_advanced.emit(0, current_period)
 
 # 模拟时间流逝（分钟），适用于 UI 面板时钟的自然跳动
@@ -99,7 +101,7 @@ func tick_minutes(mins: int = 1) -> void:
     if current_minute >= 60:
         var hours_added = current_minute / 60
         current_hour += hours_added
-        current_minute = current_minute % 60
+        current_minute %= 60
         
         # 如果时间自然流逝跨越了时段，也自动更新时段文本（但不主动触发advance_day的强制重置逻辑）
         if current_hour >= 24:
@@ -115,7 +117,8 @@ func tick_minutes(mins: int = 1) -> void:
         else:
             current_period = PERIOD_NIGHT
             
-    save_data()
+    # 移除自动保存，交由游戏核心的存档系统管理
+    # save_data()
 
 # 获取计算后的真实剧情日期（年、月、日、星期）
 func get_current_date_dict() -> Dictionary:
@@ -132,18 +135,21 @@ func get_current_date_dict() -> Dictionary:
     var current_unix = start_unix + (current_day_offset * 86400)
     return Time.get_datetime_dict_from_unix_time(current_unix)
 
-# 获取当前日期的天气与事件配置
-func get_current_day_config() -> Dictionary:
+# 获取指定偏移天数的配置
+func get_day_config(offset: int) -> Dictionary:
     if time_config.has("daily_data"):
         for day_data in time_config["daily_data"]:
-            if day_data.get("day_offset") == current_day_offset:
+            if int(day_data.get("day_offset", -1)) == offset:
                 return day_data
-    # 默认兜底配置
     return {
         "weather": "sunny",
         "temperature": 22,
         "events": []
     }
+
+# 获取当前日期的天气与事件配置
+func get_current_day_config() -> Dictionary:
+    return get_day_config(current_day_offset)
 
 # 供大模型提示词使用的格式化剧情时间字符串
 func get_story_time_string() -> String:

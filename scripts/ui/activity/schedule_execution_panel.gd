@@ -13,7 +13,7 @@ const ScheduleEventPanelScene = preload("res://scenes/ui/activity/schedule_event
 @onready var desc_label: Label = $MainPanel/DescLabel
 @onready var bonus_hbox: HBoxContainer = $MainPanel/BonusHBox
 @onready var track_container: HBoxContainer = $MainPanel/TrackContainer
-@onready var character_icon: Control = $MainPanel/TrackContainer/CharacterIcon
+@onready var character_icon: Node2D = $MainPanel/TrackContainer/CharacterIcon
 @onready var click_area: Button = $ClickArea
 
 @onready var result_popup: Control = $ResultPopup
@@ -63,7 +63,14 @@ func _update_course_info(index: int) -> void:
 	
 	# 1. 顶部配图
 	if current_course.has("image_path") and not current_course["image_path"].is_empty():
-		top_image_rect.texture = load(current_course["image_path"])
+		var img_path = current_course["image_path"]
+		var bg_path = ImageManager.get_image_path(img_path)
+		if bg_path != "":
+			img_path = bg_path
+		if ResourceLoader.exists(img_path):
+			top_image_rect.texture = load(img_path)
+		else:
+			top_image_rect.texture = null
 	else:
 		top_image_rect.texture = null
 		
@@ -129,7 +136,10 @@ func _reset_character_position() -> void:
 	if _slots.is_empty(): return
 	var current_slot = _slots[_current_slot_index]
 	# 需要在 yield 之后调用，确保 global_position 计算准确
-	character_icon.global_position = current_slot.global_position + (current_slot.size - character_icon.size) / 2.0
+	var char_size = Vector2(50, 50)
+	if character_icon is AnimatedSprite2D:
+		char_size = Vector2(0, 0) # AnimatedSprite2D 的中心通常在坐标原点
+	character_icon.global_position = current_slot.global_position + (current_slot.size - char_size) / 2.0
 	
 func _on_click_area_pressed() -> void:
 	if _is_moving:
@@ -147,7 +157,10 @@ func _on_click_area_pressed() -> void:
 	
 	var next_index = _current_slot_index + 1
 	var target_slot = _slots[next_index]
-	var target_pos = target_slot.global_position + (target_slot.size - character_icon.size) / 2.0
+	var char_size = Vector2(50, 50)
+	if character_icon is AnimatedSprite2D:
+		char_size = Vector2(0, 0)
+	var target_pos = target_slot.global_position + (target_slot.size - char_size) / 2.0
 	
 	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(character_icon, "global_position", target_pos, 0.35)
@@ -155,21 +168,26 @@ func _on_click_area_pressed() -> void:
 	tween.finished.connect(func():
 		_current_slot_index = next_index
 		
-		if randf() < 0.2:
+		var current_course = _courses_data[_current_slot_index]
+		if current_course.get("is_event", false):
+			_trigger_story_script(current_course)
+		elif randf() < 0.2:
 			_trigger_schedule_event()
 		else:
 			_finish_slot_move()
 	)
 
-func _finish_slot_move() -> void:
+func _finish_slot_move(skip_ui_update: bool = false) -> void:
 	_is_moving = false
 	
 	# 走到下一个槽位时，立刻刷新顶部的当前课程图文信息
-	_update_course_info(_current_slot_index)
+	if not skip_ui_update:
+		_update_course_info(_current_slot_index)
 	
 	# 每完成2个课程，时间推进一天 (2, 4, 6, 8)
 	if _current_slot_index % 2 == 0 and _current_slot_index < 10:
-		GameDataManager.time_system.advance_time(1, 0, 0)
+		if GameDataManager.story_time_manager:
+			GameDataManager.story_time_manager.advance_day(1)
 		
 	if _current_slot_index == 9:
 		# 走到最后一个槽位时，立刻将最后一个也标为完成
@@ -177,7 +195,8 @@ func _finish_slot_move() -> void:
 		course_completed.emit(_current_slot_index)
 		all_courses_completed.emit()
 		# 第10个课程完成，推进最后一天
-		GameDataManager.time_system.advance_time(1, 0, 0)
+		if GameDataManager.story_time_manager:
+			GameDataManager.story_time_manager.advance_day(1)
 		_show_result_popup()
 
 func _get_deepseek_client() -> Node:
@@ -188,6 +207,85 @@ func _get_deepseek_client() -> Node:
 	if get_tree().root.has_node("MainScene/DeepSeekClient"):
 		return get_node("/root/MainScene/DeepSeekClient")
 	return null
+
+func _trigger_story_script(course_data: Dictionary) -> void:
+	var script_path = course_data.get("script_path", "")
+	if script_path == "" or not FileAccess.file_exists(script_path):
+		_finish_slot_move()
+		return
+		
+	# 实例化故事场景作为子节点
+	# 黑屏过渡
+	var transition_overlay = ColorRect.new()
+	transition_overlay.color = Color.BLACK
+	transition_overlay.modulate.a = 0.0
+	transition_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	transition_overlay.z_index = 100
+	add_child(transition_overlay)
+	
+	var tween = create_tween()
+	tween.tween_property(transition_overlay, "modulate:a", 1.0, 0.5)
+	await tween.finished
+	
+	var story_scene = load("res://scenes/ui/story/story_scene.tscn").instantiate()
+	GameDataManager.set_meta("play_specific_story", script_path)
+	add_child(story_scene)
+	story_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	story_scene.z_index = 50
+	
+	# 因为 story_scene 刚被 add_child，它可能会在 transition_overlay 之上
+	# 确保 transition_overlay 在最上层
+	move_child(transition_overlay, -1)
+	
+	# 【修复时序问题】：等待场景内部的 _ready 执行完毕，并让引擎完成第一帧渲染
+	# 稍微加一点点延迟，确保剧情的背景和立绘都已经挂载完毕再淡出黑屏
+	await get_tree().create_timer(0.5).timeout
+	await get_tree().process_frame
+	
+	# 淡出黑屏
+	var tween2 = create_tween()
+	tween2.tween_property(transition_overlay, "modulate:a", 0.0, 0.5)
+	await tween2.finished
+	transition_overlay.queue_free()
+	
+	# 等待故事结束
+	await story_scene.chat_closed
+	
+	# 故事结束后，恢复黑屏过渡效果
+	var out_overlay = ColorRect.new()
+	out_overlay.color = Color.BLACK
+	out_overlay.modulate.a = 0.0
+	out_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	out_overlay.z_index = 100
+	add_child(out_overlay)
+	
+	var tween3 = create_tween()
+	tween3.tween_property(out_overlay, "modulate:a", 1.0, 0.5)
+	await tween3.finished
+	
+	# 在黑屏完全遮挡住的时候，销毁故事场景，这样就不会有弹出关闭的突兀感
+	if is_instance_valid(story_scene):
+		story_scene.queue_free()
+		
+	# 【修复延迟问题】：在黑屏结束前，提前让底层的逻辑往下走，更新下一个日程界面的 UI 元素
+	# 这里只调用纯 UI 的更新逻辑（如果是执行下一次移动），但是我们不直接触发动画，
+	# 让底下的课程封面图、标题先变过去，并在黑屏中完成加载
+	_update_course_info(_current_slot_index)
+		
+	# 确保在黑屏期间，底下的日常界面（如新的课程封面图等）能完成加载并渲染出一帧
+	await get_tree().create_timer(0.3).timeout
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	# 然后再把黑屏淡出，展示底下的日常界面
+	var tween4 = create_tween()
+	tween4.tween_property(out_overlay, "modulate:a", 0.0, 0.5)
+	await tween4.finished
+	out_overlay.queue_free()
+	
+	# 由于前面已经提前更新了 UI，这里我们跳过 _update_course_info() 的二次调用，
+	# 直接执行属性结算等后续动作
+	_finish_slot_move(true)
 
 func _trigger_schedule_event() -> void:
 	var client = _get_deepseek_client()

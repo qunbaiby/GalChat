@@ -59,8 +59,16 @@ func _ready():
     if quick_options_container:
         quick_options_container.child_entered_tree.connect(_on_quick_option_added)
 
+func _process(_delta: float) -> void:
+    if is_story_mode and end_chat_button and end_chat_button.visible:
+        end_chat_button.hide()
+
 func set_story_mode(enabled: bool) -> void:
     is_story_mode = enabled
+    if is_story_mode and end_chat_button:
+        end_chat_button.hide()
+    elif not is_story_mode and end_chat_button:
+        end_chat_button.show()
 
 func _on_quick_option_added(node: Node):
     if node is Button:
@@ -201,12 +209,22 @@ func play_single_line(char_id: String, char_name: String, text: String, hide_inp
         if quick_option_layer: quick_option_layer.hide()
         if input_layer: input_layer.hide()
         if history_button: history_button.hide()
-        if end_chat_button: end_chat_button.hide()
+        # 修复需求：即使是 hide_input == true 的固定单句对话，如果处于故事模式，依然隐藏结束按钮
+        if end_chat_button:
+            if is_story_mode:
+                end_chat_button.hide()
+            else:
+                end_chat_button.hide() # hide_input 状态下本身就不该显示，保持隐藏
     else:
         if quick_option_layer: quick_option_layer.show()
         if input_layer: input_layer.show()
         if history_button: history_button.show()
-        if end_chat_button: end_chat_button.show()
+        # 修复需求：自由对话模式下，如果在故事模式中也隐藏结束按钮
+        if end_chat_button:
+            if is_story_mode:
+                end_chat_button.hide()
+            else:
+                end_chat_button.show()
     
     show()
     if dialogue_layer: dialogue_layer.show()

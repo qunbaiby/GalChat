@@ -101,7 +101,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "体力"
 
@@ -111,7 +111,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 (0/800)"
 
@@ -253,7 +253,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "智力"
 
@@ -263,7 +263,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 (0/800)"
 
@@ -405,7 +405,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "魅力"
 
@@ -415,7 +415,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 (0/800)"
 
@@ -557,7 +557,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "感性"
 
@@ -567,7 +567,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 (0/800)"
 

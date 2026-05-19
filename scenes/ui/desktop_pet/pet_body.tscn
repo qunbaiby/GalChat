@@ -50,8 +50,8 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AvatarContainer/AvatarMask"]
-position = Vector2(80, 91)
-scale = Vector2(0.2, 0.2)
+position = Vector2(80.5, 86.499985)
+scale = Vector2(0.12519936, 0.12519936)
 sprite_frames = ExtResource("2_vn3qc")
 
 [node name="StateRing" type="Control" parent="AvatarContainer"]

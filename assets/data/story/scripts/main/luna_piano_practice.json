@@ -1,0 +1,46 @@
+{
+    "script_id": "luna_piano_practice",
+    "cover_image": "story_cg_3",
+    "summary": "音乐教室里传来悠扬的钢琴声，Luna正在那里专注地练习着...",
+    "chapters": {
+        "start": {
+            "events": [
+                {
+                    "type": "background",
+                    "bg_id": "music_room",
+                    "transition_type": "fade",
+                    "duration": 0.5
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "刚走到音乐教室门口，就听到了一阵悠扬的钢琴声。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "透过窗户，我看到Luna正端坐在钢琴前，修长的手指在黑白琴键上灵活地跳跃。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "（停下弹奏）啊，{player_title}，你来啦！"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "这首曲子我练了好久，还是觉得有些地方不太顺畅……你能帮我听听看吗？"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "player",
+                    "content": "当然没问题，你弹得其实已经很棒了。"
+                },
+                {
+                    "type": "jump",
+                    "target_chapter": "end"
+                }
+            ]
+        }
+    }
+}
