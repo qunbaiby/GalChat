@@ -41,3 +41,26 @@ static func merge_incomplete_parentheses(parts: Array) -> Array:
     if temp_str != "":
         merged.append(temp_str)
     return merged
+
+static func strip_parentheses(text: String) -> String:
+    var result = ""
+    var balance = 0
+    for i in text.length():
+        var ch = text[i]
+        if ch == "(" or ch == "（" or ch == "[" or ch == "【" or ch == "<" or ch == "《" or ch == "{" or ch == "｛":
+            balance += 1
+            continue
+            
+        if ch == ")" or ch == "）" or ch == "]" or ch == "】" or ch == ">" or ch == "》" or ch == "}" or ch == "｝":
+            balance -= 1
+            if balance < 0:
+                balance = 0
+            continue
+            
+        if balance <= 0:
+            result += ch
+            balance = 0
+            
+    # 去除多余的空格，避免标点之间留下空格
+    return result.strip_edges().replace("  ", " ")
+

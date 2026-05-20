@@ -32,7 +32,7 @@
     "maps": [
         {
             "id": "world_map_bg",
-            "path": "res://assets/images/backgrounds/map/background/生成图片.png"
+            "path": "res://assets/images/backgrounds/map/background/WorldMap.png"
         }
     ],
     "cgs": [

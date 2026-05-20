@@ -7,6 +7,7 @@ var gifts: Array = []
 # 用于防止刷数值的衰减队列：结构为 [{ "id": gift_id, "time": timestamp }, ...]
 var _recent_gifts: Array = []
 const DECAY_WINDOW_SEC = 3600 * 24 # 24小时内的送礼会触发衰减
+const GIFT_ACTION_COST = 10 # 统一的送礼行动力消耗
 
 func _ready() -> void:
 	_load_gifts_db()
@@ -85,12 +86,8 @@ func send_gift(profile: CharacterProfile, gift_id: String) -> Dictionary:
 	if gift.is_empty():
 		return { "success": false, "msg": "未找到对应的礼物" }
 		
-	var cost = gift.get("cost", 0)
-	if profile.current_energy < cost:
-		return { "success": false, "msg": "精力不足，无法送礼" }
-		
-	# 扣除精力
-	profile.current_energy -= cost
+	if not profile.consume_energy(GIFT_ACTION_COST):
+		return { "success": false, "msg": "行动力不足，无法送礼" }
 	
 	# 计算基础值
 	var base_i = gift.get("base_intimacy", 0)

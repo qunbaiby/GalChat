@@ -1,7 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://b23xxyy00456"]
 
 [ext_resource type="Script" uid="uid://dakf4iikoukkf" path="res://scripts/ui/activity/activity_item.gd" id="1_item"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 1)
@@ -13,12 +12,19 @@ shadow_color = Color(0, 0, 0, 0.05)
 shadow_size = 5
 shadow_offset = Vector2(0, 2)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
+bg_color = Color(0.4, 0.8, 0.4, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [node name="ActivityItem" type="PanelContainer"]
-theme = ExtResource("1_theme")
 custom_minimum_size = Vector2(300, 100)
-anchors_preset = 10
-anchor_right = 1.0
-grow_horizontal = 2
+offset_right = 314.0
+offset_bottom = 110.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 script = ExtResource("1_item")
 
@@ -42,11 +48,22 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="NameLabel" type="Label" parent="Margin/HBox/VBox"]
+[node name="HeaderHBox" type="HBoxContainer" parent="Margin/HBox/VBox"]
 layout_mode = 2
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="Margin/HBox/VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "课程名称"
+
+[node name="LevelLabel" type="Label" parent="Margin/HBox/VBox/HeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "初级"
 
 [node name="CostHBox" type="HBoxContainer" parent="Margin/HBox/VBox"]
 layout_mode = 2
@@ -56,13 +73,60 @@ theme_override_constants/separation = 10
 [node name="EnergyCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "精力 -20"
+
+[node name="GoldCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "金币 -50"
+
+[node name="MoodCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.5, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "心情 -5"
+
+[node name="StressCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "压力 +5"
 
 [node name="RewardsHBox" type="HBoxContainer" parent="Margin/HBox/VBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 5
+
+[node name="ProgressContainer" type="VBoxContainer" parent="Margin/HBox/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="ProgressHBox" type="HBoxContainer" parent="Margin/HBox/VBox/ProgressContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ProgressLabel" type="Label" parent="Margin/HBox/VBox/ProgressContainer/ProgressHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "学习进度"
+
+[node name="IncrementLabel" type="Label" parent="Margin/HBox/VBox/ProgressContainer/ProgressHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.6, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "+10/次"
+
+[node name="ProgressBar" type="ProgressBar" parent="Margin/HBox/VBox/ProgressContainer"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
+show_percentage = false
 
 [node name="Icon" type="TextureRect" parent="Margin/HBox"]
 custom_minimum_size = Vector2(80, 80)

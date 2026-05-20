@@ -1,6 +1,6 @@
 extends "res://scripts/ui/main/backgrounds/core/bg_scene_base.gd"
 
-@onready var bg_rect: TextureRect = $TextureRect
+@onready var bg_rect: TextureRect = $background
 
 func _ready() -> void:
 	super._ready()

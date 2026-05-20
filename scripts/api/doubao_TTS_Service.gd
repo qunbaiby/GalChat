@@ -35,16 +35,17 @@ func setup_auth(config: Dictionary) -> void:
 # text: 要转换的文本
 # options: 可选参数字典 (voice_type, speed_ratio, volume_ratio, pitch_ratio)
 func synthesize(text: String, options: Dictionary = {}):
-    if text.strip_edges().is_empty():
-        tts_failed.emit("Text is empty", text)
+    var pure_text = ChatSplitHelper.strip_parentheses(text)
+    if pure_text.strip_edges().is_empty():
+        tts_failed.emit("Text is empty or only contains actions", text)
         return
 
     # 1. 检查缓存
-    var cache_key = _generate_cache_key(text, options)
+    var cache_key = _generate_cache_key(pure_text, options)
     var cache_path = CACHE_DIR + cache_key + "." + default_encoding
     
     if FileAccess.file_exists(cache_path):
-        # print("🔊 [DoubaoTTS] 命中缓存: ", text.left(10) + "...")
+        # print("🔊 [DoubaoTTS] 命中缓存: ", pure_text.left(10) + "...")
         var stream = _load_audio_from_file(cache_path)
         if stream:
             tts_success.emit(stream, text)
@@ -53,10 +54,11 @@ func synthesize(text: String, options: Dictionary = {}):
             print("⚠️ [DoubaoTTS] 缓存文件加载失败，重新请求")
 
     # 2. 发起请求 (带重试机制)
-    _start_request(text, options, cache_path, 0)
+    _start_request(pure_text, options, cache_path, 0, text)
 
 # 内部：发起请求
-func _start_request(text: String, options: Dictionary, cache_path: String, attempt: int):
+func _start_request(text: String, options: Dictionary, cache_path: String, attempt: int, original_text: String = ""):
+    if original_text == "": original_text = text
     var request_body = _build_request_body(text, options)
     # Volcengine TTS header format: Authorization: Bearer; <token>
     var headers = [
@@ -73,32 +75,32 @@ func _start_request(text: String, options: Dictionary, cache_path: String, attem
     # 绑定回调，传递上下文
     http.request_completed.connect(
         func(result, response_code, response_headers, body): 
-            _on_request_completed(result, response_code, response_headers, body, http, text, options, cache_path, attempt)
+            _on_request_completed(result, response_code, response_headers, body, http, text, options, cache_path, attempt, original_text)
     )
     
     var error = http.request(api_url, headers, HTTPClient.METHOD_POST, JSON.stringify(request_body))
     if error != OK:
         http.queue_free()
-        _handle_failure("HTTP Request failed to start: " + str(error), text, options, cache_path, attempt)
+        _handle_failure("HTTP Request failed to start: " + str(error), text, options, cache_path, attempt, original_text)
 
 # 内部：处理请求完成
-func _on_request_completed(result, response_code, headers, body, http_node: HTTPRequest, text: String, options: Dictionary, cache_path: String, attempt: int):
+func _on_request_completed(result, response_code, headers, body, http_node: HTTPRequest, text: String, options: Dictionary, cache_path: String, attempt: int, original_text: String):
     http_node.queue_free() # 请求完成，清理节点
     
     if result != HTTPRequest.RESULT_SUCCESS:
-        _handle_failure("HTTP Connection Error: " + str(result), text, options, cache_path, attempt)
+        _handle_failure("HTTP Connection Error: " + str(result), text, options, cache_path, attempt, original_text)
         return
         
     if response_code != 200:
         var error_msg = "API Error: " + str(response_code) + " Body: " + body.get_string_from_utf8()
-        _handle_failure(error_msg, text, options, cache_path, attempt)
+        _handle_failure(error_msg, text, options, cache_path, attempt, original_text)
         return
 
     # 解析响应
     var json = JSON.new()
     var parse_err = json.parse(body.get_string_from_utf8())
     if parse_err != OK:
-        _handle_failure("JSON Parse Error", text, options, cache_path, attempt)
+        _handle_failure("JSON Parse Error", text, options, cache_path, attempt, original_text)
         return
         
     var response_data = json.data
@@ -109,11 +111,11 @@ func _on_request_completed(result, response_code, headers, body, http_node: HTTP
         # 有些情况下 data 可能是 null 或空
         if audio_base64 == null or str(audio_base64).is_empty():
              var msg = response_data.get("message", "Unknown Error (Empty Data)")
-             _handle_failure("API Service Error: " + msg, text, options, cache_path, attempt)
+             _handle_failure("API Service Error: " + msg, text, options, cache_path, attempt, original_text)
              return
              
         var audio_data = Marshalls.base64_to_raw(audio_base64)
-        _save_and_emit_audio(audio_data, cache_path, text)
+        _save_and_emit_audio(audio_data, cache_path, original_text)
     else:
         var msg = "Unknown Error"
         if response_data.has("header"):
@@ -123,19 +125,19 @@ func _on_request_completed(result, response_code, headers, body, http_node: HTTP
         elif response_data.has("message"):
             msg = response_data.get("message", "Unknown Error")
             
-        _handle_failure("API Service Error: " + msg, text, options, cache_path, attempt)
+        _handle_failure("API Service Error: " + msg, text, options, cache_path, attempt, original_text)
 
 # 内部：处理失败与重试
-func _handle_failure(error_msg: String, text: String, options: Dictionary, cache_path: String, attempt: int):
+func _handle_failure(error_msg: String, text: String, options: Dictionary, cache_path: String, attempt: int, original_text: String):
     print("❌ [DoubaoTTS] 请求失败: ", error_msg)
     
     if attempt < max_retries:
         print("🔄 [DoubaoTTS] 准备重试 (%d/%d) in %s seconds..." % [attempt + 1, max_retries, retry_delay])
         await get_tree().create_timer(retry_delay).timeout
-        _start_request(text, options, cache_path, attempt + 1)
+        _start_request(text, options, cache_path, attempt + 1, original_text)
     else:
         print("🚫 [DoubaoTTS] 重试次数耗尽，放弃请求")
-        tts_failed.emit(error_msg, text)
+        tts_failed.emit(error_msg, original_text)
 
 # 构建请求体
 func _build_request_body(text: String, options: Dictionary) -> Dictionary:

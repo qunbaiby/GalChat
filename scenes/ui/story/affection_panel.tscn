@@ -6,7 +6,7 @@
 [node name="AffectionPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(320, 0)
 offset_right = 320.0
-offset_bottom = 220.0
+offset_bottom = 180.0
 theme = ExtResource("1_8kwnr")
 script = ExtResource("1_affection")
 
@@ -111,43 +111,6 @@ size_flags_vertical = 4
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/TrustRow/ProgressBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 4
-text = "0 / 100"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="HSep3" type="HSeparator" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ExpRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="IconLabel" type="Label" parent="MarginContainer/VBoxContainer/ExpRow"]
-layout_mode = 2
-text = "🌟"
-vertical_alignment = 1
-
-[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/ExpRow"]
-custom_minimum_size = Vector2(70, 0)
-layout_mode = 2
-text = "互动经验"
-vertical_alignment = 1
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/ExpRow"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-show_percentage = false
-
-[node name="ValueLabel" type="Label" parent="MarginContainer/VBoxContainer/ExpRow/ProgressBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

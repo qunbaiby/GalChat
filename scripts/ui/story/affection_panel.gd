@@ -11,9 +11,6 @@ extends PanelContainer
 @onready var trust_val: Label = $MarginContainer/VBoxContainer/TrustRow/ProgressBar/ValueLabel
 @onready var trust_bar: ProgressBar = $MarginContainer/VBoxContainer/TrustRow/ProgressBar
 
-@onready var exp_val: Label = $MarginContainer/VBoxContainer/ExpRow/ProgressBar/ValueLabel
-@onready var exp_bar: ProgressBar = $MarginContainer/VBoxContainer/ExpRow/ProgressBar
-
 var update_timer: Timer
 
 func _ready() -> void:
@@ -94,7 +91,6 @@ func update_ui() -> void:
     var stage_color = get_stage_color(current_stage)
     set_bar_color(intimacy_bar, stage_color)
     set_bar_color(trust_bar, stage_color)
-    set_bar_color(exp_bar, stage_color)
         
     var int_display = "%.1f / %d" % [profile.intimacy, int(display_max)] if threshold >= 9999 else "%.1f / %d" % [profile.intimacy, int(threshold)]
     intimacy_val.text = int_display
@@ -107,12 +103,6 @@ func update_ui() -> void:
     trust_bar.min_value = 0
     trust_bar.max_value = display_max
     trust_bar.value = min(profile.trust, display_max)
-    
-    var exp_display = "%d / %d" % [profile.interaction_exp, int(display_max)] if threshold >= 9999 else "%d / %d" % [profile.interaction_exp, int(threshold)]
-    exp_val.text = exp_display
-    exp_bar.min_value = 0
-    exp_bar.max_value = display_max
-    exp_bar.value = min(profile.interaction_exp, display_max)
 
 func show_panel() -> void:
     update_ui()

@@ -27,8 +27,10 @@ func _ready() -> void:
     gold_box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
     energy_box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
     stress_box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-    # Connect to signals if there is a data change signal
-    # Since there is no specific signal for these changes in GameDataManager yet, we'll update it whenever main scene updates
+    
+    if GameDataManager.profile:
+        if not GameDataManager.profile.is_connected("profile_updated", _update_ui):
+            GameDataManager.profile.profile_updated.connect(_update_ui)
     
 func _update_ui() -> void:
     if not GameDataManager.profile:

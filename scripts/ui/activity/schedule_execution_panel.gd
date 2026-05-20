@@ -482,9 +482,13 @@ func _show_result_popup() -> void:
 		stats_vbox.add_child(hbox)
 		
 		# 动态增长动画
+		var diff = int(new_val - old_val)
 		var val_tween = create_tween().set_trans(Tween.TRANS_LINEAR)
 		val_tween.tween_method(func(v: float):
-			val_lbl.text = str(int(v)) + " (+" + str(int(new_val - old_val)) + ")"
+			if diff >= 0:
+				val_lbl.text = "%d (+%d)" % [int(v), diff]
+			else:
+				val_lbl.text = "%d (%d)" % [int(v), diff]
 			pb.value = v
 		, float(old_val), float(new_val), 1.2)
 		
@@ -492,6 +496,42 @@ func _show_result_popup() -> void:
 	end_button.show()
 
 func _on_end_button_pressed() -> void:
+	var profile = GameDataManager.profile
+	
+	# Save course progress
+	for course in _courses_data:
+		var c_id = course.get("id", "")
+		if c_id != "":
+			var max_prog = course.get("max_progress", 0)
+			if max_prog > 0:
+				var increment = course.get("progress_increment", 0)
+				var cur_prog = profile.course_progress.get(c_id, 0)
+				profile.course_progress[c_id] = min(cur_prog + increment, max_prog)
+	
+	# Save attrs back to profile
+	profile.stat_stamina = _end_attrs.get("体能续航", profile.stat_stamina)
+	profile.stat_body_management = _end_attrs.get("形体管控", profile.stat_body_management)
+	profile.stat_focus = _end_attrs.get("凝心专注", profile.stat_focus)
+	profile.stat_rhythm = _end_attrs.get("律动反应", profile.stat_rhythm)
+	profile.stat_artistic_literacy = _end_attrs.get("艺术素养", profile.stat_artistic_literacy)
+	profile.stat_verbal_expression = _end_attrs.get("言辞表达", profile.stat_verbal_expression)
+	profile.stat_planning = _end_attrs.get("统筹企划", profile.stat_planning)
+	profile.stat_art_theory = _end_attrs.get("艺理钻研", profile.stat_art_theory)
+	profile.stat_temperament = _end_attrs.get("格调气质", profile.stat_temperament)
+	profile.stat_manner = _end_attrs.get("举止仪范", profile.stat_manner)
+	profile.stat_emotional_infection = _end_attrs.get("共情感染", profile.stat_emotional_infection)
+	profile.stat_stage_performance = _end_attrs.get("舞台表现", profile.stat_stage_performance)
+	profile.stat_empathy = _end_attrs.get("情思体悟", profile.stat_empathy)
+	profile.stat_inspiration = _end_attrs.get("创想灵感", profile.stat_inspiration)
+	profile.stat_aesthetics = _end_attrs.get("美学品鉴", profile.stat_aesthetics)
+	profile.stat_art_perception = _end_attrs.get("艺术感知", profile.stat_art_perception)
+	profile.current_energy = clamp(_end_attrs.get("精力", profile.current_energy), 0, profile.max_energy)
+	profile.gold = max(0, _end_attrs.get("金币", profile.gold))
+	profile.stress = clamp(_end_attrs.get("压力", profile.stress), 0, profile.max_stress)
+	profile.mood_value = clamp(_end_attrs.get("心情", profile.mood_value), 0, 100)
+	
+	profile.save_profile()
+	
 	var tween = create_tween()
 	tween.tween_property(result_popup, "modulate:a", 0.0, 0.3)
 	tween.finished.connect(func():

@@ -2,35 +2,31 @@
     "start_date": {
         "year": 2026,
         "month": 3,
-        "day": 8,
-        "weekday": 7
+        "day": 9,
+        "weekday": 1
     },
     "daily_data": [
         {
             "day_offset": 0,
             "weather": "sunny",
-            "temperature": 20,
-            "morning_events": ["story_start", "meet_luna"],
-            "afternoon_events": []
+            "temperature": 20
         },
         {
             "day_offset": 1,
             "weather": "cloudy",
             "temperature": 18,
-            "morning_events": ["luna_piano_practice"],
-            "afternoon_events": ["first_lesson"]
+            "morning_events": ["luna_piano_practice"]
         },
         {
             "day_offset": 2,
             "weather": "rainy",
             "temperature": 15,
-            "events": ["shelter_from_rain"]
+            "afternoon_events": ["shelter_from_rain"]
         },
         {
             "day_offset": 3,
             "weather": "sunny",
-            "temperature": 22,
-            "events": []
+            "temperature": 22
         }
     ]
 }

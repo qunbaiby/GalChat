@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://duul0wbegxqei"
-path="res://.godot/imported/生成图片.png-40019e1969d41c1528642da2a780bffc.ctex"
+uid="uid://cx8u4vi35evxe"
+path="res://.godot/imported/Main_Luna_0.png-2475f4e8356489a068cac9d525413899.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/backgrounds/map/background/生成图片.png"
-dest_files=["res://.godot/imported/生成图片.png-40019e1969d41c1528642da2a780bffc.ctex"]
+source_file="res://assets/images/backgrounds/main/Main_Luna_0.png"
+dest_files=["res://.godot/imported/Main_Luna_0.png-2475f4e8356489a068cac9d525413899.ctex"]
 
 [params]
 

@@ -8,7 +8,7 @@
       "base_intimacy": 10,
       "base_trust": 5,
       "cost": 50,
-      "category": "normal"
+      "category": "dating"
     },
     {
       "id": "chocolate",
@@ -18,7 +18,7 @@
       "base_intimacy": 15,
       "base_trust": 5,
       "cost": 80,
-      "category": "normal"
+      "category": "dating"
     },
     {
       "id": "book",
@@ -28,7 +28,7 @@
       "base_intimacy": 5,
       "base_trust": 20,
       "cost": 60,
-      "category": "normal"
+      "category": "home"
     },
     {
       "id": "necklace",
@@ -38,7 +38,7 @@
       "base_intimacy": 30,
       "base_trust": 40,
       "cost": 500,
-      "category": "expensive"
+      "category": "dating"
     },
     {
       "id": "handmade_scarf",
@@ -48,7 +48,17 @@
       "base_intimacy": 50,
       "base_trust": 20,
       "cost": 100,
-      "category": "special"
+      "category": "personality"
+    },
+    {
+      "id": "travel_ticket",
+      "name": "旅行套票",
+      "desc": "一起去看看外面的世界吧。",
+      "icon_path": "res://assets/icons/gifts/icon_travel.tres",
+      "base_intimacy": 40,
+      "base_trust": 30,
+      "cost": 400,
+      "category": "outing"
     }
   ]
 }

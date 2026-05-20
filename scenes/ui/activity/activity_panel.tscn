@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=15 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_aivhu"]
@@ -56,32 +56,6 @@ corner_radius_bottom_left = 10
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
 color = Color(0.5, 0.5, 0.5, 0.5)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Loading"]
-bg_color = Color(0.95, 0.9, 0.85, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.85, 0.65, 0.45, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgBg"]
-bg_color = Color(0.8, 0.75, 0.7, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgFill"]
-bg_color = Color(0.4, 0.7, 0.4, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -118,8 +92,8 @@ layout_mode = 2
 theme_override_constants/separation = 0
 
 [node name="LeftPanel" type="PanelContainer" parent="Margin/MainHBox"]
+custom_minimum_size = Vector2(720, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.8
 theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPanel")
 
@@ -168,66 +142,97 @@ columns = 2
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="ScheduleTitle" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="ScheduleTitle" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-text = "已安排行程
-0/10"
+text = "已安排行程"
 horizontal_alignment = 1
 
-[node name="ScheduleSlots" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+[node name="ScheduleLabel" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+text = "0/10"
+horizontal_alignment = 2
+
+[node name="ScheduleSlots" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 20
-theme_override_constants/v_separation = 8
-columns = 5
+theme_override_constants/separation = 8
 
-[node name="Slot1" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="MorningRow" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+text = "上午"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Slot1" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot2" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot3" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot3" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot5" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot4" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot7" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot5" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot9" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot6" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="AfternoonRow" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/AfternoonRow"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+text = "下午"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Slot2" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/AfternoonRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot7" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot4" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/AfternoonRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot8" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot6" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/AfternoonRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot9" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot8" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/AfternoonRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot10" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="Slot10" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/AfternoonRow"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 expand_icon = true
@@ -351,6 +356,20 @@ text = "心情 平静"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="MoodBubble" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/MoodControl"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 55.0
+offset_top = -15.0
+offset_right = 85.0
+offset_bottom = 5.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
+text = "+0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Sep2" type="ColorRect" parent="Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
 custom_minimum_size = Vector2(2, 15)
 layout_mode = 2
@@ -387,6 +406,13 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_BubbleNeg")
 text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="GoldLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.6, 0.2, 1)
+text = "金币消耗: 0"
+horizontal_alignment = 1
 
 [node name="BonusLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 unique_name_in_owner = true
@@ -1007,7 +1033,6 @@ offset_right = 300.0
 offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Loading")
 
 [node name="TitleLabel" type="Label" parent="LoadingOverlay/LoadingPanel"]
 layout_mode = 1
@@ -1028,9 +1053,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 50.0
-offset_top = -84.0
+offset_top = -76.0
 offset_right = -50.0
-offset_bottom = -64.0
+offset_bottom = -59.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -1051,8 +1076,6 @@ offset_right = -50.0
 offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/background = SubResource("StyleBoxFlat_ProgBg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_ProgFill")
 show_percentage = false
 
 [node name="TipsLabel" type="Label" parent="LoadingOverlay/LoadingPanel"]
