@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=22 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
@@ -9,59 +9,29 @@
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="7_eye"]
 [ext_resource type="Texture2D" uid="uid://dfdvtfnlpm64n" path="res://assets/images/icons/ui/system/gear.svg" id="8_gear"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="9_heart"]
-[ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music_player.tscn" id="10_music_player"]
+[ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="13_api"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="14_dialogue"]
 [ext_resource type="Shader" uid="uid://bvr4ey2nio3wm" path="res://assets/shaders/left_trapezoid.gdshader" id="15_trapezoid_shader"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnCircle"]
-bg_color = Color(1, 1, 1, 0.35)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.1, 0.4, 0.3, 0.15)
-shadow_size = 4
-shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnCircle_Hover"]
-bg_color = Color(1, 1, 1, 0.5)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.1, 0.4, 0.3, 0.25)
-shadow_size = 6
-shadow_offset = Vector2(0, 2)
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
 shader = ExtResource("15_trapezoid_shader")
 shader_parameter/slant = 0.30000001425
-shader_parameter/corner_radius = 0.0930000044175
-shader_parameter/aspect_ratio = 2.21
+shader_parameter/corner_radius = 0.06000000285
+shader_parameter/aspect_ratio = 2.2
 shader_parameter/padding = 0.0
 shader_parameter/border_width = 0.0
 shader_parameter/border_color = Color(0.85, 0.94, 0.92, 0.95)
 shader_parameter/glow_size = 0.0
 shader_parameter/glow_color = Color(0, 0.8, 1, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapDisabled"]
-bg_color = Color(0.8, 0.8, 0.8, 0.5)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6p2kk"]
+bg_color = Color(0.12, 0.12, 0.18, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fvueq"]
-bg_color = Color(1, 0.98, 0.95, 0.95)
+bg_color = Color(0.12, 0.12, 0.18, 0.95)
 skew = Vector2(0.3, 0)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -144,9 +114,9 @@ mouse_filter = 2
 
 [node name="TopStatusPanel" parent="UIPanel" instance=ExtResource("11_top_panel")]
 layout_mode = 1
-offset_left = 492.0
+offset_left = 327.0
 offset_top = 8.0
-offset_right = 1053.0
+offset_right = 1088.0
 offset_bottom = 57.0
 
 [node name="BottomBarHBox" type="HBoxContainer" parent="UIPanel"]
@@ -171,9 +141,6 @@ custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCircle_Hover")
 text = "📱"
 
 [node name="DesktopPetButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
@@ -181,9 +148,6 @@ custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCircle_Hover")
 text = "🐾"
 
 [node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
@@ -191,16 +155,7 @@ custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCircle_Hover")
 text = "📖"
-
-[node name="MusicPlayer" parent="UIPanel/BottomBarHBox" instance=ExtResource("10_music_player")]
-custom_minimum_size = Vector2(360, 45)
-layout_mode = 2
-size_flags_vertical = 4
-theme = null
 
 [node name="MapButton" type="Button" parent="UIPanel"]
 material = SubResource("ShaderMaterial_trapezoid_map")
@@ -216,7 +171,7 @@ offset_right = -11.0
 offset_bottom = -10.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_styles/disabled = SubResource("StyleBoxFlat_MapDisabled")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6p2kk")
 text = "外出"
 
 [node name="ActivityButton" type="Button" parent="UIPanel"]
@@ -247,9 +202,6 @@ offset_right = 65.0
 offset_bottom = 160.0
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCircle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCircle_Hover")
 text = "⏱"
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
@@ -289,7 +241,6 @@ offset_left = 2.0
 offset_top = 2.0
 offset_right = 261.0
 offset_bottom = 102.0
-theme = null
 
 [node name="StatsPanel" parent="UIPanel" instance=ExtResource("2_stats")]
 layout_mode = 1
@@ -381,12 +332,41 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "做饭"
 
+[node name="InteractiveButton" type="Button" parent="UIPanel/InteractGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "互动"
+
 [node name="RestButton" type="Button" parent="UIPanel/InteractGroup"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "休息"
 
-[node name="CoCreateButton" type="Button" parent="UIPanel/InteractGroup"]
+[node name="InteractiveSubMenu" type="PanelContainer" parent="UIPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 635.0
+offset_top = -100.0
+offset_right = 755.0
+offset_bottom = -20.0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="UIPanel/InteractiveSubMenu"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="UIPanel/InteractiveSubMenu/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="CoCreateButton" type="Button" parent="UIPanel/InteractiveSubMenu/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "共创画板"
@@ -394,6 +374,15 @@ text = "共创画板"
 [node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]
 visible = false
 layout_mode = 1
+
+[node name="MusicPlayer" parent="UIPanel" instance=ExtResource("10_music_player")]
+custom_minimum_size = Vector2(360, 45)
+layout_mode = 0
+offset_left = 579.0
+offset_top = 665.0
+offset_right = 939.0
+offset_bottom = 710.0
+size_flags_vertical = 4
 
 [node name="TopicPanel" type="Panel" parent="."]
 visible = false

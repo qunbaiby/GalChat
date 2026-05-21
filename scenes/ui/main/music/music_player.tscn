@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://cy8xxa3qqt3k0"]
+[gd_scene load_steps=6 format=3 uid="uid://cy8xxa3qqt3k0"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_aprbl"]
-[ext_resource type="Script" uid="uid://dyyfj2pvhqsgc" path="res://scripts/ui/main/music_player.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dyyfj2pvhqsgc" path="res://scripts/ui/main/music/music_player.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="2_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aprbl"]
@@ -23,7 +22,7 @@ corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerBg"]
-bg_color = Color(0.1, 0.1, 0.12, 0.8)
+bg_color = Color(0.101960786, 0.101960786, 0.12156863, 1)
 corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
@@ -34,7 +33,6 @@ self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(360, 0)
 offset_right = 360.0
 offset_bottom = 60.0
-theme = ExtResource("1_aprbl")
 script = ExtResource("1_script")
 
 [node name="VBox" type="VBoxContainer" parent="."]
@@ -56,13 +54,14 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 15
 
-[node name="CoverIcon" type="TextureRect" parent="VBox/TopHBox"]
+[node name="CoverBtn" type="Button" parent="VBox/TopHBox"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_vertical = 4
-texture = ExtResource("2_icon")
-expand_mode = 1
-stretch_mode = 5
+icon = ExtResource("2_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="InfoVBox" type="VBoxContainer" parent="VBox/TopHBox"]
 layout_mode = 2
@@ -165,3 +164,64 @@ size_flags_vertical = 3
 max_value = 1.0
 step = 0.01
 value = 1.0
+
+[node name="PlaylistPopup" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_top = -450.0
+offset_right = 360.0
+offset_bottom = -10.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_PlayerBg")
+
+[node name="Margin" type="MarginContainer" parent="PlaylistPopup"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="PlaylistPopup/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderHBox" type="HBoxContainer" parent="PlaylistPopup/Margin/VBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="PlaylistPopup/Margin/VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "播放列表"
+
+[node name="CloseBtn" type="Button" parent="PlaylistPopup/Margin/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+text = "X"
+flat = true
+
+[node name="HSeparator" type="HSeparator" parent="PlaylistPopup/Margin/VBox"]
+layout_mode = 2
+
+[node name="CategoryOption" type="OptionButton" parent="PlaylistPopup/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+selected = 0
+item_count = 1
+popup/item_0/text = "全部"
+popup/item_0/id = 0
+
+[node name="ImportBtn" type="Button" parent="PlaylistPopup/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "📥 导入音乐文件"
+flat = true
+
+[node name="Scroll" type="ScrollContainer" parent="PlaylistPopup/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ListContainer" type="VBoxContainer" parent="PlaylistPopup/Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5

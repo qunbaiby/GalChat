@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://sv4gjnbeh1bx"]
+[gd_scene load_steps=6 format=3 uid="uid://sv4gjnbeh1bx"]
 
 [ext_resource type="Texture2D" uid="uid://hfrk5cefxbbe" path="res://assets/images/icons/ui/stats/gold.svg" id="2_icon_gold"]
 [ext_resource type="Script" uid="uid://dsw7vmfenubsa" path="res://scripts/ui/main/top_status_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="3_icon_energy"]
 [ext_resource type="Texture2D" uid="uid://bpv0e2vd3ujb8" path="res://assets/images/icons/ui/stats/vitality.svg" id="4_icon_stress"]
+[ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="5_icon_mood"]
 
 [node name="TopStatusPanel" type="PanelContainer"]
 self_modulate = Color(1, 1, 1, 0)
@@ -72,6 +73,41 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 12
 text = "10/10"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MoodBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/MoodBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("5_icon_mood")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/MoodBox"]
+layout_mode = 2
+text = "心情"
+vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HBoxContainer/MoodBox"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+size_flags_vertical = 4
+value = 50.0
+show_percentage = false
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/MoodBox/ProgressBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 12
+text = "50%"
 horizontal_alignment = 1
 vertical_alignment = 1
 
