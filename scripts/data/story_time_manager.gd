@@ -27,7 +27,7 @@ var time_config: Dictionary = {}
 
 func _init() -> void:
     _load_config()
-    _load_save_data()
+    load_data()
 
 func _load_config() -> void:
     var path = "res://assets/data/story/story_time.json"
@@ -41,8 +41,12 @@ func _load_config() -> void:
                 start_month = time_config["start_date"].get("month", 3)
                 start_day = time_config["start_date"].get("day", 7)
 
-func _load_save_data() -> void:
-    var path = "user://story_time_save.json"
+func load_data() -> void:
+    var char_id = "default"
+    if GameDataManager.config and GameDataManager.config.current_character_id != "":
+        char_id = GameDataManager.config.current_character_id
+    var path = "user://saves/%s/story_time_save.json" % char_id
+    
     if FileAccess.file_exists(path):
         var file = FileAccess.open(path, FileAccess.READ)
         var json = JSON.new()
@@ -60,7 +64,15 @@ func save_data() -> void:
         "current_hour": current_hour,
         "current_minute": current_minute
     }
-    var file = FileAccess.open("user://story_time_save.json", FileAccess.WRITE)
+    var char_id = "default"
+    if GameDataManager.config and GameDataManager.config.current_character_id != "":
+        char_id = GameDataManager.config.current_character_id
+    var dir_path = "user://saves/%s" % char_id
+    if not DirAccess.dir_exists_absolute(dir_path):
+        DirAccess.make_dir_recursive_absolute(dir_path)
+        
+    var path = dir_path + "/story_time_save.json"
+    var file = FileAccess.open(path, FileAccess.WRITE)
     if file:
         file.store_string(JSON.stringify(data, "\t"))
         file.close()

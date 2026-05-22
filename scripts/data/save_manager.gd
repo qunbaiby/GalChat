@@ -49,11 +49,22 @@ func get_save_slots() -> Array:
 			
 	# 按时间降序排序
 	slots.sort_custom(func(a, b):
-		return a.get("timestamp", "") > b.get("timestamp", "")
+		var t_a = a.get("timestamp", "").replace("T", " ")
+		var t_b = b.get("timestamp", "").replace("T", " ")
+		return t_a > t_b
 	)
 	return slots
 
-func save_game(slot_id: String) -> bool:
+func save_game(slot_id: String, custom_image: Image = null):
+	var image: Image
+	if custom_image != null:
+		image = custom_image
+	else:
+		await RenderingServer.frame_post_draw
+		image = get_viewport().get_texture().get_image()
+		
+	image.resize(320, 180, Image.INTERPOLATE_BILINEAR)
+	
 	# 1. 强制各模块把当前数据保存到活动目录
 	if GameDataManager.profile != null:
 		GameDataManager.profile.save_profile()
@@ -61,6 +72,8 @@ func save_game(slot_id: String) -> bool:
 		GameDataManager.history.save_history()
 	if GameDataManager.memory_manager != null:
 		GameDataManager.memory_manager.save_memory()
+	if GameDataManager.story_time_manager != null:
+		GameDataManager.story_time_manager.save_data()
 		
 	# 2. 准备槽位目录
 	var slots_dir = get_slots_dir()
@@ -74,7 +87,9 @@ func save_game(slot_id: String) -> bool:
 	var files_to_copy = [
 		"character_profile.json",
 		"chat_history.json",
-        "player_memory.json"
+		"player_memory.json",
+		"story_time_save.json",
+		"mobile_chat_history.json"
 	]
 	
 	var dir = DirAccess.open(active_dir)
@@ -86,14 +101,25 @@ func save_game(slot_id: String) -> bool:
 					printerr("[SaveManager] Failed to copy file: ", f, ", error code: ", copy_result)
 					return false
 				
+	var img_filename = "screenshot.jpg"
+	image.save_jpg(slot_dir + img_filename, 0.8)
+				
 	# 4. 生成 meta.json
 	var profile = GameDataManager.profile
+	var stage_title = "未知"
+	if profile:
+		var s_conf = profile.get_stage_config(profile.current_stage)
+		if not s_conf.is_empty():
+			stage_title = s_conf.get("stageTitle", "未知")
+			
 	var meta = {
 		"slot_id": slot_id,
-		"timestamp": Time.get_datetime_string_from_system(),
+		"timestamp": Time.get_datetime_string_from_system().replace("T", " "),
 		"stage": profile.current_stage if profile else 1,
+		"stage_title": stage_title,
 		"intimacy": profile.intimacy if profile else 0,
-		"screenshot_path": "" # 未来可以接截图
+		"trust": profile.trust if profile else 0,
+		"screenshot_path": slot_dir + img_filename
 	}
 	
 	var meta_content = JSON.stringify(meta, "\t")
@@ -114,7 +140,9 @@ func load_game(slot_id: String) -> bool:
 	var files_to_copy = [
 		"character_profile.json",
 		"chat_history.json",
-        "player_memory.json"
+		"player_memory.json",
+		"story_time_save.json",
+		"mobile_chat_history.json"
 	]
 	
 	var dir = DirAccess.open(slot_dir)
@@ -130,6 +158,8 @@ func load_game(slot_id: String) -> bool:
 		GameDataManager.history.load_history()
 	if GameDataManager.memory_manager:
 		GameDataManager.memory_manager.load_memory()
+	if GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.load_data()
 		
 	print("[SaveManager] Game loaded from slot: ", slot_id)
 	return true
@@ -150,5 +180,5 @@ func delete_save(slot_id: String) -> bool:
 			return true
 	return false
 
-func auto_save() -> bool:
-	return save_game("auto")
+func auto_save():
+	await save_game("auto")

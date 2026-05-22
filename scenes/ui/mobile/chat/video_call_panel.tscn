@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://chfj5llffey4p" path="res://scripts/ui/mobile/chat/video_call_panel.gd" id="1_script"]
 [ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="2_luna_frames"]
-[ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png" id="2_noiyw"]
+[ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png" id="2_noiyw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VideoBg"]
 bg_color = Color(0.050980393, 0.050980393, 0.050980393, 0.6313726)

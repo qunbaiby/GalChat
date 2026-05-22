@@ -11,16 +11,16 @@ func _ready() -> void:
 # ==========================================
 
 func get_core_physical(profile: CharacterProfile) -> int:
-	return int(floor(profile.stat_stamina + profile.stat_body_management + profile.stat_focus + profile.stat_rhythm))
+	return int(floor(profile.stat_stamina + profile.stat_body + profile.stat_focus + profile.stat_rhythm))
 
 func get_core_intelligence(profile: CharacterProfile) -> int:
-	return int(floor(profile.stat_artistic_literacy + profile.stat_verbal_expression + profile.stat_planning + profile.stat_art_theory))
+	return int(floor(profile.stat_knowledge + profile.stat_expression + profile.stat_planning + profile.stat_art_theory))
 
 func get_core_charm(profile: CharacterProfile) -> int:
-	return int(floor(profile.stat_temperament + profile.stat_manner + profile.stat_emotional_infection + profile.stat_stage_performance))
+	return int(floor(profile.stat_temperament + profile.stat_manner + profile.stat_etiquette + profile.stat_stage))
 
 func get_core_sensibility(profile: CharacterProfile) -> int:
-	return int(floor(profile.stat_empathy + profile.stat_inspiration + profile.stat_aesthetics + profile.stat_art_perception))
+	return int(floor(profile.stat_empathy + profile.stat_inspiration + profile.stat_aesthetics + profile.stat_perception))
 
 # ==========================================
 # 基础属性增加

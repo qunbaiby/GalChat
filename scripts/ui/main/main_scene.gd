@@ -1007,15 +1007,6 @@ func _ready() -> void:
 		GameDataManager.config.apply_settings()
 		
 	var window = get_window()
-	if GameDataManager.has_meta("last_window_pos"):
-		var last_pos = GameDataManager.get_meta("last_window_pos")
-		if typeof(last_pos) == TYPE_VECTOR2I or typeof(last_pos) == TYPE_VECTOR2:
-			window.position = last_pos
-		else:
-			window.move_to_center()
-	else:
-		window.move_to_center()
-		
 	window.close_requested.connect(_on_close_requested)
 	
 	settings_button.pressed.connect(_on_settings_pressed)

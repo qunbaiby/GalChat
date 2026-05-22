@@ -83,6 +83,37 @@ func _check_completion():
 		dialogue_label.text = "[b]雅:[/b] " + ai_response_text
 
 func _on_consume_button_pressed():
+	# 应用属性增益
+	var profile = GameDataManager.profile
+	var stats_to_add = item_data.get("stats", {})
+	var toast_msg = ""
+	
+	if stats_to_add.has("energy"):
+		var val = stats_to_add["energy"]
+		profile.current_energy += val
+		if profile.current_energy > profile.max_energy:
+			profile.current_energy = profile.max_energy
+		toast_msg += "行动力 +%d  " % val
+		
+	if stats_to_add.has("mood"):
+		var val = stats_to_add["mood"]
+		profile.mood_value += val
+		if profile.mood_value > 100:
+			profile.mood_value = 100
+		toast_msg += "心情 +%d  " % val
+		
+	if stats_to_add.has("stress"):
+		var val = stats_to_add["stress"]
+		profile.stress_value += val # stress 是负数，所以是加上负数（减少压力）
+		if profile.stress_value < 0:
+			profile.stress_value = 0
+		toast_msg += "压力 %d  " % val
+		
+	profile.save_profile()
+	
+	if toast_msg != "" and ToastManager:
+		ToastManager.show_system_toast("享用完毕！\n" + toast_msg)
+
 	# 关闭当前弹窗并从树中移除
 	hide()
 	

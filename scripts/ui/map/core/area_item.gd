@@ -33,9 +33,9 @@ func setup(id: String, area_data: Dictionary):
 	# Simple pinyin/english mock if not provided
 	var en_names = {
 		"qingyu_street": "QINGYU STREET",
-		"binhe_south": "BINHE SOUTH",
-		"jia_nan": "JIANAN",
-		"north": "NORTH AREA",
+		"j11_center": "J11 CENTER",
+		"qinglan_mt": "QINGLAN MOUNTAIN",
+		"jiangyu_bay": "JIANGYU BAY",
 		"art_academy": "ART ACADEMY"
 	}
 	en_name_label.text = area_data.get("en_name", en_names.get(id, "AREA"))
@@ -51,7 +51,10 @@ func setup(id: String, area_data: Dictionary):
 			
 	if bg_path == "" or not ResourceLoader.exists(bg_path):
 		# Try to find a fallback background based on locations
-		var locs = area_data.get("locations", [])
+		var locs = area_data.get("fixed_locations", [])
+		if locs.size() == 0:
+			locs = area_data.get("limited_locations", [])
+			
 		if locs.size() > 0:
 			var first_loc = MapDataManager.get_location(locs[0])
 			var loc_bg_id = first_loc.get("bg_id", first_loc.get("bg_path", ""))
@@ -63,8 +66,14 @@ func setup(id: String, area_data: Dictionary):
 	if bg_path != "" and ResourceLoader.exists(bg_path):
 		background.texture = load(bg_path)
 	else:
-		# Fallback texture
-		pass
+		# Fallback texture: a placeholder gradient
+		var placeholder = GradientTexture2D.new()
+		placeholder.width = 256
+		placeholder.height = 256
+		var gradient_res = Gradient.new()
+		gradient_res.add_point(0, Color(0.9, 0.9, 0.9))
+		placeholder.gradient = gradient_res
+		background.texture = placeholder
 
 func _on_button_pressed():
 	pressed.emit(area_id)

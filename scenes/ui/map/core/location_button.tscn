@@ -1,33 +1,90 @@
-[gd_scene load_steps=2 format=3 uid="uid://cyl826s4q3il3"]
+[gd_scene load_steps=4 format=3 uid="uid://cyl826s4q3il3"]
 
 [ext_resource type="Script" uid="uid://3q4v0e4l7qj5" path="res://scripts/ui/map/core/location_button.gd" id="1_script"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_NameTag"]
+bg_color = Color(0.25098, 0.647059, 0.678431, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.15)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
 [node name="LocationButton" type="Button"]
-offset_right = 90.0
-offset_bottom = 174.0
-text = "地点名称"
+custom_minimum_size = Vector2(120, 140)
+offset_right = 120.0
+offset_bottom = 140.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_Button")
 script = ExtResource("1_script")
+
+[node name="IconRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameTag" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(120, 35)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -60.0
+offset_top = -36.0
+offset_right = 60.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_NameTag")
+
+[node name="NameLabel" type="Label" parent="NameTag"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.4, 0.4, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 16
+text = "地点名称"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="EventHBox" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = -25.0
-offset_bottom = -5.0
+offset_top = -20.0
+offset_bottom = 10.0
 grow_horizontal = 2
+mouse_filter = 2
 theme_override_constants/separation = 5
 alignment = 1
 
-[node name="NPCHBox" type="VBoxContainer" parent="."]
+[node name="NPCHBox" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -71.0
-offset_right = 32.0
-grow_horizontal = 0
+offset_top = -85.0
+offset_bottom = -45.0
+grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 theme_override_constants/separation = 5
 alignment = 1

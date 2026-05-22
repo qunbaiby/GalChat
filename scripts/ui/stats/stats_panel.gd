@@ -5,7 +5,7 @@ var core_stats_def = [
         "id": "physical",
         "sub_stats": [
             "stat_stamina",
-            "stat_body_management",
+            "stat_body",
             "stat_focus",
             "stat_rhythm"
         ]
@@ -13,8 +13,8 @@ var core_stats_def = [
     {
         "id": "intelligence",
         "sub_stats": [
-            "stat_artistic_literacy",
-            "stat_verbal_expression",
+            "stat_knowledge",
+            "stat_expression",
             "stat_planning",
             "stat_art_theory"
         ]
@@ -24,8 +24,8 @@ var core_stats_def = [
         "sub_stats": [
             "stat_temperament",
             "stat_manner",
-            "stat_emotional_infection",
-            "stat_stage_performance"
+            "stat_etiquette",
+            "stat_stage"
         ]
     },
     {
@@ -34,7 +34,7 @@ var core_stats_def = [
             "stat_empathy",
             "stat_inspiration",
             "stat_aesthetics",
-            "stat_art_perception"
+            "stat_perception"
         ]
     }
 ]

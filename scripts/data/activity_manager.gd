@@ -66,13 +66,6 @@ func execute_activity(profile: CharacterProfile, activity_id: String) -> Diction
 	if act.is_empty():
 		return { "success": false, "msg": "未找到对应的活动！", "gained_stats": {} }
 		
-	if profile.current_energy < act.energy_cost:
-		return { "success": false, "msg": "精力不足！", "gained_stats": {} }
-		
-	# 扣除精力
-	profile.current_energy -= act.energy_cost
-	profile.save_profile()
-	
 	# 计算收益
 	var gained = {}
 	if act.has("rewards"):
@@ -82,14 +75,8 @@ func execute_activity(profile: CharacterProfile, activity_id: String) -> Diction
 			var max_val = range_arr[1]
 			var amount = randi_range(min_val, max_val)
 			
-			# 处理特殊的“恢复精力”机制
-			if stat_name == "energy_recovery":
-				profile.current_energy = min(profile.current_energy + amount, profile.max_energy)
-				profile.save_profile()
-				gained["energy_recovery"] = amount
-			else:
-				# 增加数值
-				GameDataManager.stats_system.add_basic_stat(profile, stat_name, float(amount))
-				gained[stat_name] = amount
+			# 增加数值
+			GameDataManager.stats_system.add_basic_stat(profile, stat_name, float(amount))
+			gained[stat_name] = amount
 		
 	return { "success": true, "msg": "活动执行成功！", "gained_stats": gained }

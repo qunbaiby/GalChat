@@ -1,10 +1,57 @@
 extends Button
 
 var location_id: String = ""
+var loc_description: String = ""
+var custom_tooltip: PanelContainer = null
+
+@onready var icon_rect: TextureRect = $IconRect
+@onready var name_label: Label = $NameTag/NameLabel
+
+func _ready():
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
+
+func _exit_tree():
+	if custom_tooltip != null:
+		custom_tooltip.queue_free()
+		custom_tooltip = null
 
 func setup(loc_data: Dictionary) -> void:
 	location_id = loc_data.get("id", "")
-	text = loc_data.get("name", "未知地点")
+	text = "" # 清空Button自身的文字
+	loc_description = loc_data.get("description", "暂无描述")
+	
+	var loc_name = loc_data.get("name", "未知地点")
+	
+	if name_label:
+		name_label.text = loc_name
+	
+	# We also need to store it so Tooltip can use it, since we cleared 'text'
+	set_meta("loc_name", loc_name)
+		
+	if icon_rect:
+		var icon_name = loc_data.get("icon", "")
+		if icon_name == "":
+			icon_name = "loc_" + location_id
+			
+		var img_path = ""
+		if GameDataManager.has_method("get_image_manager"):
+			pass # ImageManager is a singleton
+		
+		# 尝试获取真实的地标图片
+		img_path = ImageManager.get_image_path(icon_name)
+			
+		if img_path != "" and ResourceLoader.exists(img_path):
+			icon_rect.texture = load(img_path)
+		else:
+			# 如果没有真实图片，用一个占位符代替
+			var placeholder = GradientTexture2D.new()
+			placeholder.width = 120
+			placeholder.height = 120
+			var gradient = Gradient.new()
+			gradient.add_point(0, Color(0.3, 0.6, 0.8, 0.4))
+			placeholder.gradient = gradient
+			icon_rect.texture = placeholder
 
 	var event_hbox = get_node_or_null("EventHBox")
 	if event_hbox:
@@ -63,4 +110,61 @@ func setup(loc_data: Dictionary) -> void:
 			icon.add_child(name_lbl)
 			
 			npc_hbox.add_child(icon)
+
+func _on_mouse_entered():
+	if custom_tooltip != null:
+		custom_tooltip.queue_free()
+		
+	custom_tooltip = PanelContainer.new()
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.1, 0.15, 0.9)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	custom_tooltip.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	custom_tooltip.add_child(vbox)
+	
+	var title_lbl = Label.new()
+	title_lbl.text = get_meta("loc_name", "未知地点")
+	title_lbl.add_theme_font_size_override("font_size", 20)
+	title_lbl.add_theme_color_override("font_color", Color(1, 0.8, 0.4))
+	vbox.add_child(title_lbl)
+	
+	var desc_lbl = Label.new()
+	desc_lbl.text = loc_description
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.custom_minimum_size = Vector2(200, 0)
+	desc_lbl.add_theme_font_size_override("font_size", 14)
+	desc_lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	vbox.add_child(desc_lbl)
+	
+	# Add tooltip to the root or parent so it stays on top
+	get_tree().root.add_child(custom_tooltip)
+	
+	# Force UI layout update so we can get correct size for positioning
+	custom_tooltip.reset_size()
+	await get_tree().process_frame
+	if custom_tooltip:
+		var global_pos = get_global_transform().origin
+		custom_tooltip.global_position = global_pos + Vector2(size.x / 2 - custom_tooltip.size.x / 2, -custom_tooltip.size.y - 10)
+		
+		# Fade in
+		custom_tooltip.modulate.a = 0.0
+		var tween = create_tween()
+		tween.tween_property(custom_tooltip, "modulate:a", 1.0, 0.15)
+
+func _on_mouse_exited():
+	if custom_tooltip != null:
+		var tween = create_tween()
+		tween.tween_property(custom_tooltip, "modulate:a", 0.0, 0.1)
+		tween.tween_callback(custom_tooltip.queue_free)
+		custom_tooltip = null
+
 

@@ -34,7 +34,7 @@
       "mood_change": -5,
       "icon_path": "res://assets/images/activities/body_rhythm.png",
       "preview_image": "res://assets/images/activities/body_rhythm.png",
-      "rewards": { "stat_body_management": [10, 20], "stat_stamina": [5, 10] },
+      "rewards": { "stat_body": [10, 20], "stat_stamina": [5, 10] },
       "progress_increment": 25,
       "max_progress": 100
     },
@@ -66,7 +66,7 @@
       "mood_change": -8,
       "icon_path": "res://assets/images/activities/stamina_training.png",
       "preview_image": "res://assets/images/activities/stamina_training.png",
-      "rewards": { "stat_stamina": [20, 35], "stat_body_management": [10, 15] },
+      "rewards": { "stat_stamina": [20, 35], "stat_body": [10, 15] },
       "progress_increment": 20,
       "max_progress": 100
     },
@@ -99,7 +99,7 @@
       "mood_change": -5,
       "icon_path": "res://assets/images/activities/art_history.png",
       "preview_image": "res://assets/images/activities/art_history.png",
-      "rewards": { "stat_art_theory": [15, 25], "stat_artistic_literacy": [10, 15] },
+      "rewards": { "stat_art_theory": [15, 25], "stat_knowledge": [10, 15] },
       "progress_increment": 25,
       "max_progress": 100
     },
@@ -115,7 +115,7 @@
       "mood_change": -5,
       "icon_path": "res://assets/images/activities/visual_aesthetics.png",
       "preview_image": "res://assets/images/activities/visual_aesthetics.png",
-      "rewards": { "stat_aesthetics": [15, 25], "stat_art_perception": [10, 20] },
+      "rewards": { "stat_aesthetics": [15, 25], "stat_perception": [10, 20] },
       "progress_increment": 20,
       "max_progress": 100
     },
@@ -164,7 +164,7 @@
       "mood_change": -5,
       "icon_path": "res://assets/images/activities/stage_acting.png",
       "preview_image": "res://assets/images/activities/stage_acting.png",
-      "rewards": { "stat_stage_performance": [15, 25], "stat_emotional_infection": [10, 15] },
+      "rewards": { "stat_stage": [15, 25], "stat_etiquette": [10, 15] },
       "progress_increment": 25,
       "max_progress": 100
     },
@@ -180,7 +180,7 @@
       "mood_change": -5,
       "icon_path": "res://assets/images/activities/body_rhythm.png",
       "preview_image": "res://assets/images/activities/body_rhythm.png",
-      "rewards": { "stat_rhythm": [15, 25], "stat_art_perception": [5, 15] },
+      "rewards": { "stat_rhythm": [15, 25], "stat_perception": [5, 15] },
       "progress_increment": 20,
       "max_progress": 100
     },
@@ -212,7 +212,7 @@
       "mood_change": -12,
       "icon_path": "res://assets/images/activities/camera_manner.png",
       "preview_image": "res://assets/images/activities/camera_manner.png",
-      "rewards": { "stat_stage_performance": [25, 40], "stat_emotional_infection": [20, 30] },
+      "rewards": { "stat_stage": [25, 40], "stat_etiquette": [20, 30] },
       "progress_increment": 10,
       "max_progress": 100
     },
@@ -229,7 +229,7 @@
       "mood_change": -5,
       "icon_path": "res://assets/images/activities/camera_manner.png",
       "preview_image": "res://assets/images/activities/camera_manner.png",
-      "rewards": { "stat_verbal_expression": [15, 25], "stat_manner": [10, 15] },
+      "rewards": { "stat_expression": [15, 25], "stat_manner": [10, 15] },
       "progress_increment": 25,
       "max_progress": 100
     },
@@ -245,7 +245,7 @@
       "mood_change": -8,
       "icon_path": "res://assets/images/activities/camera_manner.png",
       "preview_image": "res://assets/images/activities/camera_manner.png",
-      "rewards": { "stat_verbal_expression": [20, 30], "stat_temperament": [10, 20] },
+      "rewards": { "stat_expression": [20, 30], "stat_temperament": [10, 20] },
       "progress_increment": 20,
       "max_progress": 100
     },
@@ -286,26 +286,24 @@
       "id": "rest_at_home",
       "name": "在家休息",
       "category_id": "rest",
-      "desc": "什么也不做，在家睡个好觉。恢复 30~50 点精力。",
+      "desc": "什么也不做，在家睡个好觉。有效缓解压力并改善心情。",
       "energy_cost": 0,
       "gold_cost": 0,
       "stress_change": -15,
       "mood_change": 15,
       "icon_path": "res://assets/images/activities/rest_at_home.png",
-      "rewards": { "energy_recovery": [30, 50] },
       "preview_image": "res://assets/images/activities/rest_at_home.png"
     },
     {
       "id": "cafe_break",
       "name": "咖啡馆小憩",
       "category_id": "rest",
-      "desc": "去咖啡馆喝杯咖啡，放松心情。恢复 20~30 点精力。",
+      "desc": "去咖啡馆喝杯咖啡，放松心情。大幅缓解压力并改善心情。",
       "energy_cost": 0,
       "gold_cost": 80,
       "stress_change": -25,
       "mood_change": 25,
       "icon_path": "res://assets/images/activities/cafe_break.png",
-      "rewards": { "energy_recovery": [20, 30] },
       "preview_image": "res://assets/images/activities/cafe_break.png"
     }
   ]

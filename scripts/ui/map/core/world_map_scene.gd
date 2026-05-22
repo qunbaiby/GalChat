@@ -30,6 +30,8 @@ func _ready():
 	MapDataManager.is_quick_mode = true
 	_update_mode_button_text()
 	
+	_apply_time_filter()
+	
 	# Clear any previous children (in case of re-initialization)
 	for child in area_list_container.get_children():
 		child.queue_free()
@@ -60,6 +62,25 @@ func _ready():
 				_on_area_pressed("qingyu_street")
 			elif default_area_id != "":
 				_on_area_pressed(default_area_id)
+
+func _apply_time_filter():
+	var time_sys = GameDataManager.story_time_manager
+	if not time_sys: return
+	
+	var period = time_sys.current_period
+	var bg = $Background
+	
+	# 设置不同时间段的环境光颜色
+	var target_color = Color.WHITE
+	if period == "上午" or period == "下午":
+		target_color = Color(1.0, 1.0, 1.0)
+	elif period == "傍晚":
+		target_color = Color(1.0, 0.8, 0.7) # 偏橘红
+	elif period == "夜晚":
+		target_color = Color(0.6, 0.6, 0.9) # 偏暗蓝
+		
+	var tween = create_tween()
+	tween.tween_property(bg, "modulate", target_color, 1.0)
 
 func _update_mode_button_text():
 	if MapDataManager.is_quick_mode:
@@ -111,22 +132,39 @@ func _on_area_pressed(area_id: String):
 	var max_x = max(0, bg.size.x - size.x)
 	var max_y = max(0, bg.size.y - size.y)
 	
-	# 利用 area_id 的哈希值生成伪随机的固定目标坐标，保证每次点同一个区域镜头位置都一样
-	var hash_val = abs(area_id.hash())
-	var target_x = - (hash_val % int(max_x + 1)) if max_x > 0 else 0
-	var target_y = - ((hash_val / 100) % int(max_y + 1)) if max_y > 0 else 0
+	var target_x = 0.0
+	var target_y = 0.0
+	
+	# 优先读取 JSON 中配置的 camera_offset 比例，让每个区域分散在不同角落
+	if area_data.has("camera_offset"):
+		var offset = area_data["camera_offset"]
+		target_x = - (max_x * offset.get("x", 0.0))
+		target_y = - (max_y * offset.get("y", 0.0))
+	else:
+		# 兼容老逻辑：利用 area_id 的哈希值生成伪随机的固定目标坐标
+		var hash_val = abs(area_id.hash())
+		target_x = - (hash_val % int(max_x + 1)) if max_x > 0 else 0
+		target_y = - ((hash_val / 100) % int(max_y + 1)) if max_y > 0 else 0
+		
 	var target_pos = Vector2(target_x, target_y)
 	
 	if _bg_tween and _bg_tween.is_valid():
 		_bg_tween.kill()
 		
 	_bg_tween = create_tween()
-	_bg_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
-	# 镜头移动时长 0.5 秒
-	_bg_tween.tween_property(bg, "position", target_pos, 0.5)
+	_bg_tween.set_parallel(true)
+	# 使用 CUBIC 提供更平滑的加速减速曲线
+	_bg_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	# 镜头移动时长 0.8 秒，更平缓
+	_bg_tween.tween_property(bg, "position", target_pos, 0.8)
+	
+	# 呼吸缩放动效也调整得更加微弱和顺滑
+	_bg_tween.tween_property(bg, "scale", Vector2(1.02, 1.02), 0.4).set_trans(Tween.TRANS_SINE)
+	_bg_tween.chain().tween_property(bg, "scale", Vector2(1.0, 1.0), 0.4).set_trans(Tween.TRANS_SINE)
 	
 	# 等待镜头就位后，再显示区域内的具体地点按钮
-	_bg_tween.tween_callback(self._show_locations_for_area.bind(area_id))
+	_bg_tween.chain().tween_callback(self._show_locations_for_area.bind(area_id))
 
 func _show_locations_for_area(area_id: String):
 	var locs = MapDataManager.get_area_locations(area_id)
@@ -154,6 +192,9 @@ func _show_locations_for_area(area_id: String):
 			var loc = locs[i]
 			var btn = location_button_scene.instantiate()
 			
+			# 必须先将节点添加到场景树，触发 _ready() 后，内部的 @onready 变量才会被正确赋值
+			sub_area_container.add_child(btn)
+			
 			if btn.has_method("setup"):
 				btn.setup(loc)
 			else:
@@ -174,9 +215,6 @@ func _show_locations_for_area(area_id: String):
 			
 			btn.position = target_pos
 			
-			# Add to container
-			sub_area_container.add_child(btn)
-			
 			# Add animation
 			btn.scale = Vector2.ZERO
 			btn.pivot_offset = btn_size / 2
@@ -184,6 +222,10 @@ func _show_locations_for_area(area_id: String):
 			tween.tween_property(btn, "scale", Vector2.ONE, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK).set_delay(i * 0.1)
 
 func _on_location_pressed(location_id: String):
+	# 移动消耗时间 (15分钟)
+	if GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.tick_minutes(15)
+		
 	# Transition to exploration map
 	location_selected.emit(location_id)
 	
@@ -192,14 +234,19 @@ func _on_location_pressed(location_id: String):
 		if quick_scene:
 			var instance = quick_scene.instantiate()
 			instance.location_id = location_id
-			get_tree().root.add_child(instance)
-			get_tree().current_scene = instance
-			self.queue_free()
+			SceneTransitionManager.transition_to_scene_instance(instance)
 	else:
 		var loc_data = MapDataManager.get_location(location_id)
 		if loc_data and loc_data.has("scene_path"):
 			var path = loc_data["scene_path"]
 			if ResourceLoader.exists(path):
-				get_tree().change_scene_to_file(path)
+				# 如果是通用的 base_location_scene，手动实例化并传递 location_id
+				if path.ends_with("base_location_scene.tscn"):
+					var scene = load(path)
+					var instance = scene.instantiate()
+					instance.location_id = location_id
+					SceneTransitionManager.transition_to_scene_instance(instance)
+				else:
+					SceneTransitionManager.transition_to_scene(path)
 			else:
 				print("[WorldMap] Scene not found: ", path)

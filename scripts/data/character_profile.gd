@@ -38,25 +38,25 @@ var last_online_time: int = 0
 
 # 四基十六维养成体系数值
 # 体力 (Physical)
-var stat_stamina: float = 0.0 # 体能续航
-var stat_body_management: float = 0.0 # 形体管控
-var stat_focus: float = 0.0 # 凝心专注
-var stat_rhythm: float = 0.0 # 律动反应
+var stat_stamina: float = 0.0 # 体能
+var stat_body: float = 0.0 # 形体
+var stat_focus: float = 0.0 # 专注
+var stat_rhythm: float = 0.0 # 反应
 # 智力 (Intelligence)
-var stat_artistic_literacy: float = 0.0 # 艺术素养
-var stat_verbal_expression: float = 0.0 # 言辞表达
-var stat_planning: float = 0.0 # 统筹企划
-var stat_art_theory: float = 0.0 # 艺理钻研
+var stat_knowledge: float = 0.0 # 学识
+var stat_expression: float = 0.0 # 表达
+var stat_planning: float = 0.0 # 企划
+var stat_art_theory: float = 0.0 # 艺理
 # 魅力 (Charm)
-var stat_temperament: float = 0.0 # 格调气质
-var stat_manner: float = 0.0 # 举止仪范
-var stat_emotional_infection: float = 0.0 # 共情感染
-var stat_stage_performance: float = 0.0 # 舞台表现
+var stat_temperament: float = 0.0 # 气质
+var stat_manner: float = 0.0 # 举止
+var stat_etiquette: float = 0.0 # 礼仪
+var stat_stage: float = 0.0 # 舞台
 # 感性 (Sensibility)
-var stat_empathy: float = 0.0 # 情思体悟
-var stat_inspiration: float = 0.0 # 创想灵感
-var stat_aesthetics: float = 0.0 # 美学品鉴
-var stat_art_perception: float = 0.0 # 艺术感知
+var stat_empathy: float = 0.0 # 共情
+var stat_inspiration: float = 0.0 # 灵感
+var stat_aesthetics: float = 0.0 # 审美
+var stat_perception: float = 0.0 # 感知
 
 var current_energy: float = 100.0
 var max_energy: float = 100.0
@@ -177,21 +177,21 @@ func load_profile(force_char_id: String = "") -> void:
 				
 				# 四基十六维
 				stat_stamina = float(str(data.get("stat_stamina", 0.0)))
-				stat_body_management = float(str(data.get("stat_body_management", 0.0)))
+				stat_body = float(str(data.get("stat_body", data.get("stat_body_management", 0.0))))
 				stat_focus = float(str(data.get("stat_focus", 0.0)))
 				stat_rhythm = float(str(data.get("stat_rhythm", 0.0)))
-				stat_artistic_literacy = float(str(data.get("stat_artistic_literacy", 0.0)))
-				stat_verbal_expression = float(str(data.get("stat_verbal_expression", 0.0)))
+				stat_knowledge = float(str(data.get("stat_knowledge", data.get("stat_artistic_literacy", 0.0))))
+				stat_expression = float(str(data.get("stat_expression", data.get("stat_verbal_expression", 0.0))))
 				stat_planning = float(str(data.get("stat_planning", 0.0)))
 				stat_art_theory = float(str(data.get("stat_art_theory", 0.0)))
 				stat_temperament = float(str(data.get("stat_temperament", 0.0)))
 				stat_manner = float(str(data.get("stat_manner", 0.0)))
-				stat_emotional_infection = float(str(data.get("stat_emotional_infection", 0.0)))
-				stat_stage_performance = float(str(data.get("stat_stage_performance", 0.0)))
+				stat_etiquette = float(str(data.get("stat_etiquette", data.get("stat_emotional_infection", 0.0))))
+				stat_stage = float(str(data.get("stat_stage", data.get("stat_stage_performance", 0.0))))
 				stat_empathy = float(str(data.get("stat_empathy", 0.0)))
 				stat_inspiration = float(str(data.get("stat_inspiration", 0.0)))
 				stat_aesthetics = float(str(data.get("stat_aesthetics", 0.0)))
-				stat_art_perception = float(str(data.get("stat_art_perception", 0.0)))
+				stat_perception = float(str(data.get("stat_perception", data.get("stat_art_perception", 0.0))))
 				current_energy = float(str(data.get("current_energy", max_energy)))
 				gold = int(str(data.get("gold", 500)))
 				stress = data.get("stress", 10.0)
@@ -216,21 +216,21 @@ func load_profile(force_char_id: String = "") -> void:
 		
 		# 四基十六维初始值
 		stat_stamina = 0.0
-		stat_body_management = 0.0
+		stat_body = 0.0
 		stat_focus = 0.0
 		stat_rhythm = 0.0
-		stat_artistic_literacy = 0.0
-		stat_verbal_expression = 0.0
+		stat_knowledge = 0.0
+		stat_expression = 0.0
 		stat_planning = 0.0
 		stat_art_theory = 0.0
 		stat_temperament = 0.0
 		stat_manner = 0.0
-		stat_emotional_infection = 0.0
-		stat_stage_performance = 0.0
+		stat_etiquette = 0.0
+		stat_stage = 0.0
 		stat_empathy = 0.0
 		stat_inspiration = 0.0
 		stat_aesthetics = 0.0
-		stat_art_perception = 0.0
+		stat_perception = 0.0
 		current_energy = max_energy
 	
 	init_daily_mood()
@@ -429,21 +429,21 @@ func save_profile() -> void:
 		"neuroticism": neuroticism,
 		"last_online_time": Time.get_unix_time_from_system(),
 		"stat_stamina": stat_stamina,
-		"stat_body_management": stat_body_management,
+		"stat_body": stat_body,
 		"stat_focus": stat_focus,
 		"stat_rhythm": stat_rhythm,
-		"stat_artistic_literacy": stat_artistic_literacy,
-		"stat_verbal_expression": stat_verbal_expression,
+		"stat_knowledge": stat_knowledge,
+		"stat_expression": stat_expression,
 		"stat_planning": stat_planning,
 		"stat_art_theory": stat_art_theory,
 		"stat_temperament": stat_temperament,
 		"stat_manner": stat_manner,
-		"stat_emotional_infection": stat_emotional_infection,
-		"stat_stage_performance": stat_stage_performance,
+		"stat_etiquette": stat_etiquette,
+		"stat_stage": stat_stage,
 		"stat_empathy": stat_empathy,
 		"stat_inspiration": stat_inspiration,
 		"stat_aesthetics": stat_aesthetics,
-		"stat_art_perception": stat_art_perception,
+		"stat_perception": stat_perception,
 		"current_energy": current_energy,
 		"gold": gold,
 		"stress": stress,

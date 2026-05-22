@@ -25,8 +25,20 @@
             "path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png"
         },
         {
-            "id": "moon_world_cafe_afternoon",
-            "path": "res://assets/images/backgrounds/map/background/moon_world_cafe/afternoon.png"
+            "id": "qingyu_time_cafe",
+            "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
+        },
+        {
+            "id": "library",
+            "path": "res://assets/images/backgrounds/map/background/library/library.webp"
+        },
+        {
+            "id": "gym",
+            "path": "res://assets/images/backgrounds/map/background/gym/gym.jpg"
+        },
+        {
+            "id": "concert_hall",
+            "path": "res://assets/images/backgrounds/map/background/concert_hall/concert_hall.jpg"
         }
     ],
     "maps": [

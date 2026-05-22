@@ -103,7 +103,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "体力"
+text = "体"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -147,7 +147,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "体能续航"
+text = "体能"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_stamina"]
 layout_mode = 2
@@ -159,21 +159,21 @@ theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 
-[node name="Sub_stat_body_management" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid"]
+[node name="Sub_stat_body" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_body_management"]
+[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_body"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "形体管控"
+text = "形体"
 
-[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_body_management"]
+[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_body"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_body_management"]
+[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_body"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
@@ -187,7 +187,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "凝心专注"
+text = "专注"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_focus"]
 layout_mode = 2
@@ -207,7 +207,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "律动反应"
+text = "反应"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_rhythm"]
 layout_mode = 2
@@ -255,7 +255,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "智力"
+text = "智"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -291,41 +291,41 @@ layout_mode = 2
 theme_override_constants/h_separation = 15
 columns = 2
 
-[node name="Sub_stat_artistic_literacy" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid"]
+[node name="Sub_stat_knowledge" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_artistic_literacy"]
+[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_knowledge"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "艺术素养"
+text = "学识"
 
-[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_artistic_literacy"]
+[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_knowledge"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_artistic_literacy"]
+[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_knowledge"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 
-[node name="Sub_stat_verbal_expression" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid"]
+[node name="Sub_stat_expression" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_verbal_expression"]
+[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_expression"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "言辞表达"
+text = "表达"
 
-[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_verbal_expression"]
+[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_expression"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_verbal_expression"]
+[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_expression"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
@@ -339,7 +339,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "统筹企划"
+text = "企划"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_planning"]
 layout_mode = 2
@@ -359,7 +359,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "艺理钻研"
+text = "艺理"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_art_theory"]
 layout_mode = 2
@@ -407,7 +407,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "魅力"
+text = "魅"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -451,7 +451,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "格调气质"
+text = "气质"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_temperament"]
 layout_mode = 2
@@ -471,7 +471,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "举止仪范"
+text = "举止"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_manner"]
 layout_mode = 2
@@ -483,41 +483,41 @@ theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 
-[node name="Sub_stat_emotional_infection" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid"]
+[node name="Sub_stat_etiquette" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_emotional_infection"]
+[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_etiquette"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "共情感染"
+text = "礼仪"
 
-[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_emotional_infection"]
+[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_etiquette"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_emotional_infection"]
+[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_etiquette"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 
-[node name="Sub_stat_stage_performance" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid"]
+[node name="Sub_stat_stage" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_stage_performance"]
+[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_stage"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "舞台表现"
+text = "舞台"
 
-[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_stage_performance"]
+[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_stage"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_stage_performance"]
+[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_stage"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
@@ -559,7 +559,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8901961, 0.69803923, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "感性"
+text = "感"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -603,7 +603,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "情思体悟"
+text = "共情"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_empathy"]
 layout_mode = 2
@@ -623,7 +623,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "创想灵感"
+text = "灵感"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_inspiration"]
 layout_mode = 2
@@ -643,7 +643,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "美学品鉴"
+text = "审美"
 
 [node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_aesthetics"]
 layout_mode = 2
@@ -655,21 +655,21 @@ theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 
-[node name="Sub_stat_art_perception" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid"]
+[node name="Sub_stat_perception" type="HBoxContainer" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_art_perception"]
+[node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_perception"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14
-text = "艺术感知"
+text = "感知"
 
-[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_art_perception"]
+[node name="Spacer" type="Control" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_perception"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_art_perception"]
+[node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_perception"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.69135684, 0.6913568, 0.6913567, 1)
 theme_override_font_sizes/font_size = 14

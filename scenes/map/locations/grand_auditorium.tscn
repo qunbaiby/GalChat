@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://grand_auditorium"]
+
+[node name="GrandAuditorium" type="Node2D"]

@@ -82,15 +82,10 @@ func _on_npc_clicked(npc_id: String):
 	var trigger_script = MapDataManager.get_npc_trigger_script(npc_id)
 	if trigger_script != "":
 		GameDataManager.set_meta("play_specific_story", trigger_script)
-		var story_scene = load("res://scenes/ui/story/story_scene.tscn")
-		get_tree().change_scene_to_packed(story_scene)
-		queue_free()
+		SceneTransitionManager.transition_to_scene("res://scenes/ui/story/story_scene.tscn")
 		return
 		
 	current_interacting_npc_id = npc_id
-	npc_container.hide()
-	interaction_menu.show()
-	back_button.hide() # 隐藏返回地图按钮
 	
 	var npc_data = MapDataManager.get_npc_data(npc_id)
 	var npc_name = npc_data.get("name", npc_id)
@@ -172,6 +167,10 @@ func _on_npc_clicked(npc_id: String):
 	if not loaded_sprite:
 		# Fallback: 如果没有立绘动画帧，尝试显示静态立绘或者默认配置
 		if character_layer:
+			if not static_portrait_path.is_empty() and ResourceLoader.exists(static_portrait_path):
+				# 如果有静态立绘，我们这里可能需要通过某种方式让 character_layer 加载静态图
+				# 考虑到 character_layer 是用于 sprite_frames 的，如果没有对应方法，就走空路径逻辑
+				pass
 			character_layer.load_sprite_frames_by_path("") # 传入空路径以触发 fallback 逻辑
 			character_layer.show_character("none")
 
@@ -193,6 +192,7 @@ func _on_npc_clicked(npc_id: String):
 		match action.get("id", ""):
 			"chat": icon_str = "💬 "
 			"order": icon_str = "☕ "
+			"study": icon_str = "📖 "
 			"gift": icon_str = "🎁 "
 			"leave": icon_str = "🏃 "
 			"interact": icon_str = "✨ "
@@ -238,6 +238,25 @@ func _on_npc_clicked(npc_id: String):
 		btn.pressed.connect(_on_menu_action_pressed.bind(action.get("id", "")))
 		menu_options_vbox.add_child(btn)
 
+	npc_container.hide()
+	back_button.hide() # 隐藏返回地图按钮
+	interaction_menu.show()
+	
+	# 动效过渡
+	interaction_menu.modulate.a = 0.0
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(interaction_menu, "modulate:a", 1.0, 0.3)
+	
+	var original_x = info_and_options.position.x
+	info_and_options.position.x += 150
+	tween.tween_property(info_and_options, "position:x", original_x, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	if character_layer:
+		var orig_char_y = character_layer.position.y
+		character_layer.position.y += 30
+		tween.tween_property(character_layer, "position:y", orig_char_y, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
 func _get_npc_stage_data(npc_id: String) -> Dictionary:
 	# 暂时返回第一阶段作为默认值。实际应用中需要从全局 NPC 好感度管理器中读取当前进度。
 	var stages_file = "res://assets/data/characters/npc/" + npc_id + "_stages.json"
@@ -267,8 +286,9 @@ func _on_menu_action_pressed(action_id: String):
 					# 监听点单菜单的退出信号
 					if order_menu.has_signal("tree_exited"):
 						order_menu.tree_exited.connect(func(): 
-							# 延迟一帧检测，防止 CafeMakingPopup 还没来得及加到场景树里
-							await get_tree().process_frame
+							# Check if tree exists before yielding
+							if is_inside_tree():
+								await get_tree().process_frame
 							
 							# 1. 对话面板没有在显示
 							# 2. 还在跟 NPC 互动
@@ -286,19 +306,49 @@ func _on_menu_action_pressed(action_id: String):
 			else:
 				# TODO: 其他 NPC 的互动
 				pass
-		"interact":
-			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 互动")
-			interaction_menu.hide() # 隐藏互动选项
-			# TODO: 触发特殊互动
+		"study":
+			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习")
+			if current_interacting_npc_id == "nicole":
+				info_and_options.hide() # 仅隐藏右侧选项
+				var study_menu_scene = load("res://scenes/ui/map/concert_hall/music_study_menu.tscn")
+				if study_menu_scene:
+					var study_menu = study_menu_scene.instantiate()
+					if study_menu.has_signal("tree_exited"):
+						study_menu.tree_exited.connect(func():
+							# Check if tree exists before yielding
+							if is_inside_tree():
+								await get_tree().process_frame
+							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
+								info_and_options.show()
+						)
+					get_tree().root.add_child(study_menu)
 		"gift":
 			print("快捷模式 - 给 NPC: ", current_interacting_npc_id, " 送礼")
 			interaction_menu.hide() # 隐藏互动选项
 			# TODO: 打开送礼界面
 		"leave":
-			current_interacting_npc_id = ""
-			interaction_menu.hide()
-			npc_container.show()
-			back_button.show() # 显示返回地图按钮
+			var tween = create_tween()
+			tween.set_parallel(true)
+			tween.tween_property(interaction_menu, "modulate:a", 0.0, 0.3)
+			
+			var original_x = info_and_options.position.x
+			tween.tween_property(info_and_options, "position:x", original_x + 150, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			
+			if character_layer:
+				var orig_char_y = character_layer.position.y
+				tween.tween_property(character_layer, "position:y", orig_char_y + 30, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			
+			tween.chain().tween_callback(func():
+				current_interacting_npc_id = ""
+				interaction_menu.hide()
+				# Restore positions for next time
+				info_and_options.position.x = original_x
+				if character_layer:
+					character_layer.position.y -= 30
+				
+				npc_container.show()
+				back_button.show() # 显示返回地图按钮
+			)
 		_:
 			print("快捷模式 - 未知操作: ", action_id)
 
@@ -378,7 +428,12 @@ func _on_topic_selected(topic: String) -> void:
 	interaction_menu.show() # 恢复背景层
 	info_and_options.hide() # 但是隐藏互动选项菜单，让对话框显示
 	
-	var event_desc = "Luna对你说：" + topic
+	var profile = GameDataManager.profile
+	var char_name = profile.char_name if profile.char_name != "" else "Luna"
+	var event_desc = char_name + "对你说：" + topic
+	_trigger_npc_event_dialogue(current_interacting_npc_id, event_desc)
+
+func _trigger_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 	var deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient") # 借用全局或寻找本场景的客户端
 	if not deepseek_client:
 		# 尝试在本场景找找看有没有
@@ -399,7 +454,7 @@ func _on_topic_selected(topic: String) -> void:
 		
 	# 生成并播放 NPC 的专属台词
 	deepseek_client.generate_npc_event_dialogue(
-		current_interacting_npc_id,
+		npc_id,
 		event_desc
 	)
 
@@ -418,6 +473,5 @@ func _on_topic_reply_failed(_error_msg: String) -> void:
 		dialogue_panel.play_single_line(current_interacting_npc_id, npc_name, "……（默认回应）", true)
 
 func _on_back_pressed():
-	var world_map_scene = load("res://scenes/ui/map/core/world_map_scene.tscn")
-	get_tree().change_scene_to_packed(world_map_scene)
-	queue_free()
+	var world_map_scene = "res://scenes/ui/map/core/world_map_scene.tscn"
+	SceneTransitionManager.transition_to_scene(world_map_scene)

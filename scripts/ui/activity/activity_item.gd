@@ -23,22 +23,21 @@ var current_prog_val: int = 0
 
 var stat_name_map = {
 	"stat_stamina": "体能",
-	"stat_body_management": "形体",
+	"stat_body": "形体",
 	"stat_focus": "专注",
-	"stat_rhythm": "律动",
-	"stat_artistic_literacy": "艺术",
-	"stat_verbal_expression": "表达",
+	"stat_rhythm": "反应",
+	"stat_knowledge": "学识",
+	"stat_expression": "表达",
 	"stat_planning": "企划",
 	"stat_art_theory": "艺理",
 	"stat_temperament": "气质",
-	"stat_manner": "仪范",
-	"stat_emotional_infection": "共情",
-	"stat_stage_performance": "表现",
-	"stat_empathy": "情思",
+	"stat_manner": "举止",
+	"stat_etiquette": "礼仪",
+	"stat_stage": "舞台",
+	"stat_empathy": "共情",
 	"stat_inspiration": "灵感",
-	"stat_aesthetics": "美学",
-	"stat_art_perception": "感知",
-	"energy_recovery": "精力恢复"
+	"stat_aesthetics": "审美",
+	"stat_perception": "感知"
 }
 
 func _ready() -> void:
@@ -77,25 +76,6 @@ func setup(data: Dictionary, cur_prog: int = 0) -> void:
 		if tex:
 			icon.texture = tex
 			
-	var cost = data.get("energy_cost", 0)
-	var energy_recovery = 0
-	if data.has("rewards") and data.rewards.has("energy_recovery"):
-		var r = data.rewards["energy_recovery"]
-		energy_recovery = int((r[0] + r[1]) / 2.0)
-		
-	var energy_net = energy_recovery - cost
-	
-	if energy_net != 0:
-		if energy_net < 0:
-			energy_cost.text = "精力 %d" % energy_net
-			energy_cost.add_theme_color_override("font_color", Color(0.8, 0.3, 0.3))
-		else:
-			energy_cost.text = "精力 +%d" % energy_net
-			energy_cost.add_theme_color_override("font_color", Color(0.3, 0.8, 0.3))
-		energy_cost.show()
-	else:
-		energy_cost.hide()
-		
 	var g_cost = data.get("gold_cost", 0)
 	if g_cost > 0:
 		gold_cost.text = "金币 -%d" % g_cost
@@ -127,11 +107,15 @@ func setup(data: Dictionary, cur_prog: int = 0) -> void:
 	else:
 		stress_cost.hide()
 		
-	# 如果四个全隐藏，则隐藏整个 hbox
-	if energy_net == 0 and g_cost <= 0 and m_change == 0 and s_change == 0:
+	# 如果全隐藏，则隐藏整个 hbox
+	if g_cost <= 0 and m_change == 0 and s_change == 0:
 		cost_hbox.hide()
 	else:
 		cost_hbox.show()
+		
+	# 强行隐藏行动力标签，因为已经废弃
+	if energy_cost:
+		energy_cost.hide()
 		
 	# Clear old rewards
 	for child in rewards_hbox.get_children():
@@ -139,9 +123,6 @@ func setup(data: Dictionary, cur_prog: int = 0) -> void:
 		
 	if data.has("rewards"):
 		for key in data.rewards.keys():
-			if key == "energy_recovery":
-				continue
-				
 			var range_arr = data.rewards[key]
 			var avg_val = (range_arr[0] + range_arr[1]) / 2.0
 			

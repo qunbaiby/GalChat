@@ -788,7 +788,10 @@ func generate_dynamic_topics(prompt: String, callback: Callable) -> void:
 					return
 		callback.call("") # 失败时返回空字符串，让调用方走 fallback
 	)
-	http_request.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(request_data))
+	var err = http_request.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(request_data))
+	if err != OK:
+		http_request.queue_free()
+		callback.call("")
 
 func generate_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 	_update_script()

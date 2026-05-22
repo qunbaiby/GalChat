@@ -24,3 +24,23 @@ func transition_to_scene(path: String, duration: float = 1.0) -> void:
 	
 	hide()
 	color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func transition_to_scene_instance(instance: Node, duration: float = 1.0) -> void:
+	show()
+	color_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	var tween = create_tween()
+	tween.tween_property(color_rect, "color:a", 1.0, duration / 2.0)
+	await tween.finished
+	
+	if get_tree().current_scene:
+		get_tree().current_scene.queue_free()
+	
+	get_tree().root.add_child(instance)
+	get_tree().current_scene = instance
+	
+	tween = create_tween()
+	tween.tween_property(color_rect, "color:a", 0.0, duration / 2.0)
+	await tween.finished
+	
+	hide()
+	color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE

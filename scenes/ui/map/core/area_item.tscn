@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://ddy2f3r6a5c1x"]
 
-[ext_resource type="Script" path="res://scripts/ui/map/core/area_item.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bgwghmw24ndbb" path="res://scripts/ui/map/core/area_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 1)
@@ -80,8 +80,8 @@ theme_override_constants/separation = 0
 [node name="NameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
-theme_override_font_sizes/font_size = 22
-text = "学院"
+theme_override_font_sizes/font_size = 16
+text = "江屿现代艺术大学"
 
 [node name="EnNameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2

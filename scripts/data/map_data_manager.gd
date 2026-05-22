@@ -62,14 +62,70 @@ func get_area(area_id: String) -> Dictionary:
 func get_location(location_id: String) -> Dictionary:
 	return locations.get(location_id, {})
 
+func is_location_unlocked(location_id: String) -> bool:
+	var loc = get_location(location_id)
+	if loc.is_empty():
+		return false
+		
+	# 如果没有 conditions，默认解锁
+	if not loc.has("conditions"):
+		return true
+		
+	var conditions = loc["conditions"]
+	if not (conditions is Array):
+		return true
+		
+	var time_sys = GameDataManager.story_time_manager
+	var profile = GameDataManager.profile
+	var current_stage = profile.current_stage if profile else 0
+	
+	for cond in conditions:
+		var c_type = cond.get("type", "")
+		if c_type == "time":
+			var start_h = cond.get("start_hour", 0)
+			var end_h = cond.get("end_hour", 24)
+			var h = time_sys.current_hour
+			if h < start_h or h >= end_h:
+				return false
+		elif c_type == "stat":
+			var stat_name = cond.get("stat_name", "")
+			var min_val = cond.get("value", 0)
+			if profile:
+				var val = profile.get(stat_name)
+				if val == null or val < min_val:
+					return false
+		elif c_type == "stage":
+			var min_stage = cond.get("min_stage", 0)
+			if current_stage < min_stage:
+				return false
+	
+	return true
+
 func get_area_locations(area_id: String) -> Array:
 	var area = get_area(area_id)
 	var locs = []
+	
+	# Handle fixed_locations
+	if area.has("fixed_locations"):
+		for loc_id in area["fixed_locations"]:
+			var loc = get_location(loc_id)
+			if not loc.is_empty():
+				locs.append(loc)
+				
+	# Handle limited_locations
+	if area.has("limited_locations"):
+		for loc_id in area["limited_locations"]:
+			var loc = get_location(loc_id)
+			if not loc.is_empty() and is_location_unlocked(loc_id):
+				locs.append(loc)
+				
+	# Backwards compatibility for old "locations" array
 	if area.has("locations"):
 		for loc_id in area["locations"]:
 			var loc = get_location(loc_id)
 			if not loc.is_empty():
 				locs.append(loc)
+				
 	return locs
 
 func get_npc_data(npc_id: String) -> Dictionary:

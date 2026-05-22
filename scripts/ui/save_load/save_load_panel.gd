@@ -8,6 +8,7 @@ const SLOT_ITEM_SCENE = preload("res://scenes/ui/save_load/save_slot_item.tscn")
 const MAX_MANUAL_SLOTS = 20
 
 var is_save_mode: bool = false
+var pre_captured_image: Image = null
 
 func _ready() -> void:
     close_btn.pressed.connect(_on_close_pressed)
@@ -15,6 +16,13 @@ func _ready() -> void:
 func show_panel(save_mode: bool) -> void:
     is_save_mode = save_mode
     title_label.text = "保存游戏" if is_save_mode else "读取游戏"
+    
+    if is_save_mode:
+        # 在面板显示前，立即获取当前视口的纹理
+        pre_captured_image = get_viewport().get_texture().get_image()
+    else:
+        pre_captured_image = null
+        
     show()
     refresh_list()
     
@@ -60,14 +68,31 @@ func refresh_list() -> void:
         item.setup(slot_id, meta, is_save_mode)
         item.slot_selected.connect(_on_slot_selected)
 
-func _on_slot_selected(slot_id: String) -> void:
+func _on_slot_selected(slot_id: String, is_empty: bool) -> void:
     if is_save_mode:
-        GameDataManager.save_manager.save_game(slot_id)
-        refresh_list()
-        # Optionally show toast
+        if not is_empty:
+            var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
+            if confirm_scene:
+                var dialog = confirm_scene.instantiate()
+                get_tree().get_root().add_child(dialog)
+                dialog.setup("确定要覆盖这个存档吗？", "覆盖", "取消")
+                
+                dialog.confirmed.connect(func():
+                    _execute_save(slot_id)
+                )
+        else:
+            _execute_save(slot_id)
     else:
         var success = GameDataManager.save_manager.load_game(slot_id)
         if success:
             hide_panel()
             # 读档成功后重启主场景以刷新全部状态
             get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+
+func _execute_save(slot_id: String) -> void:
+    await GameDataManager.save_manager.save_game(slot_id, pre_captured_image)
+    
+    # 恢复显示并刷新
+    refresh_list()
+    if ToastManager:
+        ToastManager.show_system_toast("保存成功")

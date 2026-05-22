@@ -50,22 +50,22 @@ var _walker_tween: Tween
 var _pending_exec_data: Dictionary = {}
 
 var stat_name_map = {
-	"stat_stamina": "体能续航",
-	"stat_body_management": "形体管控",
-	"stat_focus": "凝心专注",
-	"stat_rhythm": "律动反应",
-	"stat_artistic_literacy": "艺术素养",
-	"stat_verbal_expression": "言辞表达",
-	"stat_planning": "统筹企划",
-	"stat_art_theory": "艺理钻研",
-	"stat_temperament": "格调气质",
-	"stat_manner": "举止仪范",
-	"stat_emotional_infection": "共情感染",
-	"stat_stage_performance": "舞台表现",
-	"stat_empathy": "情思体悟",
-	"stat_inspiration": "创想灵感",
-	"stat_aesthetics": "美学品鉴",
-	"stat_art_perception": "艺术感知"
+	"stat_stamina": "体能",
+	"stat_body": "形体",
+	"stat_focus": "专注",
+	"stat_rhythm": "反应",
+	"stat_knowledge": "学识",
+	"stat_expression": "表达",
+	"stat_planning": "企划",
+	"stat_art_theory": "艺理",
+	"stat_temperament": "气质",
+	"stat_manner": "举止",
+	"stat_etiquette": "礼仪",
+	"stat_stage": "舞台",
+	"stat_empathy": "共情",
+	"stat_inspiration": "灵感",
+	"stat_aesthetics": "审美",
+	"stat_perception": "感知"
 }
 
 var category_group_map = {}
@@ -73,21 +73,21 @@ var category_group_map = {}
 func _ready() -> void:
 	category_group_map = {
 		"stat_stamina": phys_sub,
-		"stat_body_management": phys_sub,
+		"stat_body": phys_sub,
 		"stat_focus": phys_sub,
 		"stat_rhythm": phys_sub,
-		"stat_artistic_literacy": int_sub,
-		"stat_verbal_expression": int_sub,
+		"stat_knowledge": int_sub,
+		"stat_expression": int_sub,
 		"stat_planning": int_sub,
 		"stat_art_theory": int_sub,
 		"stat_temperament": charm_sub,
 		"stat_manner": charm_sub,
-		"stat_emotional_infection": charm_sub,
-		"stat_stage_performance": charm_sub,
+		"stat_etiquette": charm_sub,
+		"stat_stage": charm_sub,
 		"stat_empathy": sens_sub,
 		"stat_inspiration": sens_sub,
 		"stat_aesthetics": sens_sub,
-		"stat_art_perception": sens_sub
+		"stat_perception": sens_sub
 	}
 	
 	back_button.pressed.connect(_on_close_pressed)
@@ -338,7 +338,6 @@ func _update_right_panel(profile) -> void:
 	bonus_label.text = bonus_text
 	
 	var total_rewards = {}
-	var total_energy_cost = 0
 	var total_gold_cost = 0
 	var total_stress_change = 0
 	var total_mood_change = 0
@@ -347,7 +346,6 @@ func _update_right_panel(profile) -> void:
 		if typeof(item) != TYPE_STRING: continue
 		var act = GameDataManager.activity_manager.get_activity_by_id(item)
 		if act.is_empty(): continue
-		total_energy_cost += act.get("energy_cost", 0)
 		total_gold_cost += act.get("gold_cost", 0)
 		total_stress_change += act.get("stress_change", 0)
 		total_mood_change += act.get("mood_change", 0)
@@ -365,20 +363,9 @@ func _update_right_panel(profile) -> void:
 					total_rewards[key] = 0.0
 				total_rewards[key] += avg_val
 				
-	var end_energy = profile.current_energy - total_energy_cost + total_rewards.get("energy_recovery", 0.0)
-	end_energy = clamp(end_energy, 0, profile.max_energy)
-	
-	var energy_diff = end_energy - profile.current_energy
-	energy_label.text = "精力 %d" % int(end_energy)
-	if energy_diff != 0:
-		energy_bubble.show()
-		energy_bubble.text = "%+d" % int(energy_diff)
-		if energy_diff > 0:
-			energy_bubble.add_theme_stylebox_override("normal", load("res://scenes/ui/activity/activity_panel.tscn::StyleBoxFlat_Bubble"))
-		else:
-			energy_bubble.add_theme_stylebox_override("normal", load("res://scenes/ui/activity/activity_panel.tscn::StyleBoxFlat_BubbleNeg"))
-	else:
-		energy_bubble.hide()
+	# 行动力相关的 UI 气泡全部强行隐藏
+	if energy_label: energy_label.hide()
+	if energy_bubble: energy_bubble.hide()
 		
 	var end_stress = clamp(profile.stress + total_stress_change, 0, profile.max_stress)
 	var stress_diff = end_stress - profile.stress
@@ -419,10 +406,10 @@ func _update_right_panel(profile) -> void:
 	var start_core_charm = GameDataManager.stats_system.get_core_charm(profile)
 	var start_core_sens = GameDataManager.stats_system.get_core_sensibility(profile)
 	
-	var end_core_phys = int(floor((profile.stat_stamina + total_rewards.get("stat_stamina", 0)) + (profile.stat_body_management + total_rewards.get("stat_body_management", 0)) + (profile.stat_focus + total_rewards.get("stat_focus", 0)) + (profile.stat_rhythm + total_rewards.get("stat_rhythm", 0))))
-	var end_core_int = int(floor((profile.stat_artistic_literacy + total_rewards.get("stat_artistic_literacy", 0)) + (profile.stat_verbal_expression + total_rewards.get("stat_verbal_expression", 0)) + (profile.stat_planning + total_rewards.get("stat_planning", 0)) + (profile.stat_art_theory + total_rewards.get("stat_art_theory", 0))))
-	var end_core_charm = int(floor((profile.stat_temperament + total_rewards.get("stat_temperament", 0)) + (profile.stat_manner + total_rewards.get("stat_manner", 0)) + (profile.stat_emotional_infection + total_rewards.get("stat_emotional_infection", 0)) + (profile.stat_stage_performance + total_rewards.get("stat_stage_performance", 0))))
-	var end_core_sens = int(floor((profile.stat_empathy + total_rewards.get("stat_empathy", 0)) + (profile.stat_inspiration + total_rewards.get("stat_inspiration", 0)) + (profile.stat_aesthetics + total_rewards.get("stat_aesthetics", 0)) + (profile.stat_art_perception + total_rewards.get("stat_art_perception", 0))))
+	var end_core_phys = int(floor((profile.stat_stamina + total_rewards.get("stat_stamina", 0)) + (profile.stat_body + total_rewards.get("stat_body", 0)) + (profile.stat_focus + total_rewards.get("stat_focus", 0)) + (profile.stat_rhythm + total_rewards.get("stat_rhythm", 0))))
+	var end_core_int = int(floor((profile.stat_knowledge + total_rewards.get("stat_knowledge", 0)) + (profile.stat_expression + total_rewards.get("stat_expression", 0)) + (profile.stat_planning + total_rewards.get("stat_planning", 0)) + (profile.stat_art_theory + total_rewards.get("stat_art_theory", 0))))
+	var end_core_charm = int(floor((profile.stat_temperament + total_rewards.get("stat_temperament", 0)) + (profile.stat_manner + total_rewards.get("stat_manner", 0)) + (profile.stat_etiquette + total_rewards.get("stat_etiquette", 0)) + (profile.stat_stage + total_rewards.get("stat_stage", 0))))
+	var end_core_sens = int(floor((profile.stat_empathy + total_rewards.get("stat_empathy", 0)) + (profile.stat_inspiration + total_rewards.get("stat_inspiration", 0)) + (profile.stat_aesthetics + total_rewards.get("stat_aesthetics", 0)) + (profile.stat_perception + total_rewards.get("stat_perception", 0))))
 	
 	phys_val.text = "%d > %d" % [start_core_phys, end_core_phys]
 	if end_core_phys > start_core_phys:
@@ -450,21 +437,21 @@ func _update_right_panel(profile) -> void:
 
 	var start_attrs = {
 		"stat_stamina": profile.stat_stamina,
-		"stat_body_management": profile.stat_body_management,
+		"stat_body": profile.stat_body,
 		"stat_focus": profile.stat_focus,
 		"stat_rhythm": profile.stat_rhythm,
-		"stat_artistic_literacy": profile.stat_artistic_literacy,
-		"stat_verbal_expression": profile.stat_verbal_expression,
+		"stat_knowledge": profile.stat_knowledge,
+		"stat_expression": profile.stat_expression,
 		"stat_planning": profile.stat_planning,
 		"stat_art_theory": profile.stat_art_theory,
 		"stat_temperament": profile.stat_temperament,
 		"stat_manner": profile.stat_manner,
-		"stat_emotional_infection": profile.stat_emotional_infection,
-		"stat_stage_performance": profile.stat_stage_performance,
+		"stat_etiquette": profile.stat_etiquette,
+		"stat_stage": profile.stat_stage,
 		"stat_empathy": profile.stat_empathy,
 		"stat_inspiration": profile.stat_inspiration,
 		"stat_aesthetics": profile.stat_aesthetics,
-		"stat_art_perception": profile.stat_art_perception
+		"stat_perception": profile.stat_perception
 	}
 	
 	for key in start_attrs.keys():
@@ -503,7 +490,7 @@ func _on_activity_pressed(activity_id: String) -> void:
 			_update_ui()
 			return
 
-func _on_slot_pressed(index: int) -> void:
+func _on_slot_pressed(_index: int) -> void:
 	pass
 
 func _on_undo_pressed() -> void:
@@ -520,146 +507,161 @@ func _on_clear_pressed() -> void:
 	_update_ui()
 
 func _on_execute_pressed() -> void:
-	if scheduled_activities.size() == MAX_SLOTS:
-		main_panel.hide()
-		loading_overlay.modulate.a = 0.0
-		loading_overlay.show()
-		
-		var tween = create_tween()
-		tween.tween_property(loading_overlay, "modulate:a", 1.0, 0.3)
-		
-		loading_progress.value = 0.0
-		walker_icon.position.x = 0.0
-		walker_icon.position.y = -40.0
-		
-		if _pending_progress_tween: _pending_progress_tween.kill()
-		if _walker_tween: _walker_tween.kill()
-		
-		_pending_progress_tween = create_tween()
-		_pending_progress_tween.tween_method(_update_loading_progress, 0.0, 90.0, 5.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-		
-		_walker_tween = create_tween().set_loops()
-		_walker_tween.tween_property(walker_icon, "position:y", -50.0, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		_walker_tween.tween_property(walker_icon, "position:y", -40.0, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-		
-		var courses_data = []
-		
-		for item in scheduled_activities:
-			if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
-				var event_ids = item.get("events", [])
-				var primary_event = event_ids[0] if event_ids.size() > 0 else ""
-				var cover_path = ""
-				var summary = "推进主线剧情..."
-				var script_path = ""
-				
-				if primary_event != "":
-					script_path = "res://assets/data/story/scripts/main/" + primary_event + ".json"
-					if FileAccess.file_exists(script_path):
-						var file = FileAccess.open(script_path, FileAccess.READ)
-						var json = JSON.new()
-						if json.parse(file.get_as_text()) == OK:
-							cover_path = json.data.get("cover_image", "")
-							summary = json.data.get("summary", summary)
-				
-				courses_data.append({
-					"name": "主线事件",
-					"image_path": cover_path,
-					"bonus_list": [],
-					"desc": summary,
-					"is_event": true,
-					"events": event_ids,
-					"period": item.get("period", ""),
-					"script_path": script_path
-				})
-			elif typeof(item) == TYPE_STRING:
-				var act = GameDataManager.activity_manager.get_activity_by_id(item)
-				var single_course = {
-					"id": act.get("id", ""),
-					"name": act.get("name", "未知课程"),
-					"image_path": act.get("preview_image", ""),
-					"bonus_list": [],
-					"desc": "正在生成描述中...",
-					"progress_increment": act.get("progress_increment", 0),
-					"max_progress": act.get("max_progress", 0)
-				}
-				
-				if act.has("rewards"):
-					for stat_key in act["rewards"]:
-						var range_arr = act["rewards"][stat_key]
-						var avg_val = (range_arr[0] + range_arr[1]) / 2.0
-						
-						var zh_name = stat_name_map.get(stat_key, stat_key)
-						single_course["bonus_list"].append({"name": zh_name, "value": avg_val})
-				
-				courses_data.append(single_course)
+	var scheduled_count = 0
+	for item in scheduled_activities:
+		if item != null:
+			scheduled_count += 1
 			
-		_fetch_all_course_descriptions_from_ai(courses_data)
+	if scheduled_count < MAX_SLOTS:
+		ToastManager.show_system_toast("请先排满 %d 项行程" % MAX_SLOTS)
+		return
 		
-		var profile = GameDataManager.profile
-		var start_attrs = {
-			"体能续航": profile.stat_stamina,
-			"形体管控": profile.stat_body_management,
-			"凝心专注": profile.stat_focus,
-			"律动反应": profile.stat_rhythm,
-			"艺术素养": profile.stat_artistic_literacy,
-			"言辞表达": profile.stat_verbal_expression,
-			"统筹企划": profile.stat_planning,
-			"艺理钻研": profile.stat_art_theory,
-			"格调气质": profile.stat_temperament,
-			"举止仪范": profile.stat_manner,
-			"共情感染": profile.stat_emotional_infection,
-			"舞台表现": profile.stat_stage_performance,
-			"情思体悟": profile.stat_empathy,
-			"创想灵感": profile.stat_inspiration,
-			"美学品鉴": profile.stat_aesthetics,
-			"艺术感知": profile.stat_art_perception,
-			"精力": profile.current_energy,
-			"金币": profile.gold,
-			"心情": profile.mood_value,
-			"压力": profile.stress
-		}
-		var end_attrs = start_attrs.duplicate()
-		
-		var stat_bonus_rate = GameDataManager.mood_system.get_stat_bonus_rate(profile.mood_value)
-		var stress_penalty = 0.0
-		if profile.stress > 50:
-			stress_penalty = (profile.stress - 50) * 0.005
-		var final_bonus_rate = stat_bonus_rate - stress_penalty
-		
-		for item in scheduled_activities:
-			if typeof(item) == TYPE_STRING:
-				var act = GameDataManager.activity_manager.get_activity_by_id(item)
-				if act.is_empty(): continue
-				end_attrs["精力"] -= act.get("energy_cost", 0)
-				end_attrs["金币"] -= act.get("gold_cost", 0)
-				end_attrs["压力"] += act.get("stress_change", 0)
-				end_attrs["心情"] += act.get("mood_change", 0)
-		
-		for course in courses_data:
-			for bonus in course["bonus_list"]:
-				var zh_name = bonus["name"]
-				var val = bonus["value"]
-				if zh_name == "精力恢复":
-					end_attrs["精力"] += val
-				else:
-					if not end_attrs.has(zh_name):
-						end_attrs[zh_name] = start_attrs.get(zh_name, 0)
-					end_attrs[zh_name] += (val * (1.0 + final_bonus_rate))
-					
-		end_attrs["精力"] = clamp(end_attrs["精力"], 0, profile.max_energy)
-		end_attrs["压力"] = clamp(end_attrs["压力"], 0, profile.max_stress)
-		end_attrs["心情"] = clamp(end_attrs["心情"], 0, 100)
-		end_attrs["金币"] = max(0, end_attrs["金币"])
+	var profile = GameDataManager.profile
+	var total_gold_cost = 0
+	
+	for item in scheduled_activities:
+		if typeof(item) == TYPE_STRING:
+			var act = GameDataManager.activity_manager.get_activity_by_id(item)
+			if not act.is_empty():
+				total_gold_cost += act.get("gold_cost", 0)
 				
-		_pending_exec_data = {
-			"courses_data": courses_data,
-			"start_attrs": start_attrs,
-			"end_attrs": end_attrs
-		}
+	if profile.gold < total_gold_cost:
+		ToastManager.show_system_toast("金币不足，无法执行计划")
+		return
 		
-		for i in range(MAX_SLOTS):
-			if typeof(scheduled_activities[i]) == TYPE_STRING:
-				scheduled_activities[i] = null
+	main_panel.hide()
+	loading_overlay.modulate.a = 0.0
+	loading_overlay.show()
+	
+	var tween = create_tween()
+	tween.tween_property(loading_overlay, "modulate:a", 1.0, 0.3)
+	
+	loading_progress.value = 0.0
+	walker_icon.position.x = 0.0
+	walker_icon.position.y = -40.0
+	
+	if _pending_progress_tween: _pending_progress_tween.kill()
+	if _walker_tween: _walker_tween.kill()
+	
+	_pending_progress_tween = create_tween()
+	_pending_progress_tween.tween_method(_update_loading_progress, 0.0, 90.0, 5.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	
+	_walker_tween = create_tween().set_loops()
+	_walker_tween.tween_property(walker_icon, "position:y", -50.0, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_walker_tween.tween_property(walker_icon, "position:y", -40.0, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	
+	var courses_data = []
+	
+	for item in scheduled_activities:
+		if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
+			var event_ids = item.get("events", [])
+			var primary_event = event_ids[0] if event_ids.size() > 0 else ""
+			var cover_path = ""
+			var summary = "推进主线剧情..."
+			var script_path = ""
+			
+			if primary_event != "":
+				script_path = "res://assets/data/story/scripts/main/" + primary_event + ".json"
+				if FileAccess.file_exists(script_path):
+					var file = FileAccess.open(script_path, FileAccess.READ)
+					var json = JSON.new()
+					if json.parse(file.get_as_text()) == OK:
+						cover_path = json.data.get("cover_image", "")
+						summary = json.data.get("summary", summary)
+			
+			courses_data.append({
+				"name": "主线事件",
+				"image_path": cover_path,
+				"bonus_list": [],
+				"desc": summary,
+				"is_event": true,
+				"events": event_ids,
+				"period": item.get("period", ""),
+				"script_path": script_path
+			})
+		elif typeof(item) == TYPE_STRING:
+			var act = GameDataManager.activity_manager.get_activity_by_id(item)
+			var single_course = {
+				"id": act.get("id", ""),
+				"name": act.get("name", "未知课程"),
+				"image_path": act.get("preview_image", ""),
+				"bonus_list": [],
+				"desc": "正在生成描述中...",
+				"progress_increment": act.get("progress_increment", 0),
+				"max_progress": act.get("max_progress", 0)
+			}
+			
+			if act.has("rewards"):
+				for stat_key in act["rewards"]:
+					var range_arr = act["rewards"][stat_key]
+					var avg_val = (range_arr[0] + range_arr[1]) / 2.0
+					
+					var zh_name = stat_name_map.get(stat_key, stat_key)
+					single_course["bonus_list"].append({"name": zh_name, "value": avg_val})
+			
+			courses_data.append(single_course)
+		
+	_fetch_all_course_descriptions_from_ai(courses_data)
+	
+	var profile_for_exec = GameDataManager.profile
+	var start_attrs = {
+		"体能": profile_for_exec.stat_stamina,
+		"形体": profile_for_exec.stat_body,
+		"专注": profile_for_exec.stat_focus,
+		"反应": profile_for_exec.stat_rhythm,
+		"学识": profile_for_exec.stat_knowledge,
+		"表达": profile_for_exec.stat_expression,
+		"企划": profile_for_exec.stat_planning,
+		"艺理": profile_for_exec.stat_art_theory,
+		"气质": profile_for_exec.stat_temperament,
+		"举止": profile_for_exec.stat_manner,
+		"礼仪": profile_for_exec.stat_etiquette,
+		"舞台": profile_for_exec.stat_stage,
+		"共情": profile_for_exec.stat_empathy,
+		"灵感": profile_for_exec.stat_inspiration,
+		"审美": profile_for_exec.stat_aesthetics,
+		"感知": profile_for_exec.stat_perception,
+		"金币": profile_for_exec.gold,
+		"心情": profile_for_exec.mood_value,
+		"压力": profile_for_exec.stress
+	}
+	var end_attrs = start_attrs.duplicate()
+	
+	var stat_bonus_rate = GameDataManager.mood_system.get_stat_bonus_rate(profile_for_exec.mood_value)
+	var stress_penalty = 0.0
+	if profile_for_exec.stress > 50:
+		stress_penalty = (profile_for_exec.stress - 50) * 0.005
+	var final_bonus_rate = stat_bonus_rate - stress_penalty
+	
+	for item in scheduled_activities:
+		if typeof(item) == TYPE_STRING:
+			var act = GameDataManager.activity_manager.get_activity_by_id(item)
+			if act.is_empty(): continue
+			end_attrs["金币"] -= act.get("gold_cost", 0)
+			end_attrs["压力"] += act.get("stress_change", 0)
+			end_attrs["心情"] += act.get("mood_change", 0)
+	
+	for course in courses_data:
+		for bonus in course["bonus_list"]:
+			var zh_name = bonus["name"]
+			var val = bonus["value"]
+			if not end_attrs.has(zh_name):
+				end_attrs[zh_name] = start_attrs.get(zh_name, 0)
+			end_attrs[zh_name] += (val * (1.0 + final_bonus_rate))
+				
+	end_attrs["压力"] = clamp(end_attrs["压力"], 0, profile_for_exec.max_stress)
+	end_attrs["心情"] = clamp(end_attrs["心情"], 0, 100)
+	end_attrs["金币"] = max(0, end_attrs["金币"])
+			
+	_pending_exec_data = {
+		"courses_data": courses_data,
+		"start_attrs": start_attrs,
+		"end_attrs": end_attrs
+	}
+	
+	for i in range(MAX_SLOTS):
+		if typeof(scheduled_activities[i]) == TYPE_STRING:
+			scheduled_activities[i] = null
 
 func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	var api_key = ""
@@ -777,7 +779,7 @@ func _fallback_all_descriptions() -> void:
 			
 		var c_name = course["name"]
 		if "休息" in c_name:
-			course["desc"] = "今天给自己放了个假，彻底放松下来，恢复了精力。"
+			course["desc"] = "今天给自己放了个假，彻底放松下来，调整了状态。"
 		else:
 			course["desc"] = "今天也是按部就班地完成了【%s】的训练，感觉收获颇丰。" % c_name
 			

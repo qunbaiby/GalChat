@@ -517,24 +517,24 @@ theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_body_management" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
+[node name="Sub_stat_body" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body_management"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-text = "形体管控"
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_font_sizes/font_size = 20
+text = "形体"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body_management"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body_management"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_body"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.466667, 0.466667, 0.466667, 1)
+theme_override_font_sizes/font_size = 20
 text = "-"
 
 [node name="Sub_stat_focus" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
@@ -636,44 +636,44 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="Sub_stat_artistic_literacy" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
+[node name="Sub_stat_knowledge" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_artistic_literacy"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-text = "艺术素养"
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_font_sizes/font_size = 20
+text = "学识"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_artistic_literacy"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_artistic_literacy"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.466667, 0.466667, 0.466667, 1)
+theme_override_font_sizes/font_size = 20
 text = "-"
 
-[node name="Sub_stat_verbal_expression" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
+[node name="Sub_stat_expression" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_verbal_expression"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-text = "言辞表达"
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_font_sizes/font_size = 20
+text = "表达"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_verbal_expression"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_verbal_expression"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.466667, 0.466667, 0.466667, 1)
+theme_override_font_sizes/font_size = 20
 text = "-"
 
 [node name="Sub_stat_planning" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
@@ -815,44 +815,44 @@ theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_emotional_infection" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+[node name="Sub_stat_etiquette" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_emotional_infection"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-text = "共情感染"
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_font_sizes/font_size = 20
+text = "礼仪"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_emotional_infection"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_emotional_infection"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.466667, 0.466667, 0.466667, 1)
+theme_override_font_sizes/font_size = 20
 text = "-"
 
-[node name="Sub_stat_stage_performance" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+[node name="Sub_stat_stage" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage_performance"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-text = "舞台表现"
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_font_sizes/font_size = 20
+text = "舞台"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage_performance"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage_performance"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_stage"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.466667, 0.466667, 0.466667, 1)
+theme_override_font_sizes/font_size = 20
 text = "-"
 
 [node name="Block_Sensibility" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
@@ -974,24 +974,24 @@ theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_art_perception" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+[node name="Sub_stat_perception" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_art_perception"]
+[node name="Name" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-text = "艺术感知"
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_font_sizes/font_size = 20
+text = "感知"
 
-[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_art_perception"]
+[node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_art_perception"]
+[node name="Val" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.466667, 0.466667, 0.466667, 1)
+theme_override_font_sizes/font_size = 20
 text = "-"
 
 [node name="ExecuteButton" type="Button" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
