@@ -17,6 +17,9 @@ uniform vec4 border_color : source_color = vec4(0.5, 0.6, 0.7, 1.0);
 uniform float glow_size : hint_range(0.0, 0.5) = 0.0;
 uniform vec4 glow_color : source_color = vec4(0.0, 0.8, 1.0, 0.0);
 
+// 新增背景颜色设置
+uniform vec4 bg_color : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+
 void fragment() {
     // 将 UV 映射到实际坐标系
     vec2 p = vec2(UV.x * aspect_ratio, UV.y);
@@ -68,8 +71,11 @@ void fragment() {
         glow_mask *= smoothstep(-edge_softness, edge_softness, d_final); // 限制在外部
     }
     
+    // 如果没有通过 COLOR 传入或者想要覆盖 COLOR，这里使用 bg_color 作为基础色
+    vec4 base_color = bg_color.a > 0.0 ? bg_color : COLOR;
+    
     // 混合边框颜色与原本的背景/内容颜色
-    vec4 final_color = mix(COLOR, border_color, border_mask * border_color.a);
+    vec4 final_color = mix(base_color, border_color, border_mask * border_color.a);
     
     // 裁剪外部
     final_color.a *= mask;

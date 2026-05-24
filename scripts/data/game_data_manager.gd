@@ -1,7 +1,7 @@
 extends Node
 
 var config: ConfigResource
-var profile: CharacterProfile
+var profile: CharacterProfile # character profile
 var history: ChatHistoryManager
 var prompt_manager: Node
 var audit_logger: Node

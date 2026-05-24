@@ -57,9 +57,17 @@ func load_memory() -> void:
                                 layer_mems.append({
                                     "id": _generate_id(),
                                     "content": item,
-                                    "timestamp": Time.get_datetime_string_from_system()
+                                    "timestamp": Time.get_datetime_string_from_system(),
+                                    "story_time": "",
+                                    "day_offset": 0,
+                                    "decay": 0.0,
+                                    "is_bond_mark": false
                                 })
                             elif item is Dictionary and item.has("id") and item.has("content"):
+                                if not item.has("decay"): item["decay"] = 0.0
+                                if not item.has("is_bond_mark"): item["is_bond_mark"] = false
+                                if not item.has("story_time"): item["story_time"] = ""
+                                if not item.has("day_offset"): item["day_offset"] = 0
                                 layer_mems.append(item)
                         memories[key] = layer_mems
                 turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
@@ -86,6 +94,10 @@ func add_memory(layer: String, content: String) -> void:
             "id": _generate_id(),
             "content": content,
             "timestamp": Time.get_datetime_string_from_system(),
+            "story_time": GameDataManager.story_time_manager.get_story_time_string() if GameDataManager.story_time_manager else "",
+            "day_offset": GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0,
+            "decay": 0.0, # 0.0-100.0，达到100则可能被遗忘
+            "is_bond_mark": false, # 是否带有羁绊印记（重要记忆）
             "embedding": embedding
         }
         memories[layer].append(new_mem)
@@ -127,6 +139,39 @@ func add_turn() -> bool:
 func reset_turn_counter() -> void:
     turns_since_last_extract = 0
     save_memory()
+
+func process_daily_decay(days: int) -> void:
+    var changed = false
+    # 只衰退 emotion 和 habit
+    var layers_to_decay = ["emotion", "habit"]
+    for layer in layers_to_decay:
+        if memories.has(layer):
+            var to_remove = []
+            for i in range(memories[layer].size()):
+                var mem = memories[layer][i]
+                if mem.get("is_bond_mark", false):
+                    continue # 有羁绊印记的不会衰退
+                mem["decay"] = min(100.0, mem.get("decay", 0.0) + (days * 10.0)) # 每天增加 10%
+                if mem["decay"] >= 100.0:
+                    to_remove.append(i)
+                changed = true
+            
+            # 倒序删除以防索引错乱
+            for i in range(to_remove.size() - 1, -1, -1):
+                var idx = to_remove[i]
+                print("【记忆管理器】遗忘记忆(因衰退): %s" % memories[layer][idx]["content"])
+                memories[layer].remove_at(idx)
+    
+    if changed:
+        save_memory()
+
+func reinforce_memory(layer: String, id: String) -> void:
+    if memories.has(layer):
+        for mem in memories[layer]:
+            if mem["id"] == id:
+                mem["decay"] = max(0.0, mem.get("decay", 0.0) - 50.0) # 重新提及，衰退值减半
+                save_memory()
+                return
 
 func get_memory_prompt(query_embedding: Array = []) -> String:
     var prompt_lines = []

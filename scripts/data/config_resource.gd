@@ -229,21 +229,18 @@ func load_config() -> void:
 func apply_settings() -> void:
     # Resolution
     var tree = Engine.get_main_loop() as SceneTree
-    if tree and is_instance_valid(tree.current_scene) and tree.current_scene is Window:
-        var window = tree.current_scene as Window
+    if tree and is_instance_valid(tree.root):
+        var window = tree.root
         match resolution_idx:
             0:
                 window.mode = Window.MODE_WINDOWED
                 window.size = Vector2i(1280, 720)
-                window.move_to_center()
             1:
                 window.mode = Window.MODE_WINDOWED
                 window.size = Vector2i(1600, 900)
-                window.move_to_center()
             2:
                 window.mode = Window.MODE_WINDOWED
                 window.size = Vector2i(1920, 1080)
-                window.move_to_center()
             3:
                 window.mode = Window.MODE_FULLSCREEN
             

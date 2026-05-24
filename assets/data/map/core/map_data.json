@@ -4,7 +4,7 @@
       "id": "qingyu_street",
       "name": "青屿街",
       "description": "充满生活气息的街道，工作室与常去的咖啡厅都在这里。",
-      "camera_offset": {"x": 0.1, "y": 0.1},
+      "camera_offset": {"x": 0.9, "y": 0.1},
       "fixed_locations": ["studio", "qingyu_time_cafe"],
       "limited_locations": []
     },
@@ -12,7 +12,7 @@
       "id": "j11_center",
       "name": "J11购物艺术中心",
       "description": "融合现代商业与先锋艺术的潮流综合体。",
-      "camera_offset": {"x": 0.9, "y": 0.9},
+      "camera_offset": {"x": 0.55, "y": 0.5},
       "fixed_locations": ["movie_theater", "yuli_alley", "yuguang_gallery"],
       "limited_locations": []
     },
@@ -20,7 +20,7 @@
       "id": "qinglan_mt",
       "name": "青岚山",
       "description": "远离喧嚣的宁静山林，可以俯瞰整个江屿市。",
-      "camera_offset": {"x": 0.1, "y": 0.9},
+      "camera_offset": {"x": 0.65, "y": 0.9},
       "fixed_locations": ["qinglan_cemetery", "wangjiang_pavilion"],
       "limited_locations": []
     },
@@ -28,7 +28,7 @@
       "id": "jiangyu_bay",
       "name": "江屿湾",
       "description": "风景优美的海湾，能听到海浪与海鸥的声音。",
-      "camera_offset": {"x": 0.9, "y": 0.1},
+      "camera_offset": {"x": 0.95, "y": 0.6},
       "fixed_locations": ["golden_beach", "sunset_park", "music_corner"],
       "limited_locations": []
     },
@@ -36,7 +36,7 @@
       "id": "art_academy",
       "name": "江屿现代艺术大学",
       "description": "培养顶尖音乐与美术人才的殿堂。",
-      "camera_offset": {"x": 0.5, "y": 0.5},
+      "camera_offset": {"x": 0.05, "y": 0.1},
       "fixed_locations": ["library", "art_gallery", "gym", "concert_hall", "digital_center"],
       "limited_locations": ["grand_auditorium", "art_square", "sakura_avenue"]
     }
@@ -59,8 +59,8 @@
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
       "scene_path": "res://scenes/map/locations/library.tscn",
       "bg_id": "library",
-      "map_position": {"x": 150, "y": 100},
-      "resident_npcs": ["librarian"],
+      "map_position": {"x": 410, "y": 900},
+      "resident_npcs": ["noah"],
       "scheduled_npcs": [
         {
           "id": "luna",
@@ -77,18 +77,28 @@
       "name": "体育馆",
       "description": "充满活力的运动场所。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 500, "y": 250},
+      "map_position": {"x": 400, "y": 200},
       "resident_npcs": [],
       "events": []
     },
     "concert_hall": {
       "id": "concert_hall",
-      "name": "音乐厅",
-      "description": "拥有顶级声学设计的专业音乐演出场地。",
+      "name": "音乐馆",
+      "description": "拥有顶级声学设计的专业音乐教学与排练场地。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "concert_hall",
-      "map_position": {"x": 1000, "y": 280},
+      "map_position": {"x": 1000, "y": 200},
       "resident_npcs": ["nicole"],
+      "events": []
+    },
+    "art_gallery": {
+      "id": "art_gallery",
+      "name": "美术馆",
+      "description": "充满艺术气息的美术教学与作品展览空间。",
+      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "bg_id": "art_gallery",
+      "map_position": {"x": 640, "y": 110},
+      "resident_npcs": [],
       "events": []
     },
     "digital_center": {
@@ -96,7 +106,7 @@
       "name": "数字创意中心",
       "description": "现代化的多媒体艺术与数字创作中心。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 850, "y": 80},
+      "map_position": {"x": 840, "y": 70},
       "resident_npcs": [],
       "events": []
     },
@@ -129,7 +139,7 @@
       "name": "樱花大道",
       "description": "春天会开满樱花的浪漫校园小道。夜晚会锁闭。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 300, "y": 300},
+      "map_position": {"x": 180, "y": 170},
       "conditions": [
         {"type": "time", "start_hour": 6, "end_hour": 19}
       ],
@@ -182,7 +192,7 @@
       "icon": "loc_golden_beach",
       "description": "阳光明媚的广阔沙滩。",
       "scene_path": "res://scenes/map/locations/golden_beach.tscn",
-      "map_position": {"x": 300, "y": 250},
+      "map_position": {"x": 1050, "y": 310},
       "resident_npcs": [],
       "events": []
     },
@@ -192,7 +202,7 @@
       "icon": "loc_sunset_park",
       "description": "观赏海湾日落的最佳地点。",
       "scene_path": "res://scenes/map/locations/sunset_park.tscn",
-      "map_position": {"x": 600, "y": 150},
+      "map_position": {"x": 550, "y": 260},
       "resident_npcs": [],
       "events": []
     },
@@ -202,7 +212,7 @@
       "icon": "loc_music_corner",
       "description": "海风伴奏的露天音乐角，常有独立音乐人演出。",
       "scene_path": "res://scenes/map/locations/music_corner.tscn",
-      "map_position": {"x": 850, "y": 300},
+      "map_position": {"x": 850, "y": 75},
       "resident_npcs": [],
       "events": []
     },

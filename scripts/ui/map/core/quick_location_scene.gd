@@ -31,6 +31,9 @@ func _ready() -> void:
 	# 隐藏选项菜单和角色
 	interaction_menu.hide()
 	
+	if topic_panel:
+		topic_panel.gui_input.connect(_on_topic_panel_gui_input)
+		
 	if dialogue_panel:
 		dialogue_panel.hide()
 		# 监听对话结束信号，以便恢复互动选项
@@ -380,7 +383,11 @@ func _show_topic_panel() -> void:
 	
 	var prompt = "【系统指令】\n请基于当前少女【%s】与NPC【%s】的情感阶段（当前阶段：%s），以【%s】的口吻，生成 3 个向【%s】发起聊天的话题选项。\n要求：\n1. 直接输出 3 个选项，每行一个。\n2. 不要带有序号（如 1. 2. 3.）、破折号或其他前缀。\n3. 话题要自然、简短（20字以内），符合日常聊天习惯。" % [profile.char_name, npc_name, stage_title, profile.char_name, npc_name]
 	
-	var deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient")
+	var deepseek_client = get_node_or_null("DeepSeekClient")
+	if not deepseek_client:
+		# Fallback to main scene if not found locally
+		deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient")
+	
 	if not deepseek_client:
 		printerr("DeepSeekClient not found!")
 		_render_dynamic_topics("最近生意怎么样？\n今天有什么推荐的吗？\n想随便聊聊。")
@@ -432,6 +439,17 @@ func _on_topic_selected(topic: String) -> void:
 	var char_name = profile.char_name if profile.char_name != "" else "Luna"
 	var event_desc = char_name + "对你说：" + topic
 	_trigger_npc_event_dialogue(current_interacting_npc_id, event_desc)
+
+func _on_topic_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		# 右键点击空白处取消话题弹窗
+		var t_tween = create_tween()
+		t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
+		t_tween.tween_callback(func(): topic_panel.visible = false)
+		
+		# 恢复互动菜单
+		interaction_menu.show()
+		info_and_options.show()
 
 func _trigger_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 	var deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient") # 借用全局或寻找本场景的客户端

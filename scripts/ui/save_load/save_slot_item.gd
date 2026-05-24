@@ -1,6 +1,7 @@
 extends PanelContainer
 
 signal slot_selected(slot_id: String, is_empty: bool)
+signal delete_requested()
 
 @onready var screenshot_rect: TextureRect = $MarginContainer/HBoxContainer/ScreenshotRect
 @onready var id_label: Label = $MarginContainer/HBoxContainer/VBoxContainer/IdLabel
@@ -94,5 +95,5 @@ func _on_delete_pressed() -> void:
             dialog.confirmed.connect(func():
                 GameDataManager.save_manager.delete_save(current_slot_id)
                 # 通知上层刷新
-                get_parent().get_parent().get_parent().get_parent().refresh_list()
+                delete_requested.emit()
             )

@@ -1,45 +1,29 @@
 extends Control
 
 @onready var close_btn: Button = $Panel/VBoxContainer/TopBar/CloseButton
-@onready var char_option: OptionButton = $Panel/VBoxContainer/TopBar/CharOption
 @onready var tab_container: TabContainer = $Panel/VBoxContainer/TabContainer
-@onready var memory_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/记忆库/ScrollContainer/MemoryText"
-@onready var base_personality_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/BasePersonalityText"
-@onready var dynamic_personality_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/DynamicPersonalityText"
+
+# 性格演化
+@onready var radar_chart: Control = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/RadarChart"
+@onready var line_chart: Control = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LineChart"
+@onready var base_personality_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox/BasePersonalityText"
+@onready var status_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox/Text"
+@onready var behavior_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox/Text"
+@onready var advice_text: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox/Text"
 @onready var deepseek_client = $DeepSeekClient
 
-@onready var trait_o_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/开放性容器/ProgressBar"
-@onready var trait_o_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/开放性容器/Value"
-
-@onready var trait_c_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/尽责性容器/ProgressBar"
-@onready var trait_c_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/尽责性容器/Value"
-
-@onready var trait_e_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/外倾性容器/ProgressBar"
-@onready var trait_e_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/外倾性容器/Value"
-
-@onready var trait_a_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/宜人性容器/ProgressBar"
-@onready var trait_a_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/宜人性容器/Value"
-
-@onready var trait_n_bar: ProgressBar = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/神经质容器/ProgressBar"
-@onready var trait_n_val: RichTextLabel = $"Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/TraitsVBox/神经质容器/Value"
-
-var available_characters: Array = []
+# 记忆库
+@onready var memory_list_container: VBoxContainer = $"Panel/VBoxContainer/TabContainer/记忆库/ScrollContainer/MemoryListContainer"
 
 func _ready() -> void:
     close_btn.pressed.connect(_on_close_pressed)
-    char_option.item_selected.connect(_on_char_selected)
-    _load_available_characters()
 
 func show_panel() -> void:
-    # 每次打开时，如果有关联当前角色，默认选中当前角色
-    var current_id = GameDataManager.config.current_character_id
-    var idx = available_characters.find(current_id)
-    if idx >= 0:
-        char_option.select(idx)
-        _on_char_selected(idx)
-    elif available_characters.size() > 0:
-        char_option.select(0)
-        _on_char_selected(0)
+    var char_id = "luna"
+    if GameDataManager.config and GameDataManager.config.current_character_id != "":
+        char_id = GameDataManager.config.current_character_id
+        
+    _load_char_archive(char_id)
     show()
     
     # 打开动画：从右侧滑入并淡入
@@ -49,40 +33,6 @@ func show_panel() -> void:
     tween.set_parallel(true)
     tween.tween_property(self, "position:x", 0.0, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
     tween.tween_property(self, "modulate:a", 1.0, 0.2)
-
-func _load_available_characters() -> void:
-    char_option.clear()
-    available_characters.clear()
-    
-    var dir = DirAccess.open("res://assets/data/characters")
-    if dir:
-        dir.list_dir_begin()
-        var file_name = dir.get_next()
-        var index = 0
-        while file_name != "":
-            if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
-                var char_id = file_name.replace(".json", "")
-                available_characters.append(char_id)
-                # 可以读取名字，这里简单起见直接用 char_id
-                var char_name = _get_char_name(char_id)
-                char_option.add_item(char_name, index)
-                index += 1
-            file_name = dir.get_next()
-
-func _get_char_name(char_id: String) -> String:
-    var path = "res://assets/data/characters/%s.json" % char_id
-    if FileAccess.file_exists(path):
-        var file = FileAccess.open(path, FileAccess.READ)
-        var content = file.get_as_text()
-        var json = JSON.new()
-        if json.parse(content) == OK and json.data is Dictionary:
-            return json.data.get("char_name", char_id)
-    return char_id
-
-func _on_char_selected(index: int) -> void:
-    if index < 0 or index >= available_characters.size(): return
-    var char_id = available_characters[index]
-    _load_char_archive(char_id)
 
 func _load_char_archive(char_id: String) -> void:
     # 临时加载该角色的 Profile 和 Memory
@@ -112,29 +62,47 @@ func _update_personality_display(profile: CharacterProfile) -> void:
     var base_a = profile.base_personality.get("agreeableness", 50.0)
     var base_n = profile.base_personality.get("neuroticism", 50.0)
     
-    _set_trait_ui(trait_o_bar, trait_o_val, profile.openness, base_o)
-    _set_trait_ui(trait_c_bar, trait_c_val, profile.conscientiousness, base_c)
-    _set_trait_ui(trait_e_bar, trait_e_val, profile.extraversion, base_e)
-    _set_trait_ui(trait_a_bar, trait_a_val, profile.agreeableness, base_a)
-    _set_trait_ui(trait_n_bar, trait_n_val, profile.neuroticism, base_n)
+    # 更新雷达图数据，确保传入的数组元素是 float 类型
+    var base_values: Array[float] = [float(base_o), float(base_c), float(base_e), float(base_a), float(base_n)]
+    var dynamic_values: Array[float] = [float(profile.openness), float(profile.conscientiousness), float(profile.extraversion), float(profile.agreeableness), float(profile.neuroticism)]
+    radar_chart.set_values(base_values, dynamic_values)
+    
+    # 更新折线图数据
+    var history = profile.personality_history.duplicate()
+    # 把当前最新状态作为最后一天加上去
+    var current_day_offset = GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0
+    history.append({
+        "day_offset": current_day_offset,
+        "openness": float(profile.openness),
+        "conscientiousness": float(profile.conscientiousness),
+        "extraversion": float(profile.extraversion),
+        "agreeableness": float(profile.agreeableness),
+        "neuroticism": float(profile.neuroticism)
+    })
+    line_chart.set_data(history)
     
     var base_traits_str = GameDataManager.personality_system.get_base_traits(profile)
     if base_traits_str == "":
-        base_personality_text.text = "暂无初始底色配置"
+        if is_instance_valid(base_personality_text):
+            base_personality_text.text = "暂无初始底色配置"
     else:
-        base_personality_text.text = base_traits_str
+        if is_instance_valid(base_personality_text):
+            base_personality_text.text = base_traits_str
         
     var dynamic_traits_str = GameDataManager.personality_system.get_dynamic_traits(profile)
-    dynamic_personality_text.text = "AI 正在分析性格演化，请稍候..."
+    if is_instance_valid(status_text):
+        status_text.text = "AI 正在分析性格演化..."
+        behavior_text.text = "等待分析..."
+        advice_text.text = "等待分析..."
     
     _request_ai_personality_summary(profile, base_traits_str, dynamic_traits_str)
 
 func _request_ai_personality_summary(profile: CharacterProfile, base_traits: String, dynamic_traits: String) -> void:
     if not is_instance_valid(deepseek_client):
-        dynamic_personality_text.text = "AI 分析服务未就绪"
+        status_text.text = "AI 分析服务未就绪"
         return
         
-    var system_prompt = "你是一位专业的心理学与人物性格分析师。请根据以下角色的【初始底色】和【当前因为属性变化而激活的动态性格特征】，用一段自然、生动且富有洞察力的语言（150-300字），总结该角色目前的性格状态、可能的行为倾向，以及给玩家的相处建议。不要输出Markdown代码块，直接输出分析文本。"
+    var system_prompt = "你是一位专业的心理学与人物性格分析师。请根据以下角色的【初始底色】和【当前因为属性变化而激活的动态性格特征】，分析该角色目前的性格状态、可能的行为倾向，以及给玩家的相处建议。\n请必须返回严格的JSON格式数据，不要包含任何Markdown代码块(如```json)，直接返回如下结构：\n{\"status\": \"性格状态描述(50-100字)\", \"behavior\": \"行为倾向描述(50-100字)\", \"advice\": \"相处建议(50-100字)\"}"
     var user_prompt = "角色名称：" + profile.char_name + "\n\n" + base_traits + "\n\n【当前激活的动态特征】\n" + dynamic_traits
     
     if deepseek_client.chat_request_completed.is_connected(_on_ai_summary_completed):
@@ -153,52 +121,170 @@ func _request_ai_personality_summary(profile: CharacterProfile, base_traits: Str
     deepseek_client.call_chat_api_non_stream(messages)
 
 func _on_ai_summary_completed(response: Dictionary) -> void:
-    if is_instance_valid(dynamic_personality_text):
+    if is_instance_valid(status_text):
         if response.has("choices") and response["choices"].size() > 0:
             var content = response["choices"][0].get("message", {}).get("content", "")
-            dynamic_personality_text.text = content
+            var json = JSON.new()
+            var err = json.parse(content)
+            if err == OK and typeof(json.data) == TYPE_DICTIONARY:
+                status_text.text = json.data.get("status", "分析失败")
+                behavior_text.text = json.data.get("behavior", "分析失败")
+                advice_text.text = json.data.get("advice", "分析失败")
+            else:
+                status_text.text = "[color=red]AI 返回格式无法解析[/color]\n" + content
+                behavior_text.text = "等待分析..."
+                advice_text.text = "等待分析..."
         else:
-            dynamic_personality_text.text = "[color=red]AI 返回格式错误[/color]"
+            status_text.text = "[color=red]AI 返回格式错误[/color]"
+    else:
+        # 如果组件还没加载好或者被销毁了，不要直接赋值
+        pass
 
 func _on_ai_summary_failed(err_msg: String) -> void:
-    if is_instance_valid(dynamic_personality_text):
-        dynamic_personality_text.text = "[color=red]AI 分析失败: " + err_msg + "[/color]"
-
-func _set_trait_ui(bar: ProgressBar, val_label: RichTextLabel, current: float, base: float) -> void:
-    bar.value = current
-    var diff = current - base
-    var diff_str = ""
-    if diff > 0:
-        diff_str = "[color=green]+%.1f[/color]" % diff
-    elif diff < 0:
-        diff_str = "[color=red]%.1f[/color]" % diff
-    else:
-        diff_str = "[color=gray]0.0[/color]"
-    val_label.text = "%.1f (初始: %.1f)\n%s" % [current, base, diff_str]
+    if is_instance_valid(status_text):
+        status_text.text = "[color=red]AI 分析失败: " + err_msg + "[/color]"
+        behavior_text.text = "分析失败"
+        advice_text.text = "分析失败"
 
 func _update_memory_display(mems: Dictionary) -> void:
-    var text = ""
-    
-    var format_mems = func(title, layer_mems, icon_color):
-        var sec = "[color=%s][b]■ %s[/b][/color]\n" % [icon_color, title]
-        if layer_mems.size() == 0:
-            sec += "[color=gray]  暂无记录[/color]\n\n"
-            return sec
-            
-        for m in layer_mems:
-            if m is Dictionary:
-                sec += "  • %s\n" % m.get("content", "")
-            elif m is String:
-                sec += "  • %s\n" % m
-        sec += "\n"
-        return sec
+    # 清空旧的记忆卡片
+    for child in memory_list_container.get_children():
+        child.queue_free()
         
-    text += format_mems.call("核心记忆 (Core)", mems.get("core", []), "#ff6b81")
-    text += format_mems.call("情绪记忆 (Emotion)", mems.get("emotion", []), "#1e90ff")
-    text += format_mems.call("习惯记忆 (Habit)", mems.get("habit", []), "#ff4757")
-    text += format_mems.call("羁绊记忆 (Bond)", mems.get("bond", []), "#fbc531")
+    _add_memory_category("核心记忆 (Core)", mems.get("core", []), Color("#ff6b81"))
+    _add_memory_category("情绪记忆 (Emotion)", mems.get("emotion", []), Color("#1e90ff"))
+    _add_memory_category("习惯记忆 (Habit)", mems.get("habit", []), Color("#ff4757"))
+    _add_memory_category("羁绊记忆 (Bond)", mems.get("bond", []), Color("#fbc531"))
+
+func _add_memory_category(title: String, items: Array, color: Color) -> void:
+    if items.size() == 0:
+        return
+        
+    # 创建分类标题面板 (类似参考图的深色卡片头部)
+    var header_panel = PanelContainer.new()
+    var header_style = StyleBoxFlat.new()
+    header_style.bg_color = Color(0.12, 0.13, 0.15, 0.9)
+    header_style.corner_radius_top_left = 8
+    header_style.corner_radius_top_right = 8
+    header_style.corner_radius_bottom_left = 8
+    header_style.corner_radius_bottom_right = 8
+    header_panel.add_theme_stylebox_override("panel", header_style)
     
-    memory_text.text = text
+    var header_margin = MarginContainer.new()
+    header_margin.add_theme_constant_override("margin_left", 15)
+    header_margin.add_theme_constant_override("margin_top", 10)
+    header_margin.add_theme_constant_override("margin_right", 15)
+    header_margin.add_theme_constant_override("margin_bottom", 10)
+    header_panel.add_child(header_margin)
+    
+    var header_vbox = VBoxContainer.new()
+    header_vbox.add_theme_constant_override("separation", 10)
+    header_margin.add_child(header_vbox)
+    
+    var title_label = Label.new()
+    title_label.text = "◆ " + title
+    title_label.add_theme_color_override("font_color", color)
+    title_label.add_theme_font_size_override("font_size", 16)
+    header_vbox.add_child(title_label)
+    
+    # 分割线
+    var sep = ColorRect.new()
+    sep.custom_minimum_size = Vector2(0, 1)
+    sep.color = Color(1, 1, 1, 0.1)
+    header_vbox.add_child(sep)
+    
+    # 记忆项列表
+    var items_vbox = VBoxContainer.new()
+    items_vbox.add_theme_constant_override("separation", 8)
+    header_vbox.add_child(items_vbox)
+    
+    for item in items:
+        var text = ""
+        var timestamp = ""
+        var is_bond = false
+        var decay = 0.0
+        
+        if item is Dictionary:
+            text = item.get("content", "")
+            timestamp = item.get("story_time", "")
+            if timestamp == "":
+                # Fallback to system timestamp if story time is empty
+                timestamp = item.get("timestamp", "").split("T")[0] 
+            is_bond = item.get("is_bond_mark", false)
+            decay = item.get("decay", 0.0)
+        elif item is String:
+            text = item
+            
+        var item_card = PanelContainer.new()
+        var card_style = StyleBoxFlat.new()
+        card_style.bg_color = Color(0.18, 0.20, 0.23, 0.8)
+        card_style.corner_radius_top_left = 6
+        card_style.corner_radius_top_right = 6
+        card_style.corner_radius_bottom_left = 6
+        card_style.corner_radius_bottom_right = 6
+        # 如果是羁绊印记，给一个特殊的金色边框
+        if is_bond:
+            card_style.border_width_left = 2
+            card_style.border_width_top = 2
+            card_style.border_width_right = 2
+            card_style.border_width_bottom = 2
+            card_style.border_color = Color("#fbc531")
+        item_card.add_theme_stylebox_override("panel", card_style)
+        
+        var card_margin = MarginContainer.new()
+        card_margin.add_theme_constant_override("margin_left", 15)
+        card_margin.add_theme_constant_override("margin_top", 10)
+        card_margin.add_theme_constant_override("margin_right", 15)
+        card_margin.add_theme_constant_override("margin_bottom", 10)
+        item_card.add_child(card_margin)
+        
+        var card_hbox = HBoxContainer.new()
+        card_hbox.add_theme_constant_override("separation", 15)
+        card_margin.add_child(card_hbox)
+        
+        # 左侧时间戳
+        var time_vbox = VBoxContainer.new()
+        card_hbox.add_child(time_vbox)
+        
+        var time_dot = Label.new()
+        time_dot.text = "◆"
+        time_dot.add_theme_color_override("font_color", Color("#7bed9f"))
+        time_dot.add_theme_font_size_override("font_size", 12)
+        time_dot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        time_vbox.add_child(time_dot)
+        
+        var time_label = Label.new()
+        time_label.text = timestamp.split(" ")[0] if " " in timestamp else timestamp # 只要日期部分
+        time_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+        time_label.add_theme_font_size_override("font_size", 14)
+        time_vbox.add_child(time_label)
+        
+        # 中间文本内容
+        var content_label = RichTextLabel.new()
+        content_label.bbcode_enabled = true
+        content_label.text = text
+        content_label.fit_content = true
+        content_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        content_label.add_theme_font_size_override("normal_font_size", 15)
+        card_hbox.add_child(content_label)
+        
+        # 右侧羁绊印记/贴纸
+        if is_bond:
+            var bond_label = Label.new()
+            bond_label.text = "✨羁绊印记"
+            bond_label.add_theme_color_override("font_color", Color("#fbc531"))
+            bond_label.add_theme_font_size_override("font_size", 12)
+            card_hbox.add_child(bond_label)
+        elif decay > 0.0:
+            var decay_label = Label.new()
+            decay_label.text = "遗忘: %d%%" % int(decay)
+            decay_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.4))
+            decay_label.add_theme_font_size_override("font_size", 12)
+            card_hbox.add_child(decay_label)
+            
+        items_vbox.add_child(item_card)
+        
+    memory_list_container.add_child(header_panel)
 
 func _on_close_pressed() -> void:
     var tween = create_tween()

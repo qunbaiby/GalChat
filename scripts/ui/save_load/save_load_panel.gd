@@ -54,6 +54,8 @@ func refresh_list() -> void:
         list_container.add_child(auto_item)
         auto_item.setup("auto", auto_meta, is_save_mode)
         auto_item.slot_selected.connect(_on_slot_selected)
+        if auto_item.has_signal("delete_requested"):
+            auto_item.delete_requested.connect(refresh_list)
         
     # Manual slots
     for i in range(1, MAX_MANUAL_SLOTS + 1):
@@ -67,6 +69,8 @@ func refresh_list() -> void:
         list_container.add_child(item)
         item.setup(slot_id, meta, is_save_mode)
         item.slot_selected.connect(_on_slot_selected)
+        if item.has_signal("delete_requested"):
+            item.delete_requested.connect(refresh_list)
 
 func _on_slot_selected(slot_id: String, is_empty: bool) -> void:
     if is_save_mode:

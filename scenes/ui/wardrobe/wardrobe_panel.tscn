@@ -1,0 +1,140 @@
+[gd_scene load_steps=5 format=3 uid="uid://b0afs3fe0t3uv"]
+
+[ext_resource type="Script" uid="uid://i6qyj0aww0lt" path="res://scripts/ui/wardrobe/wardrobe_panel.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://dh6crbw5g8h" path="res://assets/images/backgrounds/main/home/Pyrrha_bedroom_Morning.png" id="2_sj00c"]
+[ext_resource type="SpriteFrames" uid="uid://bpabn0fanx36g" path="res://assets/images/characters/Luna/clothes/luna_jk.tres" id="3_sj00c"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_side"]
+bg_color = Color(0.1, 0.1, 0.1, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="WardrobePanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_script")
+
+[node name="BackGround" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_sj00c")
+expand_mode = 1
+
+[node name="Panel" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 40.0
+offset_right = -40.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="LeftPanel" type="PanelContainer" parent="Panel/HBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_side")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/HBoxContainer/LeftPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="ItemsGrid" type="GridContainer" parent="Panel/HBoxContainer/LeftPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 2
+
+[node name="CenterPanel" type="Control" parent="Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PortraitPivot" type="Control" parent="Panel/HBoxContainer/CenterPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CharPortrait" type="AnimatedSprite2D" parent="Panel/HBoxContainer/CenterPanel/PortraitPivot"]
+position = Vector2(-10.972412, 23.719269)
+scale = Vector2(0.4099513, 0.4099513)
+sprite_frames = ExtResource("3_sj00c")
+animation = &"calm"
+
+[node name="RightPanel" type="PanelContainer" parent="Panel/HBoxContainer"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_side")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/HBoxContainer/RightPanel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="DetailName" type="Label" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "服装名称"
+horizontal_alignment = 1
+
+[node name="DetailIcon" type="TextureRect" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DetailDesc" type="RichTextLabel" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+text = "服装的详细描述..."
+
+[node name="Spacer" type="Control" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="WearButton" type="Button" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "穿上"
+
+[node name="CloseButton" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -70.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 70.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 24
+text = "X"

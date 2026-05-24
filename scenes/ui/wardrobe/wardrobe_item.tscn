@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3 uid="uid://wardrobe_item_uid"]
+
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://wardrobe_item_script" path="res://scripts/ui/wardrobe/wardrobe_item.gd" id="2_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wearing"]
+bg_color = Color(0.9, 0.5, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="WardrobeItem" type="Button"]
+custom_minimum_size = Vector2(120, 150)
+offset_right = 120.0
+offset_bottom = 150.0
+theme = ExtResource("1_theme")
+script = ExtResource("2_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+size_flags_vertical = 3
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "服装名称"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WearingBadge" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = 28.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_wearing")
+text = "当前"
+horizontal_alignment = 1
+vertical_alignment = 1

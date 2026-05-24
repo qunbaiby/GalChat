@@ -1,0 +1,18 @@
+{
+  "outfits": [
+    {
+      "id": "default",
+      "name": "黑色卫衣",
+      "description": "Luna最喜欢的日常私服，穿着舒适，适合在家里休息。",
+      "icon": "res://assets/images/characters/Luna/luna_calm.png",
+      "sprite": "res://assets/images/characters/Luna/luna.tres"
+    },
+    {
+      "id": "school",
+      "name": "童年回忆",
+      "description": "可爱的制服系套装，增加了童年时期的鸭子徽章与帽子元素，能让人回忆起无忧无虑的日子。",
+      "icon": "res://assets/images/characters/Luna/luna_calm.png",
+      "sprite": "res://assets/images/characters/Luna/clothes/luna_jk.tres"
+    }
+  ]
+}

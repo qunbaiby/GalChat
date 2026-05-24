@@ -85,6 +85,16 @@ func advance_day(days: int = 1) -> void:
     current_minute = 0
     # 移除自动保存，交由游戏核心的存档系统管理
     # save_data()
+    
+    # 触发记忆衰退
+    if GameDataManager.has_method("memory_manager") and GameDataManager.memory_manager != null:
+        if GameDataManager.memory_manager.has_method("process_daily_decay"):
+            GameDataManager.memory_manager.process_daily_decay(days)
+            
+    # 记录大五人格变化历史
+    if GameDataManager.profile and GameDataManager.profile.has_method("record_daily_personality"):
+        GameDataManager.profile.record_daily_personality(current_day_offset)
+            
     time_advanced.emit(days, current_period)
 
 # 推进时段
@@ -119,6 +129,11 @@ func tick_minutes(mins: int = 1) -> void:
         if current_hour >= 24:
             current_hour = current_hour % 24
             current_day_offset += 1
+            if GameDataManager.has_method("memory_manager") and GameDataManager.memory_manager != null:
+                if GameDataManager.memory_manager.has_method("process_daily_decay"):
+                    GameDataManager.memory_manager.process_daily_decay(1)
+            if GameDataManager.profile and GameDataManager.profile.has_method("record_daily_personality"):
+                GameDataManager.profile.record_daily_personality(current_day_offset)
             
         if current_hour >= 6 and current_hour < 12:
             current_period = PERIOD_MORNING

@@ -1,9 +1,8 @@
-[gd_scene load_steps=24 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=23 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/ChatGPT Image 2026年5月20日 15_54_33.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="4_8r0ra"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="4_te7qg"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="4_v7k4o"]
 [ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/galchat_cg_0002.jpg" id="6_te7qg"]
 [ext_resource type="Texture2D" uid="uid://blts2rskaripw" path="res://assets/images/icons/ui/stats/social.svg" id="7_8r0ra"]
@@ -233,7 +232,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("4_te7qg")
 script = ExtResource("1_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]

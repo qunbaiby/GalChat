@@ -1,6 +1,6 @@
-[gd_scene load_steps=22 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=23 format=3 uid="uid://bl0bceh1xgj74"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_fmm1x"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://dxe3r2b5g7na" path="res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
@@ -15,28 +15,34 @@
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="13_api"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="14_dialogue"]
 [ext_resource type="Shader" uid="uid://bvr4ey2nio3wm" path="res://assets/shaders/left_trapezoid.gdshader" id="15_trapezoid_shader"]
+[ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
 shader = ExtResource("15_trapezoid_shader")
 shader_parameter/slant = 0.30000001425
 shader_parameter/corner_radius = 0.06000000285
-shader_parameter/aspect_ratio = 2.2
+shader_parameter/aspect_ratio = 2.3
 shader_parameter/padding = 0.0
-shader_parameter/border_width = 0.0
-shader_parameter/border_color = Color(0.85, 0.94, 0.92, 0.95)
+shader_parameter/border_width = 0.0110000005225
+shader_parameter/border_color = Color(0.8974335, 0.9594049, 0.9457002, 0.9490196)
 shader_parameter/glow_size = 0.0
 shader_parameter/glow_color = Color(0, 0.8, 1, 0)
+shader_parameter/bg_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6p2kk"]
-bg_color = Color(0.12, 0.12, 0.18, 1)
+bg_color = Color(0.15, 0.16, 0.18, 0.7)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fvueq"]
-bg_color = Color(0.12, 0.12, 0.18, 0.95)
+bg_color = Color(0.15, 0.16, 0.18, 0.7)
 skew = Vector2(0.3, 0)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fmm1x"]
 bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
@@ -82,7 +88,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme = ExtResource("1_6p2kk")
+theme = ExtResource("1_fmm1x")
 script = ExtResource("1_main")
 
 [node name="BackgroundContainer" type="Control" parent="."]
@@ -171,6 +177,7 @@ offset_right = -11.0
 offset_bottom = -10.0
 grow_horizontal = 0
 grow_vertical = 0
+pivot_offset = Vector2(101.5, 43.5)
 theme_override_styles/normal = SubResource("StyleBoxFlat_6p2kk")
 text = "外出"
 
@@ -187,6 +194,7 @@ offset_right = -206.0
 offset_bottom = -10.0
 grow_horizontal = 0
 grow_vertical = 0
+pivot_offset = Vector2(58.5, 43.5)
 theme_override_styles/normal = SubResource("StyleBoxFlat_fvueq")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fmm1x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_rntma")
@@ -200,9 +208,20 @@ offset_left = 20.0
 offset_top = 115.0
 offset_right = 65.0
 offset_bottom = 160.0
-size_flags_vertical = 4
+pivot_offset = Vector2(22.5, 22.5)
 theme_override_font_sizes/font_size = 28
 text = "⏱"
+
+[node name="WardrobeButton" type="Button" parent="UIPanel"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 0
+offset_left = 80.0
+offset_top = 115.0
+offset_right = 125.0
+offset_bottom = 160.0
+pivot_offset = Vector2(22.5, 22.5)
+theme_override_font_sizes/font_size = 28
+text = "👗"
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
 custom_minimum_size = Vector2(80, 35)
@@ -211,6 +230,7 @@ offset_left = 1173.0
 offset_top = 99.0
 offset_right = 1257.0
 offset_bottom = 138.0
+pivot_offset = Vector2(40, 17.5)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UIPanel/AffectionButton"]
 layout_mode = 1
@@ -318,26 +338,31 @@ grow_vertical = 2
 theme_override_constants/separation = 10
 
 [node name="ChatButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "与【角色名】聊天"
 
 [node name="GiftButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "送礼"
 
 [node name="CookButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "做饭"
 
 [node name="InteractiveButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "互动"
 
 [node name="RestButton" type="Button" parent="UIPanel/InteractGroup"]
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "休息"
@@ -423,6 +448,11 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 alignment = 1
+
+[node name="WardrobePanel" parent="." instance=ExtResource("16_wardrobe")]
+visible = false
+layout_mode = 1
+theme = null
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_bgm")

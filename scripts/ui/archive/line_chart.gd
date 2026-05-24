@@ -1,0 +1,78 @@
+extends Control
+
+@export var labels: Array[String] = ["开放性", "尽责性", "外倾性", "宜人性", "神经质"]
+@export var max_value: float = 100.0
+@export var grid_color: Color = Color(1, 1, 1, 0.1)
+@export var text_color: Color = Color(0.6, 0.6, 0.6, 1)
+
+# 颜色映射 (和雷达图/主题对齐)
+var line_colors: Array[Color] = [
+    Color(0.1, 0.8, 0.85, 1), # 开放性 - 青色
+    Color(0.9, 0.4, 0.4, 1),  # 尽责性 - 红色
+    Color(0.4, 0.9, 0.4, 1),  # 外倾性 - 绿色
+    Color(0.9, 0.9, 0.4, 1),  # 宜人性 - 黄色
+    Color(0.6, 0.4, 0.9, 1)   # 神经质 - 紫色
+]
+
+# 数据结构: [ {"day_offset": int, "openness": float, ...}, ... ]
+var history_data: Array = []
+
+func set_data(data: Array):
+    history_data = data
+    queue_redraw()
+
+func _draw():
+    var w = size.x
+    var h = size.y
+    var margin_left = 30.0
+    var margin_bottom = 20.0
+    var margin_top = 10.0
+    var margin_right = 10.0
+    
+    var graph_w = w - margin_left - margin_right
+    var graph_h = h - margin_top - margin_bottom
+    var origin = Vector2(margin_left, h - margin_bottom)
+    
+    var font = ThemeDB.fallback_font
+    var font_size = 12
+    
+    # 绘制背景横线和Y轴刻度 (0, 50, 100)
+    var y_steps = 2
+    for i in range(y_steps + 1):
+        var val = float(i) / y_steps * max_value
+        var y_pos = origin.y - (val / max_value) * graph_h
+        draw_line(Vector2(origin.x, y_pos), Vector2(origin.x + graph_w, y_pos), grid_color, 1.0)
+        draw_string(font, Vector2(0, y_pos + font_size/3.0), str(int(val)), HORIZONTAL_ALIGNMENT_RIGHT, margin_left - 5, font_size, text_color)
+        
+    if history_data.size() < 2:
+        draw_string(font, size/2.0 + Vector2(-50, 0), "数据不足 (需>=2天)", HORIZONTAL_ALIGNMENT_CENTER, -1, 14, text_color)
+        return
+        
+    # 绘制X轴刻度 (天数)
+    var num_points = history_data.size()
+    var x_step = graph_w / max(1, num_points - 1)
+    
+    for i in range(num_points):
+        var x_pos = origin.x + i * x_step
+        var day_offset = history_data[i].get("day_offset", 0)
+        draw_string(font, Vector2(x_pos - 15, origin.y + 15), "D%d" % day_offset, HORIZONTAL_ALIGNMENT_CENTER, 30, font_size, text_color)
+        
+    # 绘制五条折线
+    var traits = ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"]
+    for t_idx in range(traits.size()):
+        var trait_key = traits[t_idx]
+        var color = line_colors[t_idx]
+        
+        var points = PackedVector2Array()
+        for i in range(num_points):
+            var val = history_data[i].get(trait_key, 50.0)
+            val = clamp(val, 0.0, max_value)
+            var x_pos = origin.x + i * x_step
+            var y_pos = origin.y - (val / max_value) * graph_h
+            points.append(Vector2(x_pos, y_pos))
+            
+            # 画数据点圆圈
+            draw_circle(Vector2(x_pos, y_pos), 3.0, color)
+            
+        if points.size() >= 2:
+            draw_polyline(points, color, 2.0, true)
