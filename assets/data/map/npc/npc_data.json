@@ -20,5 +20,16 @@
       {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
+  },
+  "shuo": {
+    "id": "shuo",
+    "name": "朔",
+    "type": "resident",
+    "interactions": [
+      {"id": "chat", "label": "聊天"},
+      {"id": "study", "label": "课业指导"},
+      {"id": "gift", "label": "送礼"},
+      {"id": "leave", "label": "离开"}
+    ]
   }
 }

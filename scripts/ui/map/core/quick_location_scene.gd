@@ -317,7 +317,7 @@ func _on_menu_action_pressed(action_id: String):
 				# TODO: 其他 NPC 的互动
 				pass
 		"study":
-			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习")
+			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习/指导")
 			if current_interacting_npc_id == "jing":
 				info_and_options.hide() # 仅隐藏右侧选项
 				var study_menu_scene = load("res://scenes/ui/map/concert_hall/music_study_menu.tscn")
@@ -334,6 +334,22 @@ func _on_menu_action_pressed(action_id: String):
 								info_and_options.show()
 						)
 					get_tree().root.add_child(study_menu)
+			elif current_interacting_npc_id == "shuo":
+				info_and_options.hide() # 仅隐藏右侧选项
+				var tutoring_menu_scene = load("res://scenes/ui/map/library/tutoring_menu.tscn")
+				if tutoring_menu_scene:
+					var tutoring_menu = tutoring_menu_scene.instantiate()
+					if tutoring_menu.has_signal("tree_exited"):
+						tutoring_menu.tree_exited.connect(func():
+							if not is_inside_tree():
+								return
+							await get_tree().process_frame
+							if not is_inside_tree():
+								return
+							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
+								info_and_options.show()
+						)
+					get_tree().root.add_child(tutoring_menu)
 		"gift":
 			print("快捷模式 - 给 NPC: ", current_interacting_npc_id, " 送礼")
 			interaction_menu.hide() # 隐藏互动选项

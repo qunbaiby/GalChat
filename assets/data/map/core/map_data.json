@@ -59,7 +59,7 @@
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
       "scene_path": "res://scenes/map/locations/library.tscn",
       "bg_id": "library",
-      "map_position": {"x": 410, "y": 900},
+      "map_position": {"x": 410, "y": 250},
       "resident_npcs": ["shuo"],
       "scheduled_npcs": [
         {

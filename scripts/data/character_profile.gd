@@ -24,7 +24,7 @@ var current_mood: String: # 兼容旧存档或遗留逻辑，建议逐步废弃
 var last_login_date: String = "" # 用于判断是否跨天
 var trust: float = 10.0 # 0-9999
 var current_stage: int = 1 # 1-8
-var interaction_exp: int = 0
+var interaction_exp: int = 10000 # 初始设置高一点用于测试
 
 var stages_config: Array = []
 var base_personality: Dictionary = {}
@@ -441,7 +441,7 @@ func check_stage_upgrade() -> void:
 		stage_upgraded.emit(current_stage, unlock_dialog)
 		
 		if GameDataManager.save_manager:
-			var _ignore = GameDataManager.save_manager.auto_save()
+			GameDataManager.save_manager.call_deferred("auto_save")
 
 func consume_energy(amount: float) -> bool:
 	if current_energy >= amount:
@@ -510,7 +510,7 @@ func mark_story_finished(story_id: String) -> void:
 		finished_stories.append(story_id)
 		save_profile()
 		if GameDataManager.save_manager:
-			var _ignore = GameDataManager.save_manager.auto_save()
+			GameDataManager.save_manager.call_deferred("auto_save")
 
 func has_finished_story(story_id: String) -> bool:
 	return finished_stories.has(story_id)
