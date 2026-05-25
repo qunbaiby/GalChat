@@ -15,9 +15,9 @@ shadow_size = 4
 shadow_offset = Vector2(0, 2)
 
 [node name="LocationButton" type="Button"]
-custom_minimum_size = Vector2(120, 140)
-offset_right = 120.0
-offset_bottom = 140.0
+custom_minimum_size = Vector2(100, 120)
+offset_right = 100.0
+offset_bottom = 120.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_Button")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_Button")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")
@@ -39,16 +39,16 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameTag" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(120, 35)
+custom_minimum_size = Vector2(100, 30)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -60.0
-offset_top = -36.0
-offset_right = 60.0
+offset_left = -50.0
+offset_top = -30.0
+offset_right = 50.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2

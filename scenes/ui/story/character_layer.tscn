@@ -7,7 +7,7 @@
 script = ExtResource("2_script")
 
 [node name="CharacterAni" type="AnimatedSprite2D" parent="."]
-position = Vector2(608, 566)
-scale = Vector2(0.39301756, 0.39301762)
+position = Vector2(615.40875, 512.8359)
+scale = Vector2(0.5045883, 0.50458837)
 sprite_frames = ExtResource("3_f0cgw")
 animation = &"defult"

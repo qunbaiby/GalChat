@@ -30,15 +30,23 @@
         },
         {
             "id": "library",
-            "path": "res://assets/images/backgrounds/map/background/library/library.webp"
+            "path": "res://assets/images/backgrounds/map/background/art_academy/library/library.png"
         },
         {
             "id": "gym",
-            "path": "res://assets/images/backgrounds/map/background/gym/gym.jpg"
+            "path": "res://assets/images/backgrounds/map/background/art_academy/gym/gym.png"
+        },
+        {
+            "id": "sakura_avenue",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/sakura_avenue/sakura_avenue.png"
         },
         {
             "id": "concert_hall",
-            "path": "res://assets/images/backgrounds/map/background/concert_hall/concert_hall.jpg"
+            "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
+        },
+        {
+            "id": "art_gallery",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/art_gallery/art_gallery.png"
         }
     ],
     "maps": [

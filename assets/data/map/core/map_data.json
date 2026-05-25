@@ -48,7 +48,7 @@
       "icon": "loc_studio",
       "description": "你的专属工作与生活空间。",
       "bg_id": "bedroom_morning",
-      "map_position": {"x": 500, "y": 200},
+      "map_position": {"x": 520, "y": 270},
       "resident_npcs": [],
       "events": []
     },
@@ -59,7 +59,7 @@
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
       "scene_path": "res://scenes/map/locations/library.tscn",
       "bg_id": "library",
-      "map_position": {"x": 410, "y": 250},
+      "map_position": {"x": 680, "y": 110},
       "resident_npcs": ["shuo"],
       "scheduled_npcs": [
         {
@@ -77,7 +77,8 @@
       "name": "体育馆",
       "description": "充满活力的运动场所。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 400, "y": 200},
+      "bg_id": "gym",
+      "map_position": {"x": 170, "y": 190},
       "resident_npcs": [],
       "events": []
     },
@@ -87,7 +88,7 @@
       "description": "拥有顶级声学设计的专业音乐教学与排练场地。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "concert_hall",
-      "map_position": {"x": 1000, "y": 200},
+      "map_position": {"x": 1060, "y": 130},
       "resident_npcs": ["jing"],
       "events": []
     },
@@ -97,7 +98,7 @@
       "description": "充满艺术气息的美术教学与作品展览空间。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "art_gallery",
-      "map_position": {"x": 640, "y": 110},
+      "map_position": {"x": 400, "y": 260},
       "resident_npcs": [],
       "events": []
     },
@@ -115,7 +116,7 @@
       "name": "大礼堂",
       "description": "学校举办大型典礼与重要集会的地方。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 700, "y": 150},
+      "map_position": {"x": 610, "y": 300},
       "conditions": [
         {"type": "stat", "stat_name": "stat_stage", "value": 30}
       ],
@@ -127,7 +128,7 @@
       "name": "艺术广场",
       "description": "露天的艺术展示与学生交流广场。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 500, "y": 400},
+      "map_position": {"x": 910, "y": 280},
       "conditions": [
         {"type": "stat", "stat_name": "stat_art_theory", "value": 20}
       ],
@@ -139,7 +140,8 @@
       "name": "樱花大道",
       "description": "春天会开满樱花的浪漫校园小道。夜晚会锁闭。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "map_position": {"x": 180, "y": 170},
+      "bg_id": "sakura_avenue",
+      "map_position": {"x": 480, "y": 70},
       "conditions": [
         {"type": "time", "start_hour": 6, "end_hour": 19}
       ],
@@ -152,7 +154,7 @@
       "description": "雅经营的优雅咖啡厅，环境安静，咖啡香醇。",
       "scene_path": "res://scenes/map/locations/qingyu_time_cafe.tscn",
       "bg_id": "qingyu_time_cafe",
-      "map_position": {"x": 250, "y": 250},
+      "map_position": {"x": 300, "y": 170},
       "resident_npcs": ["ya"],
       "events": ["bond"]
     },
@@ -172,7 +174,7 @@
       "icon": "loc_yuli_alley",
       "description": "充满独立品牌与手作小店的文创街区。",
       "scene_path": "res://scenes/map/locations/yuli_alley.tscn",
-      "map_position": {"x": 500, "y": 350},
+      "map_position": {"x": 120, "y": 100},
       "resident_npcs": [],
       "events": []
     },
