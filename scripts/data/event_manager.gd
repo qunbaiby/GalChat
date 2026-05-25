@@ -5,6 +5,89 @@ extends Node
 
 signal event_triggered(event_id: String, params: Dictionary)
 
+const EVENT_REGISTRY_PATH = "res://assets/data/events/event_registry.json"
+const TRIGGERED_EVENTS_SAVE = "user://triggered_events.json"
+
+var event_registry: Array = []
+var triggered_events: Array = [] # 记录已触发过的事件ID
+
+func _ready() -> void:
+    _load_event_registry()
+    _load_triggered_events()
+
+func _load_event_registry() -> void:
+    if FileAccess.file_exists(EVENT_REGISTRY_PATH):
+        var file = FileAccess.open(EVENT_REGISTRY_PATH, FileAccess.READ)
+        var json = JSON.new()
+        if json.parse(file.get_as_text()) == OK:
+            var data = json.get_data()
+            if data.has("events"):
+                event_registry = data["events"]
+        file.close()
+
+func _load_triggered_events() -> void:
+    if FileAccess.file_exists(TRIGGERED_EVENTS_SAVE):
+        var file = FileAccess.open(TRIGGERED_EVENTS_SAVE, FileAccess.READ)
+        var json = JSON.new()
+        if json.parse(file.get_as_text()) == OK:
+            triggered_events = json.get_data()
+        file.close()
+
+func _save_triggered_events() -> void:
+    var SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
+    SafeFileAccess.store_string(TRIGGERED_EVENTS_SAVE, JSON.stringify(triggered_events))
+
+func is_event_triggered(event_id: String) -> bool:
+    return triggered_events.has(event_id)
+
+# 广播状态变更，尝试匹配全局事件
+func broadcast_state_change(context: Dictionary = {}) -> void:
+    var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+    
+    for event in event_registry:
+        var event_id = event.get("event_id", "")
+        
+        # 检查是否已触发过且不可重复
+        if not event.get("is_repeatable", false) and event_id in triggered_events:
+            continue
+            
+        var conditions = event.get("conditions", [])
+        var eval_result = ConditionManager.evaluate_conditions(conditions)
+        
+        # 如果是 location 条件，我们要确保 context 里传过来的 location 是一致的
+        if context.has("location_id"):
+            var has_loc_cond = false
+            var loc_match = false
+            for c in conditions:
+                if c.get("type", "") == "location":
+                    has_loc_cond = true
+                    if c.get("value", "") == context["location_id"]:
+                        loc_match = true
+            if has_loc_cond and not loc_match:
+                continue
+        
+        if eval_result["passed"]:
+            _trigger_registry_event(event)
+            return # 一次只触发一个事件，避免冲突
+
+func _trigger_registry_event(event_data: Dictionary) -> void:
+    var event_id = event_data.get("event_id", "")
+    print("[EventManager] 全局事件满足触发条件: ", event_id)
+    
+    var script_path = event_data.get("trigger_script", "")
+    if script_path != "" and ResourceLoader.exists(script_path):
+        # 标记为已触发
+        if not event_id in triggered_events:
+            triggered_events.append(event_id)
+            _save_triggered_events()
+            
+        GameDataManager.set_meta("play_specific_story", script_path)
+        var SceneTransitionManager = get_node_or_null("/root/SceneTransitionManager")
+        if SceneTransitionManager:
+            SceneTransitionManager.transition_to_scene("res://scenes/ui/story/story_scene.tscn")
+    
+    event_triggered.emit(event_id, event_data)
+
 func execute_event(event_id: String, params: Dictionary = {}) -> void:
     print("[EventManager] 触发事件: ", event_id, " | 参数: ", params)
     
@@ -100,7 +183,7 @@ func _handle_post_moment() -> void:
         print("[EventManager] 未找到有效的 DeepSeekClient 或缺少 send_moment_generation 方法，无法触发朋友圈生成。")
 
 func _get_random_character_profile() -> CharacterProfile:
-    var char_ids = ["luna", "nicole", "ya"]
+    var char_ids = ["luna", "jing", "ya"]
     var random_id = char_ids[randi() % char_ids.size()]
     
     var new_profile = CharacterProfile.new()

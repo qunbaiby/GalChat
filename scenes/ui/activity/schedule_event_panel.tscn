@@ -1,18 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://schedule_event_panel_x"]
+[gd_scene load_steps=2 format=3 uid="uid://0cfy2ephvsle"]
 
-[ext_resource type="Script" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.98, 0.88, 0.72, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.85, 0.65, 0.45, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_left = 16
-corner_radius_bottom_right = 16
+[ext_resource type="Script" uid="uid://cvxfblkpaci4e" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
 [node name="ScheduleEventPanel" type="Control"]
 layout_mode = 3
@@ -46,7 +34,6 @@ offset_right = 300.0
 offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1

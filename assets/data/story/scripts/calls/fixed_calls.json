@@ -1,7 +1,7 @@
 [
     {
-        "id": "intro_call_nicole",
-        "char_id": "nicole",
+        "id": "intro_call_jing",
+        "char_id": "jing",
         "type": "voice_call",
         "lines": [
             "你这家伙，消失三年，总算舍得露面了！",

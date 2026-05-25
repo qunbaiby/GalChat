@@ -2,13 +2,14 @@
   "stages": [
     {
       "stage": 1,
-      "threshold": 15,
+      "exp_cost": 50,
+      "resonance_threshold": 25,
       "intimacy_multiplier": 1.0,
       "trust_multiplier": 1.0,
       "exp_per_interaction": 10,
       "stageTitle": "初遇",
       "stageDesc": "对陌生的环境和你都保持着礼貌的距离，安静且拘谨，不想添麻烦。",
-      "unlockDialog": "【行为】双手规矩地交叠在膝盖上，坐在沙发边缘，哪怕你递给她水也只是轻声道谢不敢多喝。【对话】“您好……打扰了。妮可老师说您可以指导我，我会在一旁安静学习的，尽量不给您添麻烦。”",
+      "unlockDialog": "【行为】双手规矩地交叠在膝盖上，坐在沙发边缘，哪怕你递给她水也只是轻声道谢不敢多喝。【对话】“您好……打扰了。静老师说您可以指导我，我会在一旁安静学习的，尽量不给您添麻烦。”",
       "emojiIcon": "👀",
       "scene_setting": "【日常风格】在陌生环境里有些拘束，习惯性地保持安静，缩小自己的存在感。说话轻声细语，不会主动发起话题。【互动风格】说话轻声细语，带着明显的客气。遇到问题倾向于自己琢磨，不想因为自己而影响到你工作。【特殊场景反应：看到玩家在忙碌或和别人聊天时，她觉得自己在场可能不太方便，会默默退到一旁或角落，完全没有融入的意图，只是安静等待。】",
       "important_notes": "语气客气且带有初见时的拘谨。对玩家的私人生活完全不干涉，保持着安全的社交距离。自带一种安静、温和但有距离感的气质。",
@@ -16,7 +17,9 @@
     },
     {
       "stage": 2,
-      "threshold": 35,
+      "exp_cost": 100,
+      "resonance_threshold": 60,
+      "milestone_event": "ya_cafe_first_visit",
       "intimacy_multiplier": 1.1,
       "trust_multiplier": 1.1,
       "exp_per_interaction": 12,
@@ -30,7 +33,8 @@
     },
     {
       "stage": 3,
-      "threshold": 60,
+      "exp_cost": 150,
+      "resonance_threshold": 105,
       "intimacy_multiplier": 1.2,
       "trust_multiplier": 1.2,
       "exp_per_interaction": 15,
@@ -44,7 +48,8 @@
     },
     {
       "stage": 4,
-      "threshold": 85,
+      "exp_cost": 200,
+      "resonance_threshold": 155,
       "intimacy_multiplier": 1.3,
       "trust_multiplier": 1.3,
       "exp_per_interaction": 18,
@@ -58,7 +63,8 @@
     },
     {
       "stage": 5,
-      "threshold": 110,
+      "exp_cost": 300,
+      "resonance_threshold": 200,
       "intimacy_multiplier": 1.4,
       "trust_multiplier": 1.4,
       "exp_per_interaction": 22,
@@ -72,7 +78,8 @@
     },
     {
       "stage": 6,
-      "threshold": 140,
+      "exp_cost": 400,
+      "resonance_threshold": 260,
       "intimacy_multiplier": 1.5,
       "trust_multiplier": 1.5,
       "exp_per_interaction": 26,
@@ -86,7 +93,8 @@
     },
     {
       "stage": 7,
-      "threshold": 170,
+      "exp_cost": 500,
+      "resonance_threshold": 320,
       "intimacy_multiplier": 1.8,
       "trust_multiplier": 1.8,
       "exp_per_interaction": 30,
@@ -100,7 +108,8 @@
     },
     {
       "stage": 8,
-      "threshold": 220,
+      "exp_cost": 600,
+      "resonance_threshold": 420,
       "intimacy_multiplier": 2.0,
       "trust_multiplier": 2.0,
       "exp_per_interaction": 35,
@@ -114,7 +123,8 @@
     },
     {
       "stage": 9,
-      "threshold": 9999,
+      "exp_cost": 9999,
+      "resonance_threshold": 9999,
       "intimacy_multiplier": 2.5,
       "trust_multiplier": 2.5,
       "exp_per_interaction": 40,

@@ -15,6 +15,11 @@ func _ready():
 	# Dispatch event
 	if GameDataManager.has_method("dispatch_event"):
 		GameDataManager.dispatch_event("location_entered", location_id)
+		
+	# Broadcast state change to EventManager to check for global events
+	var event_manager = get_node_or_null("/root/EventManager")
+	if event_manager and event_manager.has_method("broadcast_state_change"):
+		event_manager.broadcast_state_change({"location_id": location_id})
 
 func _load_location_data():
 	var loc = MapDataManager.get_location(location_id)

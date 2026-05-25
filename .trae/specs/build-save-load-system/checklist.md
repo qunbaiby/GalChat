@@ -1,6 +1,0 @@
-- [x] `SafeFileAccess` 或安全保存逻辑能够正确使用 `.tmp` 中转文件。
-- [x] 成功引入 `SaveManager` 单例/管理器。
-- [x] 现有的 `CharacterProfile`、`ChatHistoryManager` 等存储逻辑已成功被接管，消除了零散覆盖旧文件的风险。
-- [x] `save_load_panel` 界面已实现并能在游戏主界面或设置界面正确呼出。
-- [x] 能够成功新建存档、覆盖存档并从列表中读取存档。
-- [x] 读取存档后，游戏的亲密度、阶段、历史记录与存档一致，且无报错。

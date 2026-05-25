@@ -75,31 +75,36 @@ func is_location_unlocked(location_id: String) -> bool:
 	if not (conditions is Array):
 		return true
 		
-	var time_sys = GameDataManager.story_time_manager
-	var profile = GameDataManager.profile
-	var current_stage = profile.current_stage if profile else 0
+	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = ConditionManager.evaluate_conditions(conditions)
+	return eval_result["passed"]
 	
-	for cond in conditions:
-		var c_type = cond.get("type", "")
-		if c_type == "time":
-			var start_h = cond.get("start_hour", 0)
-			var end_h = cond.get("end_hour", 24)
-			var h = time_sys.current_hour
-			if h < start_h or h >= end_h:
-				return false
-		elif c_type == "stat":
-			var stat_name = cond.get("stat_name", "")
-			var min_val = cond.get("value", 0)
-			if profile:
-				var val = profile.get(stat_name)
-				if val == null or val < min_val:
-					return false
-		elif c_type == "stage":
-			var min_stage = cond.get("min_stage", 0)
-			if current_stage < min_stage:
-				return false
-	
-	return true
+func is_location_visible(location_id: String) -> bool:
+	var loc = get_location(location_id)
+	if loc.is_empty():
+		return false
+		
+	if not loc.has("visibility_conditions"):
+		return true
+		
+	var v_conditions = loc["visibility_conditions"]
+	if not (v_conditions is Array):
+		return true
+		
+	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = ConditionManager.evaluate_conditions(v_conditions)
+	return eval_result["passed"]
+
+func get_location_lock_reason(location_id: String) -> String:
+	var loc = get_location(location_id)
+	if loc.is_empty() or not loc.has("conditions"):
+		return ""
+		
+	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = ConditionManager.evaluate_conditions(loc["conditions"])
+	if not eval_result["passed"]:
+		return eval_result["failed_reason"]
+	return ""
 
 func get_area_locations(area_id: String) -> Array:
 	var area = get_area(area_id)

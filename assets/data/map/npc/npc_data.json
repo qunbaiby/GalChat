@@ -10,18 +10,9 @@
       {"id": "leave", "label": "离开"}
     ]
   },
-  "librarian": {
-    "id": "librarian",
-    "name": "图书管理员",
-    "type": "resident",
-    "interactions": [
-      {"id": "chat", "label": "询问信息"},
-      {"id": "leave", "label": "离开"}
-    ]
-  },
-  "nicole": {
-    "id": "nicole",
-    "name": "妮可",
+  "jing": {
+    "id": "jing",
+    "name": "静",
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},

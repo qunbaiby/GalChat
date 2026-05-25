@@ -3,6 +3,7 @@ extends Node
 var config: ConfigResource
 var profile: CharacterProfile # character profile
 var history: ChatHistoryManager
+var npc_relationship_manager: NPCRelationshipManager
 var prompt_manager: Node
 var audit_logger: Node
 var persona_lock: Node
@@ -88,6 +89,10 @@ func _ready() -> void:
     history = ChatHistoryManager.new()
     history.load_history()
     
+    npc_relationship_manager = preload("res://scripts/data/npc_relationship_manager.gd").new()
+    add_child(npc_relationship_manager)
+    npc_relationship_manager.load_relationships()
+    
     prompt_manager = preload("res://scripts/data/prompt_manager.gd").new()
     add_child(prompt_manager)
     
@@ -141,6 +146,7 @@ func switch_character(char_id: String) -> void:
     # 保存当前角色数据
     if profile: profile.save_profile()
     if history: history.save_history()
+    if npc_relationship_manager: npc_relationship_manager.save_relationships()
     
     # 更新配置并重新加载
     config.current_character_id = char_id
@@ -148,6 +154,7 @@ func switch_character(char_id: String) -> void:
     
     profile.load_profile(char_id)
     history.load_history()
+    if npc_relationship_manager: npc_relationship_manager.load_relationships()
     
     persona_lock.check_and_lock_character(profile.char_name)
     

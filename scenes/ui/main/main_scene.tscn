@@ -452,7 +452,6 @@ alignment = 1
 [node name="WardrobePanel" parent="." instance=ExtResource("16_wardrobe")]
 visible = false
 layout_mode = 1
-theme = null
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_bgm")

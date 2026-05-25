@@ -23,6 +23,14 @@ func setup(loc_data: Dictionary) -> void:
     
     var loc_name = loc_data.get("name", "未知地点")
     
+    # Check if locked
+    var is_unlocked = MapDataManager.is_location_unlocked(location_id)
+    if not is_unlocked:
+        loc_name = "🔒 " + loc_name
+        self.modulate = Color(0.6, 0.6, 0.6, 0.8) # 变暗
+    else:
+        self.modulate = Color(1.0, 1.0, 1.0, 1.0)
+    
     if name_label:
         name_label.text = loc_name
     

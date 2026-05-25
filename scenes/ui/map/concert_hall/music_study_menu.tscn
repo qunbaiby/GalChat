@@ -294,7 +294,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
-text = "[center]等待妮可的评价...[/center]"
+text = "[center]等待静的评价...[/center]"
 
 [node name="FinishBtn" type="Button" parent="StudyPopup"]
 visible = false

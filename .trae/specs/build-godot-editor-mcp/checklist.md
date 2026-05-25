@@ -1,0 +1,6 @@
+- [x] Godot 插件 `addons/godot_mcp` 可在 Godot 编辑器中正常启用，无报错。
+- [x] Godot 插件成功监听本地端口（如 8081），能接收并响应 HTTP 请求。
+- [x] 请求获取场景树接口能正确返回当前编辑器中打开的场景结构（JSON 格式）。
+- [x] MCP Server `mcp_servers/godot_editor` 可成功编译并运行。
+- [x] MCP Server 能正确通过 `stdio` 暴露 `godot_get_scene_tree` 和 `godot_get_node_info` 工具。
+- [x] 实际调用 MCP 工具能成功获取 Godot 编辑器内的数据。

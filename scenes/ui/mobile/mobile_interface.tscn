@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=24 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/ChatGPT Image 2026年5月20日 15_54_33.png" id="2_6upme"]
@@ -117,6 +117,11 @@ corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ListContent"]
 bg_color = Color(0.14, 0.11, 0.1, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.1)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -133,6 +138,11 @@ corner_radius_top_left = 25
 corner_radius_top_right = 25
 corner_radius_bottom_right = 25
 corner_radius_bottom_left = 25
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.08, 0.09, 0.1, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
 
 [sub_resource type="Animation" id="Animation_Init"]
 resource_name = "RESET"
@@ -456,7 +466,7 @@ alignment = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
 theme_override_font_sizes/font_size = 12
-text = "互动等级"
+text = "共感等级"
 
 [node name="LevelProgress" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox"]
 layout_mode = 2
@@ -473,8 +483,9 @@ theme_override_font_sizes/font_size = 40
 text = "1"
 
 [node name="ExpBar" type="ProgressBar" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox"]
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
+size_flags_vertical = 4
 theme_override_styles/background = SubResource("StyleBoxFlat_ExpBgNew")
 theme_override_styles/fill = SubResource("StyleBoxFlat_ExpFillNew")
 value = 50.0
@@ -955,112 +966,166 @@ theme_override_constants/margin_bottom = 20
 
 [node name="ContentVBox" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 25
 
-[node name="EmotionRow" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+[node name="HeaderPanel1" type="PanelContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="IconLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/EmotionRow"]
+[node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/HeaderPanel1"]
 layout_mode = 2
-text = "🎭"
+theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+text = "  ◆ 情感状态概览"
 
-[node name="NameLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/EmotionRow"]
-custom_minimum_size = Vector2(70, 0)
+[node name="Header" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
 layout_mode = 2
-text = "情感"
 
-[node name="EmojiLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/EmotionRow"]
-layout_mode = 2
-text = "👀"
-
-[node name="TitleLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/EmotionRow"]
+[node name="StageInfo" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "阶段标题"
 
-[node name="DescPanel" type="PanelContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+[node name="StageNumLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/StageInfo"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "STAGE 1"
+
+[node name="StageTitleLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/StageInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "初遇"
+
+[node name="FlavorBadge" type="PanelContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header"]
+layout_mode = 2
+size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
 
-[node name="Margin" type="MarginContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescPanel"]
+[node name="Margin" type="MarginContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/FlavorBadge"]
 layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
 
-[node name="DescLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescPanel/Margin"]
+[node name="FlavorLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/FlavorBadge/Margin"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "防备疏离"
+
+[node name="DescVBox" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StageDescLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "情感描述..."
+text = "阶段描述加载中..."
 autowrap_mode = 3
 
-[node name="HSep1" type="HSeparator" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+[node name="FlavorDescLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "风味描述加载中..."
+autowrap_mode = 3
 
-[node name="IntimacyRow" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+[node name="HeaderPanel2" type="PanelContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="IconLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/IntimacyRow"]
+[node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/HeaderPanel2"]
 layout_mode = 2
-text = "🤍"
+theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+text = "  ◆ 情感坐标数值"
 
-[node name="NameLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/IntimacyRow"]
-custom_minimum_size = Vector2(70, 0)
+[node name="ValuesRow" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
 layout_mode = 2
-text = "亲密度"
+theme_override_constants/separation = 20
 
-[node name="ProgressBar" type="ProgressBar" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/IntimacyRow"]
-custom_minimum_size = Vector2(0, 24)
+[node name="IntimacyBlock" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
+
+[node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/IntimacyBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "🤍 亲密度"
+horizontal_alignment = 1
+
+[node name="IntimacyVal" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/IntimacyBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 28
+text = "0.0"
+horizontal_alignment = 1
+
+[node name="VSep" type="VSeparator" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow"]
+layout_mode = 2
+
+[node name="TrustBlock" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/TrustBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "🤝 信任值"
+horizontal_alignment = 1
+
+[node name="TrustVal" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/TrustBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "0.0"
+horizontal_alignment = 1
+
+[node name="HeaderPanel3" type="PanelContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/HeaderPanel3"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+text = "  ◆ 升阶进度指标"
+
+[node name="ProgressSection" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "升阶门槛"
+
+[node name="ResonanceBar" type="ProgressBar" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
 show_percentage = false
 
-[node name="ValueLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/IntimacyRow/ProgressBar"]
+[node name="ValueLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection/ResonanceBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "0 / 100"
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "✨ 共感度: 0 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HSep2" type="HSeparator" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
+[node name="MilestoneLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection"]
 layout_mode = 2
-
-[node name="TrustRow" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="IconLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/TrustRow"]
-layout_mode = 2
-text = "🤝"
-
-[node name="NameLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/TrustRow"]
-custom_minimum_size = Vector2(70, 0)
-layout_mode = 2
-text = "信任值"
-
-[node name="ProgressBar" type="ProgressBar" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/TrustRow"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-show_percentage = false
-
-[node name="ValueLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/TrustRow/ProgressBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "0 / 100"
+theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "📌 阶段里程碑: 尚未解锁"
 horizontal_alignment = 1
 vertical_alignment = 1
 

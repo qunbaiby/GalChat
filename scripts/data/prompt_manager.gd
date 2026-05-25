@@ -23,6 +23,24 @@ const NPC_EVENT_DYNAMIC_STYLES: Array[Dictionary] = [
 
 # 缓存已加载的模板
 var templates: Dictionary = {}
+var world_setting_cache: String = ""
+
+func load_world_setting() -> String:
+    if world_setting_cache != "":
+        return world_setting_cache
+        
+    var path = "res://assets/data/world/world_setting.json"
+    if FileAccess.file_exists(path):
+        var file = FileAccess.open(path, FileAccess.READ)
+        var content = file.get_as_text()
+        file.close()
+        var json = JSON.new()
+        if json.parse(content) == OK:
+            var data = json.get_data()
+            if data is Dictionary:
+                world_setting_cache = data.get("world_background", "")
+                return world_setting_cache
+    return ""
 
 func load_template(template_name: String) -> String:
     if templates.has(template_name):
@@ -91,10 +109,32 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     if player_name.is_empty():
         player_name = "老师"
         
-    var world_bg = profile.description.replace("{char_name}", safe_char_name)
+    var identity_bg = profile.description.replace("{char_name}", safe_char_name)
+    var global_world_bg = load_world_setting()
+    
     var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
     var st_desc = stage_conf.get("stageDesc", "").replace("{char_name}", safe_char_name)
     
+    var intimacy_value = profile.intimacy
+    var intimacy_desc = ""
+    if intimacy_value < 50:
+        intimacy_desc = "【当前亲密度】：疏离。角色与你保持社交距离，言语客气但有分寸。"
+    elif intimacy_value < 150:
+        intimacy_desc = "【当前亲密度】：暧昧。角色对你有明显好感，偶尔会开一些亲近的玩笑。"
+    else:
+        intimacy_desc = "【当前亲密度】：炽热。角色与你建立了深厚的情感羁绊，言行间透露着强烈的依赖感。"
+        
+    var trust_value = profile.trust
+    var trust_desc = ""
+    if trust_value < 50:
+        trust_desc = "【当前信任度】：极低。角色对你极度缺乏安全感，心防很重，哪怕亲密度高也容易患得患失，不敢分享内心的秘密。"
+    elif trust_value < 150:
+        trust_desc = "【当前信任度】：中等。角色对你有了一定的信任，开始愿意尝试与你分享一些日常的烦恼，但内心深处的秘密依然会有所保留。"
+    else:
+        trust_desc = "【当前信任度】：极高。角色在你面前彻底卸下了伪装和心防，拥有绝对的安全感，敢于向你展露自己最脆弱、真实甚至任性的一面。"
+        
+    var rel_desc = intimacy_desc + "\n" + trust_desc
+        
     var base_traits = GameDataManager.personality_system.get_base_traits(profile).replace("{char_name}", safe_char_name)
     var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile).replace("{char_name}", safe_char_name)
     var p_traits = base_traits + "\n\n" + dyn_traits
@@ -208,9 +248,14 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
         "name": safe_char_name,
         "player_name": player_name,
         "age": str(profile.age),
-        "world_background": world_bg,
+        "world_setting": "【世界观背景】：\n" + global_world_bg if global_world_bg != "" else "",
+        "identity_background": "【角色身份背景】：\n" + identity_bg,
+        "intimacy": str(profile.intimacy),
+        "trust": str(profile.trust),
+        "flavor": GameDataManager.personality_system.get_dynamic_traits(profile),
         "stage_title": st_title,
         "stage_desc": st_desc,
+        "trust_desc": rel_desc,
         "personality_traits": p_traits,
         "topic_preferences": topic_prefs,
         "micro_habits": m_habits,
@@ -279,6 +324,9 @@ func build_options_prompt(profile: CharacterProfile, recent_history: String) -> 
     if not stage_conf.is_empty():
         stage_desc = stage_conf.get("stageTitle", "") + " - " + stage_conf.get("stageDesc", "")
         
+    var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
+    stage_desc += "\n当前情感状态：亲密度 %.1f，信任度 %.1f。情感风味：%s" % [profile.intimacy, profile.trust, dyn_traits]
+        
     var option_constraints = GameDataManager.personality_system.get_option_constraints(profile)
     
     var player_name = profile.player_title
@@ -316,7 +364,7 @@ func build_character_mood_prompt(character_message: String) -> String:
         "character_message": character_message
     })
 
-func build_npc_event_prompt(npc_name: String, personality: String, protagonist_name: String, stage: int, stage_title: String, event_desc: String) -> String:
+func build_npc_event_prompt(npc_name: String, personality: String, protagonist_name: String, stage: int, stage_title: String, event_desc: String, intimacy: float = 0.0, trust: float = 0.0) -> String:
     var template = load_template("npc_event")
     if template == "":
         return ""
@@ -333,40 +381,70 @@ func build_npc_event_prompt(npc_name: String, personality: String, protagonist_n
         if random_val < 0:
             random_style = s["text"]
             break
-        
+            
+    # 为了防止 template 没兼容 intimacy 和 trust，我们仍然传 stage
     return template.format({
         "npc_name": npc_name,
         "personality": personality,
         "protagonist_name": protagonist_name,
         "stage": str(stage),
+        "intimacy": str(intimacy),
+        "trust": str(trust),
         "stage_title": stage_title,
         "event_desc": event_desc,
         "dynamic_style": random_style
     })
 
+func build_end_chat_prompt(profile: CharacterProfile, recent_history: String) -> String:
+    var template = load_template("end_chat")
+    var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
+    if template == "":
+        return "【系统提示：玩家想要结束本次对话。请根据你们当前的关系状态（亲密度：%.1f，信任度：%.1f，风味：%s），并结合以下刚才聊天的上下文，给出自然的告别反应。注意：1. 只能回复单句告别语。2. 不要输出这段系统提示，直接以%s的口吻说话。】\n[近期聊天上下文]\n%s" % [profile.intimacy, profile.trust, dyn_traits, profile.char_name, recent_history]
+        
+    return template.format({
+        "stage": str(profile.current_stage),
+        "intimacy": str(profile.intimacy),
+        "trust": str(profile.trust),
+        "flavor": dyn_traits,
+        "char_name": profile.char_name,
+        "recent_history": recent_history
+    })
+
 func build_proactive_greeting_prompt(profile: CharacterProfile, prompt_type: String = "") -> String:
+    var template = load_template("proactive_greeting")
     var stage_conf = profile.get_current_stage_config()
     var stage_title = stage_conf.get("stageTitle", "陌生人")
     var stage_desc = stage_conf.get("stageDesc", "")
+    var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
     var char_name = profile.char_name
     
-    var prompt = "【系统指令】\n"
-    prompt += "玩家刚刚打开了游戏主界面。\n"
-    
+    var type_desc = "请基于当前的情景，主动发出一句简短的问候。"
     if prompt_type == "course":
-        prompt += "今天是星期一。请基于当前的日期，主动聊一句关于新的一周、学业或者课程安排的话题。\n"
+        type_desc = "今天是星期一。请基于当前的日期，主动聊一句关于新的一周、学业或者课程安排的话题。"
     elif prompt_type == "daily":
-        prompt += "今天是周末（星期六或星期日）。请基于当前的日期，主动聊一句关于周末放松、休息或者日常活动的话题。\n"
-    else:
-        prompt += "请基于当前的情景，主动发出一句简短的问候。\n"
+        type_desc = "今天是周末（星期六或星期日）。请基于当前的日期，主动聊一句关于周末放松、休息或者日常活动的话题。"
         
-    prompt += "请基于当前你（%s）与玩家的情感阶段（当前阶段：%s，说明：%s），主动对玩家说话。\n" % [char_name, stage_title, stage_desc]
-    prompt += "要求：\n"
-    prompt += "1. 必须符合当前的情感深度和人设，语气要自然。\n"
-    prompt += "2. 字数在15-40字之间。\n"
-    prompt += "3. 【强制要求：你的回复中，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完括号后必须全是台词，句尾或句中绝对不准再出现任何括号描写！】\n"
-    prompt += "4. 不要输出任何系统提示，直接以第一人称代入角色进行对话。"
-    return prompt
+    if template == "":
+        var prompt = "【系统指令】\n"
+        prompt += "玩家刚刚打开了游戏主界面。\n"
+        prompt += type_desc + "\n"
+        prompt += "请基于当前你（%s）与玩家的情感状态（亲密度：%.1f，信任度：%.1f，风味：%s），主动对玩家说话。\n" % [char_name, profile.intimacy, profile.trust, dyn_traits]
+        prompt += "要求：\n"
+        prompt += "1. 必须符合当前的情感深度和人设，语气要自然。\n"
+        prompt += "2. 字数在15-40字之间。\n"
+        prompt += "3. 【强制要求：你的回复中，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完括号后必须全是台词，句尾或句中绝对不准再出现任何括号描写！】\n"
+        prompt += "4. 不要输出任何系统提示，直接以第一人称代入角色进行对话。"
+        return prompt
+        
+    return template.format({
+        "type_desc": type_desc,
+        "char_name": char_name,
+        "intimacy": str(profile.intimacy),
+        "trust": str(profile.trust),
+        "flavor": dyn_traits,
+        "stage_title": stage_title,
+        "stage_desc": stage_desc
+    })
 
 func build_schedule_event_prompt(course_name: String, course_desc: String) -> String:
     var prompt = "你是一个生活事件生成器。请根据给定的课程/活动名称和描述，生成一个可能在进行该活动时发生的突发小事件。\n"

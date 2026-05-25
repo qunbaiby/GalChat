@@ -1,0 +1,15 @@
+{
+    "char_name": "静",
+    "age": 28,
+    "avatar": "res://assets/images/characters/avatar/jing.png",
+    "sprite_frames_path": "",
+    "identity_background": "江屿现代艺术大学的音乐老师，也是Luna的恩师与知音。作为御姐，她对学生尤其是Luna的要求极为严厉，但骨子里却很温柔，总是用自己特有的方式默默关心着Luna。她与Luna喜欢着相同的音乐风格，两人在音乐上有着深刻的共鸣，常在课后一起在音乐馆欣赏黑胶唱片。虽然外表高冷强势，不苟言笑，但内心对认可的人极为护短。",
+    "tags": ["音乐老师", "知音", "外冷内热", "御姐", "强势", "温柔"],
+    "base_personality": {
+        "openness": 70.0,
+        "conscientiousness": 90.0,
+        "extraversion": 30.0,
+        "agreeableness": 60.0,
+        "neuroticism": 25.0
+    }
+}

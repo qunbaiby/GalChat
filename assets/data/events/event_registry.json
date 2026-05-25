@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "event_id": "ya_cafe_first_visit",
+      "event_type": "auto_trigger",
+      "is_repeatable": false,
+      "conditions": [
+        { "type": "location", "value": "qingyu_time_cafe" }
+      ],
+      "trigger_script": "res://assets/data/story/scripts/events/ya_cafe_first_visit.json"
+    },
+    {
+      "event_id": "shuo_library_rain",
+      "event_type": "auto_trigger",
+      "is_repeatable": false,
+      "conditions": [
+        { "type": "location", "value": "library" },
+        { "type": "weather", "value": "雨" },
+        { "type": "npc_stage", "npc_id": "shuo", "min_stage": 2 }
+      ],
+      "trigger_script": "res://assets/data/story/scripts/events/shuo_library_rain.json"
+    }
+  ]
+}

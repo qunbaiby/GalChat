@@ -61,9 +61,25 @@ func _setup_ui() -> void:
                 hearts_str += "♡"
         menu_hearts_label.text = hearts_str
     else:
-        # 默认非主角NPC的好感度展示
-        menu_stage_label.text = "普通朋友"
-        menu_hearts_label.text = "♥♡♡♡♡♡♡♡♡♡"
+        var npc_rel = GameDataManager.npc_relationship_manager
+        if npc_rel:
+            var current_stage = npc_rel.get_stage(npc_id)
+            var stage_config = npc_rel.get_stage_config(npc_id)
+            menu_stage_label.text = stage_config.get("stage_name", stage_config.get("stageTitle", "普通朋友"))
+            
+            var max_hearts = 10
+            var filled_hearts = min(current_stage, max_hearts)
+            var hearts_str = ""
+            for i in range(max_hearts):
+                if i < filled_hearts:
+                    hearts_str += "♥"
+                else:
+                    hearts_str += "♡"
+            menu_hearts_label.text = hearts_str
+        else:
+            # 默认非主角NPC的好感度展示
+            menu_stage_label.text = "普通朋友"
+            menu_hearts_label.text = "♥♡♡♡♡♡♡♡♡♡"
     
     # Clear existing buttons
     for child in options_vbox.get_children():

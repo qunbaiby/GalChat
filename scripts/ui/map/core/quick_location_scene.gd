@@ -45,6 +45,11 @@ func _ready() -> void:
 	
 	if location_id != "":
 		_load_location_data()
+		
+		# Broadcast state change to EventManager to check for global events
+		var event_manager = get_node_or_null("/root/EventManager")
+		if event_manager and event_manager.has_method("broadcast_state_change"):
+			event_manager.broadcast_state_change({"location_id": location_id})
 
 func _load_location_data():
 	var loc_data = MapDataManager.get_location(location_id)
@@ -289,9 +294,11 @@ func _on_menu_action_pressed(action_id: String):
 					# 监听点单菜单的退出信号
 					if order_menu.has_signal("tree_exited"):
 						order_menu.tree_exited.connect(func(): 
-							# Check if tree exists before yielding
-							if is_inside_tree():
-								await get_tree().process_frame
+							if not is_inside_tree():
+								return
+							await get_tree().process_frame
+							if not is_inside_tree():
+								return
 							
 							# 1. 对话面板没有在显示
 							# 2. 还在跟 NPC 互动
@@ -311,16 +318,18 @@ func _on_menu_action_pressed(action_id: String):
 				pass
 		"study":
 			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习")
-			if current_interacting_npc_id == "nicole":
+			if current_interacting_npc_id == "jing":
 				info_and_options.hide() # 仅隐藏右侧选项
 				var study_menu_scene = load("res://scenes/ui/map/concert_hall/music_study_menu.tscn")
 				if study_menu_scene:
 					var study_menu = study_menu_scene.instantiate()
 					if study_menu.has_signal("tree_exited"):
 						study_menu.tree_exited.connect(func():
-							# Check if tree exists before yielding
-							if is_inside_tree():
-								await get_tree().process_frame
+							if not is_inside_tree():
+								return
+							await get_tree().process_frame
+							if not is_inside_tree():
+								return
 							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
 								info_and_options.show()
 						)

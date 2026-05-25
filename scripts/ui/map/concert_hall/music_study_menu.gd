@@ -109,7 +109,7 @@ func _show_studying_popup(opt: Dictionary):
 	study_popup.show()
 	popup_title.text = "正在进行 " + opt["name"] + "..."
 	progress_bar.value = 0
-	ai_label.text = "[center]等待妮可的评价...[/center]"
+	ai_label.text = "[center]等待静的评价...[/center]"
 	finish_btn.hide()
 	
 	_ai_finished = false
@@ -129,7 +129,7 @@ func _show_studying_popup(opt: Dictionary):
 	# Call AI
 	var profile = GameDataManager.profile
 	var char_name = profile.char_name if profile.char_name != "" else "Luna"
-	var prompt = "【系统指令】\n%s刚刚完成了一节【%s】。\n请以妮可（高冷、严厉但内心护短的高级辅导员）的口吻，给出一句简短的评价（20字以内）。" % [char_name, opt["name"]]
+	var prompt = "【系统指令】\n%s刚刚完成了一节【%s】。\n请以静（高冷、严厉但内心护短的高级辅导员）的口吻，给出一句简短的评价（20字以内）。" % [char_name, opt["name"]]
 	
 	var deepseek_client = null
 	for child in get_tree().root.get_children():

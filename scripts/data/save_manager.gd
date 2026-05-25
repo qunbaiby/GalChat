@@ -70,6 +70,8 @@ func save_game(slot_id: String, custom_image: Image = null):
 		GameDataManager.profile.save_profile()
 	if GameDataManager.history != null:
 		GameDataManager.history.save_history()
+	if GameDataManager.npc_relationship_manager != null:
+		GameDataManager.npc_relationship_manager.save_relationships()
 	if GameDataManager.memory_manager != null:
 		GameDataManager.memory_manager.save_memory()
 	if GameDataManager.story_time_manager != null:
@@ -89,7 +91,8 @@ func save_game(slot_id: String, custom_image: Image = null):
 		"chat_history.json",
 		"player_memory.json",
 		"story_time_save.json",
-		"mobile_chat_history.json"
+		"mobile_chat_history.json",
+		"npc_relationships.json"
 	]
 	
 	var dir = DirAccess.open(active_dir)
@@ -142,7 +145,8 @@ func load_game(slot_id: String) -> bool:
 		"chat_history.json",
 		"player_memory.json",
 		"story_time_save.json",
-		"mobile_chat_history.json"
+		"mobile_chat_history.json",
+		"npc_relationships.json"
 	]
 	
 	var dir = DirAccess.open(slot_dir)
@@ -156,6 +160,8 @@ func load_game(slot_id: String) -> bool:
 		GameDataManager.profile.load_profile()
 	if GameDataManager.history:
 		GameDataManager.history.load_history()
+	if GameDataManager.npc_relationship_manager:
+		GameDataManager.npc_relationship_manager.load_relationships()
 	if GameDataManager.memory_manager:
 		GameDataManager.memory_manager.load_memory()
 	if GameDataManager.story_time_manager:

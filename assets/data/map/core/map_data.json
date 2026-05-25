@@ -5,16 +5,16 @@
       "name": "青屿街",
       "description": "充满生活气息的街道，工作室与常去的咖啡厅都在这里。",
       "camera_offset": {"x": 0.9, "y": 0.1},
-      "fixed_locations": ["studio", "qingyu_time_cafe"],
-      "limited_locations": []
+      "fixed_locations": ["studio", "qingyu_time_cafe", "yuli_alley"],
+      "limited_locations": ["midnight_pub"]
     },
     "j11_center": {
       "id": "j11_center",
       "name": "J11购物艺术中心",
       "description": "融合现代商业与先锋艺术的潮流综合体。",
       "camera_offset": {"x": 0.55, "y": 0.5},
-      "fixed_locations": ["movie_theater", "yuli_alley", "yuguang_gallery"],
-      "limited_locations": []
+      "fixed_locations": ["movie_theater", "yuguang_gallery"],
+      "limited_locations": ["pop_up_market"]
     },
     "qinglan_mt": {
       "id": "qinglan_mt",
@@ -22,7 +22,7 @@
       "description": "远离喧嚣的宁静山林，可以俯瞰整个江屿市。",
       "camera_offset": {"x": 0.65, "y": 0.9},
       "fixed_locations": ["qinglan_cemetery", "wangjiang_pavilion"],
-      "limited_locations": []
+      "limited_locations": ["secret_hot_spring"]
     },
     "jiangyu_bay": {
       "id": "jiangyu_bay",
@@ -30,7 +30,7 @@
       "description": "风景优美的海湾，能听到海浪与海鸥的声音。",
       "camera_offset": {"x": 0.95, "y": 0.6},
       "fixed_locations": ["golden_beach", "sunset_park", "music_corner"],
-      "limited_locations": []
+      "limited_locations": ["summer_festival"]
     },
     "art_academy": {
       "id": "art_academy",
@@ -38,7 +38,7 @@
       "description": "培养顶尖音乐与美术人才的殿堂。",
       "camera_offset": {"x": 0.05, "y": 0.1},
       "fixed_locations": ["library", "art_gallery", "gym", "concert_hall", "digital_center"],
-      "limited_locations": ["grand_auditorium", "art_square", "sakura_avenue"]
+      "limited_locations": ["grand_auditorium", "art_square", "sakura_avenue", "rooftop_garden"]
     }
   },
   "locations": {
@@ -60,7 +60,7 @@
       "scene_path": "res://scenes/map/locations/library.tscn",
       "bg_id": "library",
       "map_position": {"x": 410, "y": 900},
-      "resident_npcs": ["noah"],
+      "resident_npcs": ["shuo"],
       "scheduled_npcs": [
         {
           "id": "luna",
@@ -88,7 +88,7 @@
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "concert_hall",
       "map_position": {"x": 1000, "y": 200},
-      "resident_npcs": ["nicole"],
+      "resident_npcs": ["jing"],
       "events": []
     },
     "art_gallery": {
@@ -233,6 +233,72 @@
       "description": "青岚山顶的古亭，视野开阔，能听见风穿过树林的声音。",
       "scene_path": "res://scenes/map/locations/wangjiang_pavilion.tscn",
       "map_position": {"x": 600, "y": 150},
+      "resident_npcs": [],
+      "events": []
+    },
+    "midnight_pub": {
+      "id": "midnight_pub",
+      "name": "午夜酒馆",
+      "description": "只在深夜亮起霓虹灯的隐秘小酒馆。",
+      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "map_position": {"x": 800, "y": 450},
+      "visibility_conditions": [
+        {"type": "time", "start_hour": 22, "end_hour": 5}
+      ],
+      "resident_npcs": [],
+      "events": []
+    },
+    "pop_up_market": {
+      "id": "pop_up_market",
+      "name": "周末快闪集市",
+      "description": "充满手作和创意的周末限定集市。",
+      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "map_position": {"x": 400, "y": 400},
+      "visibility_conditions": [
+        {"type": "time", "start_hour": 9, "end_hour": 18}
+      ],
+      "conditions": [
+        {"type": "stat", "stat_name": "stat_charm", "value": 20}
+      ],
+      "resident_npcs": [],
+      "events": []
+    },
+    "secret_hot_spring": {
+      "id": "secret_hot_spring",
+      "name": "深山秘汤",
+      "description": "青岚山深处的天然温泉，据说只有有缘人才能找到。",
+      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "map_position": {"x": 800, "y": 50},
+      "visibility_conditions": [
+        {"type": "npc_stage", "npc_id": "ya", "min_stage": 4}
+      ],
+      "resident_npcs": [],
+      "events": []
+    },
+    "summer_festival": {
+      "id": "summer_festival",
+      "name": "夏日花火大会",
+      "description": "海湾举办的盛大花火祭典，夜空中绽放着绚丽的烟花。",
+      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "map_position": {"x": 750, "y": 180},
+      "visibility_conditions": [
+        {"type": "time", "start_hour": 19, "end_hour": 23}
+      ],
+      "conditions": [
+        {"type": "stat", "stat_name": "stat_aesthetics", "value": 40}
+      ],
+      "resident_npcs": [],
+      "events": []
+    },
+    "rooftop_garden": {
+      "id": "rooftop_garden",
+      "name": "天台花园",
+      "description": "艺术大学主楼的天台，种满了花草，是学生们秘密约会的地方。",
+      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "map_position": {"x": 200, "y": 80},
+      "visibility_conditions": [
+        {"type": "npc_stage", "npc_id": "shuo", "min_stage": 3}
+      ],
       "resident_npcs": [],
       "events": []
     }

@@ -17,8 +17,44 @@ const ScheduleEventPanelScene = preload("res://scenes/ui/activity/schedule_event
 @onready var click_area: Button = $ClickArea
 
 @onready var result_popup: Control = $ResultPopup
-@onready var stats_vbox: VBoxContainer = $ResultPopup/ResultPanel/Margin/VBox/StatsVBox
-@onready var end_button: Button = $ResultPopup/ResultPanel/Margin/VBox/EndButton
+@onready var stats_vbox: GridContainer = $ResultPopup/VBox/Content/Margin/VBox/StatsVBox
+@onready var close_button: Button = $ResultPopup/CloseButton
+
+# Core stat UI nodes
+@onready var core_phys_old: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox/OldVal
+@onready var core_phys_new: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox/NewVal
+@onready var core_phys_grade: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox/GradePanel/Margin/GradeLabel
+
+@onready var core_int_old: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox/OldVal
+@onready var core_int_new: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox/NewVal
+@onready var core_int_grade: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox/GradePanel/Margin/GradeLabel
+
+@onready var core_charm_old: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox/OldVal
+@onready var core_charm_new: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox/NewVal
+@onready var core_charm_grade: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox/GradePanel/Margin/GradeLabel
+
+@onready var core_sens_old: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox/OldVal
+@onready var core_sens_new: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox/NewVal
+@onready var core_sens_grade: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox/GradePanel/Margin/GradeLabel
+
+# Footer UI nodes
+@onready var footer_mood_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/MoodHBox/Val
+@onready var footer_mood_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/MoodHBox/Diff
+
+@onready var footer_stress_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/StressHBox/Val
+@onready var footer_stress_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/StressHBox/Diff
+
+@onready var footer_gold_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/GoldHBox/Val
+@onready var footer_gold_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/GoldHBox/Diff
+
+@onready var auto_button: Button = $MainPanel/ControlButtons/AutoButton
+@onready var skip_button: Button = $MainPanel/ControlButtons/SkipButton
+@onready var loading_overlay: Control = $LoadingOverlay
+@onready var loading_text: Label = $LoadingOverlay/VBox/LoadingText
+
+var _is_auto_playing: bool = false
+var _is_skipping: bool = false
+var _result_anim_tween: Tween = null
 
 var _courses_data: Array
 var _start_attrs: Dictionary
@@ -34,11 +70,15 @@ var _current_event_options: Array = []
 
 func _ready() -> void:
 	click_area.pressed.connect(_on_click_area_pressed)
-	end_button.pressed.connect(_on_end_button_pressed)
+	close_button.pressed.connect(_on_close_pressed)
+	
+	if auto_button: auto_button.pressed.connect(_on_auto_pressed)
+	if skip_button: skip_button.pressed.connect(_on_skip_pressed)
+	if loading_overlay: loading_overlay.hide()
 	
 	# 初始状态
 	result_popup.hide()
-	end_button.hide()
+	close_button.hide()
 
 func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) -> void:
 	_courses_data = courses_data
@@ -51,10 +91,40 @@ func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) 
 	_update_course_info(0)
 	
 	# 5. 角色小人初始位置
-	# 等待所有容器重排完成，确保 global_position 计算正确
+	character_icon.modulate.a = 0.0 # 先隐藏，避免闪烁
+	
 	await get_tree().process_frame
+	if not is_inside_tree(): return
 	await get_tree().process_frame
+	if not is_inside_tree(): return
+	
 	_reset_character_position()
+	
+	var t = create_tween()
+	t.tween_property(character_icon, "modulate:a", 1.0, 0.2)
+
+
+func _on_auto_pressed() -> void:
+	_is_auto_playing = not _is_auto_playing
+	if _is_auto_playing:
+		auto_button.text = "停止"
+		auto_button.add_theme_color_override("font_color", Color(0.26, 0.71, 0.97))
+		_try_auto_next()
+	else:
+		auto_button.text = "自动"
+		auto_button.remove_theme_color_override("font_color")
+
+func _on_skip_pressed() -> void:
+	_is_skipping = true
+	_is_auto_playing = true
+	auto_button.text = "自动"
+	auto_button.remove_theme_color_override("font_color")
+	_try_auto_next()
+
+func _try_auto_next() -> void:
+	if not is_inside_tree(): return
+	if _is_auto_playing and not _is_moving and _current_slot_index < 9 and not result_popup.visible and (loading_overlay == null or not loading_overlay.visible) and _current_event_panel == null:
+		_on_click_area_pressed()
 
 func _update_course_info(index: int) -> void:
 	if index < 0 or index >= _courses_data.size(): return
@@ -162,8 +232,9 @@ func _on_click_area_pressed() -> void:
 		char_size = Vector2(0, 0)
 	var target_pos = target_slot.global_position + (target_slot.size - char_size) / 2.0
 	
+	var duration = 0.05 if _is_skipping else 0.35
 	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(character_icon, "global_position", target_pos, 0.35)
+	tween.tween_property(character_icon, "global_position", target_pos, duration)
 	
 	tween.finished.connect(func():
 		_current_slot_index = next_index
@@ -198,6 +269,11 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 		if GameDataManager.story_time_manager:
 			GameDataManager.story_time_manager.advance_day(1)
 		_show_result_popup()
+	elif _is_auto_playing:
+		if not _is_skipping:
+			await get_tree().create_timer(0.3).timeout
+			if not is_inside_tree(): return
+		_try_auto_next()
 
 func _get_deepseek_client() -> Node:
 	if get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
@@ -226,6 +302,7 @@ func _trigger_story_script(course_data: Dictionary) -> void:
 	var tween = create_tween()
 	tween.tween_property(transition_overlay, "modulate:a", 1.0, 0.5)
 	await tween.finished
+	if not is_inside_tree(): return
 	
 	var story_scene = load("res://scenes/ui/story/story_scene.tscn").instantiate()
 	GameDataManager.set_meta("play_specific_story", script_path)
@@ -240,16 +317,20 @@ func _trigger_story_script(course_data: Dictionary) -> void:
 	# 【修复时序问题】：等待场景内部的 _ready 执行完毕，并让引擎完成第一帧渲染
 	# 稍微加一点点延迟，确保剧情的背景和立绘都已经挂载完毕再淡出黑屏
 	await get_tree().create_timer(0.5).timeout
+	if not is_inside_tree(): return
 	await get_tree().process_frame
+	if not is_inside_tree(): return
 	
 	# 淡出黑屏
 	var tween2 = create_tween()
 	tween2.tween_property(transition_overlay, "modulate:a", 0.0, 0.5)
 	await tween2.finished
+	if not is_inside_tree(): return
 	transition_overlay.queue_free()
 	
 	# 等待故事结束
 	await story_scene.chat_closed
+	if not is_inside_tree(): return
 	
 	# 故事结束后，恢复黑屏过渡效果
 	var out_overlay = ColorRect.new()
@@ -262,6 +343,7 @@ func _trigger_story_script(course_data: Dictionary) -> void:
 	var tween3 = create_tween()
 	tween3.tween_property(out_overlay, "modulate:a", 1.0, 0.5)
 	await tween3.finished
+	if not is_inside_tree(): return
 	
 	# 在黑屏完全遮挡住的时候，销毁故事场景，这样就不会有弹出关闭的突兀感
 	if is_instance_valid(story_scene):
@@ -274,18 +356,36 @@ func _trigger_story_script(course_data: Dictionary) -> void:
 		
 	# 确保在黑屏期间，底下的日常界面（如新的课程封面图等）能完成加载并渲染出一帧
 	await get_tree().create_timer(0.3).timeout
+	if not is_inside_tree(): return
 	await get_tree().process_frame
+	if not is_inside_tree(): return
 	await get_tree().process_frame
+	if not is_inside_tree(): return
 	
 	# 然后再把黑屏淡出，展示底下的日常界面
 	var tween4 = create_tween()
 	tween4.tween_property(out_overlay, "modulate:a", 0.0, 0.5)
 	await tween4.finished
+	if not is_inside_tree(): return
 	out_overlay.queue_free()
 	
 	# 由于前面已经提前更新了 UI，这里我们跳过 _update_course_info() 的二次调用，
 	# 直接执行属性结算等后续动作
 	_finish_slot_move(true)
+
+func _show_loading(text: String) -> void:
+	if loading_overlay:
+		loading_text.text = text
+		loading_overlay.modulate.a = 0.0
+		loading_overlay.show()
+		var t = create_tween()
+		t.tween_property(loading_overlay, "modulate:a", 1.0, 0.2)
+
+func _hide_loading() -> void:
+	if loading_overlay and loading_overlay.visible:
+		var t = create_tween()
+		t.tween_property(loading_overlay, "modulate:a", 0.0, 0.2)
+		t.finished.connect(func(): loading_overlay.hide())
 
 func _trigger_schedule_event() -> void:
 	var client = _get_deepseek_client()
@@ -297,15 +397,7 @@ func _trigger_schedule_event() -> void:
 	var course_name = course_data.get("name", "未知课程")
 	var course_desc = course_data.get("desc", "")
 	
-	var loading_label = Label.new()
-	loading_label.text = "突发事件生成中..."
-	loading_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	loading_label.add_theme_font_size_override("font_size", 32)
-	loading_label.add_theme_color_override("font_color", Color(1, 1, 1))
-	loading_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	loading_label.add_theme_constant_override("outline_size", 4)
-	loading_label.name = "EventLoadingLabel"
-	add_child(loading_label)
+	_show_loading("突发事件生成中...")
 	
 	if not client.is_connected("schedule_event_generated", _on_schedule_event_generated):
 		client.schedule_event_generated.connect(_on_schedule_event_generated)
@@ -315,10 +407,8 @@ func _trigger_schedule_event() -> void:
 	client.generate_schedule_event(course_name, course_desc)
 
 func _on_schedule_event_generated(event_data: Dictionary) -> void:
-	var loading = get_node_or_null("EventLoadingLabel")
-	if loading:
-		loading.queue_free()
-		
+	_hide_loading()
+	
 	var client = _get_deepseek_client()
 	if client:
 		if client.is_connected("schedule_event_generated", _on_schedule_event_generated):
@@ -346,10 +436,8 @@ func _on_schedule_event_generated(event_data: Dictionary) -> void:
 	_current_event_panel.option_selected.connect(_on_event_option_selected)
 
 func _on_schedule_event_error(_error_msg: String) -> void:
-	var loading = get_node_or_null("EventLoadingLabel")
-	if loading:
-		loading.queue_free()
-		
+	_hide_loading()
+	
 	var client = _get_deepseek_client()
 	if client:
 		if client.is_connected("schedule_event_generated", _on_schedule_event_generated):
@@ -363,15 +451,7 @@ func _on_event_option_selected(idx: int) -> void:
 	if _current_event_panel:
 		_current_event_panel.hide()
 		
-	var loading_label = Label.new()
-	loading_label.text = "事件结算中..."
-	loading_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	loading_label.add_theme_font_size_override("font_size", 32)
-	loading_label.add_theme_color_override("font_color", Color(1, 1, 1))
-	loading_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	loading_label.add_theme_constant_override("outline_size", 4)
-	loading_label.name = "EventResolvingLabel"
-	add_child(loading_label)
+	_show_loading("事件结算中...")
 	
 	var client = _get_deepseek_client()
 	var course_data = _courses_data[_current_slot_index]
@@ -389,10 +469,8 @@ func _on_event_option_selected(idx: int) -> void:
 	client.resolve_schedule_event(course_name, _current_event_desc, chosen_option)
 
 func _cleanup_resolve_state() -> void:
-	var loading = get_node_or_null("EventResolvingLabel")
-	if loading:
-		loading.queue_free()
-		
+	_hide_loading()
+	
 	if _current_event_panel:
 		_current_event_panel.queue_free()
 		_current_event_panel = null
@@ -403,6 +481,7 @@ func _cleanup_resolve_state() -> void:
 			client.schedule_event_resolved.disconnect(_on_schedule_event_resolved)
 		if client.is_connected("schedule_event_resolve_error", _on_schedule_event_resolve_error):
 			client.schedule_event_resolve_error.disconnect(_on_schedule_event_resolve_error)
+
 
 func _on_schedule_event_resolved(result_data: Dictionary) -> void:
 	_cleanup_resolve_state()
@@ -451,49 +530,144 @@ func _show_result_popup() -> void:
 	var tween = create_tween()
 	tween.tween_property(result_popup, "modulate:a", 1.0, 0.3)
 	
+	var phys_keys = ["体能", "形体", "专注", "反应"]
+	var int_keys = ["学识", "表达", "企划", "艺理"]
+	var charm_keys = ["气质", "举止", "礼仪", "舞台"]
+	var sens_keys = ["共情", "灵感", "审美", "感知"]
+	
+	var get_core = func(attrs: Dictionary, keys: Array) -> int:
+		var total = 0
+		for k in keys:
+			total += attrs.get(k, 0)
+		return int(floor(total))
+	
+	var get_grade = func(val: float) -> String:
+		var levels = [0, 800, 1400, 2000, 2800, 3600, 4400, 5200, 6000, 7200, 8000]
+		var grades = ["E-", "E", "D", "D+", "C", "C+", "B", "B+", "A", "S"]
+		var grade = "S+"
+		for i in range(1, levels.size()):
+			if val < levels[i]:
+				grade = grades[i-1]
+				break
+		return grade
+	
+	var start_phys = get_core.call(_start_attrs, phys_keys)
+	var end_phys = get_core.call(_end_attrs, phys_keys)
+	core_phys_old.text = str(start_phys)
+	core_phys_new.text = str(end_phys)
+	core_phys_grade.text = " %s " % get_grade.call(end_phys)
+	
+	var start_int = get_core.call(_start_attrs, int_keys)
+	var end_int = get_core.call(_end_attrs, int_keys)
+	core_int_old.text = str(start_int)
+	core_int_new.text = str(end_int)
+	core_int_grade.text = " %s " % get_grade.call(end_int)
+	
+	var start_charm = get_core.call(_start_attrs, charm_keys)
+	var end_charm = get_core.call(_end_attrs, charm_keys)
+	core_charm_old.text = str(start_charm)
+	core_charm_new.text = str(end_charm)
+	core_charm_grade.text = " %s " % get_grade.call(end_charm)
+	
+	var start_sens = get_core.call(_start_attrs, sens_keys)
+	var end_sens = get_core.call(_end_attrs, sens_keys)
+	core_sens_old.text = str(start_sens)
+	core_sens_new.text = str(end_sens)
+	core_sens_grade.text = " %s " % get_grade.call(end_sens)
+	
+	# Footer variables
+	var start_mood = _start_attrs.get("心情", GameDataManager.profile.mood_value)
+	var end_mood = _end_attrs.get("心情", start_mood)
+	footer_mood_val.text = str(end_mood)
+	var diff_mood = end_mood - start_mood
+	footer_mood_diff.text = ("+%d" % diff_mood) if diff_mood >= 0 else str(diff_mood)
+	footer_mood_diff.add_theme_color_override("font_color", Color(0.26, 0.71, 0.97) if diff_mood >= 0 else Color(0.9, 0.4, 0.4))
+	
+	var start_stress = _start_attrs.get("压力", GameDataManager.profile.stress)
+	var end_stress = _end_attrs.get("压力", start_stress)
+	footer_stress_val.text = str(end_stress)
+	var diff_stress = end_stress - start_stress
+	footer_stress_diff.text = ("+%d" % diff_stress) if diff_stress >= 0 else str(diff_stress)
+	footer_stress_diff.add_theme_color_override("font_color", Color(0.9, 0.4, 0.4) if diff_stress > 0 else Color(0.26, 0.71, 0.97))
+	
+	var start_gold = _start_attrs.get("金币", GameDataManager.profile.gold)
+	var end_gold = _end_attrs.get("金币", start_gold)
+	footer_gold_val.text = str(end_gold)
+	var diff_gold = end_gold - start_gold
+	footer_gold_diff.text = ("+%d" % diff_gold) if diff_gold >= 0 else str(diff_gold)
+	footer_gold_diff.add_theme_color_override("font_color", Color(0.26, 0.71, 0.97) if diff_gold >= 0 else Color(0.9, 0.4, 0.4))
+	
 	for child in stats_vbox.get_children():
 		child.queue_free()
 		
-	for attr in _start_attrs.keys():
-		var old_val = _start_attrs[attr]
+	var sub_keys = [
+		"体能", "形体", "专注", "反应",
+		"学识", "表达", "企划", "艺理",
+		"气质", "举止", "礼仪", "舞台",
+		"共情", "灵感", "审美", "感知"
+	]
+	
+	for attr in sub_keys:
+		var old_val = _start_attrs.get(attr, 0)
 		var new_val = _end_attrs.get(attr, old_val)
-		if new_val == old_val: continue
 		
 		var hbox = HBoxContainer.new()
+		hbox.custom_minimum_size = Vector2(160, 24)
+		
 		var name_lbl = Label.new()
 		name_lbl.text = tr(attr)
-		name_lbl.custom_minimum_size = Vector2(80, 0)
+		name_lbl.custom_minimum_size = Vector2(50, 0)
 		name_lbl.add_theme_color_override("font_color", Color(0.4, 0.3, 0.2))
 		hbox.add_child(name_lbl)
 		
 		var val_lbl = Label.new()
-		val_lbl.text = str(old_val)
-		val_lbl.add_theme_color_override("font_color", Color(0.2, 0.6, 0.2))
+		val_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		
+		if new_val > old_val:
+			var diff = new_val - old_val
+			val_lbl.text = "%d (+%d)" % [old_val, diff]
+			val_lbl.add_theme_color_override("font_color", Color(0.26, 0.71, 0.97))
+			
+			# 动画逻辑移出循环外统一处理
+			pass
+		else:
+			val_lbl.text = str(old_val)
+			val_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+			
 		hbox.add_child(val_lbl)
-		
-		var pb = ProgressBar.new()
-		pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		pb.custom_minimum_size = Vector2(0, 20)
-		pb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		pb.max_value = max(100, new_val * 1.5)
-		pb.value = old_val
-		hbox.add_child(pb)
-		
 		stats_vbox.add_child(hbox)
 		
-		# 动态增长动画
-		var diff = int(new_val - old_val)
-		var val_tween = create_tween().set_trans(Tween.TRANS_LINEAR)
-		val_tween.tween_method(func(v: float):
-			if diff >= 0:
-				val_lbl.text = "%d (+%d)" % [int(v), diff]
-			else:
-				val_lbl.text = "%d (%d)" % [int(v), diff]
-			pb.value = v
-		, float(old_val), float(new_val), 1.2)
-		
-	await get_tree().create_timer(1.2).timeout
-	end_button.show()
+	_result_anim_tween = create_tween().set_trans(Tween.TRANS_LINEAR)
+	_result_anim_tween.tween_method(func(v: float):
+		for child in stats_vbox.get_children():
+			var name_lbl = child.get_child(0)
+			var val_lbl = child.get_child(1)
+			var attr = name_lbl.text
+			
+			var old_v = _start_attrs.get(attr, 0)
+			var new_v = _end_attrs.get(attr, old_v)
+			if new_v > old_v:
+				var diff = new_v - old_v
+				var curr_v = lerp(float(old_v), float(new_v), v)
+				val_lbl.text = "%d (+%d)" % [int(curr_v), diff]
+	, 0.0, 1.0, 1.2)
+	
+	_result_anim_tween.finished.connect(func():
+		_set_result_to_final()
+	)
+
+func _set_result_to_final() -> void:
+	for child in stats_vbox.get_children():
+		var name_lbl = child.get_child(0)
+		var val_lbl = child.get_child(1)
+		var attr = name_lbl.text
+		var old_v = _start_attrs.get(attr, 0)
+		var new_v = _end_attrs.get(attr, old_v)
+		if new_v > old_v:
+			val_lbl.text = "%d (+%d)" % [new_v, new_v - old_v]
+			
+	close_button.show()
 
 func _on_end_button_pressed() -> void:
 	var profile = GameDataManager.profile
@@ -531,12 +705,10 @@ func _on_end_button_pressed() -> void:
 	
 	profile.save_profile()
 	
-	var tween = create_tween()
-	tween.tween_property(result_popup, "modulate:a", 0.0, 0.3)
-	tween.finished.connect(func():
-		schedule_finished.emit()
-		queue_free()
-	)
+	# 使用现有的全局黑屏过渡管理器过渡回主场景
+	SceneTransitionManager.transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+	schedule_finished.emit()
+	queue_free()
 
 func _on_close_pressed() -> void:
 	queue_free()
