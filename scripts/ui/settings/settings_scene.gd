@@ -66,53 +66,53 @@ var _test_asr_client = null
 var _is_testing_asr: bool = false
 
 func _ready() -> void:
-	if back_button: back_button.pressed.connect(_on_back_pressed)
-	if save_button: save_button.pressed.connect(_on_save_pressed)
-	if clear_history_btn: clear_history_btn.pressed.connect(_on_clear_history_pressed)
-	TTSManager.tts_success.connect(_on_tts_success)
-	TTSManager.tts_failed.connect(_on_tts_failed)
-	
-	# 动态连接设置变化
-	resolution_option.item_selected.connect(_on_resolution_changed)
-	fps_option.item_selected.connect(_on_fps_changed)
-	vsync_check.toggled.connect(_on_vsync_changed)
-	bgm_slider.value_changed.connect(_on_bgm_changed)
-	voice_slider.value_changed.connect(_on_voice_changed)
-	model_option.item_selected.connect(_on_model_changed)
-	image_provider_option.item_selected.connect(_on_image_provider_changed)
-	tts_backend_option.item_selected.connect(_on_tts_backend_changed)
-	image_gen_mode_check.toggled.connect(_on_image_gen_toggled)
-	
-	if pet_observe_time_slider: pet_observe_time_slider.value_changed.connect(_on_pet_slider_changed)
-	if pet_same_app_cooldown_slider: pet_same_app_cooldown_slider.value_changed.connect(_on_pet_slider_changed)
-	if pet_global_cooldown_slider: pet_global_cooldown_slider.value_changed.connect(_on_pet_slider_changed)
-	if pet_scale_slider: pet_scale_slider.value_changed.connect(_on_pet_slider_changed)
-	
-	asr_test_button.button_down.connect(_on_asr_test_down)
-	asr_test_button.button_up.connect(_on_asr_test_up)
-	
-	model_option.clear()
-	model_option.add_item("deepseek-chat (V3)")
-	model_option.set_item_metadata(0, "deepseek-chat")
-	model_option.add_item("deepseek-coder")
-	model_option.set_item_metadata(1, "deepseek-coder")
-	model_option.add_item("deepseek-reasoner (R1/V4)")
-	model_option.set_item_metadata(2, "deepseek-reasoner")
-	model_option.add_item("doubao-seed-character (豆包)")
-	model_option.set_item_metadata(3, "doubao-seed-character-251128")
-	
-	_load_ui_data()
+    if back_button: back_button.pressed.connect(_on_back_pressed)
+    if save_button: save_button.pressed.connect(_on_save_pressed)
+    if clear_history_btn: clear_history_btn.pressed.connect(_on_clear_history_pressed)
+    TTSManager.tts_success.connect(_on_tts_success)
+    TTSManager.tts_failed.connect(_on_tts_failed)
+    
+    # 动态连接设置变化
+    resolution_option.item_selected.connect(_on_resolution_changed)
+    fps_option.item_selected.connect(_on_fps_changed)
+    vsync_check.toggled.connect(_on_vsync_changed)
+    bgm_slider.value_changed.connect(_on_bgm_changed)
+    voice_slider.value_changed.connect(_on_voice_changed)
+    model_option.item_selected.connect(_on_model_changed)
+    image_provider_option.item_selected.connect(_on_image_provider_changed)
+    tts_backend_option.item_selected.connect(_on_tts_backend_changed)
+    image_gen_mode_check.toggled.connect(_on_image_gen_toggled)
+    
+    if pet_observe_time_slider: pet_observe_time_slider.value_changed.connect(_on_pet_slider_changed)
+    if pet_same_app_cooldown_slider: pet_same_app_cooldown_slider.value_changed.connect(_on_pet_slider_changed)
+    if pet_global_cooldown_slider: pet_global_cooldown_slider.value_changed.connect(_on_pet_slider_changed)
+    if pet_scale_slider: pet_scale_slider.value_changed.connect(_on_pet_slider_changed)
+    
+    asr_test_button.button_down.connect(_on_asr_test_down)
+    asr_test_button.button_up.connect(_on_asr_test_up)
+    
+    model_option.clear()
+    model_option.add_item("deepseek-chat (V3)")
+    model_option.set_item_metadata(0, "deepseek-chat")
+    model_option.add_item("deepseek-coder")
+    model_option.set_item_metadata(1, "deepseek-coder")
+    model_option.add_item("deepseek-reasoner (R1/V4)")
+    model_option.set_item_metadata(2, "deepseek-reasoner")
+    model_option.add_item("doubao-seed-character (豆包)")
+    model_option.set_item_metadata(3, "doubao-seed-character-251128")
+    
+    _load_ui_data()
 
 func show_panel() -> void:
-	_load_ui_data()
-	show()
-	# Add a simple popup animation
-	modulate.a = 0.0
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	tween.tween_property(self, "modulate:a", 1.0, 0.3)
-	
-	# Scale animation on the inner container if we want, but let's just animate the whole panel scale from 0.9 to 1.0
+    _load_ui_data()
+    show()
+    # Add a simple popup animation
+    modulate.a = 0.0
+    var tween = create_tween()
+    tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+    tween.tween_property(self, "modulate:a", 1.0, 0.3)
+    
+    # Scale animation on the inner container if we want, but let's just animate the whole panel scale from 0.9 to 1.0
 	scale = Vector2(0.9, 0.9)
 	pivot_offset = get_viewport_rect().size / 2.0
 	var scale_tween = create_tween()

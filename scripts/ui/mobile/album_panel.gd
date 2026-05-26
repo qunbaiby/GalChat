@@ -1,7 +1,7 @@
 extends Panel
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
-const PhotoCardScene = preload("res://scenes/ui/mobile/album_photo_card.tscn")
+const PhotoCardScene = preload("res://scenes/ui/mobile/album_list_card.tscn")
 const CATEGORY_ALL := "all"
 const CATEGORY_CAMERA := "camera"
 const CATEGORY_CHAT := "chat"
@@ -15,6 +15,7 @@ signal photo_picked(path: String)
 
 @onready var back_btn: Button = $VBox/TopBar/BackBtn
 @onready var title_label: Label = $VBox/TopBar/Title
+@onready var summary_title_label: Label = $VBox/SummaryPanel/Margin/VBox/SummaryTitle
 @onready var summary_label: Label = $VBox/SummaryPanel/Margin/VBox/SummaryLabel
 @onready var grid: GridContainer = $VBox/Scroll/Grid
 @onready var empty_label: Label = $VBox/EmptyLabel
@@ -53,6 +54,7 @@ func _ready() -> void:
 	close_viewer_btn.pressed.connect(_on_close_viewer_pressed)
 	send_btn.pressed.connect(_on_send_pressed)
 	title_label.text = "相册"
+	resized.connect(_update_grid_columns)
 	for category in filter_buttons.keys():
 		var btn: Button = filter_buttons[category]
 		_filter_button_labels[category] = btn.text
@@ -62,6 +64,7 @@ func _ready() -> void:
 			_current_filter = filter_key
 			_load_photos()
 		)
+	_update_grid_columns()
 	_update_filter_buttons()
 
 func set_picker_mode(is_picker: bool, btn_text: String = "确定") -> void:
@@ -70,6 +73,7 @@ func set_picker_mode(is_picker: bool, btn_text: String = "确定") -> void:
 
 func show_panel() -> void:
 	show()
+	_update_grid_columns()
 	_load_photos()
 
 func hide_panel() -> void:
@@ -98,20 +102,17 @@ func _render_photos() -> void:
 		if tex == null:
 			continue
 		var card = PhotoCardScene.instantiate()
-		var thumb: TextureRect = card.get_node("Margin/HBox/ThumbArea/Thumb")
-		var badge_label: Label = card.get_node("Margin/HBox/ThumbArea/BadgePanel/BadgeLabel")
-		var date_text: Label = card.get_node("Margin/HBox/InfoVBox/DateLabel")
+		var thumb: TextureRect = card.get_node("Margin/HBox/ThumbMask/ThumbArea/Thumb")
 		var title_text: Label = card.get_node("Margin/HBox/InfoVBox/TitleLabel")
 		var source_text: Label = card.get_node("Margin/HBox/InfoVBox/SourceLabel")
 		var meta_text: Label = card.get_node("Margin/HBox/InfoVBox/MetaLabel")
 		var click_btn: Button = card.get_node("ClickBtn")
 		thumb.texture = tex
-		badge_label.text = _get_category_badge_text(str(record.get("album_category", CATEGORY_OTHER)))
-		date_text.text = _build_record_date(record)
 		title_text.text = _build_record_title(record)
 		source_text.text = _build_record_source(record)
 		meta_text.text = _build_record_meta(record)
-		meta_text.visible = meta_text.text != ""
+		source_text.visible = false
+		meta_text.visible = false
 		click_btn.pressed.connect(_on_photo_clicked.bind(tex, record))
 		grid.add_child(card)
 
@@ -158,6 +159,7 @@ func _update_filter_buttons() -> void:
 func _update_album_summary() -> void:
 	var all_records = _photo_manager.get_album_records()
 	var summary = _photo_manager.get_album_summary(all_records)
+	summary_title_label.text = _get_summary_title()
 	summary_label.text = "共 %d 张照片\n拍摄 %d  ·  聊天 %d  ·  CG %d  ·  日记 %d  ·  朋友圈 %d  ·  绘画 %d  ·  其他 %d" % [
 		int(summary.get("total", 0)),
 		int(summary.get(CATEGORY_CAMERA, 0)),
@@ -168,6 +170,30 @@ func _update_album_summary() -> void:
 		int(summary.get(CATEGORY_DRAWING, 0)),
 		int(summary.get(CATEGORY_OTHER, 0))
 	]
+
+func _update_grid_columns() -> void:
+	if not is_instance_valid(grid):
+		return
+	grid.columns = 3
+
+func _get_summary_title() -> String:
+	match _current_filter:
+		CATEGORY_ALL:
+			return "最近项目"
+		CATEGORY_CAMERA:
+			return "拍摄相册"
+		CATEGORY_CHAT:
+			return "聊天图片"
+		CATEGORY_CG:
+			return "剧情 CG"
+		CATEGORY_DIARY:
+			return "日记插图"
+		CATEGORY_MOMENT:
+			return "朋友圈留影"
+		CATEGORY_DRAWING:
+			return "绘画作品"
+		_:
+			return "其他收录"
 
 func _update_fullscreen_meta(record: Dictionary) -> void:
 	if record.is_empty():
