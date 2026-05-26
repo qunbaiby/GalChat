@@ -27,7 +27,18 @@ var time_config: Dictionary = {}
 
 func _init() -> void:
     _load_config()
-    load_data()
+
+func get_save_path(char_id: String = "") -> String:
+    var final_char_id = char_id.strip_edges()
+    if final_char_id == "":
+        if GameDataManager.config and GameDataManager.config.current_character_id != "":
+            final_char_id = GameDataManager.config.current_character_id
+        else:
+            final_char_id = "default"
+    return "user://saves/%s/story_time_save.json" % final_char_id
+
+func reload_for_current_character(char_id: String = "") -> void:
+    load_data(char_id)
 
 func _load_config() -> void:
     var path = "res://assets/data/story/story_time.json"
@@ -41,11 +52,12 @@ func _load_config() -> void:
                 start_month = time_config["start_date"].get("month", 3)
                 start_day = time_config["start_date"].get("day", 7)
 
-func load_data() -> void:
-    var char_id = "default"
-    if GameDataManager.config and GameDataManager.config.current_character_id != "":
-        char_id = GameDataManager.config.current_character_id
-    var path = "user://saves/%s/story_time_save.json" % char_id
+func load_data(char_id: String = "") -> void:
+    current_day_offset = 0
+    current_period = PERIOD_MORNING
+    current_hour = 8
+    current_minute = 0
+    var path = get_save_path(char_id)
     
     if FileAccess.file_exists(path):
         var file = FileAccess.open(path, FileAccess.READ)
@@ -87,11 +99,18 @@ func advance_day(days: int = 1) -> void:
     # save_data()
     
     # 触发记忆衰退
-    if GameDataManager.has_method("memory_manager") and GameDataManager.memory_manager != null:
+    if GameDataManager.memory_manager != null:
         if GameDataManager.memory_manager.has_method("process_daily_decay"):
             GameDataManager.memory_manager.process_daily_decay(days)
             
     # 记录大五人格变化历史
+    if GameDataManager.personality_system and GameDataManager.personality_system.has_method("settle_personality_pressure"):
+        GameDataManager.personality_system.settle_personality_pressure(GameDataManager.profile, "daily", {
+            "short_settle_scale": 0.5,
+            "long_settle_scale": 0.12,
+            "force_log": false,
+            "force_snapshot": true
+        })
     if GameDataManager.profile and GameDataManager.profile.has_method("record_daily_personality"):
         GameDataManager.profile.record_daily_personality(current_day_offset)
             
@@ -120,18 +139,28 @@ func advance_period() -> void:
 # 模拟时间流逝（分钟），适用于 UI 面板时钟的自然跳动
 func tick_minutes(mins: int = 1) -> void:
     current_minute += mins
+    var hours_added = 0
+    var days_added = 0
     if current_minute >= 60:
-        var hours_added = current_minute / 60
+        hours_added = current_minute / 60
         current_hour += hours_added
         current_minute %= 60
         
-        # 如果时间自然流逝跨越了时段，也自动更新时段文本（但不主动触发advance_day的强制重置逻辑）
+        # 如果时间自然流逝跨越了时段，也自动更新时段文本
         if current_hour >= 24:
+            days_added = current_hour / 24
             current_hour = current_hour % 24
-            current_day_offset += 1
-            if GameDataManager.has_method("memory_manager") and GameDataManager.memory_manager != null:
+            current_day_offset += days_added
+            if GameDataManager.memory_manager != null:
                 if GameDataManager.memory_manager.has_method("process_daily_decay"):
-                    GameDataManager.memory_manager.process_daily_decay(1)
+                    GameDataManager.memory_manager.process_daily_decay(days_added)
+            if GameDataManager.personality_system and GameDataManager.personality_system.has_method("settle_personality_pressure"):
+                GameDataManager.personality_system.settle_personality_pressure(GameDataManager.profile, "daily", {
+                    "short_settle_scale": 0.5,
+                    "long_settle_scale": 0.12,
+                    "force_log": false,
+                    "force_snapshot": true
+                })
             if GameDataManager.profile and GameDataManager.profile.has_method("record_daily_personality"):
                 GameDataManager.profile.record_daily_personality(current_day_offset)
             
@@ -144,8 +173,8 @@ func tick_minutes(mins: int = 1) -> void:
         else:
             current_period = PERIOD_NIGHT
             
-    # 移除自动保存，交由游戏核心的存档系统管理
-    # save_data()
+    # 只要时间发生变化，就发出信号，方便外部UI更新（如按钮禁用状态）
+    time_advanced.emit(days_added, current_period)
 
 # 获取计算后的真实剧情日期（年、月、日、星期）
 func get_current_date_dict() -> Dictionary:

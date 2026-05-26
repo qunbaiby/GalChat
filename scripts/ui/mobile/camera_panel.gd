@@ -1,5 +1,7 @@
 extends Control
 
+const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
+
 signal camera_closed
 
 @onready var close_btn: Button = $Overlay/CloseBtn
@@ -70,7 +72,8 @@ func _on_cancel_pressed() -> void:
 
 func _on_save_pressed() -> void:
     if captured_image:
-        var dir_path = "user://saves/photos"
+        var photo_manager = PhotoMemoryManagerScript.new()
+        var dir_path = photo_manager.get_photo_dir()
         if not DirAccess.dir_exists_absolute(dir_path):
             DirAccess.make_dir_recursive_absolute(dir_path)
             
@@ -78,6 +81,11 @@ func _on_save_pressed() -> void:
         var file_path = dir_path + "/photo_" + time_str + ".png"
         
         captured_image.save_png(file_path)
+        var memory_context = GameDataManager.memory_manager.build_story_memory_context() if GameDataManager.memory_manager else {}
+        photo_manager.register_photo(file_path, "camera_capture", {
+            "memory_context": memory_context,
+            "preferred_layers": ["bond", "emotion", "habit"]
+        })
         print("照片已保存至: ", file_path)
         
     _on_close_pressed()

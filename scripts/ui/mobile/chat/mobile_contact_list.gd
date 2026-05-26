@@ -54,7 +54,8 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 		"avatar": "",
 		"last_msg": "暂无消息",
 		"last_time": "",
-		"raw_time": ""
+		"raw_time": "",
+		"unread_count": 0
 	}
 	
 	if FileAccess.file_exists(file_path):
@@ -87,6 +88,10 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 				info.last_msg = raw_text
 				info.raw_time = last.get("time", "")
 				info.last_time = _format_time(info.raw_time)
+				for msg in mobile_msgs:
+					var speaker = msg.get("speaker", msg.get("role", ""))
+					if speaker != "player" and not msg.get("is_read", false):
+						info.unread_count += 1
 				
 	return info
 
@@ -197,10 +202,27 @@ func _create_contact_item(info: Dictionary) -> void:
 	time_lbl.add_theme_font_size_override("font_size", 12)
 	top_hbox.add_child(time_lbl)
 	
+	if int(info.get("unread_count", 0)) > 0:
+		var unread_badge = Label.new()
+		unread_badge.text = str(min(int(info.unread_count), 99))
+		unread_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		unread_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		unread_badge.custom_minimum_size = Vector2(22, 22)
+		unread_badge.add_theme_font_size_override("font_size", 11)
+		unread_badge.add_theme_color_override("font_color", Color.WHITE)
+		var badge_style = StyleBoxFlat.new()
+		badge_style.bg_color = Color(0.92, 0.27, 0.27)
+		badge_style.corner_radius_top_left = 11
+		badge_style.corner_radius_top_right = 11
+		badge_style.corner_radius_bottom_left = 11
+		badge_style.corner_radius_bottom_right = 11
+		unread_badge.add_theme_stylebox_override("normal", badge_style)
+		top_hbox.add_child(unread_badge)
+	
 	# Bottom row in Text VBox (Last Message)
 	var msg_lbl = Label.new()
 	msg_lbl.text = info.last_msg
-	msg_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+	msg_lbl.add_theme_color_override("font_color", Color(0.95, 0.95, 0.98) if int(info.get("unread_count", 0)) > 0 else Color(0.6, 0.6, 0.7))
 	msg_lbl.add_theme_font_size_override("font_size", 14)
 	msg_lbl.clip_text = true
 	msg_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

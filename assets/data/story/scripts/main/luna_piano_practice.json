@@ -7,7 +7,7 @@
             "events": [
                 {
                     "type": "background",
-                    "bg_id": "music_room",
+                    "bg_id": "concert_hall",
                     "transition_type": "fade",
                     "duration": 0.5
                 },

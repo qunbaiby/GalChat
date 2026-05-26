@@ -2,6 +2,7 @@ class_name GiftManager
 extends Node
 
 var _db_path: String = "res://assets/data/interaction/gift/gifts.json"
+const STATE_FILE_NAME := "gift_state.json"
 var gifts: Array = []
 
 # 用于防止刷数值的衰减队列：结构为 [{ "id": gift_id, "time": timestamp }, ...]
@@ -11,6 +12,62 @@ const GIFT_ACTION_COST = 10 # 统一的送礼行动力消耗
 
 func _ready() -> void:
 	_load_gifts_db()
+
+func _get_current_char_id() -> String:
+	if GameDataManager.profile and str(GameDataManager.profile.current_character_id) != "":
+		return str(GameDataManager.profile.current_character_id)
+	if GameDataManager.config and str(GameDataManager.config.current_character_id) != "":
+		return str(GameDataManager.config.current_character_id)
+	return "default"
+
+func _get_state_path(char_id: String = "") -> String:
+	var final_char_id = char_id.strip_edges()
+	if final_char_id == "":
+		final_char_id = _get_current_char_id()
+	return "user://saves/%s/%s" % [final_char_id, STATE_FILE_NAME]
+
+func reload_for_current_character(char_id: String = "") -> void:
+	_load_state(char_id)
+
+func save_state() -> void:
+	var state_path = _get_state_path()
+	var dir_path = state_path.get_base_dir()
+	if not DirAccess.dir_exists_absolute(dir_path):
+		DirAccess.make_dir_recursive_absolute(dir_path)
+	var valid_recent: Array = []
+	var now = Time.get_unix_time_from_system()
+	for record in _recent_gifts:
+		if not record is Dictionary:
+			continue
+		if now - int(record.get("time", 0)) <= DECAY_WINDOW_SEC:
+			valid_recent.append(record)
+	var file = FileAccess.open(state_path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify({
+			"recent_gifts": valid_recent
+		}, "\t"))
+		file.close()
+
+func _load_state(char_id: String = "") -> void:
+	_recent_gifts = []
+	var state_path = _get_state_path(char_id)
+	if not FileAccess.file_exists(state_path):
+		return
+	var file = FileAccess.open(state_path, FileAccess.READ)
+	if file == null:
+		return
+	var json = JSON.new()
+	var result = json.parse(file.get_as_text())
+	file.close()
+	if result != OK or not json.data is Dictionary:
+		return
+	var data = json.data
+	var now = Time.get_unix_time_from_system()
+	for record in data.get("recent_gifts", []):
+		if not record is Dictionary:
+			continue
+		if now - int(record.get("time", 0)) <= DECAY_WINDOW_SEC:
+			_recent_gifts.append(record)
 
 func _load_gifts_db() -> void:
 	if not FileAccess.file_exists(_db_path):
@@ -86,8 +143,13 @@ func send_gift(profile: CharacterProfile, gift_id: String) -> Dictionary:
 	if gift.is_empty():
 		return { "success": false, "msg": "未找到对应的礼物" }
 		
-	if not profile.consume_energy(GIFT_ACTION_COST):
-		return { "success": false, "msg": "行动力不足，无法送礼" }
+	# 委托 InteractionManager 统一处理行动力等消耗
+	if GameDataManager.interaction_manager:
+		if not GameDataManager.interaction_manager.execute_interaction("gift"):
+			return { "success": false, "msg": "交互条件不足（如行动力不足）" }
+	else:
+		if not profile.consume_energy(GIFT_ACTION_COST):
+			return { "success": false, "msg": "行动力不足，无法送礼" }
 	
 	# 计算基础值
 	var base_i = gift.get("base_intimacy", 0)
@@ -104,12 +166,25 @@ func send_gift(profile: CharacterProfile, gift_id: String) -> Dictionary:
 	
 	# 记录此次送礼
 	_recent_gifts.append({ "id": gift_id, "time": Time.get_unix_time_from_system() })
+	save_state()
 	
 	# 应用数值
 	if final_i > 0:
 		profile.update_intimacy(final_i)
 	if final_t > 0:
 		profile.update_trust(final_t)
+
+	if GameDataManager.personality_system and GameDataManager.personality_system.has_method("apply_personality_event"):
+		var gift_event_type = _resolve_gift_personality_event(gift, decay)
+		var intensity = max((final_i + final_t) / 20.0, 0.3)
+		GameDataManager.personality_system.apply_personality_event(profile, gift_event_type, {
+			"gift_id": gift_id,
+			"gift_name": str(gift.get("name", "")),
+			"gift_category": str(gift.get("category", "normal")),
+			"decay": decay,
+			"intensity": intensity,
+			"force_log": true
+		})
 		
 	profile.save_profile()
 	
@@ -119,3 +194,15 @@ func send_gift(profile: CharacterProfile, gift_id: String) -> Dictionary:
 		"gained_intimacy": final_i,
 		"gained_trust": final_t
 	}
+
+func _resolve_gift_personality_event(gift: Dictionary, decay: float) -> String:
+	var category = str(gift.get("category", "normal"))
+	if decay <= 0.5:
+		return "gift_repeated"
+	match category:
+		"special":
+			return "gift_special"
+		"expensive":
+			return "gift_expensive"
+		_:
+			return "gift_generic"

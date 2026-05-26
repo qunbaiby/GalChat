@@ -1,11 +1,10 @@
-[gd_scene load_steps=24 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=23 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/ChatGPT Image 2026年5月20日 15_54_33.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="4_8r0ra"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="4_v7k4o"]
 [ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/galchat_cg_0002.jpg" id="6_te7qg"]
-[ext_resource type="Texture2D" uid="uid://blts2rskaripw" path="res://assets/images/icons/ui/stats/social.svg" id="7_8r0ra"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -768,133 +767,196 @@ text = "相机"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ListVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
+[node name="ListCards" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox"]
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 10
 
-[node name="List1" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox"]
-custom_minimum_size = Vector2(0, 80)
+[node name="QuickEntries" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards"]
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="L1_Title" type="Label" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
-layout_mode = 0
-offset_left = 15.0
-offset_top = 10.0
-offset_right = 55.0
-offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
-theme_override_font_sizes/font_size = 12
-text = "ChillChat"
+[node name="ChatEntry" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
 
-[node name="L1_Content" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
-layout_mode = 0
-offset_left = 30.0
-offset_top = 35.0
-offset_right = 270.0
-offset_bottom = 70.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
-
-[node name="L1_Text" type="Label" parent="PhonePanel/MainMargin/VBox/ListVBox/List1/L1_Content"]
-layout_mode = 0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = 160.0
-offset_bottom = 31.0
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
-theme_override_font_sizes/font_size = 14
-text = "暂时没有新的消息。"
-
-[node name="SmsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-flat = true
-
-[node name="L1_Icon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List1"]
-layout_mode = 0
-offset_left = 285.0
-offset_top = 10.0
-offset_right = 345.0
-offset_bottom = 70.0
-
-[node name="MomentsButton" type="Button" parent="PhonePanel/MainMargin/VBox/ListVBox/List1/L1_Icon"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-flat = true
-
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/ListVBox/List1/L1_Icon/MomentsButton"]
-custom_minimum_size = Vector2(20, 20)
+[node name="ChatEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
+offset_left = -16.0
+offset_top = -18.0
+offset_right = 16.0
+offset_bottom = 14.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("7_8r0ra")
-expand_mode = 1
-stretch_mode = 5
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_font_sizes/font_size = 28
+text = "✉"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="List2" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox"]
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-
-[node name="L2_Title" type="Label" parent="PhonePanel/MainMargin/VBox/ListVBox/List2"]
-layout_mode = 0
-offset_left = 15.0
-offset_top = 10.0
-offset_right = 55.0
-offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+[node name="ChatEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -21.5
+offset_top = 1.0
+offset_right = 21.5
+offset_bottom = 19.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
 theme_override_font_sizes/font_size = 12
-text = "通话记录"
+text = "聊天"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="L2_Content" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List2"]
+[node name="ChatEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
+visible = false
 layout_mode = 0
-offset_left = 30.0
-offset_top = 35.0
-offset_right = 270.0
-offset_bottom = 70.0
+
+[node name="ChatEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="MomentsEntry" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+
+[node name="MomentsEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -18.0
+offset_right = 16.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_font_sizes/font_size = 28
+text = "☼"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MomentsEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -21.5
+offset_top = 1.0
+offset_right = 21.5
+offset_bottom = 19.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_font_sizes/font_size = 12
+text = "朋友圈"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MomentsEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
+visible = false
+layout_mode = 0
+
+[node name="MomentsEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="BetweenEntry" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
 
-[node name="L2_Text" type="Label" parent="PhonePanel/MainMargin/VBox/ListVBox/List2/L2_Content"]
+[node name="BetweenEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
 layout_mode = 0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = 160.0
-offset_bottom = 31.0
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
-theme_override_font_sizes/font_size = 14
-text = "未接来电。"
-
-[node name="L2_Icon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListVBox/List2"]
-layout_mode = 0
-offset_left = 285.0
+offset_left = 16.0
 offset_top = 10.0
-offset_right = 345.0
-offset_bottom = 70.0
+offset_right = 96.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "你我之间"
 
-[node name="L2_I" type="Label" parent="PhonePanel/MainMargin/VBox/ListVBox/List2/L2_Icon"]
+[node name="BetweenEntryContent" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
 layout_mode = 0
-offset_left = 15.0
+offset_left = 122.0
+offset_top = 44.0
+offset_right = 238.0
+offset_bottom = 72.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
+
+[node name="BetweenEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/BetweenEntryContent"]
+layout_mode = 0
+offset_left = 8.0
 offset_top = 5.0
-offset_right = 55.0
-offset_bottom = 47.0
+offset_right = 108.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "共同回忆入口"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="BetweenEntryIcon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 24.0
+offset_right = 106.0
+offset_bottom = 74.0
+
+[node name="BetweenEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/BetweenEntryIcon"]
+layout_mode = 0
+offset_top = -8.0
+offset_right = 78.0
+offset_bottom = 50.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 30
-text = "☎"
+theme_override_font_sizes/font_size = 48
+text = "♡"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BetweenEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
 
 [node name="BotSpacer" type="Control" parent="PhonePanel/MainMargin/VBox"]
 layout_mode = 2

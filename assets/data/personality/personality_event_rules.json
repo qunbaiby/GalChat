@@ -1,0 +1,137 @@
+{
+	"stage_upgraded": {
+		"label": "阶段成长",
+		"snapshot": true,
+		"pattern_keys": ["milestone_chain"],
+		"pattern_streak_bonus": 0.18,
+		"short_term_scale": 0.2,
+		"long_term_scale": 0.8,
+		"deltas": {
+			"openness": 0.3,
+			"conscientiousness": 0.2,
+			"agreeableness": 0.2,
+			"neuroticism": -0.25
+		}
+	},
+	"player_comforted": {
+		"label": "被安抚",
+		"snapshot": false,
+		"pattern_keys": ["comfort_chain"],
+		"pattern_streak_bonus": 0.2,
+		"short_term_scale": 0.85,
+		"long_term_scale": 0.15,
+		"deltas": {
+			"agreeableness": 0.35,
+			"neuroticism": -0.3
+		}
+	},
+	"player_betrayed_expectation": {
+		"label": "期待落空",
+		"snapshot": false,
+		"pattern_keys": ["betrayal_chain"],
+		"pattern_streak_bonus": 0.22,
+		"short_term_scale": 0.9,
+		"long_term_scale": 0.1,
+		"deltas": {
+			"agreeableness": -0.25,
+			"neuroticism": 0.4
+		}
+	},
+	"player_consistent_care": {
+		"label": "稳定陪伴",
+		"snapshot": true,
+		"pattern_keys": ["care_chain"],
+		"pattern_streak_bonus": 0.2,
+		"short_term_scale": 0.35,
+		"long_term_scale": 0.65,
+		"deltas": {
+			"conscientiousness": 0.15,
+			"agreeableness": 0.4,
+			"neuroticism": -0.35
+		}
+	},
+	"gift_generic": {
+		"label": "收到礼物",
+		"snapshot": false,
+		"pattern_keys": ["gift_chain"],
+		"pattern_streak_bonus": 0.1,
+		"short_term_scale": 0.75,
+		"long_term_scale": 0.25,
+		"deltas": {
+			"agreeableness": 0.15
+		}
+	},
+	"gift_special": {
+		"label": "收到心意礼物",
+		"snapshot": false,
+		"pattern_keys": ["gift_chain"],
+		"pattern_streak_bonus": 0.16,
+		"short_term_scale": 0.45,
+		"long_term_scale": 0.55,
+		"deltas": {
+			"openness": 0.15,
+			"agreeableness": 0.25,
+			"neuroticism": -0.1
+		}
+	},
+	"gift_expensive": {
+		"label": "收到贵重礼物",
+		"snapshot": false,
+		"pattern_keys": ["gift_chain"],
+		"pattern_streak_bonus": 0.14,
+		"short_term_scale": 0.6,
+		"long_term_scale": 0.4,
+		"deltas": {
+			"conscientiousness": 0.1,
+			"agreeableness": 0.15
+		}
+	},
+	"gift_repeated": {
+		"label": "收到重复礼物",
+		"snapshot": false,
+		"pattern_keys": ["gift_chain"],
+		"pattern_streak_bonus": 0.08,
+		"short_term_scale": 0.9,
+		"long_term_scale": 0.1,
+		"deltas": {
+			"agreeableness": 0.08
+		}
+	},
+	"shared_success": {
+		"label": "共同成功",
+		"snapshot": false,
+		"pattern_keys": ["success_chain"],
+		"pattern_streak_bonus": 0.18,
+		"short_term_scale": 0.4,
+		"long_term_scale": 0.6,
+		"deltas": {
+			"openness": 0.2,
+			"extraversion": 0.15,
+			"conscientiousness": 0.2
+		}
+	},
+	"shared_failure": {
+		"label": "共同受挫",
+		"snapshot": false,
+		"pattern_keys": ["failure_chain"],
+		"pattern_streak_bonus": 0.18,
+		"short_term_scale": 0.7,
+		"long_term_scale": 0.3,
+		"deltas": {
+			"conscientiousness": 0.1,
+			"neuroticism": 0.2
+		}
+	},
+	"story_milestone": {
+		"label": "剧情里程碑",
+		"snapshot": true,
+		"pattern_keys": ["milestone_chain"],
+		"pattern_streak_bonus": 0.2,
+		"short_term_scale": 0.25,
+		"long_term_scale": 0.75,
+		"deltas": {
+			"openness": 0.25,
+			"agreeableness": 0.15
+		}
+	}
+}

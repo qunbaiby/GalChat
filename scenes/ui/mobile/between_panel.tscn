@@ -1,0 +1,359 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mobile/between_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(0.08, 0.09, 0.11, 0.98)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.08)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
+bg_color = Color(0.33, 0.27, 0.19, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonNormal"]
+bg_color = Color(0.16, 0.17, 0.2, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
+bg_color = Color(0.11, 0.12, 0.15, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Relation"]
+bg_color = Color(0.15, 0.16, 0.19, 0.96)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Action"]
+bg_color = Color(0.39, 0.27, 0.2, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="BetweenPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="DimBg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.04, 0.05, 0.84)
+
+[node name="PanelRoot" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(390, 670)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -195.0
+offset_top = -335.0
+offset_right = 195.0
+offset_bottom = 335.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="Margin" type="MarginContainer" parent="PanelRoot"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="RootVBox" type="VBoxContainer" parent="PanelRoot/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TopBar" type="HBoxContainer" parent="PanelRoot/Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BackBtn" type="Button" parent="PanelRoot/Margin/RootVBox/TopBar"]
+custom_minimum_size = Vector2(72, 34)
+layout_mode = 2
+text = "返回"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="TitleVBox" type="VBoxContainer" parent="PanelRoot/Margin/RootVBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="PanelRoot/Margin/RootVBox/TopBar/TitleVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "你我之间"
+
+[node name="SummaryLabel" type="Label" parent="PanelRoot/Margin/RootVBox/TopBar/TitleVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+autowrap_mode = 3
+
+[node name="ModeBar" type="HBoxContainer" parent="PanelRoot/Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ListModeBtn" type="Button" parent="PanelRoot/Margin/RootVBox/ModeBar"]
+custom_minimum_size = Vector2(104, 32)
+layout_mode = 2
+text = "分类视图"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="TimelineModeBtn" type="Button" parent="PanelRoot/Margin/RootVBox/ModeBar"]
+custom_minimum_size = Vector2(96, 32)
+layout_mode = 2
+text = "时间线"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="FilterScroll" type="ScrollContainer" parent="PanelRoot/Margin/RootVBox"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="FilterBar" type="HBoxContainer" parent="PanelRoot/Margin/RootVBox/FilterScroll"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AllBtn" type="Button" parent="PanelRoot/Margin/RootVBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(78, 30)
+layout_mode = 2
+text = "全部"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="MilestoneBtn" type="Button" parent="PanelRoot/Margin/RootVBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(78, 30)
+layout_mode = 2
+text = "节点"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="MemoryBtn" type="Button" parent="PanelRoot/Margin/RootVBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(78, 30)
+layout_mode = 2
+text = "回忆"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="DiaryBtn" type="Button" parent="PanelRoot/Margin/RootVBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(78, 30)
+layout_mode = 2
+text = "日记"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="MomentBtn" type="Button" parent="PanelRoot/Margin/RootVBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(78, 30)
+layout_mode = 2
+text = "动态"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="PhotoBtn" type="Button" parent="PanelRoot/Margin/RootVBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(78, 30)
+layout_mode = 2
+text = "相片"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="ListScroll" type="ScrollContainer" parent="PanelRoot/Margin/RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ListContent" type="VBoxContainer" parent="PanelRoot/Margin/RootVBox/ListScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="EmptyLabel" type="Label" parent="PanelRoot/Margin/RootVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.72, 0.78, 1)
+text = "这里还没有被收录的共同回忆。"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="DetailOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.76)
+
+[node name="DetailPanel" type="PanelContainer" parent="DetailOverlay"]
+custom_minimum_size = Vector2(350, 560)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -175.0
+offset_top = -280.0
+offset_right = 175.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Detail")
+
+[node name="Margin" type="MarginContainer" parent="DetailOverlay/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="DetailOverlay/DetailPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TopBar" type="HBoxContainer" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="DetailTitle" type="Label" parent="DetailOverlay/DetailPanel/Margin/VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 3
+
+[node name="DetailCloseBtn" type="Button" parent="DetailOverlay/DetailPanel/Margin/VBox/TopBar"]
+custom_minimum_size = Vector2(70, 32)
+layout_mode = 2
+text = "关闭"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="DetailMeta" type="Label" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.73, 0.76, 0.8, 1)
+autowrap_mode = 3
+
+[node name="DetailImage" type="TextureRect" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DetailTags" type="Label" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.92, 0.77, 0.57, 1)
+autowrap_mode = 3
+
+[node name="DetailSummary" type="RichTextLabel" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+fit_content = true
+scroll_active = true
+
+[node name="DetailRelationPanel" type="PanelContainer" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Relation")
+
+[node name="Margin" type="MarginContainer" parent="DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DetailRelationTitle" type="Label" parent="DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+
+[node name="DetailRelationBody" type="Label" parent="DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.84, 0.87, 0.92, 1)
+autowrap_mode = 3
+
+[node name="DetailQuote" type="Label" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.84, 0.88, 0.95, 1)
+autowrap_mode = 3
+
+[node name="ActionBar" type="HBoxContainer" parent="DetailOverlay/DetailPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DetailFavoriteBtn" type="Button" parent="DetailOverlay/DetailPanel/Margin/VBox/ActionBar"]
+custom_minimum_size = Vector2(78, 38)
+layout_mode = 2
+text = "收藏"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="DetailPinBtn" type="Button" parent="DetailOverlay/DetailPanel/Margin/VBox/ActionBar"]
+custom_minimum_size = Vector2(78, 38)
+layout_mode = 2
+text = "置顶"
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+
+[node name="DetailChatBtn" type="Button" parent="DetailOverlay/DetailPanel/Margin/VBox/ActionBar"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "聊聊这段回忆"
+theme_override_styles/normal = SubResource("StyleBoxFlat_Action")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")

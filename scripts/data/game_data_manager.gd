@@ -15,6 +15,7 @@ var stats_system: Node
 var activity_manager: Node
 var gift_manager: Node
 var story_time_manager: Node
+var interaction_manager: Node
 var save_manager: Node
 var weather_manager: Node
 var app_database: Dictionary = {}
@@ -73,6 +74,9 @@ func _ready() -> void:
     story_time_manager = preload("res://scripts/data/story_time_manager.gd").new()
     add_child(story_time_manager)
     
+    interaction_manager = preload("res://scripts/data/interaction_manager.gd").new()
+    add_child(interaction_manager)
+    
     save_manager = preload("res://scripts/data/save_manager.gd").new()
     add_child(save_manager)
 
@@ -85,9 +89,14 @@ func _ready() -> void:
     
     profile = CharacterProfile.new()
     profile.load_profile()
+    if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
+        story_time_manager.reload_for_current_character(config.current_character_id)
+    if gift_manager and gift_manager.has_method("reload_for_current_character"):
+        gift_manager.reload_for_current_character(config.current_character_id)
     
     history = ChatHistoryManager.new()
     history.load_history()
+    memory_manager.load_memory()
     
     npc_relationship_manager = preload("res://scripts/data/npc_relationship_manager.gd").new()
     add_child(npc_relationship_manager)
@@ -147,6 +156,12 @@ func switch_character(char_id: String) -> void:
     if profile: profile.save_profile()
     if history: history.save_history()
     if npc_relationship_manager: npc_relationship_manager.save_relationships()
+    if story_time_manager: story_time_manager.save_data()
+    if gift_manager and gift_manager.has_method("save_state"):
+        gift_manager.save_state()
+    var event_manager = get_node_or_null("/root/EventManager")
+    if event_manager and event_manager.has_method("_save_triggered_events"):
+        event_manager._save_triggered_events()
     
     # 更新配置并重新加载
     config.current_character_id = char_id
@@ -154,7 +169,17 @@ func switch_character(char_id: String) -> void:
     
     profile.load_profile(char_id)
     history.load_history()
+    memory_manager.load_memory()
     if npc_relationship_manager: npc_relationship_manager.load_relationships()
+    if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
+        story_time_manager.reload_for_current_character(char_id)
+    if gift_manager and gift_manager.has_method("reload_for_current_character"):
+        gift_manager.reload_for_current_character(char_id)
+    var moments_manager = get_node_or_null("/root/MomentsManager")
+    if moments_manager and moments_manager.has_method("reload_for_current_character"):
+        moments_manager.reload_for_current_character(char_id)
+    if event_manager and event_manager.has_method("reload_for_current_character"):
+        event_manager.reload_for_current_character()
     
     persona_lock.check_and_lock_character(profile.char_name)
     

@@ -70,7 +70,7 @@ var _current_event_options: Array = []
 
 func _ready() -> void:
 	click_area.pressed.connect(_on_click_area_pressed)
-	close_button.pressed.connect(_on_close_pressed)
+	close_button.pressed.connect(_on_end_button_pressed)
 	
 	if auto_button: auto_button.pressed.connect(_on_auto_pressed)
 	if skip_button: skip_button.pressed.connect(_on_skip_pressed)
@@ -256,7 +256,7 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 		_update_course_info(_current_slot_index)
 	
 	# 每完成2个课程，时间推进一天 (2, 4, 6, 8)
-	if _current_slot_index % 2 == 0 and _current_slot_index < 10:
+	if _current_slot_index > 0 and _current_slot_index % 2 == 0 and _current_slot_index < 10:
 		if GameDataManager.story_time_manager:
 			GameDataManager.story_time_manager.advance_day(1)
 		
@@ -265,9 +265,14 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 		set_slot_status(_current_slot_index, true)
 		course_completed.emit(_current_slot_index)
 		all_courses_completed.emit()
-		# 第10个课程完成，推进最后一天
+		
+		# 第10个课程完成，不跨天，时间设定为周五晚上 20:00
 		if GameDataManager.story_time_manager:
-			GameDataManager.story_time_manager.advance_day(1)
+			GameDataManager.story_time_manager.current_hour = 20
+			GameDataManager.story_time_manager.current_minute = 0
+			GameDataManager.story_time_manager.current_period = GameDataManager.story_time_manager.PERIOD_NIGHT
+			GameDataManager.story_time_manager.time_advanced.emit(0, GameDataManager.story_time_manager.current_period)
+			
 		_show_result_popup()
 	elif _is_auto_playing:
 		if not _is_skipping:
@@ -711,4 +716,4 @@ func _on_end_button_pressed() -> void:
 	queue_free()
 
 func _on_close_pressed() -> void:
-	queue_free()
+	_on_end_button_pressed()

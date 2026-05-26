@@ -1,0 +1,117 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(0.13, 0.13, 0.16, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.05)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
+bg_color = Color(0, 0, 0, 0.55)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
+
+[node name="AlbumPhotoCard" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 136)
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBox" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ThumbArea" type="Control" parent="Margin/HBox"]
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+
+[node name="Thumb" type="TextureRect" parent="Margin/HBox/ThumbArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BadgePanel" type="PanelContainer" parent="Margin/HBox/ThumbArea"]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 70.0
+offset_bottom = 34.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
+
+[node name="BadgeLabel" type="Label" parent="Margin/HBox/ThumbArea/BadgePanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(1, 1, 1, 0.96)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoVBox" type="VBoxContainer" parent="Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="DateLabel" type="Label" parent="Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.94, 0.8, 0.53, 1)
+text = "2026-05-26 18:30"
+
+[node name="TitleLabel" type="Label" parent="Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+max_lines_visible = 1
+text_overrun_behavior = 3
+
+[node name="SourceLabel" type="Label" parent="Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.82, 0.85, 0.89, 1)
+autowrap_mode = 3
+max_lines_visible = 1
+text_overrun_behavior = 3
+text = "手机拍摄 · 剧情白天"
+
+[node name="MetaLabel" type="Label" parent="Margin/HBox/InfoVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.74, 0.77, 0.82, 1)
+autowrap_mode = 3
+max_lines_visible = 2
+text_overrun_behavior = 3
+
+[node name="ClickBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+theme_override_styles/normal = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_Button")
+text = ""

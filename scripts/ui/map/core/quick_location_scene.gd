@@ -1,5 +1,7 @@
 extends Control
 
+const QuickOptionListHelper = preload("res://scripts/ui/story/quick_option_list_helper.gd")
+
 @onready var bg_texture: TextureRect = $Background
 @onready var name_label: Label = $MapInfoPanel/VBox/NameLabel
 @onready var desc_label: Label = $MapInfoPanel/VBox/DescLabel
@@ -44,6 +46,8 @@ func _ready() -> void:
 			)
 	
 	if location_id != "":
+		if MapDataManager.has_method("set_last_location"):
+			MapDataManager.set_last_location(location_id)
 		_load_location_data()
 		
 		# Broadcast state change to EventManager to check for global events
@@ -391,14 +395,7 @@ func _show_topic_panel() -> void:
 	var t_tween = create_tween()
 	t_tween.tween_property(topic_panel, "modulate:a", 1.0, 0.3)
 	
-	for child in topic_container.get_children():
-		child.queue_free()
-		
-	var loading_label = Label.new()
-	loading_label.text = "正在思考话题..."
-	loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	loading_label.add_theme_font_size_override("font_size", 20)
-	topic_container.add_child(loading_label)
+	QuickOptionListHelper.show_loading_item(topic_container)
 	
 	# 请求 AI 动态生成话题
 	var profile = GameDataManager.profile
@@ -426,33 +423,23 @@ func _show_topic_panel() -> void:
 	)
 
 func _render_dynamic_topics(raw_text: String) -> void:
-	for child in topic_container.get_children():
-		child.queue_free()
-		
-	var lines = raw_text.split("\n", false)
-	var topics = []
-	for line in lines:
-		var t = line.strip_edges()
-		var regex = RegEx.new()
-		regex.compile("^(\\d+\\.|\\-|\\*)\\s*")
-		t = regex.sub(t, "")
-		if t != "":
-			topics.append(t)
-			
-	if topics.size() > 3:
-		topics = topics.slice(0, 3)
-	elif topics.size() == 0:
-		topics = ["聊点什么呢？", "天气不错", "分享件有趣的事"]
-		
-	for topic_text in topics:
-		var btn = Button.new()
-		btn.text = topic_text
-		btn.custom_minimum_size = Vector2(0, 50)
-		btn.add_theme_font_size_override("font_size", 20)
-		topic_container.add_child(btn)
-		btn.pressed.connect(_on_topic_selected.bind(topic_text))
+	var topics = QuickOptionListHelper.parse_topic_lines(
+		raw_text,
+		["聊点什么呢？", "天气不错", "分享件有趣的事"],
+		3
+	)
+	QuickOptionListHelper.populate_option_items(topic_container, topics, _on_topic_selected, 50.0)
 
 func _on_topic_selected(topic: String) -> void:
+	# 执行互动开销
+	if GameDataManager.interaction_manager:
+		if not GameDataManager.interaction_manager.execute_interaction("chat_jing"):
+			return
+	else:
+		if not GameDataManager.profile.consume_energy(5):
+			ToastManager.show_system_toast("行动力不足，需要5点行动力", Color.RED)
+			return
+		
 	var t_tween = create_tween()
 	t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
 	t_tween.tween_callback(func(): topic_panel.visible = false)

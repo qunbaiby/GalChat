@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dxe3r2b5g7na"]
+[gd_scene load_steps=8 format=3 uid="uid://dxe3r2b5g7na"]
 
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dtj5yy8j5u72g" path="res://assets/images/backgrounds/main/background_0.png" id="2_hlg1t"]
@@ -14,6 +14,48 @@ animations = [{
 "name": &"default",
 "speed": 5.0
 }]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble_normal"]
+content_margin_left = 15.0
+content_margin_top = 8.0
+content_margin_right = 15.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 0.85)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 4
+shadow_offset = Vector2(2, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble_pressed"]
+content_margin_left = 15.0
+content_margin_top = 8.0
+content_margin_right = 15.0
+content_margin_bottom = 8.0
+bg_color = Color(0.9, 0.9, 0.9, 0.9)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 2
+shadow_offset = Vector2(1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble_hover"]
+content_margin_left = 15.0
+content_margin_top = 8.0
+content_margin_right = 15.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.15)
+shadow_size = 6
+shadow_offset = Vector2(2, 2)
 
 [node name="DefaultRoomBg" type="Control"]
 layout_mode = 3
@@ -43,16 +85,18 @@ scale = Vector2(0.72157085, 0.72157085)
 sprite_frames = SubResource("SpriteFrames_6tba5")
 
 [node name="StoryButton" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -199.0
-offset_top = -580.0
-offset_right = -146.0
-offset_bottom = -533.0
-grow_horizontal = 0
-grow_vertical = 0
+layout_mode = 0
+offset_left = 1004.0
+offset_top = 121.0
+offset_right = 1119.0
+offset_bottom = 167.0
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_focus_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_bubble_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_bubble_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_bubble_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_bubble_normal")
 text = "剧情"

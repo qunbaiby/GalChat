@@ -6,7 +6,6 @@ extends Node
 signal event_triggered(event_id: String, params: Dictionary)
 
 const EVENT_REGISTRY_PATH = "res://assets/data/events/event_registry.json"
-const TRIGGERED_EVENTS_SAVE = "user://triggered_events.json"
 
 var event_registry: Array = []
 var triggered_events: Array = [] # 记录已触发过的事件ID
@@ -14,6 +13,16 @@ var triggered_events: Array = [] # 记录已触发过的事件ID
 func _ready() -> void:
     _load_event_registry()
     _load_triggered_events()
+
+func get_triggered_events_save_path() -> String:
+    var char_id = "default"
+    if GameDataManager.config and GameDataManager.config.current_character_id != "":
+        char_id = GameDataManager.config.current_character_id
+
+    var dir_path = "user://saves/%s" % char_id
+    if not DirAccess.dir_exists_absolute(dir_path):
+        DirAccess.make_dir_recursive_absolute(dir_path)
+    return "%s/triggered_events.json" % dir_path
 
 func _load_event_registry() -> void:
     if FileAccess.file_exists(EVENT_REGISTRY_PATH):
@@ -26,16 +35,21 @@ func _load_event_registry() -> void:
         file.close()
 
 func _load_triggered_events() -> void:
-    if FileAccess.file_exists(TRIGGERED_EVENTS_SAVE):
-        var file = FileAccess.open(TRIGGERED_EVENTS_SAVE, FileAccess.READ)
+    triggered_events.clear()
+    var save_path = get_triggered_events_save_path()
+    if FileAccess.file_exists(save_path):
+        var file = FileAccess.open(save_path, FileAccess.READ)
         var json = JSON.new()
-        if json.parse(file.get_as_text()) == OK:
+        if json.parse(file.get_as_text()) == OK and json.get_data() is Array:
             triggered_events = json.get_data()
         file.close()
 
 func _save_triggered_events() -> void:
     var SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
-    SafeFileAccess.store_string(TRIGGERED_EVENTS_SAVE, JSON.stringify(triggered_events))
+    SafeFileAccess.store_string(get_triggered_events_save_path(), JSON.stringify(triggered_events))
+
+func reload_for_current_character() -> void:
+    _load_triggered_events()
 
 func is_event_triggered(event_id: String) -> bool:
     return triggered_events.has(event_id)
@@ -104,6 +118,8 @@ func execute_event(event_id: String, params: Dictionary = {}) -> void:
             _handle_write_diary()
         "post_moment":
             _handle_post_moment()
+        "memory_revisit":
+            _handle_memory_revisit(params)
         _:
             print("[EventManager] 未知事件 ID: ", event_id)
             
@@ -181,6 +197,11 @@ func _handle_post_moment() -> void:
         print("[EventManager] 已触发朋友圈生成事件。")
     else:
         print("[EventManager] 未找到有效的 DeepSeekClient 或缺少 send_moment_generation 方法，无法触发朋友圈生成。")
+
+func _handle_memory_revisit(params: Dictionary) -> void:
+    var main_scene = get_tree().root.get_node_or_null("MainScene")
+    if main_scene and main_scene.has_method("start_memory_revisit"):
+        main_scene.start_memory_revisit(params)
 
 func _get_random_character_profile() -> CharacterProfile:
     var char_ids = ["luna", "jing", "ya"]

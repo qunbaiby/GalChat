@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://bw4pmk2phwi28"]
+[gd_scene load_steps=9 format=3 uid="uid://bw4pmk2phwi28"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_2am76"]
 [ext_resource type="Script" uid="uid://cjhryxu6fp05i" path="res://scripts/ui/mobile/album_panel.gd" id="1_script"]
@@ -9,6 +9,44 @@ corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FilterCurrent"]
+bg_color = Color(0.35, 0.25, 0.18, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FilterNormal"]
+bg_color = Color(0.16, 0.16, 0.19, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
+bg_color = Color(0.11, 0.11, 0.14, 0.94)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.05)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Meta"]
+bg_color = Color(0.08, 0.08, 0.1, 0.88)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.08)
 
 [node name="AlbumPanel" type="Panel"]
 anchors_preset = 15
@@ -30,6 +68,7 @@ offset_right = -15.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
 
 [node name="TopBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -48,6 +87,107 @@ theme_override_font_sizes/font_size = 18
 text = "相册"
 horizontal_alignment = 1
 
+[node name="SummaryPanel" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Summary")
+
+[node name="Margin" type="MarginContainer" parent="VBox/SummaryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="VBox/SummaryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SummaryTitle" type="Label" parent="VBox/SummaryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+text = "收录概览"
+
+[node name="SummaryLabel" type="Label" parent="VBox/SummaryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.78, 0.8, 0.84, 1)
+autowrap_mode = 3
+
+[node name="FilterScroll" type="ScrollContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="FilterBar" type="HBoxContainer" parent="VBox/FilterScroll"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AllBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+text = "全部"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="CameraBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+text = "拍摄"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="ChatBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+text = "聊天"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="CgBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(56, 30)
+layout_mode = 2
+text = "CG"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="DiaryBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+text = "日记"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="MomentBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(80, 30)
+layout_mode = 2
+text = "朋友圈"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="DrawingBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+text = "绘画"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
+[node name="OtherBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+text = "其他"
+theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+
 [node name="Scroll" type="ScrollContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -55,9 +195,9 @@ size_flags_vertical = 3
 [node name="Grid" type="GridContainer" parent="VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 3
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 14
+columns = 1
 
 [node name="EmptyLabel" type="Label" parent="VBox"]
 visible = false
@@ -67,6 +207,7 @@ theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
 text = "相册空空如也~"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 3
 
 [node name="FullscreenViewer" type="Control" parent="."]
 visible = false
@@ -98,29 +239,77 @@ stretch_mode = 5
 
 [node name="CloseViewerBtn" type="Button" parent="FullscreenViewer"]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 1
+anchor_left = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-flat = true
+offset_left = -92.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 12
+text = "关闭"
 
-[node name="SendBtn" type="Button" parent="FullscreenViewer"]
+[node name="MetaPanel" type="PanelContainer" parent="FullscreenViewer"]
 visible = false
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -60.0
-offset_top = -100.0
-offset_right = 60.0
-offset_bottom = -50.0
-grow_horizontal = 2
+offset_left = 16.0
+offset_top = -188.0
+offset_right = -16.0
+offset_bottom = -18.0
 grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Meta")
+
+[node name="Margin" type="MarginContainer" parent="FullscreenViewer/MetaPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="FullscreenViewer/MetaPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MetaTag" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+text = "照片信息"
+
+[node name="MetaTitle" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.98, 0.98, 0.99, 1)
+autowrap_mode = 3
+
+[node name="MetaBody" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+autowrap_mode = 3
+
+[node name="MetaFooterRow" type="HBoxContainer" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MetaFooter" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.72, 0.76, 0.81, 1)
+autowrap_mode = 3
+text = "来源信息"
+
+[node name="SendBtn" type="Button" parent="FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow"]
+visible = false
+custom_minimum_size = Vector2(112, 40)
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_Send")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Send")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Send")

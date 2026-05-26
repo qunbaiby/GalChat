@@ -32,7 +32,9 @@ static func evaluate_conditions(conditions: Array) -> Dictionary:
                 var val = profile.get(stat_name)
                 if val == null or val < min_val:
                     result["passed"] = false
-                    var display_name = GameDataManager.stats_system.get_stat_display_name(stat_name) if GameDataManager.has_method("stats_system") else stat_name
+                    var display_name = stat_name
+                    if GameDataManager.stats_system and GameDataManager.stats_system.has_method("get_stat_display_name"):
+                        display_name = GameDataManager.stats_system.get_stat_display_name(stat_name)
                     result["failed_reason"] = "需要【%s】达到 %d" % [display_name, min_val]
                     return result
         elif c_type == "stage":
@@ -53,7 +55,7 @@ static func evaluate_conditions(conditions: Array) -> Dictionary:
                     return result
         elif c_type == "location":
             var req_loc = cond.get("value", "")
-            var current_loc = MapDataManager.get_last_area() # 或其他获取当前位置的方式
+            var current_loc = MapDataManager.get_last_location()
             if current_loc != req_loc:
                 result["passed"] = false
                 result["failed_reason"] = "必须在特定地点触发"
@@ -66,7 +68,7 @@ static func evaluate_conditions(conditions: Array) -> Dictionary:
                 return result
         elif c_type == "weather":
             var req_weather = cond.get("value", "")
-            if GameDataManager.has_method("weather_manager") and GameDataManager.weather_manager:
+            if GameDataManager.weather_manager:
                 var current_weather = GameDataManager.weather_manager.current_weather_desc
                 if req_weather not in current_weather:
                     result["passed"] = false

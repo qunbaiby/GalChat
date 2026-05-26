@@ -446,6 +446,71 @@ func build_proactive_greeting_prompt(profile: CharacterProfile, prompt_type: Str
         "stage_desc": stage_desc
     })
 
+func build_memory_revisit_prompt(profile: CharacterProfile, revisit_data: Dictionary, trigger_context: Dictionary = {}) -> String:
+    var char_name = profile.char_name
+    var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
+    var stage_conf = profile.get_current_stage_config()
+    var stage_title = stage_conf.get("stageTitle", "陌生人")
+    var stage_desc = stage_conf.get("stageDesc", "")
+    var player_name = profile.player_title
+    if player_name.is_empty():
+        player_name = "指导人"
+    
+    var memory_content = str(revisit_data.get("content", "")).strip_edges()
+    var layer = str(revisit_data.get("layer", "bond"))
+    var story_time = str(revisit_data.get("story_time", ""))
+    var context_domain = str(trigger_context.get("context_domain", "story"))
+    var layer_desc = {
+        "bond": "共同经历或约定",
+        "emotion": "情绪与关心相关的记忆",
+        "habit": "关于玩家习惯与偏好的记忆"
+    }.get(layer, "你们之间的重要记忆")
+    
+    var prompt = "【系统指令】\n"
+    prompt += "你现在要主动发起一次“记忆回访事件”。\n"
+    prompt += "你回想起了一段关于玩家的重要记忆，请自然地主动提起它，并围绕它开启一段新的对话。\n"
+    prompt += "【角色】%s\n" % char_name
+    prompt += "【玩家身份称呼】%s\n" % player_name
+    prompt += "【当前关系阶段】%s\n" % stage_title
+    prompt += "【当前关系描述】%s\n" % stage_desc
+    prompt += "【当前关系风味】%s\n" % dyn_traits
+    prompt += "【回访记忆类型】%s\n" % layer_desc
+    prompt += "【回访记忆内容】%s\n" % memory_content
+    if context_domain == "reality":
+        var real_hour = int(trigger_context.get("real_hour", Time.get_datetime_dict_from_system().get("hour", 0)))
+        var real_period = str(trigger_context.get("real_period", ""))
+        var real_weather = str(trigger_context.get("real_weather", ""))
+        prompt += "【当前陪伴模式】现实桌宠陪伴\n"
+        prompt += "【当前现实时间】%02d点，%s\n" % [real_hour, real_period if real_period != "" else "当前时段"]
+        if real_weather != "":
+            prompt += "【当前现实天气】%s\n" % real_weather
+        prompt += "要求补充：\n"
+        prompt += "- 这次回访发生在现实陪伴场景里，只能结合现实时间和现实天气来引出记忆。\n"
+        prompt += "- 不要把剧情地图地点、剧情日程、剧情天气直接说出来。\n"
+    else:
+        var story_location_id = str(trigger_context.get("story_location_id", ""))
+        var story_weather = str(trigger_context.get("story_weather", ""))
+        var story_period = str(trigger_context.get("story_period", ""))
+        prompt += "【当前陪伴模式】主场景剧情陪伴\n"
+        if story_time != "":
+            prompt += "【这段记忆发生时的剧情时间】%s\n" % story_time
+        if story_period != "":
+            prompt += "【当前剧情时段】%s\n" % story_period
+        if story_weather != "":
+            prompt += "【当前剧情天气】%s\n" % story_weather
+        if story_location_id != "":
+            prompt += "【当前剧情地点ID】%s\n" % story_location_id
+        prompt += "要求补充：\n"
+        prompt += "- 这次回访发生在剧情世界里，只能结合剧情时间、剧情天气、剧情地点来引出记忆。\n"
+        prompt += "- 不要提到现实时间、窗外真实天气或桌面环境。\n"
+    prompt += "要求：\n"
+    prompt += "1. 以第一人称、角色口吻主动提起这段记忆，不要生硬复读原文。\n"
+    prompt += "2. 语气要体现“我记得这件事”，并自然延展成当前可以继续聊的话题。\n"
+    prompt += "3. 回复长度控制在 30 到 80 字之间。\n"
+    prompt += "4. 必须包含且只能在最开头出现一个括号动作描写，之后全部是台词。\n"
+    prompt += "5. 不要输出系统提示，不要解释你在调用记忆系统。\n"
+    return prompt
+
 func build_schedule_event_prompt(course_name: String, course_desc: String) -> String:
     var prompt = "你是一个生活事件生成器。请根据给定的课程/活动名称和描述，生成一个可能在进行该活动时发生的突发小事件。\n"
     prompt += "输出必须是纯 JSON 格式，不含任何其他内容，字段如下：\n"

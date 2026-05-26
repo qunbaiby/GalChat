@@ -79,18 +79,23 @@ func _on_start_pressed():
 	if is_studying: return
 	if selected_option_id == "": return
 	
-	var profile = GameDataManager.profile
-	if profile.current_energy < energy_cost:
-		if ToastManager:
-			ToastManager.show_system_toast("行动力不足！")
-		return
-		
-	is_studying = true
-	if profile.has_method("consume_energy"):
-		profile.consume_energy(energy_cost)
+	if GameDataManager.interaction_manager:
+		if not GameDataManager.interaction_manager.execute_interaction("music_study"):
+			return
 	else:
-		profile.current_energy -= energy_cost
-		profile.save_profile()
+		var profile = GameDataManager.profile
+		if profile.current_energy < energy_cost:
+			if ToastManager:
+				ToastManager.show_system_toast("行动力不足！")
+			return
+			
+		if profile.has_method("consume_energy"):
+			profile.consume_energy(energy_cost)
+		else:
+			profile.current_energy -= energy_cost
+			profile.save_profile()
+			
+	is_studying = true
 	
 	var selected_opt = null
 	for i in range(options.size()):

@@ -74,6 +74,7 @@ func _on_ai_reply_generated(post_id: String, reply_text: String) -> void:
 
 func show_panel() -> void:
     show()
+    MomentsManager.mark_all_read()
     # 强制在显示时清理旧的 _local_cover_path，以防止打开时卡在旧的局部变量上
     _local_cover_path = ""
     _update_header()

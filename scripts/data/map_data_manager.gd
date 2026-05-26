@@ -5,6 +5,7 @@ var locations: Dictionary = {}
 var npcs_data: Dictionary = {}
 
 var _last_visited_area: String = ""
+var _last_visited_location: String = ""
 var is_quick_mode: bool = false
 
 const MAP_DATA_PATH = "res://assets/data/map/core/map_data.json"
@@ -242,3 +243,9 @@ func set_last_area(area_id: String) -> void:
 
 func get_last_area() -> String:
 	return _last_visited_area
+
+func set_last_location(location_id: String) -> void:
+	_last_visited_location = location_id
+
+func get_last_location() -> String:
+	return _last_visited_location

@@ -55,6 +55,20 @@ func _load_char_archive(char_id: String) -> void:
     _update_personality_display(temp_profile)
     _update_memory_display(mems)
 
+func _get_story_day_offset_for_char(char_id: String) -> int:
+    var path = "user://saves/%s/story_time_save.json" % char_id
+    if not FileAccess.file_exists(path):
+        return 0
+    var file = FileAccess.open(path, FileAccess.READ)
+    if file == null:
+        return 0
+    var json = JSON.new()
+    var result = json.parse(file.get_as_text())
+    file.close()
+    if result != OK or not json.data is Dictionary:
+        return 0
+    return int(json.data.get("current_day_offset", 0))
+
 func _update_personality_display(profile: CharacterProfile) -> void:
     var base_o = profile.base_personality.get("openness", 50.0)
     var base_c = profile.base_personality.get("conscientiousness", 50.0)
@@ -70,7 +84,7 @@ func _update_personality_display(profile: CharacterProfile) -> void:
     # 更新折线图数据
     var history = profile.personality_history.duplicate()
     # 把当前最新状态作为最后一天加上去
-    var current_day_offset = GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0
+    var current_day_offset = _get_story_day_offset_for_char(profile.current_character_id)
     history.append({
         "day_offset": current_day_offset,
         "openness": float(profile.openness),
@@ -89,7 +103,16 @@ func _update_personality_display(profile: CharacterProfile) -> void:
         if is_instance_valid(base_personality_text):
             base_personality_text.text = base_traits_str
         
-    var dynamic_traits_str = GameDataManager.personality_system.get_dynamic_traits(profile)
+    var dynamic_traits_parts: Array = [
+        GameDataManager.personality_system.get_personality_state_summary(profile),
+        GameDataManager.personality_system.get_recent_event_summary(profile),
+        GameDataManager.personality_system.get_pressure_summary(profile),
+        GameDataManager.personality_system.get_pattern_summary(profile),
+        GameDataManager.personality_system.get_last_settlement_summary(profile),
+        "",
+        GameDataManager.personality_system.get_dynamic_traits(profile)
+    ]
+    var dynamic_traits_str = "\n".join(dynamic_traits_parts)
     if is_instance_valid(status_text):
         status_text.text = "AI 正在分析性格演化..."
         behavior_text.text = "等待分析..."

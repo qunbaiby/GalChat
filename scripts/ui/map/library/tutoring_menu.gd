@@ -283,6 +283,10 @@ func _on_start_pressed() -> void:
 			var display_name = STAT_NAME_MAP.get(stat_key, stat_key)
 			ToastManager.show_stat_toast(stat_key, "%s +%d" % [display_name, actual_stat_gains[stat_key]])
 			
+	# 执行互动开销
+	if GameDataManager.interaction_manager:
+		GameDataManager.interaction_manager.execute_interaction("tutoring")
+			
 	_on_close_pressed()
 
 func _on_close_pressed() -> void:

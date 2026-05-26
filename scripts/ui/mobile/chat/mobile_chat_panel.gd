@@ -1,5 +1,7 @@
 extends Control
 
+const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
+
 signal back_requested
 signal incoming_call_ended
 
@@ -38,6 +40,10 @@ var is_voice_call_mode: bool = false
 var video_call_panel_instance = null
 var _current_call_is_incoming: bool = false
 var _current_viewing_image_path: String = ""
+var _follow_up_serial: int = 0
+var _last_player_mobile_text: String = ""
+const FOLLOW_UP_DELAY_MIN: float = 12.0
+const FOLLOW_UP_DELAY_MAX: float = 24.0
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back_pressed)
@@ -89,7 +95,9 @@ func setup(char_id: String) -> void:
 	
 	# Load history
 	_load_mobile_history()
+	_mark_all_incoming_messages_read()
 	_render_history()
+	_notify_mobile_social_changed()
 
 func _on_back_pressed() -> void:
 	back_requested.emit()
@@ -312,6 +320,8 @@ func _on_input_submitted(text: String) -> void:
 	_on_send_pressed()
 
 func _send_player_message(text: String) -> void:
+	_follow_up_serial += 1
+	_last_player_mobile_text = text
 	_add_message_bubble("player", text)
 	_save_message_to_history("player", text)
 	
@@ -454,16 +464,17 @@ func _on_ai_response(response: Dictionary) -> void:
 							"amount": rp_amount,
 							"status": "unclaimed"
 						}
-						_add_message_to_ui(rp_msg)
-						chat_history.append(rp_msg)
-						_save_mobile_history()
+						rp_msg["is_read"] = visible
+						_append_history_message(rp_msg, visible)
 						
 					# 20% chance to be a voice message
 					var is_voice = randf() < 0.2
 					var duration = max(1, int(clean_part.length() / 4.0)) if is_voice else 0
 					
-					_add_message_bubble("char", clean_part, is_voice, duration)
-					_save_message_to_history("char", clean_part, is_voice, duration)
+					if visible:
+						_add_message_bubble("char", clean_part, is_voice, duration)
+					_save_message_to_history("char", clean_part, is_voice, duration, visible)
+			_schedule_follow_up_message(_last_player_mobile_text, clean_content)
 					
 			# Scroll to bottom
 			await get_tree().create_timer(0.1).timeout
@@ -653,7 +664,8 @@ func _on_close_viewer_pressed() -> void:
 
 func _on_save_to_album_pressed() -> void:
 	if _current_viewing_image_path != "":
-		var save_dir = "user://saves/photos"
+		var photo_manager = PhotoMemoryManagerScript.new()
+		var save_dir = photo_manager.get_photo_dir()
 		if not DirAccess.dir_exists_absolute(save_dir):
 			DirAccess.make_dir_recursive_absolute(save_dir)
 			
@@ -663,6 +675,13 @@ func _on_save_to_album_pressed() -> void:
 		var img = Image.load_from_file(_current_viewing_image_path)
 		if img:
 			img.save_png(new_path)
+			var memory_context = GameDataManager.memory_manager.build_story_memory_context() if GameDataManager.memory_manager else {}
+			photo_manager.register_photo(new_path, "chat_image", {
+				"memory_context": memory_context,
+				"preferred_layers": ["bond", "emotion"],
+				"origin_path": _current_viewing_image_path,
+				"source_char_id": current_char_id
+			})
 			
 		# 可以弹个提示或者简单关闭
 		_on_close_viewer_pressed()
@@ -676,6 +695,7 @@ func _save_mobile_history() -> void:
 	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(chat_history, "\t"))
+	_notify_mobile_social_changed()
 
 func _mark_message_read(text: String) -> void:
 	var has_changed = false
@@ -688,20 +708,92 @@ func _mark_message_read(text: String) -> void:
 	if has_changed:
 		_save_mobile_history()
 
-func _save_message_to_history(speaker: String, text: String, is_voice: bool = false, duration: int = 0) -> void:
+func _save_message_to_history(speaker: String, text: String, is_voice: bool = false, duration: int = 0, is_read: bool = false) -> void:
 	var new_msg = {
 		"speaker": speaker,
 		"text": text,
 		"time": Time.get_datetime_string_from_system(),
 		"is_voice": is_voice,
 		"duration": duration,
-		"is_read": false
+		"is_read": is_read
 	}
-	chat_history.append(new_msg)
+	_append_history_message(new_msg, false)
+
+func _append_history_message(msg: Dictionary, add_to_ui: bool = false) -> void:
+	chat_history.append(msg)
 	_save_mobile_history()
+	if add_to_ui:
+		_add_message_to_ui(msg)
+
+func _mark_all_incoming_messages_read() -> void:
+	var has_changed = false
+	for msg in chat_history:
+		var speaker = msg.get("speaker", msg.get("role", ""))
+		if speaker != "player" and not msg.get("is_read", false):
+			msg["is_read"] = true
+			has_changed = true
+	if has_changed:
+		_save_mobile_history()
+
+func _notify_mobile_social_changed() -> void:
+	var curr = get_parent()
+	while curr:
+		if curr.has_method("_update_social_entry_labels"):
+			curr._update_social_entry_labels()
+			if curr.has_node("PhonePanel/MainMargin/VBox/ScrollContainer/ContactList"):
+				pass
+			return
+		curr = curr.get_parent()
+
+func _schedule_follow_up_message(player_text: String, ai_reply: String) -> void:
+	if is_voice_call_mode or current_char_id == "":
+		return
+	if randf() > 0.35:
+		return
+	var serial = _follow_up_serial
+	var delay = randf_range(FOLLOW_UP_DELAY_MIN, FOLLOW_UP_DELAY_MAX)
+	call_deferred("_run_follow_up_message", serial, player_text, ai_reply, delay)
+
+func _run_follow_up_message(serial: int, player_text: String, ai_reply: String, delay: float) -> void:
+	await get_tree().create_timer(delay).timeout
+	if serial != _follow_up_serial:
+		return
+	if current_char_id == "" or char_profile == null or deepseek_client == null:
+		return
+	if is_voice_call_mode:
+		return
+	var clean_content = _build_follow_up_message(player_text, ai_reply)
+	if clean_content == "":
+		return
+	var is_now_visible = visible and input_edit.editable
+	_save_message_to_history("char", clean_content, false, 0, is_now_visible)
+	if is_now_visible:
+		_add_message_bubble("char", clean_content)
+
+func _build_follow_up_message(player_text: String, ai_reply: String) -> String:
+	var trimmed_player = player_text.strip_edges()
+	var intimacy = char_profile.intimacy if char_profile else 0.0
+	var trust = char_profile.trust if char_profile else 0.0
+	if trimmed_player.find("?") != -1 or trimmed_player.find("？") != -1:
+		return "刚刚忘了说，我其实还挺在意你这个问题的。"
+	if trimmed_player.find("晚安") != -1:
+		return "真的要去休息的话，记得把被子盖好。"
+	if trimmed_player.find("忙") != -1 or trimmed_player.find("工作") != -1 or trimmed_player.find("学习") != -1:
+		return "你先忙你的，空下来再回我也没关系。"
+	if trimmed_player.find("照片") != -1 or trimmed_player.find("[img]") != -1:
+		return "那张图我刚刚又想了一下，越看越像你的风格。"
+	if intimacy + trust >= 140.0:
+		return "还有一件小事，我刚刚其实有点舍不得你这么快停下。"
+	if intimacy + trust >= 90.0:
+		return "对了，等你有空了，刚才那个话题我还想继续聊。"
+	if ai_reply.find("红包") != -1:
+		return "别突然对我这么好，我会记住的。"
+	return "对了，我刚刚又想起一点，晚点也可以继续和我说。"
 
 func show_panel() -> void:
 	show()
+	_mark_all_incoming_messages_read()
+	_notify_mobile_social_changed()
 	position.x = size.x
 	modulate.a = 0.0
 	var tween = create_tween()

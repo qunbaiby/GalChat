@@ -1,12 +1,30 @@
 extends Node
 
-const SAVE_PATH = "user://data/moments_data.json"
+const LEGACY_SAVE_PATH = "user://data/moments_data.json"
+const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 
 var moments_data: Array = []
+signal moments_updated
 
 func _ready() -> void:
-	load_data()
+	call_deferred("reload_for_current_character")
 	call_deferred("_connect_signals")
+
+func _get_current_char_id() -> String:
+	if GameDataManager.profile and str(GameDataManager.profile.current_character_id) != "":
+		return str(GameDataManager.profile.current_character_id)
+	if GameDataManager.config and str(GameDataManager.config.current_character_id) != "":
+		return str(GameDataManager.config.current_character_id)
+	return "default"
+
+func _get_save_path(char_id: String = "") -> String:
+	var final_char_id = char_id.strip_edges()
+	if final_char_id == "":
+		final_char_id = _get_current_char_id()
+	return "user://saves/%s/moments_data.json" % final_char_id
+
+func reload_for_current_character(char_id: String = "") -> void:
+	load_data(char_id)
 
 func _connect_signals() -> void:
 	var deepseek_client = _get_deepseek_client()
@@ -38,21 +56,24 @@ func _on_ai_moment_generated(moment_data: Dictionary) -> void:
 	var images = []
 	if moment_data.has("image_url") and not moment_data["image_url"].is_empty():
 		images.append(moment_data["image_url"])
-	add_moment(author, moment_data.get("date", Time.get_date_string_from_system()), moment_data.get("content", ""), images, 0, false, [], avatar)
+	add_moment(author, moment_data.get("date", Time.get_date_string_from_system()), moment_data.get("content", ""), images, 0, false, [], avatar, true)
 
 func _on_ai_reply_generated(post_id: String, reply_text: String) -> void:
 	var moment_data = get_moment(post_id)
 	if not moment_data.is_empty():
 		var author = moment_data.get("author", "未知")
-		add_comment(post_id, author, reply_text)
+		add_comment(post_id, author, reply_text, true)
 
 
-func load_data() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
+func load_data(char_id: String = "") -> void:
+	moments_data = []
+	var save_path = _get_save_path(char_id)
+	_migrate_legacy_data_if_needed(save_path)
+	if not FileAccess.file_exists(save_path):
 		_create_default_data()
 		return
 		
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var file = FileAccess.open(save_path, FileAccess.READ)
 	if file:
 		var content = file.get_as_text()
 		file.close()
@@ -70,20 +91,41 @@ func load_data() -> void:
 			_create_default_data()
 
 func save_data() -> void:
-	var dir = DirAccess.open("user://")
-	if not dir.dir_exists("data"):
-		dir.make_dir("data")
+	var save_path = _get_save_path()
+	var save_dir = save_path.get_base_dir()
+	if not DirAccess.dir_exists_absolute(save_dir):
+		DirAccess.make_dir_recursive_absolute(save_dir)
 		
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var file = FileAccess.open(save_path, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(moments_data, "\t"))
 		file.close()
+		moments_updated.emit()
 	else:
 		push_error("Failed to save moments data")
 
 func _create_default_data() -> void:
 	moments_data = []
 	save_data()
+
+func _migrate_legacy_data_if_needed(save_path: String) -> void:
+	if FileAccess.file_exists(save_path) or not FileAccess.file_exists(LEGACY_SAVE_PATH):
+		return
+	var legacy_file = FileAccess.open(LEGACY_SAVE_PATH, FileAccess.READ)
+	if legacy_file == null:
+		return
+	var legacy_content = legacy_file.get_as_text()
+	legacy_file.close()
+	var json = JSON.new()
+	if json.parse(legacy_content) != OK or not json.data is Array:
+		return
+	var save_dir = save_path.get_base_dir()
+	if not DirAccess.dir_exists_absolute(save_dir):
+		DirAccess.make_dir_recursive_absolute(save_dir)
+	var target_file = FileAccess.open(save_path, FileAccess.WRITE)
+	if target_file:
+		target_file.store_string(JSON.stringify(json.data, "\t"))
+		target_file.close()
 
 func get_all_moments() -> Array:
 	return moments_data
@@ -94,7 +136,7 @@ func get_moment(id: String) -> Dictionary:
 			return moment
 	return {}
 
-func add_moment(author: String, time: String, content: String, images: Array = [], likes: int = 0, is_liked: bool = false, comments: Array = [], avatar: String = "") -> void:
+func add_moment(author: String, time: String, content: String, images: Array = [], likes: int = 0, is_liked: bool = false, comments: Array = [], avatar: String = "", is_unread: bool = false) -> void:
 	var moment = {
 		"id": str(Time.get_unix_time_from_system()) + "_" + str(randi() % 1000),
 		"author": author,
@@ -104,9 +146,11 @@ func add_moment(author: String, time: String, content: String, images: Array = [
 		"images": images,
 		"likes": likes,
 		"is_liked": is_liked,
-		"comments": comments
+		"comments": comments,
+		"is_unread": is_unread
 	}
 	moments_data.push_front(moment)
+	_register_moment_images(moment)
 	save_data()
 
 func toggle_like(id: String) -> void:
@@ -120,14 +164,71 @@ func toggle_like(id: String) -> void:
 			save_data()
 			break
 
-func add_comment(moment_id: String, author: String, content: String) -> void:
+func add_comment(moment_id: String, author: String, content: String, is_unread: bool = false) -> void:
 	for i in range(moments_data.size()):
 		if moments_data[i].get("id") == moment_id:
 			var comments = moments_data[i].get("comments", [])
 			comments.append({
 				"author": author,
-				"content": content
+				"content": content,
+				"time": Time.get_datetime_string_from_system(),
+				"is_unread": is_unread
 			})
 			moments_data[i]["comments"] = comments
 			save_data()
 			break
+
+func get_unread_moments_count() -> int:
+	var count = 0
+	for moment in moments_data:
+		if moment.get("is_unread", false):
+			count += 1
+		for comment in moment.get("comments", []):
+			if comment.get("is_unread", false):
+				count += 1
+	return count
+
+func mark_all_read() -> void:
+	var has_changed = false
+	for i in range(moments_data.size()):
+		if moments_data[i].get("is_unread", false):
+			moments_data[i]["is_unread"] = false
+			has_changed = true
+		var comments = moments_data[i].get("comments", [])
+		for j in range(comments.size()):
+			if comments[j].get("is_unread", false):
+				comments[j]["is_unread"] = false
+				has_changed = true
+		moments_data[i]["comments"] = comments
+	if has_changed:
+		save_data()
+
+func _register_moment_images(moment: Dictionary) -> void:
+	var images = moment.get("images", [])
+	if not images is Array or images.is_empty():
+		return
+	var photo_manager = PhotoMemoryManagerScript.new()
+	var context = GameDataManager.memory_manager.build_story_memory_context() if GameDataManager.memory_manager else {}
+	context["context_domain"] = "story"
+	if str(moment.get("time", "")).strip_edges() != "":
+		context["story_time"] = str(moment.get("time", ""))
+	var current_char_id = ""
+	if GameDataManager.profile and str(GameDataManager.profile.current_character_id) != "":
+		current_char_id = str(GameDataManager.profile.current_character_id)
+	for image_path in images:
+		if typeof(image_path) != TYPE_STRING:
+			continue
+		var final_path = str(image_path).strip_edges()
+		if final_path == "":
+			continue
+		if GameDataManager.config and str(GameDataManager.config.default_image_path) == final_path:
+			continue
+		photo_manager.register_photo(final_path, "moment_image", {
+			"album_category": "moment",
+			"memory_context": context,
+			"preferred_layers": ["bond", "emotion"],
+			"source_title": "她分享过的瞬间",
+			"source_text": str(moment.get("content", "")),
+			"source_id": str(moment.get("id", "")),
+			"source_char_id": current_char_id
+		})

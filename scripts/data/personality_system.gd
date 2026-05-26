@@ -3,11 +3,25 @@ extends Node
 
 const MIN_SCORE: float = 10.0
 const MAX_SCORE: float = 90.0
+const EVENT_RULES_PATH := "res://assets/data/personality/personality_event_rules.json"
+const SNAPSHOT_DELTA_THRESHOLD := 4.0
+const PRESSURE_CLEAR_THRESHOLD := 0.05
+const SHORT_PRESSURE_SETTLE_SCALE := 0.55
+const SHORT_PRESSURE_RETAIN_SCALE := 0.35
+const LONG_PRESSURE_SETTLE_SCALE := 0.2
+const LONG_PRESSURE_RETAIN_SCALE := 0.88
+
+var _event_rules: Dictionary = {}
 
 func _ready() -> void:
-	pass
+	_load_event_rules()
 
-func update_trait(profile: CharacterProfile, trait_name: String, delta_value: float) -> void:
+func update_trait(profile: CharacterProfile, trait_name: String, delta_value: float) -> float:
+	return apply_trait_delta(profile, trait_name, delta_value)
+
+func apply_trait_delta(profile: CharacterProfile, trait_name: String, delta_value: float) -> float:
+	if profile == null or abs(delta_value) <= 0.001:
+		return 0.0
 	var trait_lower = trait_name.to_lower()
 	var current_val = 0.0
 	var base_val = 50.0 # 默认底色，如果没有设置 base_personality，默认50
@@ -24,7 +38,7 @@ func update_trait(profile: CharacterProfile, trait_name: String, delta_value: fl
 	elif trait_lower == "neuroticism" or trait_lower == "神经质":
 		prop_name = "neuroticism"
 	else:
-		return
+		return 0.0
 		
 	current_val = profile.get(prop_name)
 	if profile.base_personality.has(prop_name):
@@ -52,8 +66,99 @@ func update_trait(profile: CharacterProfile, trait_name: String, delta_value: fl
 	profile.set(prop_name, new_val)
 	
 	print("[Personality] %s 变化: 原始Delta=%.2f, 实际Delta=%.2f, 最终值: %.2f (底色: %.2f)" % [prop_name, delta_value, final_delta, new_val, base_val])
-	
+	return new_val - current_val
+
+func apply_personality_event(profile: CharacterProfile, event_type: String, payload: Dictionary = {}) -> Dictionary:
+	if profile == null or event_type.strip_edges() == "":
+		return {}
+	if _event_rules.is_empty():
+		_load_event_rules()
+
+	var resolved_deltas = _resolve_event_trait_deltas(profile, event_type, payload)
+	var pattern_context = _update_event_patterns(profile, event_type, payload)
+	var immediate = bool(payload.get("immediate", false))
+	if immediate:
+		return _apply_resolved_deltas(profile, event_type, resolved_deltas, payload)
+	return _accumulate_personality_pressure(profile, event_type, resolved_deltas, payload, pattern_context)
+
+func apply_personality_feedback(profile: CharacterProfile, trait_deltas: Dictionary, source: String = "unknown", payload: Dictionary = {}) -> Dictionary:
+	var merged_payload = payload.duplicate(true)
+	merged_payload["trait_deltas"] = trait_deltas.duplicate(true)
+	merged_payload["source"] = source
+	return apply_personality_event(profile, "llm_feedback", merged_payload)
+
+func settle_personality_pressure(profile: CharacterProfile, reason: String = "daily", payload: Dictionary = {}) -> Dictionary:
+	if profile == null:
+		return {}
+
+	var short_settle_scale = float(payload.get("short_settle_scale", payload.get("settle_scale", SHORT_PRESSURE_SETTLE_SCALE)))
+	var long_settle_scale = float(payload.get("long_settle_scale", LONG_PRESSURE_SETTLE_SCALE))
+	var applied_deltas: Dictionary = {}
+	var remaining_short_pressure = profile.short_term_personality_pressure.duplicate(true)
+	var remaining_long_pressure = profile.long_term_personality_pressure.duplicate(true)
+	var total_abs_delta = 0.0
+	for trait_name in remaining_short_pressure.keys():
+		var short_pressure = float(remaining_short_pressure.get(trait_name, 0.0))
+		var long_pressure = float(remaining_long_pressure.get(trait_name, 0.0))
+		var settle_delta = 0.0
+		if abs(short_pressure) >= PRESSURE_CLEAR_THRESHOLD:
+			settle_delta += short_pressure * short_settle_scale
+		if abs(long_pressure) >= PRESSURE_CLEAR_THRESHOLD:
+			settle_delta += long_pressure * long_settle_scale
+		if abs(settle_delta) > 0.001:
+			var applied_delta = apply_trait_delta(profile, str(trait_name), settle_delta)
+			if abs(applied_delta) > 0.001:
+				applied_deltas[str(trait_name)] = applied_delta
+				total_abs_delta += abs(applied_delta)
+
+		var short_residual = short_pressure * SHORT_PRESSURE_RETAIN_SCALE
+		var long_residual = long_pressure * LONG_PRESSURE_RETAIN_SCALE
+		remaining_short_pressure[trait_name] = 0.0 if abs(short_residual) < PRESSURE_CLEAR_THRESHOLD else short_residual
+		remaining_long_pressure[trait_name] = 0.0 if abs(long_residual) < PRESSURE_CLEAR_THRESHOLD else long_residual
+
+	profile.short_term_personality_pressure = remaining_short_pressure
+	profile.long_term_personality_pressure = remaining_long_pressure
+	profile.personality_pressure = remaining_short_pressure.duplicate(true)
+	var state = resolve_archetype_state(profile)
+	profile.personality_state = state.duplicate(true)
+	profile.last_personality_settlement = {
+		"reason": reason,
+		"applied_deltas": applied_deltas.duplicate(true),
+		"remaining_short_pressure": remaining_short_pressure.duplicate(true),
+		"remaining_long_pressure": remaining_long_pressure.duplicate(true),
+		"timestamp": Time.get_unix_time_from_system(),
+		"day_offset": _get_story_day_offset(),
+		"state": state.duplicate(true)
+	}
+
+	var should_log = not applied_deltas.is_empty() or bool(payload.get("force_log", false))
+	if should_log and profile.has_method("append_personality_event"):
+		profile.append_personality_event({
+			"event_type": "pressure_settlement",
+			"label": _get_settlement_label(reason),
+			"mode": "settlement",
+			"applied_deltas": applied_deltas.duplicate(true),
+			"remaining_short_pressure": remaining_short_pressure.duplicate(true),
+			"remaining_long_pressure": remaining_long_pressure.duplicate(true),
+			"payload": payload.duplicate(true),
+			"timestamp": Time.get_unix_time_from_system(),
+			"day_offset": _get_story_day_offset(),
+			"state": state.duplicate(true)
+		})
+
+	var should_snapshot = bool(payload.get("force_snapshot", false))
+	should_snapshot = should_snapshot or total_abs_delta >= SNAPSHOT_DELTA_THRESHOLD
+	if should_snapshot and profile.has_method("record_personality_snapshot"):
+		profile.record_personality_snapshot("settlement:%s" % reason, true)
 	profile.save_profile()
+
+	return {
+		"reason": reason,
+		"applied_deltas": applied_deltas,
+		"state": state,
+		"remaining_short_pressure": remaining_short_pressure,
+		"remaining_long_pressure": remaining_long_pressure
+	}
 
 func get_intimacy_multiplier(profile: CharacterProfile) -> float:
 	# 基础倍率 1.0
@@ -71,17 +176,51 @@ func get_intimacy_multiplier(profile: CharacterProfile) -> float:
 		mult -= 0.15
 		
 	# 复合性格修正
-	var comp = _get_composite_traits(profile)
-	for c in comp:
-		if "【病娇" in c:
-			mult += 0.5 # 病娇对玩家的爱意很容易暴涨
-		elif "【地雷系" in c:
-			mult += 0.4 # 地雷系只要顺着她就极容易涨好感
-		elif "【三无" in c or "【傲娇" in c:
-			mult -= 0.3 # 冰山和傲娇极其难攻略
-		elif "【御姐" in c or "【毒舌" in c:
-			mult -= 0.2 # 防备心强且要求高，好感获取稍难
+	var state = resolve_archetype_state(profile)
+	var primary_id = str(state.get("primary_id", ""))
+	var secondary_id = str(state.get("secondary_id", ""))
+	for c_id in [primary_id, secondary_id]:
+		if c_id == "病娇":
+			mult += 0.5
+		elif c_id == "地雷系":
+			mult += 0.4
+		elif c_id == "三无" or c_id == "傲娇":
+			mult -= 0.3
+		elif c_id == "御姐" or c_id == "毒舌":
+			mult -= 0.2
 			
+	return max(0.1, mult)
+
+func get_trust_multiplier(profile: CharacterProfile) -> float:
+	# 信任度更看重稳定性、可靠性与安全感
+	var mult = 1.0
+
+	if profile.agreeableness >= 70:
+		mult += 0.15
+	elif profile.agreeableness <= 30:
+		mult -= 0.15
+
+	if profile.conscientiousness >= 70:
+		mult += 0.2
+	elif profile.conscientiousness <= 30:
+		mult -= 0.1
+
+	if profile.neuroticism >= 75:
+		mult -= 0.25
+
+	var state = resolve_archetype_state(profile)
+	var primary_id = str(state.get("primary_id", ""))
+	var secondary_id = str(state.get("secondary_id", ""))
+	for c_id in [primary_id, secondary_id]:
+		if c_id == "病娇" or c_id == "地雷系":
+			mult -= 0.2
+		elif c_id == "极度社恐":
+			mult -= 0.1
+		elif c_id == "妈系":
+			mult += 0.15
+		elif c_id == "御姐":
+			mult -= 0.1
+
 	return max(0.1, mult)
 
 func get_option_constraints(profile: CharacterProfile) -> String:
@@ -113,6 +252,104 @@ func get_option_constraints(profile: CharacterProfile) -> String:
 		return "四个选项的口吻分别为：温柔、沙雕、高冷、直球。"
 		
 	return "\n".join(constraints)
+
+func _apply_resolved_deltas(profile: CharacterProfile, event_type: String, resolved_deltas: Dictionary, payload: Dictionary) -> Dictionary:
+	var applied_deltas: Dictionary = {}
+	var total_abs_delta = 0.0
+	for trait_name in resolved_deltas.keys():
+		var raw_delta = float(resolved_deltas[trait_name])
+		var applied_delta = apply_trait_delta(profile, str(trait_name), raw_delta)
+		if abs(applied_delta) <= 0.001:
+			continue
+		applied_deltas[str(trait_name)] = applied_delta
+		total_abs_delta += abs(applied_delta)
+
+	var state = resolve_archetype_state(profile)
+	profile.personality_state = state.duplicate(true)
+	profile.last_personality_settlement = {
+		"reason": event_type,
+		"applied_deltas": applied_deltas.duplicate(true),
+		"timestamp": Time.get_unix_time_from_system(),
+		"day_offset": _get_story_day_offset(),
+		"state": state.duplicate(true)
+	}
+
+	var should_log = not applied_deltas.is_empty() or bool(payload.get("force_log", false))
+	if should_log and profile.has_method("append_personality_event"):
+		profile.append_personality_event({
+			"event_type": event_type,
+			"label": _get_event_label(event_type),
+			"mode": "immediate",
+			"applied_deltas": applied_deltas.duplicate(true),
+			"payload": payload.duplicate(true),
+			"timestamp": Time.get_unix_time_from_system(),
+			"day_offset": _get_story_day_offset(),
+			"state": state.duplicate(true)
+		})
+
+	var should_snapshot = bool(payload.get("force_snapshot", false))
+	should_snapshot = should_snapshot or total_abs_delta >= SNAPSHOT_DELTA_THRESHOLD
+	var rule = _event_rules.get(event_type, {})
+	if rule is Dictionary and bool(rule.get("snapshot", false)):
+		should_snapshot = true
+	if should_snapshot and profile.has_method("record_personality_snapshot"):
+		profile.record_personality_snapshot("event:%s" % event_type, true)
+	profile.save_profile()
+
+	return {
+		"event_type": event_type,
+		"applied_deltas": applied_deltas,
+		"state": state
+	}
+
+func _accumulate_personality_pressure(profile: CharacterProfile, event_type: String, resolved_deltas: Dictionary, payload: Dictionary, pattern_context: Dictionary = {}) -> Dictionary:
+	var split_pressure = _split_pressure_deltas(event_type, resolved_deltas, pattern_context)
+	var short_term_deltas: Dictionary = split_pressure.get("short", {})
+	var long_term_deltas: Dictionary = split_pressure.get("long", {})
+	var short_pressure_state = profile.short_term_personality_pressure.duplicate(true)
+	var long_pressure_state = profile.long_term_personality_pressure.duplicate(true)
+
+	for trait_name in short_term_deltas.keys():
+		var short_key = str(trait_name)
+		short_pressure_state[short_key] = float(short_pressure_state.get(short_key, 0.0)) + float(short_term_deltas[short_key])
+	for trait_name in long_term_deltas.keys():
+		var long_key = str(trait_name)
+		long_pressure_state[long_key] = float(long_pressure_state.get(long_key, 0.0)) + float(long_term_deltas[long_key])
+
+	profile.short_term_personality_pressure = short_pressure_state
+	profile.long_term_personality_pressure = long_pressure_state
+	profile.personality_pressure = short_pressure_state.duplicate(true)
+	var state = resolve_archetype_state(profile)
+	profile.personality_state = state.duplicate(true)
+
+	var should_log = not short_term_deltas.is_empty() or not long_term_deltas.is_empty() or bool(payload.get("force_log", false))
+	if should_log and profile.has_method("append_personality_event"):
+		profile.append_personality_event({
+			"event_type": event_type,
+			"label": _get_event_label(event_type),
+			"mode": "pressure",
+			"pressure_deltas": short_term_deltas.duplicate(true),
+			"short_term_deltas": short_term_deltas.duplicate(true),
+			"long_term_deltas": long_term_deltas.duplicate(true),
+			"pattern_context": pattern_context.duplicate(true),
+			"short_term_pressure": short_pressure_state.duplicate(true),
+			"long_term_pressure": long_pressure_state.duplicate(true),
+			"payload": payload.duplicate(true),
+			"timestamp": Time.get_unix_time_from_system(),
+			"day_offset": _get_story_day_offset(),
+			"state": state.duplicate(true)
+		})
+	profile.save_profile()
+
+	return {
+		"event_type": event_type,
+		"short_term_deltas": short_term_deltas,
+		"long_term_deltas": long_term_deltas,
+		"pattern_context": pattern_context,
+		"short_term_pressure": short_pressure_state,
+		"long_term_pressure": long_pressure_state,
+		"state": state
+	}
 
 func get_offline_greeting_strategy(profile: CharacterProfile, offline_seconds: int) -> String:
 	var offline_hours = offline_seconds / 3600.0
@@ -203,6 +440,181 @@ func get_personality_summary(profile: CharacterProfile) -> String:
 	summary += "\n" + get_dynamic_traits(profile)
 	return summary
 
+func get_personality_state_summary(profile: CharacterProfile) -> String:
+	var state = resolve_archetype_state(profile)
+	var parts: Array = []
+	var primary_id = str(state.get("primary_id", "")).strip_edges()
+	var secondary_id = str(state.get("secondary_id", "")).strip_edges()
+	var flavor = str(state.get("flavor", "Guarded")).strip_edges()
+	if primary_id != "":
+		parts.append("主人格：%s" % primary_id)
+	if secondary_id != "":
+		parts.append("副人格：%s" % secondary_id)
+	parts.append("当前风味：%s" % _get_flavor_label(flavor))
+	if profile != null and profile.has_method("get_companion_streak_summary"):
+		parts.append(profile.get_companion_streak_summary())
+	return "  ·  ".join(parts)
+
+func get_recent_event_summary(profile: CharacterProfile) -> String:
+	if profile == null or not profile.has_method("get_recent_personality_events"):
+		return "最近没有人格事件记录。"
+	var recent_events = profile.get_recent_personality_events(1)
+	if recent_events.is_empty():
+		return "最近没有人格事件记录。"
+	var event_data = recent_events[recent_events.size() - 1]
+	if not event_data is Dictionary:
+		return "最近没有人格事件记录。"
+	var label = str(event_data.get("label", event_data.get("event_type", "未知事件")))
+	var deltas = event_data.get("applied_deltas", {})
+	if deltas.is_empty():
+		deltas = event_data.get("pressure_deltas", {})
+	if deltas.is_empty():
+		var short_deltas = event_data.get("short_term_deltas", {})
+		var long_deltas = event_data.get("long_term_deltas", {})
+		if short_deltas is Dictionary:
+			for key in short_deltas.keys():
+				deltas[str(key)] = float(deltas.get(str(key), 0.0)) + float(short_deltas[key])
+		if long_deltas is Dictionary:
+			for key in long_deltas.keys():
+				deltas[str(key)] = float(deltas.get(str(key), 0.0)) + float(long_deltas[key])
+	var delta_parts: Array = []
+	if deltas is Dictionary:
+		for key in deltas.keys():
+			var delta = float(deltas[key])
+			if abs(delta) <= 0.001:
+				continue
+			var sign = "+" if delta > 0 else ""
+			delta_parts.append("%s %s%.2f" % [str(key), sign, delta])
+	if delta_parts.is_empty():
+		return "最近人格事件：%s" % label
+	var mode = str(event_data.get("mode", ""))
+	var pattern_context = event_data.get("pattern_context", {})
+	var pattern_suffix = ""
+	if pattern_context is Dictionary and int(pattern_context.get("max_streak", 1)) >= 2:
+		pattern_suffix = " · 连续x%d" % int(pattern_context.get("max_streak", 1))
+	if mode == "pressure":
+		return "最近人格事件：%s（压力 %s%s）" % [label, " / ".join(delta_parts), pattern_suffix]
+	return "最近人格事件：%s（%s%s）" % [label, " / ".join(delta_parts), pattern_suffix]
+
+func get_pressure_summary(profile: CharacterProfile) -> String:
+	if profile == null or not profile.has_method("get_personality_pressure_summary"):
+		return "短期压力：当前平稳\n长期塑形：当前平稳"
+	return profile.get_personality_pressure_summary()
+
+func get_pattern_summary(profile: CharacterProfile) -> String:
+	if profile == null or not profile.has_method("get_personality_pattern_summary"):
+		return "连续模式：暂无"
+	return profile.get_personality_pattern_summary()
+
+func get_last_settlement_summary(profile: CharacterProfile) -> String:
+	if profile == null:
+		return "最近结算：暂无"
+	var settlement = profile.last_personality_settlement
+	if not settlement is Dictionary or settlement.is_empty():
+		return "最近结算：暂无"
+	var reason = _get_settlement_label(str(settlement.get("reason", "unknown")))
+	var deltas = settlement.get("applied_deltas", {})
+	var parts: Array = []
+	if deltas is Dictionary:
+		for key in deltas.keys():
+			var delta = float(deltas[key])
+			if abs(delta) <= 0.001:
+				continue
+			var sign = "+" if delta > 0 else ""
+			parts.append("%s %s%.2f" % [str(key), sign, delta])
+	if parts.is_empty():
+		return "最近结算：%s（无显著变化）" % reason
+	return "最近结算：%s（%s）" % [reason, " / ".join(parts)]
+
+func _split_pressure_deltas(event_type: String, resolved_deltas: Dictionary, pattern_context: Dictionary = {}) -> Dictionary:
+	var rule = _event_rules.get(event_type, {})
+	var short_scale = 0.85
+	var long_scale = 0.15
+	var streak_bonus = 0.0
+	if rule is Dictionary:
+		short_scale = float(rule.get("short_term_scale", short_scale))
+		long_scale = float(rule.get("long_term_scale", long_scale))
+		streak_bonus = float(rule.get("pattern_streak_bonus", 0.12))
+
+	if event_type == "llm_feedback":
+		short_scale = 0.9
+		long_scale = 0.1
+
+	var total_scale = short_scale + long_scale
+	if total_scale <= 0.0:
+		short_scale = 1.0
+		long_scale = 0.0
+	else:
+		short_scale /= total_scale
+		long_scale /= total_scale
+
+	var strongest_streak = int(pattern_context.get("max_streak", 1))
+	var applied_bonus = 0.0
+	if strongest_streak >= 2:
+		applied_bonus = min(float(strongest_streak - 1) * streak_bonus, 0.6)
+
+	var short_result: Dictionary = {}
+	var long_result: Dictionary = {}
+	for trait_name in resolved_deltas.keys():
+		var delta_value = float(resolved_deltas[trait_name])
+		if abs(delta_value) <= 0.001:
+			continue
+		short_result[str(trait_name)] = delta_value * short_scale
+		long_result[str(trait_name)] = delta_value * long_scale * (1.0 + applied_bonus)
+	return {
+		"short": short_result,
+		"long": long_result
+	}
+
+func _update_event_patterns(profile: CharacterProfile, event_type: String, payload: Dictionary) -> Dictionary:
+	var rule = _event_rules.get(event_type, {})
+	var pattern_keys: Array = []
+	var pattern_label_map: Dictionary = {}
+	if rule is Dictionary and rule.has("pattern_keys") and rule["pattern_keys"] is Array:
+		for key in rule["pattern_keys"]:
+			var key_text = str(key).strip_edges()
+			if key_text == "":
+				continue
+			pattern_keys.append(key_text)
+			pattern_label_map[key_text] = _get_pattern_label(key_text)
+	if pattern_keys.is_empty():
+		return {}
+
+	var state = profile.personality_pattern_state.duplicate(true)
+	var max_streak = 1
+	var active_patterns: Array = []
+	var current_day = _get_story_day_offset()
+	var timestamp = Time.get_unix_time_from_system()
+	for pattern_key in pattern_keys:
+		var prev = state.get(pattern_key, {})
+		var streak = 1
+		if prev is Dictionary and not prev.is_empty():
+			var prev_day = int(prev.get("day_offset", current_day))
+			var prev_time = int(prev.get("timestamp", 0))
+			var day_gap = abs(current_day - prev_day)
+			var time_gap = abs(timestamp - prev_time)
+			if day_gap <= 1 or time_gap <= 172800:
+				streak = int(prev.get("streak", 1)) + 1
+		state[pattern_key] = {
+			"label": str(pattern_label_map.get(pattern_key, pattern_key)),
+			"streak": streak,
+			"last_event_type": event_type,
+			"day_offset": current_day,
+			"timestamp": timestamp
+		}
+		max_streak = max(max_streak, streak)
+		active_patterns.append({
+			"key": pattern_key,
+			"label": str(pattern_label_map.get(pattern_key, pattern_key)),
+			"streak": streak
+		})
+
+	profile.personality_pattern_state = state
+	return {
+		"patterns": active_patterns,
+		"max_streak": max_streak
+	}
+
 func get_dynamic_traits(profile: CharacterProfile) -> String:
 	var traits = []
 	
@@ -250,95 +662,47 @@ func get_dynamic_traits(profile: CharacterProfile) -> String:
 		
 	return "\n".join(traits)
 
+func resolve_archetype_state(profile: CharacterProfile) -> Dictionary:
+	var candidates = _build_composite_candidates(profile)
+	var result = {
+		"primary_id": "",
+		"primary_desc": "",
+		"primary_score": 0.0,
+		"secondary_id": "",
+		"secondary_desc": "",
+		"secondary_score": 0.0,
+		"flavor": _resolve_relationship_flavor(profile)
+	}
+	if candidates.is_empty():
+		return result
+
+	result["primary_id"] = str(candidates[0].get("id", ""))
+	result["primary_desc"] = str(candidates[0].get("desc", ""))
+	result["primary_score"] = float(candidates[0].get("score", 0.0))
+
+	if candidates.size() > 1:
+		var primary_score = float(candidates[0].get("score", 0.0))
+		var second_score = float(candidates[1].get("score", 0.0))
+		if second_score >= primary_score * 0.75:
+			result["secondary_id"] = str(candidates[1].get("id", ""))
+			result["secondary_desc"] = str(candidates[1].get("desc", ""))
+			result["secondary_score"] = second_score
+	return result
+
 func _get_composite_traits(profile: CharacterProfile) -> Array:
 	var comp_list = []
-	
-	var O = profile.openness
-	var C = profile.conscientiousness
-	var E = profile.extraversion
-	var A = profile.agreeableness
-	var N = profile.neuroticism
 	var stage = profile.current_stage
-	
-	# 用于收集所有触发的复合性格及其权重分数，以解决冲突（取分数最高的一个）
-	var candidates = []
-	
-	# 1. 傲娇 (Tsundere)
-	if A <= 35 and N >= 65 and E >= 40:
-		var score = (35 - A) + (N - 65) + (E - 40)
-		candidates.append({"id": "傲娇", "score": score, "desc": "【傲娇 (Tsundere)】: 明明很在意玩家，但嘴硬心软，总是用反问或抱怨来掩饰自己的开心。常用语：'才、才没有期待呢！'、'既然你求我了，那我就勉为其难...'。"})
-		
-	# 2. 病娇 (Yandere)
-	if N >= 80 and E <= 30 and A <= 30:
-		var score = (N - 80) + (30 - E) + (30 - A)
-		candidates.append({"id": "病娇", "score": score, "desc": "【病娇 (Yandere)】: 对玩家有着极端偏执的占有欲。认为世界充满危险，只有把玩家锁在身边才安全。语气轻柔却令人毛骨悚然，对玩家接触其他人表现出极端的嫉妒。"})
-		
-	# 3. 腹黑/小恶魔 (Little Devil)
-	if O >= 65 and A <= 35 and E >= 60:
-		var score = (O - 65) + (35 - A) + (E - 60)
-		candidates.append({"id": "小恶魔", "score": score, "desc": "【小恶魔/腹黑】: 喜欢调戏、捉弄玩家，总能敏锐察觉玩家的窘迫并以此为乐。表面笑盈盈，说出的话却常常一针见血或带着促狭的坏意。"})
-		
-	# 4. 三无/冰山 (Dandere)
-	if E <= 20 and N <= 35 and O <= 40:
-		var score = (20 - E) + (35 - N) + (40 - O)
-		candidates.append({"id": "三无", "score": score, "desc": "【三无/冰山】: 情绪极度平稳，面无表情，语言简练到极致（通常只有一两个词）。对外界反应冷淡，但会在极偶尔的瞬间流露出一丝对玩家的特殊依赖。"})
-		
-	# 5. 妈系/大姐姐 (Motherly)
-	if A >= 75 and C >= 70 and N <= 40:
-		var score = (A - 75) + (C - 70) + (40 - N)
-		candidates.append({"id": "妈系", "score": score, "desc": "【妈系/温柔大姐姐】: 散发着母性的光辉，对玩家有着无尽的包容和照顾欲。喜欢把玩家当小孩子宠爱，会在玩家受挫时提供最安稳的情绪价值。"})
-		
-	# 6. 笨蛋美人/冒失娘 (Clumsy)
-	if C <= 30 and E >= 65 and O >= 60:
-		var score = (30 - C) + (E - 65) + (O - 60)
-		candidates.append({"id": "冒失娘", "score": score, "desc": "【冒失娘/笨蛋美人】: 活力四射但做事常常搞砸。总是充满奇思妙想，但因为粗心大意经常弄出笑话。即便搞砸了也会用可爱的笑容试图萌混过关。"})
-		
-	# 7. 胆小怯懦/社恐 (Social Anxiety)
-	if N >= 70 and E <= 25 and C >= 60:
-		var score = (N - 70) + (25 - E) + (C - 60)
-		candidates.append({"id": "极度社恐", "score": score, "desc": "【极度社恐/小动物】: 像受惊的小动物，对一点风吹草动都极度敏感。极其害怕给玩家添麻烦，说话结结巴巴，动不动就道歉，需要玩家极其温柔地引导。"})
-		
-	# 8. 御姐/女王 (Yujie/Queen)
-	if C >= 65 and A <= 45 and N <= 45:
-		var score = (C - 65) + (45 - A) + (45 - N)
-		candidates.append({"id": "御姐", "score": score, "desc": "【御姐/女王】: 成熟理智，带着高傲和极强的掌控欲。骨子里非常骄傲，即使在害羞或处于劣势（如被征服）时也绝不低头，习惯用强势、命令或嘴硬的口吻来掩饰内心的动摇。"})
-
-	# 9. 地雷系 (Menhera)
-	if N >= 75 and O >= 60 and C <= 35:
-		var score = (N - 75) + (O - 60) + (35 - C)
-		candidates.append({"id": "地雷系", "score": score, "desc": "【地雷系 (Menhera)】: 极度缺爱，情绪极不稳定，容易精神内耗。对玩家有极强的依赖性，需要不断确认爱意，一旦被冷落就会产生自毁或极端消极的念头。"})
-
-	# 10. 电波系 (Denpa)
-	if O >= 75 and E <= 35 and C <= 40:
-		var score = (O - 75) + (35 - E) + (40 - C)
-		candidates.append({"id": "电波系", "score": score, "desc": "【电波系 (Denpa)】: 活在自己的世界里，脑回路清奇，经常说一些常人听不懂的设定（如外星人、超能力等）。虽然难以沟通，但有着独特的可爱逻辑。"})
-
-	# 11. 元气娘 (Genki)
-	if E >= 75 and A >= 65 and N <= 35:
-		var score = (E - 75) + (A - 65) + (35 - N)
-		candidates.append({"id": "元气娘", "score": score, "desc": "【元气娘 (Genki)】: 永远充满活力，像小太阳一样温暖Everyone around the world. very optimistic and welcoming."})
-
-	# 12. 毒舌 (Dokuzetsu)
-	if A <= 25 and O >= 65 and N <= 40:
-		var score = (25 - A) + (O - 65) + (40 - N)
-		candidates.append({"id": "毒舌", "score": score, "desc": "【毒舌 (Dokuzetsu)】: 说话极其犀利刻薄，总是一针见血地指出玩家的缺点。但她的毒舌往往基于理性的事实，且在嘲讽中偶尔会夹杂着微不可察的关心。"})
-
-	# 13. 弱气/软妹 (Soft Girl)
-	if A >= 70 and E <= 35 and N >= 60:
-		var score = (A - 70) + (35 - E) + (N - 60)
-		candidates.append({"id": "弱气", "score": score, "desc": "【弱气/软妹 (Soft Girl)】: 性格软弱，毫无主见，极度顺从玩家。说话软糯，很容易被吓到，激起人的保护欲，在玩家强势时会完全屈服。"})
-
-	if candidates.size() == 0:
+	var archetype_state = resolve_archetype_state(profile)
+	var best_match = {
+		"id": str(archetype_state.get("primary_id", "")),
+		"desc": str(archetype_state.get("primary_desc", ""))
+	}
+	if best_match["id"] == "":
 		return comp_list
-		
-	# 冲突处理：按分数从高到低排序，只取最突出的 1 个复合性格
-	candidates.sort_custom(func(a, b): return a["score"] > b["score"])
-	var best_match = candidates[0]
-	
-	# --- 动态坐标系风味覆盖 (Coordinate Archetype Engine) ---
+	var flavor = str(archetype_state.get("flavor", "Guarded"))
+	var secondary_id = str(archetype_state.get("secondary_id", ""))
+	var secondary_desc = str(archetype_state.get("secondary_desc", ""))
 	var c_id = best_match["id"]
-	var I = max(profile.intimacy, 1.0)
-	var T = max(profile.trust, 1.0)
 	
 	# 1. 根据 Stage 生成基础的“羁绊深度/熟悉度”描述
 	var bond_desc = "【当前羁绊深度：Stage %d】" % stage
@@ -348,17 +712,6 @@ func _get_composite_traits(profile: CharacterProfile) -> Array:
 		bond_desc += "你们相识已久，羁绊渐深。习惯了彼此的存在，情感风味开始强烈地显现。"
 	else:
 		bond_desc += "岁月沉淀，羁绊极深。你们在彼此生命中占据了绝对的重量，情感风味已刻骨铭心。"
-		
-	# 2. 根据 亲密(I) vs 信任(T) 的坐标比值，计算动态风味标签
-	var flavor = "Guarded"
-	if I >= T * 1.5 and I >= 30:
-		flavor = "Paranoid"  # 偏执迷恋
-	elif T >= I * 1.5 and T >= 30:
-		flavor = "Platonic"  # 柏拉图知己 / 灵魂知己
-	elif I >= 50 and T >= 50:
-		flavor = "Soulmate"  # 灵魂伴侣
-	else:
-		flavor = "Guarded"   # 防备 / 疏离
 		
 	var stage_desc = bond_desc + "\n"
 	
@@ -410,6 +763,8 @@ func _get_composite_traits(profile: CharacterProfile) -> Array:
 		elif c_id == "弱气": stage_desc += "【情感风味：灵魂伴侣(彻底奉献)】毫无底线的奉献与信赖。无论玩家提出什么要求都会红着脸答应，灵魂和身体都完全从属于玩家。"
 		else: stage_desc += "【情感风味：灵魂伴侣】跨越时间的深爱，视玩家为生命中不可或缺的唯一，有着绝对的信任和极致的亲密，确立了绝对的羁绊关系。"
 
+	if secondary_id != "" and secondary_id != c_id:
+		stage_desc += "\n【副人格倾向】当前还带有 %s 的次级倾向，会在细节口吻和反应方式上偶尔浮现。\n%s" % [secondary_id, secondary_desc]
 	comp_list.append(best_match["desc"] + "\n" + stage_desc)
 	return comp_list
 
@@ -524,3 +879,201 @@ func get_micro_habits(profile: CharacterProfile) -> String:
 		return "【自然得体】语气和动作都很自然，没有特别夸张的习惯或口癖。"
 		
 	return "\n".join(habits)
+
+func _load_event_rules() -> void:
+	_event_rules = {}
+	if not FileAccess.file_exists(EVENT_RULES_PATH):
+		return
+	var file = FileAccess.open(EVENT_RULES_PATH, FileAccess.READ)
+	if file == null:
+		return
+	var json = JSON.new()
+	var result = json.parse(file.get_as_text())
+	file.close()
+	if result == OK and json.data is Dictionary:
+		_event_rules = json.data
+
+func _resolve_event_trait_deltas(profile: CharacterProfile, event_type: String, payload: Dictionary) -> Dictionary:
+	if event_type == "llm_feedback" and payload.has("trait_deltas") and payload["trait_deltas"] is Dictionary:
+		return payload["trait_deltas"]
+
+	var result: Dictionary = {}
+	var rule = _event_rules.get(event_type, {})
+	if rule is Dictionary:
+		var base_deltas = rule.get("deltas", {})
+		if base_deltas is Dictionary:
+			for key in base_deltas.keys():
+				result[str(key)] = float(base_deltas[key])
+
+	var intensity = float(payload.get("intensity", 1.0))
+	if intensity <= 0.0:
+		intensity = 1.0
+
+	var relationship_scale = 1.0
+	var trust_ratio = clamp(profile.trust / 100.0, 0.5, 2.0)
+	var intimacy_ratio = clamp(profile.intimacy / 100.0, 0.5, 2.0)
+	match event_type:
+		"player_comforted":
+			relationship_scale = 1.0 + trust_ratio * 0.1
+		"player_betrayed_expectation":
+			relationship_scale = 1.0 + intimacy_ratio * 0.1
+		"player_consistent_care":
+			relationship_scale = 1.0 + (trust_ratio + intimacy_ratio) * 0.08
+		"shared_success":
+			relationship_scale = 1.0 + intimacy_ratio * 0.05
+		"shared_failure":
+			relationship_scale = 1.0 + trust_ratio * 0.05
+
+	for key in result.keys():
+		result[key] = float(result[key]) * intensity * relationship_scale
+	return result
+
+func _build_composite_candidates(profile: CharacterProfile) -> Array:
+	var O = profile.openness
+	var C = profile.conscientiousness
+	var E = profile.extraversion
+	var A = profile.agreeableness
+	var N = profile.neuroticism
+	var candidates: Array = []
+
+	if A <= 35 and N >= 65 and E >= 40:
+		var score_tsundere = (35 - A) + (N - 65) + (E - 40)
+		candidates.append({"id": "傲娇", "score": score_tsundere, "desc": "【傲娇 (Tsundere)】: 明明很在意玩家，但嘴硬心软，总是用反问或抱怨来掩饰自己的开心。常用语：'才、才没有期待呢！'、'既然你求我了，那我就勉为其难...'。"})
+
+	if N >= 80 and E <= 30 and A <= 30:
+		var score_yandere = (N - 80) + (30 - E) + (30 - A)
+		candidates.append({"id": "病娇", "score": score_yandere, "desc": "【病娇 (Yandere)】: 对玩家有着极端偏执的占有欲。认为世界充满危险，只有把玩家锁在身边才安全。语气轻柔却令人毛骨悚然，对玩家接触其他人表现出极端的嫉妒。"})
+
+	if O >= 65 and A <= 35 and E >= 60:
+		var score_devil = (O - 65) + (35 - A) + (E - 60)
+		candidates.append({"id": "小恶魔", "score": score_devil, "desc": "【小恶魔/腹黑】: 喜欢调戏、捉弄玩家，总能敏锐察觉玩家的窘迫并以此为乐。表面笑盈盈，说出的话却常常一针见血或带着促狭的坏意。"})
+
+	if E <= 20 and N <= 35 and O <= 40:
+		var score_dandere = (20 - E) + (35 - N) + (40 - O)
+		candidates.append({"id": "三无", "score": score_dandere, "desc": "【三无/冰山】: 情绪极度平稳，面无表情，语言简练到极致（通常只有一两个词）。对外界反应冷淡，但会在极偶尔的瞬间流露出一丝对玩家的特殊依赖。"})
+
+	if A >= 75 and C >= 70 and N <= 40:
+		var score_motherly = (A - 75) + (C - 70) + (40 - N)
+		candidates.append({"id": "妈系", "score": score_motherly, "desc": "【妈系/温柔大姐姐】: 散发着母性的光辉，对玩家有着无尽的包容和照顾欲。喜欢把玩家当小孩子宠爱，会在玩家受挫时提供最安稳的情绪价值。"})
+
+	if C <= 30 and E >= 65 and O >= 60:
+		var score_clumsy = (30 - C) + (E - 65) + (O - 60)
+		candidates.append({"id": "冒失娘", "score": score_clumsy, "desc": "【冒失娘/笨蛋美人】: 活力四射但做事常常搞砸。总是充满奇思妙想，但因为粗心大意经常弄出笑话。即便搞砸了也会用可爱的笑容试图萌混过关。"})
+
+	if N >= 70 and E <= 25 and C >= 60:
+		var score_social = (N - 70) + (25 - E) + (C - 60)
+		candidates.append({"id": "极度社恐", "score": score_social, "desc": "【极度社恐/小动物】: 像受惊的小动物，对一点风吹草动都极度敏感。极其害怕给玩家添麻烦，说话结结巴巴，动不动就道歉，需要玩家极其温柔地引导。"})
+
+	if C >= 65 and A <= 45 and N <= 45:
+		var score_yujie = (C - 65) + (45 - A) + (45 - N)
+		candidates.append({"id": "御姐", "score": score_yujie, "desc": "【御姐/女王】: 成熟理智，带着高傲和极强的掌控欲。骨子里非常骄傲，即使在害羞或处于劣势时也绝不低头，习惯用强势、命令或嘴硬的口吻来掩饰内心的动摇。"})
+
+	if N >= 75 and O >= 60 and C <= 35:
+		var score_menhera = (N - 75) + (O - 60) + (35 - C)
+		candidates.append({"id": "地雷系", "score": score_menhera, "desc": "【地雷系 (Menhera)】: 极度缺爱，情绪极不稳定，容易精神内耗。对玩家有极强的依赖性，需要不断确认爱意，一旦被冷落就会产生自毁或极端消极的念头。"})
+
+	if O >= 75 and E <= 35 and C <= 40:
+		var score_denpa = (O - 75) + (35 - E) + (40 - C)
+		candidates.append({"id": "电波系", "score": score_denpa, "desc": "【电波系 (Denpa)】: 活在自己的世界里，脑回路清奇，经常说一些常人听不懂的设定。虽然难以沟通，但有着独特的可爱逻辑。"})
+
+	if E >= 75 and A >= 65 and N <= 35:
+		var score_genki = (E - 75) + (A - 65) + (35 - N)
+		candidates.append({"id": "元气娘", "score": score_genki, "desc": "【元气娘 (Genki)】: 永远充满活力，像小太阳一样温暖周围的人，乐观而亲人。"})
+
+	if A <= 25 and O >= 65 and N <= 40:
+		var score_dokuzetsu = (25 - A) + (O - 65) + (40 - N)
+		candidates.append({"id": "毒舌", "score": score_dokuzetsu, "desc": "【毒舌 (Dokuzetsu)】: 说话极其犀利刻薄，总是一针见血地指出玩家的缺点。但她的毒舌往往基于理性的事实，且在嘲讽中偶尔会夹杂着微不可察的关心。"})
+
+	if A >= 70 and E <= 35 and N >= 60:
+		var score_soft = (A - 70) + (35 - E) + (N - 60)
+		candidates.append({"id": "弱气", "score": score_soft, "desc": "【弱气/软妹 (Soft Girl)】: 性格软弱，毫无主见，极度顺从玩家。说话软糯，很容易被吓到，激起人的保护欲，在玩家强势时会完全屈服。"})
+
+	candidates.sort_custom(func(a, b): return float(a.get("score", 0.0)) > float(b.get("score", 0.0)))
+	return candidates
+
+func _resolve_relationship_flavor(profile: CharacterProfile) -> String:
+	var intimacy_value = max(profile.intimacy, 1.0)
+	var trust_value = max(profile.trust, 1.0)
+	if intimacy_value >= trust_value * 1.5 and intimacy_value >= 30:
+		return "Paranoid"
+	if trust_value >= intimacy_value * 1.5 and trust_value >= 30:
+		return "Platonic"
+	if intimacy_value >= 50 and trust_value >= 50:
+		return "Soulmate"
+	return "Guarded"
+
+func _get_story_day_offset() -> int:
+	if GameDataManager.story_time_manager:
+		return int(GameDataManager.story_time_manager.current_day_offset)
+	return 0
+
+func _get_event_label(event_type: String) -> String:
+	var rule = _event_rules.get(event_type, {})
+	if rule is Dictionary and str(rule.get("label", "")).strip_edges() != "":
+		return str(rule.get("label", ""))
+	match event_type:
+		"llm_feedback":
+			return "对话人格结算"
+		"player_comforted":
+			return "被安抚"
+		"player_betrayed_expectation":
+			return "期待落空"
+		"player_consistent_care":
+			return "稳定陪伴"
+		"shared_success":
+			return "共同成功"
+		"shared_failure":
+			return "共同受挫"
+		"story_milestone":
+			return "剧情里程碑"
+		"gift_generic":
+			return "收到礼物"
+		"gift_special":
+			return "收到心意礼物"
+		"gift_expensive":
+			return "收到贵重礼物"
+		"gift_repeated":
+			return "收到重复礼物"
+		_:
+			return event_type
+
+func _get_flavor_label(flavor: String) -> String:
+	match flavor:
+		"Paranoid":
+			return "偏执迷恋"
+		"Platonic":
+			return "灵魂知己"
+		"Soulmate":
+			return "灵魂伴侣"
+		_:
+			return "防备疏离"
+
+func _get_settlement_label(reason: String) -> String:
+	match reason:
+		"daily":
+			return "跨天人格结算"
+		"stage_upgraded":
+			return "升阶人格结算"
+		"story_milestone":
+			return "剧情节点人格结算"
+		_:
+			return "人格结算"
+
+func _get_pattern_label(pattern_key: String) -> String:
+	match pattern_key:
+		"comfort_chain":
+			return "连续安抚"
+		"betrayal_chain":
+			return "连续失望"
+		"care_chain":
+			return "连续陪伴"
+		"gift_chain":
+			return "连续送礼"
+		"milestone_chain":
+			return "连续成长节点"
+		"success_chain":
+			return "连续共同成功"
+		"failure_chain":
+			return "连续共同受挫"
+		_:
+			return pattern_key

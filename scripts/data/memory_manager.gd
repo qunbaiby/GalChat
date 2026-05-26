@@ -3,6 +3,9 @@ extends Node
 
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 const MEMORY_FILE_PATH = "user://player_memory.json"
+const CONTEXT_DOMAIN_UNKNOWN = "unknown"
+const CONTEXT_DOMAIN_STORY = "story"
+const CONTEXT_DOMAIN_REALITY = "reality"
 
 # 四级记忆分层架构，每层存储字典列表 [{"id": String, "content": String, "timestamp": String}]
 var memories: Dictionary = {
@@ -13,6 +16,7 @@ var memories: Dictionary = {
 }
 
 var turns_since_last_extract: int = 0
+var revisit_state: Dictionary = _create_default_revisit_state()
 
 func get_memory_file_path() -> String:
     var char_id = "default"
@@ -28,6 +32,68 @@ func _init() -> void:
     # 不在_init()加载，等待GameDataManager显式调用load_memory()
     pass
 
+func _create_default_revisit_state() -> Dictionary:
+    return {
+        "last_story_revisit_memory_id": "",
+        "last_story_revisit_day": -9999,
+        "last_reality_revisit_memory_id": "",
+        "last_reality_revisit_date": "",
+        "revisited_memory_ids": []
+    }
+
+func _get_real_date_key() -> String:
+    var dt = Time.get_datetime_dict_from_system()
+    return "%04d-%02d-%02d" % [dt.get("year", 0), dt.get("month", 0), dt.get("day", 0)]
+
+func _get_real_period_label(hour: int) -> String:
+    if hour >= 6 and hour < 12:
+        return "上午"
+    if hour >= 12 and hour < 18:
+        return "下午"
+    if hour >= 18 and hour < 23:
+        return "晚上"
+    return "深夜"
+
+func build_story_memory_context() -> Dictionary:
+    var context = {
+        "context_domain": CONTEXT_DOMAIN_STORY,
+        "time_type": "story",
+        "story_time": "",
+        "day_offset": 0,
+        "story_period": "",
+        "story_weather": "",
+        "story_location_id": "",
+        "story_area_id": ""
+    }
+    if GameDataManager.story_time_manager:
+        context["story_time"] = GameDataManager.story_time_manager.get_story_time_string()
+        context["day_offset"] = GameDataManager.story_time_manager.current_day_offset
+        context["story_period"] = GameDataManager.story_time_manager.current_period
+        var day_cfg = GameDataManager.story_time_manager.get_current_day_config()
+        context["story_weather"] = str(day_cfg.get("weather", ""))
+    if typeof(MapDataManager) != TYPE_NIL:
+        context["story_location_id"] = MapDataManager.get_last_location()
+        context["story_area_id"] = MapDataManager.get_last_area()
+    return context
+
+func build_reality_memory_context() -> Dictionary:
+    var dt = Time.get_datetime_dict_from_system()
+    var current_hour = int(dt.get("hour", 0))
+    var context = {
+        "context_domain": CONTEXT_DOMAIN_REALITY,
+        "time_type": "reality",
+        "real_datetime": Time.get_datetime_string_from_system(),
+        "real_date": _get_real_date_key(),
+        "real_hour": current_hour,
+        "real_period": _get_real_period_label(current_hour),
+        "real_weather": "",
+        "real_temp": 0.0
+    }
+    if GameDataManager.weather_manager and GameDataManager.weather_manager.is_weather_ready:
+        context["real_weather"] = GameDataManager.weather_manager.current_weather_desc
+        context["real_temp"] = GameDataManager.weather_manager.current_temp
+    return context
+
 func load_memory() -> void:
     var path = get_memory_file_path()
     # 切换角色时清空旧数据
@@ -38,6 +104,7 @@ func load_memory() -> void:
         "bond": []
     }
     turns_since_last_extract = 0
+    revisit_state = _create_default_revisit_state()
     
     if FileAccess.file_exists(path):
         var file = FileAccess.open(path, FileAccess.READ)
@@ -61,27 +128,60 @@ func load_memory() -> void:
                                     "story_time": "",
                                     "day_offset": 0,
                                     "decay": 0.0,
-                                    "is_bond_mark": false
+                                    "is_bond_mark": false,
+                                    "context_domain": CONTEXT_DOMAIN_UNKNOWN,
+                                    "context_time_type": "unknown",
+                                    "story_period": "",
+                                    "story_weather": "",
+                                    "story_location_id": "",
+                                    "story_area_id": "",
+                                    "real_datetime": "",
+                                    "real_date": "",
+                                    "real_hour": -1,
+                                    "real_period": "",
+                                    "real_weather": "",
+                                    "real_temp": 0.0
                                 })
                             elif item is Dictionary and item.has("id") and item.has("content"):
                                 if not item.has("decay"): item["decay"] = 0.0
                                 if not item.has("is_bond_mark"): item["is_bond_mark"] = false
                                 if not item.has("story_time"): item["story_time"] = ""
                                 if not item.has("day_offset"): item["day_offset"] = 0
+                                if not item.has("context_domain"): item["context_domain"] = CONTEXT_DOMAIN_UNKNOWN
+                                if not item.has("context_time_type"): item["context_time_type"] = "unknown"
+                                if not item.has("story_period"): item["story_period"] = ""
+                                if not item.has("story_weather"): item["story_weather"] = ""
+                                if not item.has("story_location_id"): item["story_location_id"] = ""
+                                if not item.has("story_area_id"): item["story_area_id"] = ""
+                                if not item.has("real_datetime"): item["real_datetime"] = ""
+                                if not item.has("real_date"): item["real_date"] = ""
+                                if not item.has("real_hour"): item["real_hour"] = -1
+                                if not item.has("real_period"): item["real_period"] = ""
+                                if not item.has("real_weather"): item["real_weather"] = ""
+                                if not item.has("real_temp"): item["real_temp"] = 0.0
                                 layer_mems.append(item)
                         memories[key] = layer_mems
                 turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
+                var loaded_revisit = data.get("_revisit_state", {})
+                if loaded_revisit is Dictionary:
+                    revisit_state["last_story_revisit_memory_id"] = str(loaded_revisit.get("last_story_revisit_memory_id", loaded_revisit.get("last_revisit_memory_id", "")))
+                    revisit_state["last_story_revisit_day"] = int(loaded_revisit.get("last_story_revisit_day", loaded_revisit.get("last_revisit_day", -9999)))
+                    revisit_state["last_reality_revisit_memory_id"] = str(loaded_revisit.get("last_reality_revisit_memory_id", ""))
+                    revisit_state["last_reality_revisit_date"] = str(loaded_revisit.get("last_reality_revisit_date", ""))
+                    var revisited_ids = loaded_revisit.get("revisited_memory_ids", [])
+                    revisit_state["revisited_memory_ids"] = revisited_ids if revisited_ids is Array else []
 
 func save_memory() -> void:
     var data = memories.duplicate(true)
     data["_turns_since_last_extract"] = turns_since_last_extract
+    data["_revisit_state"] = revisit_state.duplicate(true)
     var content = JSON.stringify(data, "\t")
     SafeFileAccess.store_string(get_memory_file_path(), content)
 
 func _generate_id() -> String:
     return str(Time.get_unix_time_from_system() * 1000 + randi() % 1000)
 
-func add_memory(layer: String, content: String) -> void:
+func add_memory(layer: String, content: String, memory_context: Dictionary = {}) -> void:
     if memories.has(layer):
         # 防止重复内容添加
         for mem in memories[layer]:
@@ -98,13 +198,26 @@ func add_memory(layer: String, content: String) -> void:
             "day_offset": GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0,
             "decay": 0.0, # 0.0-100.0，达到100则可能被遗忘
             "is_bond_mark": false, # 是否带有羁绊印记（重要记忆）
-            "embedding": embedding
+            "embedding": embedding,
+            "context_domain": CONTEXT_DOMAIN_UNKNOWN,
+            "context_time_type": "unknown",
+            "story_period": "",
+            "story_weather": "",
+            "story_location_id": "",
+            "story_area_id": "",
+            "real_datetime": "",
+            "real_date": "",
+            "real_hour": -1,
+            "real_period": "",
+            "real_weather": "",
+            "real_temp": 0.0
         }
+        _apply_memory_context(new_mem, memory_context)
         memories[layer].append(new_mem)
         save_memory()
         print("【记忆管理器】新增 %s 记忆: [%s] %s" % [layer, new_mem["id"], content])
 
-func update_memory(layer: String, id: String, new_content: String) -> bool:
+func update_memory(layer: String, id: String, new_content: String, memory_context: Dictionary = {}) -> bool:
     if memories.has(layer):
         for i in range(memories[layer].size()):
             if memories[layer][i]["id"] == id:
@@ -113,11 +226,30 @@ func update_memory(layer: String, id: String, new_content: String) -> bool:
                 
                 var embedding = await DoubaoEmbeddingClient.get_embedding(new_content)
                 memories[layer][i]["embedding"] = embedding
+                _apply_memory_context(memories[layer][i], memory_context)
                 
                 save_memory()
                 print("【记忆管理器】更新 %s 记忆 [%s]: %s" % [layer, id, new_content])
                 return true
     return false
+
+func _apply_memory_context(target_mem: Dictionary, memory_context: Dictionary) -> void:
+    if memory_context.is_empty():
+        return
+    target_mem["context_domain"] = str(memory_context.get("context_domain", target_mem.get("context_domain", CONTEXT_DOMAIN_UNKNOWN)))
+    target_mem["context_time_type"] = str(memory_context.get("time_type", target_mem.get("context_time_type", "unknown")))
+    target_mem["story_time"] = str(memory_context.get("story_time", target_mem.get("story_time", "")))
+    target_mem["day_offset"] = int(memory_context.get("day_offset", target_mem.get("day_offset", 0)))
+    target_mem["story_period"] = str(memory_context.get("story_period", target_mem.get("story_period", "")))
+    target_mem["story_weather"] = str(memory_context.get("story_weather", target_mem.get("story_weather", "")))
+    target_mem["story_location_id"] = str(memory_context.get("story_location_id", target_mem.get("story_location_id", "")))
+    target_mem["story_area_id"] = str(memory_context.get("story_area_id", target_mem.get("story_area_id", "")))
+    target_mem["real_datetime"] = str(memory_context.get("real_datetime", target_mem.get("real_datetime", "")))
+    target_mem["real_date"] = str(memory_context.get("real_date", target_mem.get("real_date", "")))
+    target_mem["real_hour"] = int(memory_context.get("real_hour", target_mem.get("real_hour", -1)))
+    target_mem["real_period"] = str(memory_context.get("real_period", target_mem.get("real_period", "")))
+    target_mem["real_weather"] = str(memory_context.get("real_weather", target_mem.get("real_weather", "")))
+    target_mem["real_temp"] = float(memory_context.get("real_temp", target_mem.get("real_temp", 0.0)))
 
 func delete_memory(layer: String, id: String) -> bool:
     if memories.has(layer):
@@ -219,6 +351,142 @@ func get_memory_prompt(query_embedding: Array = []) -> String:
     if prompt_lines.size() > 0:
         return "【玩家专属长记忆档案】\n" + "\n".join(prompt_lines)
     return ""
+
+func _get_revisit_candidate_layers() -> Array:
+    return ["bond", "emotion", "habit"]
+
+func _looks_like_story_bound_memory(mem: Dictionary) -> bool:
+    return str(mem.get("story_time", "")) != "" or str(mem.get("story_location_id", "")) != "" or int(mem.get("day_offset", 0)) > 0
+
+func _is_memory_revisit_eligible(mem: Dictionary, trigger_context: Dictionary) -> bool:
+    if mem.is_empty():
+        return false
+    
+    var mem_id = str(mem.get("id", ""))
+    var content = str(mem.get("content", "")).strip_edges()
+    if mem_id == "" or content == "":
+        return false
+    
+    var context_domain = str(trigger_context.get("context_domain", CONTEXT_DOMAIN_STORY))
+    var last_memory_key = "last_story_revisit_memory_id" if context_domain == CONTEXT_DOMAIN_STORY else "last_reality_revisit_memory_id"
+    if mem_id == str(revisit_state.get(last_memory_key, "")):
+        return false
+    
+    var revisited_ids = revisit_state.get("revisited_memory_ids", [])
+    if revisited_ids is Array and revisited_ids.has(mem_id):
+        return false
+    
+    var decay = float(mem.get("decay", 0.0))
+    if decay >= 80.0:
+        return false
+
+    var mem_domain = str(mem.get("context_domain", CONTEXT_DOMAIN_UNKNOWN))
+    if context_domain == CONTEXT_DOMAIN_STORY:
+        if mem_domain == CONTEXT_DOMAIN_REALITY:
+            return false
+        var current_day = int(trigger_context.get("day_offset", GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0))
+        var day_offset = int(mem.get("day_offset", current_day))
+        if current_day - day_offset < 1:
+            return false
+    elif context_domain == CONTEXT_DOMAIN_REALITY:
+        if mem_domain == CONTEXT_DOMAIN_STORY:
+            return false
+        if mem_domain == CONTEXT_DOMAIN_UNKNOWN and _looks_like_story_bound_memory(mem):
+            return false
+    
+    return true
+
+func _calculate_revisit_weight(layer: String, mem: Dictionary, trigger_context: Dictionary) -> float:
+    var weight = 100.0 - float(mem.get("decay", 0.0))
+    if layer == "bond":
+        weight += 50.0
+    elif layer == "emotion":
+        weight += 20.0
+    
+    var context_domain = str(trigger_context.get("context_domain", CONTEXT_DOMAIN_STORY))
+    var mem_domain = str(mem.get("context_domain", CONTEXT_DOMAIN_UNKNOWN))
+    if context_domain == CONTEXT_DOMAIN_STORY:
+        if mem_domain == CONTEXT_DOMAIN_STORY:
+            weight += 30.0
+        if str(trigger_context.get("story_location_id", "")) != "" and str(mem.get("story_location_id", "")) == str(trigger_context.get("story_location_id", "")):
+            weight += 40.0
+        if str(trigger_context.get("story_weather", "")) != "" and str(mem.get("story_weather", "")) == str(trigger_context.get("story_weather", "")):
+            weight += 20.0
+        if str(trigger_context.get("story_period", "")) != "" and str(mem.get("story_period", "")) == str(trigger_context.get("story_period", "")):
+            weight += 10.0
+    else:
+        if mem_domain == CONTEXT_DOMAIN_REALITY:
+            weight += 30.0
+        if str(trigger_context.get("real_weather", "")) != "" and str(mem.get("real_weather", "")) == str(trigger_context.get("real_weather", "")):
+            weight += 20.0
+        if str(trigger_context.get("real_period", "")) != "" and str(mem.get("real_period", "")) == str(trigger_context.get("real_period", "")):
+            weight += 15.0
+    
+    return weight
+
+func get_revisit_event_candidate(trigger_context: Dictionary = {}) -> Dictionary:
+    var context_domain = str(trigger_context.get("context_domain", CONTEXT_DOMAIN_STORY))
+    if context_domain == CONTEXT_DOMAIN_STORY:
+        var current_day = int(trigger_context.get("day_offset", GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0))
+        var last_day = int(revisit_state.get("last_story_revisit_day", -9999))
+        if current_day - last_day < 1:
+            return {}
+    else:
+        var current_real_date = str(trigger_context.get("real_date", _get_real_date_key()))
+        if current_real_date == str(revisit_state.get("last_reality_revisit_date", "")):
+            return {}
+    
+    var candidates: Array = []
+    for layer in _get_revisit_candidate_layers():
+        if not memories.has(layer):
+            continue
+        for mem in memories[layer]:
+            if mem is Dictionary and _is_memory_revisit_eligible(mem, trigger_context):
+                var weight = _calculate_revisit_weight(layer, mem, trigger_context)
+                candidates.append({
+                    "layer": layer,
+                    "memory": mem,
+                    "weight": weight
+                })
+    
+    if candidates.is_empty():
+        return {}
+    
+    candidates.sort_custom(func(a, b): return a["weight"] > b["weight"])
+    var selected = candidates[0]
+    var mem_data: Dictionary = selected["memory"]
+    return {
+        "memory_id": str(mem_data.get("id", "")),
+        "layer": selected["layer"],
+        "content": str(mem_data.get("content", "")),
+        "story_time": str(mem_data.get("story_time", "")),
+        "day_offset": int(mem_data.get("day_offset", 0)),
+        "context_domain": str(mem_data.get("context_domain", CONTEXT_DOMAIN_UNKNOWN)),
+        "story_location_id": str(mem_data.get("story_location_id", "")),
+        "story_weather": str(mem_data.get("story_weather", "")),
+        "story_period": str(mem_data.get("story_period", "")),
+        "real_period": str(mem_data.get("real_period", "")),
+        "real_weather": str(mem_data.get("real_weather", "")),
+        "trigger_context": trigger_context.duplicate(true)
+    }
+
+func mark_memory_revisited(memory_id: String, trigger_context: Dictionary = {}) -> void:
+    if memory_id == "":
+        return
+    var revisited_ids = revisit_state.get("revisited_memory_ids", [])
+    if not revisited_ids is Array:
+        revisited_ids = []
+    if not revisited_ids.has(memory_id):
+        revisited_ids.append(memory_id)
+    revisit_state["revisited_memory_ids"] = revisited_ids
+    var context_domain = str(trigger_context.get("context_domain", CONTEXT_DOMAIN_STORY))
+    if context_domain == CONTEXT_DOMAIN_STORY:
+        revisit_state["last_story_revisit_memory_id"] = memory_id
+        revisit_state["last_story_revisit_day"] = int(trigger_context.get("day_offset", GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0))
+    else:
+        revisit_state["last_reality_revisit_memory_id"] = memory_id
+        revisit_state["last_reality_revisit_date"] = str(trigger_context.get("real_date", _get_real_date_key()))
+    save_memory()
 
 func _cosine_similarity(vec1: Array, vec2: Array) -> float:
     if vec1.size() != vec2.size() or vec1.size() == 0:
