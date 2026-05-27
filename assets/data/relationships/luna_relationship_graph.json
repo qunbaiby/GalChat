@@ -1,0 +1,252 @@
+{
+	"graph_id": "luna_main",
+	"center_node_id": "luna",
+	"canvas_size": {
+		"width": 360,
+		"height": 450
+	},
+	"nodes": [
+		{
+			"id": "player",
+			"name": "我",
+			"type": "player",
+			"avatar": "",
+			"role": "指导者 / 导师 / 最重要的陪伴者",
+			"summary": "玩家以值得信赖的年长前辈、私人导师与朋友的身份进入 Luna 的生活，并逐渐成为她最重要的情感依靠。",
+			"static_subtitle": "陪伴主线",
+			"tags": ["指导", "陪伴", "信任", "成长"],
+			"position": { "x": 285, "y": 215 },
+			"visible": true
+		},
+		{
+			"id": "luna",
+			"name": "Luna",
+			"type": "heroine",
+			"avatar": "res://assets/images/characters/Luna/avatar/luna.png",
+			"role": "关系中心 / 档案主角",
+			"summary": "Luna 是整张关系图谱的核心节点，她与玩家、静、朔、雅以及姐姐安娜的关系共同构成了她的成长环境与情感网络。",
+			"static_subtitle": "关系中心",
+			"tags": ["主角", "成长", "依恋", "记忆"],
+			"position": { "x": 165, "y": 215 },
+			"visible": true
+		},
+		{
+			"id": "jing",
+			"name": "静",
+			"type": "npc",
+			"avatar": "res://assets/images/characters/avatar/jing.png",
+			"role": "音乐老师 / 引荐人 / 恩师",
+			"summary": "静既是 Luna 的音乐老师，也是把 Luna 介绍给玩家的人。她对 Luna 要求严格，却一直以自己的方式默默照看她。",
+			"static_subtitle": "恩师线",
+			"tags": ["音乐老师", "引荐", "严厉", "护短"],
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "jing"
+			},
+			"unlock_hint": "当 Luna 与静发生首次有效互动，或关系阶段不再停留在初始状态后，这个节点会正式点亮。",
+			"position": { "x": 65, "y": 70 },
+			"visible": true
+		},
+		{
+			"id": "ya",
+			"name": "雅",
+			"type": "npc",
+			"avatar": "res://assets/images/characters/avatar/ya.png",
+			"role": "咖啡厅老板娘 / 情感港湾",
+			"summary": "雅是 Luna 在校园之外的重要情绪缓冲点。她因为安娜的画与 Luna 建立联系，并逐渐成为一个温柔可靠的倾诉对象。",
+			"static_subtitle": "港湾线",
+			"tags": ["咖啡厅", "倾诉", "姐姐画作", "知心"],
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "ya"
+			},
+			"unlock_hint": "在咖啡厅与雅建立初步关系后，她的节点会从灰显转为点亮。",
+			"position": { "x": 265, "y": 70 },
+			"visible": true
+		},
+		{
+			"id": "shuo",
+			"name": "朔",
+			"type": "npc",
+			"avatar": "res://assets/images/characters/avatar/shuo.png",
+			"role": "学长 / 安娜旧识 / 复杂回忆节点",
+			"summary": "朔与安娜有难以切断的过去，因此他与 Luna 的相识从一开始就带着回忆、距离与未被说尽的情绪。",
+			"static_subtitle": "旧识线",
+			"tags": ["学长", "高冷", "安娜旧识", "回忆"],
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "shuo"
+			},
+			"unlock_hint": "当 Luna 真正与朔建立接触后，这条旧识线会被正式点亮。",
+			"position": { "x": 65, "y": 360 },
+			"visible": true
+		},
+		{
+			"id": "anna",
+			"name": "安娜",
+			"type": "memory",
+			"avatar": "",
+			"role": "已逝姐姐 / 情感锚点",
+			"summary": "安娜虽然已经不在场，却仍然通过遗留的记忆、作品和故人关系影响着 Luna 的世界，也是多条人物关系线的共同源头。",
+			"static_subtitle": "记忆锚点",
+			"tags": ["姐姐", "已逝", "作品", "牵引"],
+			"position": { "x": 265, "y": 360 },
+			"visible": true
+		}
+	],
+	"edges": [
+		{
+			"id": "player_luna",
+			"from": "player",
+			"to": "luna",
+			"title": "导师与陪伴者",
+			"summary": "玩家是 Luna 最核心的关系对象之一。随着相处推进，这条主线关系会从礼貌拘谨逐步发展为信赖、依恋，甚至更深层的情感归属。",
+			"keywords": ["指导", "信任", "依赖", "成长陪伴"],
+			"color": "#6fd3ff",
+			"line_style": "solid",
+			"visible": true,
+			"dynamic_source": {
+				"type": "player_profile"
+			},
+			"memory_hint": "这条主线会持续受到日常互动、剧情事件、人格演化和纪念册记录的共同影响。"
+		},
+		{
+			"id": "luna_jing",
+			"from": "luna",
+			"to": "jing",
+			"title": "恩师与引荐人",
+			"summary": "静是 Luna 在学校中的重要支点。她既代表规范与要求，也代表被理解、被托付和被认真对待的那部分成长经历。",
+			"keywords": ["师生", "引荐", "严厉关心", "音乐共鸣"],
+			"color": "#b794f4",
+			"line_style": "solid",
+			"visible": true,
+			"dynamic_source": {
+				"type": "npc_relationship",
+				"npc_id": "jing"
+			},
+			"memory_hint": "静把 Luna 引荐给玩家，这条线直接关联工作室主线的起点。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "jing"
+			},
+			"unlock_hint": "和静的首次关系推进后，这条连线会恢复正常高亮。"
+		},
+		{
+			"id": "luna_ya",
+			"from": "luna",
+			"to": "ya",
+			"title": "倾诉对象与情绪港湾",
+			"summary": "雅所在的咖啡厅像是 Luna 的缓冲区。她们的关系从普通顾客逐渐过渡到深度倾诉与相互陪伴，情绪色彩最柔和稳定。",
+			"keywords": ["咖啡厅", "倾诉", "陪伴", "安抚"],
+			"color": "#ffafcc",
+			"line_style": "solid",
+			"visible": true,
+			"dynamic_source": {
+				"type": "npc_relationship",
+				"npc_id": "ya"
+			},
+			"memory_hint": "雅与安娜画作的联系，使这条线同时具备现实安慰与过去回响两层意味。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "ya"
+			},
+			"unlock_hint": "当 Luna 与雅形成真实互动记录后，这条情绪港湾线会点亮。"
+		},
+		{
+			"id": "luna_shuo",
+			"from": "luna",
+			"to": "shuo",
+			"title": "学长与姐姐旧识",
+			"summary": "朔与 Luna 的关系并不轻松，它被安娜留下的过去深深牵扯。越往后，这条线越偏向回忆修复与封闭内心的慢慢打开。",
+			"keywords": ["学长", "距离感", "安娜", "回忆修复"],
+			"color": "#84dcc6",
+			"line_style": "solid",
+			"visible": true,
+			"dynamic_source": {
+				"type": "npc_relationship",
+				"npc_id": "shuo"
+			},
+			"memory_hint": "这条线最适合和与安娜有关的回忆、旧物、未完成创作等内容联动。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "shuo"
+			},
+			"unlock_hint": "朔线会在首次有效互动后从灰显转为正式激活。"
+		},
+		{
+			"id": "luna_anna",
+			"from": "luna",
+			"to": "anna",
+			"title": "姐姐留下的精神牵引",
+			"summary": "安娜虽然不在当前时间线中，但她依然以姐姐、榜样、未完成的回忆等方式持续影响 Luna 的选择、依恋方式与对周围人的连接。",
+			"keywords": ["姐姐", "缅怀", "成长阴影", "情感根源"],
+			"color": "#f6bd60",
+			"line_style": "dashed",
+			"visible": true,
+			"dynamic_source": {
+				"type": "static"
+			},
+			"memory_hint": "这条线是多个关系分支的共同根节点，后续可继续挂载与安娜有关的事件、画作和角色回忆。"
+		},
+		{
+			"id": "jing_player",
+			"from": "jing",
+			"to": "player",
+			"title": "引荐与托付",
+			"summary": "静与玩家之间的直接关系并不一定经常出现在台前，但她的引荐行为本身就是对玩家能力与人品的认可和托付。",
+			"keywords": ["引荐", "信任", "托付"],
+			"color": "#8ecae6",
+			"line_style": "dashed",
+			"visible": true,
+			"dynamic_source": {
+				"type": "static"
+			},
+			"memory_hint": "这是一条关键的剧情结构关系线，决定了 Luna 与玩家相遇的起点。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "jing"
+			},
+			"unlock_hint": "当静的个人关系线点亮后，这条托付关系也会同步解除灰显。"
+		},
+		{
+			"id": "ya_anna",
+			"from": "ya",
+			"to": "anna",
+			"title": "画作与故人共鸣",
+			"summary": "雅因为喜欢安娜的画作而对 Luna 另眼相看。她和安娜之间未必有大量直接互动，但这条作品层面的连接非常关键。",
+			"keywords": ["画作", "知音", "遗留影响"],
+			"color": "#ffd166",
+			"line_style": "dashed",
+			"visible": true,
+			"dynamic_source": {
+				"type": "static"
+			},
+			"memory_hint": "后续可以扩展成画作、展览、咖啡厅摆设等物件型关系证据。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "ya"
+			},
+			"unlock_hint": "当雅线被激活后，她与安娜的作品共鸣关系会一并点亮。"
+		},
+		{
+			"id": "shuo_anna",
+			"from": "shuo",
+			"to": "anna",
+			"title": "旧友与未解的伤口",
+			"summary": "朔与安娜之间的关系是他封闭内心的根源之一，也是 Luna 与朔关系真正被激活的前提条件。",
+			"keywords": ["旧友", "痛失", "未释怀", "回忆"],
+			"color": "#cdb4db",
+			"line_style": "dashed",
+			"visible": true,
+			"dynamic_source": {
+				"type": "static"
+			},
+			"memory_hint": "后续与朔相关的深层剧情，基本都会围绕这条关系线展开。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "shuo"
+			},
+			"unlock_hint": "只有当 Luna 真正进入朔的故事线后，这条旧伤关系才会被点亮。"
+		}
+	]
+}

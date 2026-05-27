@@ -156,7 +156,7 @@ func save_game(slot_id: String, custom_image: Image = null):
 				if copy_result != OK:
 					printerr("[SaveManager] Failed to copy file: ", f, ", error code: ", copy_result)
 					return false
-	_replace_directory(active_dir + "photos", slot_dir + "photos")
+	# _replace_directory(active_dir + "photos", slot_dir + "photos") # 移除：让相册成为角色全局数据，不受读写档回档影响
 				
 	var img_filename = "screenshot.jpg"
 	image.save_jpg(slot_dir + img_filename, 0.8)
@@ -211,7 +211,7 @@ func load_game(slot_id: String) -> bool:
 		for f in files_to_copy:
 			if FileAccess.file_exists(slot_dir + f):
 				dir.copy(slot_dir + f, active_dir + f)
-	_replace_directory(slot_dir + "photos", active_dir + "photos")
+	# _replace_directory(slot_dir + "photos", active_dir + "photos") # 移除：让相册成为角色全局数据，不受读写档回档影响
 				
 	# 2. 强制各模块重新加载数据
 	if GameDataManager.profile:

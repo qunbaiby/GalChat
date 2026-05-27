@@ -1,0 +1,122 @@
+[gd_scene load_steps=3 format=3 uid="uid://ciwgqlah7xsd5"]
+
+[ext_resource type="Script" uid="uid://0f7jl11fni5v" path="res://scripts/ui/archive/relation_graph_view.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/archive/relation_graph_poster.gd" id="2_poster_script"]
+
+[node name="RelationGraphView" type="VBoxContainer"]
+offset_right = 400.0
+offset_bottom = 720.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+script = ExtResource("1_script")
+
+[node name="GraphCard" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 480)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="GraphCard"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderPanel" type="PanelContainer" parent="GraphCard/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GraphCard/VBox/HeaderPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+text = "  ◆ 动态关系图谱"
+
+[node name="ToolbarMargin" type="MarginContainer" parent="GraphCard/VBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="Toolbar" type="HBoxContainer" parent="GraphCard/VBox/ToolbarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HideLockedCheck" type="CheckButton" parent="GraphCard/VBox/ToolbarMargin/Toolbar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "隐藏未解锁"
+
+[node name="FactionOption" type="OptionButton" parent="GraphCard/VBox/ToolbarMargin/Toolbar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="Viewport" type="Control" parent="GraphCard/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+clip_contents = true
+mouse_filter = 1
+
+[node name="RelationGraphCanvas" type="Control" parent="GraphCard/VBox/Viewport"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("2_poster_script")
+
+[node name="DetailCard" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="DetailCard"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderPanel" type="PanelContainer" parent="DetailCard/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="DetailCard/VBox/HeaderPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+text = "  ◆ 关系节点详情"
+
+[node name="Margin" type="MarginContainer" parent="DetailCard/VBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+size_flags_vertical = 3
+
+[node name="ContentVBox" type="VBoxContainer" parent="DetailCard/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DetailTitle" type="Label" parent="DetailCard/VBox/Margin/ContentVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "请选择关系节点"
+
+[node name="SeparatorTop" type="ColorRect" parent="DetailCard/VBox/Margin/ContentVBox"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(1, 1, 1, 0.08)
+
+[node name="DetailBody" type="RichTextLabel" parent="DetailCard/VBox/Margin/ContentVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="SeparatorBottom" type="ColorRect" parent="DetailCard/VBox/Margin/ContentVBox"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(1, 1, 1, 0.08)
+
+[node name="DetailFooter" type="RichTextLabel" parent="DetailCard/VBox/Margin/ContentVBox"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false

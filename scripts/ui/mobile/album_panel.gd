@@ -1,4 +1,4 @@
-extends Panel
+extends PanelContainer
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 const PhotoCardScene = preload("res://scenes/ui/mobile/album_list_card.tscn")
@@ -13,12 +13,15 @@ const CATEGORY_OTHER := "other"
 
 signal photo_picked(path: String)
 
-@onready var back_btn: Button = $VBox/TopBar/BackBtn
-@onready var title_label: Label = $VBox/TopBar/Title
-@onready var summary_title_label: Label = $VBox/SummaryPanel/Margin/VBox/SummaryTitle
-@onready var summary_label: Label = $VBox/SummaryPanel/Margin/VBox/SummaryLabel
-@onready var grid: GridContainer = $VBox/Scroll/Grid
-@onready var empty_label: Label = $VBox/EmptyLabel
+@onready var back_btn: Button = $VBox/HeaderPanel/Margin/TopBar/BackBtn
+@onready var title_label: Label = $VBox/HeaderPanel/Margin/TopBar/Title
+@onready var summary_panel: PanelContainer = $VBox/Margin/ContentVBox/SummaryPanel
+@onready var summary_title_label: Label = $VBox/Margin/ContentVBox/SummaryPanel/Margin/VBox/SummaryTitle
+@onready var summary_label: Label = $VBox/Margin/ContentVBox/SummaryPanel/Margin/VBox/SummaryLabel
+@onready var filter_scroll: ScrollContainer = $VBox/Margin/ContentVBox/FilterScroll
+@onready var filter_bar: HBoxContainer = $VBox/Margin/ContentVBox/FilterScroll/FilterBar
+@onready var grid: GridContainer = $VBox/Margin/ContentVBox/Scroll/Grid
+@onready var empty_label: Label = $VBox/Margin/ContentVBox/EmptyLabel
 @onready var fullscreen_viewer: Control = $FullscreenViewer
 @onready var full_image: TextureRect = $FullscreenViewer/FullImage
 @onready var close_viewer_btn: Button = $FullscreenViewer/CloseViewerBtn
@@ -29,14 +32,14 @@ signal photo_picked(path: String)
 @onready var meta_body: Label = $FullscreenViewer/MetaPanel/Margin/VBox/MetaBody
 @onready var meta_footer: Label = $FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow/MetaFooter
 @onready var filter_buttons := {
-	 CATEGORY_ALL: $VBox/FilterScroll/FilterBar/AllBtn,
-	 CATEGORY_CAMERA: $VBox/FilterScroll/FilterBar/CameraBtn,
-	 CATEGORY_CHAT: $VBox/FilterScroll/FilterBar/ChatBtn,
-	 CATEGORY_CG: $VBox/FilterScroll/FilterBar/CgBtn,
-	 CATEGORY_DIARY: $VBox/FilterScroll/FilterBar/DiaryBtn,
-	 CATEGORY_MOMENT: $VBox/FilterScroll/FilterBar/MomentBtn,
-	 CATEGORY_DRAWING: $VBox/FilterScroll/FilterBar/DrawingBtn,
-	 CATEGORY_OTHER: $VBox/FilterScroll/FilterBar/OtherBtn
+	 CATEGORY_ALL: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/AllBtn,
+	 CATEGORY_CAMERA: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/CameraBtn,
+	 CATEGORY_CHAT: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/ChatBtn,
+	 CATEGORY_CG: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/CgBtn,
+	 CATEGORY_DIARY: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/DiaryBtn,
+	 CATEGORY_MOMENT: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/MomentBtn,
+	 CATEGORY_DRAWING: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/DrawingBtn,
+	 CATEGORY_OTHER: $VBox/Margin/ContentVBox/FilterScroll/FilterBar/OtherBtn
 }
 
 var _album_records: Array = []

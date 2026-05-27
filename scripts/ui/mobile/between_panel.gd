@@ -7,35 +7,42 @@ const EntryCardScene = preload("res://scenes/ui/mobile/between_entry_card.tscn")
 const TimelineGroupScene = preload("res://scenes/ui/mobile/between_timeline_group.tscn")
 const TimelineItemScene = preload("res://scenes/ui/mobile/between_timeline_item.tscn")
 
-@onready var title_label: Label = $PanelRoot/Margin/RootVBox/TopBar/TitleVBox/TitleLabel
-@onready var summary_label: Label = $PanelRoot/Margin/RootVBox/TopBar/TitleVBox/SummaryLabel
-@onready var back_btn: Button = $PanelRoot/Margin/RootVBox/TopBar/BackBtn
-@onready var list_mode_btn: Button = $PanelRoot/Margin/RootVBox/ModeBar/ListModeBtn
-@onready var timeline_mode_btn: Button = $PanelRoot/Margin/RootVBox/ModeBar/TimelineModeBtn
-@onready var list_scroll: ScrollContainer = $PanelRoot/Margin/RootVBox/ListScroll
-@onready var list_content: VBoxContainer = $PanelRoot/Margin/RootVBox/ListScroll/ListContent
-@onready var empty_label: Label = $PanelRoot/Margin/RootVBox/EmptyLabel
+@onready var panel_root: PanelContainer = $PanelRoot
+@onready var root_vbox: VBoxContainer = $PanelRoot/VBox/Margin/RootVBox
+@onready var top_bar: HBoxContainer = $PanelRoot/VBox/HeaderPanel/Margin/TopBar
+@onready var back_btn: Button = $PanelRoot/VBox/HeaderPanel/Margin/TopBar/BackBtn
+@onready var title_label: Label = $PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox/TitleLabel
+@onready var summary_label: Label = $PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox/SummaryLabel
+@onready var mode_bar: HBoxContainer = $PanelRoot/VBox/Margin/RootVBox/ModeBar
+@onready var list_mode_btn: Button = $PanelRoot/VBox/Margin/RootVBox/ModeBar/ListModeBtn
+@onready var timeline_mode_btn: Button = $PanelRoot/VBox/Margin/RootVBox/ModeBar/TimelineModeBtn
+@onready var filter_scroll: ScrollContainer = $PanelRoot/VBox/Margin/RootVBox/FilterScroll
+@onready var filter_bar: HBoxContainer = $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar
+@onready var list_scroll: ScrollContainer = $PanelRoot/VBox/Margin/RootVBox/ListScroll
+@onready var list_content: VBoxContainer = $PanelRoot/VBox/Margin/RootVBox/ListScroll/ListContent
+@onready var empty_label: Label = $PanelRoot/VBox/Margin/RootVBox/EmptyLabel
 @onready var detail_overlay: ColorRect = $DetailOverlay
-@onready var detail_title: Label = $DetailOverlay/DetailPanel/Margin/VBox/TopBar/DetailTitle
-@onready var detail_meta: Label = $DetailOverlay/DetailPanel/Margin/VBox/DetailMeta
-@onready var detail_image: TextureRect = $DetailOverlay/DetailPanel/Margin/VBox/DetailImage
-@onready var detail_tags: Label = $DetailOverlay/DetailPanel/Margin/VBox/DetailTags
-@onready var detail_summary: RichTextLabel = $DetailOverlay/DetailPanel/Margin/VBox/DetailSummary
-@onready var detail_relation_panel: PanelContainer = $DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel
-@onready var detail_relation_title: Label = $DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel/Margin/VBox/DetailRelationTitle
-@onready var detail_relation_body: Label = $DetailOverlay/DetailPanel/Margin/VBox/DetailRelationPanel/Margin/VBox/DetailRelationBody
-@onready var detail_quote: Label = $DetailOverlay/DetailPanel/Margin/VBox/DetailQuote
-@onready var detail_close_btn: Button = $DetailOverlay/DetailPanel/Margin/VBox/TopBar/DetailCloseBtn
-@onready var detail_favorite_btn: Button = $DetailOverlay/DetailPanel/Margin/VBox/ActionBar/DetailFavoriteBtn
-@onready var detail_pin_btn: Button = $DetailOverlay/DetailPanel/Margin/VBox/ActionBar/DetailPinBtn
-@onready var detail_chat_btn: Button = $DetailOverlay/DetailPanel/Margin/VBox/ActionBar/DetailChatBtn
+@onready var detail_panel: PanelContainer = $DetailOverlay/DetailPanel
+@onready var detail_title: Label = $DetailOverlay/DetailPanel/VBoxRoot/HeaderPanel/Margin/TopBar/DetailTitle
+@onready var detail_close_btn: Button = $DetailOverlay/DetailPanel/VBoxRoot/HeaderPanel/Margin/TopBar/DetailCloseBtn
+@onready var detail_meta: Label = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailMeta
+@onready var detail_image: TextureRect = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailImage
+@onready var detail_tags: Label = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailTags
+@onready var detail_summary: RichTextLabel = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailSummary
+@onready var detail_relation_panel: PanelContainer = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel
+@onready var detail_relation_title: Label = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox/DetailRelationTitle
+@onready var detail_relation_body: Label = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox/DetailRelationBody
+@onready var detail_quote: Label = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailQuote
+@onready var detail_favorite_btn: Button = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/ActionBar/DetailFavoriteBtn
+@onready var detail_pin_btn: Button = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/ActionBar/DetailPinBtn
+@onready var detail_chat_btn: Button = $DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/ActionBar/DetailChatBtn
 @onready var filter_buttons := {
-	"all": $PanelRoot/Margin/RootVBox/FilterScroll/FilterBar/AllBtn,
-	"milestone": $PanelRoot/Margin/RootVBox/FilterScroll/FilterBar/MilestoneBtn,
-	"memory": $PanelRoot/Margin/RootVBox/FilterScroll/FilterBar/MemoryBtn,
-	"diary": $PanelRoot/Margin/RootVBox/FilterScroll/FilterBar/DiaryBtn,
-	"moment": $PanelRoot/Margin/RootVBox/FilterScroll/FilterBar/MomentBtn,
-	"photo": $PanelRoot/Margin/RootVBox/FilterScroll/FilterBar/PhotoBtn
+	"all": $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar/AllBtn,
+	"milestone": $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar/MilestoneBtn,
+	"memory": $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar/MemoryBtn,
+	"diary": $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar/DiaryBtn,
+	"moment": $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar/MomentBtn,
+	"photo": $PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar/PhotoBtn
 }
 
 var album_manager = MemoryAlbumManagerScript.new()
@@ -88,7 +95,7 @@ func hide_panel() -> void:
 	)
 
 func _refresh_entries() -> void:
-	title_label.text = "你我之间"
+	title_label.text = "  ◆ 你我之间"
 	all_entries = album_manager.build_entries()
 	var summary = album_manager.get_summary(all_entries)
 	if all_entries.is_empty():

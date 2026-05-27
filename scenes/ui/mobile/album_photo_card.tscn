@@ -2,17 +2,17 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(0.14, 0.11, 0.2, 0.96)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Mask"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
 bg_color = Color(0.18, 0.45, 0.42, 0.18)
@@ -24,7 +24,7 @@ corner_radius_bottom_left = 10
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
 
 [node name="AlbumPhotoCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 248)
+custom_minimum_size = Vector2(0, 82)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Content" type="Control" parent="."]

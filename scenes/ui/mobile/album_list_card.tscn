@@ -2,22 +2,22 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(0.14, 0.11, 0.2, 0.96)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Mask"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
 
 [node name="AlbumListCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 176)
+custom_minimum_size = Vector2(0, 82)
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 

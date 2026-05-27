@@ -3,6 +3,7 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Holder"]
 
 [node name="BetweenTimelineItem" type="HBoxContainer"]
+offset_right = 314.0
 theme_override_constants/separation = 14
 
 [node name="Rail" type="Control" parent="."]

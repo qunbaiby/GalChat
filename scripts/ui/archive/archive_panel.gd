@@ -14,6 +14,7 @@ extends Control
 
 # 记忆库
 @onready var memory_list_container: VBoxContainer = $"Panel/VBoxContainer/TabContainer/记忆库/ScrollContainer/MemoryListContainer"
+@onready var relation_graph_view = $"Panel/VBoxContainer/TabContainer/人物关系/ScrollContainer/RelationGraphView"
 
 func _ready() -> void:
     close_btn.pressed.connect(_on_close_pressed)
@@ -54,6 +55,8 @@ func _load_char_archive(char_id: String) -> void:
                     
     _update_personality_display(temp_profile)
     _update_memory_display(mems)
+    if is_instance_valid(relation_graph_view):
+        relation_graph_view.set_archive_data(char_id, temp_profile)
 
 func _get_story_day_offset_for_char(char_id: String) -> int:
     var path = "user://saves/%s/story_time_save.json" % char_id

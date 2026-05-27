@@ -1,0 +1,137 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/archive/relation_graph_node_card.gd" id="1_script"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Click"]
+
+[node name="RelationGraphNodeCard" type="Control"]
+custom_minimum_size = Vector2(92, 116)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 92.0
+offset_bottom = 116.0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="AvatarContainer" type="Control" parent="."]
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -34.0
+offset_right = 34.0
+offset_bottom = 68.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="AvatarGlow" type="Panel" parent="AvatarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AvatarMask" type="Panel" parent="AvatarContainer"]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -31.0
+offset_top = -31.0
+offset_right = 31.0
+offset_bottom = 31.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Avatar" type="TextureRect" parent="AvatarContainer/AvatarMask"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="AvatarBorder" type="Panel" parent="AvatarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Placeholder" type="Label" parent="AvatarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 22
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AvatarHitButton" type="Button" parent="AvatarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_Click")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_Click")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_Click")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_Click")
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 72.0
+offset_bottom = 91.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "角色名"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="SubtitleLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 92.0
+offset_bottom = 106.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 10
+text = "关系阶段"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LockLabel" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 92.0
+offset_bottom = 106.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 10
+text = "未解锁"
+horizontal_alignment = 1

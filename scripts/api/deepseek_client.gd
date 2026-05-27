@@ -1146,13 +1146,6 @@ func _process_diary_illustration(diary_entry: Dictionary) -> void:
 			if GameDataManager.profile.has_method("save_profile"):
 				GameDataManager.profile.save_profile()
 				
-		diary_generated.emit(diary_entry)	
-		# 自动保存到 profile
-		if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
-			GameDataManager.profile.add_diary(diary_entry)
-			if GameDataManager.profile.has_method("save_profile"):
-				GameDataManager.profile.save_profile()
-				
 		diary_generated.emit(diary_entry)
 		return
 		

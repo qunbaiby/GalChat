@@ -285,19 +285,14 @@ func _on_diary_generated(diary_entry: Dictionary) -> void:
 	generate_diary_btn.disabled = false
 	generate_diary_btn.text = "生成日记"
 	
+	# 注意：这里的 add_diary 已经被 deepseek_client 自带的存储逻辑处理了，
+	# 调试面板只需要负责显示通知即可，避免重复添加导致相册出现多条记录。
 	var profile = GameDataManager.profile
-	if profile and profile.has_method("add_diary"):
-		profile.add_diary(diary_entry)
-		# 强制保存
-		if profile.has_method("save_profile"):
-			profile.save_profile()
-		
+	if profile:
 		# Trigger notification
 		var main_scene = get_tree().current_scene
 		if main_scene and main_scene.has_method("show_diary_notification"):
 			main_scene.show_diary_notification()
-	else:
-		print("[DebugPanel] 未找到 profile.add_diary 方法")
 
 func _on_diary_error(error_msg: String) -> void:
 	print("[DebugPanel] 日记生成失败: ", error_msg)

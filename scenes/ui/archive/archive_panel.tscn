@@ -1,10 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://dovm23a3pvfi1"]
+[gd_scene load_steps=8 format=3 uid="uid://cht41t82alrj1"]
 
 [ext_resource type="Script" uid="uid://802dm4mkfqu8" path="res://scripts/ui/archive/archive_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_deepseek"]
-[ext_resource type="Script" uid="uid://nvyocxywex0l" path="res://scripts/ui/archive/radar_chart.gd" id="4_radar"]
-[ext_resource type="Script" uid="uid://dokh2nm04tnpv" path="res://scripts/ui/archive/line_chart.gd" id="5_line"]
+[ext_resource type="Script" path="res://scripts/ui/archive/radar_chart.gd" id="4_radar"]
+[ext_resource type="Script" path="res://scripts/ui/archive/line_chart.gd" id="5_line"]
+[ext_resource type="PackedScene" path="res://scenes/ui/archive/relation_graph_view.tscn" id="6_relation_view"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(0.12, 0.13, 0.15, 0.6)
@@ -24,13 +24,14 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 
 [node name="ArchivePanel" type="Control"]
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -880.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="DeepSeekClient" type="Node" parent="."]
@@ -275,3 +276,19 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
+
+[node name="人物关系" type="MarginContainer" parent="Panel/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+metadata/_tab_index = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer/人物关系"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="RelationGraphView" parent="Panel/VBoxContainer/TabContainer/人物关系/ScrollContainer" instance=ExtResource("6_relation_view")]
+layout_mode = 2

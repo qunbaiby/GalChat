@@ -391,6 +391,10 @@ func _build_photo_entries() -> Array:
 	var results: Array = []
 	var photo_manager = PhotoMemoryManagerScript.new()
 	for record in photo_manager.get_album_records():
+		var album_category = str(record.get("album_category", ""))
+		if album_category == "diary" or album_category == "moment":
+			continue
+			
 		var path = str(record.get("photo_path", ""))
 		var record_key = str(record.get("record_key", record.get("file_name", "")))
 		if path == "" or record_key == "":
@@ -537,7 +541,7 @@ func _build_time_label(data: Dictionary) -> String:
 		return ("%s %s" % [real_date, real_period]).strip_edges()
 	var story_time = str(data.get("story_time", ""))
 	if story_time != "":
-		return story_time
+		return story_time.split(",")[0].strip_edges()
 	var timestamp = str(data.get("timestamp", ""))
 	return timestamp.split("T")[0] if "T" in timestamp else timestamp
 
@@ -701,7 +705,7 @@ func _build_photo_time_label(record: Dictionary, file_name: String) -> String:
 	if not record.is_empty():
 		var display_time = str(record.get("album_display_time", "")).strip_edges()
 		if display_time != "":
-			return display_time
+			return display_time.split(",")[0].strip_edges()
 		var context_domain = str(record.get("context_domain", "story"))
 		if context_domain == "reality":
 			var real_date = str(record.get("real_date", ""))
@@ -710,7 +714,7 @@ func _build_photo_time_label(record: Dictionary, file_name: String) -> String:
 			if merged != "":
 				return merged
 		if str(record.get("story_time", "")) != "":
-			return str(record.get("story_time", ""))
+			return str(record.get("story_time", "")).split(",")[0].strip_edges()
 	return _format_file_time(file_name)
 
 func _build_photo_sort_value(record: Dictionary, file_name: String) -> int:
