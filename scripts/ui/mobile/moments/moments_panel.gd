@@ -193,12 +193,12 @@ func _update_header() -> void:
                     img_loaded = true
                     
             if not img_loaded:
-                var fallback_path = ImageManager.get_image_path("story_cg_2")
+                var fallback_path = ImageManager.get_image_path("cg_luna_door_sunset")
                 if fallback_path != "" and ResourceLoader.exists(fallback_path):
                     cover_image.texture = load(fallback_path)
                 
         else:
-            var fallback_path = ImageManager.get_image_path("story_cg_2")
+            var fallback_path = ImageManager.get_image_path("cg_luna_door_sunset")
             if fallback_path != "" and ResourceLoader.exists(fallback_path):
                 cover_image.texture = load(fallback_path)
     

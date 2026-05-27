@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://dxe3r2b5g7na"]
 
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://dtj5yy8j5u72g" path="res://assets/images/backgrounds/main/background_0.png" id="2_hlg1t"]
-[ext_resource type="Texture2D" uid="uid://cx8u4vi35evxe" path="res://assets/images/backgrounds/main/Main_Luna_0.png" id="3_6tba5"]
+[ext_resource type="Texture2D" uid="uid://dtj5yy8j5u72g" path="res://assets/images/backgrounds/main/default_room_bg.png" id="2_hlg1t"]
+[ext_resource type="Texture2D" uid="uid://cx8u4vi35evxe" path="res://assets/images/backgrounds/main/default_room_luna_idle.png" id="3_6tba5"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_6tba5"]
 animations = [{

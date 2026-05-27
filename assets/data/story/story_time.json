@@ -9,7 +9,8 @@
         {
             "day_offset": 0,
             "weather": "sunny",
-            "temperature": 20
+            "temperature": 20,
+            "morning_events": ["intro_story"]
         },
         {
             "day_offset": 1,

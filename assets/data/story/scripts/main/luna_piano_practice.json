@@ -1,40 +1,287 @@
 {
     "script_id": "luna_piano_practice",
-    "cover_image": "story_cg_3",
-    "summary": "音乐教室里传来悠扬的钢琴声，Luna正在那里专注地练习着...",
+    "story_location_id": "concert_hall",
+    "day_offset": 1,
+    "story_period": "上午",
+    "memory_enabled": true,
+    "memory_records": [
+        {
+            "title": "星空下的祈愿",
+            "layer": "bond",
+            "scope": "player_shared",
+            "visibility": "prompt",
+            "participants": ["player", "luna"],
+            "player_involved": true,
+            "player_witnessed": true,
+            "is_bond_mark": true,
+            "content": "在音乐馆的清晨，她第一次让你真正触碰到写给姐姐的旋律与心事，也因为你的陪伴得到了静老师额外的音乐指导机会。"
+        },
+        {
+            "title": "写给姐姐的旋律",
+            "layer": "emotion",
+            "scope": "private_self",
+            "visibility": "hidden",
+            "participants": ["luna", "anna"],
+            "player_involved": false,
+            "player_witnessed": false,
+            "content": "她再次把对姐姐安娜的思念、遗憾与没来得及说出口的话，写进了《星空下的祈愿》这首曲子里。"
+        },
+        {
+            "title": "静的额外指导",
+            "layer": "bond",
+            "scope": "npc_social",
+            "visibility": "archive_only",
+            "participants": ["luna", "jing"],
+            "player_involved": false,
+            "player_witnessed": false,
+            "content": "静在听完这首曲子后，决定在周末为她安排一轮额外的专项音乐指导。"
+        }
+    ],
+    "cover_image": "cg_luna_piano_room",
+    "summary": "周四清晨的音乐馆里，Luna沉浸在写给姐姐的曲子《星空下的祈愿》中。曲终之后，静现身聆听，并在察觉到旋律深处的情绪后，决定在周末为她做一轮单独指导。",
     "chapters": {
         "start": {
             "events": [
                 {
                     "type": "background",
-                    "bg_id": "concert_hall",
+                    "bg_id": "cg_luna_piano_room",
                     "transition_type": "fade",
                     "duration": 0.5
                 },
                 {
-                    "type": "dialogue",
-                    "speaker": "旁白",
-                    "content": "刚走到音乐教室门口，就听到了一阵悠扬的钢琴声。"
+                    "type": "audio",
+                    "audio_id": "starry_wish_bgm",
+                    "audio_type": "bgm",
+                    "action": "play"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "透过窗户，我看到Luna正端坐在钢琴前，修长的手指在黑白琴键上灵活地跳跃。"
+                    "content": "清晨的音乐馆格外安静，长廊的窗棂滤过柔和的晨光，淡淡的尘埃在光束里缓缓浮动。整栋建筑没有多余的人声，唯有一阵悠扬绵长的钢琴声，轻轻漫开，回荡在空旷的厅堂之中。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "琴声清澈，却裹着一层化不开的淡淡忧伤，温柔又寂寥，像是藏着一段无人诉说的心事。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "逆光的钢琴前，Luna端正坐着，指尖起落轻柔。她垂着眼眸，长睫覆下，神情格外专注，整个人完全沉浸在自己的旋律里。周遭的一切喧嚣与静谧，似乎都与她无关。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她太投入了，完全没有察觉，身后的入口处，一道清冷的身影已然伫立许久。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静一身简约干练的职业装束，静静站在光影交界处，没有上前打扰，只是目光落在女孩单薄的背影上，安静聆听着这首完整的曲子。平日里凌厉强势的眉眼柔和了许多，褪去了课堂上的严苛，只剩无声的审视与动容。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "最后一段琴音缓缓落下，余韵悠长，在空荡的音乐馆里慢慢消散。安静瞬息蔓延开来。"
+                },
+                {
+                    "type": "background",
+                    "bg_id": "bg_concert_hall",
+                    "transition_type": "fade",
+                    "duration": 0.5
+                },
+                {
+                    "type": "show_character",
+                    "character": "jing",
+                    "position": "center",
+                    "animation": "fade_in",
+                    "focus": false
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "几秒后，清脆轻柔的鼓掌声轻轻响起。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "骤然响起的掌声让Luna浑身一僵，她猛地回头，眼底还带着未褪去的恍惚。看清来人是静之后，她瞬间绷紧了身子，指尖下意识攥紧了裙摆，脸颊飞快染上一层浅红。"
+                },
+                {
+                    "type": "show_character",
+                    "character": "jing",
+                    "position": "left",
+                    "animation": "slide_left",
+                    "focus": false
+                },
+                {
+                    "type": "show_character",
+                    "character": "char",
+                    "position": "right",
+                    "expression": "shy",
+                    "animation": "fade_in",
+                    "focus": false
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "突如其来的紧张让她有些手足无措，局促地垂下眼眸，声音细细软软的。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "（停下弹奏）啊，{player_title}，你来啦！"
+                    "expression": "shy",
+                    "position": "right",
+                    "content": "静、静老师……您什么时候来的？"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "刚来一会儿。曲子很好听。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静缓步上前，清冷的目光落在钢琴琴键上，又落回略显慌乱的Luna身上。她的语气平和温柔，没有半分课堂上的严厉。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "看来{player_name}的指导颇具成效，你的进步很快。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "听到夸奖，Luna的耳尖更红了，轻轻摇了摇头，眼神柔软又真诚。"
                 },
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "这首曲子我练了好久，还是觉得有些地方不太顺畅……你能帮我听听看吗？"
+                    "expression": "shy",
+                    "position": "right",
+                    "content": "是{player_title}很厉害啦……他特别温柔，也特别认真。我一开始怎么都弹不好、写不出旋律，是他一点点陪着我修改、磨合，耐心教我，我才完整做出这首曲子的。"
                 },
                 {
                     "type": "dialogue",
-                    "speaker": "player",
-                    "content": "当然没问题，你弹得其实已经很棒了。"
+                    "speaker": "旁白",
+                    "content": "她抬起眼，眼底带着浅浅的期许与光亮。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "expression": "calm",
+                    "position": "right",
+                    "content": "我打算用这首曲子，参加这次的艺术大赛。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静静看着她，目光通透敏锐，早已听出旋律深处藏着的情绪。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "这首曲子的底色，太安静、太忧伤了。不像普通的练习曲，里面藏着心事。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "被一语道破心底的情绪，Luna的指尖微微蜷缩，眼底的光亮淡了几分，染上一层浅浅的落寞。她轻轻低下头，声音轻得像风。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "expression": "worried",
+                    "position": "right",
+                    "content": "嗯……这首曲子，是我写给姐姐的。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她顿了顿，轻声念出那首曲子的名字。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "expression": "worried",
+                    "position": "right",
+                    "content": "它叫《星空下的祈愿》。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "expression": "worried",
+                    "position": "right",
+                    "content": "我总是会想起她，就想着，把想说却没来得及说的话，都写进旋律里。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "闻言，静的神情微微一动，清冷的眼底掠过一丝极淡的怅然与温柔。她深知Luna对姐姐的执念，也明白这份旋律里藏着的思念与遗憾。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "沉默片刻后，她缓缓开口，语气多了几分专属的偏袒与温柔。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "我明白了。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "这首曲子承载的东西很重，想拿好成绩，还需要再打磨细节、稳住情绪节奏。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她看向眼前怯懦却努力的女孩，轻声给出了专属的优待。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "calm",
+                    "content": "这个周末，你让{player_name}带你过来音乐馆。我抽时间，单独给你做一轮专项的音乐指导。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "Luna猛地抬起头，眼里瞬间亮起细碎的星光，紧张与落寞尽数褪去，只剩惊喜与感激。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "expression": "shy",
+                    "position": "right",
+                    "content": "真的可以吗？谢谢静老师……"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静看着她眼底纯粹的光亮，嘴角勾起一抹极淡、不易察觉的温柔笑意，轻轻点了点头。"
+                },
+                {
+                    "type": "hide_character",
+                    "character": "jing",
+                    "animation": "fade_out"
+                },
+                {
+                    "type": "hide_character",
+                    "character": "char",
+                    "animation": "fade_out"
                 },
                 {
                     "type": "jump",

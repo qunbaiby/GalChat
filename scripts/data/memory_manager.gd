@@ -6,6 +6,15 @@ const MEMORY_FILE_PATH = "user://player_memory.json"
 const CONTEXT_DOMAIN_UNKNOWN = "unknown"
 const CONTEXT_DOMAIN_STORY = "story"
 const CONTEXT_DOMAIN_REALITY = "reality"
+const MEMORY_SCOPE_PLAYER_SHARED = "player_shared"
+const MEMORY_SCOPE_PLAYER_OBSERVED = "player_observed"
+const MEMORY_SCOPE_PRIVATE_SELF = "private_self"
+const MEMORY_SCOPE_NPC_SOCIAL = "npc_social"
+const MEMORY_SCOPE_WORLD_FACT = "world_fact"
+const MEMORY_VISIBILITY_PROMPT = "prompt"
+const MEMORY_VISIBILITY_CONDITIONAL = "conditional"
+const MEMORY_VISIBILITY_HIDDEN = "hidden"
+const MEMORY_VISIBILITY_ARCHIVE_ONLY = "archive_only"
 
 # 四级记忆分层架构，每层存储字典列表 [{"id": String, "content": String, "timestamp": String}]
 var memories: Dictionary = {
@@ -53,6 +62,93 @@ func _get_real_period_label(hour: int) -> String:
     if hour >= 18 and hour < 23:
         return "晚上"
     return "深夜"
+
+func normalize_memory_scope(scope: String) -> String:
+    var final_scope = scope.strip_edges().to_lower()
+    var allowed = [
+        MEMORY_SCOPE_PLAYER_SHARED,
+        MEMORY_SCOPE_PLAYER_OBSERVED,
+        MEMORY_SCOPE_PRIVATE_SELF,
+        MEMORY_SCOPE_NPC_SOCIAL,
+        MEMORY_SCOPE_WORLD_FACT
+    ]
+    if allowed.has(final_scope):
+        return final_scope
+    return MEMORY_SCOPE_PLAYER_SHARED
+
+func get_default_visibility_for_scope(scope: String) -> String:
+    match normalize_memory_scope(scope):
+        MEMORY_SCOPE_PLAYER_SHARED:
+            return MEMORY_VISIBILITY_PROMPT
+        MEMORY_SCOPE_PLAYER_OBSERVED:
+            return MEMORY_VISIBILITY_CONDITIONAL
+        MEMORY_SCOPE_PRIVATE_SELF:
+            return MEMORY_VISIBILITY_HIDDEN
+        MEMORY_SCOPE_NPC_SOCIAL:
+            return MEMORY_VISIBILITY_ARCHIVE_ONLY
+        MEMORY_SCOPE_WORLD_FACT:
+            return MEMORY_VISIBILITY_ARCHIVE_ONLY
+        _:
+            return MEMORY_VISIBILITY_PROMPT
+
+func normalize_memory_visibility(visibility: String, scope: String = MEMORY_SCOPE_PLAYER_SHARED) -> String:
+    var final_visibility = visibility.strip_edges().to_lower()
+    var allowed = [
+        MEMORY_VISIBILITY_PROMPT,
+        MEMORY_VISIBILITY_CONDITIONAL,
+        MEMORY_VISIBILITY_HIDDEN,
+        MEMORY_VISIBILITY_ARCHIVE_ONLY
+    ]
+    if allowed.has(final_visibility):
+        return final_visibility
+    return get_default_visibility_for_scope(scope)
+
+func _is_duplicate_memory_entry(mem: Dictionary, content: String, source_type: String = "", source_id: String = "") -> bool:
+    if str(mem.get("content", "")).strip_edges() != content.strip_edges():
+        return false
+
+    var existing_source_type = str(mem.get("source_type", "")).strip_edges()
+    var existing_source_id = str(mem.get("source_id", "")).strip_edges()
+    var incoming_has_source = source_type != "" or source_id != ""
+    var existing_has_source = existing_source_type != "" or existing_source_id != ""
+    if incoming_has_source or existing_has_source:
+        return existing_source_type == source_type and existing_source_id == source_id
+    return true
+
+func should_surface_memory_in_player_channels(mem: Dictionary, channel: String = "prompt", has_query: bool = false) -> bool:
+    if mem.is_empty():
+        return false
+    var scope = normalize_memory_scope(str(mem.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED)))
+    var visibility = normalize_memory_visibility(str(mem.get("memory_visibility", "")), scope)
+    if visibility == MEMORY_VISIBILITY_HIDDEN or visibility == MEMORY_VISIBILITY_ARCHIVE_ONLY:
+        return false
+
+    if channel == "prompt":
+        if visibility == MEMORY_VISIBILITY_PROMPT:
+            return true
+        return visibility == MEMORY_VISIBILITY_CONDITIONAL and has_query
+
+    if channel == "album" or channel == "revisit":
+        return scope == MEMORY_SCOPE_PLAYER_SHARED or scope == MEMORY_SCOPE_PLAYER_OBSERVED
+
+    return visibility == MEMORY_VISIBILITY_PROMPT
+
+func get_memory_snapshot_for_extraction() -> Dictionary:
+    var snapshot: Dictionary = {}
+    for layer in memories.keys():
+        snapshot[layer] = []
+        for mem in memories[layer]:
+            if not mem is Dictionary:
+                continue
+            if not should_surface_memory_in_player_channels(mem, "prompt", true):
+                continue
+            snapshot[layer].append({
+                "id": str(mem.get("id", "")),
+                "content": str(mem.get("content", "")).strip_edges(),
+                "source_type": str(mem.get("source_type", "")),
+                "source_id": str(mem.get("source_id", ""))
+            })
+    return snapshot
 
 func build_story_memory_context() -> Dictionary:
     var context = {
@@ -129,6 +225,14 @@ func load_memory() -> void:
                                     "day_offset": 0,
                                     "decay": 0.0,
                                     "is_bond_mark": false,
+                                    "source_type": "",
+                                    "source_id": "",
+                                    "source_title": "",
+                                    "memory_scope": MEMORY_SCOPE_PLAYER_SHARED,
+                                    "memory_visibility": MEMORY_VISIBILITY_PROMPT,
+                                    "memory_participants": [],
+                                    "memory_player_involved": true,
+                                    "memory_player_witnessed": true,
                                     "context_domain": CONTEXT_DOMAIN_UNKNOWN,
                                     "context_time_type": "unknown",
                                     "story_period": "",
@@ -145,6 +249,14 @@ func load_memory() -> void:
                             elif item is Dictionary and item.has("id") and item.has("content"):
                                 if not item.has("decay"): item["decay"] = 0.0
                                 if not item.has("is_bond_mark"): item["is_bond_mark"] = false
+                                if not item.has("source_type"): item["source_type"] = ""
+                                if not item.has("source_id"): item["source_id"] = ""
+                                if not item.has("source_title"): item["source_title"] = ""
+                                if not item.has("memory_scope"): item["memory_scope"] = MEMORY_SCOPE_PLAYER_SHARED
+                                if not item.has("memory_visibility"): item["memory_visibility"] = get_default_visibility_for_scope(str(item.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED)))
+                                if not item.has("memory_participants"): item["memory_participants"] = []
+                                if not item.has("memory_player_involved"): item["memory_player_involved"] = true
+                                if not item.has("memory_player_witnessed"): item["memory_player_witnessed"] = true
                                 if not item.has("story_time"): item["story_time"] = ""
                                 if not item.has("day_offset"): item["day_offset"] = 0
                                 if not item.has("context_domain"): item["context_domain"] = CONTEXT_DOMAIN_UNKNOWN
@@ -185,7 +297,7 @@ func add_memory(layer: String, content: String, memory_context: Dictionary = {})
     if memories.has(layer):
         # 防止重复内容添加
         for mem in memories[layer]:
-            if mem["content"] == content:
+            if _is_duplicate_memory_entry(mem, content):
                 return
                 
         var embedding = await DoubaoEmbeddingClient.get_embedding(content)
@@ -199,6 +311,14 @@ func add_memory(layer: String, content: String, memory_context: Dictionary = {})
             "decay": 0.0, # 0.0-100.0，达到100则可能被遗忘
             "is_bond_mark": false, # 是否带有羁绊印记（重要记忆）
             "embedding": embedding,
+            "source_type": "",
+            "source_id": "",
+            "source_title": "",
+            "memory_scope": MEMORY_SCOPE_PLAYER_SHARED,
+            "memory_visibility": MEMORY_VISIBILITY_PROMPT,
+            "memory_participants": [],
+            "memory_player_involved": true,
+            "memory_player_witnessed": true,
             "context_domain": CONTEXT_DOMAIN_UNKNOWN,
             "context_time_type": "unknown",
             "story_period": "",
@@ -216,6 +336,53 @@ func add_memory(layer: String, content: String, memory_context: Dictionary = {})
         memories[layer].append(new_mem)
         save_memory()
         print("【记忆管理器】新增 %s 记忆: [%s] %s" % [layer, new_mem["id"], content])
+
+func add_memory_quick(layer: String, content: String, memory_context: Dictionary = {}, memory_options: Dictionary = {}) -> void:
+    if not memories.has(layer):
+        return
+    var final_content = content.strip_edges()
+    if final_content == "":
+        return
+    var source_type = str(memory_options.get("source_type", "")).strip_edges()
+    var source_id = str(memory_options.get("source_id", "")).strip_edges()
+    for mem in memories[layer]:
+        if _is_duplicate_memory_entry(mem, final_content, source_type, source_id):
+            return
+
+    var new_mem = {
+        "id": _generate_id(),
+        "content": final_content,
+        "timestamp": Time.get_datetime_string_from_system(),
+        "story_time": GameDataManager.story_time_manager.get_story_time_string() if GameDataManager.story_time_manager else "",
+        "day_offset": GameDataManager.story_time_manager.current_day_offset if GameDataManager.story_time_manager else 0,
+        "decay": 0.0,
+        "is_bond_mark": bool(memory_options.get("is_bond_mark", false)),
+        "embedding": [],
+        "source_type": source_type,
+        "source_id": source_id,
+        "source_title": str(memory_options.get("source_title", "")),
+        "memory_scope": normalize_memory_scope(str(memory_options.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED))),
+        "memory_visibility": normalize_memory_visibility(str(memory_options.get("memory_visibility", "")), str(memory_options.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED))),
+        "memory_participants": memory_options.get("memory_participants", []),
+        "memory_player_involved": bool(memory_options.get("memory_player_involved", true)),
+        "memory_player_witnessed": bool(memory_options.get("memory_player_witnessed", true)),
+        "context_domain": CONTEXT_DOMAIN_UNKNOWN,
+        "context_time_type": "unknown",
+        "story_period": "",
+        "story_weather": "",
+        "story_location_id": "",
+        "story_area_id": "",
+        "real_datetime": "",
+        "real_date": "",
+        "real_hour": -1,
+        "real_period": "",
+        "real_weather": "",
+        "real_temp": 0.0
+    }
+    _apply_memory_context(new_mem, memory_context)
+    memories[layer].append(new_mem)
+    save_memory()
+    print("【记忆管理器】快速新增 %s 记忆: [%s] %s" % [layer, new_mem["id"], final_content])
 
 func update_memory(layer: String, id: String, new_content: String, memory_context: Dictionary = {}) -> bool:
     if memories.has(layer):
@@ -307,11 +474,15 @@ func reinforce_memory(layer: String, id: String) -> void:
 
 func get_memory_prompt(query_embedding: Array = []) -> String:
     var prompt_lines = []
+    var has_query = query_embedding.size() > 0
     
     if memories["core"].size() > 0:
         var contents = []
-        for m in memories["core"]: contents.append(m["content"])
-        prompt_lines.append("- 核心记忆（永不覆盖，严格遵守）：" + "；".join(contents))
+        for m in memories["core"]:
+            if m is Dictionary and should_surface_memory_in_player_channels(m, "prompt", has_query):
+                contents.append(m["content"])
+        if contents.size() > 0:
+            prompt_lines.append("- 核心记忆（永不覆盖，严格遵守）：" + "；".join(contents))
         
     var layers = {
         "emotion": "- 情绪记忆（据此调整沟通方式）：",
@@ -323,9 +494,11 @@ func get_memory_prompt(query_embedding: Array = []) -> String:
         if memories[layer].size() > 0:
             var relevant_mems = []
             
-            if query_embedding.size() > 0:
+            if has_query:
                 var scored_mems = []
                 for m in memories[layer]:
+                    if not should_surface_memory_in_player_channels(m, "prompt", true):
+                        continue
                     var emb = m.get("embedding", [])
                     var score = 0.0
                     if emb is Array and emb.size() > 0 and query_embedding.size() == emb.size():
@@ -343,7 +516,9 @@ func get_memory_prompt(query_embedding: Array = []) -> String:
                     if score >= 0.4 or score == -1.0:
                         relevant_mems.append(scored_mems[i]["content"])
             else:
-                for m in memories[layer]: relevant_mems.append(m["content"])
+                for m in memories[layer]:
+                    if should_surface_memory_in_player_channels(m, "prompt", false):
+                        relevant_mems.append(m["content"])
                 
             if relevant_mems.size() > 0:
                 prompt_lines.append(layers[layer] + "；".join(relevant_mems))
@@ -441,7 +616,7 @@ func get_revisit_event_candidate(trigger_context: Dictionary = {}) -> Dictionary
         if not memories.has(layer):
             continue
         for mem in memories[layer]:
-            if mem is Dictionary and _is_memory_revisit_eligible(mem, trigger_context):
+            if mem is Dictionary and should_surface_memory_in_player_channels(mem, "revisit", false) and _is_memory_revisit_eligible(mem, trigger_context):
                 var weight = _calculate_revisit_weight(layer, mem, trigger_context)
                 candidates.append({
                     "layer": layer,

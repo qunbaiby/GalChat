@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cxab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://dtia45vxlbf3v" path="res://scripts/ui/start/start_scene.gd" id="1_ab123"]
-[ext_resource type="Texture2D" uid="uid://dxpa6pdvgk6ov" path="res://assets/images/story/cg/ChatGPT Image 2026年5月11日 17_44_32.png" id="2_cb6oh"]
+[ext_resource type="Texture2D" uid="uid://dxpa6pdvgk6ov" path="res://assets/images/story/cg/start_scene_luna_drawing.png" id="2_cb6oh"]
 
 [node name="StartScene" type="Control"]
 layout_mode = 3

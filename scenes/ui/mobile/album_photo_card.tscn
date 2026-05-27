@@ -1,16 +1,18 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://cmr34lj0y5dnw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.12, 0.13, 0.16, 0.98)
+bg_color = Color(0.14, 0.11, 0.2, 0.96)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.05)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Mask"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
 bg_color = Color(0.18, 0.45, 0.42, 0.18)
@@ -19,47 +21,36 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Action"]
-bg_color = Color(0.06, 0.06, 0.08, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ThumbMask"]
-bg_color = Color(0.08, 0.08, 0.1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
 
 [node name="AlbumPhotoCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 126)
+custom_minimum_size = Vector2(0, 248)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+[node name="Content" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="HBox" type="HBoxContainer" parent="Margin"]
-layout_mode = 2
-theme_override_constants/separation = 12
+[node name="ThumbMask" type="Panel" parent="Content"]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Mask")
 
-[node name="ThumbMask" type="PanelContainer" parent="Margin/HBox"]
-custom_minimum_size = Vector2(132, 106)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ThumbMask")
-
-[node name="ThumbArea" type="Control" parent="Margin/HBox/ThumbMask"]
-clip_contents = true
-layout_mode = 2
-
-[node name="Thumb" type="TextureRect" parent="Margin/HBox/ThumbMask/ThumbArea"]
+[node name="Thumb" type="TextureRect" parent="Content/ThumbMask"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,76 +60,44 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="BadgePanel" type="PanelContainer" parent="Margin/HBox/ThumbMask/ThumbArea"]
+[node name="BadgePanel" type="PanelContainer" parent="Content/ThumbMask"]
 visible = false
 layout_mode = 1
 offset_left = 8.0
 offset_top = 8.0
-offset_right = 56.0
-offset_bottom = 28.0
+offset_right = 64.0
+offset_bottom = 30.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
 
-[node name="BadgeLabel" type="Label" parent="Margin/HBox/ThumbMask/ThumbArea/BadgePanel"]
+[node name="BadgeLabel" type="Label" parent="Content/ThumbMask/BadgePanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
 theme_override_colors/font_color = Color(0.62, 0.88, 0.83, 1)
+theme_override_font_sizes/font_size = 9
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="InfoVBox" type="VBoxContainer" parent="Margin/HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-alignment = 1
-theme_override_constants/separation = 5
+[node name="MetaNodes" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 0
+offset_right = 1.0
+offset_bottom = 1.0
 
-[node name="TitleLabel" type="Label" parent="Margin/HBox/InfoVBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.97, 0.97, 0.98, 1)
-autowrap_mode = 3
-max_lines_visible = 2
-text_overrun_behavior = 3
+[node name="TitleLabel" type="Label" parent="MetaNodes"]
+layout_mode = 0
 text = "纪念照片标题"
 
-[node name="SourceLabel" type="Label" parent="Margin/HBox/InfoVBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.68, 0.72, 0.77, 1)
-autowrap_mode = 3
-max_lines_visible = 1
-text_overrun_behavior = 3
+[node name="SourceLabel" type="Label" parent="MetaNodes"]
+layout_mode = 0
 text = "来源信息"
 
-[node name="MetaRow" type="HBoxContainer" parent="Margin/HBox/InfoVBox"]
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="DateLabel" type="Label" parent="Margin/HBox/InfoVBox/MetaRow"]
-visible = false
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+[node name="DateLabel" type="Label" parent="MetaNodes"]
+layout_mode = 0
 text = "2026-05-26"
 
-[node name="MetaLabel" type="Label" parent="Margin/HBox/InfoVBox/MetaRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.78, 0.8, 0.84, 1)
-autowrap_mode = 3
-max_lines_visible = 1
-text_overrun_behavior = 3
+[node name="MetaLabel" type="Label" parent="MetaNodes"]
+layout_mode = 0
 text = "附加描述"
-
-[node name="ActionBtn" type="Button" parent="Margin/HBox"]
-custom_minimum_size = Vector2(58, 34)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_Action")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Action")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Action")
-text = "查看"
 
 [node name="ClickBtn" type="Button" parent="."]
 layout_mode = 1
@@ -147,8 +106,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_Button")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_Button")
-text = ""
+theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")
+flat = true

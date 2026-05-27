@@ -3,6 +3,7 @@ extends RefCounted
 
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
+const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
 const MAX_MEMORY_ENTRIES := 12
 const MAX_DIARY_ENTRIES := 8
@@ -20,6 +21,7 @@ const FAVORITE_BONUS := 2000000000
 var _state_loaded := false
 var _loaded_char_id := ""
 var _state: Dictionary = _create_default_state()
+var _location_name_cache: Dictionary = {}
 
 func build_entries() -> Array:
 	_ensure_state_loaded()
@@ -248,6 +250,8 @@ func _build_memory_entries() -> Array:
 		var layer_items = GameDataManager.memory_manager.memories.get(layer, [])
 		for mem in layer_items:
 			if not mem is Dictionary:
+				continue
+			if not GameDataManager.memory_manager.should_surface_memory_in_player_channels(mem, "album", false):
 				continue
 			var content = str(mem.get("content", "")).strip_edges()
 			if content == "":
@@ -485,7 +489,7 @@ func _build_context_subtitle(mem: Dictionary) -> String:
 		if real_weather != "":
 			parts.append(real_weather)
 		return " / ".join(parts)
-	var story_location = str(mem.get("story_location_id", ""))
+	var story_location = _resolve_location_display_name(str(mem.get("story_location_id", "")))
 	var story_period = str(mem.get("story_period", ""))
 	var parts: Array = ["剧情回忆"]
 	if story_location != "":
@@ -493,6 +497,37 @@ func _build_context_subtitle(mem: Dictionary) -> String:
 	if story_period != "":
 		parts.append(story_period)
 	return " / ".join(parts)
+
+func _resolve_location_display_name(location_id: String) -> String:
+	var clean_id = str(location_id).strip_edges()
+	if clean_id == "":
+		return ""
+	if clean_id.find("_") == -1:
+		return clean_id
+	if _location_name_cache.has(clean_id):
+		return str(_location_name_cache[clean_id])
+	if not FileAccess.file_exists(MAP_DATA_PATH):
+		_location_name_cache[clean_id] = clean_id
+		return clean_id
+	var file = FileAccess.open(MAP_DATA_PATH, FileAccess.READ)
+	if file == null:
+		_location_name_cache[clean_id] = clean_id
+		return clean_id
+	var json = JSON.new()
+	var parse_result = json.parse(file.get_as_text())
+	file.close()
+	if parse_result != OK or not json.data is Dictionary:
+		_location_name_cache[clean_id] = clean_id
+		return clean_id
+	var locations = json.data.get("locations", {})
+	if locations is Dictionary and locations.has(clean_id):
+		var location_conf = locations[clean_id]
+		if location_conf is Dictionary:
+			var location_name = str(location_conf.get("name", clean_id)).strip_edges()
+			_location_name_cache[clean_id] = location_name
+			return location_name
+	_location_name_cache[clean_id] = clean_id
+	return clean_id
 
 func _build_time_label(data: Dictionary) -> String:
 	var context_domain = str(data.get("context_domain", "story"))
@@ -567,43 +602,32 @@ func _format_file_time(file_name: String) -> String:
 func _build_photo_title(record: Dictionary) -> String:
 	if record.is_empty():
 		return "被保存下来的瞬间"
-	var source_type = str(record.get("source_type", ""))
-	if source_type == "story_cg":
-		var story_id = str(record.get("story_id", "")).strip_edges()
-		return "解锁的剧情CG" if story_id == "" else "解锁的剧情CG · %s" % story_id
-	if source_type == "diary_image":
-		return "那篇日记的配图"
-	if source_type == "moment_image":
-		return "她发过的那张图"
-	if source_type == "drawing_image":
-		return "一起完成的画"
-	var reason = str(record.get("relation_reason", ""))
-	if reason != "":
-		return "被留住的%s" % reason
-	if source_type == "chat_image":
-		return "她发来的那张图"
-	if source_type == "camera_capture":
-		return "你拍下的这一刻"
+	var display_title = str(record.get("album_display_title", "")).strip_edges()
+	if display_title != "":
+		return display_title
 	return "被保存下来的瞬间"
 
 func _build_photo_subtitle(record: Dictionary) -> String:
 	if record.is_empty():
 		return "相册照片"
+	var display_subtitle = str(record.get("album_display_subtitle", "")).strip_edges()
+	var display_source = str(record.get("album_display_source", "")).strip_edges()
+	var scene_name = str(record.get("album_display_scene", "")).strip_edges()
 	var parts: Array = []
-	var source_type = str(record.get("source_type", ""))
-	var source_label = str(record.get("source_label", "")).strip_edges()
-	parts.append(source_label if source_label != "" else "相册照片")
-	if str(record.get("source_title", "")).strip_edges() != "":
-		parts.append(str(record.get("source_title", "")))
-	if str(record.get("story_location_id", "")) != "":
-		parts.append(str(record.get("story_location_id", "")))
-	elif str(record.get("real_period", "")) != "":
-		parts.append(str(record.get("real_period", "")))
-	return " / ".join(parts)
+	if display_subtitle != "":
+		parts.append(display_subtitle)
+	if display_source != "" and not parts.has(display_source):
+		parts.append(display_source)
+	if scene_name != "" and not parts.has(scene_name):
+		parts.append(scene_name)
+	return " · ".join(parts) if not parts.is_empty() else "相册照片"
 
 func _build_photo_summary(record: Dictionary) -> String:
 	if record.is_empty():
 		return "这张照片后来被你好好留了下来，成为你们关系里可以反复翻看的一个瞬间。"
+	var display_note = str(record.get("album_display_note", "")).strip_edges()
+	if display_note != "":
+		return display_note
 	var related_content = str(record.get("related_memory_content", "")).strip_edges()
 	var reason = str(record.get("relation_reason", "")).strip_edges()
 	var source_text = str(record.get("source_text", "")).strip_edges()
@@ -611,10 +635,10 @@ func _build_photo_summary(record: Dictionary) -> String:
 	if related_content != "":
 		var short_content = _extract_quote(related_content)
 		if reason != "":
-			return "这张%s被收进相册时，系统把它和%s绑定在了一起：%s" % [source_label, reason, short_content]
+			return "这张%s被收进纪念册时，也和%s悄悄连在了一起：%s" % [source_label, reason, short_content]
 		return "这张%s后来被留了下来，也自然连到了你们当时的那段回忆：%s" % [source_label, short_content]
 	if source_text != "":
-		return "这张%s被收录时，旁边留下的说明是：%s" % [source_label, _extract_quote(source_text)]
+		return "这张%s被留住时，旁边留下的一句说明是：%s" % [source_label, _extract_quote(source_text)]
 	var source_type = str(record.get("source_type", ""))
 	if source_type == "chat_image":
 		return "这是她发来后又被你留进相册的一张图片，后来慢慢变成了可以回看的共同片段。"
@@ -643,9 +667,15 @@ func _build_photo_tags(record: Dictionary) -> Array:
 	var tags: Array = ["相册", "照片", "留存"]
 	if record.is_empty():
 		return tags
-	var source_label = str(record.get("source_label", "")).strip_edges()
+	var source_label = str(record.get("album_display_source", record.get("source_label", ""))).strip_edges()
 	if source_label != "":
 		tags.append(source_label)
+	var mood_tag = str(record.get("album_mood_tag", "")).strip_edges()
+	if mood_tag != "":
+		tags.append(mood_tag)
+	var scene_name = str(record.get("album_display_scene", "")).strip_edges()
+	if scene_name != "":
+		tags.append(scene_name)
 	var source_type = str(record.get("source_type", ""))
 	if source_type == "chat_image":
 		tags.append("聊天图片")
@@ -669,6 +699,9 @@ func _build_photo_tags(record: Dictionary) -> Array:
 
 func _build_photo_time_label(record: Dictionary, file_name: String) -> String:
 	if not record.is_empty():
+		var display_time = str(record.get("album_display_time", "")).strip_edges()
+		if display_time != "":
+			return display_time
 		var context_domain = str(record.get("context_domain", "story"))
 		if context_domain == "reality":
 			var real_date = str(record.get("real_date", ""))
@@ -698,30 +731,30 @@ func _build_photo_revisit_content(record: Dictionary) -> String:
 
 func _build_photo_binding_label(record: Dictionary) -> String:
 	if record.is_empty():
-		return "尚未绑定具体回忆"
+		return "暂时还没有补充具体回忆"
 	var related_title = str(record.get("related_memory_title", "")).strip_edges()
 	var reason = str(record.get("relation_reason", "")).strip_edges()
 	if related_title != "" and reason != "":
-		return "已关联 %s · %s" % [related_title, reason]
+		return "这张图会让人想起%s · %s" % [related_title, reason]
 	if related_title != "":
-		return "已关联 %s" % related_title
+		return "这张图会让人想起%s" % related_title
 	if reason != "":
-		return "按%s归档" % reason
-	return "尚未绑定具体回忆"
+		return "它被归进了%s的那类回忆" % reason
+	return "暂时还没有补充具体回忆"
 
 func _build_photo_binding_summary(record: Dictionary) -> String:
 	if record.is_empty():
-		return "这张照片目前还没有补充具体的回忆来源，之后拍下新的瞬间时会自动尝试匹配。"
+		return "这张照片目前还没有补充更具体的回忆说明，之后整理新的瞬间时会继续慢慢补上。"
 	var related_content = str(record.get("related_memory_content", "")).strip_edges()
 	var reason = str(record.get("relation_reason", "")).strip_edges()
 	var source_label = _get_photo_source_label(record)
 	if related_content != "":
 		if reason != "":
-			return "%s 收录时，根据%s自动关联到了这段回忆：%s" % [source_label, reason, _extract_quote(related_content)]
-		return "%s 收录时，自动关联到了这段回忆：%s" % [source_label, _extract_quote(related_content)]
+			return "收进纪念册时，这张%s因为%s，被一并记到了这段回忆里：%s" % [source_label, reason, _extract_quote(related_content)]
+		return "收进纪念册时，这张%s也自然连到了这段回忆：%s" % [source_label, _extract_quote(related_content)]
 	if reason != "":
-		return "%s 已按%s归档，但还没有抓到更具体的回忆正文。" % [source_label, reason]
-	return "%s 已被收录，但当前没有匹配到明确的回忆来源。" % source_label
+		return "这张%s已经按%s收好，但还没有补到更具体的回忆正文。" % [source_label, reason]
+	return "这张%s已经被收进纪念册，只是暂时还没有补上更明确的回忆来源。" % source_label
 
 func _get_photo_source_label(record: Dictionary) -> String:
 	var source_label = str(record.get("source_label", "")).strip_edges()

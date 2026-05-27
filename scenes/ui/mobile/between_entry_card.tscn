@@ -49,10 +49,20 @@ mouse_filter = 2
 [node name="CoverPanel" type="PanelContainer" parent="Margin/HBox"]
 custom_minimum_size = Vector2(76, 76)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="CoverMask" type="Panel" parent="Margin/HBox/CoverPanel"]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Cover")
 mouse_filter = 2
 
-[node name="CoverImage" type="TextureRect" parent="Margin/HBox/CoverPanel"]
+[node name="CoverImage" type="TextureRect" parent="Margin/HBox/CoverPanel/CoverMask"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -60,10 +70,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
-stretch_mode = 5
+stretch_mode = 6
 mouse_filter = 2
 
-[node name="CoverIcon" type="Label" parent="Margin/HBox/CoverPanel"]
+[node name="CoverIcon" type="Label" parent="Margin/HBox/CoverPanel/CoverMask"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

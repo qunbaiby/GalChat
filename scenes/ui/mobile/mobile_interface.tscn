@@ -1,10 +1,10 @@
 [gd_scene load_steps=23 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/ChatGPT Image 2026年5月20日 15_54_33.png" id="2_6upme"]
+[ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/mobile_panel_wallpaper.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="4_8r0ra"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="4_v7k4o"]
-[ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/galchat_cg_0002.jpg" id="6_te7qg"]
+[ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/story_cg_luna_door_sunset.jpg" id="6_te7qg"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvMask"]
 bg_color = Color(1, 1, 1, 1)

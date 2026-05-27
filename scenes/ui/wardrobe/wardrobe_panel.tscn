@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://b0afs3fe0t3uv"]
 
 [ext_resource type="Script" uid="uid://i6qyj0aww0lt" path="res://scripts/ui/wardrobe/wardrobe_panel.gd" id="2_script"]
-[ext_resource type="Texture2D" uid="uid://dh6crbw5g8h" path="res://assets/images/backgrounds/main/home/Pyrrha_bedroom_Morning.png" id="2_sj00c"]
+[ext_resource type="Texture2D" uid="uid://dh6crbw5g8h" path="res://assets/images/backgrounds/main/home/wardrobe_bedroom_morning.png" id="2_sj00c"]
 [ext_resource type="SpriteFrames" uid="uid://bpabn0fanx36g" path="res://assets/images/characters/Luna/clothes/luna_jk.tres" id="3_sj00c"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_side"]

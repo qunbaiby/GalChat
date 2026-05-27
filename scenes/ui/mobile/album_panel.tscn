@@ -1,14 +1,18 @@
-[gd_scene load_steps=9 format=3 uid="uid://bw4pmk2phwi28"]
+[gd_scene load_steps=7 format=3 uid="uid://bw4pmk2phwi28"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_2am76"]
 [ext_resource type="Script" uid="uid://cjhryxu6fp05i" path="res://scripts/ui/mobile/album_panel.gd" id="1_script"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Send"]
-bg_color = Color(0.4, 0.26, 0.2, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
+bg_color = Color(0.11, 0.12, 0.15, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.05)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FilterCurrent"]
 bg_color = Color(0.78, 0.57, 0.36, 1)
@@ -19,49 +23,43 @@ corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FilterNormal"]
 bg_color = Color(0.16, 0.17, 0.2, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.05)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.05)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
-bg_color = Color(0.11, 0.12, 0.15, 0.96)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.05)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Meta"]
 bg_color = Color(0.08, 0.08, 0.1, 0.88)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 1, 1, 0.08)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Send"]
+bg_color = Color(0.4, 0.26, 0.2, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [node name="AlbumPanel" type="Panel"]
+self_modulate = Color(1, 1, 1, 0.99)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_2am76")
 script = ExtResource("1_script")
-self_modulate = Color(1, 1, 1, 0.99)
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -92,7 +90,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 28
 text = "相册"
-horizontal_alignment = 0
 
 [node name="SummaryPanel" type="PanelContainer" parent="VBox"]
 layout_mode = 2
@@ -111,14 +108,14 @@ theme_override_constants/separation = 6
 
 [node name="SummaryTitle" type="Label" parent="VBox/SummaryPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+theme_override_font_sizes/font_size = 12
 text = "最近项目"
 
 [node name="SummaryLabel" type="Label" parent="VBox/SummaryPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.78, 0.8, 0.84, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="FilterScroll" type="ScrollContainer" parent="VBox"]
@@ -134,66 +131,66 @@ theme_override_constants/separation = 8
 [node name="AllBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(68, 30)
 layout_mode = 2
-text = "全部"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterCurrent")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "全部"
 
 [node name="CameraBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(68, 30)
 layout_mode = 2
-text = "拍摄"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "拍摄"
 
 [node name="ChatBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(68, 30)
 layout_mode = 2
-text = "聊天"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "聊天"
 
 [node name="CgBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(56, 30)
 layout_mode = 2
-text = "CG"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "CG"
 
 [node name="DiaryBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(68, 30)
 layout_mode = 2
-text = "日记"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "日记"
 
 [node name="MomentBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "朋友圈"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "朋友圈"
 
 [node name="DrawingBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(68, 30)
 layout_mode = 2
-text = "绘画"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "绘画"
 
 [node name="OtherBtn" type="Button" parent="VBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(68, 30)
 layout_mode = 2
-text = "其他"
 theme_override_styles/normal = SubResource("StyleBoxFlat_FilterNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FilterCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FilterCurrent")
+text = "其他"
 
 [node name="Scroll" type="ScrollContainer" parent="VBox"]
 layout_mode = 2
@@ -211,8 +208,8 @@ columns = 3
 visible = false
 layout_mode = 2
 size_flags_vertical = 6
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.7, 0.72, 0.77, 1)
+theme_override_font_sizes/font_size = 14
 text = "相册空空如也~"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -255,6 +252,7 @@ offset_left = -92.0
 offset_top = 16.0
 offset_right = -16.0
 offset_bottom = 52.0
+grow_horizontal = 0
 theme_override_font_sizes/font_size = 12
 text = "关闭"
 
@@ -269,6 +267,7 @@ offset_left = 16.0
 offset_top = -188.0
 offset_right = -16.0
 offset_bottom = -18.0
+grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Meta")
 
@@ -285,20 +284,20 @@ theme_override_constants/separation = 8
 
 [node name="MetaTag" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+theme_override_font_sizes/font_size = 11
 text = "照片信息"
 
 [node name="MetaTitle" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.98, 0.98, 0.99, 1)
+theme_override_font_sizes/font_size = 15
 autowrap_mode = 3
 
 [node name="MetaBody" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="MetaFooterRow" type="HBoxContainer" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
@@ -308,10 +307,10 @@ theme_override_constants/separation = 10
 [node name="MetaFooter" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.72, 0.76, 0.81, 1)
-autowrap_mode = 3
+theme_override_font_sizes/font_size = 11
 text = "来源信息"
+autowrap_mode = 3
 
 [node name="SendBtn" type="Button" parent="FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow"]
 visible = false

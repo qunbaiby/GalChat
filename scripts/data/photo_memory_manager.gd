@@ -8,6 +8,8 @@ const LEGACY_GLOBAL_METADATA_FILE := "user://saves/photos/photo_metadata.json"
 const PHOTO_SUBDIR := "photos"
 const METADATA_FILE_NAME := "photo_metadata.json"
 const STORY_SCRIPT_DIR := "res://assets/data/story/scripts"
+const STORY_TIME_DATA_PATH := "res://assets/data/story/story_time.json"
+const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
 const CATEGORY_ALL := "all"
 const CATEGORY_CAMERA := "camera"
@@ -17,6 +19,8 @@ const CATEGORY_DIARY := "diary"
 const CATEGORY_MOMENT := "moment"
 const CATEGORY_DRAWING := "drawing"
 const CATEGORY_OTHER := "other"
+
+var _location_name_cache: Dictionary = {}
 
 func register_photo(photo_path: String, source_type: String, extra: Dictionary = {}) -> Dictionary:
 	if photo_path == "":
@@ -32,6 +36,7 @@ func register_photo(photo_path: String, source_type: String, extra: Dictionary =
 	var saved_at = str(previous.get("saved_at", Time.get_datetime_string_from_system()))
 	var album_category = _resolve_album_category(source_type, extra)
 	var source_label = _resolve_source_label(source_type)
+	var display_defaults = _build_album_display_defaults(source_type, context, related, extra, saved_at)
 	var record = {
 		"record_key": record_key,
 		"photo_path": photo_path,
@@ -64,7 +69,14 @@ func register_photo(photo_path: String, source_type: String, extra: Dictionary =
 		"source_char_id": str(extra.get("source_char_id", _get_current_char_id())),
 		"story_id": str(extra.get("story_id", "")),
 		"cg_id": str(extra.get("cg_id", "")),
-		"prompt": str(extra.get("prompt", ""))
+		"prompt": str(extra.get("prompt", "")),
+		"album_display_title": str(extra.get("album_display_title", str(display_defaults.get("title", "")))),
+		"album_display_subtitle": str(extra.get("album_display_subtitle", str(display_defaults.get("subtitle", "")))),
+		"album_display_time": str(extra.get("album_display_time", str(display_defaults.get("time_label", "")))),
+		"album_display_scene": str(extra.get("album_display_scene", str(display_defaults.get("scene", "")))),
+		"album_display_note": str(extra.get("album_display_note", str(display_defaults.get("note", "")))),
+		"album_display_source": str(extra.get("album_display_source", str(display_defaults.get("source", "")))),
+		"album_mood_tag": str(extra.get("album_mood_tag", str(display_defaults.get("mood_tag", ""))))
 	}
 	all_data[record_key] = record
 	var legacy_key = photo_path.get_file()
@@ -313,7 +325,191 @@ func _enrich_record(record: Dictionary, record_key: String = "") -> Dictionary:
 		result["source_title"] = str(result.get("source_label", "相册收录"))
 	if str(result.get("source_char_id", "")).strip_edges() == "":
 		result["source_char_id"] = str(result.get("char_id", ""))
+	var display_defaults = _build_album_display_defaults(
+		str(result.get("source_type", "")),
+		result,
+		{
+			"title": str(result.get("related_memory_title", "")),
+			"reason": str(result.get("relation_reason", ""))
+		},
+		result,
+		str(result.get("saved_at", ""))
+	)
+	if str(result.get("album_display_title", "")).strip_edges() == "":
+		result["album_display_title"] = str(display_defaults.get("title", ""))
+	if str(result.get("album_display_subtitle", "")).strip_edges() == "":
+		result["album_display_subtitle"] = str(display_defaults.get("subtitle", ""))
+	if str(result.get("album_display_time", "")).strip_edges() == "":
+		result["album_display_time"] = str(display_defaults.get("time_label", ""))
+	if str(result.get("album_display_scene", "")).strip_edges() == "":
+		result["album_display_scene"] = str(display_defaults.get("scene", ""))
+	if str(result.get("album_display_note", "")).strip_edges() == "":
+		result["album_display_note"] = str(display_defaults.get("note", ""))
+	if str(result.get("album_display_source", "")).strip_edges() == "":
+		result["album_display_source"] = str(display_defaults.get("source", ""))
+	if str(result.get("album_mood_tag", "")).strip_edges() == "":
+		result["album_mood_tag"] = str(display_defaults.get("mood_tag", ""))
 	return result
+
+func _build_album_display_defaults(source_type: String, context: Dictionary, related: Dictionary, extra: Dictionary, saved_at: String) -> Dictionary:
+	var scene_name = _resolve_location_display_name(str(context.get("story_location_id", extra.get("story_location_id", ""))))
+	var display_source = _resolve_display_source(source_type)
+	var display_time = _resolve_display_time(context, saved_at)
+	var related_title = str(related.get("title", extra.get("related_memory_title", ""))).strip_edges()
+	var relation_reason = str(related.get("reason", extra.get("relation_reason", ""))).strip_edges()
+	var source_text = _clean_display_text(str(extra.get("source_text", extra.get("origin_message_text", ""))))
+	var result := {
+		"title": "",
+		"subtitle": "",
+		"time_label": display_time,
+		"scene": scene_name,
+		"note": "",
+		"source": display_source,
+		"mood_tag": ""
+	}
+	match source_type:
+		"story_cg":
+			result["title"] = "新解锁的一幕剧情"
+			result["subtitle"] = "发生在%s" % scene_name if scene_name != "" else "被认真记住的主线片段"
+			result["note"] = "这一幕后来被留进了纪念册里：%s" % _extract_display_quote(source_text) if source_text != "" else "这一幕被好好留了下来，成了你们共同经历里可以反复翻看的一页。"
+			result["source"] = "主线片段"
+			result["mood_tag"] = "剧情CG"
+		"diary_image":
+			result["title"] = "她写下的一页心情"
+			result["subtitle"] = "写于%s" % scene_name if scene_name != "" else "来自那天的日记"
+			result["note"] = "那天写下的心情，也和这张图一起被记住了：%s" % _extract_display_quote(source_text) if source_text != "" else "这张图连同那天写下的心情，一起留在了你们的纪念册里。"
+			result["source"] = "日记片段"
+			result["mood_tag"] = "心情记录"
+		"moment_image":
+			result["title"] = "她分享过的那一刻"
+			result["subtitle"] = "来自她的朋友圈"
+			result["note"] = "她那天分享的内容，也和这张图一起被留了下来：%s" % _extract_display_quote(source_text) if source_text != "" else "她分享过的这一刻，后来也成了你们关系里能翻看的片段。"
+			result["source"] = "朋友圈分享"
+			result["mood_tag"] = "日常分享"
+		"drawing_image":
+			result["title"] = "一起完成的画"
+			result["subtitle"] = "你们共同留下的创作"
+			result["note"] = "这次一起完成的创作，也被收进了纪念册：%s" % _extract_display_quote(source_text) if source_text != "" else "这张画不像普通照片，更像你们一起留下来的一份共同作品。"
+			result["source"] = "共同创作"
+			result["mood_tag"] = "共同创作"
+		"chat_image":
+			result["title"] = "她发来的那张图"
+			result["subtitle"] = "来自一次聊天"
+			if source_text != "":
+				result["note"] = "她发来这张图时，还留下了这样一句话：%s" % _extract_display_quote(source_text)
+			elif related_title != "":
+				result["note"] = "后来再看到这张图时，也会想起那段关于%s的回忆。" % related_title
+			else:
+				result["note"] = "她发来的这张图，后来被你好好留了下来。"
+			result["source"] = "聊天留图"
+			result["mood_tag"] = "聊天片段"
+		"camera_capture":
+			result["title"] = "你拍下的这一刻"
+			result["subtitle"] = "拍于%s" % scene_name if scene_name != "" else "你按下快门的那一刻"
+			if relation_reason != "":
+				result["note"] = "按下快门的那个瞬间，也和%s悄悄连在了一起。" % relation_reason
+			else:
+				result["note"] = "你在那个时刻按下了快门，也把当时的氛围一起留进了纪念册。"
+			result["source"] = "即时拍照"
+			result["mood_tag"] = "即时留存"
+		_:
+			result["title"] = "被保存下来的瞬间"
+			result["subtitle"] = "后来被认真收进纪念册"
+			result["note"] = "有些时刻会慢慢模糊，但这张图把它留了下来。"
+			result["source"] = display_source if display_source != "" else "相册收录"
+			result["mood_tag"] = "留存"
+	return result
+
+func _resolve_display_source(source_type: String) -> String:
+	match source_type:
+		"story_cg":
+			return "主线片段"
+		"diary_image":
+			return "日记片段"
+		"moment_image":
+			return "朋友圈分享"
+		"drawing_image":
+			return "共同创作"
+		"chat_image":
+			return "聊天留图"
+		"camera_capture":
+			return "即时拍照"
+		_:
+			return _resolve_source_label(source_type)
+
+func _resolve_display_time(context: Dictionary, saved_at: String) -> String:
+	var context_domain = str(context.get("context_domain", "story"))
+	if context_domain == "reality":
+		var real_date = _clean_display_text(str(context.get("real_date", "")))
+		var real_period = _clean_display_text(str(context.get("real_period", "")))
+		var merged = ("%s %s" % [real_date, real_period]).strip_edges()
+		if merged != "":
+			return merged
+	var story_time = _clean_display_text(str(context.get("story_time", "")))
+	if story_time != "":
+		return story_time
+	var date_text = str(saved_at).strip_edges()
+	if "T" in date_text:
+		date_text = date_text.split("T")[0]
+	return _clean_display_text(date_text)
+
+func _resolve_location_display_name(location_id: String) -> String:
+	var clean_id = str(location_id).strip_edges()
+	if clean_id == "" or _looks_like_technical_text(clean_id) == false and clean_id.find("_") == -1:
+		return clean_id
+	if _location_name_cache.has(clean_id):
+		return str(_location_name_cache[clean_id])
+	if not FileAccess.file_exists(MAP_DATA_PATH):
+		_location_name_cache[clean_id] = ""
+		return ""
+	var file = FileAccess.open(MAP_DATA_PATH, FileAccess.READ)
+	if file == null:
+		_location_name_cache[clean_id] = ""
+		return ""
+	var json = JSON.new()
+	var parse_result = json.parse(file.get_as_text())
+	file.close()
+	if parse_result != OK or not json.data is Dictionary:
+		_location_name_cache[clean_id] = ""
+		return ""
+	var locations = json.data.get("locations", {})
+	if locations is Dictionary and locations.has(clean_id):
+		var location_conf = locations[clean_id]
+		if location_conf is Dictionary:
+			var location_name = _clean_display_text(str(location_conf.get("name", "")))
+			_location_name_cache[clean_id] = location_name
+			return location_name
+	_location_name_cache[clean_id] = ""
+	return ""
+
+func _clean_display_text(text: String) -> String:
+	var cleaned = text.strip_edges()
+	if cleaned == "" or _looks_like_technical_text(cleaned):
+		return ""
+	return cleaned
+
+func _looks_like_technical_text(text: String) -> bool:
+	var cleaned = text.strip_edges()
+	if cleaned == "":
+		return false
+	var lower = cleaned.to_lower()
+	if lower.find("res://") != -1 or lower.find("user://") != -1:
+		return true
+	if lower.ends_with(".png") or lower.ends_with(".jpg") or lower.ends_with(".jpeg") or lower.ends_with(".webp"):
+		return true
+	if cleaned.find("\\") != -1:
+		return true
+	if cleaned.find("/") != -1 and cleaned.find(" / ") == -1:
+		return true
+	if cleaned.find("_") != -1:
+		return true
+	return false
+
+func _extract_display_quote(text: String) -> String:
+	var cleaned = text.strip_edges()
+	if cleaned.length() <= 32:
+		return cleaned
+	return cleaned.substr(0, 32) + "..."
 
 func _is_record_visible_for_char(record: Dictionary, current_char_id: String) -> bool:
 	var record_char_id = str(record.get("source_char_id", record.get("char_id", ""))).strip_edges()
@@ -450,20 +646,29 @@ func _sync_story_cg_sources() -> void:
 		if story_data.is_empty():
 			continue
 		var summary = str(story_data.get("summary", "")).strip_edges()
+		var story_context = _build_story_script_context(story_data)
+		var display_overrides = _build_story_display_overrides(story_data, story_context)
 		for cg_id in _extract_story_cg_ids(story_data):
 			var image_path = ImageManager.get_image_path(cg_id) if typeof(ImageManager) != TYPE_NIL else ""
 			if image_path == "" or not _path_exists(image_path):
 				continue
 			register_photo(image_path, "story_cg", {
 				"album_category": CATEGORY_CG,
-				"memory_context": _build_story_context(story_id_text),
+				"memory_context": story_context,
 				"preferred_layers": ["bond", "emotion"],
-				"source_title": "剧情CG · %s" % story_id_text,
+				"source_title": str(display_overrides.get("album_display_title", "新解锁的一幕剧情")),
 				"source_text": summary,
 				"source_id": story_id_text,
 				"story_id": story_id_text,
 				"cg_id": cg_id,
-				"source_char_id": _get_current_char_id()
+				"source_char_id": _get_current_char_id(),
+				"album_display_title": str(display_overrides.get("album_display_title", "")),
+				"album_display_subtitle": str(display_overrides.get("album_display_subtitle", "")),
+				"album_display_time": str(display_overrides.get("album_display_time", "")),
+				"album_display_scene": str(display_overrides.get("album_display_scene", "")),
+				"album_display_note": str(display_overrides.get("album_display_note", "")),
+				"album_display_source": str(display_overrides.get("album_display_source", "")),
+				"album_mood_tag": str(display_overrides.get("album_mood_tag", ""))
 			})
 
 func _load_story_data(story_id: String) -> Dictionary:
@@ -517,6 +722,59 @@ func _extract_story_cg_ids(story_data: Dictionary) -> Array:
 				if bg_id.begins_with("story_cg_") and not cg_ids.has(bg_id):
 					cg_ids.append(bg_id)
 	return cg_ids
+
+func _build_story_script_context(story_data: Dictionary) -> Dictionary:
+	var day_offset = int(story_data.get("day_offset", 0))
+	var story_period = str(story_data.get("story_period", "")).strip_edges()
+	var story_location_id = str(story_data.get("story_location_id", "")).strip_edges()
+	var weather = _get_story_weather_for_day(day_offset)
+	var context = _build_story_context(_format_story_schedule_text(day_offset, story_period), weather)
+	context["day_offset"] = day_offset
+	context["story_period"] = story_period
+	context["story_location_id"] = story_location_id
+	return context
+
+func _build_story_display_overrides(story_data: Dictionary, story_context: Dictionary) -> Dictionary:
+	var scene_name = _resolve_location_display_name(str(story_context.get("story_location_id", "")))
+	var day_offset = int(story_context.get("day_offset", 0))
+	var story_period = str(story_context.get("story_period", "")).strip_edges()
+	var summary = str(story_data.get("summary", "")).strip_edges()
+	var subtitle = "发生在%s" % scene_name if scene_name != "" else "被认真记住的主线片段"
+	var note = "这一幕后来被留进了纪念册里：%s" % _extract_display_quote(summary) if summary != "" else "这一幕被好好留了下来，成了你们共同经历里可以反复翻看的一页。"
+	return {
+		"album_display_title": "新解锁的一幕剧情",
+		"album_display_subtitle": subtitle,
+		"album_display_time": _format_story_schedule_text(day_offset, story_period),
+		"album_display_scene": scene_name,
+		"album_display_note": note,
+		"album_display_source": "主线片段",
+		"album_mood_tag": "剧情CG"
+	}
+
+func _format_story_schedule_text(day_offset: int, story_period: String) -> String:
+	var parts: Array = ["第%d天" % (day_offset + 1)]
+	if story_period != "":
+		parts.append(story_period)
+	return " · ".join(parts)
+
+func _get_story_weather_for_day(day_offset: int) -> String:
+	if not FileAccess.file_exists(STORY_TIME_DATA_PATH):
+		return ""
+	var file = FileAccess.open(STORY_TIME_DATA_PATH, FileAccess.READ)
+	if file == null:
+		return ""
+	var json = JSON.new()
+	var parse_result = json.parse(file.get_as_text())
+	file.close()
+	if parse_result != OK or not json.data is Dictionary:
+		return ""
+	var daily_data = json.data.get("daily_data", [])
+	if not daily_data is Array:
+		return ""
+	for item in daily_data:
+		if item is Dictionary and int(item.get("day_offset", -9999)) == day_offset:
+			return str(item.get("weather", "")).strip_edges()
+	return ""
 
 func _load_all_metadata() -> Dictionary:
 	var photo_dir = get_photo_dir()

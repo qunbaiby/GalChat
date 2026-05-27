@@ -1,76 +1,76 @@
 {
     "backgrounds": [
         {
-            "id": "main_bg",
+            "id": "main_background_image",
             "path": "res://assets/images/backgrounds/main/main_bg.png"
         },
         {
-            "id": "main_bg_0",
-            "path": "res://assets/images/backgrounds/main/ChatGPT Image 2026年5月11日 17_44_26.png"
+            "id": "bg_art_studio_sunlight",
+            "path": "res://assets/images/backgrounds/main/art_studio_sunlight_bg.png"
         },
         {
-            "id": "main_bg_1",
-            "path": "res://assets/images/backgrounds/main/main_bg_1.png"
+            "id": "bg_luna_drawing_morning",
+            "path": "res://assets/images/backgrounds/main/luna_drawing_morning_bg.png"
         },
         {
-            "id": "main_bg_2",
-            "path": "res://assets/images/backgrounds/main/main_bg_2.png"
+            "id": "bg_luna_piano_closeup",
+            "path": "res://assets/images/backgrounds/main/luna_piano_closeup_bg.png"
         },
         {
-            "id": "main_bg_3",
-            "path": "res://assets/images/backgrounds/main/main_bg_3.png"
+            "id": "bg_luna_drawing_sunset",
+            "path": "res://assets/images/backgrounds/main/luna_drawing_sunset_bg.png"
         },
         {
-            "id": "bedroom_morning",
+            "id": "bg_home_bedroom_morning",
             "path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png"
         },
         {
-            "id": "qingyu_time_cafe",
+            "id": "bg_qingyu_time_cafe",
             "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
         },
         {
-            "id": "library",
+            "id": "bg_library",
             "path": "res://assets/images/backgrounds/map/background/art_academy/library/library.png"
         },
         {
-            "id": "gym",
+            "id": "bg_gym",
             "path": "res://assets/images/backgrounds/map/background/art_academy/gym/gym.png"
         },
         {
-            "id": "sakura_avenue",
+            "id": "bg_sakura_avenue",
             "path": "res://assets/images/backgrounds/map/background/art_academy/sakura_avenue/sakura_avenue.png"
         },
         {
-            "id": "concert_hall",
+            "id": "bg_concert_hall",
             "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
         },
         {
-            "id": "art_gallery",
+            "id": "bg_art_gallery",
             "path": "res://assets/images/backgrounds/map/background/art_academy/art_gallery/art_gallery.png"
         }
     ],
     "maps": [
         {
-            "id": "world_map_bg",
+            "id": "bg_world_map",
             "path": "res://assets/images/backgrounds/map/background/WorldMap.png"
         }
     ],
     "cgs": [
         {
-            "id": "story_cg_1",
-            "path": "res://assets/images/story/cg/galchat_cg_0001.png"
+            "id": "cg_luna_drawing_side",
+            "path": "res://assets/images/story/cg/story_cg_luna_drawing_side.png"
         },
         {
-            "id": "story_cg_2",
-            "path": "res://assets/images/story/cg/galchat_cg_0002.jpg"
+            "id": "cg_luna_door_sunset",
+            "path": "res://assets/images/story/cg/story_cg_luna_door_sunset.jpg"
         },
         {
-            "id": "story_cg_3",
-            "path": "res://assets/images/story/cg/galchat_cg_0003.png"
+            "id": "cg_luna_piano_room",
+            "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
         },
         {
-            "id": "music_room",
-            "path": "res://assets/images/story/cg/galchat_cg_0003.png"
+            "id": "cg_music_room",
+            "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
         }
     ],
     "ui": [

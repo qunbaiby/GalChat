@@ -1,13 +1,31 @@
 {
     "script_id": "intro_story",
-    "cover_image": "story_cg_1",
+    "story_location_id": "studio",
+    "day_offset": 0,
+    "story_period": "上午",
+    "use_portraits": false,
+    "memory_enabled": true,
+    "memory_records": [
+        {
+            "title": "初遇与托付",
+            "layer": "bond",
+            "scope": "player_shared",
+            "visibility": "prompt",
+            "participants": ["player", "luna"],
+            "player_involved": true,
+            "player_witnessed": true,
+            "is_bond_mark": true,
+            "content": "在工作室的清晨，她第一次认真地向你求助课程规划，也第一次害羞地唤出了更亲近的称呼。这成了你们关系真正开始靠近的起点。"
+        }
+    ],
+    "cover_image": "cg_luna_drawing_side",
     "summary": "清晨的画室里，Luna正在认真地赶画稿，阳光洒在她的侧脸上...",
     "chapters": {
         "start": {
             "events": [
                 {
                     "type": "background",
-                    "bg_id": "story_cg_1",
+                    "bg_id": "cg_luna_drawing_side",
                     "transition_type": "fade",
                     "duration": 0.1
                 },
@@ -29,7 +47,7 @@
                 },
                 {
                     "type": "background",
-                    "bg_id": "story_cg_2",
+                    "bg_id": "cg_luna_door_sunset",
                     "transition_type": "fade",
                     "duration": 0.5
                 },
@@ -55,7 +73,7 @@
                 },
                 {
                     "type": "background",
-                    "bg_id": "story_cg_3",
+                    "bg_id": "cg_luna_piano_room",
                     "transition_type": "blur",
                     "duration": 1.5
                 },
@@ -66,7 +84,7 @@
                 },
                 {
                     "type": "background",
-                    "bg_id": "story_cg_2",
+                    "bg_id": "cg_luna_door_sunset",
                     "transition_type": "blur",
                     "duration": 1.5
                 },

@@ -3,6 +3,22 @@
     {
       "id": "luna_bgm",
       "path": "res://assets/audio/bgm/Luna.mp3"
+    },
+    {
+      "id": "soul_link_bgm",
+      "path": "res://assets/audio/bgm/Soul link.mp3"
+    },
+    {
+      "id": "starry_wish_bgm",
+      "path": "res://assets/audio/bgm/星空下的祈愿.mp3"
+    },
+    {
+      "id": "beyond_dream_bgm",
+      "path": "res://assets/audio/bgm/梦之彼方.mp3"
+    },
+    {
+      "id": "eternal_lullaby_bgm",
+      "path": "res://assets/audio/bgm/永眠的乐曲.mp3"
     }
   ],
   "bgs": [],

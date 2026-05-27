@@ -47,7 +47,7 @@
       "name": "工作室",
       "icon": "loc_studio",
       "description": "你的专属工作与生活空间。",
-      "bg_id": "bedroom_morning",
+      "bg_id": "bg_home_bedroom_morning",
       "map_position": {"x": 520, "y": 270},
       "resident_npcs": [],
       "events": []
@@ -58,7 +58,7 @@
       "icon": "loc_library",
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
       "scene_path": "res://scenes/map/locations/library.tscn",
-      "bg_id": "library",
+      "bg_id": "bg_library",
       "map_position": {"x": 680, "y": 110},
       "resident_npcs": ["shuo"],
       "scheduled_npcs": [
@@ -77,7 +77,7 @@
       "name": "体育馆",
       "description": "充满活力的运动场所。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "bg_id": "gym",
+      "bg_id": "bg_gym",
       "map_position": {"x": 170, "y": 190},
       "resident_npcs": [],
       "events": []
@@ -87,7 +87,7 @@
       "name": "音乐馆",
       "description": "拥有顶级声学设计的专业音乐教学与排练场地。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "bg_id": "concert_hall",
+      "bg_id": "bg_concert_hall",
       "map_position": {"x": 1060, "y": 130},
       "resident_npcs": ["jing"],
       "events": []
@@ -97,7 +97,7 @@
       "name": "美术馆",
       "description": "充满艺术气息的美术教学与作品展览空间。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "bg_id": "art_gallery",
+      "bg_id": "bg_art_gallery",
       "map_position": {"x": 400, "y": 260},
       "resident_npcs": [],
       "events": []
@@ -140,7 +140,7 @@
       "name": "樱花大道",
       "description": "春天会开满樱花的浪漫校园小道。夜晚会锁闭。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
-      "bg_id": "sakura_avenue",
+      "bg_id": "bg_sakura_avenue",
       "map_position": {"x": 480, "y": 70},
       "conditions": [
         {"type": "time", "start_hour": 6, "end_hour": 19}
@@ -153,7 +153,7 @@
       "name": "青屿拾光咖啡厅",
       "description": "雅经营的优雅咖啡厅，环境安静，咖啡香醇。",
       "scene_path": "res://scenes/map/locations/qingyu_time_cafe.tscn",
-      "bg_id": "qingyu_time_cafe",
+      "bg_id": "bg_qingyu_time_cafe",
       "map_position": {"x": 300, "y": 170},
       "resident_npcs": ["ya"],
       "events": ["bond"]

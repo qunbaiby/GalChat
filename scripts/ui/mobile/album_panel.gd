@@ -102,10 +102,10 @@ func _render_photos() -> void:
 		if tex == null:
 			continue
 		var card = PhotoCardScene.instantiate()
-		var thumb: TextureRect = card.get_node("Margin/HBox/ThumbMask/ThumbArea/Thumb")
-		var title_text: Label = card.get_node("Margin/HBox/InfoVBox/TitleLabel")
-		var source_text: Label = card.get_node("Margin/HBox/InfoVBox/SourceLabel")
-		var meta_text: Label = card.get_node("Margin/HBox/InfoVBox/MetaLabel")
+		var thumb: TextureRect = card.get_node("Content/ThumbMask/Thumb")
+		var title_text: Label = card.get_node("MetaNodes/TitleLabel")
+		var source_text: Label = card.get_node("MetaNodes/SourceLabel")
+		var meta_text: Label = card.get_node("MetaNodes/MetaLabel")
 		var click_btn: Button = card.get_node("ClickBtn")
 		thumb.texture = tex
 		title_text.text = _build_record_title(record)
@@ -202,8 +202,9 @@ func _update_fullscreen_meta(record: Dictionary) -> void:
 	var reason = str(record.get("relation_reason", "")).strip_edges()
 	var related_title = str(record.get("related_memory_title", "")).strip_edges()
 	var related_content = str(record.get("related_memory_content", "")).strip_edges()
-	var source_label = str(record.get("source_label", "相册照片")).strip_edges()
-	var source_title = str(record.get("source_title", "")).strip_edges()
+	var source_label = str(record.get("album_display_source", record.get("source_label", "相册照片"))).strip_edges()
+	var source_title = str(record.get("album_display_title", record.get("source_title", ""))).strip_edges()
+	var display_note = str(record.get("album_display_note", "")).strip_edges()
 	meta_tag.text = "%s · %s" % [_get_category_badge_text(str(record.get("album_category", CATEGORY_OTHER))), _build_record_date(record)]
 	if related_title != "" and reason != "":
 		meta_title.text = "%s · %s" % [related_title, reason]
@@ -217,6 +218,8 @@ func _update_fullscreen_meta(record: Dictionary) -> void:
 		meta_title.text = source_label
 	if related_content != "":
 		meta_body.text = "%s 收录时自动关联到这段回忆：%s" % [source_label, related_content]
+	elif display_note != "":
+		meta_body.text = display_note
 	elif reason != "":
 		meta_body.text = "%s 已按%s归档，之后可以继续补全更具体的回忆来源。" % [source_label, reason]
 	elif str(record.get("source_text", "")).strip_edges() != "":
@@ -228,12 +231,15 @@ func _update_fullscreen_meta(record: Dictionary) -> void:
 	meta_panel.show()
 
 func _build_record_title(record: Dictionary) -> String:
-	var title = str(record.get("source_title", "")).strip_edges()
+	var title = str(record.get("album_display_title", record.get("source_title", ""))).strip_edges()
 	if title != "":
 		return title
-	return str(record.get("source_label", "相册照片"))
+	return str(record.get("album_display_source", record.get("source_label", "相册照片")))
 
 func _build_record_meta(record: Dictionary) -> String:
+	var display_subtitle = str(record.get("album_display_subtitle", "")).strip_edges()
+	if display_subtitle != "":
+		return display_subtitle
 	var related_title = str(record.get("related_memory_title", "")).strip_edges()
 	if related_title != "":
 		return "关联回忆 · %s" % related_title
@@ -246,13 +252,16 @@ func _build_record_meta(record: Dictionary) -> String:
 	return ""
 
 func _build_record_date(record: Dictionary) -> String:
+	var display_time = str(record.get("album_display_time", "")).strip_edges()
+	if display_time != "":
+		return display_time
 	var saved_at = _format_saved_at(str(record.get("saved_at", "")))
 	if saved_at != "":
 		return saved_at
 	var day_offset = int(record.get("day_offset", 0))
 	var story_time = str(record.get("story_time", "")).strip_edges()
 	if day_offset > 0 and story_time != "":
-		return "第%d天 · %s" % [day_offset, story_time]
+		return "第%d天 · %s" % [day_offset + 1, story_time]
 	if story_time != "":
 		return story_time
 	var real_date = str(record.get("real_date", "")).strip_edges()
@@ -262,10 +271,12 @@ func _build_record_date(record: Dictionary) -> String:
 
 func _build_record_source(record: Dictionary) -> String:
 	var parts: Array = []
-	var related_title = str(record.get("related_memory_title", "")).strip_edges()
-	var source_label = str(record.get("source_label", "相册照片")).strip_edges()
+	var source_label = str(record.get("album_display_source", record.get("source_label", "相册照片"))).strip_edges()
 	if source_label != "":
 		parts.append(source_label)
+	var scene_name = str(record.get("album_display_scene", "")).strip_edges()
+	if scene_name != "":
+		parts.append(scene_name)
 	var context_text = _build_record_context(record)
 	if context_text != "":
 		parts.append(context_text)
@@ -286,8 +297,8 @@ func _build_record_context(record: Dictionary) -> String:
 	if context_domain == "story":
 		var story_parts: Array = []
 		var day_offset = int(record.get("day_offset", 0))
-		if day_offset > 0:
-			story_parts.append("第%d天" % day_offset)
+		if day_offset >= 0:
+			story_parts.append("第%d天" % (day_offset + 1))
 		var story_period = str(record.get("story_period", "")).strip_edges()
 		var story_time = str(record.get("story_time", "")).strip_edges()
 		if story_period != "":

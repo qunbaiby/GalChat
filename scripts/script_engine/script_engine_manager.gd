@@ -1,20 +1,22 @@
 class_name ScriptEngineManager
 extends Node
 
-signal on_dialogue_requested(speaker: String, content: String, mood: String)
+signal on_dialogue_requested(speaker: String, content: String, mood: String, presentation: Dictionary)
 signal on_bgm_requested(audio_path: String, fade_time: float)
 signal on_background_requested(bg_path: String, duration: float, transition_type: String)
 signal on_audio_requested(audio_type: String, action: String, audio_id: String, fade_time: float, loop: bool)
 signal on_variable_set(var_name: String, var_value: Variant)
 signal on_ai_chat_requested(prompt_override: String)
-signal on_character_show_requested(animation: String)
-signal on_character_hide_requested(animation: String)
+signal on_character_show_requested(animation: String, presentation: Dictionary)
+signal on_character_hide_requested(animation: String, presentation: Dictionary)
 signal on_player_info_requested()
 signal on_voice_call_requested(call_id: String)
 signal on_start_free_chat_requested(strategy: String, max_rounds: int)
 signal script_finished(script_id: String)
 
 var current_script_id: String = ""
+var current_script_path: String = ""
+var current_script_meta: Dictionary = {}
 var chapters: Dictionary = {} # chapter_id -> ScriptChapter
 var current_chapter_id: String = ""
 var current_event_index: int = 0
@@ -38,6 +40,31 @@ func load_script(script_path: String) -> bool:
         
     var data = json.data
     current_script_id = data.get("script_id", "unknown")
+    current_script_path = script_path
+    current_script_meta = {
+        "use_portraits": bool(data.get("use_portraits", true)),
+        "summary": str(data.get("summary", "")),
+        "story_location_id": str(data.get("story_location_id", "")),
+        "story_area_id": str(data.get("story_area_id", "")),
+        "day_offset": int(data.get("day_offset", 0)),
+        "story_period": str(data.get("story_period", "")),
+        "memory_enabled": bool(data.get("memory_enabled", true)),
+        "memory_layer": str(data.get("memory_layer", "bond")),
+        "memory_summary": str(data.get("memory_summary", "")),
+        "memory_is_bond_mark": bool(data.get("memory_is_bond_mark", true)),
+        "memory_title": str(data.get("memory_title", "")),
+        "memory_scope": str(data.get("memory_scope", "")),
+        "memory_scope_explicit": bool(data.has("memory_scope")),
+        "memory_visibility": str(data.get("memory_visibility", "")),
+        "memory_visibility_explicit": bool(data.has("memory_visibility")),
+        "memory_participants": data.get("memory_participants", []),
+        "memory_participants_explicit": bool(data.has("memory_participants")),
+        "memory_player_involved": bool(data.get("memory_player_involved", false)),
+        "memory_player_involved_explicit": bool(data.has("memory_player_involved")),
+        "memory_player_witnessed": bool(data.get("memory_player_witnessed", false)),
+        "memory_player_witnessed_explicit": bool(data.has("memory_player_witnessed")),
+        "memory_records": _sanitize_memory_records(data.get("memory_records", []))
+    }
     var chapters_data = data.get("chapters", {})
     
     chapters.clear()
@@ -98,3 +125,18 @@ func _end_script() -> void:
     is_running = false
     is_waiting_for_resume = false
     script_finished.emit(current_script_id)
+
+func use_story_portraits() -> bool:
+    return bool(current_script_meta.get("use_portraits", true))
+
+func get_current_script_meta() -> Dictionary:
+    return current_script_meta.duplicate(true)
+
+func _sanitize_memory_records(raw_records: Variant) -> Array:
+    var results: Array = []
+    if not raw_records is Array:
+        return results
+    for item in raw_records:
+        if item is Dictionary:
+            results.append(item.duplicate(true))
+    return results

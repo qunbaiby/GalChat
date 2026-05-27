@@ -307,7 +307,9 @@ func build_memory_prompt(profile: CharacterProfile) -> String:
     if template == "":
         return ""
         
-    var current_memories = JSON.stringify(GameDataManager.memory_manager.memories, "\t")
+    var current_memories = "{}"
+    if GameDataManager.memory_manager and GameDataManager.memory_manager.has_method("get_memory_snapshot_for_extraction"):
+        current_memories = JSON.stringify(GameDataManager.memory_manager.get_memory_snapshot_for_extraction(), "\t")
         
     return template.format({
         "name": profile.char_name,

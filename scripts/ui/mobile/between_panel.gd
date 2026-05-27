@@ -199,8 +199,8 @@ func _create_entry_card(entry: Dictionary) -> Control:
 	var card_panel: PanelContainer = card
 	var click_btn: Button = card.get_node("ClickBtn")
 	var cover_panel: PanelContainer = card.get_node("Margin/HBox/CoverPanel")
-	var cover_image: TextureRect = card.get_node("Margin/HBox/CoverPanel/CoverImage")
-	var cover_icon: Label = card.get_node("Margin/HBox/CoverPanel/CoverIcon")
+	var cover_image: TextureRect = card.get_node("Margin/HBox/CoverPanel/CoverMask/CoverImage")
+	var cover_icon: Label = card.get_node("Margin/HBox/CoverPanel/CoverMask/CoverIcon")
 	var title: Label = card.get_node("Margin/HBox/TextVBox/TitleLabel")
 	var meta: Label = card.get_node("Margin/HBox/TextVBox/MetaLabel")
 	var summary: Label = card.get_node("Margin/HBox/TextVBox/SummaryLabel")
@@ -364,12 +364,7 @@ func _build_entry_meta(entry: Dictionary, include_status: bool = true) -> String
 
 func _update_detail_view(entry: Dictionary) -> void:
 	detail_title.text = str(entry.get("title", "共同回忆"))
-	var meta_text = _build_entry_meta(entry, false)
-	var subtitle = str(entry.get("subtitle", "")).strip_edges()
-	if subtitle != "":
-		detail_meta.text = "%s\n%s" % [meta_text, subtitle] if meta_text != "" else subtitle
-	else:
-		detail_meta.text = meta_text
+	detail_meta.text = _build_entry_meta(entry, false)
 	detail_summary.text = str(entry.get("summary", ""))
 
 	var quote_text = str(entry.get("quote", "")).strip_edges()

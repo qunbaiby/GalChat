@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://c63bpyvfuad8k" path="res://assets/images/backgrounds/black.jpg" id="2_2exn1"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_buqdj"]
-[ext_resource type="Texture2D" uid="uid://dxtsg4qyfukjg" path="res://assets/images/backgrounds/main/galchat_cg_00013_.png" id="3_sqpx7"]
+[ext_resource type="Texture2D" uid="uid://dxtsg4qyfukjg" path="res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png" id="3_sqpx7"]
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="13_dialogue"]
