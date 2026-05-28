@@ -1,7 +1,7 @@
 extends Control
 
 @onready var title_label: Label = $Panel/VBoxContainer/TopBar/TitleLabel
-@onready var close_btn: Button = $Panel/VBoxContainer/TopBar/CloseButton
+@onready var close_btn: Button = $Panel/VBoxContainer/TopBar/BackButton
 @onready var list_container: VBoxContainer = $Panel/VBoxContainer/ScrollContainer/ListContainer
 
 const SLOT_ITEM_SCENE = preload("res://scenes/ui/save_load/save_slot_item.tscn")

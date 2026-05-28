@@ -156,7 +156,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(440, 720)]
+"values": [Vector2(1280, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -173,7 +173,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_SlideDown"]
 resource_name = "slide_down"
-length = 0.2
+length = 0.35
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -181,10 +181,10 @@ tracks/0/path = NodePath("PhonePanel:position")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2),
-"transitions": PackedFloat32Array(2, 1),
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(2.5, 1),
 "update": 0,
-"values": [Vector2(440, 10), Vector2(440, 720)]
+"values": [Vector2(791, 0), Vector2(1280, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -193,15 +193,15 @@ tracks/1/path = NodePath("ColorRect:color")
 tracks/1/interp = 2
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.2),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(2.5, 1),
 "update": 0,
 "values": [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_SlideUp"]
 resource_name = "slide_up"
-length = 0.3
+length = 0.4
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -209,10 +209,10 @@ tracks/0/path = NodePath("PhonePanel:position")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3),
-"transitions": PackedFloat32Array(0.5, 1),
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.2, 1),
 "update": 0,
-"values": [Vector2(440, 720), Vector2(440, 10)]
+"values": [Vector2(1280, 0), Vector2(791, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -221,8 +221,8 @@ tracks/1/path = NodePath("ColorRect:color")
 tracks/1/interp = 2
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.2, 1),
 "update": 0,
 "values": [Color(0, 0, 0, 0), Color(0, 0, 0, 0.3)]
 }
@@ -254,18 +254,19 @@ color = Color(0, 0, 0, 0)
 
 [node name="PhonePanel" type="Panel" parent="."]
 clip_contents = true
-custom_minimum_size = Vector2(400, 700)
+custom_minimum_size = Vector2(489, 720)
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+anchors_preset = 11
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -200.0
-offset_right = 200.0
-offset_bottom = 711.0
-grow_horizontal = 2
-grow_vertical = 0
+offset_left = -489.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 2
 
 [node name="BgOverlay" type="TextureRect" parent="PhonePanel"]
 layout_mode = 1
@@ -589,7 +590,7 @@ alignment = 1
 layout_mode = 2
 theme_override_constants/separation = 22
 
-[node name="CameraBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
+[node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
@@ -597,7 +598,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
 
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/CameraBtn"]
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SettingsBtn"]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 1
 anchors_preset = 8
@@ -615,7 +616,7 @@ texture = ExtResource("4_v7k4o")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CameraLabel" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/CameraBtn"]
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SettingsBtn"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -630,16 +631,16 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
 theme_override_font_sizes/font_size = 14
-text = "相机"
+text = "设置"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
+[node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
 
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/AlbumBtn"]
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SaveBtn"]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 1
 anchors_preset = 8
@@ -657,7 +658,98 @@ texture = ExtResource("4_v7k4o")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="AlbumLabel" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/AlbumBtn"]
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SaveBtn"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -21.5
+offset_top = 1.0
+offset_right = 21.5
+offset_bottom = 21.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_font_sizes/font_size = 14
+text = "存档"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/LoadBtn"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_v7k4o")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/LoadBtn"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -21.5
+offset_top = 1.0
+offset_right = 21.5
+offset_bottom = 21.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_font_sizes/font_size = 14
+text = "读档"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/AlbumBtn"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_v7k4o")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/AlbumBtn"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -673,97 +765,6 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
 theme_override_font_sizes/font_size = 14
 text = "相册"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
-layout_mode = 2
-theme_override_constants/separation = 22
-
-[node name="Btn1" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
-custom_minimum_size = Vector2(55, 55)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/Btn1"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/Btn1"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -21.5
-offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 21.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 14
-text = "相机"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Btn2" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
-custom_minimum_size = Vector2(55, 55)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/Btn2"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/Btn2"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -21.5
-offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 21.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 14
-text = "相机"
 horizontal_alignment = 1
 vertical_alignment = 1
 

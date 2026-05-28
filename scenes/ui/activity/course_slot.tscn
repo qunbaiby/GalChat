@@ -28,7 +28,7 @@ corner_radius_bottom_left = 4
 corner_radius_bottom_right = 4
 
 [node name="CourseSlot" type="PanelContainer"]
-custom_minimum_size = Vector2(80, 80)
+custom_minimum_size = Vector2(90, 90)
 theme = ExtResource("2_theme")
 theme_override_styles/panel = SubResource("StyleBoxFlat_normal")
 script = ExtResource("1_script")

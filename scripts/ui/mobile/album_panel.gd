@@ -12,6 +12,7 @@ const CATEGORY_DRAWING := "drawing"
 const CATEGORY_OTHER := "other"
 
 signal photo_picked(path: String)
+signal back_requested
 
 @onready var back_btn: Button = $VBox/HeaderPanel/Margin/TopBar/BackBtn
 @onready var title_label: Label = $VBox/HeaderPanel/Margin/TopBar/Title
@@ -84,6 +85,7 @@ func hide_panel() -> void:
 
 func _on_back_pressed() -> void:
 	hide_panel()
+	back_requested.emit()
 
 func _load_photos() -> void:
 	for child in grid.get_children():

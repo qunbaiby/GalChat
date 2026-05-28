@@ -1,10 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene load_steps=6 format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
 [ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png" id="2_3k4mg"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="2_dialogue"]
-[ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="3_char"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="top_status_panel"]
 
 [node name="QuickLocationScene" type="Control"]
@@ -69,7 +68,6 @@ theme_override_constants/separation = 20
 alignment = 2
 
 [node name="InteractionMenu" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -77,8 +75,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CharacterLayer" parent="InteractionMenu" instance=ExtResource("3_char")]
-position = Vector2(9, -15)
+[node name="NPCPortrait" type="Node2D" parent="InteractionMenu"]
+position = Vector2(611, 1338)
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="InteractionMenu/NPCPortrait"]
+scale = Vector2(0.6, 0.6)
+
+[node name="StaticSprite" type="Sprite2D" parent="InteractionMenu/NPCPortrait"]
+scale = Vector2(0.6, 0.6)
 
 [node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu"]
 layout_mode = 1

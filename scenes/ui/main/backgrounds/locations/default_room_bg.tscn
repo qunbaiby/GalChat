@@ -100,3 +100,21 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_bubble_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_bubble_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_bubble_normal")
 text = "剧情"
+
+[node name="InteractTriggerButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 621.0
+offset_top = 154.0
+offset_right = 736.0
+offset_bottom = 200.0
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_focus_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_bubble_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_bubble_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_bubble_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_bubble_normal")
+text = "互动"

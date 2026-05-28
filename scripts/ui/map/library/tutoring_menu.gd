@@ -20,24 +20,19 @@ const CourseItemScene = preload("res://scenes/ui/map/library/tutoring_course_ite
 # 属性名映射
 const STAT_NAME_MAP = {
 	"stat_stamina": "体能",
-	"stat_body": "形体",
-	"stat_focus": "专注",
 	"stat_rhythm": "反应",
 	"stat_knowledge": "学识",
 	"stat_expression": "表达",
-	"stat_planning": "企划",
-	"stat_art_theory": "艺理",
 	"stat_temperament": "气质",
-	"stat_manner": "举止",
 	"stat_etiquette": "礼仪",
-	"stat_stage": "舞台",
-	"stat_empathy": "共情",
-	"stat_inspiration": "灵感",
 	"stat_aesthetics": "审美",
 	"stat_perception": "感知"
 }
 
 func _ready() -> void:
+	$MenuPanel.modulate.a = 0.0
+	create_tween().tween_property($MenuPanel, "modulate:a", 1.0, 0.3)
+	
 	close_btn.pressed.connect(_on_close_pressed)
 	start_btn.pressed.connect(_on_start_pressed)
 	reset_btn.pressed.connect(_on_reset_pressed)
@@ -290,4 +285,6 @@ func _on_start_pressed() -> void:
 	_on_close_pressed()
 
 func _on_close_pressed() -> void:
-	queue_free()
+	var tween = create_tween()
+	tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(queue_free)

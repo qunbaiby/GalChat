@@ -1,0 +1,30 @@
+{
+  "core_stats": {
+    "core_stamina": {
+      "name": "体",
+      "sub_stats": ["stat_stamina", "stat_rhythm"]
+    },
+    "core_intelligence": {
+      "name": "智",
+      "sub_stats": ["stat_knowledge", "stat_expression"]
+    },
+    "core_charm": {
+      "name": "魅",
+      "sub_stats": ["stat_temperament", "stat_etiquette"]
+    },
+    "core_sensibility": {
+      "name": "感",
+      "sub_stats": ["stat_aesthetics", "stat_perception"]
+    }
+  },
+  "sub_stats": {
+    "stat_stamina": "体能",
+    "stat_rhythm": "反应",
+    "stat_knowledge": "学识",
+    "stat_expression": "表达",
+    "stat_temperament": "气质",
+    "stat_etiquette": "礼仪",
+    "stat_aesthetics": "审美",
+    "stat_perception": "感知"
+  }
+}

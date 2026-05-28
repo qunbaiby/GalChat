@@ -3,19 +3,19 @@ extends Control
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 
 @onready var ui_panel: Panel = $UIPanel
-@onready var activity_button: Button = $UIPanel/ActivityButton
+@onready var rest_button: Button = $UIPanel/RestButton
 @onready var desktop_pet_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DesktopPetButton
 @onready var hide_ui_button: Button = $UIPanel/SystemButton/HideUIButton
-@onready var settings_button: Button = $UIPanel/SystemButton/SettingsButton
-@onready var save_button: Button = $UIPanel/SystemButton/SaveButton
-@onready var load_button: Button = $UIPanel/SystemButton/LoadButton
+@onready var camera_button: Button = $UIPanel/SystemButton/CameraButton
+@onready var phone_button: Button = $UIPanel/SystemButton/PhoneButton
 @onready var affection_button: Button = $UIPanel/AffectionButton
 @onready var pomodoro_button: Button = $UIPanel/PomodoroButton
 @onready var wardrobe_button: Button = $UIPanel/WardrobeButton
 
-@onready var phone_button: Button = $UIPanel/BottomBarHBox/BtnHBox/PhoneButton
 @onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
-@onready var map_button: Button = $UIPanel/MapButton
+@onready var main_action_button: Button = $UIPanel/MainActionButton
+
+var _photo_manager = PhotoMemoryManagerScript.new()
 @onready var stats_panel = $UIPanel/StatsPanel
 @onready var top_status_panel = $UIPanel/TopStatusPanel
 @onready var bgm: AudioStreamPlayer = $BGM
@@ -37,10 +37,9 @@ const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manage
 
 @onready var deepseek_client = $DeepSeekClient
 
-@onready var interact_group: Control = $UIPanel/InteractGroup
+@onready var interact_group: VBoxContainer = $UIPanel/InteractGroup
 @onready var chat_button: Button = $UIPanel/InteractGroup/ChatButton
 @onready var gift_button: Button = $UIPanel/InteractGroup/GiftButton
-@onready var rest_button: Button = $UIPanel/InteractGroup/RestButton
 @onready var interactive_button: Button = $UIPanel/InteractGroup/InteractiveButton
 @onready var interactive_sub_menu: Control = $UIPanel/InteractiveSubMenu
 @onready var co_create_button: Button = $UIPanel/InteractiveSubMenu/Margin/VBox/CoCreateButton
@@ -367,8 +366,12 @@ func _execute_rest_transition(dialog: Node) -> void:
 			
 			# 恢复行动力等日常重置逻辑可以在这里或者时间管理器的跨天信号里处理
 			GameDataManager.profile.current_energy = GameDataManager.profile.max_energy
+			
+			GameDataManager.profile.save_profile()
+			GameDataManager.story_time_manager.save_data()
+			GameDataManager.save_manager.auto_save()
 	)
-	
+
 	# 3. 停留一会
 	tween.tween_interval(1.0)
 	
@@ -1072,13 +1075,12 @@ func _ready() -> void:
 	var window = get_window()
 	window.close_requested.connect(_on_close_requested)
 	
-	settings_button.pressed.connect(_on_settings_pressed)
-	save_button.pressed.connect(_on_save_pressed)
-	load_button.pressed.connect(_on_load_pressed)
 	hide_ui_button.pressed.connect(_on_hide_ui_pressed)
-	affection_button.pressed.connect(_on_affection_pressed)
+	camera_button.pressed.connect(_on_camera_pressed)
 	phone_button.pressed.connect(_on_phone_pressed)
-	activity_button.pressed.connect(_on_activity_pressed)
+	affection_button.pressed.connect(_on_affection_pressed)
+	rest_button.pressed.connect(_on_rest_pressed)
+	main_action_button.pressed.connect(_on_main_action_pressed)
 	desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
 	diary_button.pressed.connect(_on_diary_pressed)
 	pomodoro_button.pressed.connect(_on_pomodoro_pressed)
@@ -1090,12 +1092,8 @@ func _ready() -> void:
 	if GameDataManager.profile and GameDataManager.profile.current_outfit != "default":
 		call_deferred("_apply_saved_outfit")
 	
-	if has_node("UIPanel/MapButton"):
-		$UIPanel/MapButton.pressed.connect(_on_map_pressed)
-		
 	chat_button.pressed.connect(_on_main_chat_pressed)
 	gift_button.pressed.connect(_on_gift_pressed)
-	rest_button.pressed.connect(_on_rest_pressed)
 	interactive_button.pressed.connect(_on_interactive_pressed)
 	co_create_button.pressed.connect(_on_co_create_pressed)
 	if end_chat_btn:
@@ -1142,20 +1140,19 @@ func _ready() -> void:
 	# 或者我们在 inspector 中设置好的也会生效。这里保留以防有些按钮大小动态变化
 	# 注意：已经在 _animate_button 里加了 btn.pivot_offset = btn.size / 2.0
 	# 所以下面这些其实可以移除，但保留也没坏处
-	settings_button.pivot_offset = settings_button.size / 2
+	camera_button.pivot_offset = camera_button.size / 2
 	phone_button.pivot_offset = phone_button.size / 2
-	activity_button.pivot_offset = activity_button.size / 2
+	rest_button.pivot_offset = rest_button.size / 2
 	desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
 	hide_ui_button.pivot_offset = hide_ui_button.size / 2
-	save_button.pivot_offset = save_button.size / 2
-	load_button.pivot_offset = load_button.size / 2
 	affection_button.pivot_offset = affection_button.size / 2
-	if has_node("UIPanel/MapButton"):
-		map_button.pivot_offset = map_button.size / 2
+	if has_node("UIPanel/MainActionButton"):
+		main_action_button.pivot_offset = main_action_button.size / 2
 		
-	_add_neon_effect_to_button(activity_button)
-	if has_node("UIPanel/MapButton"):
-		_add_neon_effect_to_button(map_button)
+	# Setup neon effects
+	_add_neon_effect_to_button(rest_button)
+	if has_node("UIPanel/MainActionButton"):
+		_add_neon_effect_to_button(main_action_button)
 	
 	# 恢复整个主窗口的鼠标输入响应，清除可能因为之前透明测试遗留的 passthrough 多边形
 	if not is_queued_for_deletion():
@@ -1210,29 +1207,55 @@ func _ready() -> void:
 	if GameDataManager.story_time_manager:
 		GameDataManager.story_time_manager.time_advanced.connect(_on_story_time_advanced)
 
+func _process(delta: float) -> void:
+	pass
+
 func _update_button_states_by_time() -> void:
 	if not GameDataManager.story_time_manager: return
 	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
 	var weekday = date_dict.weekday
 	var current_hour = GameDataManager.story_time_manager.current_hour
 	
-	# 1. 休息到周六或周日：外出解禁，课程安排禁用，互动组显示
+	var interact_trigger_btn = null
+	if is_instance_valid(current_bg_scene):
+		interact_trigger_btn = current_bg_scene.get_node_or_null("InteractTriggerButton")
+	
+	# 1. 休息到周六或周日：外出解禁，课程安排禁用，显示互动触发按钮
 	if weekday == 0 or weekday == 6:
-		if map_button: map_button.disabled = false
-		if activity_button: activity_button.disabled = true
-		if interact_group: interact_group.visible = true
+		if main_action_button:
+			main_action_button.disabled = false
+			main_action_button.text = "外出"
+		if interact_group: interact_group.visible = false
+		if interact_trigger_btn:
+			interact_trigger_btn.visible = true
+			interact_trigger_btn.modulate.a = 1.0
+		if rest_button:
+			rest_button.show()
+			rest_button.disabled = false
 	else:
 		# 周一到周五
-		# 3. 到了周五晚上八点（20:00 及之后）：课程安排和外出都禁用，互动组显示
+		# 3. 到了周五晚上八点（20:00 及之后）：课程安排和外出都禁用，显示互动触发按钮
 		if weekday == 5 and current_hour >= 20:
-			if map_button: map_button.disabled = true
-			if activity_button: activity_button.disabled = true
-			if interact_group: interact_group.visible = true
-		else:
-			# 2. 周内（周一至周五20:00前）：外出禁用，互动组隐藏，只能进行课程安排
-			if map_button: map_button.disabled = true
-			if activity_button: activity_button.disabled = false
+			if main_action_button:
+				main_action_button.disabled = true
+				main_action_button.text = "行程安排"
 			if interact_group: interact_group.visible = false
+			if interact_trigger_btn:
+				interact_trigger_btn.visible = true
+				interact_trigger_btn.modulate.a = 1.0
+			if rest_button:
+				rest_button.show()
+				rest_button.disabled = false
+		else:
+			# 2. 周内（周一至周五 20:00前）：外出禁用，隐藏互动触发按钮和互动组，只能进行课程安排
+			if main_action_button:
+				main_action_button.disabled = false
+				main_action_button.text = "行程安排"
+			if interact_group: interact_group.visible = false
+			if interact_trigger_btn: interact_trigger_btn.visible = false
+			if rest_button:
+				rest_button.hide()
+				rest_button.disabled = true
 
 func _on_story_time_advanced(_days: int, _current_period: String) -> void:
 	_update_button_states_by_time()
@@ -1369,7 +1392,7 @@ func start_farewell() -> void:
 	deepseek_client.send_chat_message_stream(prompt, "main_chat")
 
 func _add_neon_effect_to_button(btn: Button) -> void:
-	if btn.name == "ActivityButton":
+	if btn.name == "RestButton":
 		var style = btn.get_theme_stylebox("normal").duplicate()
 		btn.add_theme_stylebox_override("normal", style)
 		btn.add_theme_stylebox_override("hover", style)
@@ -1379,7 +1402,7 @@ func _add_neon_effect_to_button(btn: Button) -> void:
 		style.shadow_color = Color(0, 0, 0, 0)
 		style.shadow_size = 0
 		btn.set_meta("neon_style", style)
-	elif btn.name == "MapButton":
+	elif btn.name == "MainActionButton":
 		var mat = btn.material.duplicate() as ShaderMaterial
 		var style = btn.get_theme_stylebox("normal")
 		var bg_color = Color(0.15, 0.16, 0.18, 0.7) # 默认的半透明灰色
@@ -1565,10 +1588,8 @@ func _on_desktop_pet_pressed() -> void:
 
 func _on_incoming_call_accepted(char_id: String, is_video: bool, is_fixed: bool = false) -> void:
 	# 接听电话：打开手机面板
-	if mobile_interface_instance == null:
+	if mobile_interface_instance == null or not mobile_interface_instance.visible:
 		_on_phone_pressed()
-	else:
-		mobile_interface_instance.show_phone()
 		
 	# 告诉手机面板直接跳转到通话界面
 	mobile_interface_instance.open_call_directly(char_id, is_video, is_fixed)
@@ -1578,30 +1599,67 @@ func _on_phone_pressed() -> void:
 	if mobile_interface_instance == null:
 		var MobileInterfaceObj = load("res://scenes/ui/mobile/mobile_interface.tscn")
 		mobile_interface_instance = MobileInterfaceObj.instantiate()
-		ui_panel.add_child(mobile_interface_instance)
+		add_child(mobile_interface_instance)
 		mobile_interface_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		mobile_interface_instance.app_opened.connect(_on_mobile_app_opened)
+		mobile_interface_instance.phone_closing.connect(_on_phone_closing)
 	
-	# 如果当前在故事剧情场景中触发手机，需要把它提到最前面防止被剧情场景遮挡
 	if is_instance_valid(chat_scene_instance) and chat_scene_instance.visible:
 		mobile_interface_instance.get_parent().remove_child(mobile_interface_instance)
 		add_child(mobile_interface_instance)
 		move_child(mobile_interface_instance, -1)
+	
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.set_parallel(true)
+	_ui_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.4)
+	_ui_tween.tween_property(bg_container, "position:x", -245.0, 0.4)
+	_ui_tween.chain().tween_callback(func(): ui_panel.visible = false)
+	
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(true)
 		
 	mobile_interface_instance.show_phone()
+
+func _on_phone_closing() -> void:
+	if _ui_tween:
+		_ui_tween.kill()
+	ui_panel.visible = true
+	_ui_tween = create_tween()
+	_ui_tween.set_parallel(true)
+	_ui_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.4)
+	_ui_tween.tween_property(bg_container, "position:x", 0.0, 0.4)
+	
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(false)
 
 func _on_mobile_app_opened(app_name: String) -> void:
 	pass # 目前 archive 由 mobile_interface 自己处理，如果有其他 app 可以加在这里
 
-func _on_activity_pressed() -> void:
-	_animate_button(activity_button)
-	if activity_panel_instance == null:
-		var ActivityPanelObj = load("res://scenes/ui/activity/activity_panel.tscn")
-		activity_panel_instance = ActivityPanelObj.instantiate()
-		add_child(activity_panel_instance)
-		# 确保它盖在最上面
-		activity_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	activity_panel_instance.show_panel()
+func _on_main_action_pressed() -> void:
+	_animate_button(main_action_button)
+	if main_action_button.text == "外出":
+		print("[MainScene] Map button pressed")
+		if GameDataManager.profile:
+			if GameDataManager.profile.neuroticism >= 80.0:
+				var ConfirmDialogObj = load("res://scenes/ui/common/confirm_dialog.tscn")
+				var confirm_dialog = ConfirmDialogObj.instantiate()
+				add_child(confirm_dialog)
+				confirm_dialog.setup("她现在的状态不太好，把自己锁在房间\n里不愿意出门...\n(需要通过聊天或互动安抚情绪)")
+				if confirm_dialog.cancel_button:
+					confirm_dialog.cancel_button.hide()
+				return
+		SceneTransitionManager.transition_to_scene("res://scenes/ui/map/core/world_map_scene.tscn")
+	else:
+		if activity_panel_instance == null:
+			var ActivityPanelObj = load("res://scenes/ui/activity/activity_panel.tscn")
+			activity_panel_instance = ActivityPanelObj.instantiate()
+			add_child(activity_panel_instance)
+			activity_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		activity_panel_instance.show_panel()
 
 func _load_bg_scene(path: String) -> void:
 	if current_bg_scene != null:
@@ -1619,6 +1677,25 @@ func _load_bg_scene(path: String) -> void:
 		if story_btn:
 			story_btn.pressed.connect(_on_galchat_pressed)
 			story_btn.pivot_offset = story_btn.size / 2
+			
+		var interact_trigger_btn = current_bg_scene.get_node_or_null("InteractTriggerButton")
+		if interact_trigger_btn:
+			interact_trigger_btn.pressed.connect(_on_interact_trigger_pressed)
+			interact_trigger_btn.pivot_offset = interact_trigger_btn.size / 2
+
+func _on_interact_trigger_pressed() -> void:
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_node("InteractTriggerButton"):
+		var btn = current_bg_scene.get_node("InteractTriggerButton")
+		_animate_button(btn)
+		var tween = create_tween()
+		tween.tween_property(btn, "modulate:a", 0.0, 0.2)
+		tween.tween_callback(func(): btn.visible = false)
+		
+	if interact_group:
+		interact_group.modulate.a = 0.0
+		interact_group.visible = true
+		var g_tween = create_tween()
+		g_tween.tween_property(interact_group, "modulate:a", 1.0, 0.3)
 
 func _on_galchat_pressed() -> void:
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_node("StoryButton"):
@@ -1750,32 +1827,41 @@ func _notification(what: int) -> void:
 		else:
 			get_tree().quit()
 
-func _on_settings_pressed() -> void:
-	_animate_button(settings_button)
-	if settings_panel_instance == null:
-		var SettingsPanelObj = load("res://scenes/ui/settings/settings_scene.tscn")
-		settings_panel_instance = SettingsPanelObj.instantiate()
-		add_child(settings_panel_instance)
-		settings_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	settings_panel_instance.show_panel()
+var camera_panel_instance = null
 
-func _on_save_pressed() -> void:
-	_animate_button(save_button)
-	if save_load_panel_instance == null:
-		var SaveLoadPanelObj = load("res://scenes/ui/save_load/save_load_panel.tscn")
-		save_load_panel_instance = SaveLoadPanelObj.instantiate()
-		add_child(save_load_panel_instance)
-		save_load_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	save_load_panel_instance.show_panel(true)
+func _on_camera_pressed() -> void:
+	_animate_button(camera_button)
+	if camera_panel_instance == null:
+		var CameraPanelObj = load("res://scenes/ui/mobile/camera_panel.tscn")
+		camera_panel_instance = CameraPanelObj.instantiate()
+		get_tree().get_root().add_child(camera_panel_instance)
+		camera_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		
+		get_tree().get_root().move_child(camera_panel_instance, -1)
+		
+	camera_panel_instance.show_panel()
+	
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
+	
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(true)
+		
+	if camera_panel_instance.has_signal("camera_closed") and not camera_panel_instance.camera_closed.is_connected(_on_camera_closed):
+		camera_panel_instance.camera_closed.connect(_on_camera_closed)
 
-func _on_load_pressed() -> void:
-	_animate_button(load_button)
-	if save_load_panel_instance == null:
-		var SaveLoadPanelObj = load("res://scenes/ui/save_load/save_load_panel.tscn")
-		save_load_panel_instance = SaveLoadPanelObj.instantiate()
-		add_child(save_load_panel_instance)
-		save_load_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	save_load_panel_instance.show_panel(false)
+func _on_camera_closed() -> void:
+	if _ui_tween:
+		_ui_tween.kill()
+	ui_panel.visible = true
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
+	
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(false)
 
 func _on_affection_pressed() -> void:
 	_animate_button(affection_button)
@@ -1855,29 +1941,7 @@ func _on_outfit_changed(new_id: String) -> void:
 								luna_ani.play("default")
 						break
 
-func _on_map_pressed() -> void:
-	_animate_button(map_button)
-	print("[MainScene] Map button pressed")
-	
-	# 性格极值拦截检查
-	if GameDataManager.profile:
-		# 比如：如果神经质过高（>=80），并且没有进行特定的安抚，就不愿意出门
-		if GameDataManager.profile.neuroticism >= 80.0:
-			var ConfirmDialogObj = load("res://scenes/ui/common/confirm_dialog.tscn")
-			var confirm_dialog = ConfirmDialogObj.instantiate()
-			add_child(confirm_dialog)
-			
-			# 使用只含确定按钮的确认框
-			confirm_dialog.setup("她现在的状态不太好，把自己锁在房间里不愿出门...\n(需要通过聊天或互动安抚情绪)")
-			
-			# 隐藏取消按钮，让它变成纯提示框
-			if confirm_dialog.cancel_button:
-				confirm_dialog.cancel_button.hide()
-				
-			return
-	
-	# 播放黑屏过渡
-	SceneTransitionManager.transition_to_scene("res://scenes/ui/map/core/world_map_scene.tscn")
+
 
 func _on_location_selected(location_id: String):
 	print("[MainScene] Transitioning to location: ", location_id)
@@ -1936,7 +2000,26 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		# 如果手机界面存在且正在显示相机，不要显示UI
-		if mobile_interface_instance and mobile_interface_instance.camera_panel_instance and mobile_interface_instance.camera_panel_instance.visible:
+		if camera_panel_instance and camera_panel_instance.visible:
+			return
+			
+		# 如果手机界面正在显示，不要因为点击而恢复UI
+		if mobile_interface_instance and mobile_interface_instance.visible:
+			return
+			
+		# 检查是否需要收起互动组
+		if interact_group and interact_group.visible and interact_group.modulate.a > 0.99:
+			var tween = create_tween()
+			tween.tween_property(interact_group, "modulate:a", 0.0, 0.2)
+			tween.tween_callback(func(): interact_group.visible = false)
+			
+			if is_instance_valid(current_bg_scene) and current_bg_scene.has_node("InteractTriggerButton"):
+				var btn = current_bg_scene.get_node("InteractTriggerButton")
+				btn.visible = true
+				var b_tween = create_tween()
+				b_tween.tween_property(btn, "modulate:a", 1.0, 0.3)
+			
+			get_viewport().set_input_as_handled()
 			return
 			
 		if not ui_panel.visible or ui_panel.modulate.a < 0.99:

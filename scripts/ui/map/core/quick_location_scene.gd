@@ -15,7 +15,10 @@ const QuickOptionListHelper = preload("res://scripts/ui/story/quick_option_list_
 @onready var menu_stage_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox/StageLabel
 @onready var menu_hearts_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/HeartsLabel
 
-@onready var character_layer = $InteractionMenu/CharacterLayer
+@onready var npc_portrait = $InteractionMenu/NPCPortrait
+@onready var npc_anim_sprite = $InteractionMenu/NPCPortrait/AnimatedSprite
+@onready var npc_static_sprite = $InteractionMenu/NPCPortrait/StaticSprite
+
 @onready var menu_options_vbox = $InteractionMenu/InfoAndOptions/OptionsVBox
 
 @onready var topic_panel: Panel = $TopicPanel
@@ -26,10 +29,14 @@ const QuickOptionListHelper = preload("res://scripts/ui/story/quick_option_list_
 var location_id: String = ""
 
 var current_interacting_npc_id: String = ""
+var original_char_x: float = 9.0
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 	
+	if npc_portrait:
+		original_char_x = npc_portrait.position.x
+		
 	# 隐藏选项菜单和角色
 	interaction_menu.hide()
 	
@@ -167,24 +174,61 @@ func _on_npc_clicked(npc_id: String):
 		menu_hearts_label.text = hearts_str
 	
 	# 重置显示状态
-	if character_layer:
-		character_layer.hide_character("none")
+	if npc_anim_sprite:
+		npc_anim_sprite.hide()
+		npc_anim_sprite.stop()
+	if npc_static_sprite:
+		npc_static_sprite.hide()
 		
 	var loaded_sprite = false
-	if not sprite_frames_path.is_empty() and ResourceLoader.exists(sprite_frames_path) and character_layer:
-		character_layer.load_sprite_frames_by_path(sprite_frames_path)
-		character_layer.show_character("none")
-		loaded_sprite = true
+	if not sprite_frames_path.is_empty() and ResourceLoader.exists(sprite_frames_path) and npc_anim_sprite:
+		var frames_res = load(sprite_frames_path)
+		if frames_res is SpriteFrames:
+			npc_anim_sprite.sprite_frames = frames_res
 			
-	if not loaded_sprite:
-		# Fallback: 如果没有立绘动画帧，尝试显示静态立绘或者默认配置
-		if character_layer:
-			if not static_portrait_path.is_empty() and ResourceLoader.exists(static_portrait_path):
-				# 如果有静态立绘，我们这里可能需要通过某种方式让 character_layer 加载静态图
-				# 考虑到 character_layer 是用于 sprite_frames 的，如果没有对应方法，就走空路径逻辑
-				pass
-			character_layer.load_sprite_frames_by_path("") # 传入空路径以触发 fallback 逻辑
-			character_layer.show_character("none")
+			# 找一个默认动画
+			var anim_name = ""
+			for candidate in ["default", "idle", "calm"]:
+				if frames_res.has_animation(candidate):
+					anim_name = candidate
+					break
+			if anim_name == "" and frames_res.get_animation_names().size() > 0:
+				anim_name = frames_res.get_animation_names()[0]
+				
+			if anim_name != "":
+				npc_anim_sprite.play(StringName(anim_name))
+			
+			# 设置专属的大立绘尺寸
+			var custom_scale = 0.8
+			npc_anim_sprite.scale = Vector2(custom_scale, custom_scale)
+			
+			var h = 800.0
+			if anim_name != "":
+				var tex = frames_res.get_frame_texture(anim_name, 0)
+				if tex:
+					h = tex.get_size().y
+					
+			# 动态计算高度偏移，使立绘底部对齐屏幕底部 (因为 NPCPortrait 的 y=720)
+			npc_anim_sprite.position = Vector2(0, -h / 2.0 * custom_scale) 
+			npc_anim_sprite.show()
+			loaded_sprite = true
+			
+	if not loaded_sprite and npc_static_sprite:
+		if not static_portrait_path.is_empty() and ResourceLoader.exists(static_portrait_path):
+			var tex = load(static_portrait_path)
+			if tex is Texture2D:
+				npc_static_sprite.texture = tex
+				
+				# 针对静态图的尺寸适配，保证它能占满大半个屏幕高度
+				var tex_size = tex.get_size()
+				var target_height = 700.0
+				if tex_size.y > 0:
+					var target_scale = target_height / tex_size.y
+					npc_static_sprite.scale = Vector2(target_scale, target_scale)
+					
+				# 底部对齐
+				npc_static_sprite.position = Vector2(0, -target_height / 2.0)
+				npc_static_sprite.show()
 
 	# Clear existing buttons
 	for child in menu_options_vbox.get_children():
@@ -264,10 +308,10 @@ func _on_npc_clicked(npc_id: String):
 	info_and_options.position.x += 150
 	tween.tween_property(info_and_options, "position:x", original_x, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
-	if character_layer:
-		var orig_char_y = character_layer.position.y
-		character_layer.position.y += 30
-		tween.tween_property(character_layer, "position:y", orig_char_y, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if npc_portrait:
+		var orig_char_y = npc_portrait.position.y
+		npc_portrait.position.y += 30
+		tween.tween_property(npc_portrait, "position:y", orig_char_y, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _get_npc_stage_data(npc_id: String) -> Dictionary:
 	# 暂时返回第一阶段作为默认值。实际应用中需要从全局 NPC 好感度管理器中读取当前进度。
@@ -282,6 +326,48 @@ func _get_npc_stage_data(npc_id: String) -> Dictionary:
 				return data["stages"][0]
 	return {"stageTitle": "普通朋友", "heartCount": 0}
 
+func _open_sub_menu(scene_path: String) -> void:
+	info_and_options.hide() # 仅隐藏右侧选项，保留角色和姓名
+	
+	if npc_portrait:
+		var tween = create_tween()
+		# 将平移量从 750 减小到 400，防止立绘飞出屏幕
+		tween.tween_property(npc_portrait, "position:x", original_char_x + 400.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		
+	var menu_scene = load(scene_path)
+	if menu_scene:
+		var menu = menu_scene.instantiate()
+		if menu.has_signal("tree_exited"):
+			menu.tree_exited.connect(func():
+				if not is_inside_tree():
+					return
+				await get_tree().process_frame
+				if not is_inside_tree():
+					return
+					
+				var making_node = null
+				for child in get_tree().root.get_children():
+					if child.name.begins_with("CafeMakingPopup"):
+						making_node = child
+						break
+						
+				if making_node:
+					making_node.tree_exited.connect(func():
+						if not is_inside_tree(): return
+						if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
+							info_and_options.show()
+							if npc_portrait:
+								var t = create_tween()
+								t.tween_property(npc_portrait, "position:x", original_char_x, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+					)
+				elif dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "": 
+					info_and_options.show()
+					if npc_portrait:
+						var t = create_tween()
+						t.tween_property(npc_portrait, "position:x", original_char_x, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			)
+		get_tree().root.add_child(menu)
+
 func _on_menu_action_pressed(action_id: String):
 	match action_id:
 		"chat":
@@ -291,69 +377,16 @@ func _on_menu_action_pressed(action_id: String):
 		"order":
 			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 点单/服务")
 			if current_interacting_npc_id == "ya":
-				info_and_options.hide() # 仅隐藏右侧选项，保留角色和姓名
-				var order_menu_scene = load("res://scenes/ui/map/cafe/cafe_order_menu.tscn")
-				if order_menu_scene:
-					var order_menu = order_menu_scene.instantiate()
-					# 监听点单菜单的退出信号
-					if order_menu.has_signal("tree_exited"):
-						order_menu.tree_exited.connect(func(): 
-							if not is_inside_tree():
-								return
-							await get_tree().process_frame
-							if not is_inside_tree():
-								return
-							
-							# 1. 对话面板没有在显示
-							# 2. 还在跟 NPC 互动
-							# 3. 当前场景树中不存在 CafeMakingPopup (制作弹窗)
-							var is_making = false
-							for child in get_tree().root.get_children():
-								if child.name.begins_with("CafeMakingPopup"):
-									is_making = true
-									break
-									
-							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "" and not is_making: 
-								info_and_options.show()
-						)
-					get_tree().root.add_child(order_menu)
+				_open_sub_menu("res://scenes/ui/map/cafe/cafe_order_menu.tscn")
 			else:
 				# TODO: 其他 NPC 的互动
 				pass
 		"study":
 			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习/指导")
 			if current_interacting_npc_id == "jing":
-				info_and_options.hide() # 仅隐藏右侧选项
-				var study_menu_scene = load("res://scenes/ui/map/concert_hall/music_study_menu.tscn")
-				if study_menu_scene:
-					var study_menu = study_menu_scene.instantiate()
-					if study_menu.has_signal("tree_exited"):
-						study_menu.tree_exited.connect(func():
-							if not is_inside_tree():
-								return
-							await get_tree().process_frame
-							if not is_inside_tree():
-								return
-							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
-								info_and_options.show()
-						)
-					get_tree().root.add_child(study_menu)
+				_open_sub_menu("res://scenes/ui/map/concert_hall/music_study_menu.tscn")
 			elif current_interacting_npc_id == "shuo":
-				info_and_options.hide() # 仅隐藏右侧选项
-				var tutoring_menu_scene = load("res://scenes/ui/map/library/tutoring_menu.tscn")
-				if tutoring_menu_scene:
-					var tutoring_menu = tutoring_menu_scene.instantiate()
-					if tutoring_menu.has_signal("tree_exited"):
-						tutoring_menu.tree_exited.connect(func():
-							if not is_inside_tree():
-								return
-							await get_tree().process_frame
-							if not is_inside_tree():
-								return
-							if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
-								info_and_options.show()
-						)
-					get_tree().root.add_child(tutoring_menu)
+				_open_sub_menu("res://scenes/ui/map/library/tutoring_menu.tscn")
 		"gift":
 			print("快捷模式 - 给 NPC: ", current_interacting_npc_id, " 送礼")
 			interaction_menu.hide() # 隐藏互动选项
@@ -366,17 +399,17 @@ func _on_menu_action_pressed(action_id: String):
 			var original_x = info_and_options.position.x
 			tween.tween_property(info_and_options, "position:x", original_x + 150, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			
-			if character_layer:
-				var orig_char_y = character_layer.position.y
-				tween.tween_property(character_layer, "position:y", orig_char_y + 30, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			if npc_portrait:
+				var orig_char_y = npc_portrait.position.y
+				tween.tween_property(npc_portrait, "position:y", orig_char_y + 30, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			
 			tween.chain().tween_callback(func():
 				current_interacting_npc_id = ""
 				interaction_menu.hide()
 				# Restore positions for next time
 				info_and_options.position.x = original_x
-				if character_layer:
-					character_layer.position.y -= 30
+				if npc_portrait:
+					npc_portrait.position.y -= 30
 				
 				npc_container.show()
 				back_button.show() # 显示返回地图按钮

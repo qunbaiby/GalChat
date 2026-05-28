@@ -21,6 +21,9 @@ func _ready():
 	if item_data.is_empty():
 		return
 		
+	$Panel.modulate.a = 0.0
+	create_tween().tween_property($Panel, "modulate:a", 1.0, 0.3)
+	
 	add_child(deepseek_client)
 	deepseek_client.npc_event_dialogue_completed.connect(_on_ai_success)
 	deepseek_client.npc_event_dialogue_failed.connect(_on_ai_failed)
@@ -114,52 +117,58 @@ func _on_consume_button_pressed():
 	if toast_msg != "" and ToastManager:
 		ToastManager.show_system_toast("享用完毕！\n" + toast_msg)
 
-	# 关闭当前弹窗并从树中移除
-	hide()
-	
-	# 优先查找当前场景（通常就是快捷地图场景）
-	var target_scene = null
-	var children = get_tree().root.get_children()
-	for i in range(children.size() - 1, -1, -1):
-		var child = children[i]
-		if child.name.begins_with("QuickLocationScene"):
-			target_scene = child
-			break
-	if not target_scene:
-		target_scene = get_tree().current_scene
-			
-	var existing_panel = null
-	if target_scene and target_scene.has_node("DialoguePanel"):
-		existing_panel = target_scene.get_node("DialoguePanel")
-	
-	if existing_panel:
-		existing_panel.modulate = Color(1, 1, 1, 1) # 强制重置透明度
-		existing_panel.self_modulate = Color(1, 1, 1, 1)
-		existing_panel.show() # 确保它变为可见状态！
+	# 隐藏弹窗
+	var tween = create_tween()
+	tween.tween_property($Panel, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(func():
+		hide()
 		
-		# 将对话面板移到节点树末尾（最顶层渲染），防止被背景或菜单遮挡
-		if existing_panel.get_parent():
-			existing_panel.get_parent().move_child(existing_panel, -1)
+		# 优先查找当前场景（通常就是快捷地图场景）
+		var target_scene = null
+		var children = get_tree().root.get_children()
+		for i in range(children.size() - 1, -1, -1):
+			var child = children[i]
+			if child.name.begins_with("QuickLocationScene"):
+				target_scene = child
+				break
+		if not target_scene:
+			target_scene = get_tree().current_scene
+				
+		var existing_panel = null
+		if target_scene and target_scene.has_node("DialoguePanel"):
+			existing_panel = target_scene.get_node("DialoguePanel")
+		
+		if existing_panel:
+			existing_panel.modulate = Color(1, 1, 1, 1) # 强制重置透明度
+			existing_panel.self_modulate = Color(1, 1, 1, 1)
+			existing_panel.show() # 确保它变为可见状态！
 			
-		existing_panel.play_single_line("ya", "雅", ai_response_text, true)
-	else:
-		# 兜底逻辑
-		var dialogue_scene = load("res://scenes/ui/common/dialogue_panel.tscn")
-		if dialogue_scene:
-			var canvas_layer = CanvasLayer.new()
-			canvas_layer.layer = 100 # 确保在最前面
-			get_tree().root.add_child(canvas_layer)
-			
-			var dialogue_panel = dialogue_scene.instantiate()
-			canvas_layer.add_child(dialogue_panel)
-			
-			dialogue_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			dialogue_panel.show()
-			
-			dialogue_panel.dialogue_finished.connect(func(): canvas_layer.queue_free())
-			dialogue_panel.play_single_line("ya", "雅", ai_response_text, true)
-	
-	queue_free()
+			# 将对话面板移到节点树末尾（最顶层渲染），防止被背景或菜单遮挡
+			if existing_panel.get_parent():
+				existing_panel.get_parent().move_child(existing_panel, -1)
+				
+			existing_panel.play_single_line("ya", "雅", ai_response_text, true)
+		else:
+			# 兜底逻辑
+			var dialogue_scene = load("res://scenes/ui/common/dialogue_panel.tscn")
+			if dialogue_scene:
+				var canvas_layer = CanvasLayer.new()
+				canvas_layer.layer = 100 # 确保在最前面
+				get_tree().root.add_child(canvas_layer)
+				
+				var dialogue_panel = dialogue_scene.instantiate()
+				canvas_layer.add_child(dialogue_panel)
+				
+				dialogue_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				dialogue_panel.show()
+				
+				dialogue_panel.dialogue_finished.connect(func(): canvas_layer.queue_free())
+				dialogue_panel.play_single_line("ya", "雅", ai_response_text, true)
+		
+		queue_free()
+	)
 
 func _on_close_button_pressed():
-	queue_free()
+	var tween = create_tween()
+	tween.tween_property($Panel, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(queue_free)

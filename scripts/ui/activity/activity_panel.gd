@@ -42,7 +42,7 @@ extends Control
 @onready var track_control: Control = $LoadingOverlay/LoadingPanel/TrackControl
 
 var scheduled_activities: Array = []
-const MAX_SLOTS = 10
+const MAX_SLOTS = 5
 var current_category_id: String = ""
 
 var _pending_progress_tween: Tween
@@ -51,19 +51,11 @@ var _pending_exec_data: Dictionary = {}
 
 var stat_name_map = {
 	"stat_stamina": "体能",
-	"stat_body": "形体",
-	"stat_focus": "专注",
 	"stat_rhythm": "反应",
 	"stat_knowledge": "学识",
 	"stat_expression": "表达",
-	"stat_planning": "企划",
-	"stat_art_theory": "艺理",
 	"stat_temperament": "气质",
-	"stat_manner": "举止",
 	"stat_etiquette": "礼仪",
-	"stat_stage": "舞台",
-	"stat_empathy": "共情",
-	"stat_inspiration": "灵感",
 	"stat_aesthetics": "审美",
 	"stat_perception": "感知"
 }
@@ -76,19 +68,11 @@ var _style_bubble_neg: StyleBox
 func _ready() -> void:
 	category_group_map = {
 		"stat_stamina": phys_sub,
-		"stat_body": phys_sub,
-		"stat_focus": phys_sub,
 		"stat_rhythm": phys_sub,
 		"stat_knowledge": int_sub,
 		"stat_expression": int_sub,
-		"stat_planning": int_sub,
-		"stat_art_theory": int_sub,
 		"stat_temperament": charm_sub,
-		"stat_manner": charm_sub,
 		"stat_etiquette": charm_sub,
-		"stat_stage": charm_sub,
-		"stat_empathy": sens_sub,
-		"stat_inspiration": sens_sub,
 		"stat_aesthetics": sens_sub,
 		"stat_perception": sens_sub
 	}
@@ -106,21 +90,14 @@ func _ready() -> void:
 
 func _get_all_slot_buttons() -> Array:
 	var morning_row = schedule_slots.get_node("MorningRow")
-	var afternoon_row = schedule_slots.get_node("AfternoonRow")
 	
 	var buttons = []
-	buttons.resize(10)
+	buttons.resize(5)
 	buttons[0] = morning_row.get_node("Slot1")
+	buttons[1] = morning_row.get_node("Slot2")
 	buttons[2] = morning_row.get_node("Slot3")
+	buttons[3] = morning_row.get_node("Slot4")
 	buttons[4] = morning_row.get_node("Slot5")
-	buttons[6] = morning_row.get_node("Slot7")
-	buttons[8] = morning_row.get_node("Slot9")
-	
-	buttons[1] = afternoon_row.get_node("Slot2")
-	buttons[3] = afternoon_row.get_node("Slot4")
-	buttons[5] = afternoon_row.get_node("Slot6")
-	buttons[7] = afternoon_row.get_node("Slot8")
-	buttons[9] = afternoon_row.get_node("Slot10")
 	
 	return buttons
 
@@ -143,25 +120,18 @@ func _init_schedule_slots() -> void:
 	
 	var current_day_offset = GameDataManager.story_time_manager.current_day_offset
 	
-	for i in range(5):
+	for i in range(MAX_SLOTS):
 		var day_offset = current_day_offset + i
 		var config = GameDataManager.story_time_manager.get_day_config(day_offset)
 		
-		# 检查上午事件
-		var morning_events = config.get("morning_events", [])
-		if morning_events.size() > 0:
-			scheduled_activities[i * 2] = {"type": "event", "events": morning_events, "period": "上午"}
-		elif config.get("events", []).size() > 0:
-			# 向下兼容，如果没有区分上下午，默认占用全天
-			scheduled_activities[i * 2] = {"type": "event", "events": config.get("events", []), "period": "上午"}
+		var daily_events = config.get("events", [])
+		if config.has("morning_events"):
+			daily_events.append_array(config.get("morning_events", []))
+		if config.has("afternoon_events"):
+			daily_events.append_array(config.get("afternoon_events", []))
 			
-		# 检查下午事件
-		var afternoon_events = config.get("afternoon_events", [])
-		if afternoon_events.size() > 0:
-			scheduled_activities[i * 2 + 1] = {"type": "event", "events": afternoon_events, "period": "下午"}
-		elif config.get("events", []).size() > 0:
-			# 向下兼容，如果没有区分上下午，默认占用全天
-			scheduled_activities[i * 2 + 1] = {"type": "event", "events": config.get("events", []), "period": "下午"}
+		if daily_events.size() > 0:
+			scheduled_activities[i] = {"type": "event", "events": daily_events, "period": "全天"}
 
 func _init_category_tabs() -> void:
 	var categories = GameDataManager.activity_manager.get_categories()
@@ -412,10 +382,10 @@ func _update_right_panel(profile) -> void:
 	var start_core_charm = GameDataManager.stats_system.get_core_charm(profile)
 	var start_core_sens = GameDataManager.stats_system.get_core_sensibility(profile)
 	
-	var end_core_phys = int(floor((profile.stat_stamina + total_rewards.get("stat_stamina", 0)) + (profile.stat_body + total_rewards.get("stat_body", 0)) + (profile.stat_focus + total_rewards.get("stat_focus", 0)) + (profile.stat_rhythm + total_rewards.get("stat_rhythm", 0))))
-	var end_core_int = int(floor((profile.stat_knowledge + total_rewards.get("stat_knowledge", 0)) + (profile.stat_expression + total_rewards.get("stat_expression", 0)) + (profile.stat_planning + total_rewards.get("stat_planning", 0)) + (profile.stat_art_theory + total_rewards.get("stat_art_theory", 0))))
-	var end_core_charm = int(floor((profile.stat_temperament + total_rewards.get("stat_temperament", 0)) + (profile.stat_manner + total_rewards.get("stat_manner", 0)) + (profile.stat_etiquette + total_rewards.get("stat_etiquette", 0)) + (profile.stat_stage + total_rewards.get("stat_stage", 0))))
-	var end_core_sens = int(floor((profile.stat_empathy + total_rewards.get("stat_empathy", 0)) + (profile.stat_inspiration + total_rewards.get("stat_inspiration", 0)) + (profile.stat_aesthetics + total_rewards.get("stat_aesthetics", 0)) + (profile.stat_perception + total_rewards.get("stat_perception", 0))))
+	var end_core_phys = int(floor((profile.stat_stamina + total_rewards.get("stat_stamina", 0)) + (profile.stat_rhythm + total_rewards.get("stat_rhythm", 0))))
+	var end_core_int = int(floor((profile.stat_knowledge + total_rewards.get("stat_knowledge", 0)) + (profile.stat_expression + total_rewards.get("stat_expression", 0))))
+	var end_core_charm = int(floor((profile.stat_temperament + total_rewards.get("stat_temperament", 0)) + (profile.stat_etiquette + total_rewards.get("stat_etiquette", 0))))
+	var end_core_sens = int(floor((profile.stat_aesthetics + total_rewards.get("stat_aesthetics", 0)) + (profile.stat_perception + total_rewards.get("stat_perception", 0))))
 	
 	phys_val.text = "%d > %d" % [start_core_phys, end_core_phys]
 	if end_core_phys > start_core_phys:
@@ -443,19 +413,11 @@ func _update_right_panel(profile) -> void:
 
 	var start_attrs = {
 		"stat_stamina": profile.stat_stamina,
-		"stat_body": profile.stat_body,
-		"stat_focus": profile.stat_focus,
 		"stat_rhythm": profile.stat_rhythm,
 		"stat_knowledge": profile.stat_knowledge,
 		"stat_expression": profile.stat_expression,
-		"stat_planning": profile.stat_planning,
-		"stat_art_theory": profile.stat_art_theory,
 		"stat_temperament": profile.stat_temperament,
-		"stat_manner": profile.stat_manner,
 		"stat_etiquette": profile.stat_etiquette,
-		"stat_stage": profile.stat_stage,
-		"stat_empathy": profile.stat_empathy,
-		"stat_inspiration": profile.stat_inspiration,
 		"stat_aesthetics": profile.stat_aesthetics,
 		"stat_perception": profile.stat_perception
 	}
@@ -612,19 +574,11 @@ func _on_execute_pressed() -> void:
 	var profile_for_exec = GameDataManager.profile
 	var start_attrs = {
 		"体能": profile_for_exec.stat_stamina,
-		"形体": profile_for_exec.stat_body,
-		"专注": profile_for_exec.stat_focus,
 		"反应": profile_for_exec.stat_rhythm,
 		"学识": profile_for_exec.stat_knowledge,
 		"表达": profile_for_exec.stat_expression,
-		"企划": profile_for_exec.stat_planning,
-		"艺理": profile_for_exec.stat_art_theory,
 		"气质": profile_for_exec.stat_temperament,
-		"举止": profile_for_exec.stat_manner,
 		"礼仪": profile_for_exec.stat_etiquette,
-		"舞台": profile_for_exec.stat_stage,
-		"共情": profile_for_exec.stat_empathy,
-		"灵感": profile_for_exec.stat_inspiration,
 		"审美": profile_for_exec.stat_aesthetics,
 		"感知": profile_for_exec.stat_perception,
 		"金币": profile_for_exec.gold,
@@ -706,8 +660,8 @@ func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	var profile = GameDataManager.profile
 	var char_name = profile.char_name if profile else "角色"
 		
-	var prompt = "这里有一份本周的学习计划，共 10 节课（包含休息）。请你作为旁白（第三人称视角），针对这 10 节课依次生成一段 20 到 50 字以内、生动形象的文字，描述 %s 正在进行该课程时的画面和状态。注意必须严格按顺序，用一个 JSON 数组返回。格式要求如下：\n" % char_name
-	prompt += "```json\n[\n  \"(针对第1节课的描述)\",\n  \"(针对第2节课的描述)\",\n  ... (共10个元素)\n]\n```\n"
+	var prompt = "这里有一份本周的学习计划，共 %d 节课（包含休息）。请你作为旁白（第三人称视角），针对这 %d 节课依次生成一段 20 到 50 字以内、生动形象的文字，描述 %s 正在进行该课程时的画面和状态。注意必须严格按顺序，用一个 JSON 数组返回。格式要求如下：\n" % [MAX_SLOTS, MAX_SLOTS, char_name]
+	prompt += "```json\n[\n  \"(针对第1节课的描述)\",\n  \"(针对第2节课的描述)\",\n  ... (共%d个元素)\n]\n```\n" % MAX_SLOTS
 	prompt += "以下是这周的课程列表：\n" + course_list_str
 	
 	var body = {

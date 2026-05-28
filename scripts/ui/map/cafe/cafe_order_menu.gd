@@ -21,6 +21,9 @@ func _ready():
 	detail_vbox.hide()
 	empty_label.show()
 	
+	$MainPanel.modulate.a = 0.0
+	create_tween().tween_property($MainPanel, "modulate:a", 1.0, 0.3)
+	
 	close_button.pressed.connect(_on_close_button_pressed)
 	buy_button.pressed.connect(_on_buy_pressed)
 	
@@ -263,7 +266,11 @@ func _on_buy_pressed():
 		popup.setup(_selected_item)
 		get_tree().root.add_child(popup)
 		
-	queue_free()
+	var tween = create_tween()
+	tween.tween_property($MainPanel, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(queue_free)
 
 func _on_close_button_pressed():
-	queue_free()
+	var tween = create_tween()
+	tween.tween_property($MainPanel, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(queue_free)

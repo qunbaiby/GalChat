@@ -1,11 +1,11 @@
 class_name StoryPortraitActor
 extends Node2D
 
-const DEFAULT_ANIM_SCALE := Vector2(0.5045883, 0.50458837)
-const DEFAULT_STATIC_LIMIT := Vector2(360.0, 760.0)
-const AVATAR_STATIC_LIMIT := Vector2(280.0, 520.0)
-const ACTIVE_SCALE_MULTIPLIER := 1.06
-const INACTIVE_SCALE_MULTIPLIER := 0.9
+const DEFAULT_ANIM_SCALE := Vector2(0.8, 0.8)
+const DEFAULT_STATIC_LIMIT := Vector2(500.0, 750.0)
+const AVATAR_STATIC_LIMIT := Vector2(350.0, 650.0)
+const ACTIVE_SCALE_MULTIPLIER := 1.05
+const INACTIVE_SCALE_MULTIPLIER := 0.95
 const ACTIVE_MODULATE := Color(1, 1, 1, 1)
 const INACTIVE_MODULATE := Color(0.42, 0.42, 0.48, 1)
 const FOCUS_OFFSET_Y := -18.0
@@ -57,6 +57,13 @@ func configure_from_data(data: Dictionary, mood: String = "") -> bool:
 				float(data.get("base_anim_scale_x", DEFAULT_ANIM_SCALE.x)),
 				float(data.get("base_anim_scale_y", DEFAULT_ANIM_SCALE.y))
 			)
+			
+			var h = 800.0
+			var tex = frames_res.get_frame_texture(anim_name if anim_name != "" else str(frames_res.get_animation_names()[0]), 0)
+			if tex:
+				h = tex.get_size().y
+			character_ani.position = Vector2(0, -h / 2.0 * character_ani.scale.y)
+			
 			character_ani.show()
 			static_sprite.hide()
 			is_loaded = true
@@ -67,6 +74,10 @@ func configure_from_data(data: Dictionary, mood: String = "") -> bool:
 		var tex = load(static_path)
 		if tex is Texture2D:
 			_show_static_texture(tex, bool(data.get("is_avatar_fallback", false)))
+			
+			# 如果是从精灵帧降级到静态图，我们需要重置一下动画缩放比例，让它和静态图对齐
+			scale = Vector2.ONE
+			
 			is_loaded = true
 			return true
 
@@ -183,6 +194,12 @@ func _show_static_texture(texture: Texture2D, treat_as_avatar: bool) -> void:
 	static_sprite.texture = texture
 	static_sprite.centered = true
 	static_sprite.scale = _fit_texture_scale(texture, treat_as_avatar)
+	
+	# 动态计算高度偏移，使立绘底部对齐屏幕底部
+	var tex_size = texture.get_size()
+	if tex_size.y > 0:
+		static_sprite.position = Vector2(0, -tex_size.y / 2.0 * static_sprite.scale.y)
+	
 	static_sprite.show()
 	character_ani.stop()
 	character_ani.hide()

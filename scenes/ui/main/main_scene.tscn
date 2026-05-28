@@ -142,13 +142,6 @@ grow_vertical = 0
 layout_mode = 2
 alignment = 1
 
-[node name="PhoneButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
-custom_minimum_size = Vector2(45, 45)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 28
-text = "📱"
-
 [node name="DesktopPetButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
@@ -163,7 +156,7 @@ size_flags_vertical = 4
 theme_override_font_sizes/font_size = 28
 text = "📖"
 
-[node name="MapButton" type="Button" parent="UIPanel"]
+[node name="MainActionButton" type="Button" parent="UIPanel"]
 material = SubResource("ShaderMaterial_trapezoid_map")
 layout_mode = 1
 anchors_preset = 3
@@ -181,7 +174,8 @@ pivot_offset = Vector2(101.5, 43.5)
 theme_override_styles/normal = SubResource("StyleBoxFlat_6p2kk")
 text = "外出"
 
-[node name="ActivityButton" type="Button" parent="UIPanel"]
+[node name="RestButton" type="Button" parent="UIPanel"]
+visible = false
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -199,7 +193,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fvueq")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fmm1x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_rntma")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_ActivityDisabled")
-text = "行程安排"
+text = "休息"
 
 [node name="PomodoroButton" type="Button" parent="UIPanel"]
 custom_minimum_size = Vector2(45, 45)
@@ -288,20 +282,17 @@ icon = ExtResource("7_eye")
 icon_alignment = 1
 expand_icon = true
 
-[node name="SaveButton" type="Button" parent="UIPanel/SystemButton"]
+[node name="CameraButton" type="Button" parent="UIPanel/SystemButton"]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
-text = "存"
+text = "📷"
+icon_alignment = 1
+expand_icon = true
 
-[node name="LoadButton" type="Button" parent="UIPanel/SystemButton"]
+[node name="PhoneButton" type="Button" parent="UIPanel/SystemButton"]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
-text = "读"
-
-[node name="SettingsButton" type="Button" parent="UIPanel/SystemButton"]
-custom_minimum_size = Vector2(35, 35)
-layout_mode = 2
-icon = ExtResource("8_gear")
+text = "📱"
 icon_alignment = 1
 expand_icon = true
 
@@ -326,6 +317,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="InteractGroup" type="VBoxContainer" parent="UIPanel"]
+visible = false
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -360,12 +352,6 @@ custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "互动"
-
-[node name="RestButton" type="Button" parent="UIPanel/InteractGroup"]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "休息"
 
 [node name="InteractiveSubMenu" type="PanelContainer" parent="UIPanel"]
 visible = false

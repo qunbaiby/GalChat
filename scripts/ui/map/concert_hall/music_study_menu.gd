@@ -6,19 +6,19 @@ var options = [
 	{
 		"id": "vocal",
 		"name": "声乐补习",
-		"stats": {"stat_expression": 2.0, "stat_stage": 3.0},
+		"stats": {"stat_expression": 2.0, "stat_temperament": 3.0},
 		"node_path": "MenuPanel/OptionsHBox/VocalBtn"
 	},
 	{
 		"id": "instrumental",
 		"name": "器乐补习",
-		"stats": {"stat_focus": 3.0, "stat_rhythm": 2.0},
+		"stats": {"stat_perception": 3.0, "stat_rhythm": 2.0},
 		"node_path": "MenuPanel/OptionsHBox/InstrumentalBtn"
 	},
 	{
 		"id": "theory",
 		"name": "乐理补习",
-		"stats": {"stat_knowledge": 3.0, "stat_art_theory": 2.0},
+		"stats": {"stat_knowledge": 3.0, "stat_aesthetics": 2.0},
 		"node_path": "MenuPanel/OptionsHBox/TheoryBtn"
 	}
 ]
@@ -40,6 +40,9 @@ var _current_opt_name = ""
 @onready var finish_btn = $StudyPopup/FinishBtn
 
 func _ready():
+	$MenuPanel.modulate.a = 0.0
+	create_tween().tween_property($MenuPanel, "modulate:a", 1.0, 0.3)
+	
 	close_btn.pressed.connect(_on_close_pressed)
 	start_btn.pressed.connect(_on_start_pressed)
 	finish_btn.pressed.connect(_on_finish_pressed)
@@ -73,7 +76,9 @@ func _on_option_selected(id: String):
 
 func _on_close_pressed():
 	if not is_studying:
-		queue_free()
+		var tween = create_tween()
+		tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)
+		tween.tween_callback(queue_free)
 
 func _on_start_pressed():
 	if is_studying: return
@@ -112,6 +117,10 @@ func _on_start_pressed():
 
 func _show_studying_popup(opt: Dictionary):
 	study_popup.show()
+	study_popup.modulate.a = 0.0
+	var tween_popup = create_tween()
+	tween_popup.tween_property(study_popup, "modulate:a", 1.0, 0.3)
+	
 	popup_title.text = "正在进行 " + opt["name"] + "..."
 	progress_bar.value = 0
 	ai_label.text = "[center]等待静的评价...[/center]"
@@ -189,11 +198,11 @@ func _on_finish_pressed():
 				"stat_expression":
 					display_name = "表达"
 					stat_id = "openness" # 借用图标
-				"stat_stage":
-					display_name = "舞台"
+				"stat_temperament":
+					display_name = "气质"
 					stat_id = "extraversion"
-				"stat_focus":
-					display_name = "专注"
+				"stat_perception":
+					display_name = "感知"
 					stat_id = "conscientiousness"
 				"stat_rhythm":
 					display_name = "反应"
@@ -201,8 +210,8 @@ func _on_finish_pressed():
 				"stat_knowledge":
 					display_name = "学识"
 					stat_id = "neuroticism"
-				"stat_art_theory":
-					display_name = "艺理"
+				"stat_aesthetics":
+					display_name = "审美"
 					stat_id = "agreeableness"
 			
 			# 调用左侧不同颜色的 Toast，使用 stat_toast 方法自带对应图标和颜色
@@ -211,4 +220,6 @@ func _on_finish_pressed():
 			
 		profile.save_profile()
 		
-	queue_free()
+	var tween = create_tween()
+	tween.tween_property($StudyPopup, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(queue_free)

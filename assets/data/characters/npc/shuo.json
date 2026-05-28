@@ -3,7 +3,7 @@
   "age": 24,
   "avatar": "res://assets/images/characters/avatar/shuo.png",
   "static_portrait": "res://assets/images/characters/avatar/shuo.png",
-  "sprite_frames_path": "",
+  "sprite_frames_path": "res://assets/images/characters/shuo/shuo.tres",
   "identity_background": "江屿现代艺术大学艺术系的研究生，也是一位高冷孤傲的学长。他生性喜静，极度厌恶热闹与喧嚣，平日里几乎不在公共社交场合露面，总是独自一人呆在学校图书馆最深处的角落里静静地查阅资料或看书。\n\n在冷漠疏离的外表下，他似乎隐藏着一段无法释怀的过去。他曾是Luna已经去世的姐姐安娜的挚友或同窗，两人之间有着千丝万缕的联系与难以言说的羁绊。安娜的离世对他造成了不可磨灭的打击，也将他的心门彻底封闭。因为这层隐秘的关系，当他偶然在图书馆遇到Luna时，看似毫无波澜的眼神中，往往会流露出难以察觉的复杂情绪与隐忍的温柔。",
   "tags": [
     "高冷",

@@ -118,7 +118,7 @@
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 610, "y": 300},
       "conditions": [
-        {"type": "stat", "stat_name": "stat_stage", "value": 30}
+        {"type": "stat", "stat_name": "stat_temperament", "value": 30}
       ],
       "resident_npcs": [],
       "events": []
@@ -130,7 +130,7 @@
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 910, "y": 280},
       "conditions": [
-        {"type": "stat", "stat_name": "stat_art_theory", "value": 20}
+        {"type": "stat", "stat_name": "stat_knowledge", "value": 20}
       ],
       "resident_npcs": [],
       "events": []
@@ -260,7 +260,7 @@
         {"type": "time", "start_hour": 9, "end_hour": 18}
       ],
       "conditions": [
-        {"type": "stat", "stat_name": "stat_charm", "value": 20}
+        {"type": "stat", "stat_name": "stat_temperament", "value": 20}
       ],
       "resident_npcs": [],
       "events": []

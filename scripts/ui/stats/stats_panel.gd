@@ -5,8 +5,6 @@ var core_stats_def = [
         "id": "physical",
         "sub_stats": [
             "stat_stamina",
-            "stat_body",
-            "stat_focus",
             "stat_rhythm"
         ]
     },
@@ -14,25 +12,19 @@ var core_stats_def = [
         "id": "intelligence",
         "sub_stats": [
             "stat_knowledge",
-            "stat_expression",
-            "stat_planning",
-            "stat_art_theory"
+            "stat_expression"
         ]
     },
     {
         "id": "charm",
         "sub_stats": [
             "stat_temperament",
-            "stat_manner",
-            "stat_etiquette",
-            "stat_stage"
+            "stat_etiquette"
         ]
     },
     {
         "id": "sensibility",
         "sub_stats": [
-            "stat_empathy",
-            "stat_inspiration",
             "stat_aesthetics",
             "stat_perception"
         ]
@@ -100,5 +92,8 @@ func _update_ui() -> void:
             var sub_hbox = panel.find_child(sub_hbox_name, true, false)
             if sub_hbox:
                 var s_lbl = sub_hbox.find_child("Val", true, false)
+                var name_lbl = sub_hbox.find_child("Name", true, false)
                 if s_lbl:
                     s_lbl.text = str(int(profile.get(sub_id)))
+                if name_lbl and stats:
+                    name_lbl.text = stats.get_sub_stat_name(sub_id)

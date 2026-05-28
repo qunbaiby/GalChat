@@ -4,19 +4,19 @@ const StoryPortraitActorScene = preload("res://scenes/ui/story/story_portrait_ac
 
 const MAX_VISIBLE_CAST := 4
 const SLOT_LAYOUTS := {
-	1: [Vector2(640, 518)],
-	2: [Vector2(360, 520), Vector2(920, 520)],
-	3: [Vector2(220, 530), Vector2(640, 510), Vector2(1060, 530)],
-	4: [Vector2(150, 540), Vector2(430, 520), Vector2(850, 520), Vector2(1130, 540)]
+	1: [Vector2(640, 720)],
+	2: [Vector2(360, 720), Vector2(920, 720)],
+	3: [Vector2(220, 720), Vector2(640, 720), Vector2(1060, 720)],
+	4: [Vector2(150, 720), Vector2(430, 720), Vector2(850, 720), Vector2(1130, 720)]
 }
 const MANUAL_SLOT_POSITIONS := {
-	"far_left": Vector2(150, 540),
-	"left": Vector2(360, 520),
-	"left_center": Vector2(430, 520),
-	"center": Vector2(640, 510),
-	"right_center": Vector2(850, 520),
-	"right": Vector2(920, 520),
-	"far_right": Vector2(1130, 540)
+	"far_left": Vector2(150, 720),
+	"left": Vector2(360, 720),
+	"left_center": Vector2(430, 720),
+	"center": Vector2(640, 720),
+	"right_center": Vector2(850, 720),
+	"right": Vector2(920, 720),
+	"far_right": Vector2(1130, 720)
 }
 
 var _actor_pool: Array = []
@@ -313,8 +313,8 @@ func _build_character_payload(char_id: String, display_name: String = "", expres
 		payload["sprite_frames_path"] = GameDataManager.profile.sprite_frames_path
 		payload["static_portrait"] = _get_current_static_portrait_path()
 		payload["avatar"] = GameDataManager.profile.avatar
-		payload["base_anim_scale_x"] = 0.5045883
-		payload["base_anim_scale_y"] = 0.50458837
+		payload["base_anim_scale_x"] = 0.8
+		payload["base_anim_scale_y"] = 0.8
 		var expression_texture = _load_current_expression_texture(expression)
 		if expression_texture != null:
 			payload["expression_texture"] = expression_texture

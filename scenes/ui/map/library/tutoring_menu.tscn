@@ -43,6 +43,7 @@ layer = 100
 script = ExtResource("1_script")
 
 [node name="Background" type="ColorRect" parent="."]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -52,16 +53,13 @@ color = Color(0, 0, 0, 0.6)
 
 [node name="MenuPanel" type="Panel" parent="."]
 custom_minimum_size = Vector2(900, 550)
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 4
 anchor_top = 0.5
-anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -450.0
+offset_left = 60.0
 offset_top = -275.0
-offset_right = 450.0
+offset_right = 960.0
 offset_bottom = 275.0
-grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MenuPanel")
 

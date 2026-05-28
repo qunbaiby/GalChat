@@ -3,12 +3,12 @@ extends PanelContainer
 signal slot_selected(slot_id: String, is_empty: bool)
 signal delete_requested()
 
-@onready var screenshot_rect: TextureRect = $MarginContainer/HBoxContainer/ScreenshotRect
-@onready var id_label: Label = $MarginContainer/HBoxContainer/VBoxContainer/IdLabel
-@onready var time_label: Label = $MarginContainer/HBoxContainer/VBoxContainer/TimeLabel
-@onready var info_label: Label = $MarginContainer/HBoxContainer/VBoxContainer/InfoLabel
-@onready var action_button: Button = $MarginContainer/HBoxContainer/ActionButton
-@onready var delete_button: Button = $MarginContainer/HBoxContainer/DeleteButton
+@onready var screenshot_rect: TextureRect = $MarginContainer/MainHBox/ScreenshotRect
+@onready var id_label: Label = $MarginContainer/MainHBox/ContentVBox/InfoVBox/IdLabel
+@onready var time_label: Label = $MarginContainer/MainHBox/ContentVBox/InfoVBox/TimeLabel
+@onready var info_label: Label = $MarginContainer/MainHBox/ContentVBox/InfoVBox/InfoLabel
+@onready var action_button: Button = $MarginContainer/MainHBox/ContentVBox/ButtonsHBox/ActionButton
+@onready var delete_button: Button = $MarginContainer/MainHBox/ContentVBox/ButtonsHBox/DeleteButton
 
 var current_slot_id: String = ""
 var is_empty: bool = true

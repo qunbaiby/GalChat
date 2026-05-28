@@ -123,7 +123,7 @@ func _on_skip_pressed() -> void:
 
 func _try_auto_next() -> void:
 	if not is_inside_tree(): return
-	if _is_auto_playing and not _is_moving and _current_slot_index < 9 and not result_popup.visible and (loading_overlay == null or not loading_overlay.visible) and _current_event_panel == null:
+	if _is_auto_playing and not _is_moving and _current_slot_index < 4 and not result_popup.visible and (loading_overlay == null or not loading_overlay.visible) and _current_event_panel == null:
 		_on_click_area_pressed()
 
 func _update_course_info(index: int) -> void:
@@ -186,7 +186,7 @@ func _init_slots() -> void:
 			child.queue_free()
 	_slots.clear()
 	
-	for i in range(10):
+	for i in range(5):
 		var slot = slot_scene.instantiate()
 		track_container.add_child(slot)
 		# 让所有槽位都在小人节点之前
@@ -215,7 +215,7 @@ func _on_click_area_pressed() -> void:
 	if _is_moving:
 		return
 		
-	if _current_slot_index >= 9:
+	if _current_slot_index >= 4:
 		_show_result_popup()
 		return
 		
@@ -255,18 +255,18 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 	if not skip_ui_update:
 		_update_course_info(_current_slot_index)
 	
-	# 每完成2个课程，时间推进一天 (2, 4, 6, 8)
-	if _current_slot_index > 0 and _current_slot_index % 2 == 0 and _current_slot_index < 10:
+	# 每完成1个课程，时间推进一天
+	if _current_slot_index > 0 and _current_slot_index < 5:
 		if GameDataManager.story_time_manager:
 			GameDataManager.story_time_manager.advance_day(1)
 		
-	if _current_slot_index == 9:
+	if _current_slot_index == 4:
 		# 走到最后一个槽位时，立刻将最后一个也标为完成
 		set_slot_status(_current_slot_index, true)
 		course_completed.emit(_current_slot_index)
 		all_courses_completed.emit()
 		
-		# 第10个课程完成，不跨天，时间设定为周五晚上 20:00
+		# 第5个课程完成，不跨天，时间设定为周五晚上 20:00
 		if GameDataManager.story_time_manager:
 			GameDataManager.story_time_manager.current_hour = 20
 			GameDataManager.story_time_manager.current_minute = 0
@@ -535,10 +535,10 @@ func _show_result_popup() -> void:
 	var tween = create_tween()
 	tween.tween_property(result_popup, "modulate:a", 1.0, 0.3)
 	
-	var phys_keys = ["体能", "形体", "专注", "反应"]
-	var int_keys = ["学识", "表达", "企划", "艺理"]
-	var charm_keys = ["气质", "举止", "礼仪", "舞台"]
-	var sens_keys = ["共情", "灵感", "审美", "感知"]
+	var phys_keys = ["体能", "反应"]
+	var int_keys = ["学识", "表达"]
+	var charm_keys = ["气质", "礼仪"]
+	var sens_keys = ["审美", "感知"]
 	
 	var get_core = func(attrs: Dictionary, keys: Array) -> int:
 		var total = 0
@@ -606,10 +606,10 @@ func _show_result_popup() -> void:
 		child.queue_free()
 		
 	var sub_keys = [
-		"体能", "形体", "专注", "反应",
-		"学识", "表达", "企划", "艺理",
-		"气质", "举止", "礼仪", "舞台",
-		"共情", "灵感", "审美", "感知"
+		"体能", "反应",
+		"学识", "表达",
+		"气质", "礼仪",
+		"审美", "感知"
 	]
 	
 	for attr in sub_keys:
@@ -689,27 +689,22 @@ func _on_end_button_pressed() -> void:
 	
 	# Save attrs back to profile
 	profile.stat_stamina = _end_attrs.get("体能", profile.stat_stamina)
-	profile.stat_body = _end_attrs.get("形体", profile.stat_body)
-	profile.stat_focus = _end_attrs.get("专注", profile.stat_focus)
 	profile.stat_rhythm = _end_attrs.get("反应", profile.stat_rhythm)
 	profile.stat_knowledge = _end_attrs.get("学识", profile.stat_knowledge)
 	profile.stat_expression = _end_attrs.get("表达", profile.stat_expression)
-	profile.stat_planning = _end_attrs.get("企划", profile.stat_planning)
-	profile.stat_art_theory = _end_attrs.get("艺理", profile.stat_art_theory)
 	profile.stat_temperament = _end_attrs.get("气质", profile.stat_temperament)
-	profile.stat_manner = _end_attrs.get("举止", profile.stat_manner)
 	profile.stat_etiquette = _end_attrs.get("礼仪", profile.stat_etiquette)
-	profile.stat_stage = _end_attrs.get("舞台", profile.stat_stage)
-	profile.stat_empathy = _end_attrs.get("共情", profile.stat_empathy)
-	profile.stat_inspiration = _end_attrs.get("灵感", profile.stat_inspiration)
 	profile.stat_aesthetics = _end_attrs.get("审美", profile.stat_aesthetics)
 	profile.stat_perception = _end_attrs.get("感知", profile.stat_perception)
 	profile.gold = max(0, _end_attrs.get("金币", profile.gold))
 	profile.stress = clamp(_end_attrs.get("压力", profile.stress), 0, profile.max_stress)
 	profile.mood_value = clamp(_end_attrs.get("心情", profile.mood_value), 0, 100)
-	
+
 	profile.save_profile()
-	
+	if GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.save_data()
+	GameDataManager.save_manager.auto_save()
+
 	# 使用现有的全局黑屏过渡管理器过渡回主场景
 	SceneTransitionManager.transition_to_scene("res://scenes/ui/main/main_scene.tscn")
 	schedule_finished.emit()
