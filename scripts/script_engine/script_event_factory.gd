@@ -20,6 +20,8 @@ static func create_event(data: Dictionary): # 返回 ScriptEvent
             return preload("res://scripts/script_engine/events/event_background.gd").new(data)
         "show_character":
             return preload("res://scripts/script_engine/events/event_show_character.gd").new(data)
+        "move_character":
+            return preload("res://scripts/script_engine/events/event_move_character.gd").new(data)
         "hide_character":
             return preload("res://scripts/script_engine/events/event_hide_character.gd").new(data)
         "voice_call":

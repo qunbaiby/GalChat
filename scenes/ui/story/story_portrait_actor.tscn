@@ -1,14 +1,15 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://bw0obwn2do6a7"]
 
-[ext_resource type="Script" path="res://scripts/ui/story/story_portrait_actor.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dat8i0fbry16g" path="res://scripts/ui/story/story_portrait_actor.gd" id="1_script"]
+[ext_resource type="SpriteFrames" uid="uid://cy7y4ie11c4g5" path="res://assets/images/characters/jing/jing.tres" id="2_pyxsq"]
 
 [node name="StoryPortraitActor" type="Node2D"]
-visible = false
 script = ExtResource("1_script")
 
 [node name="CharacterAni" type="AnimatedSprite2D" parent="."]
-centered = true
+visible = false
+scale = Vector2(0.65, 0.65)
+sprite_frames = ExtResource("2_pyxsq")
 
 [node name="StaticSprite" type="Sprite2D" parent="."]
 visible = false
-centered = true

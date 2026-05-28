@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+signal closing_started
+
 @onready var close_btn: Button = $MenuPanel/CloseBtn
 @onready var course_vbox: VBoxContainer = $MenuPanel/ContentHBox/LeftPanel/ScrollContainer/CourseVBox
 @onready var exp_label: Label = $MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/ExpLabel
@@ -285,6 +287,7 @@ func _on_start_pressed() -> void:
 	_on_close_pressed()
 
 func _on_close_pressed() -> void:
+	closing_started.emit()
 	var tween = create_tween()
 	tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)
 	tween.tween_callback(queue_free)

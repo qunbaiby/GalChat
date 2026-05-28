@@ -108,10 +108,10 @@
                     "content": "骤然响起的掌声让Luna浑身一僵，她猛地回头，眼底还带着未褪去的恍惚。看清来人是静之后，她瞬间绷紧了身子，指尖下意识攥紧了裙摆，脸颊飞快染上一层浅红。"
                 },
                 {
-                    "type": "show_character",
+                    "type": "move_character",
                     "character": "jing",
                     "position": "left",
-                    "animation": "slide_left",
+                    "animation": "move",
                     "focus": false
                 },
                 {

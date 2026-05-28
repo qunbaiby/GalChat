@@ -31,6 +31,7 @@ grow_vertical = 2
 script = ExtResource("1_88hip")
 
 [node name="ColorRect" type="TextureRect" parent="."]
+z_index = -30
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -40,6 +41,7 @@ grow_vertical = 2
 texture = ExtResource("2_2exn1")
 
 [node name="BackgroundLayer" type="TextureRect" parent="."]
+z_index = -20
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -64,6 +66,7 @@ color = Color(1, 1, 1, 0)
 [node name="CharacterLayer" parent="." instance=ExtResource("4_heyvm")]
 
 [node name="ClickBlocker" type="Control" parent="."]
+z_index = 80
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -73,6 +76,7 @@ grow_vertical = 2
 
 [node name="UIPanel" type="Panel" parent="."]
 self_modulate = Color(1, 1, 1, 0)
+z_index = 100
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

@@ -8,6 +8,7 @@ signal on_audio_requested(audio_type: String, action: String, audio_id: String, 
 signal on_variable_set(var_name: String, var_value: Variant)
 signal on_ai_chat_requested(prompt_override: String)
 signal on_character_show_requested(animation: String, presentation: Dictionary)
+signal on_character_move_requested(animation: String, presentation: Dictionary)
 signal on_character_hide_requested(animation: String, presentation: Dictionary)
 signal on_player_info_requested()
 signal on_voice_call_requested(call_id: String)

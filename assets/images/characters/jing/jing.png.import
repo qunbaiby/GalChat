@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dp01culprvwdm"
-path="res://.godot/imported/luna_calm.png-3c25abbcf39686ae9b4c953c3f3c2df8.ctex"
+uid="uid://5mnctwk8c1y3"
+path="res://.godot/imported/jing.png-63ae1fcb19fe6d1140509c25b4f344a2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/characters/Luna/luna_calm.png"
-dest_files=["res://.godot/imported/luna_calm.png-3c25abbcf39686ae9b4c953c3f3c2df8.ctex"]
+source_file="res://assets/images/characters/jing/jing.png"
+dest_files=["res://.godot/imported/jing.png-63ae1fcb19fe6d1140509c25b4f344a2.ctex"]
 
 [params]
 

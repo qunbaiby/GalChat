@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deysgnhodp8nu"
-path="res://.godot/imported/luna_surprise.png-1c0e1d3f855d2f5d3985d5775983f19d.ctex"
+uid="uid://dp01culprvwdm"
+path="res://.godot/imported/luna.png-9e1378f6eecb5fd7dafd16548b5c8221.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/characters/Luna/luna_surprise.png"
-dest_files=["res://.godot/imported/luna_surprise.png-1c0e1d3f855d2f5d3985d5775983f19d.ctex"]
+source_file="res://assets/images/characters/Luna/luna.png"
+dest_files=["res://.godot/imported/luna.png-9e1378f6eecb5fd7dafd16548b5c8221.ctex"]
 
 [params]
 

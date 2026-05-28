@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bpabn0fanx36g"]
 
-[ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna_calm.png" id="1_5bem3"]
+[ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna.png" id="1_5bem3"]
 
 [resource]
 animations = [{

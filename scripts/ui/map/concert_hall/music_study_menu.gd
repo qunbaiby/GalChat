@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+signal closing_started
+
 var energy_cost = 15
 
 var options = [
@@ -76,6 +78,7 @@ func _on_option_selected(id: String):
 
 func _on_close_pressed():
 	if not is_studying:
+		closing_started.emit()
 		var tween = create_tween()
 		tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)
 		tween.tween_callback(queue_free)
@@ -220,6 +223,7 @@ func _on_finish_pressed():
 			
 		profile.save_profile()
 		
+	closing_started.emit()
 	var tween = create_tween()
 	tween.tween_property($StudyPopup, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(queue_free)

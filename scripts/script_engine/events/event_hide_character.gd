@@ -7,9 +7,7 @@ func _init(data: Dictionary) -> void:
     super(data)
     animation = data.get("animation", "fade_out")
     presentation = {
-        "character": data.get("character", ""),
-        "position": data.get("position", ""),
-        "focus": data.get("focus", null)
+        "character": data.get("character", "")
     }
 
 func process_event(manager: Node) -> bool:

@@ -33,7 +33,7 @@ alignment = 1
 [node name="NameLabel" type="Label" parent="DialogueLayer/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Character Name"
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -42,7 +42,7 @@ custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
-text = "[center]Dialogue text goes here...[/center]"
+text = ""
 fit_content = true
 scroll_active = false
 

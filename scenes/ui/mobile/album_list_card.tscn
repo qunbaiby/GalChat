@@ -22,16 +22,7 @@ size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Content" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 mouse_filter = 2
 
 [node name="ThumbMask" type="Panel" parent="Content"]
@@ -56,10 +47,7 @@ stretch_mode = 6
 
 [node name="MetaNodes" type="Control" parent="."]
 visible = false
-layout_mode = 1
-anchors_preset = 0
-offset_right = 1.0
-offset_bottom = 1.0
+layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="MetaNodes"]
 layout_mode = 0
@@ -74,12 +62,7 @@ layout_mode = 0
 text = "附加描述"
 
 [node name="ClickBtn" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxEmpty_Button")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_Button")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")

@@ -1,17 +1,20 @@
+@tool
 class_name StoryPortraitActor
 extends Node2D
 
 const DEFAULT_ANIM_SCALE := Vector2(0.8, 0.8)
 const DEFAULT_STATIC_LIMIT := Vector2(500.0, 750.0)
 const AVATAR_STATIC_LIMIT := Vector2(350.0, 650.0)
-const ACTIVE_SCALE_MULTIPLIER := 1.05
-const INACTIVE_SCALE_MULTIPLIER := 0.95
+const ACTIVE_SCALE_MULTIPLIER := 1.002
+const INACTIVE_SCALE_MULTIPLIER := 0.99
 const ACTIVE_MODULATE := Color(1, 1, 1, 1)
 const INACTIVE_MODULATE := Color(0.42, 0.42, 0.48, 1)
-const FOCUS_OFFSET_Y := -18.0
-const TRANSITION_DURATION := 0.22
-const SHOW_OFFSET_X := 36.0
-const SHOW_OFFSET_Y := 20.0
+const FOCUS_OFFSET_Y := -10.0
+const SHOW_DURATION := 0.30
+const HIDE_DURATION := 0.22
+const LAYOUT_DURATION := 0.26
+const SHOW_OFFSET_X := 28.0
+const SHOW_OFFSET_Y := 16.0
 
 var actor_id: String = ""
 var actor_name: String = ""
@@ -25,6 +28,10 @@ var _layout_tween: Tween = null
 @onready var static_sprite: Sprite2D = $StaticSprite
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		modulate = Color(1, 1, 1, 1)
+		scale = Vector2.ONE
+		return
 	hide()
 	modulate = Color(1, 1, 1, 0)
 	scale = Vector2.ONE
@@ -105,9 +112,9 @@ func show_actor(anim_type: String = "fade_in", instant: bool = false) -> void:
 	var target_position = _get_target_position()
 	match anim_type:
 		"slide_left":
-			position = target_position + Vector2(SHOW_OFFSET_X, 0)
-		"slide_right":
 			position = target_position + Vector2(-SHOW_OFFSET_X, 0)
+		"slide_right":
+			position = target_position + Vector2(SHOW_OFFSET_X, 0)
 		"slide_top":
 			position = target_position + Vector2(0, -SHOW_OFFSET_Y)
 		"slide_bottom":
@@ -117,8 +124,9 @@ func show_actor(anim_type: String = "fade_in", instant: bool = false) -> void:
 
 	modulate.a = 0.0
 	_visibility_tween = create_tween()
-	_visibility_tween.parallel().tween_property(self, "position", target_position, TRANSITION_DURATION)
-	_visibility_tween.parallel().tween_property(self, "modulate:a", 1.0, TRANSITION_DURATION)
+	_visibility_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_visibility_tween.parallel().tween_property(self, "position", target_position, SHOW_DURATION)
+	_visibility_tween.parallel().tween_property(self, "modulate:a", 1.0, SHOW_DURATION)
 
 func hide_actor(anim_type: String = "fade_out", instant: bool = false) -> void:
 	if _visibility_tween and _visibility_tween.is_valid():
@@ -141,8 +149,9 @@ func hide_actor(anim_type: String = "fade_out", instant: bool = false) -> void:
 			target_position += Vector2(0, SHOW_OFFSET_Y)
 
 	_visibility_tween = create_tween()
-	_visibility_tween.parallel().tween_property(self, "position", target_position, TRANSITION_DURATION)
-	_visibility_tween.parallel().tween_property(self, "modulate:a", 0.0, TRANSITION_DURATION)
+	_visibility_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_visibility_tween.parallel().tween_property(self, "position", target_position, HIDE_DURATION)
+	_visibility_tween.parallel().tween_property(self, "modulate:a", 0.0, HIDE_DURATION)
 	_visibility_tween.tween_callback(hide)
 
 func apply_layout(target_slot_position: Vector2, focused: bool, instant: bool = false) -> void:
@@ -163,11 +172,12 @@ func apply_layout(target_slot_position: Vector2, focused: bool, instant: bool = 
 		return
 
 	_layout_tween = create_tween()
-	_layout_tween.parallel().tween_property(self, "position", target_position, TRANSITION_DURATION)
-	_layout_tween.parallel().tween_property(self, "scale", target_scale, TRANSITION_DURATION)
-	_layout_tween.parallel().tween_property(self, "modulate:r", target_modulate.r, TRANSITION_DURATION)
-	_layout_tween.parallel().tween_property(self, "modulate:g", target_modulate.g, TRANSITION_DURATION)
-	_layout_tween.parallel().tween_property(self, "modulate:b", target_modulate.b, TRANSITION_DURATION)
+	_layout_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_layout_tween.parallel().tween_property(self, "position", target_position, LAYOUT_DURATION)
+	_layout_tween.parallel().tween_property(self, "scale", target_scale, LAYOUT_DURATION)
+	_layout_tween.parallel().tween_property(self, "modulate:r", target_modulate.r, LAYOUT_DURATION)
+	_layout_tween.parallel().tween_property(self, "modulate:g", target_modulate.g, LAYOUT_DURATION)
+	_layout_tween.parallel().tween_property(self, "modulate:b", target_modulate.b, LAYOUT_DURATION)
 
 func clear_actor() -> void:
 	if _visibility_tween and _visibility_tween.is_valid():
@@ -188,6 +198,29 @@ func clear_actor() -> void:
 	position = slot_position
 	scale = Vector2.ONE
 	modulate = Color(1, 1, 1, 0)
+	hide()
+
+func show_editor_preview(sprite_frames_path: String, target_slot_position: Vector2, focused: bool) -> void:
+	if not Engine.is_editor_hint():
+		return
+
+	slot_position = target_slot_position
+	is_focused = focused
+	_load_preview_sprite_frames(sprite_frames_path)
+	position = _get_target_position()
+	scale = Vector2.ONE * (ACTIVE_SCALE_MULTIPLIER if focused else INACTIVE_SCALE_MULTIPLIER)
+	modulate = ACTIVE_MODULATE if focused else INACTIVE_MODULATE
+	z_index = 20 if focused else 5
+	show()
+
+func clear_editor_preview() -> void:
+	if not Engine.is_editor_hint():
+		return
+	character_ani.stop()
+	character_ani.sprite_frames = null
+	character_ani.hide()
+	static_sprite.texture = null
+	static_sprite.hide()
 	hide()
 
 func _show_static_texture(texture: Texture2D, treat_as_avatar: bool) -> void:
@@ -228,5 +261,31 @@ func _pick_animation_name(frames_res: SpriteFrames, mood: String) -> String:
 			return candidate
 	return ""
 
+func _load_preview_sprite_frames(sprite_frames_path: String) -> void:
+	character_ani.stop()
+	character_ani.hide()
+	static_sprite.hide()
+
+	if sprite_frames_path == "" or not ResourceLoader.exists(sprite_frames_path):
+		return
+
+	var frames_res = load(sprite_frames_path)
+	if not (frames_res is SpriteFrames):
+		return
+
+	character_ani.sprite_frames = frames_res
+	var anim_name = _pick_animation_name(frames_res, "")
+	if anim_name == "" and frames_res.get_animation_names().size() > 0:
+		anim_name = str(frames_res.get_animation_names()[0])
+	if anim_name == "":
+		return
+
+	character_ani.scale = DEFAULT_ANIM_SCALE
+	var tex = frames_res.get_frame_texture(anim_name, 0)
+	var h = tex.get_size().y if tex else 800.0
+	character_ani.position = Vector2(0, -h / 2.0 * character_ani.scale.y)
+	character_ani.play(StringName(anim_name))
+	character_ani.show()
+
 func _get_target_position() -> Vector2:
-	return slot_position + Vector2(0, FOCUS_OFFSET_Y if is_focused else 0)
+	return slot_position + Vector2(0.0, FOCUS_OFFSET_Y if is_focused else 0.0)

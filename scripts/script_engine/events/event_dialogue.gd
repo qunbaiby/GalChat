@@ -12,13 +12,8 @@ func _init(data: Dictionary) -> void:
     mood = data.get("mood", "")
     presentation = {
         "character": data.get("character", ""),
-        "enter": bool(data.get("enter", false)),
-        "exit": bool(data.get("exit", false)),
-        "position": data.get("position", ""),
         "expression": data.get("expression", ""),
         "focus": data.get("focus", null),
-        "animation": data.get("animation", ""),
-        "exit_animation": data.get("exit_animation", ""),
         "display_name": data.get("display_name", "")
     }
 

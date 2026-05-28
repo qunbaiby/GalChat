@@ -1,6 +1,9 @@
 extends Control
 
 const QuickOptionListHelper = preload("res://scripts/ui/story/quick_option_list_helper.gd")
+const SUBMENU_FADE_DURATION := 0.25
+const SUBMENU_PORTRAIT_RATIO_X := 0.83
+const SUBMENU_INFO_HIDDEN_OFFSET_X := 120.0
 
 @onready var bg_texture: TextureRect = $Background
 @onready var name_label: Label = $MapInfoPanel/VBox/NameLabel
@@ -30,12 +33,16 @@ var location_id: String = ""
 
 var current_interacting_npc_id: String = ""
 var original_char_x: float = 9.0
+var original_info_x: float = 0.0
+var _submenu_restore_started: bool = false
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 	
 	if npc_portrait:
 		original_char_x = npc_portrait.position.x
+	if info_and_options:
+		original_info_x = info_and_options.position.x
 		
 	# 隐藏选项菜单和角色
 	interaction_menu.hide()
@@ -124,8 +131,8 @@ func _on_npc_clicked(npc_id: String):
 			var data = json.get_data()
 			if data is Dictionary:
 				npc_name = data.get("char_name", npc_name)
-				sprite_frames_path = data.get("sprite_frames_path", "")
-				static_portrait_path = data.get("static_portrait", data.get("avatar", ""))
+				sprite_frames_path = str(data.get("sprite_frames_path", "")).strip_edges()
+				static_portrait_path = str(data.get("static_portrait", data.get("avatar", ""))).strip_edges()
 				npc_title = data.get("title", npc_title)
 				
 	menu_name_label.text = npc_name
@@ -327,16 +334,18 @@ func _get_npc_stage_data(npc_id: String) -> Dictionary:
 	return {"stageTitle": "普通朋友", "heartCount": 0}
 
 func _open_sub_menu(scene_path: String) -> void:
+	_submenu_restore_started = false
 	info_and_options.hide() # 仅隐藏右侧选项，保留角色和姓名
 	
 	if npc_portrait:
 		var tween = create_tween()
-		# 将平移量从 750 减小到 400，防止立绘飞出屏幕
-		tween.tween_property(npc_portrait, "position:x", original_char_x + 400.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(npc_portrait, "position:x", _get_submenu_portrait_target_x(), SUBMENU_FADE_DURATION).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 		
 	var menu_scene = load(scene_path)
 	if menu_scene:
 		var menu = menu_scene.instantiate()
+		if menu.has_signal("closing_started"):
+			menu.closing_started.connect(_on_sub_menu_closing_started, CONNECT_ONE_SHOT)
 		if menu.has_signal("tree_exited"):
 			menu.tree_exited.connect(func():
 				if not is_inside_tree():
@@ -355,18 +364,47 @@ func _open_sub_menu(scene_path: String) -> void:
 					making_node.tree_exited.connect(func():
 						if not is_inside_tree(): return
 						if dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "":
-							info_and_options.show()
-							if npc_portrait:
-								var t = create_tween()
-								t.tween_property(npc_portrait, "position:x", original_char_x, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+							if not _submenu_restore_started:
+								_restore_after_sub_menu(false)
 					)
 				elif dialogue_panel and not dialogue_panel.visible and current_interacting_npc_id != "": 
-					info_and_options.show()
-					if npc_portrait:
-						var t = create_tween()
-						t.tween_property(npc_portrait, "position:x", original_char_x, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+					if not _submenu_restore_started:
+						_restore_after_sub_menu(true)
 			)
 		get_tree().root.add_child(menu)
+
+func _get_submenu_portrait_target_x() -> float:
+	var viewport_width = get_viewport_rect().size.x
+	if viewport_width <= 0.0:
+		return original_char_x + 400.0
+	return viewport_width * SUBMENU_PORTRAIT_RATIO_X
+
+func _on_sub_menu_closing_started() -> void:
+	if dialogue_panel and dialogue_panel.visible:
+		return
+	if _submenu_restore_started:
+		return
+	_restore_after_sub_menu(true)
+
+func _restore_after_sub_menu(animated: bool) -> void:
+	if current_interacting_npc_id == "":
+		return
+	_submenu_restore_started = true
+	info_and_options.show()
+	if animated:
+		info_and_options.modulate.a = 0.0
+		info_and_options.position.x += SUBMENU_INFO_HIDDEN_OFFSET_X
+		var tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(info_and_options, "modulate:a", 1.0, SUBMENU_FADE_DURATION)
+		tween.tween_property(info_and_options, "position:x", original_info_x, SUBMENU_FADE_DURATION).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		if npc_portrait:
+			tween.tween_property(npc_portrait, "position:x", original_char_x, SUBMENU_FADE_DURATION).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	else:
+		info_and_options.modulate.a = 1.0
+		info_and_options.position.x = original_info_x
+		if npc_portrait:
+			npc_portrait.position.x = original_char_x
 
 func _on_menu_action_pressed(action_id: String):
 	match action_id:

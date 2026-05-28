@@ -1,12 +1,12 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dt5xlkkhb6exs"]
 
-[ext_resource type="Texture2D" uid="uid://dp01culprvwdm" path="res://assets/images/characters/Luna/luna_calm.png" id="1_ii2x0"]
+[ext_resource type="Texture2D" uid="uid://byii7pgohkf7m" path="res://assets/images/characters/ya/ya.png" id="1_i38sl"]
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_ii2x0")
+"texture": ExtResource("1_i38sl")
 }],
 "loop": true,
 "name": &"calm",
@@ -14,7 +14,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_ii2x0")
+"texture": ExtResource("1_i38sl")
 }],
 "loop": true,
 "name": &"default",
@@ -22,7 +22,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_ii2x0")
+"texture": ExtResource("1_i38sl")
 }],
 "loop": true,
 "name": &"defult",
