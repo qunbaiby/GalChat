@@ -258,13 +258,9 @@ custom_minimum_size = Vector2(489, 720)
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
-anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -489.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
+offset_right = 489.0
 grow_horizontal = 0
 grow_vertical = 2
 
@@ -772,129 +768,6 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 theme_override_constants/separation = 10
-
-[node name="QuickEntries" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="ChatEntry" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries"]
-custom_minimum_size = Vector2(55, 55)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-
-[node name="ChatEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -16.0
-offset_top = -18.0
-offset_right = 16.0
-offset_bottom = 14.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 28
-text = "✉"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ChatEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -21.5
-offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 19.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 12
-text = "聊天"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ChatEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
-visible = false
-layout_mode = 0
-
-[node name="ChatEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/ChatEntry"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-flat = true
-
-[node name="MomentsEntry" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries"]
-custom_minimum_size = Vector2(55, 55)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-
-[node name="MomentsEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -16.0
-offset_top = -18.0
-offset_right = 16.0
-offset_bottom = 14.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 28
-text = "☼"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MomentsEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -21.5
-offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 19.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 12
-text = "朋友圈"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MomentsEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
-visible = false
-layout_mode = 0
-
-[node name="MomentsEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/QuickEntries/MomentsEntry"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-flat = true
 
 [node name="BetweenEntry" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards"]
 custom_minimum_size = Vector2(0, 88)

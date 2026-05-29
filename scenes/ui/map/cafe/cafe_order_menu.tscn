@@ -1,55 +1,6 @@
-[gd_scene load_steps=15 format=3 uid="uid://dxcafeordermenu"]
+[gd_scene load_steps=3 format=3 uid="uid://tn2soabi6m3o"]
 
-[ext_resource type="Script" path="res://scripts/ui/map/cafe/cafe_order_menu.gd" id="1_script"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainBg"]
-bg_color = Color(0.93, 0.94, 0.95, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.15, 0.15, 0.15, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPanel"]
-bg_color = Color(1, 1, 1, 1)
-shadow_color = Color(0, 0, 0, 0.05)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemNormal"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.05)
-shadow_size = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemSelected"]
-bg_color = Color(0.9, 0.95, 1, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.7, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemPrice"]
-bg_color = Color(0.3, 0.3, 0.3, 1)
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ImageBg"]
-bg_color = Color(0.95, 0.95, 0.95, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.7, 0.4, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[ext_resource type="Script" uid="uid://dw0ckk7sblp1o" path="res://scripts/ui/map/cafe/cafe_order_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Tag"]
 bg_color = Color(0.4, 0.8, 0.7, 1)
@@ -57,31 +8,6 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BuyBtn"]
-bg_color = Color(0.3, 0.7, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BuyBtnHover"]
-bg_color = Color(0.4, 0.8, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BuyBtnPressed"]
-bg_color = Color(0.2, 0.6, 0.9, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxLine" id="StyleBoxLine_CatSep"]
-color = Color(0.8, 0.8, 0.8, 1)
-thickness = 2
 
 [node name="CafeOrderMenu" type="CanvasLayer"]
 layer = 100
@@ -97,15 +23,17 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.5)
 
 [node name="MainPanel" type="Panel" parent="."]
-anchors_preset = 4
+anchors_preset = 6
+anchor_left = 1.0
 anchor_top = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = 60.0
+offset_left = -826.6667
 offset_top = -300.0
-offset_right = 860.0
+offset_right = -26.6667
 offset_bottom = 300.0
+grow_horizontal = 0
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_MainBg")
 
 [node name="TopBar" type="Panel" parent="MainPanel"]
 custom_minimum_size = Vector2(0, 60)
@@ -113,18 +41,6 @@ layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
-
-[node name="ColorRect" type="ColorRect" parent="MainPanel/TopBar"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -4.0
-grow_horizontal = 2
-grow_vertical = 0
-color = Color(0.3, 0.7, 1, 1)
 
 [node name="TitleLabel" type="Label" parent="MainPanel/TopBar"]
 layout_mode = 1
@@ -216,7 +132,6 @@ text = "※此商店商品每1周刷新"
 [node name="RightPanel" type="Panel" parent="MainPanel/ContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_RightPanel")
 
 [node name="Margin" type="MarginContainer" parent="MainPanel/ContentHBox/RightPanel"]
 layout_mode = 1
@@ -297,9 +212,6 @@ custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_BuyBtn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BuyBtnHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BuyBtnPressed")
 text = "购 买"
 
 [node name="EmptyLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin"]

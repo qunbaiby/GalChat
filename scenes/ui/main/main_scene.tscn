@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=22 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_fmm1x"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="7_eye"]
-[ext_resource type="Texture2D" uid="uid://dfdvtfnlpm64n" path="res://assets/images/icons/ui/system/gear.svg" id="8_gear"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="9_heart"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
@@ -155,6 +154,13 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 28
 text = "📖"
+
+[node name="WeChatButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 28
+text = "💬"
 
 [node name="MainActionButton" type="Button" parent="UIPanel"]
 material = SubResource("ShaderMaterial_trapezoid_map")
@@ -396,6 +402,7 @@ offset_bottom = 710.0
 size_flags_vertical = 4
 
 [node name="TopicPanel" type="Panel" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

@@ -1,10 +1,26 @@
-[gd_scene load_steps=6 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene load_steps=9 format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png" id="2_3k4mg"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="2_dialogue"]
+[ext_resource type="SpriteFrames" uid="uid://cy7y4ie11c4g5" path="res://assets/images/characters/jing/jing.tres" id="4_racli"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="top_status_panel"]
+
+[sub_resource type="StyleBoxFlat" id="BubbleStyle"]
+bg_color = Color(1, 0.972549, 0.929412, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.882353, 0.760784, 0.643137, 0.95)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 6
 
 [node name="QuickLocationScene" type="Control"]
 layout_mode = 3
@@ -13,6 +29,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="TextureRect" parent="."]
@@ -52,21 +69,6 @@ theme_override_font_sizes/font_size = 16
 text = "这里是地点的描述信息。"
 autowrap_mode = 2
 
-[node name="NPCContainer" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -600.0
-offset_top = -240.0
-offset_right = -50.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_constants/separation = 20
-alignment = 2
-
 [node name="InteractionMenu" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -80,9 +82,49 @@ position = Vector2(611, 1338)
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="InteractionMenu/NPCPortrait"]
 scale = Vector2(0.6, 0.6)
+sprite_frames = ExtResource("4_racli")
 
 [node name="StaticSprite" type="Sprite2D" parent="InteractionMenu/NPCPortrait"]
 scale = Vector2(0.6, 0.6)
+
+[node name="BubbleAnchorTop" type="Marker2D" parent="InteractionMenu/NPCPortrait"]
+position = Vector2(20, -520)
+
+[node name="BubbleAnchorSide" type="Marker2D" parent="InteractionMenu/NPCPortrait"]
+position = Vector2(180, -430)
+
+[node name="BubbleRoot" type="Node2D" parent="InteractionMenu/NPCPortrait"]
+position = Vector2(-207, -680)
+
+[node name="SpeechBubble" type="PanelContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot"]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(380, 120)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -130.0
+offset_right = 382.0
+offset_bottom = -10.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("BubbleStyle")
+
+[node name="BubbleMargin" type="MarginContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="BubbleText" type="RichTextLabel" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble/BubbleMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/default_color = Color(0.22, 0.18, 0.16, 1)
+theme_override_font_sizes/normal_font_size = 22
+text = "……"
+fit_content = true
+scroll_active = false
 
 [node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu"]
 layout_mode = 1
@@ -156,6 +198,16 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 15
 alignment = 1
+
+[node name="ActionButtonTemplate" type="Button" parent="InteractionMenu/InfoAndOptions/OptionsVBox"]
+visible = false
+custom_minimum_size = Vector2(280, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.85, 1)
+theme_override_colors/font_hover_color = Color(1, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 25
+text = "按钮模板"
+alignment = 0
 
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 1

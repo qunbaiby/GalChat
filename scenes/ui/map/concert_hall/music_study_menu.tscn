@@ -48,13 +48,16 @@ color = Color(0, 0, 0, 0.5)
 
 [node name="MenuPanel" type="Panel" parent="."]
 custom_minimum_size = Vector2(800, 500)
-anchors_preset = 4
+anchors_preset = 7
+anchor_left = 1.0
+anchor_right = 1.0
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 60.0
+offset_left = -826.6667
 offset_top = -250.0
-offset_right = 860.0
+offset_right = -26.6667
 offset_bottom = 250.0
+grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MenuPanel")
 
@@ -236,13 +239,16 @@ text = " 开始补习 "
 [node name="StudyPopup" type="Panel" parent="."]
 visible = false
 custom_minimum_size = Vector2(600, 400)
-anchors_preset = 4
+anchors_preset = 7
+anchor_left = 1.0
+anchor_right = 1.0
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 160.0
+offset_left = -726.6667
 offset_top = -200.0
-offset_right = 760.0
+offset_right = -126.6667
 offset_bottom = 200.0
+grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MenuPanel")
 

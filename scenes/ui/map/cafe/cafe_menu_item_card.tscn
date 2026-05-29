@@ -1,0 +1,129 @@
+[gd_scene load_steps=7 format=3 uid="uid://dtf3n4mwv5urj"]
+
+[ext_resource type="Script" uid="uid://di53qfwsapd57" path="res://scripts/ui/map/cafe/cafe_menu_item_card.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bsgllhd1vqn5d" path="res://assets/images/activities/cafe_break.png" id="2_fallback"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardNormal"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardSelected"]
+bg_color = Color(0.9, 0.95, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.7, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconPanel"]
+bg_color = Color(0.95, 0.95, 0.95, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.7, 0.4, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PricePanel"]
+bg_color = Color(0.3, 0.3, 0.3, 1)
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="CafeMenuItemCard" type="Button"]
+custom_minimum_size = Vector2(160, 200)
+mouse_default_cursor_shape = 2
+script = ExtResource("1_script")
+fallback_icon = ExtResource("2_fallback")
+normal_style = SubResource("StyleBoxFlat_CardNormal")
+selected_style = SubResource("StyleBoxFlat_CardSelected")
+
+[node name="CardPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="CardPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TopMargin" type="MarginContainer" parent="CardPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="IconPanel" type="PanelContainer" parent="CardPanel/VBox/TopMargin"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_IconPanel")
+
+[node name="IconRect" type="TextureRect" parent="CardPanel/VBox/TopMargin/IconPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+texture = ExtResource("2_fallback")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="QtyBg" type="ColorRect" parent="CardPanel/VBox/TopMargin/IconPanel"]
+custom_minimum_size = Vector2(30, 20)
+layout_mode = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="QtyLabel" type="Label" parent="CardPanel/VBox/TopMargin/IconPanel/QtyBg"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "x1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="CardPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 16
+text = "商品名称"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PricePanel" type="PanelContainer" parent="CardPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PricePanel")
+
+[node name="PriceHBox" type="HBoxContainer" parent="CardPanel/VBox/PricePanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="CoinLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "◎"
+
+[node name="PriceLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"

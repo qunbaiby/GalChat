@@ -77,3 +77,8 @@ func _on_mask_draw() -> void:
 
 func _on_interact_button_pressed():
     npc_clicked.emit(npc_id)
+
+func set_selected(is_selected: bool) -> void:
+    if state_ring:
+        state_ring.visible = is_selected
+
