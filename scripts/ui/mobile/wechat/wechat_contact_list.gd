@@ -2,6 +2,8 @@ extends Control
 
 signal character_selected(char_id: String)
 
+const CONTACT_ITEM_SCENE = preload("res://scenes/ui/mobile/wechat/wechat_contact_item.tscn")
+
 @onready var contact_list: VBoxContainer = $Panel/ScrollContainer/ContactList
 
 func _ready() -> void:
@@ -64,10 +66,10 @@ func _create_category(title: String, contacts: Array) -> void:
     header.text = "  " + title
     header.custom_minimum_size = Vector2(0, 30)
     header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-    header.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+    header.add_theme_color_override("font_color", Color(0.560784, 0.592157, 0.65098))
     header.add_theme_font_size_override("font_size", 12)
     var style = StyleBoxFlat.new()
-    style.bg_color = Color(0.1, 0.1, 0.15)
+    style.bg_color = Color(0.965, 0.972, 0.985)
     header.add_theme_stylebox_override("normal", style)
     
     contact_list.add_child(header)
@@ -76,74 +78,10 @@ func _create_category(title: String, contacts: Array) -> void:
         _create_contact_item(c)
 
 func _create_contact_item(info: Dictionary) -> void:
-    var btn = Button.new()
-    btn.custom_minimum_size = Vector2(0, 60)
-    btn.flat = true
-    
-    var style = StyleBoxFlat.new()
-    style.bg_color = Color(0.12, 0.12, 0.18, 1)
-    style.border_width_bottom = 1
-    style.border_color = Color(0.2, 0.2, 0.3)
-    btn.add_theme_stylebox_override("normal", style)
-    
-    var hover_style = style.duplicate()
-    hover_style.bg_color = Color(0.18, 0.18, 0.25, 1)
-    btn.add_theme_stylebox_override("hover", hover_style)
-    btn.add_theme_stylebox_override("pressed", hover_style)
-    
-    btn.pressed.connect(func(): _on_contact_selected(info.id))
-    
-    var hbox = HBoxContainer.new()
-    hbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    hbox.add_theme_constant_override("separation", 15)
-    
-    var margin = MarginContainer.new()
-    margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    margin.add_theme_constant_override("margin_left", 15)
-    margin.add_theme_constant_override("margin_right", 15)
-    margin.add_theme_constant_override("margin_top", 10)
-    margin.add_theme_constant_override("margin_bottom", 10)
-    margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    
-    btn.add_child(margin)
-    margin.add_child(hbox)
-    
-    var avatar_rect = TextureRect.new()
-    avatar_rect.custom_minimum_size = Vector2(40, 40)
-    avatar_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    avatar_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-    avatar_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    
-    if info.avatar != "" and ResourceLoader.exists(info.avatar):
-        avatar_rect.texture = load(info.avatar)
-    else:
-        avatar_rect.texture = preload("res://icon.svg")
-        
-    var mask_panel = PanelContainer.new()
-    mask_panel.custom_minimum_size = Vector2(40, 40)
-    mask_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-    mask_panel.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
-    var mask_style = StyleBoxFlat.new()
-    mask_style.bg_color = Color.WHITE
-    mask_style.corner_radius_top_left = 8
-    mask_style.corner_radius_top_right = 8
-    mask_style.corner_radius_bottom_left = 8
-    mask_style.corner_radius_bottom_right = 8
-    mask_panel.add_theme_stylebox_override("panel", mask_style)
-    mask_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    mask_panel.add_child(avatar_rect)
-    
-    hbox.add_child(mask_panel)
-    
-    var name_lbl = Label.new()
-    name_lbl.text = info.name
-    name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-    name_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-    name_lbl.add_theme_font_size_override("font_size", 16)
-    hbox.add_child(name_lbl)
-    
-    contact_list.add_child(btn)
+    var item = CONTACT_ITEM_SCENE.instantiate()
+    contact_list.add_child(item)
+    item.setup(info)
+    item.selected.connect(_on_contact_selected)
 
 func _on_contact_selected(char_id: String) -> void:
     character_selected.emit(char_id)

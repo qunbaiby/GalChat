@@ -3,57 +3,66 @@
 [ext_resource type="Script" path="res://scripts/ui/mobile/between_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.12, 0.13, 0.15, 0.6)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
+border_color = Color(0.87, 0.89, 0.93, 1)
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.08, 0.09, 0.1, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
+bg_color = Color(0.96, 0.97, 0.985, 0.98)
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
-bg_color = Color(0.33, 0.27, 0.19, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonNormal"]
-bg_color = Color(0.16, 0.17, 0.2, 1)
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
-bg_color = Color(0.12, 0.13, 0.15, 0.6)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(1, 1, 1, 0.98)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
+border_color = Color(0.87, 0.89, 0.93, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Relation"]
-bg_color = Color(0.15, 0.16, 0.19, 0.96)
+bg_color = Color(0.978, 0.982, 0.99, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Action"]
-bg_color = Color(0.39, 0.27, 0.2, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -76,20 +85,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.04, 0.04, 0.05, 0.84)
+color = Color(0, 0, 0, 0)
 
 [node name="PanelRoot" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(390, 670)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -195.0
-offset_top = -335.0
-offset_right = 195.0
-offset_bottom = 335.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
@@ -128,15 +130,15 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 18
-text = "  ◆ 你我之间"
+text = "你我之间"
 
 [node name="SummaryLabel" type="Label" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 autowrap_mode = 3
 
 [node name="Margin" type="MarginContainer" parent="PanelRoot/VBox"]
@@ -243,7 +245,7 @@ theme_override_constants/separation = 14
 visible = false
 custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.68, 0.72, 0.78, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 text = "这里还没有被收录的共同回忆。"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -296,9 +298,9 @@ layout_mode = 2
 [node name="DetailTitle" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 18
-text = "  ◆ 回忆详情"
+text = "回忆详情"
 autowrap_mode = 3
 
 [node name="DetailCloseBtn" type="Button" parent="DetailOverlay/DetailPanel/VBoxRoot/HeaderPanel/Margin/TopBar"]
@@ -324,7 +326,7 @@ theme_override_constants/separation = 10
 [node name="DetailMeta" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.73, 0.76, 0.8, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 autowrap_mode = 3
 
 [node name="DetailImage" type="TextureRect" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
@@ -336,7 +338,7 @@ stretch_mode = 5
 [node name="DetailTags" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.92, 0.77, 0.57, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 autowrap_mode = 3
 
 [node name="DetailSummary" type="RichTextLabel" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
@@ -363,18 +365,18 @@ theme_override_constants/separation = 6
 [node name="DetailRelationTitle" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 
 [node name="DetailRelationBody" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.84, 0.87, 0.92, 1)
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
 autowrap_mode = 3
 
 [node name="DetailQuote" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.84, 0.88, 0.95, 1)
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
 autowrap_mode = 3
 
 [node name="ActionBar" type="HBoxContainer" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]

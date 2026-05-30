@@ -1,0 +1,140 @@
+[gd_scene load_steps=6 format=3 uid="uid://cpxmmv8r5v3j2"]
+
+[ext_resource type="Script" uid="uid://bf2sx5f0exv2d" path="res://scripts/ui/mobile/chat/mobile_contact_list_item.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Normal"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hover"]
+bg_color = Color(1, 0.972549, 0.945098, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.81, 0.63, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.06)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.81, 0.63, 0.75)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_UnreadBadge"]
+bg_color = Color(0.92, 0.27, 0.27, 1)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[node name="MobileContactListItem" type="Button"]
+custom_minimum_size = Vector2(0, 80)
+offset_right = 389.0
+offset_bottom = 80.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_Normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
+flat = true
+script = ExtResource("1_script")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="HBox" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="AvatarMask" type="PanelContainer" parent="Margin/HBox"]
+clip_children = 1
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
+
+[node name="AvatarRect" type="TextureRect" parent="Margin/HBox/AvatarMask"]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TextVBox" type="VBoxContainer" parent="Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="TopHBox" type="HBoxContainer" parent="Margin/HBox/TextVBox"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "联系人"
+
+[node name="TimeLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.56, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "12:00"
+
+[node name="UnreadBadge" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
+visible = false
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_UnreadBadge")
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MsgLabel" type="Label" parent="Margin/HBox/TextVBox"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.56, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "暂无消息"
+clip_text = true
+text_overrun_behavior = 3

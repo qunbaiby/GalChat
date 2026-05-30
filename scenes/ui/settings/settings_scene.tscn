@@ -1,8 +1,57 @@
-[gd_scene load_steps=3 format=3 uid="uid://cycb3x2x4y5v1"]
+[gd_scene load_steps=8 format=3 uid="uid://cycb3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://c2letthx3s2k7" path="res://scripts/ui/settings/settings_scene.gd" id="1_sc123"]
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_Settings"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(0.972, 0.976, 0.985, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.98, 0.985, 0.99, 0.9)
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SaveButton"]
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.52, 0.21, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="SettingsScene" type="Control"]
 layout_mode = 3
@@ -20,6 +69,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
 
 [node name="TopBar" type="Panel" parent="."]
 layout_mode = 1
@@ -27,6 +77,7 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 80.0
 grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
 [node name="Title" type="Label" parent="TopBar"]
 layout_mode = 1
@@ -35,6 +86,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 text = "设置"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -49,6 +101,10 @@ offset_top = -25.0
 offset_right = 100.0
 offset_bottom = 25.0
 grow_vertical = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
 text = "返回"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
@@ -89,6 +145,7 @@ theme_override_constants/separation = 24
 
 [node name="API 设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel"]
 layout_mode = 2
@@ -103,7 +160,7 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 20
 text = "API 设置"
 
@@ -197,6 +254,7 @@ text = "清除聊天记录"
 
 [node name="语音设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel"]
 layout_mode = 2
@@ -211,7 +269,7 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 20
 text = "语音设置"
 
@@ -332,6 +390,7 @@ editable = false
 
 [node name="向量记忆设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel"]
 layout_mode = 2
@@ -346,7 +405,7 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 20
 text = "向量记忆设置"
 
@@ -391,6 +450,7 @@ text = "ep-xxxxxx"
 
 [node name="多模态视觉设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel"]
 layout_mode = 2
@@ -405,7 +465,7 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 20
 text = "多模态视觉设置"
 
@@ -460,6 +520,7 @@ text = "https://ark.cn-beijing.volces.com/api/v3"
 
 [node name="图像生成设置Panel" type="PanelContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel"]
 layout_mode = 2
@@ -474,7 +535,7 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.4, 0.8, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 20
 text = "图像生成设置"
 
@@ -674,6 +735,7 @@ theme_override_constants/separation = 24
 
 [node name="ConfigPanel" type="PanelContainer" parent="ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="Margin" type="MarginContainer" parent="ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel"]
 layout_mode = 2
@@ -797,6 +859,9 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_SaveButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SaveButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SaveButton")
 text = "保存并应用"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
@@ -804,3 +869,5 @@ text = "保存并应用"
 [node name="MicCapture" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamMicrophone_Settings")
 bus = &"Record"
+
+

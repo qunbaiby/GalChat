@@ -3,41 +3,53 @@
 [ext_resource type="Script" path="res://scripts/ui/common/info_popup.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PopupBg"]
-bg_color = Color(0.96, 0.96, 0.96, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 15
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleBar"]
-bg_color = Color(0.15, 0.15, 0.15, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
+bg_color = Color(1, 0.988235, 0.972549, 1)
+border_width_bottom = 1
+border_color = Color(0.95, 0.88, 0.82, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconBg"]
-bg_color = Color(0.9, 0.9, 0.9, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.8, 0.8, 0.8, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.92, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
-color = Color(0.8, 0.8, 0.8, 1)
+color = Color(0.9, 0.92, 0.95, 1)
 thickness = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ConfirmBtn"]
-bg_color = Color(0.2, 0.6, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.52, 0.21, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="InfoPopup" type="CanvasLayer"]
 layer = 100
@@ -58,7 +70,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.4)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="CenterContainer" type="CenterContainer" parent="Control"]
 layout_mode = 1
@@ -94,12 +106,12 @@ layout_mode = 2
 custom_minimum_size = Vector2(4, 20)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.2, 0.6, 1, 1)
+color = Color(0.956863, 0.529412, 0.188235, 1)
 
 [node name="TitleLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/TitleBar/Margin/HBox" unique_name_in_owner=true]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 18
 text = "详情"
 vertical_alignment = 1
@@ -108,7 +120,7 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
 theme_override_font_sizes/font_size = 20
 text = "✕"
 flat = true
@@ -116,7 +128,7 @@ flat = true
 [node name="BlueLine" type="ColorRect" parent="Control/CenterContainer/PopupPanel/VBox"]
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
-color = Color(0.2, 0.6, 1, 1)
+color = Color(1, 0.95, 0.9, 1)
 
 [node name="ContentMargin" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/VBox"]
 layout_mode = 2
@@ -156,7 +168,7 @@ stretch_mode = 5
 
 [node name="OwnedLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/LeftVBox" unique_name_in_owner=true]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "已拥有：0"
 horizontal_alignment = 1
@@ -168,7 +180,7 @@ theme_override_constants/separation = 8
 
 [node name="ItemNameLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/RightVBox" unique_name_in_owner=true]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 20
 text = "名称"
 
@@ -180,7 +192,7 @@ theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 [node name="DescLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/RightVBox" unique_name_in_owner=true]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
 theme_override_font_sizes/font_size = 14
 text = "这里是详细的说明文字"
 autowrap_mode = 3
@@ -200,3 +212,5 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ConfirmBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ConfirmBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ConfirmBtn")
 text = "确定"
+
+

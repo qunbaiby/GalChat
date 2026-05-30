@@ -5,42 +5,57 @@
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VoiceBg"]
-bg_color = Color(0.101960786, 0.12156863, 0.14901961, 1)
+bg_color = Color(0.985, 0.988, 0.995, 0.94)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarBg"]
-bg_color = Color(0.8, 0.8, 0.8, 1)
+bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 60
 corner_radius_top_right = 60
 corner_radius_bottom_right = 60
 corner_radius_bottom_left = 60
-shadow_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+shadow_color = Color(0, 0, 0, 0.06)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
-bg_color = Color(0.8, 0.2, 0.2, 1)
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
 corner_radius_bottom_left = 35
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xi0o"]
-bg_color = Color(0.44875467, 0.062193282, 0.06840681, 1)
+bg_color = Color(0.78, 0.68, 0.62, 1)
 corner_radius_top_left = 25
 corner_radius_top_right = 25
 corner_radius_bottom_right = 25
 corner_radius_bottom_left = 25
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
-bg_color = Color(0.2, 0.6, 0.2, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
 corner_radius_bottom_left = 35
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k5ilk"]
-bg_color = Color(0.10227265, 0.3329983, 0.10143649, 1)
+bg_color = Color(0.72, 0.58, 0.46, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
@@ -102,14 +117,14 @@ stretch_mode = 6
 
 [node name="NameLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 24
 text = "Name"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "通话中"
 horizontal_alignment = 1
@@ -123,7 +138,7 @@ theme_override_constants/margin_right = 30
 [node name="MessageLabel" type="RichTextLabel" parent="Panel/VBox/MessageCenter"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/default_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/default_color = Color(0.258824, 0.27451, 0.313726, 1)
 theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
 text = "[center]...[/center]"
@@ -144,7 +159,7 @@ alignment = 1
 custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
 theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
@@ -154,7 +169,7 @@ text = "☎"
 
 [node name="HangupLabel" type="Label" parent="Panel/VBox/BottomBar/HangupVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "挂断"
 horizontal_alignment = 1
@@ -178,7 +193,7 @@ text = "🎙"
 
 [node name="RecordLabel" type="Label" parent="Panel/VBox/BottomBar/RecordVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "按住说话"
 horizontal_alignment = 1
@@ -188,3 +203,5 @@ custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+

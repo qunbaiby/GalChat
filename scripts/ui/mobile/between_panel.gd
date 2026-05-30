@@ -95,11 +95,11 @@ func hide_panel() -> void:
 	)
 
 func _refresh_entries() -> void:
-	title_label.text = "  ◆ 你我之间"
+	title_label.text = "你我之间"
 	all_entries = album_manager.build_entries()
 	var summary = album_manager.get_summary(all_entries)
 	if all_entries.is_empty():
-		summary_label.text = "这里只收录你与Luna之间的共同记录。"
+		summary_label.text = "这里只收录你与 Luna 之间的共同记录。"
 	else:
 		summary_label.text = "已收录 %d 段回忆  ·  节点 %d  ·  收藏 %d  ·  未读 %d" % [
 			int(summary.get("total", 0)),
@@ -212,20 +212,25 @@ func _create_entry_card(entry: Dictionary) -> Control:
 	var meta: Label = card.get_node("Margin/HBox/TextVBox/MetaLabel")
 	var summary: Label = card.get_node("Margin/HBox/TextVBox/SummaryLabel")
 	var normal_style = StyleBoxFlat.new()
-	normal_style.bg_color = Color(0.14, 0.15, 0.18, 0.96)
+	normal_style.bg_color = Color(1, 1, 1, 0.98)
 	normal_style.corner_radius_top_left = 14
 	normal_style.corner_radius_top_right = 14
 	normal_style.corner_radius_bottom_left = 14
 	normal_style.corner_radius_bottom_right = 14
+	normal_style.border_width_left = 1
+	normal_style.border_width_top = 1
+	normal_style.border_width_right = 1
+	normal_style.border_width_bottom = 1
+	normal_style.border_color = Color(0.89, 0.91, 0.95, 1)
 	if bool(entry.get("is_milestone", false)):
-		normal_style.bg_color = Color(0.23, 0.19, 0.13, 0.98)
+		normal_style.bg_color = Color(1, 0.972549, 0.945098, 1)
 		normal_style.border_width_left = 1
 		normal_style.border_width_top = 1
 		normal_style.border_width_right = 1
 		normal_style.border_width_bottom = 1
-		normal_style.border_color = Color(0.94, 0.78, 0.45, 0.35)
+		normal_style.border_color = Color(0.956863, 0.529412, 0.188235, 0.35)
 	elif not bool(entry.get("is_viewed", false)):
-		normal_style.bg_color = Color(0.16, 0.18, 0.23, 0.98)
+		normal_style.bg_color = Color(0.978, 0.982, 0.99, 1)
 	card_panel.add_theme_stylebox_override("panel", normal_style)
 	var cover_path = str(entry.get("cover_image", ""))
 	var tex = _load_texture(cover_path)
@@ -235,11 +240,16 @@ func _create_entry_card(entry: Dictionary) -> Control:
 	cover_icon.text = _get_category_icon(str(entry.get("category", "")))
 	if bool(entry.get("is_milestone", false)):
 		var cover_style = StyleBoxFlat.new()
-		cover_style.bg_color = Color(0.37, 0.28, 0.16, 1.0)
+		cover_style.bg_color = Color(1, 0.972549, 0.945098, 1)
 		cover_style.corner_radius_top_left = 12
 		cover_style.corner_radius_top_right = 12
 		cover_style.corner_radius_bottom_left = 12
 		cover_style.corner_radius_bottom_right = 12
+		cover_style.border_width_left = 1
+		cover_style.border_width_top = 1
+		cover_style.border_width_right = 1
+		cover_style.border_width_bottom = 1
+		cover_style.border_color = Color(0.956863, 0.529412, 0.188235, 0.25)
 		cover_panel.add_theme_stylebox_override("panel", cover_style)
 	title.text = _build_entry_title(entry)
 	meta.text = _build_entry_meta(entry)

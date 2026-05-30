@@ -5,21 +5,34 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rainbow"]
 shader = ExtResource("3_shader_file")
-shader_parameter/color1 = Color(0, 0.8, 1, 1)
-shader_parameter/color2 = Color(1, 0, 0.5, 1)
+shader_parameter/color1 = Color(0.956863, 0.529412, 0.188235, 1)
+shader_parameter/color2 = Color(1, 0.854902, 0.627451, 1)
 shader_parameter/speed = 1.0
 shader_parameter/border_width = 0.015
 shader_parameter/blur = 0.005
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
-bg_color = Color(0.08, 0.1, 0.15, 0.95)
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 24
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.14)
+shadow_size = 18
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Btn"]
-bg_color = Color(0.2, 0.22, 0.28, 1)
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
 corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
@@ -41,7 +54,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.5)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -63,6 +76,7 @@ custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "X"
 flat = true
 
@@ -99,6 +113,7 @@ theme_override_constants/separation = 5
 
 [node name="ModeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
 theme_override_font_sizes/font_size = 20
 text = "工作"
 horizontal_alignment = 1
@@ -106,21 +121,21 @@ horizontal_alignment = 1
 [node name="TimeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 text = "25:00"
 horizontal_alignment = 1
 
 [node name="StateLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.3, 0.7, 1, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 text = "空闲中"
 horizontal_alignment = 1
 
 [node name="RoundLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 text = "第 1 / 2 轮"
 horizontal_alignment = 1
 
@@ -135,6 +150,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 20
 text = "▶"
 
@@ -144,6 +160,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 20
 text = "||"
 
@@ -153,6 +170,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 20
 text = "↻"
 
@@ -172,7 +190,7 @@ alignment = 1
 [node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/Settings/WorkSet"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 text = "专注"
 horizontal_alignment = 1
 
@@ -191,7 +209,7 @@ alignment = 1
 [node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/Settings/RestSet"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 text = "休息"
 horizontal_alignment = 1
 
@@ -210,7 +228,7 @@ alignment = 1
 [node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/Settings/LoopSet"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 text = "循环"
 horizontal_alignment = 1
 
@@ -219,5 +237,7 @@ layout_mode = 2
 min_value = 1.0
 max_value = 10.0
 value = 2.0
-suffix = "次"
+suffix = "轮"
 alignment = 1
+
+

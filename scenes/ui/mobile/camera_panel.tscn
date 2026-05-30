@@ -5,14 +5,14 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CameraBg"]
 bg_color = Color(0, 0, 0, 0)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.72)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnNormal"]
-bg_color = Color(1, 1, 1, 0.3)
+bg_color = Color(1, 1, 1, 0.92)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
@@ -21,10 +21,10 @@ border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
-border_color = Color(1, 1, 1, 1)
+border_color = Color(0.956863, 0.529412, 0.188235, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnHover"]
-bg_color = Color(1, 1, 1, 0.5)
+bg_color = Color(1, 0.972549, 0.945098, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
@@ -33,7 +33,7 @@ border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
-border_color = Color(1, 1, 1, 1)
+border_color = Color(0.956863, 0.529412, 0.188235, 1)
 
 [node name="CameraPanel" type="Control"]
 layout_mode = 3
@@ -100,6 +100,7 @@ offset_right = -20.0
 offset_bottom = 70.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "✖"
 flat = true
 
@@ -141,11 +142,15 @@ alignment = 1
 [node name="CancelBtn" type="Button" parent="Overlay/ActionRow"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
 theme_override_font_sizes/font_size = 20
 text = "取消"
 
 [node name="SaveBtn" type="Button" parent="Overlay/ActionRow"]
 custom_minimum_size = Vector2(150, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
 theme_override_font_sizes/font_size = 20
 text = "保存到相册"
+
+

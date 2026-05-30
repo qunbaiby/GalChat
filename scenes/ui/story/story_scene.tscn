@@ -13,11 +13,31 @@ content_margin_left = 20.0
 content_margin_top = 10.0
 content_margin_right = 20.0
 content_margin_bottom = 10.0
-bg_color = Color(0.12, 0.12, 0.15, 0.85)
+bg_color = Color(0.985, 0.988, 0.995, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToolButton"]
+bg_color = Color(0.98, 0.985, 0.99, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -104,10 +124,18 @@ size_flags_horizontal = 3
 
 [node name="HideUIButton" type="Button" parent="UIPanel/UIOverlay"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ToolButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ToolButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ToolButton")
 text = "隐藏UI"
 
 [node name="CameraButton" type="Button" parent="UIPanel/UIOverlay"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ToolButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ToolButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ToolButton")
 text = "相机"
 
 [node name="FreeChatInfoLayer" type="Control" parent="UIPanel"]
@@ -148,14 +176,14 @@ theme_override_constants/separation = 5
 
 [node name="RoundLabel" type="Label" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 18
 text = "自由对话轮次: 0 / 5"
 
 [node name="StrategyLabel" type="RichTextLabel" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/default_color = Color(0.43, 0.45, 0.5, 1)
 theme_override_font_sizes/normal_font_size = 14
 bbcode_enabled = true
 text = "策略: 引导玩家说出心里话..."
@@ -174,3 +202,5 @@ bus = &"Record"
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")
 parameters/looping = true
+
+

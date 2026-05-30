@@ -3,6 +3,8 @@ extends Control
 signal back_requested
 signal character_selected(char_id: String)
 
+const CONTACT_ITEM_SCENE = preload("res://scenes/ui/mobile/chat/mobile_contact_list_item.tscn")
+
 @onready var back_btn: Button = $Panel/VBox/TopBar/BackBtn
 @onready var contact_list: VBoxContainer = $Panel/VBox/ScrollContainer/ContactList
 
@@ -115,121 +117,10 @@ func _format_time(time_str: String) -> String:
 	return time_str.substr(0, 10)
 
 func _create_contact_item(info: Dictionary) -> void:
-	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(0, 80)
-	btn.flat = true
-	
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.12, 0.18, 1)
-	style.border_width_bottom = 1
-	style.border_color = Color(0.2, 0.2, 0.3)
-	btn.add_theme_stylebox_override("normal", style)
-	
-	var hover_style = style.duplicate()
-	hover_style.bg_color = Color(0.18, 0.18, 0.25, 1)
-	btn.add_theme_stylebox_override("hover", hover_style)
-	btn.add_theme_stylebox_override("pressed", hover_style)
-	
-	btn.pressed.connect(func(): _on_contact_selected(info.id))
-	
-	# HBox container for layout
-	var hbox = HBoxContainer.new()
-	hbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	hbox.add_theme_constant_override("separation", 15)
-	
-	var margin = MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 15)
-	margin.add_theme_constant_override("margin_right", 15)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	btn.add_child(margin)
-	margin.add_child(hbox)
-	
-	# Avatar
-	var avatar_rect = TextureRect.new()
-	avatar_rect.custom_minimum_size = Vector2(60, 60)
-	avatar_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	avatar_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	avatar_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	if info.avatar != "" and ResourceLoader.exists(info.avatar):
-		avatar_rect.texture = load(info.avatar)
-	else:
-		avatar_rect.texture = preload("res://icon.svg")
-		
-	# Avatar mask (circle)
-	var mask_panel = PanelContainer.new()
-	mask_panel.custom_minimum_size = Vector2(60, 60)
-	mask_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	mask_panel.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
-	var mask_style = StyleBoxFlat.new()
-	mask_style.bg_color = Color.WHITE
-	mask_style.corner_radius_top_left = 30
-	mask_style.corner_radius_top_right = 30
-	mask_style.corner_radius_bottom_left = 30
-	mask_style.corner_radius_bottom_right = 30
-	mask_panel.add_theme_stylebox_override("panel", mask_style)
-	mask_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mask_panel.add_child(avatar_rect)
-	
-	hbox.add_child(mask_panel)
-	
-	# VBox for Text
-	var text_vbox = VBoxContainer.new()
-	text_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hbox.add_child(text_vbox)
-	
-	# Top row in Text VBox (Name + Time)
-	var top_hbox = HBoxContainer.new()
-	top_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	text_vbox.add_child(top_hbox)
-	
-	var name_lbl = Label.new()
-	name_lbl.text = info.name
-	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	name_lbl.add_theme_font_size_override("font_size", 16)
-	top_hbox.add_child(name_lbl)
-	
-	var time_lbl = Label.new()
-	time_lbl.text = info.last_time
-	time_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.6))
-	time_lbl.add_theme_font_size_override("font_size", 12)
-	top_hbox.add_child(time_lbl)
-	
-	if int(info.get("unread_count", 0)) > 0:
-		var unread_badge = Label.new()
-		unread_badge.text = str(min(int(info.unread_count), 99))
-		unread_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		unread_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		unread_badge.custom_minimum_size = Vector2(22, 22)
-		unread_badge.add_theme_font_size_override("font_size", 11)
-		unread_badge.add_theme_color_override("font_color", Color.WHITE)
-		var badge_style = StyleBoxFlat.new()
-		badge_style.bg_color = Color(0.92, 0.27, 0.27)
-		badge_style.corner_radius_top_left = 11
-		badge_style.corner_radius_top_right = 11
-		badge_style.corner_radius_bottom_left = 11
-		badge_style.corner_radius_bottom_right = 11
-		unread_badge.add_theme_stylebox_override("normal", badge_style)
-		top_hbox.add_child(unread_badge)
-	
-	# Bottom row in Text VBox (Last Message)
-	var msg_lbl = Label.new()
-	msg_lbl.text = info.last_msg
-	msg_lbl.add_theme_color_override("font_color", Color(0.95, 0.95, 0.98) if int(info.get("unread_count", 0)) > 0 else Color(0.6, 0.6, 0.7))
-	msg_lbl.add_theme_font_size_override("font_size", 14)
-	msg_lbl.clip_text = true
-	msg_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	msg_lbl.custom_minimum_size = Vector2(0, 20)
-	text_vbox.add_child(msg_lbl)
-	
-	contact_list.add_child(btn)
+	var item = CONTACT_ITEM_SCENE.instantiate()
+	contact_list.add_child(item)
+	item.setup(info)
+	item.selected.connect(_on_contact_selected)
 
 func _on_contact_selected(char_id: String) -> void:
 	character_selected.emit(char_id)

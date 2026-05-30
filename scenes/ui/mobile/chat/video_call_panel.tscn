@@ -5,24 +5,29 @@
 [ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png" id="2_noiyw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VideoBg"]
-bg_color = Color(0.050980393, 0.050980393, 0.050980393, 0.6313726)
+bg_color = Color(0.985, 0.988, 0.995, 0.24)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
-bg_color = Color(0.8, 0.2, 0.2, 1)
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
 corner_radius_bottom_left = 35
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xi0o"]
-bg_color = Color(0.44875467, 0.062193282, 0.06840681, 1)
+bg_color = Color(0.72, 0.58, 0.46, 1)
 corner_radius_top_left = 25
 corner_radius_top_right = 25
 corner_radius_bottom_right = 25
 corner_radius_bottom_left = 25
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
-bg_color = Color(0.10227265, 0.3329983, 0.10143649, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
@@ -92,7 +97,7 @@ horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 14
@@ -131,7 +136,7 @@ alignment = 1
 custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
 theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
@@ -141,7 +146,7 @@ text = "☎"
 
 [node name="HangupLabel" type="Label" parent="Panel/VBox/BottomBar/HangupVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 14
@@ -167,7 +172,7 @@ text = "🎙"
 
 [node name="RecordLabel" type="Label" parent="Panel/VBox/BottomBar/RecordVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 14
@@ -179,3 +184,5 @@ custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+

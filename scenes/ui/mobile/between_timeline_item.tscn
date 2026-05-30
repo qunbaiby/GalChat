@@ -14,21 +14,21 @@ layout_mode = 2
 offset_left = 14.0
 offset_right = 16.0
 offset_bottom = 34.0
-color = Color(1, 1, 1, 0.12)
+color = Color(0.9, 0.92, 0.95, 1)
 
 [node name="Dot" type="ColorRect" parent="Rail"]
 offset_left = 8.0
 offset_top = 34.0
 offset_right = 22.0
 offset_bottom = 48.0
-color = Color(0.75, 0.8, 0.96, 1)
+color = Color(0.956863, 0.529412, 0.188235, 1)
 
 [node name="LineBottom" type="ColorRect" parent="Rail"]
 offset_left = 14.0
 offset_top = 52.0
 offset_right = 16.0
 offset_bottom = 140.0
-color = Color(1, 1, 1, 0.12)
+color = Color(0.9, 0.92, 0.95, 1)
 
 [node name="CardHolder" type="PanelContainer" parent="."]
 layout_mode = 2

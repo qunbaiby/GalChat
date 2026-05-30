@@ -77,8 +77,12 @@ func _on_tab_pressed(index: int) -> void:
         if moments_instance.has_method("refresh_list"):
             moments_instance.refresh_list()
 
-func show_panel() -> void:
+func show_panel(animated: bool = true) -> void:
     show()
+    if not animated:
+        position.x = 0.0
+        modulate.a = 1.0
+        return
     # position slide in
     position.x = size.x
     modulate.a = 0.0

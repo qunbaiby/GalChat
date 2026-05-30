@@ -3,28 +3,33 @@
 [ext_resource type="Script" uid="uid://bscfneq0ojqtm" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DiaryBook"]
-bg_color = Color(0.96, 0.94, 0.9, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.85, 0.8, 0.75, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 15
+bg_color = Color(0.985, 0.982, 0.972, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.87, 0.82, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 18
 shadow_offset = Vector2(0, 5)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Polaroid"]
 bg_color = Color(1, 1, 1, 1)
-shadow_color = Color(0, 0, 0, 0.15)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.93, 0.93, 0.93, 1)
+shadow_color = Color(0, 0, 0, 0.12)
 shadow_size = 10
 shadow_offset = Vector2(2, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Divider"]
-bg_color = Color(0.8, 0.75, 0.7, 1)
+bg_color = Color(0.91, 0.88, 0.83, 1)
 
 [node name="DiaryPanel" type="Control"]
 layout_mode = 3
@@ -42,7 +47,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.5)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -170,7 +175,7 @@ layout_mode = 2
 
 [node name="DateLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.35, 0.3, 0.24, 1)
 theme_override_font_sizes/font_size = 20
 text = "2025年4月23日"
 
@@ -180,18 +185,19 @@ size_flags_horizontal = 3
 
 [node name="WeatherLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.58, 0.52, 0.44, 1)
 theme_override_font_sizes/font_size = 18
 text = "晴"
 
 [node name="CloseButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "X"
 
 [node name="TitleLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_color = Color(0.35, 0.3, 0.24, 1)
 theme_override_font_sizes/font_size = 24
 text = "— 每日小记 —"
 horizontal_alignment = 1
@@ -206,7 +212,7 @@ vertical_scroll_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/default_color = Color(0.34, 0.31, 0.28, 1)
 theme_override_constants/line_separation = 10
 theme_override_font_sizes/normal_font_size = 18
 text = "　　今天发生了一些有趣的事情..."
@@ -218,7 +224,7 @@ layout_mode = 2
 
 [node name="PageNumLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.58, 0.52, 0.44, 1)
 text = "1 / 1"
 
 [node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
@@ -268,3 +274,5 @@ offset_bottom = 80.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 28
 text = "X"
+
+

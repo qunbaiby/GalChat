@@ -22,7 +22,7 @@ func _ready():
 	avatar_panel.add_theme_stylebox_override("panel", avatar_style)
 
 	text_style = StyleBoxFlat.new()
-	text_style.bg_color = Color(0.46, 0.45, 0.53, 1) # #757488 approx
+	text_style.bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 	text_style.corner_radius_top_left = 15
 	text_style.corner_radius_top_right = 0
 	text_style.corner_radius_bottom_left = 15
@@ -33,7 +33,7 @@ func _ready():
 	text_style.shadow_offset = Vector2(0, 2)
 	
 	rp_style = StyleBoxFlat.new()
-	rp_style.bg_color = Color(0.85, 0.35, 0.25, 1)
+	rp_style.bg_color = Color(0.901961, 0.45098, 0.121569, 1)
 	rp_style.corner_radius_top_left = 12
 	rp_style.corner_radius_top_right = 0
 	rp_style.corner_radius_bottom_left = 12

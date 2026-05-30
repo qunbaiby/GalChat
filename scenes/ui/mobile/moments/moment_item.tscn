@@ -1,13 +1,45 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mobile/moments/moment_item.gd" id="1_script"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CommentsBg"]
-bg_color = Color(0.1, 0.1, 0.12, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.978, 0.982, 0.99, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionBtn"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="MomentItem" type="VBoxContainer"]
 anchors_preset = 10
@@ -16,7 +48,22 @@ grow_horizontal = 2
 theme_override_constants/separation = 10
 script = ExtResource("1_script")
 
-[node name="Header" type="HBoxContainer" parent="."]
+[node name="CardBg" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="CardMargin" type="MarginContainer" parent="CardBg"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="CardVBox" type="VBoxContainer" parent="CardBg/CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="CardBg/CardMargin/CardVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
@@ -29,28 +76,29 @@ stretch_mode = 5
 [node name="Name" type="Label" parent="Header"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.4, 0.6, 0.9, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 text = "Author Name"
 
-[node name="Content" type="Label" parent="."]
+[node name="Content" type="Label" parent="CardBg/CardMargin/CardVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.258824, 0.27451, 0.313726, 1)
 text = "Moment content goes here..."
 autowrap_mode = 3
 
-[node name="ImagesGrid" type="GridContainer" parent="."]
+[node name="ImagesGrid" type="GridContainer" parent="CardBg/CardMargin/CardVBox"]
 layout_mode = 2
 theme_override_constants/h_separation = 5
 theme_override_constants/v_separation = 5
 columns = 3
 
-[node name="Actions" type="HBoxContainer" parent="."]
+[node name="Actions" type="HBoxContainer" parent="CardBg/CardMargin/CardVBox"]
 layout_mode = 2
 
 [node name="TimeLabel" type="Label" parent="Actions"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 text = "刚刚"
 
 [node name="Spacer" type="Control" parent="Actions"]
@@ -60,16 +108,24 @@ size_flags_horizontal = 3
 [node name="LikeBtn" type="Button" parent="Actions"]
 custom_minimum_size = Vector2(50, 24)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
 theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionBtn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionBtn")
 text = "点赞"
 
 [node name="CommentBtn" type="Button" parent="Actions"]
 custom_minimum_size = Vector2(50, 24)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
 theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionBtn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionBtn")
 text = "评论"
 
-[node name="CommentsArea" type="PanelContainer" parent="."]
+[node name="CommentsArea" type="PanelContainer" parent="CardBg/CardMargin/CardVBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_CommentsBg")
 
@@ -87,7 +143,7 @@ theme_override_constants/separation = 5
 [node name="LikesLabel" type="Label" parent="CommentsArea/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.4, 0.6, 0.9, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 
 [node name="HSeparator" type="HSeparator" parent="CommentsArea/Margin/VBox"]
 layout_mode = 2
@@ -96,7 +152,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="CommentInputArea" type="HBoxContainer" parent="."]
+[node name="CommentInputArea" type="HBoxContainer" parent="CardBg/CardMargin/CardVBox"]
 visible = false
 layout_mode = 2
 
@@ -108,3 +164,5 @@ placeholder_text = "说点什么..."
 [node name="SendBtn" type="Button" parent="CommentInputArea"]
 layout_mode = 2
 text = "发送"
+
+

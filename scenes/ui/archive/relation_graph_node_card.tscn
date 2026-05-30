@@ -1,8 +1,36 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/archive/relation_graph_node_card.gd" id="1_script"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Click"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarGlow"]
+bg_color = Color(1, 0.972549, 0.945098, 0.9)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0.956863, 0.529412, 0.188235, 0.22)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
+bg_color = Color(1, 1, 1, 0.98)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarBorder"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.956863, 0.529412, 0.188235, 0.55)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
 
 [node name="RelationGraphNodeCard" type="Control"]
 custom_minimum_size = Vector2(92, 116)
@@ -33,6 +61,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarGlow")
 
 [node name="AvatarMask" type="Panel" parent="AvatarContainer"]
 clip_children = 1
@@ -49,6 +78,7 @@ offset_bottom = 31.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
 [node name="Avatar" type="TextureRect" parent="AvatarContainer/AvatarMask"]
 layout_mode = 1
@@ -69,6 +99,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarBorder")
 
 [node name="Placeholder" type="Label" parent="AvatarContainer"]
 layout_mode = 1
@@ -79,6 +110,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -106,6 +138,7 @@ offset_bottom = 91.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 text = "角色名"
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -119,6 +152,7 @@ offset_bottom = 106.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 text = "关系阶段"
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -133,5 +167,6 @@ offset_bottom = 106.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.72, 0.58, 0.46, 1)
 text = "未解锁"
 horizontal_alignment = 1

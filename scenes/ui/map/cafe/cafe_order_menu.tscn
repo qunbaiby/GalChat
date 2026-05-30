@@ -9,6 +9,29 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainPanel"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.965, 0.972, 0.985, 1)
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPanel"]
+bg_color = Color(1, 1, 1, 0.88)
+border_width_left = 1
+border_color = Color(0.9, 0.92, 0.95, 1)
+
 [node name="CafeOrderMenu" type="CanvasLayer"]
 layer = 100
 script = ExtResource("1_script")
@@ -34,6 +57,7 @@ offset_right = -26.6667
 offset_bottom = 300.0
 grow_horizontal = 0
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_MainPanel")
 
 [node name="TopBar" type="Panel" parent="MainPanel"]
 custom_minimum_size = Vector2(0, 60)
@@ -41,6 +65,7 @@ layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
 [node name="TitleLabel" type="Label" parent="MainPanel/TopBar"]
 layout_mode = 1
@@ -49,6 +74,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
 theme_override_font_sizes/font_size = 24
 text = "商店"
 horizontal_alignment = 1
@@ -65,6 +91,7 @@ offset_left = -60.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.45, 0.48, 0.54, 1)
 text = "×"
 flat = true
 
@@ -113,7 +140,7 @@ offset_top = -30.0
 offset_right = 240.0
 offset_bottom = -10.0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.28, 0.31, 0.36, 1)
 text = "当前银币：0"
 
 [node name="NoticeLabel" type="Label" parent="MainPanel/ContentHBox/LeftPanel"]
@@ -126,12 +153,13 @@ offset_top = -30.0
 offset_right = 400.0
 offset_bottom = -10.0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 text = "※此商店商品每1周刷新"
 
 [node name="RightPanel" type="Panel" parent="MainPanel/ContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_RightPanel")
 
 [node name="Margin" type="MarginContainer" parent="MainPanel/ContentHBox/RightPanel"]
 layout_mode = 1
@@ -221,3 +249,5 @@ theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 text = "请在左侧选择商品"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+

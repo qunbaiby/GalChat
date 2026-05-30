@@ -7,18 +7,18 @@ const INFO_POPUP_SCENE = preload("res://scenes/ui/common/info_popup.tscn")
 @onready var mood_box = $MarginContainer/HBoxContainer/MoodBox
 @onready var stress_box = $MarginContainer/HBoxContainer/StressBox
 
-@onready var gold_icon = $MarginContainer/HBoxContainer/GoldBox/Icon
-@onready var energy_icon = $MarginContainer/HBoxContainer/EnergyBox/Icon
-@onready var mood_icon = $MarginContainer/HBoxContainer/MoodBox/Icon
-@onready var stress_icon = $MarginContainer/HBoxContainer/StressBox/Icon
+@onready var gold_icon = $MarginContainer/HBoxContainer/GoldBox/Content/Icon
+@onready var energy_icon = $MarginContainer/HBoxContainer/EnergyBox/Content/Icon
+@onready var mood_icon = $MarginContainer/HBoxContainer/MoodBox/Content/Icon
+@onready var stress_icon = $MarginContainer/HBoxContainer/StressBox/Content/Icon
 
-@onready var gold_label = $MarginContainer/HBoxContainer/GoldBox/ValueLabel
-@onready var energy_value = $MarginContainer/HBoxContainer/EnergyBox/ProgressBar/ValueLabel
-@onready var energy_progress = $MarginContainer/HBoxContainer/EnergyBox/ProgressBar
-@onready var mood_value = $MarginContainer/HBoxContainer/MoodBox/ProgressBar/ValueLabel
-@onready var mood_progress = $MarginContainer/HBoxContainer/MoodBox/ProgressBar
-@onready var stress_value = $MarginContainer/HBoxContainer/StressBox/ProgressBar/ValueLabel
-@onready var stress_progress = $MarginContainer/HBoxContainer/StressBox/ProgressBar
+@onready var gold_label = $MarginContainer/HBoxContainer/GoldBox/Content/ValueLabel
+@onready var energy_value = $MarginContainer/HBoxContainer/EnergyBox/Content/ProgressBar/ValueLabel
+@onready var energy_progress = $MarginContainer/HBoxContainer/EnergyBox/Content/ProgressBar
+@onready var mood_value = $MarginContainer/HBoxContainer/MoodBox/Content/ProgressBar/ValueLabel
+@onready var mood_progress = $MarginContainer/HBoxContainer/MoodBox/Content/ProgressBar
+@onready var stress_value = $MarginContainer/HBoxContainer/StressBox/Content/ProgressBar/ValueLabel
+@onready var stress_progress = $MarginContainer/HBoxContainer/StressBox/Content/ProgressBar
 
 func _ready() -> void:
     _update_ui()

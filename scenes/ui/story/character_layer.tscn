@@ -7,7 +7,7 @@
 script = ExtResource("2_script")
 
 [node name="StoryActor0" parent="." instance=ExtResource("1_actor")]
-modulate = Color(0.42, 0.42, 0.48, 1)
+modulate = Color(0.52, 0.52, 0.56, 1)
 z_index = 5
 position = Vector2(150, 1323)
 scale = Vector2(0.99, 0.99)
@@ -18,13 +18,13 @@ position = Vector2(430, 1313)
 scale = Vector2(1.002, 1.002)
 
 [node name="StoryActor2" parent="." instance=ExtResource("1_actor")]
-modulate = Color(0.42, 0.42, 0.48, 1)
+modulate = Color(0.52, 0.52, 0.56, 1)
 z_index = 5
 position = Vector2(850, 1323)
 scale = Vector2(0.99, 0.99)
 
 [node name="StoryActor3" parent="." instance=ExtResource("1_actor")]
-modulate = Color(0.42, 0.42, 0.48, 1)
+modulate = Color(0.52, 0.52, 0.56, 1)
 z_index = 5
 position = Vector2(1130, 1323)
 scale = Vector2(0.99, 0.99)

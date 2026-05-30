@@ -1,8 +1,52 @@
-[gd_scene load_steps=4 format=3 uid="uid://c1wbpr22f0ufh"]
+[gd_scene load_steps=7 format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://8mlvxtfblldg" path="res://assets/images/backgrounds/map/background/WorldMap.png" id="2_k082m"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="top_status_panel"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BottomBar"]
+bg_color = Color(0.98, 0.985, 0.99, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.89, 0.93, 0.95)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.98, 0.985, 0.99, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.89, 0.93, 0.95)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="WorldMapScene" type="Control"]
 layout_mode = 3
@@ -18,10 +62,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -710.0
-offset_top = -388.0
-offset_right = 770.55566
-offset_bottom = 444.8125
+offset_left = -358.0
+offset_top = -182.0
+offset_right = 320.0
+offset_bottom = 199.375
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_k082m")
@@ -45,24 +89,23 @@ offset_bottom = -264.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BottomBar" type="Control" parent="."]
+[node name="BottomBar" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -200.0
+offset_left = 18.0
+offset_top = -205.0
+offset_right = -18.0
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_BottomBar")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="BottomBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 0
 
@@ -70,10 +113,10 @@ vertical_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 23
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 23
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
 
 [node name="AreaList" type="HBoxContainer" parent="BottomBar/ScrollContainer/MarginContainer"]
 layout_mode = 2
@@ -81,40 +124,60 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_constants/separation = 20
 
-[node name="TopBar" type="Control" parent="."]
+[node name="TopBar" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 76.0
+offset_left = 18.0
+offset_top = 10.0
+offset_right = -812.0
+offset_bottom = 71.0
 grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="BackButton" type="Button" parent="TopBar"]
-layout_mode = 1
-offset_top = 16.0
-offset_right = 90.0
-offset_bottom = 56.0
+[node name="TopBarMargin" type="MarginContainer" parent="TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="TopBarHBox" type="HBoxContainer" parent="TopBar/TopBarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="TopBar/TopBarMargin/TopBarHBox"]
+custom_minimum_size = Vector2(124, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.31, 0.36, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
 text = "< 返回主页"
 
-[node name="ModeToggleButton" type="Button" parent="TopBar"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -150.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = 60.0
-grow_horizontal = 0
-text = "当前: 场景模式"
+[node name="TitleSpacerLeft" type="Control" parent="TopBar/TopBarMargin/TopBarHBox"]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
 
-[node name="Title" type="Label" parent="TopBar"]
-layout_mode = 1
-offset_left = 109.0
-offset_top = 19.0
-offset_right = 309.0
-offset_bottom = 53.0
+[node name="TitleCenter" type="CenterContainer" parent="TopBar/TopBarMargin/TopBarHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="TopBar/TopBarMargin/TopBarHBox/TitleCenter"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 24
-text = "江屿市地图"
+text = "当前: 场景模式"
 horizontal_alignment = 1
+
+[node name="RightButtons" type="HBoxContainer" parent="TopBar/TopBarMargin/TopBarHBox"]
+custom_minimum_size = Vector2(124, 0)
+layout_mode = 2
+alignment = 2
+
+[node name="ModeToggleButton" type="Button" parent="TopBar/TopBarMargin/TopBarHBox/RightButtons"]
+visible = false
+layout_mode = 2
+text = "江屿市地图"
+
+

@@ -22,18 +22,23 @@ func _ready():
 	avatar_panel.add_theme_stylebox_override("panel", avatar_style)
 	
 	text_style = StyleBoxFlat.new()
-	text_style.bg_color = Color(0.92, 0.92, 0.9, 1) # #EBEAE5 approx
+	text_style.bg_color = Color(1, 1, 1, 1)
 	text_style.corner_radius_top_left = 0
 	text_style.corner_radius_top_right = 15
 	text_style.corner_radius_bottom_left = 15
 	text_style.corner_radius_bottom_right = 15
+	text_style.border_width_left = 1
+	text_style.border_width_top = 1
+	text_style.border_width_right = 1
+	text_style.border_width_bottom = 1
+	text_style.border_color = Color(0.89, 0.91, 0.95, 1)
 	# Add shadow
 	text_style.shadow_color = Color(0, 0, 0, 0.1)
 	text_style.shadow_size = 4
 	text_style.shadow_offset = Vector2(0, 2)
 	
 	rp_style = StyleBoxFlat.new()
-	rp_style.bg_color = Color(0.96, 0.6, 0.25, 1) # WeChat red packet orange-red
+	rp_style.bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 	rp_style.corner_radius_top_left = 0
 	rp_style.corner_radius_top_right = 12
 	rp_style.corner_radius_bottom_left = 12
@@ -165,7 +170,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		transcribe_btn.add_theme_font_size_override("font_size", 12)
 		transcribe_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		var t_style = StyleBoxFlat.new()
-		t_style.bg_color = Color(0.1, 0.08, 0.07, 0.8)
+		t_style.bg_color = Color(0.965, 0.972, 0.985, 1)
 		t_style.corner_radius_top_left = 12
 		t_style.corner_radius_top_right = 12
 		t_style.corner_radius_bottom_left = 12
@@ -175,7 +180,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		t_style.content_margin_top = 4
 		t_style.content_margin_bottom = 4
 		transcribe_btn.add_theme_stylebox_override("normal", t_style)
-		transcribe_btn.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+		transcribe_btn.add_theme_color_override("font_color", Color(0.411765, 0.439216, 0.490196))
 		
 		var red_dot = Label.new()
 		red_dot.text = "•"
@@ -204,7 +209,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var transcribed_panel = PanelContainer.new()
 		transcribed_panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		var tr_style = StyleBoxFlat.new()
-		tr_style.bg_color = Color(0.14, 0.11, 0.1, 0.85)
+		tr_style.bg_color = Color(0.978, 0.982, 0.99, 1)
 		tr_style.corner_radius_top_left = 0
 		tr_style.corner_radius_top_right = 15
 		tr_style.corner_radius_bottom_left = 15
@@ -220,7 +225,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		
 		var tr_label = RichTextLabel.new()
 		tr_label.bbcode_enabled = true
-		tr_label.text = "[color=#dddddd]%s[/color]" % text
+		tr_label.text = "[color=#444a53]%s[/color]" % text
 		tr_label.fit_content = true
 		tr_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		tr_label.custom_minimum_size = Vector2(50, 0)

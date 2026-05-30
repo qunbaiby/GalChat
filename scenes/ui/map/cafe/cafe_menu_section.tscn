@@ -1,7 +1,11 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_Separator"]
+color = Color(0.9, 0.92, 0.95, 1)
+thickness = 2
 
 [node name="CafeMenuSection" type="VBoxContainer"]
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
 [node name="Header" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -9,20 +13,22 @@ layout_mode = 2
 [node name="LeftSeparator" type="HSeparator" parent="./Header"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/separator = SubResource("StyleBoxLine_Separator")
 
 [node name="TitleLabel" type="Label" parent="./Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 18
 text = "分类"
 
 [node name="RightSeparator" type="HSeparator" parent="./Header"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/separator = SubResource("StyleBoxLine_Separator")
 
 [node name="ItemGrid" type="GridContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 3
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18

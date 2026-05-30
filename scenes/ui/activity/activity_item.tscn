@@ -1,9 +1,24 @@
-[gd_scene load_steps=3 format=3 uid="uid://b23xxyy00456"]
+[gd_scene load_steps=5 format=3 uid="uid://b23xxyy00456"]
 
 [ext_resource type="Script" uid="uid://dakf4iikoukkf" path="res://scripts/ui/activity/activity_item.gd" id="1_item"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
-bg_color = Color(0.4, 0.8, 0.4, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
@@ -12,9 +27,10 @@ corner_radius_bottom_left = 5
 [node name="ActivityItem" type="PanelContainer"]
 custom_minimum_size = Vector2(210, 80)
 offset_right = 210.0
-offset_bottom = 80.0
+offset_bottom = 95.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 script = ExtResource("1_item")
 
 [node name="Margin" type="MarginContainer" parent="."]
@@ -42,58 +58,34 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="NameLabel" type="Label" parent="Margin/HBox/VBox/HeaderHBox"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 16
 text = "课程名称"
 
-[node name="LevelLabel" type="Label" parent="Margin/HBox/VBox/HeaderHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 11
-text = "初级"
-
-[node name="CostHBox" type="HBoxContainer" parent="Margin/HBox/VBox"]
+[node name="CostContainer" type="HBoxContainer" parent="Margin/HBox/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="EnergyCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 10
-text = "精力 -20"
-
-[node name="GoldCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.6, 0.2, 1)
-theme_override_font_sizes/font_size = 10
-text = "金币 -50"
-
-[node name="MoodCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.5, 0.8, 1)
-theme_override_font_sizes/font_size = 10
-text = "心情 -5"
-
-[node name="StressCost" type="Label" parent="Margin/HBox/VBox/CostHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.4, 0.8, 1)
-theme_override_font_sizes/font_size = 10
-text = "压力 +5"
-
-[node name="RewardsHBox" type="HBoxContainer" parent="Margin/HBox/VBox"]
+[node name="RewardsContainer" type="HBoxContainer" parent="Margin/HBox/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 5
 
 [node name="ProgressContainer" type="VBoxContainer" parent="Margin/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 
 [node name="Icon" type="TextureRect" parent="Margin/HBox/ProgressContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 mouse_filter = 2
@@ -105,25 +97,30 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="ProgressLabel" type="Label" parent="Margin/HBox/ProgressContainer/ProgressHBox"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 10
 text = "进度"
 
-[node name="IncrementLabel" type="Label" parent="Margin/HBox/ProgressContainer/ProgressHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.6, 0.3, 1)
-theme_override_font_sizes/font_size = 10
-text = "+10/次"
-
 [node name="ProgressBar" type="ProgressBar" parent="Margin/HBox/ProgressContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
 show_percentage = false
 
+[node name="IncrementLabel" type="Label" parent="Margin/HBox/ProgressContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_font_sizes/font_size = 9
+text = "单次 +10"
+horizontal_alignment = 1
+
 [node name="Button" type="Button" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 flat = true

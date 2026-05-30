@@ -1,18 +1,53 @@
-[gd_scene load_steps=3 format=3 uid="uid://item12346"]
+[gd_scene load_steps=4 format=3 uid="uid://item12346"]
 
 [ext_resource type="Script" uid="uid://o3endo8eh2qc" path="res://scripts/ui/story/quick_option_item.gd" id="1_qopt123"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qopt_focus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt"]
+bg_color = Color(0.985, 0.988, 0.995, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt_hover"]
+bg_color = Color(1, 0.98, 0.95, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.53, 0.19, 0.7)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
 
 [node name="QuickOptionItem" type="Button"]
 custom_minimum_size = Vector2(0, 50)
 offset_right = 439.0
 offset_bottom = 52.0
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.7, 0.7, 0.8, 1)
-theme_override_colors/font_hover_color = Color(0.9, 0.9, 1, 1)
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_pressed_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_colors/font_hover_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_qopt")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qopt_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_qopt_hover")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_qopt_focus")
 text = "Option Text"
 text_overrun_behavior = 3

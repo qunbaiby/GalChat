@@ -1,6 +1,6 @@
 extends Control
 
-const QuickOptionListHelper = preload("res://scripts/ui/story/quick_option_list_helper.gd")
+const QUICK_OPTION_LIST_HELPER = preload("res://scripts/ui/story/quick_option_list_helper.gd")
 const SUBMENU_FADE_DURATION := 0.25
 const SUBMENU_PORTRAIT_RATIO_X := 1.0 / 6.0
 const SUBMENU_INFO_HIDDEN_OFFSET_X := 120.0
@@ -70,7 +70,7 @@ const NPC_BUBBLE_LINES := {
 @onready var menu_options_vbox = $InteractionMenu/InfoAndOptions/OptionsVBox
 @onready var action_button_template: Button = $InteractionMenu/InfoAndOptions/OptionsVBox/ActionButtonTemplate
 
-@onready var topic_panel: Panel = $TopicPanel
+@onready var topic_panel: PanelContainer = $TopicPanel
 @onready var topic_container: VBoxContainer = $TopicPanel/TopicContainer
 
 @onready var dialogue_panel = $DialoguePanel
@@ -567,7 +567,7 @@ func _show_topic_panel() -> void:
 	var t_tween = create_tween()
 	t_tween.tween_property(topic_panel, "modulate:a", 1.0, 0.3)
 	
-	QuickOptionListHelper.show_loading_item(topic_container)
+	QUICK_OPTION_LIST_HELPER.show_loading_item(topic_container)
 	
 	# 请求 AI 动态生成话题
 	var profile = GameDataManager.profile
@@ -595,12 +595,12 @@ func _show_topic_panel() -> void:
 	)
 
 func _render_dynamic_topics(raw_text: String) -> void:
-	var topics = QuickOptionListHelper.parse_topic_lines(
+	var topics = QUICK_OPTION_LIST_HELPER.parse_topic_lines(
 		raw_text,
 		["聊点什么呢？", "天气不错", "分享件有趣的事"],
 		3
 	)
-	QuickOptionListHelper.populate_option_items(topic_container, topics, _on_topic_selected, 50.0)
+	QUICK_OPTION_LIST_HELPER.populate_option_items(topic_container, topics, _on_topic_selected, 50.0)
 
 func _on_topic_selected(topic: String) -> void:
 	# 执行互动开销

@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dbwmyour8af3m"]
+[gd_scene load_steps=9 format=3 uid="uid://dbwmyour8af3m"]
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_k2xx7"]
@@ -6,6 +6,45 @@
 [ext_resource type="PackedScene" uid="uid://d0vnlpr3gjrac" path="res://scenes/ui/desktop_pet/pet_body.tscn" id="3_yofv2"]
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PetInput"]
+bg_color = Color(0.985, 0.988, 0.995, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PetButton"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PetButtonPrimary"]
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.52, 0.21, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="DesktopPet" type="Window"]
 transparent_bg = true
@@ -55,16 +94,28 @@ theme_override_constants/separation = 10
 [node name="MainWindowButton" type="Button" parent="Control/UIContainer"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 text = "主界面"
 
 [node name="CloseButton" type="Button" parent="Control/UIContainer"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 text = "关闭"
 
 [node name="DialogueButton" type="Button" parent="Control/UIContainer"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButtonPrimary")
 text = "聊天"
 
 [node name="InputLayer" type="PanelContainer" parent="Control"]
@@ -76,6 +127,7 @@ anchor_bottom = 1.0
 offset_top = -46.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_PetInput")
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/InputLayer"]
 layout_mode = 2
@@ -99,18 +151,30 @@ scroll_fit_content_height = true
 [node name="VoiceRecordButton" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(45, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 theme_override_font_sizes/font_size = 14
 text = "🎙"
 
 [node name="SendButton" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(45, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButtonPrimary")
 theme_override_font_sizes/font_size = 14
 text = "发送"
 
 [node name="Close" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(45, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 theme_override_font_sizes/font_size = 14
 text = "关闭"
 
@@ -125,3 +189,5 @@ bus = &"Record"
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 bus = &"BGM"
+
+

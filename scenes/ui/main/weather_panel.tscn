@@ -1,21 +1,35 @@
-[gd_scene load_steps=3 format=3 uid="uid://bxudmxa8cfwjr"]
+[gd_scene load_steps=4 format=3 uid="uid://bxudmxa8cfwjr"]
 
 [ext_resource type="Script" uid="uid://dcyc4l41ptbor" path="res://scripts/ui/main/weather_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://by7p87kdfqqdv" path="res://assets/images/icons/ui/weather/sunny.svg" id="3_sunny"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(0.98, 0.985, 0.99, 0.84)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
 [node name="WeatherPanel" type="PanelContainer"]
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 100)
+custom_minimum_size = Vector2(240, 0)
 offset_right = 240.0
-offset_bottom = 100.0
+offset_bottom = 68.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 script = ExtResource("2_script")
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 10
 
 [node name="HBox" type="HBoxContainer" parent="Margin"]
 layout_mode = 2
@@ -37,7 +51,7 @@ stretch_mode = 5
 
 [node name="LocLabel" type="Label" parent="Margin/HBox/LeftVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_colors/font_color = Color(0.8800483, 0.89144754, 0.9127335, 1)
 theme_override_font_sizes/font_size = 12
 text = "星律 22°C"
 horizontal_alignment = 1
@@ -50,7 +64,7 @@ alignment = 1
 
 [node name="DateLabel" type="Label" parent="Margin/HBox/RightVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_colors/font_color = Color(0.897214, 0.90367264, 0.9201832, 1)
 theme_override_font_sizes/font_size = 14
 text = "2026/04/21(周二)"
 
@@ -60,6 +74,7 @@ theme_override_constants/separation = 4
 
 [node name="TimeLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 36
 text = "11:58"
 
@@ -70,5 +85,6 @@ theme_override_constants/margin_bottom = 6
 
 [node name="PeriodLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox/PeriodMargin"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 16
 text = "上午"

@@ -246,7 +246,7 @@ func update_sprite(new_texture: Texture2D) -> void:
     if default_actor:
         default_actor.update_texture(new_texture, false)
 
-func play_animation(anim_name: String, loop: bool = true) -> void:
+func play_animation(_anim_name: String, _loop: bool = true) -> void:
     # 兼容旧调用，现阶段由单个 Actor 自行选择默认动画。
     pass
 
@@ -592,8 +592,8 @@ func _ensure_story_actor_state(char_id: String) -> Dictionary:
         }
     return _story_actor_state[char_id]
 
-func _normalize_position_key(position: String) -> String:
-    return position.strip_edges().to_lower()
+func _normalize_position_key(position_key: String) -> String:
+    return position_key.strip_edges().to_lower()
 
 func _remove_nearest_position(positions: Array, target: Vector2) -> void:
     if positions.is_empty():
@@ -621,12 +621,12 @@ func _resolve_enter_animation(presentation: Dictionary) -> String:
     var animation = str(presentation.get("animation", "fade_in")).strip_edges()
     return animation if animation != "" else "fade_in"
 
-func _beautify_character_name(name: String) -> String:
-    if name == "":
+func _beautify_character_name(raw_name: String) -> String:
+    if raw_name == "":
         return ""
-    if name == name.to_lower():
-        return name.capitalize()
-    return name
+    if raw_name == raw_name.to_lower():
+        return raw_name.capitalize()
+    return raw_name
 
 func _get_default_slot_position() -> Vector2:
     return _get_slot_position("auto_1_center")

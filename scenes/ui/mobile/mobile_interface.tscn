@@ -30,7 +30,12 @@ content_margin_left = 10.0
 content_margin_top = 2.0
 content_margin_right = 10.0
 content_margin_bottom = 2.0
-bg_color = Color(0.85098, 0.94902, 0.901961, 1)
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -61,14 +66,14 @@ corner_radius_bottom_right = 40
 corner_radius_bottom_left = 40
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ExpBgNew"]
-bg_color = Color(0.482353, 0.768627, 0.721569, 0.5)
+bg_color = Color(0.89, 0.91, 0.95, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ExpFillNew"]
-bg_color = Color(0.482353, 0.768627, 0.721569, 1)
+bg_color = Color(0.372549, 0.603922, 0.952941, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -79,16 +84,18 @@ content_margin_left = 12.0
 content_margin_top = 4.0
 content_margin_right = 12.0
 content_margin_bottom = 4.0
-bg_color = Color(0.941176, 0.976471, 0.964706, 1)
+bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.482353, 0.768627, 0.721569, 1)
+border_color = Color(0.89, 0.91, 0.95, 1)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.04)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_te7qg"]
 bg_color = Color(1, 1, 1, 1)
@@ -115,33 +122,52 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ListContent"]
-bg_color = Color(0.14, 0.11, 0.1, 0.5)
+bg_color = Color(1, 1, 1, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_EntryIcon"]
+bg_color = Color(1, 0.972549, 0.945098, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.956863, 0.529412, 0.188235, 0.25)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PowerBtn"]
-bg_color = Color(0.0640295, 0.11533042, 0.13248202, 0.9019608)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.35, 0.27, 0.5)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.901961, 0.45098, 0.121569, 1)
 corner_radius_top_left = 25
 corner_radius_top_right = 25
 corner_radius_bottom_right = 25
 corner_radius_bottom_left = 25
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.08, 0.09, 0.1, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
+bg_color = Color(0.965, 0.972, 0.985, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="Animation" id="Animation_Init"]
 resource_name = "RESET"
@@ -299,7 +325,7 @@ layout_mode = 2
 
 [node name="UID_Label" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "UID 104384975"
 
@@ -309,13 +335,13 @@ size_flags_horizontal = 3
 
 [node name="SignalLabel" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "●●●●● 6G"
 
 [node name="BatLabel" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "98% ■"
 
@@ -380,7 +406,7 @@ alignment = 1
 
 [node name="PlayerName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 14
 text = "Player"
 
@@ -440,7 +466,7 @@ alignment = 1
 
 [node name="CharName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/NamePlate/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 14
 text = "Luna"
 
@@ -460,20 +486,20 @@ alignment = 2
 
 [node name="LevelTitle" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 12
 text = "共感等级"
 
 [node name="LevelProgress" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 12
 text = "0/100"
 
 [node name="LevelNum" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_outline_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 40
 text = "1"
@@ -529,17 +555,17 @@ stretch_mode = 5
 [node name="Separator" type="ColorRect" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
-color = Color(1, 1, 1, 0.2)
+color = Color(0.89, 0.91, 0.95, 1)
 
 [node name="CardsHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox"]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 164)
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12
 
 [node name="ImagePreview" type="Control" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
-custom_minimum_size = Vector2(225, 150)
+custom_minimum_size = Vector2(245, 164)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 size_flags_vertical = 4
 
 [node name="ImageCard" type="Panel" parent="PhonePanel/MainMargin/VBox/CardsHBox/ImagePreview"]
@@ -577,19 +603,20 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8r0ra")
 
 [node name="ButtonContainer" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
-theme_override_constants/separation = 15
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="CameraContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 16
 
 [node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -619,22 +646,25 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -21.5
+offset_left = -24.0
 offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 21.0
+offset_right = 24.0
+offset_bottom = 23.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 13
 text = "设置"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
 
 [node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SaveBtn"]
 custom_minimum_size = Vector2(20, 20)
@@ -661,26 +691,26 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -21.5
+offset_left = -24.0
 offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 21.0
+offset_right = 24.0
+offset_bottom = 23.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 13
 text = "存档"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 16
 
 [node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -710,22 +740,25 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -21.5
+offset_left = -24.0
 offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 21.0
+offset_right = 24.0
+offset_bottom = 23.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 13
 text = "读档"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
 
 [node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/AlbumBtn"]
 custom_minimum_size = Vector2(20, 20)
@@ -752,76 +785,75 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -21.5
+offset_left = -24.0
 offset_top = 1.0
-offset_right = 21.5
-offset_bottom = 21.0
+offset_right = 24.0
+offset_bottom = 23.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 13
 text = "相册"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ListCards" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox"]
-custom_minimum_size = Vector2(0, 88)
+[node name="ListCards" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
+custom_minimum_size = Vector2(0, 112)
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="BetweenEntry" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards"]
-custom_minimum_size = Vector2(0, 88)
+[node name="BetweenEntry" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/ListCards"]
+custom_minimum_size = Vector2(0, 112)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
 
-[node name="BetweenEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
-layout_mode = 0
-offset_left = 16.0
-offset_top = 10.0
-offset_right = 96.0
-offset_bottom = 30.0
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
-theme_override_font_sizes/font_size = 12
+[node name="EntryMargin" type="MarginContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="EntryHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BetweenEntryIcon" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_EntryIcon")
+
+[node name="BetweenEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/BetweenEntryIcon"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_font_sizes/font_size = 34
 text = "你我之间"
-
-[node name="BetweenEntryContent" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
-layout_mode = 0
-offset_left = 122.0
-offset_top = 44.0
-offset_right = 238.0
-offset_bottom = 72.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
-
-[node name="BetweenEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/BetweenEntryContent"]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 5.0
-offset_right = 108.0
-offset_bottom = 24.0
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
-theme_override_font_sizes/font_size = 12
-text = "共同回忆入口"
-vertical_alignment = 1
-autowrap_mode = 3
-
-[node name="BetweenEntryIcon" type="Panel" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
-layout_mode = 0
-offset_left = 18.0
-offset_top = 24.0
-offset_right = 106.0
-offset_bottom = 74.0
-
-[node name="BetweenEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/BetweenEntryIcon"]
-layout_mode = 0
-offset_top = -8.0
-offset_right = 78.0
-offset_bottom = 50.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 48
-text = "♡"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EntryTextVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="BetweenEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_font_sizes/font_size = 15
+text = "共同回忆入口"
+
+[node name="BetweenEntryContent" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="BetweenEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox/BetweenEntryContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 12
+text = "♡"
+autowrap_mode = 3
 
 [node name="BetweenEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
 layout_mode = 1
@@ -838,7 +870,7 @@ size_flags_vertical = 3
 
 [node name="HintLabel" type="Label" parent="PhonePanel/MainMargin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.6, 0.55, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 10
 text = "◆ 开启快捷入口后点击主页手机默认进入【你我之间】"
 horizontal_alignment = 1
@@ -864,7 +896,7 @@ grow_vertical = 2
 
 [node name="Bg" type="ColorRect" parent="PhonePanel/AffectionPanelOverlay"]
 layout_mode = 2
-color = Color(0.141176, 0.176471, 0.168627, 0.95)
+color = Color(0.985, 0.988, 0.995, 0.99)
 
 [node name="VBox" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay"]
 layout_mode = 2
@@ -910,7 +942,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/HeaderPanel1"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 text = "  ◆ 情感状态概览"
 
 [node name="Header" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
@@ -922,13 +954,13 @@ size_flags_horizontal = 3
 
 [node name="StageNumLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/StageInfo"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 28
 text = "STAGE 1"
 
 [node name="StageTitleLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/StageInfo"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 16
 text = "初遇"
 
@@ -946,7 +978,7 @@ theme_override_constants/margin_bottom = 6
 
 [node name="FlavorLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/FlavorBadge/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 15
 text = "防备疏离"
 
@@ -956,14 +988,14 @@ theme_override_constants/separation = 8
 
 [node name="StageDescLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
 theme_override_font_sizes/font_size = 14
 text = "阶段描述加载中..."
 autowrap_mode = 3
 
 [node name="FlavorDescLabel" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "风味描述加载中..."
 autowrap_mode = 3
@@ -974,7 +1006,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/HeaderPanel2"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 text = "  ◆ 情感坐标数值"
 
 [node name="ValuesRow" type="HBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
@@ -987,7 +1019,7 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/IntimacyBlock"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "🤍 亲密度"
 horizontal_alignment = 1
@@ -1008,7 +1040,7 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/TrustBlock"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "🤝 信任值"
 horizontal_alignment = 1
@@ -1026,7 +1058,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/HeaderPanel3"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 text = "  ◆ 升阶进度指标"
 
 [node name="ProgressSection" type="VBoxContainer" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox"]
@@ -1035,7 +1067,7 @@ theme_override_constants/separation = 15
 
 [node name="Label" type="Label" parent="PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "升阶门槛"
 
@@ -1069,3 +1101,5 @@ vertical_alignment = 1
 libraries = {
 &"": SubResource("AnimationLibrary_Phone")
 }
+
+

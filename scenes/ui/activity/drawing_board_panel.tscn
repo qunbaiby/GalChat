@@ -3,7 +3,12 @@
 [ext_resource type="Script" uid="uid://qg2cmholu3ki" path="res://scripts/ui/activity/drawing_board_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelBg"]
-bg_color = Color(0.96, 0.96, 0.97, 1)
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
@@ -27,7 +32,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.5)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -59,7 +64,7 @@ theme_override_constants/separation = 15
 
 [node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TopBar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 24
 text = "共创画板"
 
@@ -142,7 +147,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="LoadingLabel" type="Label" parent="LoadingPanel"]
 unique_name_in_owner = true
@@ -158,6 +163,7 @@ offset_right = 200.0
 offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 28
 text = "Luna正在认真画画..."
 horizontal_alignment = 1

@@ -4,38 +4,53 @@
 [ext_resource type="Texture2D" uid="uid://bsgllhd1vqn5d" path="res://assets/images/activities/cafe_break.png" id="2_fallback"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardNormal"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.05)
-shadow_size = 5
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardSelected"]
-bg_color = Color(0.9, 0.95, 1, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.7, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(1, 0.98, 0.95, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.53, 0.19, 0.7)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconPanel"]
-bg_color = Color(0.95, 0.95, 0.95, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.7, 0.4, 1)
+bg_color = Color(1, 0.988235, 0.972549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.81, 0.63, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PricePanel"]
-bg_color = Color(0.3, 0.3, 0.3, 1)
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.985, 0.988, 0.995, 1)
+border_width_top = 1
+border_color = Color(0.9, 0.92, 0.95, 1)
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="CafeMenuItemCard" type="Button"]
 custom_minimum_size = Vector2(160, 200)
@@ -82,7 +97,7 @@ stretch_mode = 5
 [node name="QtyBg" type="ColorRect" parent="CardPanel/VBox/TopMargin/IconPanel"]
 custom_minimum_size = Vector2(30, 20)
 layout_mode = 2
-color = Color(0, 0, 0, 0.5)
+color = Color(0.956863, 0.529412, 0.188235, 0.9)
 
 [node name="QtyLabel" type="Label" parent="CardPanel/VBox/TopMargin/IconPanel/QtyBg"]
 layout_mode = 1
@@ -101,7 +116,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 16
 text = "商品名称"
 horizontal_alignment = 1
@@ -118,12 +133,12 @@ alignment = 1
 
 [node name="CoinLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 text = "◎"
 
 [node name="PriceLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.33, 0.28, 0.24, 1)
 theme_override_font_sizes/font_size = 18
 text = "0"

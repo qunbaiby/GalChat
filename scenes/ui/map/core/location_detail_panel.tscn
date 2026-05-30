@@ -3,23 +3,68 @@
 [ext_resource type="Script" path="res://scripts/ui/map/core/location_detail_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
-bg_color = Color(0.96, 0.95, 0.93, 1.0)
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 24
 corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 18
+shadow_offset = Vector2(-4, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Thumbnail"]
-bg_color = Color(0.9, 0.9, 0.9, 1.0)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(1, 1, 1, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Enter"]
-bg_color = Color(0.2, 0.7, 0.6, 1.0)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.52, 0.21, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
+bg_color = Color(0.98, 0.985, 0.99, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButtonHover"]
+bg_color = Color(1, 0.98, 0.95, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.81, 0.63, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="LocationDetailPanel" type="CanvasLayer"]
 layer = 90
@@ -31,7 +76,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.2)
+color = Color(0.1, 0.08, 0.06, 0.14)
 
 [node name="MainPanel" type="Panel" parent="."]
 anchors_preset = 11
@@ -42,6 +87,62 @@ offset_left = -450.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
+
+[node name="ThumbnailPanel" type="PanelContainer" parent="MainPanel"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 240.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Thumbnail")
+
+[node name="Mask" type="Control" parent="MainPanel/ThumbnailPanel"]
+clip_children = 1
+layout_mode = 2
+
+[node name="ThumbnailRect" type="TextureRect" parent="MainPanel/ThumbnailPanel/Mask"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="GradientOverlay" type="ColorRect" parent="MainPanel/ThumbnailPanel/Mask"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18, 0.12, 0.08, 0.28)
+
+[node name="Margin" type="MarginContainer" parent="MainPanel/ThumbnailPanel/Mask"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="NameLabel" type="Label" parent="MainPanel/ThumbnailPanel/Mask/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.11, 0.09, 0.55)
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 32
+text = "×"
 
 [node name="TopBar" type="Control" parent="MainPanel"]
 custom_minimum_size = Vector2(0, 60)
@@ -55,70 +156,59 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -50.0
+offset_left = -78.0
 offset_top = 10.0
 offset_right = -10.0
 offset_bottom = 50.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
+theme_override_colors/font_hover_color = Color(0.756863, 0.409412, 0.128235, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButtonHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButtonHover")
 theme_override_font_sizes/font_size = 24
-text = "×"
-flat = true
+text = "地点名称"
 
 [node name="Margin" type="MarginContainer" parent="MainPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 60.0
+offset_top = 240.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
 [node name="VBox" type="VBoxContainer" parent="MainPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 25
 
-[node name="TitleHBox" type="HBoxContainer" parent="MainPanel/Margin/VBox"]
+[node name="InfoHBox" type="HBoxContainer" parent="MainPanel/Margin/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="NameLabel" type="Label" parent="MainPanel/Margin/VBox/TitleHBox"]
-unique_name_in_owner = true
+[node name="IconLabel" type="Label" parent="MainPanel/Margin/VBox/InfoHBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 28
-text = "地点名称"
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_font_sizes/font_size = 20
+text = "这是地点的描述信息..."
 
-[node name="ThumbnailPanel" type="PanelContainer" parent="MainPanel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 200)
+[node name="TitleLabel" type="Label" parent="MainPanel/Margin/VBox/InfoHBox"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Thumbnail")
-
-[node name="Mask" type="Control" parent="MainPanel/Margin/VBox/ThumbnailPanel"]
-clip_children = 1
-layout_mode = 2
-
-[node name="ThumbnailRect" type="TextureRect" parent="MainPanel/Margin/VBox/ThumbnailPanel/Mask"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-expand_mode = 1
-stretch_mode = 6
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "在场人物"
 
 [node name="DescLabel" type="Label" parent="MainPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 16
-text = "这是地点的描述信息..."
+theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
+theme_override_constants/line_spacing = 6
+theme_override_font_sizes/font_size = 15
+text = "当前没有人在场"
 autowrap_mode = 2
 
 [node name="HSeparator" type="HSeparator" parent="MainPanel/Margin/VBox"]
@@ -126,12 +216,12 @@ layout_mode = 2
 
 [node name="NPCTitle" type="Label" parent="MainPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 18
-text = "在场人物"
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "进 入 >"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MainPanel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 0
@@ -147,8 +237,8 @@ theme_override_constants/separation = 15
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-text = "当前没有人在场"
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+text = "当前没有人在�?
 
 [node name="Spacer" type="Control" parent="MainPanel/Margin/VBox"]
 layout_mode = 2
@@ -156,10 +246,14 @@ size_flags_vertical = 3
 
 [node name="EnterButton" type="Button" parent="MainPanel/Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 50)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_Enter")
-text = "进 入 >"
+theme_override_styles/hover = SubResource("StyleBoxFlat_Enter")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Enter")
+text = "�?�?
+
+

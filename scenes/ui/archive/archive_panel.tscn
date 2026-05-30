@@ -7,21 +7,53 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/archive/relation_graph_view.tscn" id="6_relation_view"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.12, 0.13, 0.15, 0.6)
+bg_color = Color(1, 1, 1, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.08, 0.09, 0.1, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
+bg_color = Color(1, 0.988235, 0.972549, 1)
+border_width_bottom = 1
+border_color = Color(0.95, 0.88, 0.82, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 18
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="ArchivePanel" type="Control"]
 custom_minimum_size = Vector2(400, 0)
@@ -45,7 +77,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.3)
+color = Color(0.08, 0.07, 0.06, 0.14)
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -54,6 +86,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
@@ -73,6 +106,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer/TopBar"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 20
 text = "角色档案库"
 
@@ -83,6 +117,10 @@ size_flags_horizontal = 3
 [node name="CloseButton" type="Button" parent="Panel/VBoxContainer/TopBar"]
 custom_minimum_size = Vector2(60, 30)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
 text = "关闭"
 
 [node name="TabContainer" type="TabContainer" parent="Panel/VBoxContainer"]
@@ -139,13 +177,13 @@ theme_override_constants/separation = 5
 
 [node name="LegendBase" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LegendVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "■ 灰色区域: 初始底色"
 
 [node name="LegendDynamic" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LegendVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 14
 text = "■ 青色区域: 当前演化状态"
 
@@ -166,7 +204,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/HeaderPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "  ◆ 当前性格演化分析"
 
 [node name="StatusVBox" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
@@ -175,7 +213,7 @@ theme_override_constants/separation = 2
 
 [node name="Title" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "【性格状态】"
 
@@ -192,7 +230,7 @@ theme_override_constants/separation = 2
 
 [node name="Title" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "【行为倾向】"
 
@@ -209,7 +247,7 @@ theme_override_constants/separation = 2
 
 [node name="Title" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "【相处建议】"
 
@@ -244,7 +282,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox/HeaderPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "  ◆ 初始性格底色设定"
 
 [node name="BasePersonalityText" type="RichTextLabel" parent="Panel/VBoxContainer/TabContainer/性格演化/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
@@ -258,7 +296,7 @@ fit_content = true
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="记忆库" type="MarginContainer" parent="Panel/VBoxContainer/TabContainer"]
+[node name="记忆" type="MarginContainer" parent="Panel/VBoxContainer/TabContainer"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 20
@@ -267,11 +305,11 @@ theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 metadata/_tab_index = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer/记忆库"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer/记忆"]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="MemoryListContainer" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/记忆库/ScrollContainer"]
+[node name="MemoryListContainer" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/记忆/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -292,3 +330,5 @@ horizontal_scroll_mode = 0
 
 [node name="RelationGraphView" parent="Panel/VBoxContainer/TabContainer/人物关系/ScrollContainer" instance=ExtResource("6_relation_view")]
 layout_mode = 2
+
+

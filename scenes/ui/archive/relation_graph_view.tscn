@@ -1,7 +1,29 @@
-[gd_scene load_steps=3 format=3 uid="uid://ciwgqlah7xsd5"]
+[gd_scene load_steps=5 format=3 uid="uid://ciwgqlah7xsd5"]
 
 [ext_resource type="Script" uid="uid://0f7jl11fni5v" path="res://scripts/ui/archive/relation_graph_view.gd" id="1_script"]
 [ext_resource type="Script" path="res://scripts/ui/archive/relation_graph_poster.gd" id="2_poster_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(1, 0.988235, 0.972549, 1)
+border_width_bottom = 1
+border_color = Color(0.95, 0.88, 0.82, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
 
 [node name="RelationGraphView" type="VBoxContainer"]
 offset_right = 400.0
@@ -15,6 +37,7 @@ script = ExtResource("1_script")
 custom_minimum_size = Vector2(0, 480)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="VBox" type="VBoxContainer" parent="GraphCard"]
 layout_mode = 2
@@ -22,10 +45,11 @@ theme_override_constants/separation = 0
 
 [node name="HeaderPanel" type="PanelContainer" parent="GraphCard/VBox"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="GraphCard/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "  ◆ 动态关系图谱"
 
 [node name="ToolbarMargin" type="MarginContainer" parent="GraphCard/VBox"]
@@ -68,6 +92,7 @@ script = ExtResource("2_poster_script")
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
 [node name="VBox" type="VBoxContainer" parent="DetailCard"]
 layout_mode = 2
@@ -75,10 +100,11 @@ theme_override_constants/separation = 0
 
 [node name="HeaderPanel" type="PanelContainer" parent="DetailCard/VBox"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="DetailCard/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "  ◆ 关系节点详情"
 
 [node name="Margin" type="MarginContainer" parent="DetailCard/VBox"]
@@ -101,7 +127,7 @@ text = "请选择关系节点"
 [node name="SeparatorTop" type="ColorRect" parent="DetailCard/VBox/Margin/ContentVBox"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
-color = Color(1, 1, 1, 0.08)
+color = Color(0.9, 0.92, 0.95, 1)
 
 [node name="DetailBody" type="RichTextLabel" parent="DetailCard/VBox/Margin/ContentVBox"]
 layout_mode = 2
@@ -113,7 +139,7 @@ scroll_active = false
 [node name="SeparatorBottom" type="ColorRect" parent="DetailCard/VBox/Margin/ContentVBox"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
-color = Color(1, 1, 1, 0.08)
+color = Color(0.9, 0.92, 0.95, 1)
 
 [node name="DetailFooter" type="RichTextLabel" parent="DetailCard/VBox/Margin/ContentVBox"]
 layout_mode = 2

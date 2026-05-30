@@ -22,6 +22,37 @@ corner_radius_bottom_left = 22
 shadow_color = Color(0, 0, 0, 0.18)
 shadow_size = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapInfo"]
+bg_color = Color(0.985, 0.988, 0.995, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 22.0
+content_margin_top = 10.0
+content_margin_right = 22.0
+content_margin_bottom = 10.0
+
 [node name="QuickLocationScene" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -53,19 +84,23 @@ offset_top = -139.0
 offset_right = 333.0
 offset_bottom = -39.0
 grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_MapInfo")
 
 [node name="VBox" type="VBoxContainer" parent="MapInfoPanel"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
+theme_override_constants/separation = 8
 
 [node name="NameLabel" type="Label" parent="MapInfoPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.2, 0.22, 0.27, 1)
+theme_override_font_sizes/font_size = 28
 text = "地点名称"
 
 [node name="DescLabel" type="Label" parent="MapInfoPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.42, 0.46, 0.52, 1)
+theme_override_font_sizes/font_size = 14
 text = "这里是地点的描述信息。"
 autowrap_mode = 2
 
@@ -203,9 +238,12 @@ alignment = 1
 visible = false
 custom_minimum_size = Vector2(280, 50)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.85, 1)
-theme_override_colors/font_hover_color = Color(1, 0.9, 0.6, 1)
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_hover_color = Color(0.96, 0.53, 0.19, 1)
 theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 text = "按钮模板"
 alignment = 0
 
@@ -215,6 +253,10 @@ offset_left = 41.0
 offset_top = 24.0
 offset_right = 131.0
 offset_bottom = 64.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
 text = "< 返回地图"
 
 [node name="TopStatusPanel" parent="." instance=ExtResource("top_status_panel")]
@@ -228,7 +270,7 @@ offset_right = -19.0
 offset_bottom = 54.0
 grow_horizontal = 0
 
-[node name="TopicPanel" type="Panel" parent="."]
+[node name="TopicPanel" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -242,6 +284,7 @@ offset_right = 250.0
 offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_MapInfo")
 
 [node name="Title" type="Label" parent="TopicPanel"]
 layout_mode = 1
@@ -273,3 +316,5 @@ script = ExtResource("1_script_deepseek")
 
 [node name="DialoguePanel" parent="." instance=ExtResource("2_dialogue")]
 layout_mode = 1
+
+

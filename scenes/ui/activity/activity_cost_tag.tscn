@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqm664lxsdoq1"]
+
+[ext_resource type="Script" uid="uid://b6wjdhp6qg1qr" path="res://scripts/ui/activity/activity_cost_tag.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+content_margin_left = 6.0
+content_margin_top = 2.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+bg_color = Color(0.985, 0.988, 0.995, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="ActivityCostTag" type="Label"]
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_1")
+theme_override_font_sizes/font_size = 10
+text = "消耗"
+script = ExtResource("1_script")

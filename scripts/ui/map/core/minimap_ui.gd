@@ -7,7 +7,7 @@ extends CanvasLayer
 @onready var small_player_marker: ColorRect = $SmallMapContainer/SmallMapButton/Mask/PlayerMarker
 
 @onready var expanded_map_panel: Control = $ExpandedMapPanel
-@onready var expanded_grid: ColorRect = $ExpandedMapPanel/GridBg
+@onready var expanded_grid: Control = $ExpandedMapPanel/GridBg
 @onready var expanded_player_marker: ColorRect = $ExpandedMapPanel/GridBg/PlayerMarker
 @onready var location_label: Label = $ExpandedMapPanel/LocationLabel
 @onready var close_btn: Button = $ExpandedMapPanel/CloseButton

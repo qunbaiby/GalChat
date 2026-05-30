@@ -2,12 +2,12 @@ extends CanvasLayer
 
 var npc_id: String = ""
 
-@onready var options_vbox = $Control/InfoAndOptions/OptionsVBox
+@onready var options_vbox = $Control/InfoAndOptions/Margin/ContentVBox/OptionsVBox
 
-@onready var menu_title_label = $Control/InfoAndOptions/NPCInfoVBox/TitleLabel
-@onready var name_label = $Control/InfoAndOptions/NPCInfoVBox/NameLabel
-@onready var menu_stage_label = $Control/InfoAndOptions/NPCInfoVBox/StageHBox/StageLabel
-@onready var menu_hearts_label = $Control/InfoAndOptions/NPCInfoVBox/HeartsLabel
+@onready var menu_title_label = $Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox/TitleLabel
+@onready var name_label = $Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox/NameLabel
+@onready var menu_stage_label = $Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox/StageHBox/StageLabel
+@onready var menu_hearts_label = $Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox/HeartsLabel
 
 func _ready():
     _setup_ui()
@@ -107,33 +107,33 @@ func _setup_ui() -> void:
         
         btn.text = icon_str + action_label
         btn.add_theme_font_size_override("font_size", 22)
-        btn.add_theme_color_override("font_color", Color(0.8, 0.8, 0.85, 1))
-        btn.add_theme_color_override("font_hover_color", Color(1, 0.9, 0.6, 1))
+        btn.add_theme_color_override("font_color", Color(0.33, 0.28, 0.22, 1))
+        btn.add_theme_color_override("font_hover_color", Color(0.96, 0.53, 0.19, 1))
         
         # 样式设计
         var style_normal = StyleBoxFlat.new()
-        style_normal.bg_color = Color(0.15, 0.2, 0.3, 0.8)
-        style_normal.corner_radius_top_left = 25
-        style_normal.corner_radius_top_right = 25
-        style_normal.corner_radius_bottom_left = 25
-        style_normal.corner_radius_bottom_right = 25
-        style_normal.border_width_bottom = 2
-        style_normal.border_width_top = 2
-        style_normal.border_width_left = 2
-        style_normal.border_width_right = 2
-        style_normal.border_color = Color(0.8, 0.7, 0.4, 0.5) # 淡淡的金边
-        style_normal.content_margin_left = 30
-        style_normal.content_margin_right = 30
-        style_normal.content_margin_top = 15
-        style_normal.content_margin_bottom = 15
+        style_normal.bg_color = Color(1.0, 1.0, 1.0, 0.96)
+        style_normal.corner_radius_top_left = 18
+        style_normal.corner_radius_top_right = 18
+        style_normal.corner_radius_bottom_left = 18
+        style_normal.corner_radius_bottom_right = 18
+        style_normal.border_width_bottom = 1
+        style_normal.border_width_top = 1
+        style_normal.border_width_left = 1
+        style_normal.border_width_right = 1
+        style_normal.border_color = Color(0.89, 0.82, 0.72, 1.0)
+        style_normal.content_margin_left = 24
+        style_normal.content_margin_right = 24
+        style_normal.content_margin_top = 14
+        style_normal.content_margin_bottom = 14
         
         var style_hover = style_normal.duplicate()
-        style_hover.bg_color = Color(0.2, 0.25, 0.35, 0.9)
-        style_hover.border_color = Color(1.0, 0.9, 0.5, 0.8) # 高亮的金边
+        style_hover.bg_color = Color(1.0, 0.98, 0.95, 1.0)
+        style_hover.border_color = Color(0.96, 0.53, 0.19, 0.7)
         
         var style_pressed = style_normal.duplicate()
-        style_pressed.bg_color = Color(0.1, 0.15, 0.25, 0.9)
-        style_pressed.border_color = Color(0.6, 0.5, 0.3, 0.8)
+        style_pressed.bg_color = Color(0.97, 0.95, 0.91, 1.0)
+        style_pressed.border_color = Color(0.79, 0.48, 0.24, 0.8)
         
         btn.add_theme_stylebox_override("normal", style_normal)
         btn.add_theme_stylebox_override("hover", style_hover)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=15 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_aivhu"]
@@ -7,6 +7,36 @@
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
 [ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="tex_core_physical"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_List"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 18
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -35,14 +65,70 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatBlock"]
-bg_color = Color(0.3, 0.3, 0.35, 0.5)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
-color = Color(0.5, 0.5, 0.5, 0.5)
+color = Color(0.9, 0.92, 0.95, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ScheduleCard"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.92, 0.95, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.52, 0.21, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LoadingPanel"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 18
+shadow_offset = Vector2(0, 4)
 
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
@@ -61,7 +147,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.5)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -70,9 +156,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 60
+theme_override_constants/margin_left = 40
 theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 60
+theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 40
 
 [node name="MainHBox" type="HBoxContainer" parent="Margin"]
@@ -80,9 +166,10 @@ layout_mode = 2
 theme_override_constants/separation = 0
 
 [node name="LeftPanel" type="PanelContainer" parent="Margin/MainHBox"]
-custom_minimum_size = Vector2(800, 0)
+custom_minimum_size = Vector2(830, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 1.8
+theme_override_styles/panel = SubResource("StyleBoxFlat_List")
 
 [node name="Margin" type="MarginContainer" parent="Margin/MainHBox/LeftPanel"]
 layout_mode = 2
@@ -102,11 +189,15 @@ theme_override_constants/separation = 20
 [node name="BackButton" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 text = "< 返回"
 
 [node name="RoundInfo" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.33, 0.31, 0.28, 1)
 theme_override_font_sizes/font_size = 20
 text = "第 1 周"
 
@@ -118,16 +209,151 @@ theme_override_constants/separation = 10
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ActivityGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer"]
+[node name="ColumnsContainer" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
+theme_override_constants/separation = 20
+
+[node name="Cat_physical_health" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_physical_health"]
+layout_mode = 2
+
+[node name="LeftSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_physical_health/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_physical_health/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "已安排行程"
+
+[node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_physical_health/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemsGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_physical_health"]
+layout_mode = 2
 columns = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+
+[node name="Cat_creation_design" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_creation_design"]
+layout_mode = 2
+
+[node name="LeftSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_creation_design/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_creation_design/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "0/10"
+
+[node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_creation_design/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemsGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_creation_design"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+
+[node name="Cat_music_dance_performance" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_music_dance_performance"]
+layout_mode = 2
+
+[node name="LeftSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_music_dance_performance/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_music_dance_performance/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "撤销"
+
+[node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_music_dance_performance/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemsGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_music_dance_performance"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+
+[node name="Cat_social_etiquette" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_social_etiquette"]
+layout_mode = 2
+
+[node name="LeftSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_social_etiquette/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_social_etiquette/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "清空"
+
+[node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_social_etiquette/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemsGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_social_etiquette"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+
+[node name="Cat_rest" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_rest"]
+layout_mode = 2
+
+[node name="LeftSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_rest/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_rest/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "Luna"
+
+[node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_rest/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemsGrid" type="GridContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_rest"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
 
 [node name="BottomHBox" type="HBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 20
+theme_override_styles/panel = SubResource("StyleBoxFlat_ScheduleCard")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
 layout_mode = 2
@@ -135,14 +361,14 @@ alignment = 2
 
 [node name="ScheduleTitle" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-text = "已安排行程"
+theme_override_colors/font_color = Color(0.33, 0.31, 0.28, 1)
+text = "精力 100"
 horizontal_alignment = 1
 
 [node name="ScheduleLabel" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-text = "0/10"
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+text = "+0"
 horizontal_alignment = 2
 
 [node name="ScheduleSlots" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
@@ -188,18 +414,25 @@ alignment = 2
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
-text = "撤销"
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
+text = "心情 平静"
 
 [node name="ClearButton" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
-text = "清空"
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
+text = "+0"
 
 [node name="RightPanel" type="PanelContainer" parent="Margin/MainHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.2
+theme_override_styles/panel = SubResource("StyleBoxFlat_List")
 
 [node name="Margin" type="MarginContainer" parent="Margin/MainHBox/RightPanel"]
 layout_mode = 2
@@ -234,9 +467,9 @@ stretch_mode = 6
 [node name="CharNameLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 18
-text = "Luna"
+text = "压力 0"
 horizontal_alignment = 1
 
 [node name="StatusHBox" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
@@ -258,7 +491,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-text = "精力 100"
+text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -272,7 +505,7 @@ offset_right = 85.0
 offset_bottom = 5.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
-text = "+0"
+text = "金币消耗: 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -294,8 +527,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-text = "心情 平静"
+theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
+text = "收益增加0%"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -309,7 +542,7 @@ offset_right = 85.0
 offset_bottom = 5.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
-text = "+0"
+text = "✦ 属性变化预测"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -331,8 +564,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-text = "压力 0"
+theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
+text = "体"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -346,22 +579,22 @@ offset_right = 85.0
 offset_bottom = 5.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_BubbleNeg")
-text = "+0"
+text = "0 > 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="GoldLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.6, 0.2, 1)
-text = "金币消耗: 0"
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+text = "体能"
 horizontal_alignment = 1
 
 [node name="BonusLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-text = "收益增加0%"
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+text = "-"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
@@ -369,8 +602,8 @@ layout_mode = 2
 
 [node name="AttributeTitle" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-text = "✦ 属性变化预测"
+theme_override_colors/font_color = Color(0.33, 0.31, 0.28, 1)
+text = "反应"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
@@ -419,7 +652,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "体"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -429,7 +662,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "智"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
 layout_mode = 2
@@ -450,7 +683,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "体能"
+text = "0 > 0"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
 layout_mode = 2
@@ -460,7 +693,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "学识"
 
 [node name="Sub_stat_rhythm" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -470,7 +703,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "反应"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
 layout_mode = 2
@@ -480,7 +713,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "表达"
 
 [node name="Block_Intelligence" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
 layout_mode = 2
@@ -518,7 +751,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "智"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -528,7 +761,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "魅"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
 layout_mode = 2
@@ -549,7 +782,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_font_sizes/font_size = 14
-text = "学识"
+text = "0 > 0"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
 layout_mode = 2
@@ -559,7 +792,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "气质"
 
 [node name="Sub_stat_expression" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -569,7 +802,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_font_sizes/font_size = 14
-text = "表达"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
 layout_mode = 2
@@ -579,7 +812,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "礼仪"
 
 [node name="Block_Charm" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
 layout_mode = 2
@@ -617,7 +850,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "魅"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -627,7 +860,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "感"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
 layout_mode = 2
@@ -648,7 +881,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "气质"
+text = "0 > 0"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
 layout_mode = 2
@@ -658,7 +891,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "审美"
 
 [node name="Sub_stat_etiquette" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -668,7 +901,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_font_sizes/font_size = 14
-text = "礼仪"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
 layout_mode = 2
@@ -678,7 +911,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "感知"
 
 [node name="Block_Sensibility" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
 layout_mode = 2
@@ -716,7 +949,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "感"
+text = "-"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -726,7 +959,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "开始执行安排"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
 layout_mode = 2
@@ -747,7 +980,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "审美"
+text = "正在前往学校..."
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
 layout_mode = 2
@@ -757,7 +990,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "规划本周行程中，请稍候..."
 
 [node name="Sub_stat_perception" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -782,6 +1015,10 @@ text = "-"
 [node name="ExecuteButton" type="Button" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 text = "开始执行安排"
 
 [node name="LoadingOverlay" type="Control" parent="."]
@@ -800,7 +1037,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1, 0.1, 0.1, 0.85)
+color = Color(0.08, 0.07, 0.06, 0.18)
 
 [node name="LoadingPanel" type="Panel" parent="LoadingOverlay"]
 custom_minimum_size = Vector2(600, 200)
@@ -816,6 +1053,7 @@ offset_right = 300.0
 offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_LoadingPanel")
 
 [node name="TitleLabel" type="Label" parent="LoadingOverlay/LoadingPanel"]
 layout_mode = 1
@@ -824,7 +1062,7 @@ anchor_right = 1.0
 offset_top = 15.0
 offset_bottom = 49.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.4, 0.3, 0.2, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 24
 text = "正在前往学校..."
 horizontal_alignment = 1
@@ -871,7 +1109,9 @@ offset_top = -35.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.6, 0.5, 0.4, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "规划本周行程中，请稍候..."
 horizontal_alignment = 1
+
+

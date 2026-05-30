@@ -1,7 +1,46 @@
-[gd_scene load_steps=3 format=3 uid="uid://br1kcissdv26v"]
+[gd_scene load_steps=7 format=3 uid="uid://br1kcissdv26v"]
 
 [ext_resource type="Script" uid="uid://dgg7k1e8yxnlx" path="res://scripts/ui/story/debug_panel.gd" id="1_debug"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DebugPanel"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 20
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DebugButton"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DebugButtonPrimary"]
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.52, 0.21, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="DebugPanel" type="Control"]
 visible = false
@@ -21,7 +60,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.3)
+color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -34,6 +73,7 @@ grow_vertical = 2
 [node name="Panel" type="Panel" parent="CenterContainer"]
 custom_minimum_size = Vector2(600, 600)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_DebugPanel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel"]
 layout_mode = 1
@@ -49,6 +89,8 @@ grow_vertical = 2
 
 [node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 24
 text = "Debug 面板"
 horizontal_alignment = 1
 
@@ -90,53 +132,65 @@ text = "强制切换宏观心情："
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="工具与测试" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
+[node name="工具与测�? type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 20
 metadata/_tab_index = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
 layout_mode = 2
 alignment = 1
 
-[node name="SwitchCharButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
+[node name="SwitchCharButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?HBoxContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "切换角色"
 
-[node name="TestCallButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
+[node name="TestCallButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?HBoxContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "模拟来电"
 
-[node name="GenerateDiaryButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
+[node name="GenerateDiaryButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?HBoxContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "生成日记"
 
-[node name="MomentsTestLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="MomentsTestLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
 layout_mode = 2
 text = "--- 朋友圈测试 ---"
 horizontal_alignment = 1
 
-[node name="MomentsAuthorBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="MomentsAuthorBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
 layout_mode = 2
 text = "发送者:"
 
-[node name="MomentAuthor" type="LineEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="MomentAuthor" type="LineEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "AI"
 
-[node name="Label2" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="Label2" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
 layout_mode = 2
 text = " 模式:"
 
-[node name="MomentMode" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="MomentMode" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
 layout_mode = 2
 item_count = 2
 selected = 0
@@ -145,32 +199,40 @@ popup/item_0/id = 0
 popup/item_1/text = "纯文字"
 popup/item_1/id = 1
 
-[node name="MomentsContentBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="MomentsContentBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsContentBox"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsContentBox"]
 layout_mode = 2
 text = "内容:"
 
-[node name="MomentContent" type="TextEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsContentBox"]
+[node name="MomentContent" type="TextEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsContentBox"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "这是一条测试朋友圈。"
 
-[node name="MomentsBtnBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="MomentsBtnBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 20
 
-[node name="SendMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox"]
+[node name="SendMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsBtnBox"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
 text = "手动发送"
 
-[node name="AIGenerateMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox"]
+[node name="AIGenerateMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsBtnBox"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "AI生成"
 
 [node name="大五人格" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
@@ -190,6 +252,10 @@ text = "当前人格分值（实时动态）："
 [node name="RefreshPersonalityBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "刷新"
 
 [node name="ModifyHBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格"]
@@ -223,6 +289,10 @@ value = 50.0
 [node name="SetTraitBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/ModifyHBox"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
 text = "强制设置"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格"]
@@ -238,4 +308,10 @@ bbcode_enabled = true
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
 text = "关闭"
+
+

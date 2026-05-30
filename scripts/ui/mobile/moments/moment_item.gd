@@ -109,7 +109,7 @@ func _update_likes_and_comments(data: Dictionary) -> void:
 		c_label.text = "%s: %s" % [comment.get("author", "未知"), comment.get("content", "")]
 		c_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		c_label.add_theme_font_size_override("font_size", 14)
-		c_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+		c_label.add_theme_color_override("font_color", Color(0.411765, 0.439216, 0.490196))
 		comments_list.add_child(c_label)
 		
 	if likes_count > 0 and comments.size() > 0:

@@ -3,26 +3,28 @@
 [ext_resource type="Script" path="res://scripts/ui/map/library/tutoring_course_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.18, 0.18, 0.24, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(1, 1, 1, 0.96)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.3, 0.4, 1)
+border_color = Color(0.88, 0.9, 0.94, 1)
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBG"]
-bg_color = Color(0.1, 0.1, 0.15, 1)
+bg_color = Color(0.9, 0.92, 0.95, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
-bg_color = Color(0.4, 0.8, 0.6, 1)
+bg_color = Color(0.96, 0.53, 0.19, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -59,7 +61,7 @@ mouse_filter = 2
 [node name="NameLabel" type="Label" parent="Margin/VBox/HeaderHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
 theme_override_font_sizes/font_size = 18
 text = "课程名称"
 vertical_alignment = 1
@@ -67,7 +69,7 @@ autowrap_mode = 3
 
 [node name="IncrementLabel" type="Label" parent="Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.8, 0.6, 1)
+theme_override_colors/font_color = Color(0.96, 0.53, 0.19, 1)
 theme_override_font_sizes/font_size = 14
 text = "+10/次"
 vertical_alignment = 1
@@ -78,7 +80,7 @@ mouse_filter = 2
 
 [node name="ExpCostLabel" type="Label" parent="Margin/VBox/CostHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.6, 0.4, 1)
+theme_override_colors/font_color = Color(0.45, 0.49, 0.55, 1)
 theme_override_font_sizes/font_size = 14
 text = "互动经验 -25"
 vertical_alignment = 1
@@ -95,7 +97,7 @@ mouse_filter = 2
 [node name="ProgressLabel" type="Label" parent="Margin/VBox/ProgressContainer/ProgressHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.52, 0.56, 0.62, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 / 100"
 vertical_alignment = 1

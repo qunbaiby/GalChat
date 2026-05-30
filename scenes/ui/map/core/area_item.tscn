@@ -3,34 +3,39 @@
 [ext_resource type="Script" uid="uid://bgwghmw24ndbb" path="res://scripts/ui/map/core/area_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.15)
-shadow_size = 5
-shadow_offset = Vector2(0, 2)
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.9, 0.94, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Mask"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BottomBar"]
-bg_color = Color(0, 0, 0, 0.5)
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.13, 0.16, 0.22, 0.84)
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x8d2v"]
 
 [node name="AreaItem" type="PanelContainer"]
-custom_minimum_size = Vector2(140, 180)
-offset_right = 140.0
-offset_bottom = 180.0
-pivot_offset = Vector2(70, 90)
+custom_minimum_size = Vector2(156, 192)
+offset_right = 156.0
+offset_bottom = 192.0
+pivot_offset = Vector2(78, 96)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 script = ExtResource("1_script")
 
@@ -75,18 +80,18 @@ offset_top = 15.0
 offset_right = -15.0
 offset_bottom = 65.0
 grow_horizontal = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 2
 
 [node name="NameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.19, 0.22, 0.27, 1)
+theme_override_font_sizes/font_size = 17
 text = "江屿现代艺术大学"
 
 [node name="EnNameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.52, 0.56, 0.62, 1)
+theme_override_font_sizes/font_size = 11
 text = "ACADEMY"
 
 [node name="BottomBar" type="Panel" parent="Mask/ClipControl"]
@@ -95,7 +100,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -40.0
+offset_top = -46.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_BottomBar")
@@ -112,8 +117,8 @@ grow_vertical = 2
 
 [node name="Dots" type="Label" parent="Mask/ClipControl/BottomBar/HBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.99, 0.77, 0.44, 1)
+theme_override_font_sizes/font_size = 12
 text = "●○○"
 vertical_alignment = 1
 
@@ -124,8 +129,8 @@ size_flags_horizontal = 3
 [node name="Arrow" type="Label" parent="Mask/ClipControl/BottomBar/HBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_font_sizes/font_size = 14
-text = "ENTER ➔"
+theme_override_font_sizes/font_size = 12
+text = "进入 >"
 vertical_alignment = 1
 
 [node name="Button" type="Button" parent="."]

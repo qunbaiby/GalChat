@@ -1,5 +1,7 @@
 extends Button
 
+const LOCATION_HOVER_TOOLTIP_SCENE = preload("res://scenes/ui/map/core/location_hover_tooltip.tscn")
+
 var location_id: String = ""
 var loc_description: String = ""
 var custom_tooltip: PanelContainer = null
@@ -34,9 +36,6 @@ func setup(loc_data: Dictionary) -> void:
     if name_label:
         name_label.text = loc_name
     
-    # We also need to store it so Tooltip can use it, since we cleared 'text'
-    set_meta("loc_name", loc_name)
-        
     if icon_rect:
         var icon_name = loc_data.get("icon", "")
         if icon_name == "":
@@ -164,40 +163,14 @@ func setup(loc_data: Dictionary) -> void:
 func _on_mouse_entered():
     if custom_tooltip != null:
         custom_tooltip.queue_free()
-        
-    custom_tooltip = PanelContainer.new()
-    var style = StyleBoxFlat.new()
-    style.bg_color = Color(0.1, 0.1, 0.15, 0.9)
-    style.corner_radius_top_left = 8
-    style.corner_radius_top_right = 8
-    style.corner_radius_bottom_left = 8
-    style.corner_radius_bottom_right = 8
-    style.content_margin_left = 12
-    style.content_margin_right = 12
-    style.content_margin_top = 8
-    style.content_margin_bottom = 8
-    custom_tooltip.add_theme_stylebox_override("panel", style)
     
-    var vbox = VBoxContainer.new()
-    custom_tooltip.add_child(vbox)
-    
-    var title_lbl = Label.new()
-    title_lbl.text = get_meta("loc_name", "未知地点")
-    title_lbl.add_theme_font_size_override("font_size", 20)
-    title_lbl.add_theme_color_override("font_color", Color(1, 0.8, 0.4))
-    vbox.add_child(title_lbl)
-    
-    var desc_lbl = Label.new()
-    desc_lbl.text = loc_description
-    desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    desc_lbl.custom_minimum_size = Vector2(200, 0)
-    desc_lbl.add_theme_font_size_override("font_size", 14)
-    desc_lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-    vbox.add_child(desc_lbl)
-    
-    # Add tooltip to the root or parent so it stays on top
+    custom_tooltip = LOCATION_HOVER_TOOLTIP_SCENE.instantiate() as PanelContainer
+    if custom_tooltip == null:
+        return
     get_tree().root.add_child(custom_tooltip)
-    
+    if custom_tooltip.has_method("setup"):
+        custom_tooltip.setup(loc_description)
+
     # Force UI layout update so we can get correct size for positioning
     custom_tooltip.reset_size()
     await get_tree().process_frame

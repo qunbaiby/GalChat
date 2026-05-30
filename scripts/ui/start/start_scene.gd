@@ -1,9 +1,9 @@
 extends Control
 
-@onready var start_button: Button = $VBoxContainer/StartButton
-@onready var load_button: Button = $VBoxContainer/LoadButton
-@onready var desktop_pet_button: Button = $VBoxContainer/DesktopPetButton
-@onready var settings_button: Button = $VBoxContainer/SettingsButton
+@onready var start_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/StartButton
+@onready var load_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/LoadButton
+@onready var desktop_pet_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/DesktopPetButton
+@onready var settings_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/SettingsButton
 
 var settings_panel_instance = null
 var save_load_panel_instance = null
@@ -13,6 +13,10 @@ var desktop_pet_instance: Window = null
 func _ready() -> void:
     if GameDataManager.config:
         GameDataManager.config.apply_settings()
+
+    if start_button == null or load_button == null or desktop_pet_button == null or settings_button == null:
+        push_error("StartScene 按钮节点缺失，无法初始化开始界面交互。")
+        return
         
     # 开始界面需要占据全屏，取消鼠标穿透（恢复系统默认的全屏接受鼠标输入，同时确保画面渲染）
     DisplayServer.window_set_mouse_passthrough(PackedVector2Array(), get_tree().root.get_window_id())

@@ -17,9 +17,9 @@ var selected_npc_id: String = ""
 func _ready():
 	$ColorRect.modulate.a = 0.0
 	main_panel.position.x = 1280
-	var tween = create_tween().set_parallel(true)
-	tween.tween_property($ColorRect, "modulate:a", 1.0, 0.3)
-	tween.tween_property(main_panel, "position:x", 1280 - 450, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	var tween = create_tween()
+	tween.tween_property(main_panel, "position:x", get_viewport().get_visible_rect().size.x - 450, 0.3).set_trans(Tween.TRANS_QUAD)
+	tween.parallel().tween_property($ColorRect, "modulate:a", 1.0, 0.3)
 	
 	$ColorRect.gui_input.connect(_on_bg_gui_input)
 	$MainPanel/TopBar/CloseButton.pressed.connect(close)

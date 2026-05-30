@@ -3,67 +3,66 @@
 [ext_resource type="Script" uid="uid://cjhryxu6fp05i" path="res://scripts/ui/mobile/album_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.12, 0.13, 0.15, 0.6)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
+border_color = Color(0.87, 0.89, 0.93, 1)
+shadow_color = Color(0, 0, 0, 0.06)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.08, 0.09, 0.1, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
+bg_color = Color(0.96, 0.97, 0.985, 0.98)
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
-bg_color = Color(0.12, 0.13, 0.15, 0.6)
+bg_color = Color(1, 1, 1, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FilterCurrent"]
-bg_color = Color(0.78, 0.57, 0.36, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FilterNormal"]
-bg_color = Color(0.16, 0.17, 0.2, 0.96)
+bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.05)
+border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Meta"]
-bg_color = Color(0.08, 0.08, 0.1, 0.88)
+bg_color = Color(1, 1, 1, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Send"]
-bg_color = Color(0.4, 0.26, 0.2, 1)
+bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
@@ -108,9 +107,9 @@ flat = true
 [node name="Title" type="Label" parent="VBox/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.1, 0.8, 0.85, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 18
-text = "  ◆ 纪念册"
+text = "纪念册"
 
 [node name="Margin" type="MarginContainer" parent="VBox"]
 layout_mode = 2
@@ -141,13 +140,13 @@ theme_override_constants/separation = 6
 
 [node name="SummaryTitle" type="Label" parent="VBox/Margin/ContentVBox/SummaryPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 12
 text = "最近项目"
 
 [node name="SummaryLabel" type="Label" parent="VBox/Margin/ContentVBox/SummaryPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.8, 0.84, 1)
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
 theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
@@ -241,7 +240,7 @@ columns = 3
 visible = false
 layout_mode = 2
 size_flags_vertical = 6
-theme_override_colors/font_color = Color(0.7, 0.72, 0.77, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 14
 text = "相册空空如也~"
 horizontal_alignment = 1
@@ -317,19 +316,19 @@ theme_override_constants/separation = 8
 
 [node name="MetaTag" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.79, 0.42, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 11
 text = "照片信息"
 
 [node name="MetaTitle" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.98, 0.98, 0.99, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 15
 autowrap_mode = 3
 
 [node name="MetaBody" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
 theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
@@ -340,7 +339,7 @@ theme_override_constants/separation = 10
 [node name="MetaFooter" type="Label" parent="FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.72, 0.76, 0.81, 1)
+theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 11
 text = "来源信息"
 autowrap_mode = 3

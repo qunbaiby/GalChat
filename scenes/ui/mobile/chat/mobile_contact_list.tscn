@@ -4,9 +4,12 @@
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PhoneBg"]
-bg_color = Color(0.12, 0.12, 0.18, 0.95)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
 
 [node name="MobileContactList" type="Control"]
 custom_minimum_size = Vector2(400, 0)
@@ -45,7 +48,7 @@ layout_mode = 2
 [node name="BackBtn" type="Button" parent="Panel/VBox/TopBar"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.84, 0.76, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 24
 text = "<"
 flat = true
@@ -53,7 +56,7 @@ flat = true
 [node name="Title" type="Label" parent="Panel/VBox/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.9, 0.84, 0.76, 1)
+theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
 theme_override_font_sizes/font_size = 18
 text = "联系人"
 horizontal_alignment = 1
@@ -72,3 +75,5 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
+
+

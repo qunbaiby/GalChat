@@ -3,31 +3,41 @@
 [ext_resource type="Script" uid="uid://djfkdl233ls" path="res://scripts/ui/main/music/music_playlist_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Normal"]
-bg_color = Color(0.15, 0.12, 0.2, 0.9)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hover"]
-bg_color = Color(0.2, 0.15, 0.25, 0.9)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+bg_color = Color(1, 0.98, 0.95, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.53, 0.19, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Playing"]
-bg_color = Color(0.25, 0.15, 0.2, 0.9)
+bg_color = Color(1, 0.972549, 0.945098, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.9, 0.4, 0.5, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-shadow_color = Color(0.9, 0.4, 0.5, 0.3)
+border_color = Color(0.956863, 0.529412, 0.188235, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.956863, 0.529412, 0.188235, 0.18)
 shadow_size = 8
 
 [node name="MusicPlaylistItem" type="PanelContainer"]
@@ -47,7 +57,7 @@ layout_mode = 2
 
 [node name="DragIcon" type="Label" parent="HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.7, 0.72, 0.78, 1)
 text = "⋮⋮"
 vertical_alignment = 1
 
@@ -58,7 +68,7 @@ button_pressed = true
 [node name="PlayIcon" type="Label" parent="HBox"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 text = "▶"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -71,14 +81,14 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="HBox/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 14
 text = "Song Title"
 clip_text = true
 
 [node name="ArtistLabel" type="Label" parent="HBox/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 10
 text = "Artist Name"
 clip_text = true
@@ -87,7 +97,7 @@ clip_text = true
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 16
 text = "☆"
 flat = true
@@ -95,3 +105,5 @@ flat = true
 [node name="SpacerRight" type="Control" parent="HBox"]
 custom_minimum_size = Vector2(2, 0)
 layout_mode = 2
+
+

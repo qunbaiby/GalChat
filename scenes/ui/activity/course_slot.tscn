@@ -4,28 +4,28 @@
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
-bg_color = Color(0.2, 0.15, 0.12, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.3, 0.25, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_left = 4
-corner_radius_bottom_right = 4
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_completed"]
-bg_color = Color(0.35, 0.25, 0.2, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.6, 0.5, 0.4, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_left = 4
-corner_radius_bottom_right = 4
+bg_color = Color(1, 0.972549, 0.945098, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.956863, 0.529412, 0.188235, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
 
 [node name="CourseSlot" type="PanelContainer"]
 custom_minimum_size = Vector2(90, 90)
@@ -36,7 +36,7 @@ script = ExtResource("1_script")
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.8, 0.4, 0.3, 1)
+theme_override_colors/font_color = Color(0.35, 0.3, 0.24, 1)
 theme_override_font_sizes/font_size = 20
 text = "1"
 horizontal_alignment = 1
@@ -45,7 +45,7 @@ horizontal_alignment = 1
 visible = false
 layout_mode = 2
 size_flags_vertical = 1
-theme_override_colors/font_color = Color(0.5, 0.8, 0.3, 1)
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 32
 text = "✔"
 horizontal_alignment = 1

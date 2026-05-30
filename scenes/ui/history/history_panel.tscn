@@ -1,9 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://dwstgtds1vmce"]
+[gd_scene load_steps=3 format=3 uid="uid://dwstgtds1vmce"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
-[ext_resource type="PackedScene" uid="uid://c1oig4m5q3kcl" path="res://scenes/ui/history/history_item.tscn" id="2_item"]
 
-[node name="HistoryPanel" type="Panel"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
+bg_color = Color(0.08, 0.08, 0.08, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2, 0.2, 1)
+
+[node name="HistoryPanel" type="Control"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -11,52 +22,94 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
 
-[node name="HistoryTopBar" type="Panel" parent="."]
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="MainPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -280.0
+offset_right = 400.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
+
+[node name="HistoryTopBar" type="Control" parent="MainPanel"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 80.0
 grow_horizontal = 2
 
-[node name="HistoryTitle" type="Label" parent="HistoryTopBar"]
+[node name="Margin" type="MarginContainer" parent="MainPanel/HistoryTopBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="HBox" type="HBoxContainer" parent="MainPanel/HistoryTopBar/Margin"]
+layout_mode = 2
+
+[node name="IconLabel" type="Label" parent="MainPanel/HistoryTopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 20
 text = "对话历史"
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="HistoryCloseButton" type="Button" parent="HistoryTopBar"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 20.0
-offset_top = -25.0
-offset_right = 100.0
-offset_bottom = 25.0
-grow_vertical = 2
-text = "关闭"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 45.0
-offset_top = 80.0
-offset_right = -16.0
-grow_horizontal = 2
-grow_vertical = 2
-horizontal_scroll_mode = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+[node name="HistoryTitle" type="Label" parent="MainPanel/HistoryTopBar/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "关闭"
+
+[node name="HistoryCloseButton" type="Button" parent="MainPanel/HistoryTopBar/Margin/HBox"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "×"
+flat = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 60.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="MainPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainPanel/ScrollContainer/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+
+
