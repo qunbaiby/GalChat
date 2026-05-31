@@ -5,6 +5,7 @@ signal phone_closing
 
 const MemoryAlbumManagerScript = preload("res://scripts/data/memory_album_manager.gd")
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
+const AffectionPanelScene = preload("res://scenes/ui/mobile/affection_panel.tscn")
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
@@ -30,23 +31,7 @@ const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manage
 @onready var lvl_progress_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox/LevelProgress
 @onready var exp_bar: ProgressBar = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/ExpBar
 
-@onready var affection_panel_overlay: PanelContainer = $PhonePanel/AffectionPanelOverlay
-@onready var affection_back_btn: Button = $PhonePanel/AffectionPanelOverlay/VBox/TopBar/BackBtn
-
-@onready var aff_stage_num_lbl: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/StageInfo/StageNumLabel
-@onready var aff_stage_title_lbl: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/StageInfo/StageTitleLabel
-@onready var aff_flavor_lbl: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/FlavorBadge/Margin/FlavorLabel
-@onready var aff_flavor_badge: PanelContainer = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/Header/FlavorBadge
-
-@onready var aff_stage_desc_lbl: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescVBox/StageDescLabel
-@onready var aff_flavor_desc_lbl: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/DescVBox/FlavorDescLabel
-
-@onready var aff_intimacy_val: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/IntimacyBlock/IntimacyVal
-@onready var aff_trust_val: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ValuesRow/TrustBlock/TrustVal
-
-@onready var aff_resonance_bar: ProgressBar = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection/ResonanceBar
-@onready var aff_resonance_val: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection/ResonanceBar/ValueLabel
-@onready var aff_milestone_lbl: Label = $PhonePanel/AffectionPanelOverlay/VBox/Margin/ContentVBox/ProgressSection/MilestoneLabel
+@onready var affection_panel = $PhonePanel/AffectionPanel
 
 @onready var phone_panel: Panel = $PhonePanel
 @onready var color_rect: ColorRect = $ColorRect
@@ -65,6 +50,9 @@ var _album_photos: Array = []
 var _current_photo_idx: int = 0
 var _photo_timer: float = 0.0
 const PHOTO_CHANGE_INTERVAL: float = 5.0
+const AFFECTION_OPEN_SOURCE_PHONE := "phone"
+const AFFECTION_OPEN_SOURCE_MAIN := "main"
+var _affection_open_source: String = AFFECTION_OPEN_SOURCE_PHONE
 
 var preview_image_next: TextureRect = null
 var _preview_tween: Tween
@@ -97,9 +85,10 @@ func _ready() -> void:
     load_btn.pressed.connect(_on_load_app_pressed)
     album_btn.pressed.connect(_on_album_app_pressed)
     affection_btn.pressed.connect(_on_affection_button_pressed)
-    affection_back_btn.pressed.connect(_on_affection_back_pressed)
     power_btn.pressed.connect(_on_close_pressed)
     between_entry_btn.pressed.connect(_on_between_entry_pressed)
+    if is_instance_valid(affection_panel) and affection_panel.has_signal("back_requested"):
+        affection_panel.back_requested.connect(_on_affection_back_pressed)
     # camera_btn.pressed.connect(_on_camera_app_pressed)
     if MomentsManager and MomentsManager.has_signal("moments_updated"):
         MomentsManager.moments_updated.connect(_update_social_entry_labels)
@@ -119,6 +108,7 @@ func _update_time() -> void:
     pass
 
 func show_phone() -> void:
+    _affection_open_source = AFFECTION_OPEN_SOURCE_PHONE
     if GameDataManager.config and GameDataManager.profile:
         var profile = GameDataManager.profile
         if is_instance_valid(player_name_lbl):
@@ -160,8 +150,8 @@ func show_phone() -> void:
     _load_album_photos()
     _update_social_entry_labels()
     _update_between_entry_card()
-    if is_instance_valid(affection_panel_overlay):
-        affection_panel_overlay.hide()
+    if is_instance_valid(affection_panel):
+        affection_panel.hide()
     
     show()
     color_rect.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -250,10 +240,40 @@ func _get_unread_count_for_char(char_id: String) -> int:
     if result != OK or not json.data is Array:
         return 0
     var unread = 0
-    for msg in json.data:
-        var speaker = msg.get("speaker", msg.get("role", ""))
+    var normalized_history: Array = []
+    var has_legacy_fields := false
+    for raw_msg in json.data:
+        if not raw_msg is Dictionary:
+            continue
+        var msg: Dictionary = raw_msg.duplicate(true)
+        if msg.has("role"):
+            has_legacy_fields = true
+            var role = str(msg.get("role", ""))
+            match role:
+                "user":
+                    msg["speaker"] = "player"
+                "assistant":
+                    msg["speaker"] = "char"
+                _:
+                    msg["speaker"] = role
+            msg.erase("role")
+        if msg.has("content"):
+            has_legacy_fields = true
+            msg["text"] = str(msg.get("content", ""))
+            msg.erase("content")
+        if not msg.has("speaker"):
+            msg["speaker"] = ""
+        if not msg.has("text"):
+            msg["text"] = ""
+        normalized_history.append(msg)
+        var speaker = msg.get("speaker", "")
         if speaker != "player" and not msg.get("is_read", false):
             unread += 1
+    if has_legacy_fields:
+        var save_file = FileAccess.open(path, FileAccess.WRITE)
+        if save_file:
+            save_file.store_string(JSON.stringify(normalized_history, "\t"))
+            save_file.close()
     return unread
 
 func hide_phone(emit_closing: bool = true) -> void:
@@ -269,8 +289,8 @@ func hide_phone(emit_closing: bool = true) -> void:
     _slide_tween.tween_property(color_rect, "color:a", 0.0, 0.4)
     _slide_tween.chain().tween_callback(func():
         hide()
-        if affection_panel_overlay:
-            affection_panel_overlay.hide()
+        if affection_panel:
+            affection_panel.hide()
         if between_panel_instance:
             between_panel_instance.hide()
         if chat_panel_instance:
@@ -291,126 +311,21 @@ func _on_color_rect_gui_input(event: InputEvent) -> void:
         hide_phone()
 
 func _on_affection_button_pressed() -> void:
-    _update_affection_ui()
-    affection_panel_overlay.show()
+    _affection_open_source = AFFECTION_OPEN_SOURCE_PHONE
+    if is_instance_valid(affection_panel) and affection_panel.has_method("show_panel"):
+        affection_panel.show_panel(GameDataManager.profile)
 
 func _on_affection_back_pressed() -> void:
-    hide_phone()
+    if _affection_open_source == AFFECTION_OPEN_SOURCE_MAIN:
+        hide_phone()
+        return
+    if is_instance_valid(affection_panel):
+        affection_panel.hide()
 
 func open_affection_directly() -> void:
-    _update_affection_ui()
-    if is_instance_valid(affection_panel_overlay):
-        affection_panel_overlay.show()
-
-func get_stage_color(stage: int) -> Color:
-    match stage:
-        1: return Color("9e9e9e") # 初始 (灰色)
-        2: return Color("81d4fa") # 拘谨 (浅蓝)
-        3: return Color("4dd0e1") # 熟络 (青色)
-        4: return Color("81c784") # 亲近 (浅绿)
-        5: return Color("aed581") # 信赖 (绿色)
-        6: return Color("fff176") # 暧昧 (浅黄)
-        7: return Color("ffb74d") # 倾心 (橙色)
-        8: return Color("f06292") # 热恋 (粉色)
-        9: return Color("ba68c8") # 挚爱 (紫色)
-        _: return Color.WHITE
-
-func set_bar_color(bar: ProgressBar, color: Color) -> void:
-    var stylebox = StyleBoxFlat.new()
-    stylebox.bg_color = color
-    bar.add_theme_stylebox_override("fill", stylebox)
-
-func _update_affection_ui() -> void:
-    var profile = GameDataManager.profile
-    if not profile: return
-    
-    var current_stage = profile.current_stage
-    var conf = profile.get_current_stage_config()
-    if conf.is_empty(): return
-    
-    var intimacy = profile.intimacy
-    var trust = profile.trust
-    
-    if is_instance_valid(aff_stage_num_lbl): aff_stage_num_lbl.text = "STAGE " + str(current_stage)
-    if is_instance_valid(aff_stage_title_lbl): aff_stage_title_lbl.text = conf.get("stageTitle", "")
-    if is_instance_valid(aff_intimacy_val): aff_intimacy_val.text = "%.1f" % intimacy
-    if is_instance_valid(aff_trust_val): aff_trust_val.text = "%.1f" % trust
-    
-    # Flavor logic
-    var flavor_text = "防备疏离"
-    var flavor_color = Color("9e9e9e") # 灰色
-    var flavor_desc = ""
-    
-    if intimacy >= 60 or trust >= 60:
-        if intimacy >= trust * 1.5:
-            flavor_text = "偏执迷恋"
-            flavor_color = Color("e57373") # 红色
-            flavor_desc = "【风味】极度缺乏安全感，对你有着强烈的占有欲，患得患失。"
-        elif trust >= intimacy * 1.5:
-            flavor_text = "灵魂知己"
-            flavor_color = Color("64b5f6") # 蓝色
-            flavor_desc = "【风味】毫无防备的默契盟友，彼此完全信任，但暂无强烈的恋爱冲动。"
-        else:
-            flavor_text = "灵魂伴侣"
-            flavor_color = Color("f06292") # 粉色
-            flavor_desc = "【风味】极致的爱意与绝对的安全感，完全卸下伪装的专属依赖。"
-    else:
-        flavor_desc = "【风味】仍然保持着安全的社交距离，带着审视与戒备。"
-    
-    if is_instance_valid(aff_flavor_lbl):
-        aff_flavor_lbl.text = flavor_text
-        
-    if is_instance_valid(aff_stage_desc_lbl):
-        aff_stage_desc_lbl.text = "【阶段】" + conf.get("stageDesc", conf.get("relationship_desc", conf.get("description", "")))
-    
-    if is_instance_valid(aff_flavor_desc_lbl):
-        aff_flavor_desc_lbl.text = flavor_desc
-        aff_flavor_desc_lbl.add_theme_color_override("font_color", flavor_color)
-        
-    if is_instance_valid(aff_flavor_badge):
-        var stylebox = StyleBoxFlat.new()
-        stylebox.bg_color = flavor_color
-        stylebox.corner_radius_top_left = 12
-        stylebox.corner_radius_top_right = 12
-        stylebox.corner_radius_bottom_left = 12
-        stylebox.corner_radius_bottom_right = 12
-        aff_flavor_badge.add_theme_stylebox_override("panel", stylebox)
-        
-    if is_instance_valid(aff_resonance_bar):
-        set_bar_color(aff_resonance_bar, flavor_color)
-        var current_resonance = intimacy + trust
-        var resonance_threshold = float(conf.get("resonance_threshold", 100))
-        
-        var display_max = resonance_threshold
-        if resonance_threshold >= 9999: # 满级
-            var prev_stage = max(1, current_stage - 1)
-            var prev_conf = profile.get_stage_config(prev_stage)
-            var min_val = float(prev_conf.get("resonance_threshold", 0)) if not prev_conf.is_empty() else 0
-            display_max = min_val + 500
-            
-        aff_resonance_bar.min_value = 0
-        aff_resonance_bar.max_value = display_max
-        aff_resonance_bar.value = min(current_resonance, display_max)
-        
-        if is_instance_valid(aff_resonance_val):
-            if resonance_threshold >= 9999:
-                aff_resonance_val.text = "✨ 共感度: %.1f / MAX" % current_resonance
-            else:
-                aff_resonance_val.text = "✨ 共感度: %.1f / %d" % [current_resonance, int(resonance_threshold)]
-
-    if is_instance_valid(aff_milestone_lbl):
-        var milestone_event = conf.get("milestone_event", "")
-        if milestone_event == "" or current_stage >= 9:
-            aff_milestone_lbl.hide()
-        else:
-            aff_milestone_lbl.show()
-            var event_manager = get_tree().root.get_node_or_null("EventManager")
-            if event_manager and event_manager.has_method("is_event_triggered") and event_manager.is_event_triggered(milestone_event):
-                aff_milestone_lbl.text = "📌 阶段里程碑: 已达成"
-                aff_milestone_lbl.add_theme_color_override("font_color", Color("81c784")) # 绿
-            else:
-                aff_milestone_lbl.text = "📌 阶段里程碑: 尚未解锁"
-                aff_milestone_lbl.add_theme_color_override("font_color", Color("e57373")) # 红
+    _affection_open_source = AFFECTION_OPEN_SOURCE_MAIN
+    if is_instance_valid(affection_panel) and affection_panel.has_method("show_panel"):
+        affection_panel.show_panel(GameDataManager.profile)
 
 func _on_archive_app_pressed() -> void:
     if archive_panel_instance == null:

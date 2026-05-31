@@ -205,6 +205,16 @@ func _generate_cache_key(text: String, options: Dictionary) -> String:
     var key_str = text + str(options)
     return key_str.md5_text()
 
+func get_cache_key(text: String, options: Dictionary = {}) -> String:
+    var pure_text = ChatSplitHelper.strip_parentheses(text)
+    return _generate_cache_key(pure_text, options)
+
+func load_cached_audio_by_key(cache_key: String) -> AudioStream:
+    var cache_path = CACHE_DIR + cache_key + "." + default_encoding
+    if not FileAccess.file_exists(cache_path):
+        return null
+    return _load_audio_from_file(cache_path)
+
 # 清除缓存
 func clear_cache():
     var dir = DirAccess.open(CACHE_DIR)

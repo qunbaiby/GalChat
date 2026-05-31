@@ -5,7 +5,12 @@ const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 const HISTORY_PATH = "user://chat_history.json"
 
 # 每个记录包含: type (String), speaker (String), text (String), time (String), voice_cache_key (String, 可选)
-# type 包含: "normal" (普通对话), "fixed_story" (固定剧情), "fixed_call" (固定语音/视频通话)
+# 额外可附带: module/subtype/topic/is_choice 等扩展字段
+# type 当前主要包含:
+# - "main_chat": 主场景日常对话
+# - "story_chat": 剧情自由对话
+# - "fixed_story": 固定剧情
+# - "normal": 兼容旧数据
 var messages: Array = []
 
 func get_history_path() -> String:
@@ -16,7 +21,7 @@ func get_history_path() -> String:
 		DirAccess.make_dir_recursive_absolute(dir_path)
 	return "%s/chat_history.json" % dir_path
 
-func add_message(speaker: String, text: String, voice_cache_key: String = "", type: String = "normal") -> void:
+func add_message(speaker: String, text: String, voice_cache_key: String = "", type: String = "normal", extra_data: Dictionary = {}) -> void:
 	var record = {
 		"type": type,
 		"speaker": speaker,
@@ -24,6 +29,8 @@ func add_message(speaker: String, text: String, voice_cache_key: String = "", ty
 		"time": Time.get_datetime_string_from_system(),
 		"voice_cache_key": voice_cache_key
 	}
+	if not extra_data.is_empty():
+		record.merge(extra_data, true)
 	messages.append(record)
 	save_history()
 
@@ -70,3 +77,21 @@ func get_messages_by_type(type_filter: String) -> Array:
 			elif type_filter == "story_chat" and t == "fixed_story":
 				filtered.append(msg)
 	return filtered
+
+func get_messages_by_module(module_id: String) -> Array:
+	match module_id:
+		"daily":
+			return get_messages_by_type("main_chat")
+		"story":
+			return get_messages_by_type("story_chat")
+		_:
+			return get_messages_by_type(module_id)
+
+func get_module_title(module_id: String) -> String:
+	match module_id:
+		"daily":
+			return "日常对话历史"
+		"story":
+			return "剧情对话历史"
+		_:
+			return "对话历史"

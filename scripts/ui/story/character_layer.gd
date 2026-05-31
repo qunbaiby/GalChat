@@ -489,7 +489,7 @@ func _build_character_payload(char_id: String, display_name: String = "", expres
     var char_data = _load_character_data(char_id)
     payload["display_name"] = display_name if display_name != "" else _resolve_character_name_from_data(char_id, char_data)
     payload["sprite_frames_path"] = str(char_data.get("sprite_frames_path", "")).strip_edges()
-    payload["static_portrait"] = str(char_data.get("static_portrait", char_data.get("avatar", ""))).strip_edges()
+    payload["static_portrait"] = str(char_data.get("static_portrait", "")).strip_edges()
     payload["avatar"] = str(char_data.get("avatar", "")).strip_edges()
     payload["is_avatar_fallback"] = str(payload["static_portrait"]).find("/avatar/") != -1
     return payload
@@ -567,12 +567,7 @@ func _get_current_static_portrait_path() -> String:
     if current_id == "":
         return ""
     var char_data = _load_character_data(current_id)
-    var portrait_path = str(char_data.get("static_portrait", char_data.get("avatar", ""))).strip_edges()
-    if portrait_path != "":
-        return portrait_path
-    if GameDataManager.profile:
-        return str(GameDataManager.profile.avatar).strip_edges()
-    return ""
+    return str(char_data.get("static_portrait", "")).strip_edges()
 
 func _normalize_story_speaker_id(raw_speaker_id: String) -> String:
     var speaker = raw_speaker_id.strip_edges().to_lower()

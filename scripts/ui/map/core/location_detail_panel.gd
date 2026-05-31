@@ -42,7 +42,7 @@ func setup(loc_id: String):
     name_label.text = loc_data.get("name", "未知地点")
     desc_label.text = loc_data.get("description", "没有描述")
     
-    var bg_id = loc_data.get("bg_id", loc_data.get("bg_path", ""))
+    var bg_id = loc_data.get("bg_id", "")
     var real_path = ""
     if not bg_id.is_empty():
         real_path = ImageManager.get_image_path(bg_id)

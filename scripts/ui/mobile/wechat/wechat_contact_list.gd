@@ -54,7 +54,7 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
         var json = JSON.new()
         if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
             info.name = json.data.get("char_name", char_id)
-            info.avatar = json.data.get("avatar", json.data.get("static_portrait", ""))
+            info.avatar = json.data.get("avatar", "")
             
     return info
 

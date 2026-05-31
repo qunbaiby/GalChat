@@ -167,5 +167,14 @@ func _create_wav_stream(data: PackedByteArray) -> AudioStreamWAV:
 func _generate_cache_key(text: String, options: Dictionary) -> String:
 	return (text + str(options)).md5_text()
 
+func get_cache_key(text: String, options: Dictionary = {}) -> String:
+	return _generate_cache_key(text, options)
+
+func load_cached_audio_by_key(cache_key: String) -> AudioStream:
+	var cache_path = CACHE_DIR + cache_key + ".wav"
+	if not FileAccess.file_exists(cache_path):
+		return null
+	return _load_audio_from_file(cache_path)
+
 func clear_cache():
 	pass

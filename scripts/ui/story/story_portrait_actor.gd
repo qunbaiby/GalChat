@@ -76,7 +76,7 @@ func configure_from_data(data: Dictionary, mood: String = "") -> bool:
 			is_loaded = true
 			return true
 
-	var static_path = str(data.get("static_portrait", data.get("avatar", ""))).strip_edges()
+	var static_path = str(data.get("static_portrait", "")).strip_edges()
 	if static_path != "" and ResourceLoader.exists(static_path):
 		var tex = load(static_path)
 		if tex is Texture2D:

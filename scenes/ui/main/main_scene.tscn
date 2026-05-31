@@ -88,6 +88,36 @@ bg_color = Color(1, 0.96, 0.9, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
 bg_color = Color(1, 0.98, 0.95, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AffectionNormal"]
+bg_color = Color(1, 0.8, 0.9, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.93, 0.52, 0.68, 0.22)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AffectionHover"]
+bg_color = Color(1, 0.73, 0.86, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.94, 0.46, 0.64, 0.3)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
+
 [node name="MainScene" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -229,34 +259,42 @@ theme_override_font_sizes/font_size = 28
 text = "👗"
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
-custom_minimum_size = Vector2(80, 35)
+custom_minimum_size = Vector2(58, 58)
 layout_mode = 0
-offset_left = 22.0
-offset_top = 172.0
-offset_right = 106.0
-offset_bottom = 211.0
-pivot_offset = Vector2(40, 17.5)
+offset_left = 20.0
+offset_top = 164.0
+offset_right = 78.0
+offset_bottom = 222.0
+pivot_offset = Vector2(29, 29)
+theme_override_styles/normal = SubResource("StyleBoxFlat_AffectionNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_AffectionHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_AffectionHover")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UIPanel/AffectionButton"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIPanel/AffectionButton"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 0
 alignment = 1
 
-[node name="Icon" type="TextureRect" parent="UIPanel/AffectionButton/HBoxContainer"]
-custom_minimum_size = Vector2(20, 20)
+[node name="Icon" type="TextureRect" parent="UIPanel/AffectionButton/VBoxContainer"]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 texture = ExtResource("9_heart")
 expand_mode = 1
 stretch_mode = 5
+self_modulate = Color(1, 1, 1, 1)
 
-[node name="LevelLabel" type="Label" parent="UIPanel/AffectionButton/HBoxContainer"]
+[node name="LevelLabel" type="Label" parent="UIPanel/AffectionButton/VBoxContainer"]
 layout_mode = 2
-text = "拘谨"
+theme_override_colors/font_color = Color(1, 0.98, 0.99, 1)
+theme_override_constants/outline_size = 3
+theme_override_colors/font_outline_color = Color(0.89, 0.42, 0.61, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "LV1"
 horizontal_alignment = 1
 vertical_alignment = 1
 

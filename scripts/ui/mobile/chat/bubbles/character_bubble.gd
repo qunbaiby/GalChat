@@ -54,7 +54,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		child.queue_free()
 		
 	var msg_type = msg.get("type", "text")
-	var text = msg.get("content", msg.get("text", ""))
+	var text = msg.get("text", "")
 	var is_voice = msg.get("is_voice", false)
 	var duration = msg.get("duration", 0)
 	

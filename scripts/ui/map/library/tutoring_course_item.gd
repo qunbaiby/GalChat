@@ -23,24 +23,28 @@ func _ready() -> void:
 
 func _init_styles() -> void:
 	style_normal = StyleBoxFlat.new()
-	style_normal.bg_color = Color(0.18, 0.18, 0.24, 1)
-	style_normal.corner_radius_top_left = 8
-	style_normal.corner_radius_top_right = 8
-	style_normal.corner_radius_bottom_right = 8
-	style_normal.corner_radius_bottom_left = 8
+	style_normal.bg_color = Color(1, 1, 1, 0.98)
+	style_normal.corner_radius_top_left = 18
+	style_normal.corner_radius_top_right = 18
+	style_normal.corner_radius_bottom_right = 18
+	style_normal.corner_radius_bottom_left = 18
 	style_normal.border_width_left = 1
 	style_normal.border_width_top = 1
 	style_normal.border_width_right = 1
 	style_normal.border_width_bottom = 1
-	style_normal.border_color = Color(0.3, 0.3, 0.4, 1)
+	style_normal.border_color = Color(0.87, 0.9, 0.95, 1)
+	style_normal.shadow_color = Color(0, 0, 0, 0.05)
+	style_normal.shadow_size = 8
 	
 	style_selected = style_normal.duplicate()
-	style_selected.bg_color = Color(0.25, 0.3, 0.4, 1)
+	style_selected.bg_color = Color(1, 0.982, 0.955, 1)
 	style_selected.border_width_left = 2
 	style_selected.border_width_top = 2
 	style_selected.border_width_right = 2
 	style_selected.border_width_bottom = 2
-	style_selected.border_color = Color(0.7, 0.85, 1, 1)
+	style_selected.border_color = Color(0.96, 0.64, 0.31, 0.95)
+	style_selected.shadow_color = Color(0.94, 0.56, 0.23, 0.14)
+	style_selected.shadow_size = 10
 
 func setup(course: Dictionary, cur: int, max_p: int) -> void:
 	_course_data = course
@@ -63,11 +67,17 @@ func update_state(planned_count: int) -> void:
 	
 	if planned_count > 0:
 		progress_label.text = "%d (+%d) / %d" % [_cur_prog, preview_prog - _cur_prog, _max_prog]
-		progress_label.add_theme_color_override("font_color", Color(0.4, 0.8, 0.6))
+		progress_label.add_theme_color_override("font_color", Color(0.88, 0.53, 0.2))
+		name_label.add_theme_color_override("font_color", Color(0.25, 0.22, 0.2))
+		increment_label.add_theme_color_override("font_color", Color(0.95, 0.51, 0.14))
+		exp_cost_label.add_theme_color_override("font_color", Color(0.77, 0.48, 0.22))
 		add_theme_stylebox_override("panel", style_selected)
 	else:
 		progress_label.text = "%d / %d" % [_cur_prog, _max_prog]
-		progress_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		progress_label.add_theme_color_override("font_color", Color(0.52, 0.56, 0.62))
+		name_label.add_theme_color_override("font_color", Color(0.22, 0.24, 0.28))
+		increment_label.add_theme_color_override("font_color", Color(0.96, 0.53, 0.19))
+		exp_cost_label.add_theme_color_override("font_color", Color(0.45, 0.49, 0.55))
 		add_theme_stylebox_override("panel", style_normal)
 
 func _on_button_pressed() -> void:

@@ -109,17 +109,17 @@ func _update_stage(npc_id: String) -> void:
         
         # 逐级判定升阶 (与主角色逻辑保持一致: 双轨制+里程碑)
         for s in stages_list:
-            var sid = s.get("stage_id", s.get("stage", 1))
+            var sid = s.get("stage", 1)
             if sid == current_stage:
                 var res_threshold = s.get("resonance_threshold", 0)
                 var exp_cost = s.get("exp_cost", 0)
-                var milestone_event = s.get("milestone_event", "")
+                var milestone_story = str(s.get("milestone_story", "")).strip_edges()
                 
                 var is_milestone_met = true
-                if milestone_event != "":
+                if milestone_story != "":
                     var event_manager = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("EventManager")
                     if event_manager and event_manager.has_method("is_event_triggered"):
-                        is_milestone_met = event_manager.is_event_triggered(milestone_event)
+                        is_milestone_met = event_manager.is_event_triggered(milestone_story)
                     else:
                         is_milestone_met = false
                         
@@ -145,7 +145,7 @@ func get_stage_config(npc_id: String) -> Dictionary:
         var stages_list = data.get("stages", [])
         
         for s in stages_list:
-            var sid = s.get("stage_id", s.get("stage", 1))
+            var sid = s.get("stage", 1)
             if sid == stg:
                 return s
     return {}

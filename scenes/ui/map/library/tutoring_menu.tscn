@@ -1,20 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://bspw2lgemyq21"]
+[gd_scene load_steps=9 format=3 uid="uid://bspw2lgemyq21"]
 
 [ext_resource type="Script" uid="uid://dbmnt3qmlkt8q" path="res://scripts/ui/map/library/tutoring_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuPanel"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.985, 0.988, 0.995, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
 corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.12)
-shadow_size = 12
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 20
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CourseNormal"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SurfacePanel"]
 bg_color = Color(1, 1, 1, 0.96)
 border_width_left = 1
 border_width_top = 1
@@ -25,18 +27,74 @@ corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CourseSelected"]
-bg_color = Color(1, 0.98, 0.95, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AccentPanel"]
+bg_color = Color(1, 0.985, 0.962, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.97, 0.82, 0.68, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.93, 0.6, 0.32, 0.15)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondary"]
+bg_color = Color(0.94, 0.95, 0.97, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.87, 0.92, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondaryHover"]
+bg_color = Color(0.9, 0.93, 0.97, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.84, 0.92, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
+bg_color = Color(0.96, 0.59, 0.27, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.96, 0.53, 0.19, 0.7)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+border_color = Color(0.95, 0.49, 0.16, 0.78)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.94, 0.56, 0.23, 0.2)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimaryHover"]
+bg_color = Color(0.98, 0.64, 0.31, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.49, 0.16, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.94, 0.56, 0.23, 0.24)
+shadow_size = 10
 
 [node name="TutoringMenu" type="CanvasLayer"]
 layer = 100
@@ -52,45 +110,67 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.6)
 
 [node name="MenuPanel" type="Panel" parent="."]
-custom_minimum_size = Vector2(840, 550)
-anchors_preset = 7
-anchor_left = 1.0
-anchor_right = 1.0
+custom_minimum_size = Vector2(900, 540)
+anchors_preset = 8
+anchor_left = 0.5
 anchor_top = 0.5
+anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -846.6667
-offset_top = -275.0
-offset_right = -6.6667
-offset_bottom = 275.0
-grow_horizontal = 0
+offset_left = -450.0
+offset_top = -270.0
+offset_right = 450.0
+offset_bottom = 270.0
+grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MenuPanel")
 
-[node name="Title" type="Label" parent="MenuPanel"]
+[node name="TopAccent" type="ColorRect" parent="MenuPanel"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 20.0
-offset_bottom = 60.0
+offset_bottom = 8.0
 grow_horizontal = 2
+color = Color(0.97, 0.64, 0.34, 0.9)
+
+[node name="Header" type="MarginContainer" parent="MenuPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 14.0
+offset_right = -64.0
+offset_bottom = 66.0
+grow_horizontal = 2
+
+[node name="HeaderVBox" type="VBoxContainer" parent="MenuPanel/Header"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="MenuPanel/Header/HeaderVBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
 theme_override_font_sizes/font_size = 28
 text = "课业指导"
-horizontal_alignment = 1
+
+[node name="SubTitle" type="Label" parent="MenuPanel/Header/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.59, 0.65, 1)
+theme_override_font_sizes/font_size = 13
+text = "集中消耗互动经验并预览本次提升。"
 
 [node name="CloseBtn" type="Button" parent="MenuPanel"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -50.0
-offset_top = 15.0
-offset_right = -15.0
-offset_bottom = 55.0
+offset_left = -52.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = 48.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(0.45, 0.48, 0.54, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.53, 0.19, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "×"
 flat = true
 
@@ -99,128 +179,181 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 30.0
-offset_top = 80.0
-offset_right = -30.0
-offset_bottom = -30.0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = -26.0
+offset_bottom = -18.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 
 [node name="LeftPanel" type="VBoxContainer" parent="MenuPanel/ContentHBox"]
-custom_minimum_size = Vector2(500, 0)
+custom_minimum_size = Vector2(515, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 8
 
-[node name="ListTitle" type="Label" parent="MenuPanel/ContentHBox/LeftPanel"]
+[node name="ListHeader" type="VBoxContainer" parent="MenuPanel/ContentHBox/LeftPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.41, 0.45, 0.5, 1)
-theme_override_font_sizes/font_size = 18
-text = "未完成的课业"
+theme_override_constants/separation = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MenuPanel/ContentHBox/LeftPanel"]
+[node name="ListTitle" type="Label" parent="MenuPanel/ContentHBox/LeftPanel/ListHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.36, 0.42, 1)
+theme_override_font_sizes/font_size = 17
+text = "待完成课业"
+
+[node name="ListHint" type="Label" parent="MenuPanel/ContentHBox/LeftPanel/ListHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 12
+text = "点击课程可追加 1 次指导。"
+
+[node name="CourseListPanel" type="PanelContainer" parent="MenuPanel/ContentHBox/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_SurfacePanel")
+
+[node name="ListMargin" type="MarginContainer" parent="MenuPanel/ContentHBox/LeftPanel/CourseListPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MenuPanel/ContentHBox/LeftPanel/CourseListPanel/ListMargin"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="CourseVBox" type="VBoxContainer" parent="MenuPanel/ContentHBox/LeftPanel/ScrollContainer"]
+[node name="CourseVBox" type="VBoxContainer" parent="MenuPanel/ContentHBox/LeftPanel/CourseListPanel/ListMargin/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="RightPanel" type="VBoxContainer" parent="MenuPanel/ContentHBox"]
-custom_minimum_size = Vector2(350, 0)
+custom_minimum_size = Vector2(290, 0)
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12
 
 [node name="ExpPanel" type="PanelContainer" parent="MenuPanel/ContentHBox/RightPanel"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_CourseNormal")
+theme_override_styles/panel = SubResource("StyleBoxFlat_AccentPanel")
 
 [node name="Margin" type="MarginContainer" parent="MenuPanel/ContentHBox/RightPanel/ExpPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
 
-[node name="ExpLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.91, 0.59, 0.23, 1)
+theme_override_constants/separation = 2
+
+[node name="ExpCaption" type="Label" parent="MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.53, 0.34, 1)
+theme_override_font_sizes/font_size = 12
+text = "经验结余"
+
+[node name="ExpLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.55, 0.2, 1)
 theme_override_font_sizes/font_size = 18
-text = "当前互动经验: 0"
-horizontal_alignment = 1
+text = "当前可用经验: 0"
+
+[node name="ExpHint" type="Label" parent="MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.58, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "右侧会同步更新消耗与收益预览。"
+autowrap_mode = 3
 
 [node name="DetailPanel" type="PanelContainer" parent="MenuPanel/ContentHBox/RightPanel"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_CourseNormal")
+theme_override_styles/panel = SubResource("StyleBoxFlat_SurfacePanel")
 
 [node name="Margin" type="MarginContainer" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="VBox" type="VBoxContainer" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 8
 
 [node name="DetailTitle" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 16
 text = "选择一个课程"
-horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="DetailMetaLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 12
+text = "尚未安排指导内容"
 
 [node name="HSeparator" type="HSeparator" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
 
 [node name="DescLabel" type="RichTextLabel" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.45, 0.49, 0.55, 1)
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 13
 bbcode_enabled = true
 text = "请在左侧选择需要指导的课业，以查看详细信息。"
+fit_content = true
+scroll_active = false
 
 [node name="PreviewLabel" type="RichTextLabel" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 16
+theme_override_colors/default_color = Color(0.33, 0.36, 0.42, 1)
+theme_override_font_sizes/normal_font_size = 13
 bbcode_enabled = true
+fit_content = true
+scroll_active = false
 
 [node name="WarningLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.38, 0.3, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 horizontal_alignment = 1
 
 [node name="CostLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.91, 0.59, 0.23, 1)
-theme_override_font_sizes/font_size = 18
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
 
 [node name="ActionHBox" type="HBoxContainer" parent="MenuPanel/ContentHBox/RightPanel"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 12
 
 [node name="ResetBtn" type="Button" parent="MenuPanel/ContentHBox/RightPanel/ActionHBox"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.36, 0.4, 0.46, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonSecondaryHover")
 text = "重置"
 
 [node name="StartBtn" type="Button" parent="MenuPanel/ContentHBox/RightPanel/ActionHBox"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_CourseSelected")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimaryHover")
 text = "接受指导"
-
 

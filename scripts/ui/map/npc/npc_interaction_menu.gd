@@ -65,7 +65,7 @@ func _setup_ui() -> void:
         if npc_rel:
             var current_stage = npc_rel.get_stage(npc_id)
             var stage_config = npc_rel.get_stage_config(npc_id)
-            menu_stage_label.text = stage_config.get("stage_name", stage_config.get("stageTitle", "普通朋友"))
+            menu_stage_label.text = stage_config.get("stageTitle", "普通朋友")
             
             var max_hearts = 10
             var filled_hearts = min(current_stage, max_hearts)

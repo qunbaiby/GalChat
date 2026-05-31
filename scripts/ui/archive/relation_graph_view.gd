@@ -185,9 +185,9 @@ func _get_profile_stage_title(profile) -> String:
 	for stage in profile.stages_config:
 		if not (stage is Dictionary):
 			continue
-		var stage_id: int = int(stage.get("stage", stage.get("stage_id", 1)))
+		var stage_id: int = int(stage.get("stage", 1))
 		if stage_id == int(profile.current_stage):
-			return str(stage.get("stageTitle", stage.get("stage_name", stage.get("name", "阶段%d" % stage_id))))
+			return str(stage.get("stageTitle", "阶段%d" % stage_id))
 	return "阶段%d" % int(profile.current_stage)
 
 func _get_npc_stage_title(npc_id: String) -> String:
@@ -195,7 +195,7 @@ func _get_npc_stage_title(npc_id: String) -> String:
 	var stage_config: Dictionary = npc_rel.get_stage_config(npc_id) if npc_rel else {}
 	if stage_config.is_empty():
 		return "初始关系"
-	return str(stage_config.get("stageTitle", stage_config.get("stage_name", stage_config.get("name", "初始关系"))))
+	return str(stage_config.get("stageTitle", "初始关系"))
 
 func _build_memory_entries() -> Array:
 	var album = MemoryAlbumManagerScript.new()

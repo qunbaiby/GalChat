@@ -1350,67 +1350,41 @@ func _on_history_pressed() -> void:
         history_panel = HistoryPanelObj.instantiate()
         add_child(history_panel)
         history_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-        var close_btn = history_panel.get_node("HistoryTopBar/HistoryCloseButton")
-        if close_btn:
-            close_btn.pressed.connect(_on_history_close_pressed)
-            
-    history_panel.show()
-    _populate_history_ui()
+        if history_panel.has_signal("play_voice_requested"):
+            history_panel.play_voice_requested.connect(_play_cached_voice)
     
-    # 延迟一帧等待容器布局完成，然后滚动到底部
-    if is_inside_tree():
-        await get_tree().process_frame
-    var scroll = history_panel.get_node("ScrollContainer")
-    if scroll:
-        var v_scroll = scroll.get_v_scroll_bar()
-        v_scroll.value = v_scroll.max_value
+    if history_panel.has_method("show_module"):
+        history_panel.show_module("story")
+    else:
+        history_panel.show()
 
 func _on_history_close_pressed() -> void:
     if history_panel:
         history_panel.hide()
 
-func _populate_history_ui() -> void:
-    if not history_panel: return
-    var history_vbox = history_panel.get_node("ScrollContainer/VBoxContainer")
-    if not history_vbox: return
-    
-    # 清空现有子节点
-    for child in history_vbox.get_children():
-        child.queue_free()
-        
-    var messages = GameDataManager.history.get_messages_by_type("story_chat")
-    for msg in messages:
-        var item = HISTORY_ITEM_SCENE.instantiate()
-        history_vbox.add_child(item)
-        item.setup(msg)
-        item.play_voice_requested.connect(_play_cached_voice)
-
 func _play_cached_voice(cache_key: String) -> void:
-    # 由于我们重构了 TTSManager，原来的本地缓存逻辑直接暴露给外部不太合适
-    # 但这里仅仅是播放历史语音，我们可以直接通过 FileAccess 尝试加载 MD5 key 对应的音频文件
-    # 或者简单地通过 TTSManager 重新请求（因为它内部有缓存）
-    # 为了保持行为一致，我们使用 TTSManager 提供的新接口或者直接重新请求：
-    var options = {}
-    if GameDataManager.profile and GameDataManager.config:
-        var char_id = GameDataManager.config.current_character_id
-        if GameDataManager.config.character_voice_types.has(char_id):
-            options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
-    
-    # TODO: 未来需要在 TTSManager 或 Adapter 中公开 get_cache_path 方法以支持直接播放，
-    # 暂时我们直接通过 TTSManager 重新发送文本，因为它的内部底层 Adapter 依然会命中缓存文件
-    # 注意：历史面板目前只保存了 cache_key 而不是完整文本，我们需要根据设计调整。
-    # 在没有公开 _load_audio_from_file 之前，我们可以直接查默认目录：
-    var cache_path = "user://tts_cache/" + cache_key + ".mp3"
-    if FileAccess.file_exists(cache_path):
-        var file = FileAccess.open(cache_path, FileAccess.READ)
-        if file:
-            var data = file.get_buffer(file.get_length())
-            var stream = AudioStreamMP3.new()
-            stream.data = data
-            audio_player.stream = stream
-            audio_player.play()
-    else:
-        print("未找到语音缓存: ", cache_key)
+    var stream = TTSManager.load_cached_audio_by_key(cache_key)
+    if stream and audio_player:
+        audio_player.stream = stream
+        audio_player.play()
+        return
+
+    var history_text := ""
+    for msg in GameDataManager.history.messages:
+        if str(msg.get("voice_cache_key", "")) == cache_key:
+            history_text = str(msg.get("text", ""))
+            break
+
+    if history_text != "":
+        var bbcode_regex = RegEx.new()
+        bbcode_regex.compile("\\[/?[^\\]]+\\]")
+        var clean_text = bbcode_regex.sub(history_text, "", true).strip_edges()
+        clean_text = ChatSplitHelper.strip_parentheses(clean_text).strip_edges()
+        if clean_text != "":
+            TTSManager.synthesize(clean_text, {})
+            return
+
+    print("未找到语音缓存: ", cache_key)
 
 var pending_status_changes = []
 
@@ -2048,7 +2022,7 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
             if GameDataManager.config.character_voice_types.has(char_id):
                 options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
                 
-            cache_key = (text_to_speak + str(options)).md5_text()
+            cache_key = TTSManager.get_cache_key(text_to_speak, options)
             TTSManager.synthesize(text_to_speak, options)
         
     # 保存记录到历史管理器 (只有在非恢复模式时保存)

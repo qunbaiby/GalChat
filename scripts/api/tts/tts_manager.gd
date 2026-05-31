@@ -63,27 +63,42 @@ func _setup_current_adapter_auth() -> void:
 		}
 		current_adapter.setup_auth(config_dict)
 
+func _build_effective_options(options: Dictionary = {}) -> Dictionary:
+	var final_options = options.duplicate(true)
+
+	# 【动态情绪注入】：如果外部没有指定 emotion，自动注入当前角色的心情
+	if not final_options.has("emotion") and GameDataManager.profile:
+		final_options["emotion"] = GameDataManager.profile.current_expression
+
+	# 兼容原有逻辑，注入当前的 voice_type 或 voice_seed
+	if GameDataManager.profile and GameDataManager.config:
+		var char_id = GameDataManager.config.current_character_id
+		if current_adapter_type == "doubao":
+			if not final_options.has("voice_type") and GameDataManager.config.character_voice_types.has(char_id):
+				final_options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
+		elif current_adapter_type == "qwen_tts":
+			if not final_options.has("voice_type") and GameDataManager.config.qwen_tts_voice_types.has(char_id):
+				final_options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[char_id]
+
+	return final_options
+
 # 外部调用的统一接口
 func synthesize(text: String, options: Dictionary = {}) -> void:
 	if not current_adapter:
 		tts_failed.emit("No TTS adapter configured", text)
 		return
-		
-	# 【动态情绪注入】：如果外部没有指定 emotion，自动注入当前角色的心情
-	if not options.has("emotion") and GameDataManager.profile:
-		options["emotion"] = GameDataManager.profile.current_expression
-		
-	# 兼容原有逻辑，注入当前的 voice_type 或 voice_seed
-	if GameDataManager.profile and GameDataManager.config:
-		var char_id = GameDataManager.config.current_character_id
-		if current_adapter_type == "doubao":
-			if not options.has("voice_type") and GameDataManager.config.character_voice_types.has(char_id):
-				options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
-		elif current_adapter_type == "qwen_tts":
-			if not options.has("voice_type") and GameDataManager.config.qwen_tts_voice_types.has(char_id):
-				options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[char_id]
-			
-	current_adapter.synthesize(text, options)
+
+	current_adapter.synthesize(text, _build_effective_options(options))
+
+func get_cache_key(text: String, options: Dictionary = {}) -> String:
+	if not current_adapter:
+		return ""
+	return current_adapter.get_cache_key(text, _build_effective_options(options))
+
+func load_cached_audio_by_key(cache_key: String) -> AudioStream:
+	if not current_adapter:
+		return null
+	return current_adapter.load_cached_audio_by_key(cache_key)
 
 func clear_cache() -> void:
 	if current_adapter:

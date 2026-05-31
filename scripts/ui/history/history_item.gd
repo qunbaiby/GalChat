@@ -4,6 +4,7 @@ extends MarginContainer
 @onready var name_label: Label = %NameLabel
 @onready var content_label: RichTextLabel = %ContentLabel
 @onready var time_label: Label = %TimeLabel
+@onready var type_tag_label: Label = %TypeTagLabel
 @onready var play_button: Button = %PlayButton
 @onready var choice_panel: PanelContainer = %ChoicePanel
 @onready var choice_label: Label = %ChoiceLabel
@@ -11,6 +12,30 @@ extends MarginContainer
 signal play_voice_requested(cache_key: String)
 
 var _voice_cache_key: String = ""
+
+func _resolve_type_tag(msg: Dictionary) -> Dictionary:
+    var msg_type := str(msg.get("type", ""))
+    var subtype := str(msg.get("subtype", ""))
+
+    if msg_type == "main_chat":
+        match subtype:
+            "daily_concern_chat":
+                return {"text": "心事", "color": Color(0.98, 0.78, 0.52, 1)}
+            "daily_topic_chat":
+                return {"text": "话题", "color": Color(0.74, 0.87, 1.0, 1)}
+            "daily_memory_revisit":
+                return {"text": "回忆", "color": Color(0.87, 0.75, 1.0, 1)}
+            "daily_proactive":
+                return {"text": "问候", "color": Color(0.73, 0.95, 0.78, 1)}
+            _:
+                return {"text": "日常", "color": Color(0.56, 0.88, 0.82, 1)}
+
+    if msg_type == "fixed_story":
+        return {"text": "固定剧情", "color": Color(1.0, 0.74, 0.82, 1)}
+    if msg_type == "story_chat":
+        return {"text": "剧情", "color": Color(0.98, 0.64, 0.74, 1)}
+
+    return {"text": "", "color": Color.WHITE}
 
 func _load_texture_from_path(path: String) -> Texture2D:
     var final_path = path.strip_edges()
@@ -65,6 +90,7 @@ func setup(msg: Dictionary) -> void:
     var speaker = msg.get("speaker", "Unknown")
     var content = msg.get("text", "")
     var is_choice = msg.get("is_choice", false)
+    var type_tag = _resolve_type_tag(msg)
     
     if speaker == "玩家" or speaker == "我" or speaker == "player":
         name_label.add_theme_color_override("font_color", Color("#55aaff"))
@@ -78,6 +104,13 @@ func setup(msg: Dictionary) -> void:
     content_label.text = content
     var time_str = msg.get("time", "00:00:00").replace("T", " ")
     time_label.text = "[%s]" % time_str
+    type_tag_label.text = str(type_tag.get("text", ""))
+    type_tag_label.modulate = Color(1, 1, 1, 1)
+    if type_tag_label.text == "":
+        type_tag_label.hide()
+    else:
+        type_tag_label.show()
+        type_tag_label.add_theme_color_override("font_color", type_tag.get("color", Color.WHITE))
     
     # 动态获取头像
     avatar_rect.texture = _resolve_avatar_texture(speaker)
@@ -94,6 +127,10 @@ func setup(msg: Dictionary) -> void:
         content_label.hide()
         choice_panel.show()
         choice_label.text = content
+        if type_tag_label.text == "":
+            type_tag_label.text = "选择"
+            type_tag_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.45, 1))
+            type_tag_label.show()
         
         # 隐藏名字和头像（选项通常是玩家自己的行为）
         name_label.text = ""

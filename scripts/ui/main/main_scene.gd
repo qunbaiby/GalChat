@@ -114,6 +114,47 @@ var is_text_playback_finished = true
 var _awaiting_topic_selection: bool = false
 var _topic_greeting_playing: bool = false
 var _pending_topic_options: Array = []
+const DAILY_HISTORY_MODULE := "daily"
+const MAIN_CHAT_SUBTYPE_DAILY := "daily_chat"
+const MAIN_CHAT_SUBTYPE_TOPIC := "daily_topic_chat"
+const MAIN_CHAT_SUBTYPE_CONCERN := "daily_concern_chat"
+const MAIN_CHAT_SUBTYPE_MEMORY := "daily_memory_revisit"
+const MAIN_CHAT_SUBTYPE_PROACTIVE := "daily_proactive"
+var _current_main_chat_subtype: String = MAIN_CHAT_SUBTYPE_DAILY
+var _current_main_chat_topic: String = ""
+
+func _set_main_chat_context(subtype: String, topic: String = "") -> void:
+    _current_main_chat_subtype = subtype
+    _current_main_chat_topic = topic
+
+func _reset_main_chat_context() -> void:
+    _set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY)
+
+func _resolve_topic_chat_subtype(topic: String) -> String:
+    var normalized = topic.strip_edges()
+    var concern_keywords = ["心事", "烦恼", "难过", "压力", "委屈", "伤心", "不开心"]
+    for keyword in concern_keywords:
+        if normalized.find(keyword) != -1:
+            return MAIN_CHAT_SUBTYPE_CONCERN
+    return MAIN_CHAT_SUBTYPE_TOPIC
+
+func _build_main_chat_meta(extra_data: Dictionary = {}) -> Dictionary:
+    var meta = {
+        "module": DAILY_HISTORY_MODULE,
+        "subtype": _current_main_chat_subtype
+    }
+    if _current_main_chat_topic != "":
+        meta["topic"] = _current_main_chat_topic
+    if not extra_data.is_empty():
+        meta.merge(extra_data, true)
+    return meta
+
+func _update_affection_button_ui() -> void:
+    if not is_instance_valid(affection_button) or not GameDataManager.profile:
+        return
+    var level_label = affection_button.get_node_or_null("VBoxContainer/LevelLabel")
+    if level_label:
+        level_label.text = "LV%d" % int(GameDataManager.profile.current_stage)
 
 func _on_main_chat_pressed() -> void:
     _animate_button(chat_button)
@@ -253,6 +294,7 @@ func _on_topic_selected(topic: String) -> void:
         top_status_panel._update_ui()
 
     _awaiting_topic_selection = false
+    _set_main_chat_context(_resolve_topic_chat_subtype(topic), topic)
     dialogue_name_label.text = GameDataManager.profile.char_name
     dialogue_text.text = "..."
     input_field.text = ""
@@ -605,6 +647,7 @@ func _close_chat_panel(show_stats_toast: bool = true) -> void:
         _generated_image_panel.queue_free()
     _generated_image_panel = null
     is_memory_revisit_active = false
+    _reset_main_chat_context()
 
     if show_stats_toast:
         _show_accumulated_stats()
@@ -633,6 +676,8 @@ func _on_send_pressed() -> void:
     var text = input_field.text.strip_edges()
     if text.is_empty():
         return
+    if _current_main_chat_subtype == MAIN_CHAT_SUBTYPE_MEMORY or _current_main_chat_subtype == MAIN_CHAT_SUBTYPE_PROACTIVE:
+        _set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY)
         
     input_field.text = ""
     input_field.editable = false
@@ -643,7 +688,7 @@ func _on_send_pressed() -> void:
     if quick_option_layer:
         quick_option_layer.hide()
         
-    GameDataManager.history.add_message("player", text, "", "main_chat")
+    GameDataManager.history.add_message("player", text, "", "main_chat", _build_main_chat_meta())
     
     dialogue_name_label.text = "我"
     
@@ -947,15 +992,15 @@ func _stream_worker_loop() -> void:
                 if regex_tts.search(tts_text) != null:
                     is_tts_started = true
                     var options = {}
-                    # 保存 cache key，为了后续写入历史记录关联语音播放 (简单用md5替代原来的内部方法)
-                    current_cache_key = (tts_text + str(options)).md5_text()
+                    # 通过 TTSManager 统一生成缓存键，确保与实际缓存文件命名一致
+                    current_cache_key = TTSManager.get_cache_key(tts_text, options)
                     TTSManager.synthesize(tts_text, options)
             
             # 这里必须等待一帧，确保 TTS 组件内部有机会触发 success 信号
             await get_tree().process_frame
             
             # 将该条切分后的消息存入历史记录中
-            GameDataManager.history.add_message("char", pure_text, current_cache_key, "main_chat")
+            GameDataManager.history.add_message("char", pure_text, current_cache_key, "main_chat", _build_main_chat_meta())
             
             if is_inside_tree():
                 while _typewriter_tween and _typewriter_tween.is_valid() and _typewriter_tween.is_running():
@@ -1232,10 +1277,7 @@ func _ready() -> void:
     if chat_button and GameDataManager.profile:
         chat_button.text = "与 " + GameDataManager.profile.char_name + " 聊天"
     
-    var level_label = affection_button.get_node("HBoxContainer/LevelLabel")
-    if level_label and GameDataManager.profile:
-        var stage_conf = GameDataManager.profile.get_current_stage_config()
-        level_label.text = stage_conf.get("stageTitle", "陌生人")
+    _update_affection_button_ui()
         
     # 动画：按钮点击弹性反馈 - 这些现在可以通过检查是否有 size 动态计算 pivot_offset
     # 或者我们在 inspector 中设置好的也会生效。这里保留以防有些按钮大小动态变化
@@ -1412,6 +1454,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
     if revisit_data.is_empty():
         return
     is_memory_revisit_active = true
+    _set_main_chat_context(MAIN_CHAT_SUBTYPE_MEMORY)
     
     if _ui_tween:
         _ui_tween.kill()
@@ -1452,6 +1495,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 func start_proactive_greeting(prompt_type: String) -> void:
     is_proactive_greeting = true
     proactive_greeting_step = 0
+    _set_main_chat_context(MAIN_CHAT_SUBTYPE_PROACTIVE)
     
     if _ui_tween:
         _ui_tween.kill()
@@ -1935,53 +1979,37 @@ func _on_history_pressed() -> void:
         history_panel_instance = HistoryPanelObj.instantiate()
         add_child(history_panel_instance)
         history_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-        
-        # We need to hook up the close button of history panel manually if it doesn't self-close
-        var close_btn = history_panel_instance.get_node_or_null("MainPanel/HistoryTopBar/Margin/HBox/HistoryCloseButton")
-        if close_btn:
-            close_btn.pressed.connect(func(): history_panel_instance.hide())
-            
-    history_panel_instance.show()
-    _populate_history_ui()
-
-func _populate_history_ui() -> void:
-    if not history_panel_instance: return
-    var history_vbox = history_panel_instance.get_node_or_null("MainPanel/ScrollContainer/Margin/VBoxContainer")
-    if not history_vbox: return
+        if history_panel_instance.has_signal("play_voice_requested"):
+            history_panel_instance.play_voice_requested.connect(_play_cached_voice)
     
-    # 清空现有子节点
-    for child in history_vbox.get_children():
-        child.queue_free()
-        
-    var HISTORY_ITEM_SCENE = load("res://scenes/ui/history/history_item.tscn")
-    var messages = GameDataManager.history.get_messages_by_type("main_chat")
-    for msg in messages:
-        var item = HISTORY_ITEM_SCENE.instantiate()
-        history_vbox.add_child(item)
-        item.setup(msg)
-        item.play_voice_requested.connect(_play_cached_voice)
-        
-    # 延迟一帧等待容器布局完成，然后滚动到底部
-    if is_inside_tree():
-        await get_tree().process_frame
-    var scroll = history_panel_instance.get_node_or_null("MainPanel/ScrollContainer")
-    if scroll:
-        var v_scroll = scroll.get_v_scroll_bar()
-        v_scroll.value = v_scroll.max_value
+    if history_panel_instance.has_method("show_module"):
+        history_panel_instance.show_module(DAILY_HISTORY_MODULE)
+    else:
+        history_panel_instance.show()
 
 func _play_cached_voice(cache_key: String) -> void:
-    var cache_path = "user://tts_cache/" + cache_key + ".mp3"
-    if FileAccess.file_exists(cache_path):
-        var file = FileAccess.open(cache_path, FileAccess.READ)
-        if file:
-            var data = file.get_buffer(file.get_length())
-            var stream = AudioStreamMP3.new()
-            stream.data = data
-            if audio_player:
-                audio_player.stream = stream
-                audio_player.play()
-    else:
-        print("未找到语音缓存: ", cache_key)
+    var stream = TTSManager.load_cached_audio_by_key(cache_key)
+    if stream and audio_player:
+        audio_player.stream = stream
+        audio_player.play()
+        return
+
+    var history_text := ""
+    for msg in GameDataManager.history.messages:
+        if str(msg.get("voice_cache_key", "")) == cache_key:
+            history_text = str(msg.get("text", ""))
+            break
+
+    if history_text != "":
+        var bbcode_regex = RegEx.new()
+        bbcode_regex.compile("\\[/?[^\\]]+\\]")
+        var clean_text = bbcode_regex.sub(history_text, "", true).strip_edges()
+        clean_text = ChatSplitHelper.strip_parentheses(clean_text).strip_edges()
+        if clean_text != "":
+            TTSManager.synthesize(clean_text, {})
+            return
+
+    print("未找到语音缓存: ", cache_key)
 
 func _on_close_requested() -> void:
     pass
@@ -2218,6 +2246,8 @@ func _on_character_switched(char_id: String) -> void:
     
     if chat_button and GameDataManager.profile:
         chat_button.text = "与 " + GameDataManager.profile.char_name + " 聊天"
+    
+    _update_affection_button_ui()
         
     # 注意：ChatScene 的更新由它自己内部监听信号处理
 

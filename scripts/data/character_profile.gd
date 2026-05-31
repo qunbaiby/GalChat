@@ -25,9 +25,6 @@ var current_outfit: String = "default" # 当前穿着服装的 ID
 var intimacy: float = 0.0 # 0-9999
 var mood_value: float = 50.0 # 0-100, 长期心情值
 var current_expression: String = "calm" # 瞬时表情ID
-var current_mood: String: # 兼容旧存档或遗留逻辑，建议逐步废弃
-    get: return current_expression
-    set(value): current_expression = value
 var last_login_date: String = "" # 用于判断是否跨天
 var trust: float = 10.0 # 0-9999
 var current_stage: int = 1 # 1-8
@@ -197,12 +194,6 @@ func load_profile(force_char_id: String = "") -> void:
                 mood_value = float(str(data.get("mood_value", 50.0)))
                 current_expression = data.get("current_expression", "calm")
                 
-                # 兼容旧存档的 current_mood
-                if data.has("current_mood"):
-                    var old_mood = data.get("current_mood")
-                    if GameDataManager.expression_system.is_valid_expression(old_mood):
-                        current_expression = old_mood
-                        
                 last_login_date = data.get("last_login_date", last_login_date)
                 trust = float(str(data.get("trust", trust)))
                 current_stage = int(str(data.get("current_stage", current_stage)))
@@ -274,6 +265,24 @@ func load_profile(force_char_id: String = "") -> void:
     init_daily_mood()
     if GameDataManager.personality_system and GameDataManager.personality_system.has_method("resolve_archetype_state"):
         personality_state = GameDataManager.personality_system.resolve_archetype_state(self)
+    _bind_event_manager()
+
+func _bind_event_manager() -> void:
+    var tree := Engine.get_main_loop() as SceneTree
+    if tree == null:
+        return
+
+    var event_manager = tree.root.get_node_or_null("EventManager")
+    if event_manager == null or not event_manager.has_signal("event_triggered"):
+        return
+
+    var callback := Callable(self, "_on_event_triggered")
+    if not event_manager.is_connected("event_triggered", callback):
+        event_manager.connect("event_triggered", callback)
+
+func _on_event_triggered(_event_id: String, _params: Dictionary) -> void:
+    # 里程碑剧情触发后立即重算，避免玩家已经达标却还要再互动一次才升阶。
+    check_stage_upgrade()
 
 func _get_static_data_path() -> String:
     # 优先检查外部动态目录
@@ -318,7 +327,7 @@ func _load_static_data() -> void:
                 sprite_frames_path = data.get("sprite_frames_path", "")
                 desktop_pet_frames_path = data.get("desktop_pet_frames_path", "")
                 avatar = data.get("avatar", "")
-                description = data.get("world_background", data.get("description", ""))
+                description = data.get("identity_background", "")
                 tags = data.get("tags", [])
                 if data.has("base_personality"):
                     base_personality = data["base_personality"]
@@ -510,6 +519,7 @@ func update_trust(amount: float) -> void:
         var personality_mult = GameDataManager.personality_system.get_trust_multiplier(self)
         amount = amount * stage_multi * mood_multi * personality_mult
     trust = max(trust + amount, 0.0)
+    check_stage_upgrade()
     
 func add_interaction_exp() -> void:
     var stage_conf = get_current_stage_config()
@@ -526,28 +536,22 @@ func check_stage_upgrade() -> void:
     var stage_conf = get_current_stage_config()
     if stage_conf.is_empty(): return
     
-    # 解耦1：获取亲密度的绝对值阈值 (兼容旧表中的 threshold 字段)
-    var intimacy_threshold = stage_conf.get("intimacy_threshold", stage_conf.get("threshold", 9999))
-    
-    # 解耦2：获取信任度的绝对值阈值 (如果配置表未填写，则默认不需要信任度门槛)
-    var trust_threshold = stage_conf.get("trust_threshold", 0)
-    
-    # 解耦3：获取本次升阶需要【消耗】的互动经验值 (默认100，实际由JSON配置决定)
+    # 获取本次升阶需要【消耗】的互动经验值 (默认100，实际由JSON配置决定)
     var exp_cost = stage_conf.get("exp_cost", 100)
     
-    # 解耦4：获取升阶的共感值门槛 (共感值 = 亲密 + 信任)
+    # 获取升阶的共感值门槛 (共感值 = 亲密 + 信任)
     var resonance_threshold = stage_conf.get("resonance_threshold", 0)
     var current_resonance = intimacy + trust
     
-    # 解耦5：获取升阶的里程碑剧情事件限制
-    var milestone_event = stage_conf.get("milestone_event", "")
+    # 获取升阶的里程碑剧情限制，统一使用 milestone_story。
+    var milestone_story = str(stage_conf.get("milestone_story", "")).strip_edges()
     var is_milestone_met = true
-    if milestone_event != "":
+    if milestone_story != "":
         # GameDataManager 已经作为 Autoload 存在，而且 event_manager 也是 autoload (或者通过其他方式访问)
         # 因为 event_manager 是 Autoload 的 "EventManager"，可以直接通过 Engine/SceneTree 获取
         var event_manager = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("EventManager")
         if event_manager and event_manager.has_method("is_event_triggered"):
-            is_milestone_met = event_manager.is_event_triggered(milestone_event)
+            is_milestone_met = event_manager.is_event_triggered(milestone_story)
         else:
             # 如果配置了里程碑但系统未就绪，则判定为不满足
             is_milestone_met = false

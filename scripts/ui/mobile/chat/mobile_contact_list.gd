@@ -65,7 +65,7 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 		var json = JSON.new()
 		if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
 			info.name = json.data.get("char_name", char_id)
-			info.avatar = json.data.get("avatar", json.data.get("static_portrait", ""))
+			info.avatar = json.data.get("avatar", "")
 			
 	# Get last message from mobile chat history
 	var history_path = "user://saves/%s/mobile_chat_history.json" % char_id
@@ -76,7 +76,7 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 			var mobile_msgs = json.data
 			if mobile_msgs.size() > 0:
 				var last = mobile_msgs[-1]
-				var raw_text = last.get("text", last.get("content", "..."))
+				var raw_text = last.get("text", "...")
 				
 				# If it's an image
 				if raw_text.begins_with("[img]") and raw_text.ends_with("[/img]"):
@@ -91,7 +91,7 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 				info.raw_time = last.get("time", "")
 				info.last_time = _format_time(info.raw_time)
 				for msg in mobile_msgs:
-					var speaker = msg.get("speaker", msg.get("role", ""))
+					var speaker = msg.get("speaker", "")
 					if speaker != "player" and not msg.get("is_read", false):
 						info.unread_count += 1
 				

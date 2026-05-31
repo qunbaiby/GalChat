@@ -47,6 +47,7 @@ func execute_interaction(action_id: String) -> bool:
     var exp_gain = int(config.get("exp_gain", 0))
     if exp_gain > 0:
         profile.interaction_exp += exp_gain
+        profile.check_stage_upgrade()
         ToastManager.show_toast("互动经验 +%d" % exp_gain, Color(0.9, 0.6, 0.4, 0.9))
         
     # 调整心情与压力

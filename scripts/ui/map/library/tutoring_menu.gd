@@ -3,9 +3,10 @@ extends CanvasLayer
 signal closing_started
 
 @onready var close_btn: Button = $MenuPanel/CloseBtn
-@onready var course_vbox: VBoxContainer = $MenuPanel/ContentHBox/LeftPanel/ScrollContainer/CourseVBox
-@onready var exp_label: Label = $MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/ExpLabel
+@onready var course_vbox: VBoxContainer = $MenuPanel/ContentHBox/LeftPanel/CourseListPanel/ListMargin/ScrollContainer/CourseVBox
+@onready var exp_label: Label = $MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/VBox/ExpLabel
 @onready var detail_title: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DetailTitle
+@onready var detail_meta_label: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DetailMetaLabel
 @onready var desc_label: RichTextLabel = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DescLabel
 @onready var preview_label: RichTextLabel = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/PreviewLabel
 @onready var warning_label: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/WarningLabel
@@ -87,10 +88,12 @@ func _refresh_ui() -> void:
 			
 	if not has_available:
 		var empty_label = Label.new()
-		empty_label.text = "所有课业均已完成！"
+		empty_label.text = "所有课业均已完成\n今天已经没有需要补的内容了。"
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_label.add_theme_font_size_override("font_size", 18)
 		empty_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty_label.custom_minimum_size = Vector2(0, 180)
 		course_vbox.add_child(empty_label)
 		
 	_update_right_panel()
@@ -145,8 +148,9 @@ func _get_total_planned_cost() -> int:
 func _update_right_panel() -> void:
 	var profile = GameDataManager.profile
 	var total_cost = _get_total_planned_cost()
+	var remaining_exp = profile.interaction_exp - total_cost
 	
-	exp_label.text = "当前可用经验: %d" % (profile.interaction_exp - total_cost)
+	exp_label.text = "%d" % remaining_exp
 	
 	var is_empty = _planned_counts.is_empty()
 	start_btn.disabled = is_empty
@@ -154,7 +158,8 @@ func _update_right_panel() -> void:
 	
 	if is_empty:
 		detail_title.text = "课业指导安排"
-		desc_label.text = "点击左侧课程安排指导内容。\n你可以多次点击同一课程，或组合多个课程。"
+		detail_meta_label.text = "尚未安排指导内容"
+		desc_label.text = "[color=#63708a]点击左侧课程可追加指导次数。[/color]\n[color=#7b8496]支持重复安排或组合多门课程。[/color]"
 		cost_label.text = ""
 		preview_label.text = ""
 		return
@@ -162,11 +167,13 @@ func _update_right_panel() -> void:
 	# 生成汇总信息
 	var aggregate_rewards = {}
 	var courses_summary = ""
+	var total_count := 0
 	
 	for c_id in _planned_counts.keys():
 		var count = _planned_counts[c_id]
+		total_count += count
 		var course = _get_course_by_id(c_id)
-		courses_summary += "• %s x%d\n" % [course.get("name", ""), count]
+		courses_summary += "• [b]%s[/b]  x%d\n" % [course.get("name", ""), count]
 		
 		var rewards = course.get("rewards", {})
 		for stat_key in rewards.keys():
@@ -182,10 +189,11 @@ func _update_right_panel() -> void:
 				aggregate_rewards[stat_key][1] += int(val) * count
 
 	detail_title.text = "指导安排确认"
+	detail_meta_label.text = "已安排 %d 次指导，涉及 %d 门课程" % [total_count, _planned_counts.size()]
 	desc_label.text = courses_summary
-	cost_label.text = "总消耗经验: %d" % total_cost
+	cost_label.text = "预计消耗互动经验：%d" % total_cost
 	
-	var preview_str = "[color=#88cc88]属性提升预览 (总计)：[/color]\n"
+	var preview_str = "[color=#e08b35][b]属性提升预览[/b][/color]\n"
 	if aggregate_rewards.size() > 0:
 		for stat_key in aggregate_rewards.keys():
 			var stat_name = STAT_NAME_MAP.get(stat_key, stat_key)
@@ -193,11 +201,11 @@ func _update_right_panel() -> void:
 			var max_val = aggregate_rewards[stat_key][1]
 			
 			if min_val == max_val:
-				preview_str += "• %s: +%d\n" % [stat_name, min_val]
+				preview_str += "• %s：+%d\n" % [stat_name, min_val]
 			else:
-				preview_str += "• %s: +%d ~ %d\n" % [stat_name, min_val, max_val]
+				preview_str += "• %s：+%d ~ %d\n" % [stat_name, min_val, max_val]
 	else:
-		preview_str += "无附加属性提升"
+		preview_str += "暂无额外属性提升"
 		
 	preview_label.text = preview_str
 

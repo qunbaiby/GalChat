@@ -20,3 +20,11 @@ func setup_auth(config: Dictionary) -> void:
 # 子类可选实现的接口：清理缓存
 func clear_cache() -> void:
 	pass
+
+# 子类可选实现的接口：根据文本与参数生成缓存键
+func get_cache_key(text: String, options: Dictionary = {}) -> String:
+	return ""
+
+# 子类可选实现的接口：根据缓存键加载缓存音频
+func load_cached_audio_by_key(cache_key: String) -> AudioStream:
+	return null

@@ -174,7 +174,7 @@ func _load_location_data():
 	desc_label.text = loc_data.get("description", "没有描述")
 	
 	# 设置背景图
-	var bg_id = loc_data.get("bg_id", loc_data.get("bg_path", ""))
+	var bg_id = loc_data.get("bg_id", "")
 	var real_path = ""
 	if not bg_id.is_empty():
 		real_path = ImageManager.get_image_path(bg_id)
@@ -215,7 +215,7 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 			if data is Dictionary:
 				npc_name = data.get("char_name", npc_name)
 				sprite_frames_path = str(data.get("sprite_frames_path", "")).strip_edges()
-				static_portrait_path = str(data.get("static_portrait", data.get("avatar", ""))).strip_edges()
+				static_portrait_path = str(data.get("static_portrait", "")).strip_edges()
 				npc_title = data.get("title", npc_title)
 				
 	menu_name_label.text = npc_name

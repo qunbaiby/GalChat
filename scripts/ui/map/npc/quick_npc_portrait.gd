@@ -34,7 +34,7 @@ func setup(id: String) -> void:
             var data = json.get_data()
             if data is Dictionary:
                 npc_name = data.get("char_name", npc_name)
-                var tex_path = data.get("avatar", data.get("static_portrait", ""))
+                var tex_path = data.get("avatar", "")
                 if not tex_path.is_empty() and ResourceLoader.exists(tex_path):
                     portrait_texture = load(tex_path)
     
@@ -81,4 +81,3 @@ func _on_interact_button_pressed():
 func set_selected(is_selected: bool) -> void:
     if state_ring:
         state_ring.visible = is_selected
-

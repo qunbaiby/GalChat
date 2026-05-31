@@ -151,9 +151,9 @@ func _on_rp_send_pressed() -> void:
 		
 	# 发送红包消息
 	var msg_data = {
-		"role": "user",
+		"speaker": "player",
 		"type": "red_packet",
-		"content": text,
+		"text": text,
 		"amount": amount,
 		"status": "unclaimed" # unclaimed, claimed, expired
 	}
@@ -166,9 +166,9 @@ func _on_rp_send_pressed() -> void:
 	if msg_data["status"] == "unclaimed":
 		msg_data["status"] = "claimed"
 		var sys_msg = {
-			"role": "system",
+			"speaker": "system",
 			"type": "system",
-			"content": current_char_id.capitalize() + "领取了你的红包"
+			"text": current_char_id.capitalize() + "领取了你的红包"
 		}
 		chat_history.append(sys_msg)
 		_save_mobile_history()
@@ -177,14 +177,14 @@ func _on_rp_send_pressed() -> void:
 		
 		# 发起AI回复请求，由于上一步修改了chat_history，这里把刚发的红包和系统消息作为上下文带进去
 		var sys_prompt_text = "【系统提示：玩家给你发了一个%dG的红包: %s，并且你已经自动领取了。请你根据当前好感度、心情和你们的聊天语境，给玩家发送一段感谢或反应消息。如果好感度低可能表现得傲娇或惊讶。】" % [amount, text]
-		var fake_msg = {"role": "system", "content": sys_prompt_text}
+		var fake_msg = {"speaker": "system", "text": sys_prompt_text}
 		chat_history.append(fake_msg)
 		
 		var messages = [{"role": "system", "content": GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", "", [])}]
 		var recent = chat_history.slice(-10)
 		for msg in recent:
-			var msg_speaker = msg.get("speaker", msg.get("role", ""))
-			var msg_text = msg.get("text", msg.get("content", ""))
+			var msg_speaker = msg.get("speaker", "")
+			var msg_text = msg.get("text", "")
 			var role = "user" if msg_speaker == "player" or msg_speaker == "user" or msg_speaker == "system" else "assistant"
 			var msg_content = str(msg_text)
 			
@@ -381,8 +381,9 @@ func _request_ai_call_response(player_text: String) -> void:
 	# Add recent call history (last 10 messages)
 	var recent = current_call_history.slice(-10)
 	for msg in recent:
-		var msg_speaker = msg.get("speaker", msg.get("role", ""))
-		var msg_text = msg.get("text", msg.get("content", ""))
+		var normalized_msg = _normalize_history_message(msg)
+		var msg_speaker = normalized_msg.get("speaker", "")
+		var msg_text = normalized_msg.get("text", "")
 		var role = "user" if msg_speaker == "player" or msg_speaker == "user" else "assistant"
 		messages.append({"role": role, "content": msg_text})
 		
@@ -402,14 +403,15 @@ func _request_ai_response(player_text: String) -> void:
 	# Add recent history (last 10 messages)
 	var recent = chat_history.slice(-10)
 	for msg in recent:
-		var msg_speaker = msg.get("speaker", msg.get("role", ""))
-		var msg_text = msg.get("text", msg.get("content", ""))
+		var normalized_msg = _normalize_history_message(msg)
+		var msg_speaker = normalized_msg.get("speaker", "")
+		var msg_text = normalized_msg.get("text", "")
 		var role = "user" if msg_speaker == "player" or msg_speaker == "user" or msg_speaker == "system" else "assistant"
 		var msg_content = str(msg_text)
 		
-		if msg.get("type", "") == "system":
+		if normalized_msg.get("type", "") == "system":
 			msg_content = "【系统提示：%s】" % msg_content
-		elif msg.get("type", "") == "red_packet":
+		elif normalized_msg.get("type", "") == "red_packet":
 			msg_content = "【系统提示：[%s发了一个红包: %s]】" % [
 				"玩家" if msg_speaker == "player" or msg_speaker == "user" else "你", 
 				msg_content
@@ -471,9 +473,9 @@ func _on_ai_response(response: Dictionary) -> void:
 					if clean_part.find("红包") != -1 and clean_part.find("给") != -1 and randf() < 0.6:
 						var rp_amount = randi_range(50, 200)
 						var rp_msg = {
-							"role": "char",
+							"speaker": "char",
 							"type": "red_packet",
-							"content": "给你的红包！",
+							"text": "给你的红包！",
 							"amount": rp_amount,
 							"status": "unclaimed"
 						}
@@ -494,9 +496,9 @@ func _on_ai_response(response: Dictionary) -> void:
 			scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
 	else:
 		var sys_msg = {
-			"role": "system",
+			"speaker": "system",
 			"type": "system",
-			"content": "消息发送失败..."
+			"text": "消息发送失败..."
 		}
 		_add_message_to_ui(sys_msg)
 		chat_history.append(sys_msg)
@@ -515,26 +517,30 @@ func _on_ai_error(err_msg: String) -> void:
 			video_call_panel_instance.record_btn.disabled = false
 	else:
 		var sys_msg = {
-			"role": "system",
+			"speaker": "system",
 			"type": "system",
-			"content": "网络错误: " + err_msg
+			"text": "网络错误: " + err_msg
 		}
 		_add_message_to_ui(sys_msg)
 		chat_history.append(sys_msg)
 		_save_mobile_history()
 
 func _add_message_to_ui(msg: Dictionary) -> void:
-	_add_message_bubble(msg.get("role", msg.get("speaker", "")), msg.get("content", msg.get("text", "")), msg.get("is_voice", false), msg.get("duration", 0), msg)
+	var normalized_msg = _normalize_history_message(msg)
+	_add_message_bubble(normalized_msg.get("speaker", ""), normalized_msg.get("text", ""), normalized_msg.get("is_voice", false), normalized_msg.get("duration", 0), normalized_msg)
 
 func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, duration: int = 0, msg: Dictionary = {}) -> void:
+	var final_msg = _normalize_history_message(msg)
+	if not final_msg.has("speaker") or str(final_msg.get("speaker", "")).strip_edges() == "":
+		final_msg["speaker"] = speaker
+	if not final_msg.has("text") or str(final_msg.get("text", "")).is_empty():
+		final_msg["text"] = text
+	speaker = str(final_msg.get("speaker", ""))
 	if speaker == "user":
 		speaker = "player"
 	elif speaker == "assistant":
 		speaker = "char"
-		
-	var final_msg = msg.duplicate()
-	if not final_msg.has("text") and not final_msg.has("content"):
-		final_msg["text"] = text
+	final_msg["speaker"] = speaker
 	if not final_msg.has("is_voice"):
 		final_msg["is_voice"] = is_voice
 	if not final_msg.has("duration"):
@@ -563,8 +569,9 @@ func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, 
 	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
 
 func _on_red_packet_message_clicked(msg: Dictionary) -> void:
-	var speaker = msg.get("role", msg.get("speaker", ""))
-	var is_sender = (speaker == "player" or speaker == "user")
+	var normalized_msg = _normalize_history_message(msg)
+	var speaker = normalized_msg.get("speaker", "")
+	var is_sender = speaker == "player"
 	var status = msg.get("status", "unclaimed")
 	
 	var p_avatar = null
@@ -577,7 +584,7 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 	
 	var rp_scene = load("res://scenes/ui/mobile/chat/red_packet_interact.tscn")
 	var rp_ui = rp_scene.instantiate()
-	rp_ui.setup(msg, is_sender, current_char_id, c_avatar, p_avatar)
+	rp_ui.setup(normalized_msg, is_sender, current_char_id, c_avatar, p_avatar)
 	add_child(rp_ui)
 	rp_ui.opened.connect(func():
 		if is_sender or status == "claimed":
@@ -588,7 +595,7 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 		# Find the original message in chat_history and update it
 		for i in range(chat_history.size() - 1, -1, -1):
 			var h_msg = chat_history[i]
-			if h_msg.get("type") == "red_packet" and h_msg.get("content", h_msg.get("text", "")) == msg.get("content", msg.get("text", "")) and h_msg.get("amount", 0) == msg.get("amount", 0):
+			if h_msg.get("type") == "red_packet" and h_msg.get("text", "") == msg.get("text", "") and h_msg.get("amount", 0) == msg.get("amount", 0):
 				if h_msg.get("status", "unclaimed") == "unclaimed":
 					h_msg["status"] = "claimed"
 					break
@@ -604,9 +611,9 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 		
 		# 添加系统消息
 		var sys_msg = {
-			"role": "system",
+			"speaker": "system",
 			"type": "system",
-			"content": "你领取了" + current_char_id.capitalize() + "的红包"
+			"text": "你领取了" + current_char_id.capitalize() + "的红包"
 		}
 		chat_history.append(sys_msg)
 		
@@ -629,19 +636,26 @@ func _load_mobile_history() -> void:
 		child.queue_free()
 		
 	var path = "user://saves/%s/mobile_chat_history.json" % current_char_id
+	var has_legacy_fields := false
 	if FileAccess.file_exists(path):
 		var file = FileAccess.open(path, FileAccess.READ)
 		var content = file.get_as_text()
 		var json = JSON.new()
 		if json.parse(content) == OK and json.data is Array:
-			chat_history = json.data
+			for item in json.data:
+				if item is Dictionary:
+					if item.has("role") or item.has("content"):
+						has_legacy_fields = true
+					chat_history.append(_normalize_history_message(item))
+	if has_legacy_fields:
+		_save_mobile_history()
 
 func _render_history() -> void:
 	for msg in chat_history:
 		var is_voice = msg.get("is_voice", false)
 		var duration = int(msg.get("duration", 0))
-		var msg_speaker = msg.get("speaker", msg.get("role", ""))
-		var msg_text = msg.get("text", msg.get("content", ""))
+		var msg_speaker = msg.get("speaker", "")
+		var msg_text = msg.get("text", "")
 		
 		if msg.get("type", "") == "system":
 			_add_message_to_ui(msg)
@@ -713,7 +727,7 @@ func _save_mobile_history() -> void:
 func _mark_message_read(text: String) -> void:
 	var has_changed = false
 	for msg in chat_history:
-		var msg_text = msg.get("text", msg.get("content", ""))
+		var msg_text = msg.get("text", "")
 		if msg_text == text and not msg.get("is_read", false):
 			msg["is_read"] = true
 			has_changed = true
@@ -733,20 +747,42 @@ func _save_message_to_history(speaker: String, text: String, is_voice: bool = fa
 	_append_history_message(new_msg, false)
 
 func _append_history_message(msg: Dictionary, add_to_ui: bool = false) -> void:
-	chat_history.append(msg)
+	var normalized_msg = _normalize_history_message(msg)
+	chat_history.append(normalized_msg)
 	_save_mobile_history()
 	if add_to_ui:
-		_add_message_to_ui(msg)
+		_add_message_to_ui(normalized_msg)
 
 func _mark_all_incoming_messages_read() -> void:
 	var has_changed = false
 	for msg in chat_history:
-		var speaker = msg.get("speaker", msg.get("role", ""))
+		var speaker = msg.get("speaker", "")
 		if speaker != "player" and not msg.get("is_read", false):
 			msg["is_read"] = true
 			has_changed = true
 	if has_changed:
 		_save_mobile_history()
+
+func _normalize_history_message(msg: Dictionary) -> Dictionary:
+	var normalized = msg.duplicate(true)
+	if normalized.has("role"):
+		var role = str(normalized.get("role", ""))
+		match role:
+			"user":
+				normalized["speaker"] = "player"
+			"assistant":
+				normalized["speaker"] = "char"
+			_:
+				normalized["speaker"] = role
+		normalized.erase("role")
+	if normalized.has("content"):
+		normalized["text"] = str(normalized.get("content", ""))
+		normalized.erase("content")
+	if not normalized.has("speaker"):
+		normalized["speaker"] = ""
+	if not normalized.has("text"):
+		normalized["text"] = ""
+	return normalized
 
 func _notify_mobile_social_changed() -> void:
 	var curr = get_parent()

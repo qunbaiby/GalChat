@@ -7,11 +7,6 @@ var duration: float
 func _init(data: Dictionary) -> void:
 	super(data)
 	bg_id = data.get("bg_id", "")
-	# Backwards compatibility
-	if bg_id == "" and data.has("bg_path"):
-		# Try to extract an ID from the path as fallback, or just pass the path if it's legacy
-		bg_id = data.get("bg_path")
-		
 	# Supported transition_types: 
 	# fade, blur, shatter, pixelate, dissolve, glitch, wipe_right, wipe_left, wipe_up, wipe_down, slide_left, slide_up, zoom
 	transition_type = data.get("transition_type", "fade")

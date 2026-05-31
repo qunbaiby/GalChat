@@ -41,7 +41,7 @@ func setup(id: String, area_data: Dictionary):
     en_name_label.text = area_data.get("en_name", en_names.get(id, "AREA"))
     
     # Load background image
-    var bg_id = area_data.get("bg_id", area_data.get("bg_path", ""))
+    var bg_id = area_data.get("bg_id", "")
     var bg_path = ""
     
     if bg_id != "":
@@ -57,7 +57,7 @@ func setup(id: String, area_data: Dictionary):
             
         if locs.size() > 0:
             var first_loc = MapDataManager.get_location(locs[0])
-            var loc_bg_id = first_loc.get("bg_id", first_loc.get("bg_path", ""))
+            var loc_bg_id = first_loc.get("bg_id", "")
             if loc_bg_id != "":
                 bg_path = ImageManager.get_image_path(loc_bg_id)
                 if bg_path == "":

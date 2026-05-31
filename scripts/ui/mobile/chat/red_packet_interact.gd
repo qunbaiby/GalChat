@@ -116,7 +116,7 @@ func _show_receive_ui():
 		r_avatar.texture = char_avatar
 		
 	r_name_label.text = char_name + "的红包"
-	r_text_label.text = msg_data.get("content", "恭喜发财，大吉大利")
+	r_text_label.text = msg_data.get("text", "恭喜发财，大吉大利")
 
 func _show_detail_ui():
 	receive_ui.visible = false
@@ -130,7 +130,7 @@ func _show_detail_ui():
 		
 	var sender_name = "你" if is_sender else char_name
 	d_name_label.text = sender_name + "的红包"
-	d_text_label.text = msg_data.get("content", "恭喜发财，大吉大利")
+	d_text_label.text = msg_data.get("text", "恭喜发财，大吉大利")
 	
 	var amount = msg_data.get("amount", 0)
 	var status = msg_data.get("status", "unclaimed")
