@@ -167,7 +167,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButtonHover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButtonHover")
 theme_override_font_sizes/font_size = 24
-text = "地点名称"
+text = "×"
 
 [node name="Margin" type="MarginContainer" parent="MainPanel"]
 layout_mode = 1
@@ -194,13 +194,13 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
 theme_override_font_sizes/font_size = 20
-text = "这是地点的描述信息..."
+text = "◆"
 
 [node name="TitleLabel" type="Label" parent="MainPanel/Margin/VBox/InfoHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 18
-text = "在场人物"
+text = "地点介绍"
 
 [node name="DescLabel" type="Label" parent="MainPanel/Margin/VBox"]
 unique_name_in_owner = true
@@ -218,7 +218,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 16
-text = "进 入 >"
+text = "在场人物"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MainPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 100)
@@ -238,7 +238,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-text = "当前没有人在�?
+text = "当前没有人在场"
 
 [node name="Spacer" type="Control" parent="MainPanel/Margin/VBox"]
 layout_mode = 2
@@ -254,6 +254,6 @@ theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_Enter")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Enter")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Enter")
-text = "�?�?
+text = "进入该地点"
 
 

@@ -18,6 +18,7 @@ shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
 [node name="MusicPlaylistPopup" type="PanelContainer"]
+visible = false
 custom_minimum_size = Vector2(360, 150)
 offset_right = 360.0
 offset_bottom = 270.0

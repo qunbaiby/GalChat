@@ -121,7 +121,10 @@ func _update_time() -> void:
 func show_phone() -> void:
     if GameDataManager.config and GameDataManager.profile:
         var profile = GameDataManager.profile
-        if is_instance_valid(player_name_lbl): player_name_lbl.text = profile.player_name
+        if is_instance_valid(player_name_lbl):
+            player_name_lbl.text = profile.player_name if profile.player_name.strip_edges() != "" else GameDataManager.config.player_name
+        if is_instance_valid(player_avatar_rect):
+            player_avatar_rect.texture = profile.get_player_avatar_texture()
         
         var c_name = profile.char_name
         if c_name == "": c_name = "未知角色"

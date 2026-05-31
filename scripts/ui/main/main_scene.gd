@@ -23,12 +23,11 @@ var _photo_manager = PhotoMemoryManagerScript.new()
 @onready var music_player: Control = $UIPanel/BottomBarHBox/MusicPlayer
 @onready var diary_panel: Control = $UIPanel/DiaryPanel
 @onready var diary_notification: PanelContainer = $UIPanel/DiaryNotification
-@onready var topic_panel: Panel = $TopicPanel
-@onready var topic_container: VBoxContainer = $TopicPanel/TopicContainer
 @onready var wardrobe_panel: Control = $WardrobePanel
 @onready var dialogue_panel: Control = $DialoguePanel
 @onready var dialogue_name_label: Label = $DialoguePanel/DialogueLayer/VBox/NameLabel
 @onready var dialogue_text: RichTextLabel = $DialoguePanel/DialogueLayer/VBox/RichTextLabel
+@onready var quick_option_layer: Control = $DialoguePanel/QuickOptionLayer
 @onready var input_layer: Panel = $DialoguePanel/InputLayer
 @onready var input_field: TextEdit = $DialoguePanel/InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/SendButton
@@ -78,6 +77,7 @@ var save_load_panel_instance = null
 
 var _story_mode_active: bool = false
 var _main_action_mode: String = "schedule"
+var _interaction_ui_locked_by_dialogue: bool = false
 
 var _window_detector: Node = null
 var _is_afk: bool = false
@@ -111,6 +111,9 @@ signal _chat_click_proceed
 
 var pending_options_data = []
 var is_text_playback_finished = true
+var _awaiting_topic_selection: bool = false
+var _topic_greeting_playing: bool = false
+var _pending_topic_options: Array = []
 
 func _on_main_chat_pressed() -> void:
     _animate_button(chat_button)
@@ -123,19 +126,42 @@ func _on_main_chat_pressed() -> void:
     
     if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
         current_bg_scene.set_ui_hidden(true)
-    
-    topic_panel.visible = true
-    topic_panel.modulate.a = 0.0
-    var t_tween = create_tween()
-    t_tween.tween_property(topic_panel, "modulate:a", 1.0, 0.3)
-    
+
+    _begin_topic_selection_flow()
+
+func _begin_topic_selection_flow() -> void:
+    _awaiting_topic_selection = true
+    _topic_greeting_playing = true
+    _pending_topic_options.clear()
+    _show_dialogue_topic_selection()
     _populate_topics()
+    _request_topic_greeting()
+
+func _show_dialogue_topic_selection() -> void:
+    _set_interaction_ui_hidden_for_dialogue(true)
+    dialogue_panel.visible = true
+    dialogue_panel.visible = true
+    dialogue_panel.modulate.a = 0.0
+    var d_tween = create_tween()
+    d_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
+
+    dialogue_name_label.text = GameDataManager.profile.char_name
+    dialogue_text.bbcode_enabled = true
+    dialogue_text.text = "[center]...[/center]"
+    dialogue_text.visible_ratio = 1.0
+    dialogue_text.visible_characters = -1
+
+    if input_layer:
+        input_layer.hide()
+    if history_btn:
+        history_btn.hide()
+    if end_chat_btn:
+        end_chat_btn.show()
+    if quick_option_layer:
+        quick_option_layer.hide()
 
 func _populate_topics() -> void:
-    for child in topic_container.get_children():
-        child.queue_free()
-
-    QUICK_OPTION_LIST_HELPER.show_loading_item(topic_container)
+    _clear_topic_options()
     
     # 请求 AI 动态生成话题
     var profile = GameDataManager.profile
@@ -146,6 +172,8 @@ func _populate_topics() -> void:
     var prompt = "【系统指令】\n当前世界观与角色设定：%s\n\n请基于当前玩家作为少女【%s】的“指导人”身份，以及你们当前的情感阶段（当前阶段：%s），以指导人的口吻，生成 3 个符合当前关系深度的聊天话题选项。\n要求：\n1. 话题必须严格符合上述的世界观设定！绝对禁止凭空捏造“魔法”、“修仙”、“草药学”等不符合设定的元素。\n2. 话题可以是符合世界观的教导、关心、日常询问或指导性的话语。\n3. 直接输出 3 个选项，每行一个。\n4. 不要带有序号（如 1. 2. 3.）、破折号或其他前缀。\n5. 话题要自然、简短（20字以内）。" % [world_bg, profile.char_name, stage_title]
     
     deepseek_client.generate_dynamic_topics(prompt, func(text: String):
+        if not _awaiting_topic_selection:
+            return
         if text.is_empty():
             _render_dynamic_topics("最近在忙些什么呢？\n今天天气真不错，对吧？\n有什么心事想和我聊聊吗？")
         else:
@@ -153,12 +181,63 @@ func _populate_topics() -> void:
     )
 
 func _render_dynamic_topics(raw_text: String) -> void:
-    var topics = QUICK_OPTION_LIST_HELPER.parse_topic_lines(
+    _pending_topic_options = QUICK_OPTION_LIST_HELPER.parse_topic_lines(
         raw_text,
         ["聊点什么呢？", "天气不错", "分享件有趣的事"],
         3
     )
-    QUICK_OPTION_LIST_HELPER.populate_option_items(topic_container, topics, _on_topic_selected, 60.0)
+    if _awaiting_topic_selection and not _topic_greeting_playing:
+        _show_topic_options()
+
+func _clear_topic_options() -> void:
+    for child in quick_options_container.get_children():
+        child.queue_free()
+
+func _show_topic_options() -> void:
+    _clear_topic_options()
+    if quick_option_layer:
+        quick_option_layer.show()
+    if _pending_topic_options.is_empty():
+        QUICK_OPTION_LIST_HELPER.show_loading_item(quick_options_container)
+        return
+    QUICK_OPTION_LIST_HELPER.populate_option_items(quick_options_container, _pending_topic_options, _on_topic_selected, 60.0)
+
+func _request_topic_greeting() -> void:
+    if deepseek_client.is_connected("npc_event_dialogue_completed", _on_topic_greeting_generated):
+        deepseek_client.npc_event_dialogue_completed.disconnect(_on_topic_greeting_generated)
+    if deepseek_client.is_connected("npc_event_dialogue_failed", _on_topic_greeting_failed):
+        deepseek_client.npc_event_dialogue_failed.disconnect(_on_topic_greeting_failed)
+
+    deepseek_client.npc_event_dialogue_completed.connect(_on_topic_greeting_generated, CONNECT_ONE_SHOT)
+    deepseek_client.npc_event_dialogue_failed.connect(_on_topic_greeting_failed, CONNECT_ONE_SHOT)
+
+    var profile = GameDataManager.profile
+    var stage_conf = profile.get_current_stage_config()
+    var player_name = profile.player_title
+    if player_name.is_empty():
+        player_name = "指导人"
+    var greeting_prompt = "请生成一句聊天开场问候，核心意思是“要聊点什么呢？”。要求：1. 结合你当前对%s的情感阶段与语气，当前阶段是%s。2. 必须符合你当前角色设定，用第一人称自然开口。3. 只输出一句简短台词，20字以内。4. 可以带一个简短括号动作描写。5. 不要输出多个选项，不要展开成长对话。" % [player_name, stage_conf.get("stageTitle", "陌生人")]
+    deepseek_client.generate_npc_event_dialogue("luna", greeting_prompt)
+
+func _on_topic_greeting_generated(greeting_text: String) -> void:
+    if not _awaiting_topic_selection:
+        return
+    if dialogue_panel.has_method("cancel_single_line"):
+        dialogue_panel.cancel_single_line(false)
+    if dialogue_panel.has_signal("single_line_finished"):
+        dialogue_panel.single_line_finished.connect(_on_topic_greeting_finished, CONNECT_ONE_SHOT)
+    dialogue_panel.play_single_line("luna", GameDataManager.profile.char_name, greeting_text, true, true, true)
+
+func _on_topic_greeting_failed(_error_msg: String) -> void:
+    if not _awaiting_topic_selection:
+        return
+    _on_topic_greeting_generated("（轻轻看向你）这次想聊点什么呢？")
+
+func _on_topic_greeting_finished() -> void:
+    if not _awaiting_topic_selection:
+        return
+    _topic_greeting_playing = false
+    _show_topic_options()
 
 func _on_topic_selected(topic: String) -> void:
     # 执行互动开销（行动力、金币、经验、心情、时间等）
@@ -172,29 +251,25 @@ func _on_topic_selected(topic: String) -> void:
         
     if top_status_panel and top_status_panel.has_method("_update_ui"):
         top_status_panel._update_ui()
-        
-    var t_tween = create_tween()
-    t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
-    t_tween.tween_callback(func(): topic_panel.visible = false)
-    
-    dialogue_panel.visible = true
-    dialogue_panel.modulate.a = 0.0
-    var d_tween = create_tween()
-    d_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
-    
+
+    _awaiting_topic_selection = false
     dialogue_name_label.text = GameDataManager.profile.char_name
     dialogue_text.text = "..."
     input_field.text = ""
     input_field.editable = false
     send_btn.disabled = true
-    
+
+    if input_layer:
+        input_layer.show()
     if end_chat_btn:
         end_chat_btn.show()
     if history_btn:
         history_btn.show()
-    
+
     for child in quick_options_container.get_children():
         child.queue_free()
+    if quick_option_layer:
+        quick_option_layer.hide()
         
     var stage_conf = GameDataManager.profile.get_current_stage_config()
     var stage_desc = stage_conf.get("stageDesc", "")
@@ -204,23 +279,34 @@ func _on_topic_selected(topic: String) -> void:
     var user_msg = "【系统提示】玩家主动选择了话题：“" + topic + "” 与你聊天。玩家当前的身份是你的指导人，且你对玩家的称呼是“" + player_name + "”。当前你们的情感阶段是：" + stage_desc + "。请你结合当前的身份、情感阶段和心情，以第一人称主动向玩家打招呼并展开这个话题。不要复述系统提示，直接给出纯台词回复（必须包含括号动作描写）。"
     deepseek_client.send_chat_message_stream(user_msg, "main_chat")
 
-func _on_topic_panel_gui_input(event: InputEvent) -> void:
-    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-        # 右键点击空白处取消话题弹窗
-        var t_tween = create_tween()
-        t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
-        t_tween.tween_callback(func(): topic_panel.visible = false)
-        
-        # 恢复主UI显示
-        ui_panel.visible = true
-        ui_panel.modulate.a = 0.0
-        if _ui_tween:
-            _ui_tween.kill()
-        _ui_tween = create_tween()
-        _ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
-        
-        if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-            current_bg_scene.set_ui_hidden(false)
+func _cancel_topic_selection() -> void:
+    _awaiting_topic_selection = false
+    _topic_greeting_playing = false
+    _pending_topic_options.clear()
+    _clear_topic_options()
+    if dialogue_panel.has_method("cancel_single_line"):
+        dialogue_panel.cancel_single_line(false)
+    if quick_option_layer:
+        quick_option_layer.hide()
+    if input_layer:
+        input_layer.hide()
+    if history_btn:
+        history_btn.hide()
+
+    var d_tween = create_tween()
+    d_tween.tween_property(dialogue_panel, "modulate:a", 0.0, 0.3)
+    d_tween.tween_callback(func(): dialogue_panel.visible = false)
+
+    ui_panel.visible = true
+    ui_panel.modulate.a = 0.0
+    if _ui_tween:
+        _ui_tween.kill()
+    _ui_tween = create_tween()
+    _ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
+
+    if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+        current_bg_scene.set_ui_hidden(false)
+    _set_interaction_ui_hidden_for_dialogue(false)
 
 var is_ending_chat: bool = false
 
@@ -507,21 +593,28 @@ func _show_generated_image_and_dialogue(image_path: String) -> void:
 func _on_end_chat_pressed() -> void:
     if _story_mode_active:
         return
+    if _awaiting_topic_selection:
+        _cancel_topic_selection()
+        return
     var event_manager = get_node_or_null("/root/EventManager")
     if event_manager and event_manager.has_method("execute_event"):
         event_manager.execute_event("farewell")
 
-func _close_chat_panel() -> void:
+func _close_chat_panel(show_stats_toast: bool = true) -> void:
     if is_instance_valid(_generated_image_panel):
         _generated_image_panel.queue_free()
     _generated_image_panel = null
     is_memory_revisit_active = false
 
-    _show_accumulated_stats()
+    if show_stats_toast:
+        _show_accumulated_stats()
     
     var d_tween = create_tween()
     d_tween.tween_property(dialogue_panel, "modulate:a", 0.0, 0.3)
     d_tween.tween_callback(func(): dialogue_panel.visible = false)
+
+    if quick_option_layer:
+        quick_option_layer.hide()
     
     ui_panel.visible = true
     ui_panel.modulate.a = 0.0
@@ -532,6 +625,7 @@ func _close_chat_panel() -> void:
     
     if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
         current_bg_scene.set_ui_hidden(false)
+    _set_interaction_ui_hidden_for_dialogue(false)
 
 func _on_send_pressed() -> void:
     if _story_mode_active:
@@ -546,6 +640,8 @@ func _on_send_pressed() -> void:
     
     for child in quick_options_container.get_children():
         child.queue_free()
+    if quick_option_layer:
+        quick_option_layer.hide()
         
     GameDataManager.history.add_message("player", text, "", "main_chat")
     
@@ -891,7 +987,7 @@ func _stream_worker_loop() -> void:
                     await get_tree().create_timer(0.05).timeout
                     wait_count += 1
                     
-            if is_inside_tree():
+            if not is_ending_chat and not is_proactive_greeting and not is_memory_revisit_active and is_inside_tree():
                 await get_tree().create_timer(1.0).timeout
                 
             if audio_player and audio_player.playing:
@@ -911,8 +1007,9 @@ func _stream_worker_loop() -> void:
     if is_ending_chat or is_proactive_greeting:
         if audio_player and audio_player.playing:
             await audio_player.finished
-        await get_tree().create_timer(1.0).timeout
-        _close_chat_panel()
+        if is_ending_chat:
+            _show_accumulated_stats()
+        _close_chat_panel(false)
         if input_layer:
             input_layer.show()
         is_ending_chat = false
@@ -1039,6 +1136,8 @@ func _on_options_response(response: Dictionary) -> void:
 
 func _try_show_options() -> void:
     if is_text_playback_finished and pending_options_data.size() > 0:
+        if quick_option_layer:
+            quick_option_layer.show()
         QUICK_OPTION_LIST_HELPER.populate_option_items_with_index(
             quick_options_container,
             pending_options_data,
@@ -1111,10 +1210,10 @@ func _ready() -> void:
     deepseek_client.options_request_completed.connect(_on_options_response)
     deepseek_client.emotion_request_completed.connect(_on_emotion_response)
     
-    topic_panel.visible = false
-    topic_panel.modulate.a = 0.0
     dialogue_panel.visible = false
     dialogue_panel.modulate.a = 0.0
+    if quick_option_layer:
+        quick_option_layer.hide()
     if dialogue_panel.has_signal("panel_clicked"):
         dialogue_panel.panel_clicked.connect(_on_dialogue_panel_gui_input)
     
@@ -1217,6 +1316,15 @@ func _update_button_states_by_time() -> void:
     var interact_trigger_btn = null
     if is_instance_valid(current_bg_scene):
         interact_trigger_btn = current_bg_scene.get_node_or_null("InteractTriggerButton")
+
+    if _interaction_ui_locked_by_dialogue:
+        if interact_group:
+            interact_group.visible = false
+            interact_group.modulate.a = 0.0
+        if interact_trigger_btn:
+            interact_trigger_btn.visible = false
+            interact_trigger_btn.modulate.a = 0.0
+        return
     
     # 1. 休息到周六或周日：外出解禁，课程安排禁用，显示互动触发按钮
     if weekday == 0 or weekday == 6:
@@ -1258,6 +1366,26 @@ func _update_button_states_by_time() -> void:
                 rest_button.hide()
                 rest_button.disabled = true
 
+func _set_interaction_ui_hidden_for_dialogue(hidden: bool) -> void:
+    _interaction_ui_locked_by_dialogue = hidden
+
+    if interact_group:
+        interact_group.visible = false
+        interact_group.modulate.a = 0.0
+
+    if not is_instance_valid(current_bg_scene):
+        return
+
+    var interact_trigger_btn = current_bg_scene.get_node_or_null("InteractTriggerButton")
+    if not interact_trigger_btn:
+        return
+
+    if hidden:
+        interact_trigger_btn.visible = false
+        interact_trigger_btn.modulate.a = 0.0
+    else:
+        _update_button_states_by_time()
+
 func _on_story_time_advanced(_days: int, _current_period: String) -> void:
     _update_button_states_by_time()
 
@@ -1293,6 +1421,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
     
     if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
         current_bg_scene.set_ui_hidden(true)
+    _set_interaction_ui_hidden_for_dialogue(true)
     
     dialogue_panel.visible = true
     dialogue_panel.modulate.a = 0.0
@@ -1314,6 +1443,8 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
     
     for child in quick_options_container.get_children():
         child.queue_free()
+    if quick_option_layer:
+        quick_option_layer.hide()
     
     var user_msg = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, revisit_data.get("trigger_context", {}))
     deepseek_client.send_chat_message_stream(user_msg, "main_chat")
@@ -1330,6 +1461,7 @@ func start_proactive_greeting(prompt_type: String) -> void:
     
     if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
         current_bg_scene.set_ui_hidden(true)
+    _set_interaction_ui_hidden_for_dialogue(true)
     
     dialogue_panel.visible = true
     dialogue_panel.modulate.a = 0.0
@@ -1352,6 +1484,8 @@ func start_proactive_greeting(prompt_type: String) -> void:
     
     for child in quick_options_container.get_children():
         child.queue_free()
+    if quick_option_layer:
+        quick_option_layer.hide()
         
     # 使用传入的 prompt_type 生成对应的主动问候 prompt
     var user_msg = GameDataManager.prompt_manager.build_proactive_greeting_prompt(GameDataManager.profile, prompt_type)
@@ -1388,6 +1522,8 @@ func start_farewell() -> void:
         
     for child in quick_options_container.get_children():
         child.queue_free()
+    if quick_option_layer:
+        quick_option_layer.hide()
         
     var prompt = "【系统提示：玩家想要结束对话。请结合你当前的身份、心情和性格，说一句简短的结束语作为告别（必须包含括号动作描写）。绝对不要提到你是AI。】"
     deepseek_client.send_chat_message_stream(prompt, "main_chat")
@@ -1732,10 +1868,12 @@ func _on_galchat_pressed() -> void:
     
     _story_mode_active = true
     
-    if topic_panel and topic_panel.visible:
-        var t_tween = create_tween()
-        t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.2)
-        t_tween.tween_callback(func(): topic_panel.visible = false)
+    if _awaiting_topic_selection:
+        _awaiting_topic_selection = false
+        for child in quick_options_container.get_children():
+            child.queue_free()
+        if quick_option_layer:
+            quick_option_layer.hide()
     
     if _ui_tween:
         _ui_tween.kill()
@@ -1745,6 +1883,7 @@ func _on_galchat_pressed() -> void:
     
     if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
         current_bg_scene.set_ui_hidden(true)
+    _set_interaction_ui_hidden_for_dialogue(true)
     
     if chat_scene_instance == null:
         chat_scene_instance = Control.new()
@@ -1798,7 +1937,7 @@ func _on_history_pressed() -> void:
         history_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         
         # We need to hook up the close button of history panel manually if it doesn't self-close
-        var close_btn = history_panel_instance.get_node_or_null("HistoryTopBar/HistoryCloseButton")
+        var close_btn = history_panel_instance.get_node_or_null("MainPanel/HistoryTopBar/Margin/HBox/HistoryCloseButton")
         if close_btn:
             close_btn.pressed.connect(func(): history_panel_instance.hide())
             
@@ -1807,7 +1946,7 @@ func _on_history_pressed() -> void:
 
 func _populate_history_ui() -> void:
     if not history_panel_instance: return
-    var history_vbox = history_panel_instance.get_node_or_null("ScrollContainer/VBoxContainer")
+    var history_vbox = history_panel_instance.get_node_or_null("MainPanel/ScrollContainer/Margin/VBoxContainer")
     if not history_vbox: return
     
     # 清空现有子节点
@@ -1825,7 +1964,7 @@ func _populate_history_ui() -> void:
     # 延迟一帧等待容器布局完成，然后滚动到底部
     if is_inside_tree():
         await get_tree().process_frame
-    var scroll = history_panel_instance.get_node_or_null("ScrollContainer")
+    var scroll = history_panel_instance.get_node_or_null("MainPanel/ScrollContainer")
     if scroll:
         var v_scroll = scroll.get_v_scroll_bar()
         v_scroll.value = v_scroll.max_value
@@ -2035,6 +2174,10 @@ func _unhandled_input(event: InputEvent) -> void:
         if mobile_interface_instance and mobile_interface_instance.visible:
             return
             
+        # 对话期间锁定互动入口，避免被点击空白等逻辑重新显示
+        if _interaction_ui_locked_by_dialogue:
+            return
+
         # 检查是否需要收起互动组
         if interact_group and interact_group.visible and interact_group.modulate.a > 0.99:
             var tween = create_tween()
@@ -2061,27 +2204,10 @@ func _unhandled_input(event: InputEvent) -> void:
             if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
                 current_bg_scene.set_ui_hidden(false)
             
-            if topic_panel and topic_panel.visible:
-                var t_tween = create_tween()
-                t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
-                t_tween.tween_callback(func(): topic_panel.visible = false)
-            
     if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-        # 如果话题面板正在显示，右键点击则隐藏它并返回主界面UI
-        if topic_panel and topic_panel.visible:
+        if _awaiting_topic_selection:
             get_viewport().set_input_as_handled()
-            var t_tween = create_tween()
-            t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
-            t_tween.tween_callback(func(): topic_panel.visible = false)
-            
-            if _ui_tween:
-                _ui_tween.kill()
-            ui_panel.visible = true
-            _ui_tween = create_tween()
-            _ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
-            
-            if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-                current_bg_scene.set_ui_hidden(false)
+            _cancel_topic_selection()
 func _on_character_switched(char_id: String) -> void:
     # 角色切换后更新主界面的面板（特别是数值显示）
     if stats_panel and stats_panel.has_method("_update_ui"):

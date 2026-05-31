@@ -442,6 +442,25 @@ func _on_script_player_info() -> void:
             GameDataManager.profile.player_name = popup.player_info["name"]
         if popup.player_info.has("preferred_title"):
             GameDataManager.profile.player_title = popup.player_info["preferred_title"]
+        if popup.player_info.has("gender"):
+            GameDataManager.profile.player_gender = popup.player_info["gender"]
+        if popup.player_info.has("birthday"):
+            GameDataManager.profile.player_birthday = popup.player_info["birthday"]
+        if popup.player_info.has("zodiac"):
+            GameDataManager.profile.player_zodiac = popup.player_info["zodiac"]
+        if popup.player_info.has("mbti"):
+            GameDataManager.profile.player_mbti = popup.player_info["mbti"]
+        if popup.player_info.has("profession"):
+            GameDataManager.profile.player_profession = popup.player_info["profession"]
+        if popup.player_info.has("avatar_path"):
+            GameDataManager.profile.player_avatar_path = popup.player_info["avatar_path"]
+
+        if GameDataManager.config:
+            if popup.player_info.has("name"):
+                GameDataManager.config.player_name = popup.player_info["name"]
+            if popup.player_info.has("preferred_title"):
+                GameDataManager.config.player_nickname = popup.player_info["preferred_title"]
+            GameDataManager.config.save_config()
             
         GameDataManager.profile.save_profile()
         popup.queue_free()

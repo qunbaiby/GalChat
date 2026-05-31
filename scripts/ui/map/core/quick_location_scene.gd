@@ -70,10 +70,16 @@ const NPC_BUBBLE_LINES := {
 @onready var menu_options_vbox = $InteractionMenu/InfoAndOptions/OptionsVBox
 @onready var action_button_template: Button = $InteractionMenu/InfoAndOptions/OptionsVBox/ActionButtonTemplate
 
-@onready var topic_panel: PanelContainer = $TopicPanel
-@onready var topic_container: VBoxContainer = $TopicPanel/TopicContainer
-
 @onready var dialogue_panel = $DialoguePanel
+@onready var dialogue_name_label: Label = $DialoguePanel/DialogueLayer/VBox/NameLabel
+@onready var dialogue_text_label: RichTextLabel = $DialoguePanel/DialogueLayer/VBox/RichTextLabel
+@onready var dialogue_quick_option_layer: Control = $DialoguePanel/QuickOptionLayer
+@onready var dialogue_quick_options_container: VBoxContainer = $DialoguePanel/QuickOptionLayer/ScrollContainer/QuickOptions
+@onready var dialogue_input_layer: Panel = $DialoguePanel/InputLayer
+@onready var dialogue_input_field: TextEdit = $DialoguePanel/InputLayer/HBoxContainer/InputField
+@onready var dialogue_send_button: Button = $DialoguePanel/InputLayer/HBoxContainer/SendButton
+@onready var dialogue_history_button: Button = $DialoguePanel/HistoryButton
+@onready var dialogue_end_button: Button = $DialoguePanel/EndChatButton
 @onready var bubble_root: Node2D = $InteractionMenu/NPCPortrait/BubbleRoot
 @onready var speech_bubble: PanelContainer = $InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble
 @onready var bubble_text_label: RichTextLabel = $InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble/BubbleMargin/BubbleText
@@ -91,6 +97,11 @@ var _bubble_current_tts_text: String = ""
 var _bubble_audio_player: AudioStreamPlayer = null
 var _bubble_hide_tween: Tween = null
 var _bubble_typewriter_tween: Tween = null
+var _awaiting_topic_selection: bool = false
+var _topic_greeting_playing: bool = false
+var _pending_topic_options: Array = []
+var _quick_chat_active: bool = false
+var _selected_topic: String = ""
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
@@ -119,14 +130,19 @@ func _ready() -> void:
 	# 隐藏选项菜单和角色
 	interaction_menu.hide()
 	
-	if topic_panel:
-		topic_panel.gui_input.connect(_on_topic_panel_gui_input)
-		
 	if dialogue_panel:
 		dialogue_panel.hide()
+		if dialogue_quick_option_layer:
+			dialogue_quick_option_layer.hide()
+		if dialogue_panel.has_signal("message_sent"):
+			dialogue_panel.message_sent.connect(_on_dialogue_message_sent)
+		if dialogue_end_button and not dialogue_end_button.pressed.is_connected(_on_dialogue_close_pressed):
+			dialogue_end_button.pressed.connect(_on_dialogue_close_pressed)
 		# 监听对话结束信号，以便恢复互动选项
 		if dialogue_panel.has_signal("dialogue_finished"):
 			dialogue_panel.dialogue_finished.connect(func():
+				if _quick_chat_active or _awaiting_topic_selection:
+					return
 				if current_interacting_npc_id != "":
 					if not _submenu_restore_started:
 						_restore_after_sub_menu(true)
@@ -509,7 +525,7 @@ func _on_menu_action_pressed(action_id: String):
 			_hide_npc_bubble()
 			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 聊天")
 			interaction_menu.hide() # 隐藏互动选项
-			_show_topic_panel()
+			_show_topic_selection_in_dialogue()
 		"order":
 			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 点单/服务")
 			if current_interacting_npc_id == "ya":
@@ -561,21 +577,48 @@ func _on_dialogue_finished():
 	if current_interacting_npc_id != "":
 		info_and_options.show()
 
-func _show_topic_panel() -> void:
-	topic_panel.visible = true
-	topic_panel.modulate.a = 0.0
+func _show_topic_selection_in_dialogue() -> void:
+	_awaiting_topic_selection = true
+	_topic_greeting_playing = true
+	_pending_topic_options.clear()
+	_quick_chat_active = false
+	_selected_topic = ""
+	if dialogue_panel.get_parent():
+		dialogue_panel.get_parent().move_child(dialogue_panel, -1)
+	dialogue_panel.visible = true
+	dialogue_panel.modulate.a = 0.0
 	var t_tween = create_tween()
-	t_tween.tween_property(topic_panel, "modulate:a", 1.0, 0.3)
-	
-	QUICK_OPTION_LIST_HELPER.show_loading_item(topic_container)
+	t_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
+
+	var npc_name := str(menu_name_label.text).strip_edges()
+	if npc_name == "":
+		npc_name = current_interacting_npc_id
+	dialogue_name_label.text = npc_name
+	dialogue_text_label.bbcode_enabled = true
+	dialogue_text_label.text = "[center]想和 %s 聊什么？[/center]" % npc_name
+	dialogue_text_label.visible_ratio = 1.0
+	dialogue_text_label.visible_characters = -1
+
+	if dialogue_input_layer:
+		dialogue_input_layer.hide()
+	if dialogue_history_button:
+		dialogue_history_button.hide()
+	if dialogue_end_button:
+		dialogue_end_button.show()
+	if dialogue_quick_option_layer:
+		dialogue_quick_option_layer.hide()
+
+	_clear_dialogue_topic_options()
 	
 	# 请求 AI 动态生成话题
 	var profile = GameDataManager.profile
 	var npc_stage_data = _get_npc_stage_data(current_interacting_npc_id)
 	var stage_title = npc_stage_data.get("stageTitle", "普通朋友")
-	var npc_name = menu_name_label.text
+	var prompt_npc_name := str(menu_name_label.text).strip_edges()
+	if prompt_npc_name == "":
+		prompt_npc_name = current_interacting_npc_id
 	
-	var prompt = "【系统指令】\n请基于当前少女【%s】与NPC【%s】的情感阶段（当前阶段：%s），以【%s】的口吻，生成 3 个向【%s】发起聊天的话题选项。\n要求：\n1. 直接输出 3 个选项，每行一个。\n2. 不要带有序号（如 1. 2. 3.）、破折号或其他前缀。\n3. 话题要自然、简短（20字以内），符合日常聊天习惯。" % [profile.char_name, npc_name, stage_title, profile.char_name, npc_name]
+	var prompt = "【系统指令】\n请基于当前少女【%s】与NPC【%s】的情感阶段（当前阶段：%s），以【%s】的口吻，生成 3 个向【%s】发起聊天的话题选项。\n要求：\n1. 直接输出 3 个选项，每行一个。\n2. 不要带有序号（如 1. 2. 3.）、破折号或其他前缀。\n3. 话题要自然、简短（20字以内），符合日常聊天习惯。" % [profile.char_name, prompt_npc_name, stage_title, profile.char_name, prompt_npc_name]
 	
 	var deepseek_client = get_node_or_null("DeepSeekClient")
 	if not deepseek_client:
@@ -588,19 +631,80 @@ func _show_topic_panel() -> void:
 		return
 		
 	deepseek_client.generate_dynamic_topics(prompt, func(text: String):
+		if not _awaiting_topic_selection:
+			return
 		if text.is_empty():
 			_render_dynamic_topics("最近生意怎么样？\n今天有什么推荐的吗？\n想随便聊聊。")
 		else:
 			_render_dynamic_topics(text)
 	)
+	_request_topic_greeting_for_location()
 
 func _render_dynamic_topics(raw_text: String) -> void:
-	var topics = QUICK_OPTION_LIST_HELPER.parse_topic_lines(
+	_pending_topic_options = QUICK_OPTION_LIST_HELPER.parse_topic_lines(
 		raw_text,
 		["聊点什么呢？", "天气不错", "分享件有趣的事"],
 		3
 	)
-	QUICK_OPTION_LIST_HELPER.populate_option_items(topic_container, topics, _on_topic_selected, 50.0)
+	if _awaiting_topic_selection and not _topic_greeting_playing:
+		_show_dialogue_topic_options()
+
+func _clear_dialogue_topic_options() -> void:
+	for child in dialogue_quick_options_container.get_children():
+		child.queue_free()
+
+func _show_dialogue_topic_options() -> void:
+	_clear_dialogue_topic_options()
+	if dialogue_quick_option_layer:
+		dialogue_quick_option_layer.show()
+	if _pending_topic_options.is_empty():
+		QUICK_OPTION_LIST_HELPER.show_loading_item(dialogue_quick_options_container)
+		return
+	QUICK_OPTION_LIST_HELPER.populate_option_items(dialogue_quick_options_container, _pending_topic_options, _on_topic_selected, 50.0)
+
+func _request_topic_greeting_for_location() -> void:
+	var deepseek_client = get_node_or_null("DeepSeekClient")
+	if not deepseek_client:
+		deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient")
+	if not deepseek_client:
+		_on_location_topic_greeting_failed("DeepSeekClient not found")
+		return
+
+	if deepseek_client.is_connected("npc_event_dialogue_completed", _on_location_topic_greeting_generated):
+		deepseek_client.npc_event_dialogue_completed.disconnect(_on_location_topic_greeting_generated)
+	if deepseek_client.is_connected("npc_event_dialogue_failed", _on_location_topic_greeting_failed):
+		deepseek_client.npc_event_dialogue_failed.disconnect(_on_location_topic_greeting_failed)
+
+	deepseek_client.npc_event_dialogue_completed.connect(_on_location_topic_greeting_generated, CONNECT_ONE_SHOT)
+	deepseek_client.npc_event_dialogue_failed.connect(_on_location_topic_greeting_failed, CONNECT_ONE_SHOT)
+
+	var npc_stage_data = _get_npc_stage_data(current_interacting_npc_id)
+	var stage_title = npc_stage_data.get("stageTitle", "普通朋友")
+	var greeting_prompt = "请生成一句与你面前的人开启聊天的话题问候，核心意思是“要聊点什么呢？”。要求：1. 结合你当前的身份、与对方的好感阶段和语气，当前阶段是%s。2. 必须符合角色口吻。3. 只输出一句简短台词，20字以内。4. 可以带一个简短括号动作描写。5. 不要展开成长对话，不要输出选项。" % [stage_title]
+	deepseek_client.generate_npc_event_dialogue(current_interacting_npc_id, greeting_prompt)
+
+func _on_location_topic_greeting_generated(greeting_text: String) -> void:
+	if not _awaiting_topic_selection:
+		return
+	var npc_name := str(menu_name_label.text).strip_edges()
+	if npc_name == "":
+		npc_name = current_interacting_npc_id
+	if dialogue_panel.has_method("cancel_single_line"):
+		dialogue_panel.cancel_single_line(false)
+	if dialogue_panel.has_signal("single_line_finished"):
+		dialogue_panel.single_line_finished.connect(_on_location_topic_greeting_finished, CONNECT_ONE_SHOT)
+	dialogue_panel.play_single_line(current_interacting_npc_id, npc_name, greeting_text, true, true, true)
+
+func _on_location_topic_greeting_failed(_error_msg: String) -> void:
+	if not _awaiting_topic_selection:
+		return
+	_on_location_topic_greeting_generated("（看向你）这次想聊点什么？")
+
+func _on_location_topic_greeting_finished() -> void:
+	if not _awaiting_topic_selection:
+		return
+	_topic_greeting_playing = false
+	_show_dialogue_topic_options()
 
 func _on_topic_selected(topic: String) -> void:
 	# 执行互动开销
@@ -611,29 +715,31 @@ func _on_topic_selected(topic: String) -> void:
 		if not GameDataManager.profile.consume_energy(5):
 			ToastManager.show_system_toast("行动力不足，需要5点行动力", Color.RED)
 			return
-		
-	var t_tween = create_tween()
-	t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
-	t_tween.tween_callback(func(): topic_panel.visible = false)
-	
+
+	_awaiting_topic_selection = false
+	_topic_greeting_playing = false
+	_quick_chat_active = true
+	_selected_topic = topic
+
 	interaction_menu.show() # 恢复背景层
 	info_and_options.hide() # 但是隐藏互动选项菜单，让对话框显示
-	
+
+	if dialogue_quick_option_layer:
+		dialogue_quick_option_layer.hide()
+	if dialogue_input_layer:
+		dialogue_input_layer.show()
+	if dialogue_history_button:
+		dialogue_history_button.hide()
+	if dialogue_end_button:
+		dialogue_end_button.show()
+	dialogue_input_field.text = ""
+	dialogue_input_field.editable = false
+	dialogue_send_button.disabled = true
+
 	var profile = GameDataManager.profile
 	var char_name = profile.char_name if profile.char_name != "" else "Luna"
 	var event_desc = char_name + "对你说：" + topic
 	_trigger_npc_event_dialogue(current_interacting_npc_id, event_desc)
-
-func _on_topic_panel_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		# 右键点击空白处取消话题弹窗
-		var t_tween = create_tween()
-		t_tween.tween_property(topic_panel, "modulate:a", 0.0, 0.3)
-		t_tween.tween_callback(func(): topic_panel.visible = false)
-		
-		# 恢复互动菜单
-		interaction_menu.show()
-		info_and_options.show()
 
 func _trigger_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 	var deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient") # 借用全局或寻找本场景的客户端
@@ -661,18 +767,76 @@ func _trigger_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 	)
 
 func _on_topic_reply_generated(reply_text: String) -> void:
-	if dialogue_panel:
-		# 强制移至最顶层渲染
-		if dialogue_panel.get_parent():
-			dialogue_panel.get_parent().move_child(dialogue_panel, -1)
-			
-		var npc_name = menu_name_label.text
-		dialogue_panel.play_single_line(current_interacting_npc_id, npc_name, reply_text, true)
+	if not dialogue_panel or not dialogue_panel.visible:
+		return
+	var npc_name := str(menu_name_label.text).strip_edges()
+	if npc_name == "":
+		npc_name = current_interacting_npc_id
+	dialogue_name_label.text = npc_name
+	dialogue_text_label.bbcode_enabled = true
+	dialogue_text_label.text = reply_text
+	dialogue_text_label.visible_ratio = 1.0
+	dialogue_text_label.visible_characters = -1
+	dialogue_input_field.editable = true
+	dialogue_send_button.disabled = false
 
 func _on_topic_reply_failed(_error_msg: String) -> void:
+	if not dialogue_panel or not dialogue_panel.visible:
+		return
+	var npc_name := str(menu_name_label.text).strip_edges()
+	if npc_name == "":
+		npc_name = current_interacting_npc_id
+	dialogue_name_label.text = npc_name
+	dialogue_text_label.bbcode_enabled = true
+	dialogue_text_label.text = "……（默认回应）"
+	dialogue_text_label.visible_ratio = 1.0
+	dialogue_text_label.visible_characters = -1
+	dialogue_input_field.editable = true
+	dialogue_send_button.disabled = false
+
+func _on_dialogue_message_sent(text: String) -> void:
+	if not _quick_chat_active:
+		return
+	var trimmed_text := text.strip_edges()
+	if trimmed_text == "":
+		return
+
+	dialogue_name_label.text = GameDataManager.profile.char_name
+	dialogue_text_label.bbcode_enabled = true
+	dialogue_text_label.text = trimmed_text
+	dialogue_text_label.visible_ratio = 1.0
+	dialogue_text_label.visible_characters = -1
+	dialogue_input_field.editable = false
+	dialogue_send_button.disabled = true
+
+	var event_desc := "当前聊天话题：%s\n%s对你说：%s" % [_selected_topic, GameDataManager.profile.char_name, trimmed_text]
+	_trigger_npc_event_dialogue(current_interacting_npc_id, event_desc)
+
+func _on_dialogue_close_pressed() -> void:
+	if not _awaiting_topic_selection and not _quick_chat_active:
+		return
+	_close_dialogue_chat()
+
+func _close_dialogue_chat() -> void:
+	_awaiting_topic_selection = false
+	_topic_greeting_playing = false
+	_pending_topic_options.clear()
+	_quick_chat_active = false
+	_selected_topic = ""
+	if dialogue_panel.has_method("cancel_single_line"):
+		dialogue_panel.cancel_single_line(false)
+	if dialogue_quick_option_layer:
+		dialogue_quick_option_layer.hide()
+	_clear_dialogue_topic_options()
+	if dialogue_input_layer:
+		dialogue_input_layer.hide()
+	if dialogue_history_button:
+		dialogue_history_button.hide()
 	if dialogue_panel:
-		var npc_name = menu_name_label.text
-		dialogue_panel.play_single_line(current_interacting_npc_id, npc_name, "……（默认回应）", true)
+		dialogue_panel.hide()
+	if current_interacting_npc_id != "":
+		interaction_menu.show()
+		info_and_options.show()
 
 func _on_back_pressed():
 	_hide_npc_bubble(true)

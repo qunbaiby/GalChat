@@ -54,14 +54,10 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 	var duration = msg.get("duration", 0)
 	
 	# Load player avatar
-	var avatar_path = "res://assets/images/characters/user/avatar.png"
-	if ResourceLoader.exists(avatar_path):
-		var tex = load(avatar_path)
+	if GameDataManager.profile and GameDataManager.profile.has_method("get_player_avatar_texture"):
+		var tex = GameDataManager.profile.get_player_avatar_texture()
 		if tex:
 			set_avatar(tex)
-	else:
-		# Maybe default fallback or from game data
-		pass
 		
 	bubble_panel.add_theme_stylebox_override("panel", text_style)
 	

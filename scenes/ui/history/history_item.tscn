@@ -56,12 +56,41 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="NameLabel" type="Label" parent="MainHBox/ContentVBox"]
+[node name="HeaderHBox" type="HBoxContainer" parent="MainHBox/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NameLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 18
 text = "Name"
+
+[node name="MetaHBox" type="HBoxContainer" parent="MainHBox/ContentVBox/HeaderHBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="TimeLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "[2026-03-29 12:00:00]"
+vertical_alignment = 1
+
+[node name="PlayButton" type="Button" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.84, 0.9, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "▶"
+flat = true
 
 [node name="ContentLabel" type="RichTextLabel" parent="MainHBox/ContentVBox"]
 unique_name_in_owner = true
@@ -103,17 +132,3 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.8, 0.6, 0.2, 1)
 theme_override_font_sizes/font_size = 16
 text = "选择的选项文本"
-
-[node name="PlayButton" type="Button" parent="."]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "▶"
-
-[node name="TimeLabel" type="Label" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-text = "[2026-03-29 12:00:00]"

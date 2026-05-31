@@ -1,9 +1,54 @@
-[gd_scene load_steps=5 format=3 uid="uid://31rttm1jhadv"]
+[gd_scene load_steps=11 format=3 uid="uid://31rttm1jhadv"]
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
 [ext_resource type="StyleBox" uid="uid://cx1g6j2n0v2t2" path="res://assets/themes/dialogue_panel_style.tres" id="2_dialogue_style"]
 [ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
-[ext_resource type="StyleBox" uid="uid://dfdfdsh" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
+[ext_resource type="StyleBox" uid="uid://dfsdfsdf" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
+[ext_resource type="Shader" uid="uid://d0c1rjblvrdaf" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_DialogueLayer"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_DialogueGradient"]
+shader = ExtResource("5_gradient_shader")
+shader_parameter/center_color = Color(0.019607844, 0.019607844, 0.03137255, 0.9019608)
+shader_parameter/edge_color = Color(0.019607844, 0.019607844, 0.03137255, 0.3137255)
+shader_parameter/edge_softness = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
+bg_color = Color(0.04, 0.04, 0.05, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2, 0.24, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButtonHover"]
+bg_color = Color(0.08, 0.08, 0.1, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.36, 0.36, 0.42, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
+bg_color = Color(0.08, 0.08, 0.1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.35, 0.4, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="DialoguePanel" type="Control"]
 layout_mode = 3
@@ -14,7 +59,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="DialogueLayer" type="PanelContainer" parent="."]
+[node name="DialogueLayer" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -24,25 +69,41 @@ offset_top = -205.0
 offset_bottom = -85.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = ExtResource("2_dialogue_style")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_DialogueLayer")
+
+[node name="GradientBg" type="ColorRect" parent="DialogueLayer"]
+material = SubResource("ShaderMaterial_DialogueGradient")
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="VBox" type="VBoxContainer" parent="DialogueLayer"]
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -578.5
+offset_right = 578.5
+offset_bottom = 120.0
+grow_horizontal = 2
 alignment = 1
 
 [node name="NameLabel" type="Label" parent="DialogueLayer/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
 theme_override_font_sizes/font_size = 18
-text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer/VBox"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
+theme_override_colors/default_color = Color(0.96, 0.96, 0.98, 1)
 theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
-text = ""
 fit_content = true
 scroll_active = false
 
@@ -59,11 +120,13 @@ offset_right = -11.0
 offset_bottom = -211.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-theme_override_colors/font_hover_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.84, 0.84, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 text = "记录"
-flat = true
 
 [node name="EndChatButton" type="Button" parent="."]
 layout_mode = 1
@@ -78,11 +141,13 @@ offset_right = -88.0
 offset_bottom = -212.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.78, 0.35, 0.28, 1)
-theme_override_colors/font_hover_color = Color(0.9, 0.45, 0.35, 1)
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 text = "结束"
-flat = true
 
 [node name="QuickOptionLayer" type="Control" parent="."]
 layout_mode = 1
@@ -92,7 +157,7 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -400.0
-offset_top = -100.0
+offset_top = -154.0
 offset_right = 400.0
 offset_bottom = 53.0
 grow_horizontal = 2
@@ -147,6 +212,9 @@ theme_override_constants/separation = 10
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/caret_color = Color(0.92, 0.92, 0.96, 1)
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_colors/font_placeholder_color = Color(0.55, 0.55, 0.6, 1)
 theme_override_styles/normal = ExtResource("3_input_normal")
 theme_override_styles/focus = ExtResource("4_input_focus")
 placeholder_text = "输入你想说的话..."
@@ -164,7 +232,7 @@ offset_right = -10.0
 offset_bottom = -5.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
 theme_override_font_sizes/font_size = 12
 text = "0/200"
 horizontal_alignment = 2
@@ -172,13 +240,18 @@ horizontal_alignment = 2
 [node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.94, 0.98, 1)
 theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 text = "🎙"
 
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 text = "发送"
-
-

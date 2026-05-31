@@ -29,6 +29,21 @@ corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoCard"]
+bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.91, 0.91, 0.91, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
 bg_color = Color(0.956863, 0.529412, 0.188235, 1)
 border_width_left = 1
@@ -59,182 +74,316 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
-[node name="Panel" type="Panel" parent="."]
+[node name="PopupPanel" type="Panel" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -319.5
-offset_right = 220.0
-offset_bottom = 319.5
+offset_left = -222.0
+offset_top = -325.0
+offset_right = 222.0
+offset_bottom = 325.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+[node name="MarginContainer" type="MarginContainer" parent="PopupPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 30
-theme_override_constants/margin_bottom = 40
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+[node name="MainVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12
 
-[node name="TitleBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+[node name="AvatarSection" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 0
 alignment = 1
 
-[node name="MainTitle" type="Label" parent="Panel/MarginContainer/VBoxContainer/TitleBox"]
+[node name="AvatarCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection"]
+custom_minimum_size = Vector2(92, 92)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 24
-text = "完善资料"
-horizontal_alignment = 1
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_Button")
 
-[node name="SubTitle" type="Label" parent="Panel/MarginContainer/VBoxContainer/TitleBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-theme_override_font_sizes/font_size = 14
-text = "让Luna更好地了解你"
-horizontal_alignment = 1
-
-[node name="FormBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 15
-
-[node name="NameField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/NameField"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "起个好听的名字"
-
-[node name="NameInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/FormBox/NameField"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-placeholder_text = "请输入真实姓名"
-alignment = 1
-
-[node name="TitleField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/TitleField"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "希望Luna怎么称呼你？"
-
-[node name="TitleInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/FormBox/TitleField"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-placeholder_text = "如：老师、哥哥、主人等"
-alignment = 1
-
-[node name="GenderField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/GenderField"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "选择你的性别"
-
-[node name="GenderOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/FormBox/GenderField"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-alignment = 1
-
-[node name="BirthdayField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "选择你的生日"
-
-[node name="BirthdayBox" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="MonthOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField/BirthdayBox"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-size_flags_horizontal = 3
-alignment = 1
-
-[node name="DayOption" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/FormBox/BirthdayField/BirthdayBox"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-size_flags_horizontal = 3
-alignment = 1
-
-[node name="MBTIField" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="TopBox" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField/TopBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
-text = "人格类型"
-
-[node name="ZodiacLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField/TopBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
-theme_override_font_sizes/font_size = 12
-text = "未知星座"
-horizontal_alignment = 2
-
-[node name="MBTIButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/FormBox/MBTIField"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6378432, 0.6378432, 0.63784313, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
-text = "点击选择 MBTI"
-
-[node name="ConfirmBtn" type="Button" parent="Panel/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 54)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
-text = "完成"
-
-[node name="MBTIPopup" type="Panel" parent="."]
-visible = false
-custom_minimum_size = Vector2(600, 450)
+[node name="AvatarFrame" type="Control" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard"]
+clip_children = 1
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -315.0
-offset_right = 300.0
-offset_bottom = 316.0
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AvatarPreview" type="TextureRect" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard/AvatarFrame"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InfoCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoCard")
+
+[node name="InfoMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="FormVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NameField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/NameField"]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "昵称"
+vertical_alignment = 1
+
+[node name="NameInput" type="LineEdit" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/NameField"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "请输入你的名字"
+alignment = 2
+flat = true
+
+[node name="NameDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+layout_mode = 2
+
+[node name="TitleField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/TitleField"]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "称呼"
+vertical_alignment = 1
+
+[node name="TitleInput" type="LineEdit" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/TitleField"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "例如 老师、哥哥"
+alignment = 2
+flat = true
+
+[node name="TitleDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+layout_mode = 2
+
+[node name="GenderField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="GenderLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField"]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "性别"
+vertical_alignment = 1
+
+[node name="GenderButtons" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="MaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "男"
+
+[node name="FemaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "女"
+
+[node name="GenderDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+layout_mode = 2
+
+[node name="BirthdayField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BirthdaySummaryRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BirthdayLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow"]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "生日"
+vertical_alignment = 1
+
+[node name="BirthdayValueButton" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.43, 0.43, 0.43, 1)
+theme_override_font_sizes/font_size = 14
+text = "2003-01-10  >"
+flat = true
+alignment = 2
+
+[node name="BirthdayEditor" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="YearSpin" type="SpinBox" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+suffix = "年"
+
+[node name="MonthSpin" type="SpinBox" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+suffix = "月"
+
+[node name="DaySpin" type="SpinBox" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+suffix = "日"
+
+[node name="BirthdayDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+layout_mode = 2
+
+[node name="MBTIField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MBTIRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MBTILabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/MBTIRow"]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "人格"
+vertical_alignment = 1
+
+[node name="MBTIButton" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/MBTIRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.43, 0.43, 0.43, 1)
+theme_override_font_sizes/font_size = 14
+text = "未选择  >"
+flat = true
+alignment = 2
+
+[node name="ZodiacRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ZodiacSpacer" type="Control" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/ZodiacRow"]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+
+[node name="ZodiacLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/ZodiacRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_font_sizes/font_size = 11
+text = "未知星座"
+horizontal_alignment = 2
+
+[node name="TipsLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 11
+text = "生日默认以单行资料值展示，点击后可展开调整年月日。"
+autowrap_mode = 3
+
+[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
+text = "完成"
+
+[node name="MBTIPopup" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(680, 520)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -260.0
+offset_right = 340.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
@@ -272,19 +421,20 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="Grid" type="GridContainer" parent="MBTIPopup/Margin/VBox/Scroll"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 15
 theme_override_constants/v_separation = 15
+columns = 2
 
 [node name="CloseMBTI" type="Button" parent="MBTIPopup/Margin/VBox"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 45)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "返回"
-
-

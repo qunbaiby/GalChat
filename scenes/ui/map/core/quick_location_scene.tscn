@@ -270,47 +270,6 @@ offset_right = -19.0
 offset_bottom = 54.0
 grow_horizontal = 0
 
-[node name="TopicPanel" type="PanelContainer" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -150.0
-offset_right = 250.0
-offset_bottom = 150.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_MapInfo")
-
-[node name="Title" type="Label" parent="TopicPanel"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 60.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 24
-text = "选择一个话题"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TopicContainer" type="VBoxContainer" parent="TopicPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 50.0
-offset_top = 70.0
-offset_right = -50.0
-offset_bottom = -30.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 20
-alignment = 1
-
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("1_script_deepseek")
 

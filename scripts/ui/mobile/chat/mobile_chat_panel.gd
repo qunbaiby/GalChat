@@ -45,6 +45,19 @@ var _last_player_mobile_text: String = ""
 const FOLLOW_UP_DELAY_MIN: float = 12.0
 const FOLLOW_UP_DELAY_MAX: float = 24.0
 
+func _load_texture_from_path(path: String) -> Texture2D:
+	var final_path = path.strip_edges()
+	if final_path == "":
+		return null
+	if final_path.begins_with("res://") and ResourceLoader.exists(final_path):
+		var res = load(final_path)
+		return res if res is Texture2D else null
+	if FileAccess.file_exists(final_path):
+		var image = Image.load_from_file(final_path)
+		if image and not image.is_empty():
+			return ImageTexture.create_from_image(image)
+	return null
+
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back_pressed)
 	send_btn.pressed.connect(_on_send_pressed)
@@ -555,12 +568,12 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 	var status = msg.get("status", "unclaimed")
 	
 	var p_avatar = null
-	if GameDataManager.profile and GameDataManager.profile.avatar and ResourceLoader.exists(GameDataManager.profile.avatar):
-		p_avatar = load(GameDataManager.profile.avatar)
+	if GameDataManager.profile and GameDataManager.profile.has_method("get_player_avatar_texture"):
+		p_avatar = GameDataManager.profile.get_player_avatar_texture()
 		
 	var c_avatar = null
-	if char_profile and char_profile.avatar and ResourceLoader.exists(char_profile.avatar):
-		c_avatar = load(char_profile.avatar)
+	if char_profile:
+		c_avatar = _load_texture_from_path(char_profile.avatar)
 	
 	var rp_scene = load("res://scenes/ui/mobile/chat/red_packet_interact.tscn")
 	var rp_ui = rp_scene.instantiate()

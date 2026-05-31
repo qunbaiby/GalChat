@@ -14,6 +14,7 @@ extends Control
 @onready var quick_options_container = $QuickOptionLayer/ScrollContainer/QuickOptions if has_node("QuickOptionLayer/ScrollContainer/QuickOptions") else null
 
 signal dialogue_finished
+signal single_line_finished
 signal panel_clicked(event: InputEvent)
 signal message_sent(text: String)
 
@@ -23,6 +24,11 @@ var current_text: String = ""
 var is_playing_single_line: bool = false
 var character_id: String = ""
 var is_story_mode: bool = false
+var _auto_finish_single_line: bool = false
+var _keep_panel_visible_on_finish: bool = false
+var _typewriter_finished: bool = false
+var _tts_pending: bool = false
+var _tts_playing: bool = false
 
 const MAX_CHARS = 200
 
@@ -43,7 +49,9 @@ func _ready():
     
     if GameDataManager.config.voice_enabled:
         TTSManager.tts_success.connect(_on_tts_success)
+        TTSManager.tts_failed.connect(_on_tts_failed)
         audio_player = AudioStreamPlayer.new()
+        audio_player.finished.connect(_on_audio_finished)
         add_child(audio_player)
 
     # Determine if in story mode
@@ -137,9 +145,13 @@ func _send_message():
         if is_instance_valid(send_btn): send_btn.disabled = false
     )
 
-func play_single_line(char_id: String, char_name: String, text: String, hide_input: bool = true):
+func play_single_line(char_id: String, char_name: String, text: String, hide_input: bool = true, auto_finish: bool = false, keep_panel_visible: bool = false):
     if text.strip_edges() == "":
         text = "（微笑着将单品递给了你，没有说话）"
+    text = text.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+    var whitespace_regex = RegEx.new()
+    whitespace_regex.compile("\\s+")
+    text = whitespace_regex.sub(text, " ", true).strip_edges()
     
     if audio_player:
         audio_player.stop()
@@ -148,6 +160,11 @@ func play_single_line(char_id: String, char_name: String, text: String, hide_inp
     if name_label: name_label.text = char_name
     current_text = text
     is_playing_single_line = true
+    _auto_finish_single_line = auto_finish
+    _keep_panel_visible_on_finish = keep_panel_visible
+    _typewriter_finished = false
+    _tts_pending = false
+    _tts_playing = false
     
     if hide_input:
         if quick_option_layer: quick_option_layer.hide()
@@ -212,6 +229,7 @@ func _start_typewriter():
         _typewriter_tween = create_tween()
         var dur = max(0.5, current_text.length() * 0.05)
         _typewriter_tween.tween_property(rich_text_label, "visible_ratio", 1.0, dur)
+        _typewriter_tween.finished.connect(_on_typewriter_finished, CONNECT_ONE_SHOT)
     
     if GameDataManager.config.voice_enabled:
         var tts_text = current_text
@@ -221,15 +239,52 @@ func _start_typewriter():
         tts_text = tts_text.replace("*", "")
         
         if tts_text != "":
+            _tts_pending = true
             var options = {}
             if GameDataManager.config.character_voice_types.has(character_id):
                 options["voice_type"] = GameDataManager.config.character_voice_types[character_id]
             TTSManager.synthesize(tts_text, options)
+        else:
+            _tts_pending = false
+            _tts_playing = false
+            _try_auto_finish_single_line()
+    else:
+        _tts_pending = false
+        _tts_playing = false
+        _try_auto_finish_single_line()
 
 func _on_tts_success(audio_stream: AudioStream, _text: String):
     if audio_player and audio_stream:
+        _tts_pending = false
+        _tts_playing = true
         audio_player.stream = audio_stream
         audio_player.play()
+    else:
+        _tts_pending = false
+        _tts_playing = false
+        _try_auto_finish_single_line()
+
+func _on_tts_failed(_error_msg: String, _text: String) -> void:
+    _tts_pending = false
+    _tts_playing = false
+    _try_auto_finish_single_line()
+
+func _on_audio_finished() -> void:
+    _tts_playing = false
+    _try_auto_finish_single_line()
+
+func _on_typewriter_finished() -> void:
+    _typewriter_finished = true
+    _try_auto_finish_single_line()
+
+func _try_auto_finish_single_line() -> void:
+    if not _auto_finish_single_line:
+        return
+    if not _typewriter_finished:
+        return
+    if _tts_pending or _tts_playing:
+        return
+    _finish_single_line()
 
 func _on_gui_input(event: InputEvent):
     if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -240,8 +295,21 @@ func _on_gui_input(event: InputEvent):
             panel_clicked.emit(event)
 
 func _advance_dialogue():
+    if _auto_finish_single_line:
+        if _typewriter_tween and _typewriter_tween.is_running():
+            _typewriter_tween.kill()
+            _typewriter_finished = true
+            if rich_text_label:
+                rich_text_label.visible_ratio = 1.0
+        if audio_player:
+            audio_player.stop()
+        _tts_pending = false
+        _tts_playing = false
+        _finish_single_line()
+        return
     if _typewriter_tween and _typewriter_tween.is_running():
         _typewriter_tween.kill()
+        _typewriter_finished = true
         if rich_text_label:
             rich_text_label.visible_ratio = 1.0
     else:
@@ -249,10 +317,34 @@ func _advance_dialogue():
 
 func _finish_single_line():
     is_playing_single_line = false
-    hide()
+    _auto_finish_single_line = false
+    _typewriter_finished = false
+    _tts_pending = false
+    _tts_playing = false
     if audio_player:
         audio_player.stop()
-    dialogue_finished.emit()
+    if not _keep_panel_visible_on_finish:
+        hide()
+    single_line_finished.emit()
+    if not _keep_panel_visible_on_finish:
+        dialogue_finished.emit()
+    _keep_panel_visible_on_finish = false
+
+func cancel_single_line(hide_panel: bool = true) -> void:
+    if _typewriter_tween and _typewriter_tween.is_running():
+        _typewriter_tween.kill()
+    is_playing_single_line = false
+    _auto_finish_single_line = false
+    _keep_panel_visible_on_finish = false
+    _typewriter_finished = false
+    _tts_pending = false
+    _tts_playing = false
+    if audio_player:
+        audio_player.stop()
+    if rich_text_label:
+        rich_text_label.visible_ratio = 1.0
+    if hide_panel:
+        hide()
 
 func _on_skip_pressed():
     if is_playing_single_line:

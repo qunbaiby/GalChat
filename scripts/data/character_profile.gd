@@ -7,6 +7,12 @@ const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manage
 var char_name: String = ""
 var player_name: String = ""
 var player_title: String = ""
+var player_gender: String = "其他"
+var player_birthday: String = ""
+var player_zodiac: String = ""
+var player_mbti: String = "未选择"
+var player_profession: String = "创奇引路人"
+var player_avatar_path: String = ""
 var age: int = 22
 var description: String = ""
 var tags: Array = []
@@ -89,6 +95,9 @@ signal stage_upgraded(new_stage: int, unlock_dialog: String)
 signal profile_updated()
 
 const PROFILE_PATH = "user://character_profile.json"
+const DEFAULT_PLAYER_AVATAR_MALE = "res://assets/images/ui/player/avatar_male.svg"
+const DEFAULT_PLAYER_AVATAR_FEMALE = "res://assets/images/ui/player/avatar_female.svg"
+const DEFAULT_PLAYER_AVATAR_OTHER = "res://assets/images/ui/player/avatar_other.svg"
 var current_character_id: String = ""
 
 func get_profile_path() -> String:
@@ -178,6 +187,12 @@ func load_profile(force_char_id: String = "") -> void:
             if data is Dictionary:
                 player_name = data.get("player_name", player_name)
                 player_title = data.get("player_title", player_title)
+                player_gender = data.get("player_gender", player_gender)
+                player_birthday = data.get("player_birthday", player_birthday)
+                player_zodiac = data.get("player_zodiac", player_zodiac)
+                player_mbti = data.get("player_mbti", player_mbti)
+                player_profession = data.get("player_profession", player_profession)
+                player_avatar_path = data.get("player_avatar_path", player_avatar_path)
                 intimacy = float(str(data.get("intimacy", intimacy)))
                 mood_value = float(str(data.get("mood_value", 50.0)))
                 current_expression = data.get("current_expression", "calm")
@@ -576,10 +591,70 @@ func consume_energy(amount: float) -> bool:
         return true
     return false
 
+func get_player_avatar_path() -> String:
+    var candidates: Array[String] = []
+    if player_avatar_path.strip_edges() != "":
+        candidates.append(player_avatar_path.strip_edges())
+
+    match player_gender:
+        "男":
+            candidates.append(DEFAULT_PLAYER_AVATAR_MALE)
+        "女":
+            candidates.append(DEFAULT_PLAYER_AVATAR_FEMALE)
+        _:
+            candidates.append(DEFAULT_PLAYER_AVATAR_OTHER)
+
+    candidates.append(DEFAULT_PLAYER_AVATAR_OTHER)
+
+    for candidate in candidates:
+        if _path_exists(candidate):
+            return candidate
+
+    return "res://icon.svg"
+
+func get_player_avatar_texture() -> Texture2D:
+    return _load_texture_from_path(get_player_avatar_path())
+
+func _path_exists(path: String) -> bool:
+    if path.strip_edges() == "":
+        return false
+    if path.begins_with("res://"):
+        return ResourceLoader.exists(path) or FileAccess.file_exists(path)
+    return FileAccess.file_exists(path)
+
+func _load_texture_from_path(path: String) -> Texture2D:
+    if path.strip_edges() == "":
+        return null
+
+    if path.begins_with("res://") and ResourceLoader.exists(path):
+        var res = load(path)
+        return res if res is Texture2D else null
+
+    if path.begins_with("user://"):
+        if FileAccess.file_exists(path):
+            var img = Image.new()
+            var err = img.load(path)
+            if err == OK and not img.is_empty():
+                return ImageTexture.create_from_image(img)
+        return null
+
+    if FileAccess.file_exists(path):
+        var image = Image.load_from_file(path)
+        if image and not image.is_empty():
+            return ImageTexture.create_from_image(image)
+
+    return null
+
 func save_profile() -> void:
     var data = {
         "player_name": player_name,
         "player_title": player_title,
+        "player_gender": player_gender,
+        "player_birthday": player_birthday,
+        "player_zodiac": player_zodiac,
+        "player_mbti": player_mbti,
+        "player_profession": player_profession,
+        "player_avatar_path": player_avatar_path,
         "intimacy": intimacy,
         "mood_value": mood_value,
         "current_expression": current_expression,

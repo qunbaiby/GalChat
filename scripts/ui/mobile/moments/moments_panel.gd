@@ -152,7 +152,10 @@ func _on_close_viewer_pressed() -> void:
 
 func _update_header() -> void:
     if GameDataManager.config:
-        player_name.text = GameDataManager.config.player_name
+        if GameDataManager.profile and GameDataManager.profile.player_name.strip_edges() != "":
+            player_name.text = GameDataManager.profile.player_name
+        else:
+            player_name.text = GameDataManager.config.player_name
         
         var cover_path = _local_cover_path
         if cover_path == "" and GameDataManager.config.get("moments_cover_path") != null:
@@ -204,8 +207,8 @@ func _update_header() -> void:
     
     # Avatar
     var profile = GameDataManager.profile
-    if profile and profile.avatar != "" and FileAccess.file_exists(profile.avatar):
-        player_avatar.texture = load(profile.avatar)
+    if profile and profile.has_method("get_player_avatar_texture"):
+        player_avatar.texture = profile.get_player_avatar_texture()
     else:
         player_avatar.texture = preload("res://icon.svg")
 
