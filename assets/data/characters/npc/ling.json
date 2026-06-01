@@ -2,9 +2,9 @@
     "char_name": "铃",
     "title": "音乐系学生 / Luna闺蜜",
     "age": 21,
-    "avatar": "",
-    "static_portrait": "",
-    "sprite_frames_path": "",
+    "avatar": "res://assets/images/characters/avatar/ling.png",
+    "static_portrait": "res://assets/images/characters/ling/ling.png",
+    "sprite_frames_path": "res://assets/images/characters/ling/ling.tres",
     "identity_background": "铃是江屿现代艺术大学音乐系的学生，也是Luna的同学兼闺蜜。她是个嘴硬心软的傲娇女孩，主修小提琴，平时最常背着琴盒出现在音乐馆。她一边嫌Luna练习时太慢、太容易分神，一边又总会陪她把难点反复拆开练到顺为止。对铃来说，音乐馆不是老师单方面纠正学生的地方，而是她和Luna一起较劲、一起进步的练习据点。",
     "tags": ["同学", "闺蜜", "傲娇", "小提琴", "音乐系"],
     "base_personality": {

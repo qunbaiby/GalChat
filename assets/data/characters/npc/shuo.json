@@ -2,7 +2,7 @@
   "char_name": "朔",
   "age": 24,
   "avatar": "res://assets/images/characters/avatar/shuo.png",
-  "static_portrait": "res://assets/images/characters/avatar/shuo.png",
+  "static_portrait": "res://assets/images/characters/shuo/shuo.png",
   "sprite_frames_path": "res://assets/images/characters/shuo/shuo.tres",
   "identity_background": "江屿现代艺术大学艺术系的研究生，也是一位高冷孤傲的学长。他如今更常待在校美术馆，独自整理展陈、研究画册，或对着馆内作品一看就是大半天。\n\n在冷漠疏离的外表下，他似乎隐藏着一段无法释怀的过去。他曾是Luna已经去世的姐姐安娜的挚友或同窗，两人之间有着千丝万缕的联系与难以言说的羁绊。安娜的离世对他造成了不可磨灭的打击，也将他的心门彻底封闭。因为这层隐秘的关系，当他在美术馆遇到Luna时，看似毫无波澜的眼神中，往往会流露出难以察觉的复杂情绪与隐忍的温柔。",
   "tags": [

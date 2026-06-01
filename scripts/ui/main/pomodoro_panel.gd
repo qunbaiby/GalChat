@@ -26,6 +26,8 @@ var max_rounds: int = 2
 var WORK_COLOR = Color(1.0, 0.4, 0.4)
 var REST_COLOR = Color(0.4, 1.0, 0.4)
 
+signal back_requested
+
 func _ready() -> void:
     timer = Timer.new()
     timer.one_shot = false
@@ -35,7 +37,7 @@ func _ready() -> void:
     play_btn.pressed.connect(_on_play_pressed)
     pause_btn.pressed.connect(_on_pause_pressed)
     reset_btn.pressed.connect(_on_reset_pressed)
-    close_btn.pressed.connect(queue_free)
+    close_btn.pressed.connect(func(): back_requested.emit())
     
     work_spin.value_changed.connect(_on_settings_changed)
     rest_spin.value_changed.connect(_on_settings_changed)

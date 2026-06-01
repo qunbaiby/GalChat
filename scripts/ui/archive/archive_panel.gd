@@ -13,7 +13,7 @@ extends Control
 @onready var deepseek_client = $DeepSeekClient
 
 # 记忆库
-@onready var memory_list_container: VBoxContainer = $"Panel/VBoxContainer/TabContainer/记忆库/ScrollContainer/MemoryListContainer"
+@onready var memory_list_container: VBoxContainer = get_node_or_null("Panel/VBoxContainer/TabContainer/记忆/ScrollContainer/MemoryListContainer")
 @onready var relation_graph_view = $"Panel/VBoxContainer/TabContainer/人物关系/ScrollContainer/RelationGraphView"
 
 func _ready() -> void:
@@ -173,6 +173,10 @@ func _on_ai_summary_failed(err_msg: String) -> void:
         advice_text.text = "分析失败"
 
 func _update_memory_display(mems: Dictionary) -> void:
+    # 确保 memory_list_container 存在
+    if not is_instance_valid(memory_list_container):
+        return
+        
     # 清空旧的记忆卡片
     for child in memory_list_container.get_children():
         child.queue_free()

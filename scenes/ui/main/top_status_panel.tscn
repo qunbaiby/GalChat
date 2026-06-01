@@ -1,32 +1,24 @@
-[gd_scene load_steps=7 format=3 uid="uid://sv4gjnbeh1bx"]
+[gd_scene load_steps=8 format=3 uid="uid://sv4gjnbeh1bx"]
 
 [ext_resource type="Texture2D" uid="uid://hfrk5cefxbbe" path="res://assets/images/icons/ui/stats/gold.svg" id="2_icon_gold"]
 [ext_resource type="Script" uid="uid://dsw7vmfenubsa" path="res://scripts/ui/main/top_status_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="3_icon_energy"]
 [ext_resource type="Texture2D" uid="uid://bpv0e2vd3ujb8" path="res://assets/images/icons/ui/stats/vitality.svg" id="4_icon_stress"]
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="5_icon_mood"]
+[ext_resource type="Texture2D" uid="uid://blts2rskaripw" path="res://assets/images/icons/ui/stats/social.svg" id="6_icon_exp"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatusSlot"]
-content_margin_left = 10.0
-content_margin_top = 5.0
-content_margin_right = 10.0
-content_margin_bottom = 5.0
-bg_color = Color(0.09, 0.1, 0.12, 0.48)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.08)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PillBg"]
+bg_color = Color(0, 0, 0, 0.65)
 corner_radius_top_left = 10
-corner_radius_top_right = 10
+corner_radius_top_right = 2
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [node name="TopStatusPanel" type="PanelContainer"]
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(0, 40)
-offset_right = 775.0
-offset_bottom = 40.0
+custom_minimum_size = Vector2(0, 44)
+offset_right = 591.0
+offset_bottom = 44.0
 script = ExtResource("2_script")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -34,149 +26,219 @@ layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="GoldBox" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+[node name="GoldSlot" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatusSlot")
+theme_override_constants/separation = -35
 
-[node name="Content" type="HBoxContainer" parent="MarginContainer/HBoxContainer/GoldBox"]
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/GoldSlot"]
+z_index = 1
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_vertical = 4
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/GoldBox/Content"]
-custom_minimum_size = Vector2(24, 24)
-layout_mode = 2
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/GoldSlot/IconControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("2_icon_gold")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/GoldBox/Content"]
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/GoldSlot"]
+custom_minimum_size = Vector2(100, 25)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
-theme_override_font_sizes/font_size = 20
-text = "500G"
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/GoldSlot/BgPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 2
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/GoldSlot/BgPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "500"
+horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="EnergyBox" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+[node name="EnergySlot" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatusSlot")
+theme_override_constants/separation = -35
 
-[node name="Content" type="HBoxContainer" parent="MarginContainer/HBoxContainer/EnergyBox"]
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/EnergySlot"]
+z_index = 1
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_vertical = 4
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/EnergyBox/Content"]
-custom_minimum_size = Vector2(24, 24)
-layout_mode = 2
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/EnergySlot/IconControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("3_icon_energy")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergyBox/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.89, 0.94, 1)
-text = "行动力"
-vertical_alignment = 1
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HBoxContainer/EnergyBox/Content"]
-custom_minimum_size = Vector2(100, 16)
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/EnergySlot"]
+custom_minimum_size = Vector2(120, 25)
 layout_mode = 2
 size_flags_vertical = 4
-value = 100.0
-show_percentage = false
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergyBox/Content/ProgressBar"]
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/EnergySlot/BgPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 2
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergySlot/BgPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "100/100"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ExpSlot" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = -35
+
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/ExpSlot"]
+z_index = 1
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/ExpSlot/IconControl"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.98, 0.99, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "10/10"
-horizontal_alignment = 1
+texture = ExtResource("6_icon_exp")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/ExpSlot"]
+custom_minimum_size = Vector2(100, 25)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/ExpSlot/BgPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 2
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/ExpSlot/BgPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "1000"
+horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="MoodBox" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+[node name="MoodSlot" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatusSlot")
+theme_override_constants/separation = -35
 
-[node name="Content" type="HBoxContainer" parent="MarginContainer/HBoxContainer/MoodBox"]
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/MoodSlot"]
+z_index = 1
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_vertical = 4
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/MoodBox/Content"]
-custom_minimum_size = Vector2(24, 24)
-layout_mode = 2
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/MoodSlot/IconControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("5_icon_mood")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/MoodBox/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.89, 0.94, 1)
-text = "心情"
-vertical_alignment = 1
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HBoxContainer/MoodBox/Content"]
-custom_minimum_size = Vector2(100, 16)
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/MoodSlot"]
+custom_minimum_size = Vector2(100, 25)
 layout_mode = 2
 size_flags_vertical = 4
-value = 50.0
-show_percentage = false
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/MoodBox/Content/ProgressBar"]
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/MoodSlot/BgPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 2
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/MoodSlot/BgPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "50"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="StressSlot" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = -35
+
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/StressSlot"]
+z_index = 1
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/StressSlot/IconControl"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.98, 0.99, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "50%"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="StressBox" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatusSlot")
-
-[node name="Content" type="HBoxContainer" parent="MarginContainer/HBoxContainer/StressBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/StressBox/Content"]
-custom_minimum_size = Vector2(24, 24)
-layout_mode = 2
 texture = ExtResource("4_icon_stress")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/StressBox/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.89, 0.94, 1)
-text = "压力"
-vertical_alignment = 1
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HBoxContainer/StressBox/Content"]
-custom_minimum_size = Vector2(100, 16)
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/StressSlot"]
+custom_minimum_size = Vector2(100, 25)
 layout_mode = 2
 size_flags_vertical = 4
-value = 10.0
-show_percentage = false
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/StressBox/Content/ProgressBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.98, 0.99, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "10%"
-horizontal_alignment = 1
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/StressSlot/BgPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 2
+
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/StressSlot/BgPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "10"
+horizontal_alignment = 2
 vertical_alignment = 1

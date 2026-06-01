@@ -1,55 +1,43 @@
-[gd_scene load_steps=10 format=3 uid="uid://b3u5mxt1y8s7j"]
+[gd_scene load_steps=9 format=3 uid="uid://b3u5mxt1y8s7j"]
 
-[ext_resource type="Script" path="res://scripts/ui/common/info_popup.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c34e00782g26" path="res://scripts/ui/common/info_popup.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PopupBg"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
+bg_color = Color(0.985, 0.988, 0.995, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 shadow_color = Color(0, 0, 0, 0.16)
-shadow_size = 18
+shadow_size = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleBar"]
-bg_color = Color(1, 0.988235, 0.972549, 1)
-border_width_bottom = 1
-border_color = Color(0.95, 0.88, 0.82, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
+[sub_resource type="Gradient" id="Gradient_LeftBg"]
+colors = PackedColorArray(0.66, 0.44, 0.29, 1, 0.88, 0.69, 0.49, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconBg"]
-bg_color = Color(1, 1, 1, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.9, 0.92, 0.95, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_LeftBg"]
+gradient = SubResource("Gradient_LeftBg")
+fill_to = Vector2(1, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_LeftBg"]
+texture = SubResource("GradientTexture2D_LeftBg")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_OwnedBg"]
+bg_color = Color(0.95, 0.95, 0.95, 1)
+border_width_right = 12
+border_color = Color(0.88, 0.69, 0.49, 0.5)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TagBg"]
+bg_color = Color(0.96, 0.53, 0.19, 1)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
-color = Color(0.9, 0.92, 0.95, 1)
-thickness = 2
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ConfirmBtn"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.89, 0.52, 0.21, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+color = Color(0.8, 0.82, 0.85, 1)
+thickness = 1
 
 [node name="InfoPopup" type="CanvasLayer"]
 layer = 100
@@ -63,7 +51,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DimBg" type="ColorRect" parent="Control" unique_name_in_owner=true]
+[node name="DimBg" type="ColorRect" parent="Control"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -81,136 +69,120 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PopupPanel" type="PanelContainer" parent="Control/CenterContainer"]
-custom_minimum_size = Vector2(500, 0)
+custom_minimum_size = Vector2(480, 220)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PopupBg")
 
-[node name="VBox" type="VBoxContainer" parent="Control/CenterContainer/PopupPanel"]
+[node name="HBox" type="HBoxContainer" parent="Control/CenterContainer/PopupPanel"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="TitleBar" type="PanelContainer" parent="Control/CenterContainer/PopupPanel/VBox"]
-custom_minimum_size = Vector2(0, 45)
+[node name="LeftArea" type="PanelContainer" parent="Control/CenterContainer/PopupPanel/HBox"]
+custom_minimum_size = Vector2(186, 0)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_TitleBar")
+theme_override_styles/panel = SubResource("StyleBoxTexture_LeftBg")
 
-[node name="Margin" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/VBox/TitleBar"]
+[node name="Icon" type="TextureRect" parent="Control/CenterContainer/PopupPanel/HBox/LeftArea"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_right = 15
-
-[node name="HBox" type="HBoxContainer" parent="Control/CenterContainer/PopupPanel/VBox/TitleBar/Margin"]
-layout_mode = 2
-
-[node name="TitleMarker" type="ColorRect" parent="Control/CenterContainer/PopupPanel/VBox/TitleBar/Margin/HBox"]
-custom_minimum_size = Vector2(4, 20)
-layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 4
-color = Color(0.956863, 0.529412, 0.188235, 1)
-
-[node name="TitleLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/TitleBar/Margin/HBox" unique_name_in_owner=true]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 18
-text = "详情"
-vertical_alignment = 1
-
-[node name="CloseButton" type="Button" parent="Control/CenterContainer/PopupPanel/VBox/TitleBar/Margin/HBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
-theme_override_font_sizes/font_size = 20
-text = "✕"
-flat = true
-
-[node name="BlueLine" type="ColorRect" parent="Control/CenterContainer/PopupPanel/VBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-color = Color(1, 0.95, 0.9, 1)
-
-[node name="ContentMargin" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/VBox"]
-layout_mode = 2
-theme_override_constants/margin_left = 25
-theme_override_constants/margin_top = 25
-theme_override_constants/margin_right = 25
-theme_override_constants/margin_bottom = 25
-
-[node name="ContentVBox" type="VBoxContainer" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="TopHBox" type="HBoxContainer" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="LeftVBox" type="VBoxContainer" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="IconPanel" type="PanelContainer" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/LeftVBox"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_IconBg")
-
-[node name="Margin" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/LeftVBox/IconPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Icon" type="TextureRect" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/LeftVBox/IconPanel/Margin" unique_name_in_owner=true]
-layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="OwnedLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/LeftVBox" unique_name_in_owner=true]
+[node name="OwnedBox" type="PanelContainer" parent="Control/CenterContainer/PopupPanel/HBox/LeftArea"]
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-theme_override_font_sizes/font_size = 14
-text = "已拥有：0"
-horizontal_alignment = 1
+size_flags_vertical = 8
+theme_override_styles/panel = SubResource("StyleBoxFlat_OwnedBg")
 
-[node name="RightVBox" type="VBoxContainer" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox"]
+[node name="Margin" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/HBox/LeftArea/OwnedBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+
+[node name="HBox" type="HBoxContainer" parent="Control/CenterContainer/PopupPanel/HBox/LeftArea/OwnedBox/Margin"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/CenterContainer/PopupPanel/HBox/LeftArea/OwnedBox/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "持有数量"
+vertical_alignment = 1
 
-[node name="ItemNameLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/RightVBox" unique_name_in_owner=true]
+[node name="OwnedLabel" type="Label" parent="Control/CenterContainer/PopupPanel/HBox/LeftArea/OwnedBox/Margin/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 20
-text = "名称"
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "99"
+vertical_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/RightVBox"]
+[node name="RightArea" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Control/CenterContainer/PopupPanel/HBox/RightArea"]
 layout_mode = 2
 theme_override_constants/separation = 10
+
+[node name="TopHBox" type="HBoxContainer" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox"]
+layout_mode = 2
+
+[node name="TagPanel" type="PanelContainer" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_TagBg")
+
+[node name="Margin" type="MarginContainer" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox/TopHBox/TagPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 3
+
+[node name="TitleLabel" type="Label" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox/TopHBox/TagPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "基础属性"
+
+[node name="Spacer" type="Control" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox/TopHBox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+text = "X"
+flat = true
+
+[node name="ItemNameLabel" type="Label" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 22
+text = "高阶战斗记忆"
+
+[node name="HSeparator" type="HSeparator" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox"]
+layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="DescLabel" type="Label" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox/TopHBox/RightVBox" unique_name_in_owner=true]
+[node name="DescLabel" type="Label" parent="Control/CenterContainer/PopupPanel/HBox/RightArea/VBox"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
-theme_override_font_sizes/font_size = 14
-text = "这里是详细的说明文字"
-autowrap_mode = 3
-
-[node name="BottomSep" type="HSeparator" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
-
-[node name="ConfirmButton" type="Button" parent="Control/CenterContainer/PopupPanel/VBox/ContentMargin/ContentVBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(160, 45)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_ConfirmBtn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ConfirmBtn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ConfirmBtn")
-text = "确定"
+text = "主战员经验值材料。
 
-
+通过模拟训练累积的特别战斗记忆。据说出现了超乎预料的奇点。"
+autowrap_mode = 3

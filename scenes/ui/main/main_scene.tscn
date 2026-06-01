@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=23 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="7_eye"]
-[ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="9_heart"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
@@ -88,36 +87,6 @@ bg_color = Color(1, 0.96, 0.9, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
 bg_color = Color(1, 0.98, 0.95, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AffectionNormal"]
-bg_color = Color(1, 0.8, 0.9, 0.98)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.93, 0.52, 0.68, 0.22)
-shadow_size = 10
-shadow_offset = Vector2(0, 4)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AffectionHover"]
-bg_color = Color(1, 0.73, 0.86, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.94, 0.46, 0.64, 0.3)
-shadow_size = 12
-shadow_offset = Vector2(0, 4)
-
 [node name="MainScene" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -158,10 +127,10 @@ mouse_filter = 2
 
 [node name="TopStatusPanel" parent="UIPanel" instance=ExtResource("11_top_panel")]
 layout_mode = 1
-offset_left = 355.0
-offset_top = 2.0
-offset_right = 1078.0
-offset_bottom = 42.0
+offset_left = 533.0
+offset_top = 7.0
+offset_right = 1119.0
+offset_bottom = 51.0
 
 [node name="BottomBarHBox" type="HBoxContainer" parent="UIPanel"]
 layout_mode = 1
@@ -169,9 +138,9 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 422.0
+offset_left = 404.0
 offset_top = -106.0
-offset_right = -12.0
+offset_right = -14.0
 offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -203,6 +172,13 @@ size_flags_vertical = 8
 theme_override_font_sizes/font_size = 25
 text = "💬"
 
+[node name="WardrobeButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 28
+text = "👗"
+
 [node name="MusicPlayer" parent="UIPanel/BottomBarHBox" instance=ExtResource("10_music_player")]
 custom_minimum_size = Vector2(340, 52)
 layout_mode = 2
@@ -212,10 +188,10 @@ size_flags_vertical = 8
 [node name="ActionHBox" type="HBoxContainer" parent="UIPanel/BottomBarHBox"]
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_constants/separation = 12
+theme_override_constants/separation = 5
 
 [node name="RestButton" type="Button" parent="UIPanel/BottomBarHBox/ActionHBox"]
-custom_minimum_size = Vector2(118, 75)
+custom_minimum_size = Vector2(110, 75)
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
@@ -227,7 +203,7 @@ text = "休息"
 
 [node name="MainActionButton" type="Button" parent="UIPanel/BottomBarHBox/ActionHBox"]
 material = SubResource("ShaderMaterial_trapezoid_map")
-custom_minimum_size = Vector2(190, 75)
+custom_minimum_size = Vector2(160, 75)
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
@@ -236,64 +212,43 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
 text = "外出"
 
-[node name="PomodoroButton" type="Button" parent="UIPanel"]
-custom_minimum_size = Vector2(45, 45)
-layout_mode = 0
-offset_left = 20.0
-offset_top = 115.0
-offset_right = 65.0
-offset_bottom = 160.0
-pivot_offset = Vector2(22.5, 22.5)
-theme_override_font_sizes/font_size = 28
-text = "⏱"
-
-[node name="WardrobeButton" type="Button" parent="UIPanel"]
-custom_minimum_size = Vector2(45, 45)
-layout_mode = 0
-offset_left = 80.0
-offset_top = 115.0
-offset_right = 125.0
-offset_bottom = 160.0
-pivot_offset = Vector2(22.5, 22.5)
-theme_override_font_sizes/font_size = 28
-text = "👗"
-
 [node name="AffectionButton" type="Button" parent="UIPanel"]
-custom_minimum_size = Vector2(58, 58)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 0
-offset_left = 20.0
-offset_top = 164.0
-offset_right = 78.0
-offset_bottom = 222.0
+offset_left = 28.0
+offset_top = 82.0
+offset_right = 82.0
+offset_bottom = 134.0
 pivot_offset = Vector2(29, 29)
-theme_override_styles/normal = SubResource("StyleBoxFlat_AffectionNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_AffectionHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_AffectionHover")
+flat = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIPanel/AffectionButton"]
+[node name="CenterContainer" type="CenterContainer" parent="UIPanel/AffectionButton"]
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -10.5
+offset_right = 11.0
+offset_bottom = 7.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 0
-alignment = 1
 
-[node name="Icon" type="TextureRect" parent="UIPanel/AffectionButton/VBoxContainer"]
-custom_minimum_size = Vector2(24, 24)
+[node name="HeartText" type="Label" parent="UIPanel/AffectionButton/CenterContainer"]
 layout_mode = 2
-texture = ExtResource("9_heart")
-expand_mode = 1
-stretch_mode = 5
-self_modulate = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.965, 0.36, 0.57, 1)
+theme_override_font_sizes/font_size = 40
+text = "❤"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="LevelLabel" type="Label" parent="UIPanel/AffectionButton/VBoxContainer"]
+[node name="LevelLabel" type="Label" parent="UIPanel/AffectionButton/CenterContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.98, 0.99, 1)
-theme_override_constants/outline_size = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.89, 0.42, 0.61, 0.95)
-theme_override_font_sizes/font_size = 12
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 13
 text = "LV1"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -324,10 +279,10 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -145.0
-offset_top = 5.0
-offset_right = -10.0
-offset_bottom = 40.0
+offset_left = -149.0
+offset_top = 10.0
+offset_right = -14.0
+offset_bottom = 45.0
 grow_horizontal = 0
 theme_override_constants/separation = 15
 

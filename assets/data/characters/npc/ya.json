@@ -2,7 +2,7 @@
   "char_name": "雅",
   "age": 27,
   "avatar": "res://assets/images/characters/avatar/ya.png",
-  "static_portrait": "res://assets/images/characters/avatar/ya.png",
+  "static_portrait": "res://assets/images/characters/ya/ya.png",
   "sprite_frames_path": "res://assets/images/characters/ya/ya.tres",
   "identity_background": "雅是“青屿拾光咖啡厅”的老板娘。雅是一位温柔体贴的大姐姐，性格成熟、知性且带着一点慵懒的神秘感。她非常喜欢Luna已经去世的姐姐安娜的画作，咖啡厅最显眼处就挂着安娜的画。这幅画不仅是店里的招牌装饰，更是雅与Luna之间深厚羁绊的起点。因为这层关系，雅对待Luna有着不同于常人的温柔与关切。\n\n她精通各种咖啡豆的烘焙与冲泡技巧，对心理学和都市人际关系有自己独到的见解。",
   "base_personality": {

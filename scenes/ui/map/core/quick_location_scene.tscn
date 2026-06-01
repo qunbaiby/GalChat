@@ -112,7 +112,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="NPCPortrait" type="Node2D" parent="InteractionMenu"]
-position = Vector2(611, 1338)
+position = Vector2(611, 1418)
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="InteractionMenu/NPCPortrait"]
 scale = Vector2(0.6, 0.6)
