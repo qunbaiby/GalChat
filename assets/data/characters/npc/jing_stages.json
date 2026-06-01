@@ -5,8 +5,8 @@
             "exp_cost": 9999,
             "resonance_threshold": 0,
             "milestone_story": "",
-            "stageTitle": "严师与恩人",
-            "stageDesc": "静是Luna在艺术大学的音乐老师，也是将Luna引荐给指导人（玩家）的恩人。静对Luna要求极为严厉，但私下里却很护短，两人在音乐品味上有着深刻的共鸣。",
+            "stageTitle": "严厉导师",
+            "stageDesc": "静常驻图书馆，负责课程梳理与资料指导。她说话利落、要求很高，却会在关键时刻替Luna指出最该补上的短板，也是把Luna引荐给指导人（玩家）的人。",
             "intimacy_multiplier": 1.0,
             "mood_switch": "neutral"
         }

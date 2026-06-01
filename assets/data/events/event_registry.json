@@ -14,11 +14,21 @@
       "event_type": "auto_trigger",
       "is_repeatable": false,
       "conditions": [
-        { "type": "location", "value": "library" },
+        { "type": "location", "value": "art_gallery" },
         { "type": "weather", "value": "雨" },
         { "type": "npc_stage", "npc_id": "shuo", "min_stage": 2 }
       ],
       "trigger_script": "res://assets/data/story/scripts/events/shuo_library_rain.json"
+    },
+    {
+      "event_id": "ling_concert_hall_first_meet",
+      "event_type": "auto_trigger",
+      "is_repeatable": false,
+      "conditions": [
+        { "type": "location", "value": "concert_hall" },
+        { "type": "time_period", "value": "上午" }
+      ],
+      "trigger_script": "res://assets/data/story/scripts/events/ling_concert_hall_first_meet.json"
     }
   ]
 }

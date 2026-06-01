@@ -24,7 +24,7 @@
 			"type": "heroine",
 			"avatar": "res://assets/images/characters/Luna/avatar/luna.png",
 			"role": "关系中心 / 档案主角",
-			"summary": "Luna 是整张关系图谱的核心节点，她与玩家、静、朔、雅以及姐姐安娜的关系共同构成了她的成长环境与情感网络。",
+			"summary": "Luna 是整张关系图谱的核心节点，她与玩家、静、朔、雅、铃以及姐姐安娜的关系共同构成了她的成长环境与情感网络。",
 			"static_subtitle": "关系中心",
 			"tags": ["主角", "成长", "依恋", "记忆"],
 			"position": { "x": 165, "y": 215 },
@@ -35,10 +35,10 @@
 			"name": "静",
 			"type": "npc",
 			"avatar": "res://assets/images/characters/avatar/jing.png",
-			"role": "音乐老师 / 引荐人 / 恩师",
-			"summary": "静既是 Luna 的音乐老师，也是把 Luna 介绍给玩家的人。她对 Luna 要求严格，却一直以自己的方式默默照看她。",
-			"static_subtitle": "恩师线",
-			"tags": ["音乐老师", "引荐", "严厉", "护短"],
+			"role": "图书馆导师 / 引荐人 / 严师",
+			"summary": "静常驻图书馆，负责课程与资料指导，也是把 Luna 介绍给玩家的人。她要求严格，说话利落，却总能在最关键的时候给 Luna 指出方向。",
+			"static_subtitle": "导师线",
+			"tags": ["图书馆", "导师", "引荐", "严厉", "护短"],
 			"unlock": {
 				"type": "npc_contact_started",
 				"npc_id": "jing"
@@ -82,6 +82,40 @@
 			"visible": true
 		},
 		{
+			"id": "ling",
+			"name": "铃",
+			"type": "npc",
+			"avatar": "",
+			"role": "同学 / 闺蜜 / 练习搭子",
+			"summary": "铃是 Luna 在音乐系最亲近的同学兼闺蜜。她嘴上总爱吐槽，实际却会陪 Luna 把合奏与练习内容一遍遍磨顺，是最稳定的并肩练习对象。",
+			"static_subtitle": "闺蜜线",
+			"tags": ["同学", "闺蜜", "傲娇", "小提琴", "共同练习"],
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "ling"
+			},
+			"unlock_hint": "当 Luna 与铃建立起第一段稳定的共同练习关系后，这个节点会正式点亮。",
+			"position": { "x": 165, "y": 35 },
+			"visible": true
+		},
+		{
+			"id": "aili",
+			"name": "艾莉",
+			"type": "npc",
+			"avatar": "",
+			"role": "演员学姐 / 舞台前辈",
+			"summary": "艾莉是从江屿走出去的当红演员，也是静的老朋友。她周末常回大剧院沉淀表演，台前气场强烈，私下却温柔细腻，对信任的人格外护短。",
+			"static_subtitle": "舞台线",
+			"tags": ["演员", "校友", "学姐", "外强内柔", "重情"],
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "aili"
+			},
+			"unlock_hint": "在大剧院与艾莉建立初次有效互动后，这个节点会正式点亮。",
+			"position": { "x": 330, "y": 215 },
+			"visible": true
+		},
+		{
 			"id": "anna",
 			"name": "安娜",
 			"type": "memory",
@@ -114,9 +148,9 @@
 			"id": "luna_jing",
 			"from": "luna",
 			"to": "jing",
-			"title": "恩师与引荐人",
-			"summary": "静是 Luna 在学校中的重要支点。她既代表规范与要求，也代表被理解、被托付和被认真对待的那部分成长经历。",
-			"keywords": ["师生", "引荐", "严厉关心", "音乐共鸣"],
+			"title": "导师与引荐人",
+			"summary": "静是 Luna 在学校中的重要支点。她既代表规范与要求，也代表在迷茫阶段被及时纠正、被认真对待的成长经历。",
+			"keywords": ["导师", "引荐", "严厉关心", "课业指导"],
 			"color": "#b794f4",
 			"line_style": "solid",
 			"visible": true,
@@ -130,6 +164,48 @@
 				"npc_id": "jing"
 			},
 			"unlock_hint": "和静的首次关系推进后，这条连线会恢复正常高亮。"
+		},
+		{
+			"id": "luna_ling",
+			"from": "luna",
+			"to": "ling",
+			"title": "闺蜜与练习搭子",
+			"summary": "铃和 Luna 的关系建立在同学、闺蜜与共同练习的日常之上。她们会互相吐槽、互相较劲，也会在真正需要的时候毫不犹豫站到彼此身边。",
+			"keywords": ["闺蜜", "同学", "共同练习", "嘴硬心软"],
+			"color": "#7bdff2",
+			"line_style": "solid",
+			"visible": true,
+			"dynamic_source": {
+				"type": "npc_relationship",
+				"npc_id": "ling"
+			},
+			"memory_hint": "这条线适合挂接音乐馆练习、合奏磨合、比赛准备等轻日常成长内容。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "ling"
+			},
+			"unlock_hint": "在音乐馆与铃建立稳定互动后，这条闺蜜线会点亮。"
+		},
+		{
+			"id": "luna_aili",
+			"from": "luna",
+			"to": "aili",
+			"title": "学妹与演员前辈",
+			"summary": "Luna 与艾莉的关系建立在舞台训练与表演理解之上。艾莉会用职业演员的标准指出问题，也会在关键时刻给出温柔而坚定的支持。",
+			"keywords": ["学姐", "表演训练", "舞台成长", "双向信任"],
+			"color": "#8dd3c7",
+			"line_style": "solid",
+			"visible": true,
+			"dynamic_source": {
+				"type": "npc_relationship",
+				"npc_id": "aili"
+			},
+			"memory_hint": "这条线适合承接大剧院排练、角色塑造、公开演出前准备等内容。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "aili"
+			},
+			"unlock_hint": "和艾莉建立表演学习关系后，这条舞台成长线会点亮。"
 		},
 		{
 			"id": "luna_ya",
@@ -207,6 +283,46 @@
 				"npc_id": "jing"
 			},
 			"unlock_hint": "当静的个人关系线点亮后，这条托付关系也会同步解除灰显。"
+		},
+		{
+			"id": "ling_player",
+			"from": "ling",
+			"to": "player",
+			"title": "观察与试探",
+			"summary": "铃起初会带着一点戒备观察玩家，确认你是否真的能陪好 Luna。熟悉之后，她会把这种别扭的审视慢慢转成认可。",
+			"keywords": ["试探", "护短", "观察", "逐步认可"],
+			"color": "#90dbf4",
+			"line_style": "dashed",
+			"visible": true,
+			"dynamic_source": {
+				"type": "static"
+			},
+			"memory_hint": "这条线适合承接铃对玩家从嘴硬观察到愿意配合的过程。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "ling"
+			},
+			"unlock_hint": "铃线激活后，她对玩家的观感关系也会同步亮起。"
+		},
+		{
+			"id": "aili_player",
+			"from": "aili",
+			"to": "player",
+			"title": "专业判断与边界尊重",
+			"summary": "艾莉会以职业视角观察玩家是否真正理解 Luna 的节奏与状态。只要确认你值得信任，她会在合作里给出高度配合与明确支持。",
+			"keywords": ["专业判断", "边界", "信任", "支持"],
+			"color": "#bde0fe",
+			"line_style": "dashed",
+			"visible": true,
+			"dynamic_source": {
+				"type": "static"
+			},
+			"memory_hint": "这条线可以承接艾莉从礼貌试探到明确支持玩家的过程。",
+			"unlock": {
+				"type": "npc_contact_started",
+				"npc_id": "aili"
+			},
+			"unlock_hint": "艾莉线激活后，她与玩家的观感关系会一并点亮。"
 		},
 		{
 			"id": "ya_anna",

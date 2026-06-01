@@ -68,7 +68,7 @@ func setup(loc_data: Dictionary) -> void:
         var events = loc_data.get("events", [])
         for evt in events:
             var lbl = Label.new()
-            lbl.add_theme_font_size_override("font_size", 20)
+            lbl.add_theme_font_size_override("font_size", 16)
             if evt == "main":
                 lbl.text = "!"
                 lbl.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2)) # Red
@@ -110,7 +110,7 @@ func setup(loc_data: Dictionary) -> void:
             
             # Create a circular visual representation for the NPC
             var icon_container = Control.new()
-            icon_container.custom_minimum_size = Vector2(50, 50) # 调大头像尺寸
+            icon_container.custom_minimum_size = Vector2(40, 40)
             
             var mask = Control.new()
             mask.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
@@ -127,10 +127,10 @@ func setup(loc_data: Dictionary) -> void:
             var icon_callable = func(c: Control):
                 var center = c.size / 2.0
                 var radius = min(c.size.x, c.size.y) / 2.0
-                # 绘制一个明显一点的边框 (粗细 3，纯白，无透明度，开启抗锯齿)
-                c.draw_arc(center, radius, 0, TAU, 64, Color(1.0, 1.0, 1.0, 1.0), 3.0, true)
+                # 绘制一个轻一点的头像边框，和缩小后的地图按钮比例一致
+                c.draw_arc(center, radius, 0, TAU, 64, Color(1.0, 1.0, 1.0, 1.0), 2.2, true)
                 # 可以在内部再叠加一层稍微带点颜色的细边框增加层次感
-                c.draw_arc(center, radius - 1.5, 0, TAU, 64, Color(0.9, 0.9, 0.9, 0.7), 1.5, true)
+                c.draw_arc(center, radius - 1.2, 0, TAU, 64, Color(0.9, 0.9, 0.9, 0.7), 1.0, true)
             icon_container.draw.connect(icon_callable.bind(icon_container))
             
             if portrait_texture:
@@ -155,7 +155,7 @@ func setup(loc_data: Dictionary) -> void:
                 name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
                 name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
                 name_lbl.add_theme_color_override("font_color", Color.WHITE)
-                name_lbl.add_theme_font_size_override("font_size", 18)
+                name_lbl.add_theme_font_size_override("font_size", 15)
                 mask.add_child(name_lbl)
             
             npc_hbox.add_child(icon_container)
@@ -176,7 +176,7 @@ func _on_mouse_entered():
     await get_tree().process_frame
     if custom_tooltip:
         var global_pos = get_global_transform().origin
-        custom_tooltip.global_position = global_pos + Vector2(size.x / 2 - custom_tooltip.size.x / 2, -custom_tooltip.size.y - 10)
+        custom_tooltip.global_position = global_pos + Vector2(size.x / 2 - custom_tooltip.size.x / 2, -custom_tooltip.size.y - 8)
         
         # Fade in
         custom_tooltip.modulate.a = 0.0

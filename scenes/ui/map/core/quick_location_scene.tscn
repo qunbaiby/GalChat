@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene load_steps=11 format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
@@ -7,20 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="2_dialogue"]
 [ext_resource type="SpriteFrames" uid="uid://cy7y4ie11c4g5" path="res://assets/images/characters/jing/jing.tres" id="4_racli"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="top_status_panel"]
-
-[sub_resource type="StyleBoxFlat" id="BubbleStyle"]
-bg_color = Color(1, 0.972549, 0.929412, 0.96)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.882353, 0.760784, 0.643137, 0.95)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapInfo"]
 bg_color = Color(0.985, 0.988, 0.995, 0.94)
@@ -37,7 +23,25 @@ shadow_color = Color(0, 0, 0, 0.12)
 shadow_size = 10
 shadow_offset = Vector2(0, 4)
 
+[sub_resource type="StyleBoxFlat" id="BubbleStyle"]
+bg_color = Color(1, 0.972549, 0.929412, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.882353, 0.760784, 0.643137, 0.95)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 6
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
+content_margin_left = 22.0
+content_margin_top = 10.0
+content_margin_right = 22.0
+content_margin_bottom = 10.0
 bg_color = Color(1, 1, 1, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -48,10 +52,6 @@ corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-content_margin_left = 22.0
-content_margin_top = 10.0
-content_margin_right = 22.0
-content_margin_bottom = 10.0
 
 [node name="QuickLocationScene" type="Control"]
 layout_mode = 3
@@ -88,7 +88,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_MapInfo")
 
 [node name="VBox" type="VBoxContainer" parent="MapInfoPanel"]
 layout_mode = 2
-theme_override_constants/separation = 8
 theme_override_constants/separation = 8
 
 [node name="NameLabel" type="Label" parent="MapInfoPanel/VBox"]
@@ -242,8 +241,8 @@ theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.53, 0.19, 1)
 theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 text = "按钮模板"
 alignment = 0
 
@@ -253,10 +252,10 @@ offset_left = 41.0
 offset_top = 24.0
 offset_right = 131.0
 offset_bottom = 64.0
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 text = "< 返回地图"
 
 [node name="TopStatusPanel" parent="." instance=ExtResource("top_status_panel")]
@@ -275,5 +274,3 @@ script = ExtResource("1_script_deepseek")
 
 [node name="DialoguePanel" parent="." instance=ExtResource("2_dialogue")]
 layout_mode = 1
-
-

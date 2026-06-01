@@ -1,6 +1,7 @@
 extends Control
 
 const QUICK_OPTION_LIST_HELPER = preload("res://scripts/ui/story/quick_option_list_helper.gd")
+const NPC_BUBBLE_LINES_PATH := "res://assets/data/map/npc/npc_bubble_lines.json"
 const SUBMENU_FADE_DURATION := 0.25
 const SUBMENU_PORTRAIT_RATIO_X := 1.0 / 6.0
 const SUBMENU_INFO_HIDDEN_OFFSET_X := 120.0
@@ -9,44 +10,10 @@ const BUBBLE_MIN_SHOW_TIME := 2.6
 const BUBBLE_SHOW_TIME_PER_CHAR := 0.08
 const BUBBLE_TYPEWRITER_CHAR_TIME := 0.045
 const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
-const NPC_BUBBLE_LINES := {
-	"ya": {
-		"scene_entry": [
-			"你来了啊，先坐吧，我给你留了个安静的位置。",
-			"今天看起来有点累呢，要不要先喝点热的？",
-			"欢迎，常客先生。慢慢来，我不催你。"
-		],
-		"menu_open": [
-			"别着急，想喝什么，我慢慢帮你挑。",
-			"嗯，今天想让我怎么招待你？",
-			"靠近一点说吧，我在听。"
-		]
-	},
-	"jing": {
-		"scene_entry": [
-			"既然来了，就把心收回来。",
-			"站稳，别一副心不在焉的样子。",
-			"时间不等人，今天别松懈。"
-		],
-		"menu_open": [
-			"好，把注意力放到我这里。",
-			"说吧，今天想先练哪一部分。",
-			"既然站到我面前了，就认真一点。"
-		]
-	},
-	"shuo": {
-		"scene_entry": [
-			"来了就安静点，这里不适合吵闹。",
-			"你可以待着，但别弄出太大动静。",
-			"人到了就行，坐吧。"
-		],
-		"menu_open": [
-			"有话就直说，别绕圈子。",
-			"既然过来了，就别只是站着发呆。",
-			"……我在听。"
-		]
-	}
-}
+const BUBBLE_RECENT_HISTORY_LIMIT := 4
+const SUBMENU_PANEL_CENTER_RATIO := 2.0 / 3.0
+const SUBMENU_PANEL_MIN_RIGHT_MARGIN := 28.0
+const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
 
 @onready var bg_texture: TextureRect = $Background
 @onready var map_info_panel: PanelContainer = $MapInfoPanel
@@ -102,9 +69,15 @@ var _topic_greeting_playing: bool = false
 var _pending_topic_options: Array = []
 var _quick_chat_active: bool = false
 var _selected_topic: String = ""
+var _npc_bubble_lines_cache: Dictionary = {}
+var _bubble_ai_request_serial: int = 0
+var _bubble_ai_completed_callable: Callable = Callable()
+var _bubble_ai_failed_callable: Callable = Callable()
+var _recent_bubble_lines: Array[String] = []
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
+	_load_npc_bubble_lines()
 	
 	if npc_portrait:
 		original_char_x = npc_portrait.position.x
@@ -185,6 +158,243 @@ func _load_location_data():
 		bg_texture.texture = load(real_path)
 	else:
 		bg_texture.texture = null
+
+func _load_npc_bubble_lines() -> void:
+	_npc_bubble_lines_cache.clear()
+	if not FileAccess.file_exists(NPC_BUBBLE_LINES_PATH):
+		return
+	var file := FileAccess.open(NPC_BUBBLE_LINES_PATH, FileAccess.READ)
+	if file == null:
+		return
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+		_npc_bubble_lines_cache = json.data
+	file.close()
+
+func _get_deepseek_client():
+	var deepseek_client = get_node_or_null("DeepSeekClient")
+	if not deepseek_client:
+		deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient")
+	return deepseek_client
+
+func _get_current_story_period() -> String:
+	if GameDataManager.story_time_manager:
+		return str(GameDataManager.story_time_manager.current_period).strip_edges()
+	return ""
+
+func _get_current_weather_desc() -> String:
+	if GameDataManager.weather_manager and GameDataManager.weather_manager.is_weather_ready:
+		return str(GameDataManager.weather_manager.current_weather_desc).strip_edges()
+	return ""
+
+func _matches_contextual_variant(variant: Dictionary, phase: String, action_id: String = "") -> bool:
+	var variant_phase := str(variant.get("phase", "")).strip_edges()
+	if variant_phase != "" and variant_phase != phase:
+		return false
+	var variant_action := str(variant.get("action_id", "")).strip_edges()
+	if variant_action != "" and variant_action != action_id:
+		return false
+	var location_ids = variant.get("location_ids", [])
+	if location_ids is Array and not location_ids.is_empty():
+		if location_id == "" or not location_ids.has(location_id):
+			return false
+	var time_periods = variant.get("time_periods", [])
+	if time_periods is Array and not time_periods.is_empty():
+		var current_period := _get_current_story_period()
+		if current_period == "" or not time_periods.has(current_period):
+			return false
+	var weather_keywords = variant.get("weather_keywords", [])
+	if weather_keywords is Array and not weather_keywords.is_empty():
+		var current_weather := _get_current_weather_desc()
+		if current_weather == "":
+			return false
+		var matched := false
+		for keyword in weather_keywords:
+			var final_keyword := str(keyword).strip_edges()
+			if final_keyword != "" and current_weather.find(final_keyword) != -1:
+				matched = true
+				break
+		if not matched:
+			return false
+	return true
+
+func _pick_line_from_candidates(lines: Array) -> String:
+	if lines.is_empty():
+		return ""
+	var unique_lines: Array[String] = []
+	for candidate in lines:
+		var final_candidate := str(candidate).strip_edges()
+		if final_candidate != "":
+			unique_lines.append(final_candidate)
+	if unique_lines.is_empty():
+		return ""
+	var fresh_lines: Array[String] = []
+	for line in unique_lines:
+		if not _recent_bubble_lines.has(line):
+			fresh_lines.append(line)
+	if not fresh_lines.is_empty():
+		return fresh_lines.pick_random()
+	return unique_lines.pick_random()
+
+func _remember_bubble_line(text: String) -> void:
+	var final_text := text.strip_edges()
+	if final_text == "":
+		return
+	_recent_bubble_lines.erase(final_text)
+	_recent_bubble_lines.append(final_text)
+	while _recent_bubble_lines.size() > BUBBLE_RECENT_HISTORY_LIMIT:
+		_recent_bubble_lines.remove_at(0)
+
+func _get_bubble_template_lines(npc_id: String, phase: String) -> Array:
+	if _npc_bubble_lines_cache.has(npc_id):
+		var phase_map: Dictionary = _npc_bubble_lines_cache[npc_id]
+		var contextual_variants = phase_map.get("contextual_variants", [])
+		if contextual_variants is Array:
+			for variant in contextual_variants:
+				if variant is Dictionary and _matches_contextual_variant(variant, phase):
+					var variant_lines = variant.get("lines", [])
+					if variant_lines is Array and not variant_lines.is_empty():
+						return variant_lines
+		var phase_lines = phase_map.get(phase, [])
+		if phase_lines is Array:
+			return phase_lines
+	return []
+
+func _get_action_bubble_template_lines(npc_id: String, action_id: String) -> Array:
+	if _npc_bubble_lines_cache.has(npc_id):
+		var phase_map: Dictionary = _npc_bubble_lines_cache[npc_id]
+		var contextual_variants = phase_map.get("contextual_variants", [])
+		if contextual_variants is Array:
+			for variant in contextual_variants:
+				if variant is Dictionary and _matches_contextual_variant(variant, "action_open", action_id):
+					var variant_lines = variant.get("lines", [])
+					if variant_lines is Array and not variant_lines.is_empty():
+						return variant_lines
+		var action_map = phase_map.get("action_bubbles", {})
+		if action_map is Dictionary:
+			var action_lines = action_map.get(action_id, [])
+			if action_lines is Array:
+				return action_lines
+	return []
+
+func _get_npc_relation_stage_info(npc_id: String) -> Dictionary:
+	if npc_id == "luna" and GameDataManager.profile:
+		var conf := GameDataManager.profile.get_current_stage_config()
+		return {
+			"stage": int(GameDataManager.profile.current_stage),
+			"stage_title": str(conf.get("stageTitle", "陌生人"))
+		}
+	var npc_rel = GameDataManager.npc_relationship_manager
+	if npc_rel:
+		var current_stage := int(npc_rel.get_stage(npc_id))
+		var stage_config: Dictionary = npc_rel.get_stage_config(npc_id)
+		return {
+			"stage": current_stage,
+			"stage_title": str(stage_config.get("stageTitle", "普通朋友"))
+		}
+	var npc_stage_data := _get_npc_stage_data(npc_id)
+	return {
+		"stage": 1,
+		"stage_title": str(npc_stage_data.get("stageTitle", "普通朋友"))
+	}
+
+func _build_bubble_polish_prompt(npc_id: String, npc_name: String, template_line: String, phase: String, action_id: String = "") -> String:
+	var heroine_name := "Luna"
+	if GameDataManager.profile and str(GameDataManager.profile.char_name).strip_edges() != "":
+		heroine_name = str(GameDataManager.profile.char_name).strip_edges()
+	var stage_info := _get_npc_relation_stage_info(npc_id)
+	var stage_num := int(stage_info.get("stage", 1))
+	var stage_title := str(stage_info.get("stage_title", "普通朋友")).strip_edges()
+	var location_name := str(name_label.text).strip_edges()
+	if location_name == "":
+		location_name = location_id
+	var current_period := _get_current_story_period()
+	var current_weather := _get_current_weather_desc()
+	var trigger_desc := "进入地点时的招呼"
+	match phase:
+		"menu_open":
+			trigger_desc = "打开互动菜单时的招呼"
+		"action_open":
+			trigger_desc = "选择【%s】操作前的即时回应" % action_id
+	var recent_hint := ""
+	if not _recent_bubble_lines.is_empty():
+		recent_hint = "最近已出现过的气泡：%s\n" % " / ".join(_recent_bubble_lines)
+	return "当前是地图场景中的即时气泡台词。请你扮演【%s】，对少女【%s】说一句简短自然的话。\n场景地点：%s\n当前时段：%s\n当前天气：%s\n触发时机：%s\n当前你与%s的关系阶段：第%d阶段（%s）\n基础模板：%s\n%s要求：\n1. 只输出一句成品台词，不要解释。\n2. 保留基础模板原意，但结合当前关系阶段与场景上下文做自然润色。\n3. 长度控制在28字以内，只保留说话内容，不要加入括号动作、旁白或语气说明。\n4. 不要扩写成长对白，不要换行。\n5. 尽量避免与最近已出现的话术过于相似。" % [npc_name, heroine_name, location_name, current_period, current_weather, trigger_desc, heroine_name, stage_num, stage_title, template_line, recent_hint]
+
+func _normalize_bubble_line(raw_text: String, fallback: String) -> String:
+	var cleaned := raw_text.strip_edges()
+	if cleaned == "":
+		return fallback
+	var segments := cleaned.split("\n", false)
+	for segment in segments:
+		var line := str(segment).strip_edges()
+		if line != "":
+			return _strip_bubble_action_descriptions(line, fallback)
+	return fallback
+
+func _strip_bubble_action_descriptions(text: String, fallback: String) -> String:
+	var cleaned := text.strip_edges()
+	var fallback_cleaned := fallback.strip_edges()
+	var patterns := [
+		"\\([^()]*\\)",
+		"（[^（）]*）"
+	]
+	for pattern in patterns:
+		var fallback_regex := RegEx.new()
+		if fallback_regex.compile(pattern) == OK:
+			fallback_cleaned = fallback_regex.sub(fallback_cleaned, "", true)
+	fallback_cleaned = fallback_cleaned.strip_edges()
+	if cleaned == "":
+		return fallback_cleaned
+	for pattern in patterns:
+		var regex := RegEx.new()
+		if regex.compile(pattern) == OK:
+			cleaned = regex.sub(cleaned, "", true)
+	cleaned = cleaned.strip_edges()
+	if cleaned == "":
+		return fallback_cleaned
+	return cleaned
+
+func _request_bubble_line(npc_id: String, npc_name: String, npc_data: Dictionary, phase: String, action_id: String = "") -> void:
+	var fallback_line := ""
+	if action_id == "":
+		fallback_line = _pick_bubble_line(npc_id, npc_name, npc_data, phase)
+	else:
+		fallback_line = _pick_action_bubble_line(npc_id, npc_name, npc_data, action_id)
+	if fallback_line == "":
+		return
+	var deepseek_client = _get_deepseek_client()
+	if not deepseek_client:
+		_show_npc_bubble(fallback_line)
+		return
+	if _bubble_ai_completed_callable.is_valid() and deepseek_client.is_connected("npc_event_dialogue_completed", _bubble_ai_completed_callable):
+		deepseek_client.npc_event_dialogue_completed.disconnect(_bubble_ai_completed_callable)
+	if _bubble_ai_failed_callable.is_valid() and deepseek_client.is_connected("npc_event_dialogue_failed", _bubble_ai_failed_callable):
+		deepseek_client.npc_event_dialogue_failed.disconnect(_bubble_ai_failed_callable)
+	_bubble_ai_request_serial += 1
+	var request_serial := _bubble_ai_request_serial
+	_bubble_ai_completed_callable = Callable(self, "_on_bubble_line_generated").bind(request_serial, fallback_line)
+	_bubble_ai_failed_callable = Callable(self, "_on_bubble_line_failed").bind(request_serial, fallback_line)
+	deepseek_client.npc_event_dialogue_completed.connect(_bubble_ai_completed_callable, CONNECT_ONE_SHOT)
+	deepseek_client.npc_event_dialogue_failed.connect(_bubble_ai_failed_callable, CONNECT_ONE_SHOT)
+	var effective_phase := phase
+	if action_id != "":
+		effective_phase = "action_open"
+	var prompt := _build_bubble_polish_prompt(npc_id, npc_name, fallback_line, effective_phase, action_id)
+	deepseek_client.generate_npc_event_dialogue(npc_id, prompt)
+
+func _on_bubble_line_generated(generated_text: String, request_serial: int, fallback_line: String) -> void:
+	if request_serial != _bubble_ai_request_serial:
+		return
+	var final_line := _normalize_bubble_line(generated_text, fallback_line)
+	_remember_bubble_line(final_line)
+	_show_npc_bubble(final_line)
+
+func _on_bubble_line_failed(_error_msg: String, request_serial: int, fallback_line: String) -> void:
+	if request_serial != _bubble_ai_request_serial:
+		return
+	_remember_bubble_line(fallback_line)
+	_show_npc_bubble(fallback_line)
 
 func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 	# 如果 NPC 身上配置了专属的动态剧情脚本，则直接跳转至 AVG 剧情模式
@@ -456,12 +666,61 @@ func _open_sub_menu(scene_path: String, action_id: String = "") -> void:
 						_restore_after_sub_menu(true)
 			)
 		get_tree().root.add_child(menu)
+		_apply_submenu_panel_layout(menu)
 
 func _get_submenu_portrait_target_x() -> float:
 	var viewport_width = get_viewport_rect().size.x
 	if viewport_width <= 0.0:
 		return original_char_x
 	return viewport_width * SUBMENU_PORTRAIT_RATIO_X
+
+func _apply_submenu_panel_layout(menu_root: Node) -> void:
+	if menu_root == null:
+		return
+	for panel_name in ["MenuPanel", "MainPanel", "StudyPopup"]:
+		var panel := menu_root.get_node_or_null(panel_name) as Control
+		if panel:
+			_align_submenu_panel_to_right(panel)
+
+func _align_submenu_panel_to_right(panel: Control) -> void:
+	var viewport_size := get_viewport_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+	var left_bound := viewport_size.x / 3.0 + SUBMENU_PANEL_MIN_RIGHT_MARGIN
+	var right_bound := viewport_size.x - SUBMENU_PANEL_MIN_RIGHT_MARGIN
+	var max_width := minf(maxf(320.0, right_bound - left_bound), viewport_size.x * SUBMENU_PANEL_MAX_WIDTH_RATIO)
+	var panel_width := panel.custom_minimum_size.x
+	if panel_width <= 0.0:
+		panel_width = absf(panel.offset_right - panel.offset_left)
+	if panel_width <= 0.0:
+		panel_width = panel.size.x
+	panel_width = minf(panel_width, max_width)
+	var panel_height := panel.custom_minimum_size.y
+	if panel_height <= 0.0:
+		panel_height = absf(panel.offset_bottom - panel.offset_top)
+	if panel_height <= 0.0:
+		panel_height = panel.size.y
+	var center_x := viewport_size.x * SUBMENU_PANEL_CENTER_RATIO
+	var left := center_x - panel_width * 0.5
+	var right := center_x + panel_width * 0.5
+	if left < left_bound:
+		var underflow := left_bound - left
+		left += underflow
+		right += underflow
+	if right > right_bound:
+		var overflow := right - right_bound
+		left -= overflow
+		right -= overflow
+	panel.anchor_left = 0.0
+	panel.anchor_right = 0.0
+	panel.anchor_top = 0.5
+	panel.anchor_bottom = 0.5
+	panel.offset_left = left
+	panel.offset_right = right
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 func _on_sub_menu_closing_started() -> void:
 	if dialogue_panel and dialogue_panel.visible:
@@ -536,9 +795,13 @@ func _on_menu_action_pressed(action_id: String):
 		"study":
 			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习/指导")
 			if current_interacting_npc_id == "jing":
-				_open_sub_menu("res://scenes/ui/map/concert_hall/music_study_menu.tscn", action_id)
-			elif current_interacting_npc_id == "shuo":
 				_open_sub_menu("res://scenes/ui/map/library/tutoring_menu.tscn", action_id)
+			elif current_interacting_npc_id == "shuo":
+				_open_sub_menu("res://scenes/ui/map/art_gallery/art_study_menu.tscn", action_id)
+			elif current_interacting_npc_id == "ling":
+				_open_sub_menu("res://scenes/ui/map/concert_hall/music_study_menu.tscn", action_id)
+			elif current_interacting_npc_id == "aili":
+				_open_sub_menu("res://scenes/ui/map/grand_theater/performance_study_menu.tscn", action_id)
 		"gift":
 			_hide_npc_bubble()
 			print("快捷模式 - 给 NPC: ", current_interacting_npc_id, " 送礼")
@@ -845,6 +1108,12 @@ func _on_back_pressed():
 
 func _exit_tree() -> void:
 	_hide_npc_bubble(true)
+	var deepseek_client = _get_deepseek_client()
+	if deepseek_client:
+		if _bubble_ai_completed_callable.is_valid() and deepseek_client.is_connected("npc_event_dialogue_completed", _bubble_ai_completed_callable):
+			deepseek_client.npc_event_dialogue_completed.disconnect(_bubble_ai_completed_callable)
+		if _bubble_ai_failed_callable.is_valid() and deepseek_client.is_connected("npc_event_dialogue_failed", _bubble_ai_failed_callable):
+			deepseek_client.npc_event_dialogue_failed.disconnect(_bubble_ai_failed_callable)
 	if TTSManager:
 		if TTSManager.tts_success.is_connected(_on_bubble_tts_success):
 			TTSManager.tts_success.disconnect(_on_bubble_tts_success)
@@ -866,26 +1135,18 @@ func _schedule_scene_entry_bubble(npc_id: String) -> void:
 	_play_scene_entry_bubble(npc_id, npc_name, npc_data)
 
 func _play_scene_entry_bubble(npc_id: String, npc_name: String, npc_data: Dictionary) -> void:
-	var line := _pick_bubble_line(npc_id, npc_name, npc_data, "scene_entry")
-	if line != "":
-		_show_npc_bubble(line)
+	_request_bubble_line(npc_id, npc_name, npc_data, "scene_entry")
 
 func _play_menu_open_bubble(npc_id: String, npc_name: String, npc_data: Dictionary) -> void:
-	var line := _pick_bubble_line(npc_id, npc_name, npc_data, "menu_open")
-	if line != "":
-		_show_npc_bubble(line)
+	_request_bubble_line(npc_id, npc_name, npc_data, "menu_open")
 
 func _play_submenu_open_bubble(npc_id: String, npc_name: String, npc_data: Dictionary, action_id: String) -> void:
-	var line := _pick_action_bubble_line(npc_id, npc_name, npc_data, action_id)
-	if line != "":
-		_show_npc_bubble(line)
+	_request_bubble_line(npc_id, npc_name, npc_data, "menu_open", action_id)
 
 func _pick_bubble_line(npc_id: String, npc_name: String, npc_data: Dictionary, phase: String) -> String:
-	if NPC_BUBBLE_LINES.has(npc_id):
-		var phase_map: Dictionary = NPC_BUBBLE_LINES[npc_id]
-		var phase_lines: Array = phase_map.get(phase, [])
-		if not phase_lines.is_empty():
-			return str(phase_lines.pick_random())
+	var phase_lines := _get_bubble_template_lines(npc_id, phase)
+	if not phase_lines.is_empty():
+		return _pick_line_from_candidates(phase_lines)
 	
 	var identity_text := str(npc_data.get("identity_background", "")).strip_edges()
 	var tags: Array = npc_data.get("tags", [])
@@ -907,20 +1168,14 @@ func _pick_bubble_line(npc_id: String, npc_name: String, npc_data: Dictionary, p
 	return ["你来了。", "%s，欢迎。".replace("%s", npc_name)].pick_random()
 
 func _pick_action_bubble_line(npc_id: String, npc_name: String, npc_data: Dictionary, action_id: String) -> String:
-	match action_id:
-		"order":
-			if npc_id == "ya":
-				return ["想喝什么？我可以一款一款说给你听。", "今天想试试新的豆子吗？味道会很有意思。", "别急着点，我先帮你挑个更适合今天心情的。"].pick_random()
-		"study":
-			if npc_id == "jing":
-				return ["开始之前，先把你的状态调整好。", "今天我不会放水，所以你最好也认真点。", "先让我看看，你到底准备到了什么程度。"].pick_random()
-			if npc_id == "shuo":
-				return ["先坐下，把问题一条一条理清。", "既然是来补习的，就别分心。", "不懂的地方直接指出来，别浪费时间猜。"].pick_random()
+	var action_lines := _get_action_bubble_template_lines(npc_id, action_id)
+	if not action_lines.is_empty():
+		return _pick_line_from_candidates(action_lines)
 	var identity_text := str(npc_data.get("identity_background", "")).strip_edges()
 	if action_id == "order" and ("咖啡" in identity_text or "老板娘" in identity_text):
-		return ["慢慢挑，我不着急。", "点单之前，先想想你今天想要什么味道。"].pick_random()
+		return _pick_line_from_candidates(["慢慢挑，我不着急。", "点单之前，先想想你今天想要什么味道。"])
 	if action_id == "study" and ("老师" in identity_text or "学长" in identity_text):
-		return ["开始吧，先从你最没把握的部分讲。", "把注意力收回来，我们现在开始。"].pick_random()
+		return _pick_line_from_candidates(["开始吧，先从你最没把握的部分讲。", "把注意力收回来，我们现在开始。"])
 	return "%s，准备好了就开始吧。".replace("%s", npc_name)
 
 func _show_npc_bubble(text: String) -> void:

@@ -47,6 +47,22 @@
         "mood_impact": 0,
         "stress_impact": 10
     },
+    "art_study": {
+        "time_cost": 60,
+        "energy_cost": 15,
+        "gold_cost": 0,
+        "exp_gain": 10,
+        "mood_impact": 2,
+        "stress_impact": 6
+    },
+    "performance_study": {
+        "time_cost": 60,
+        "energy_cost": 15,
+        "gold_cost": 0,
+        "exp_gain": 10,
+        "mood_impact": 3,
+        "stress_impact": 4
+    },
     "cook": {
         "time_cost": 45,
         "energy_cost": 15,

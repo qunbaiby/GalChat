@@ -1,0 +1,15 @@
+{
+  "char_id": "ling",
+  "stages": [
+    {
+      "stage": 1,
+      "exp_cost": 9999,
+      "resonance_threshold": 0,
+      "milestone_story": "",
+      "stageTitle": "嘴硬闺蜜",
+      "stageDesc": "铃是Luna在音乐系最亲近的同学兼闺蜜，也是音乐馆里最常和她一起练习的人。她嘴上不饶人，行动上却总会陪Luna把最难的部分一遍遍磨下来。",
+      "intimacy_multiplier": 1.0,
+      "mood_switch": "neutral"
+    }
+  ]
+}

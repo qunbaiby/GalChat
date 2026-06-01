@@ -204,7 +204,7 @@ func _handle_memory_revisit(params: Dictionary) -> void:
         main_scene.start_memory_revisit(params)
 
 func _get_random_character_profile() -> CharacterProfile:
-    var char_ids = ["luna", "jing", "ya"]
+    var char_ids = ["luna", "jing", "ya", "ling", "aili"]
     var random_id = char_ids[randi() % char_ids.size()]
     
     var new_profile = CharacterProfile.new()

@@ -51,16 +51,16 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -826.6667
-offset_top = -300.0
+offset_left = -746.6667
+offset_top = -270.0
 offset_right = -26.6667
-offset_bottom = 300.0
+offset_bottom = 270.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MainPanel")
 
 [node name="TopBar" type="Panel" parent="MainPanel"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -75,22 +75,22 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "商店"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CloseButton" type="Button" parent="MainPanel/TopBar"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -60.0
+offset_left = -54.0
 grow_horizontal = 0
 grow_vertical = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 26
 theme_override_colors/font_color = Color(0.45, 0.48, 0.54, 1)
 text = "×"
 flat = true
@@ -100,7 +100,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 60.0
+offset_top = 54.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
@@ -115,10 +115,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -40.0
+offset_left = 24.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
@@ -127,7 +127,7 @@ horizontal_scroll_mode = 0
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 
 [node name="CurrencyLabel" type="Label" parent="MainPanel/ContentHBox/LeftPanel"]
 unique_name_in_owner = true
@@ -135,9 +135,9 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
+offset_left = 24.0
 offset_top = -30.0
-offset_right = 240.0
+offset_right = 220.0
 offset_bottom = -10.0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.28, 0.31, 0.36, 1)
@@ -148,9 +148,9 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 200.0
+offset_left = 176.0
 offset_top = -30.0
-offset_right = 400.0
+offset_right = 360.0
 offset_bottom = -10.0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
@@ -168,21 +168,21 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
 
 [node name="DetailVBox" type="VBoxContainer" parent="MainPanel/ContentHBox/RightPanel/Margin"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 
 [node name="NameLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "▪ 商品名称"
 
 [node name="DescLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
@@ -194,7 +194,7 @@ autowrap_mode = 2
 
 [node name="PreviewRect" type="TextureRect" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(170, 170)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -231,15 +231,15 @@ text = "合计："
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "0"
 
 [node name="BuyButton" type="Button" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "购 买"
 
 [node name="EmptyLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin"]
@@ -249,5 +249,4 @@ theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 text = "请在左侧选择商品"
 horizontal_alignment = 1
 vertical_alignment = 1
-
 

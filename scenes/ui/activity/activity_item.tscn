@@ -1,102 +1,119 @@
-[gd_scene load_steps=5 format=3 uid="uid://b23xxyy00456"]
+[gd_scene load_steps=10 format=3 uid="uid://b23xxyy00456"]
 
 [ext_resource type="Script" uid="uid://dakf4iikoukkf" path="res://scripts/ui/activity/activity_item.gd" id="1_item"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ShadowCard"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.08)
-shadow_size = 10
-shadow_offset = Vector2(0, 3)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ClipMask"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="Gradient" id="Gradient_FadeOverlay"]
+offsets = PackedFloat32Array(0, 0.25, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.2, 1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_FadeOverlay"]
+gradient = SubResource("Gradient_FadeOverlay")
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
+bg_color = Color(0.9, 0.92, 0.96, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
 bg_color = Color(0.956863, 0.529412, 0.188235, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [node name="ActivityItem" type="PanelContainer"]
-custom_minimum_size = Vector2(210, 80)
-offset_right = 210.0
-offset_bottom = 95.0
+custom_minimum_size = Vector2(190, 85)
+offset_right = 190.0
+offset_bottom = 85.0
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ShadowCard")
 script = ExtResource("1_item")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="ClipMask" type="PanelContainer" parent="."]
+clip_contents = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ClipMask")
+
+[node name="Icon" type="TextureRect" parent="ClipMask"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+expand_mode = 1
+stretch_mode = 6
+
+[node name="GradientOverlay" type="TextureRect" parent="ClipMask"]
+layout_mode = 2
+texture = SubResource("GradientTexture2D_FadeOverlay")
+expand_mode = 1
+
+[node name="ContentMargin" type="MarginContainer" parent="ClipMask"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
+theme_override_constants/margin_left = 75
 theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 10
+theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="HBox" type="HBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="ClipMask/ContentMargin"]
 layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="VBox" type="VBoxContainer" parent="Margin/HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="HeaderHBox" type="HBoxContainer" parent="Margin/HBox/VBox"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="NameLabel" type="Label" parent="Margin/HBox/VBox/HeaderHBox"]
+[node name="NameLabel" type="Label" parent="ClipMask/ContentMargin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "课程名称"
 
-[node name="CostContainer" type="HBoxContainer" parent="Margin/HBox/VBox"]
+[node name="CostContainer" type="HFlowContainer" parent="ClipMask/ContentMargin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 2
 
-[node name="RewardsContainer" type="HBoxContainer" parent="Margin/HBox/VBox"]
+[node name="RewardsContainer" type="HFlowContainer" parent="ClipMask/ContentMargin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 5
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 2
 
-[node name="ProgressContainer" type="VBoxContainer" parent="Margin/HBox"]
+[node name="ProgressContainer" type="VBoxContainer" parent="ClipMask/ContentMargin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 
-[node name="Icon" type="TextureRect" parent="Margin/HBox/ProgressContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="ProgressHBox" type="HBoxContainer" parent="Margin/HBox/ProgressContainer"]
+[node name="ProgressHeader" type="HBoxContainer" parent="ClipMask/ContentMargin/VBox/ProgressContainer"]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="ProgressLabel" type="Label" parent="Margin/HBox/ProgressContainer/ProgressHBox"]
+[node name="ProgressLabel" type="Label" parent="ClipMask/ContentMargin/VBox/ProgressContainer/ProgressHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -104,21 +121,22 @@ theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 10
 text = "进度"
 
-[node name="ProgressBar" type="ProgressBar" parent="Margin/HBox/ProgressContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-mouse_filter = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
-show_percentage = false
-
-[node name="IncrementLabel" type="Label" parent="Margin/HBox/ProgressContainer"]
+[node name="IncrementLabel" type="Label" parent="ClipMask/ContentMargin/VBox/ProgressContainer/ProgressHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
-theme_override_font_sizes/font_size = 9
-text = "单次 +10"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 10
+text = "+10"
+horizontal_alignment = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="ClipMask/ContentMargin/VBox/ProgressContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
+show_percentage = false
 
 [node name="Button" type="Button" parent="."]
 unique_name_in_owner = true

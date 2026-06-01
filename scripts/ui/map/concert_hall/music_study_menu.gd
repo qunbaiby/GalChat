@@ -3,25 +3,62 @@ extends CanvasLayer
 signal closing_started
 
 var energy_cost = 15
+const StudyOptionItemScene = preload("res://scenes/ui/map/core/study_option_item.tscn")
 
 var options = [
 	{
-		"id": "vocal",
-		"name": "声乐补习",
-		"stats": {"stat_expression": 2.0, "stat_temperament": 3.0},
-		"node_path": "MenuPanel/OptionsHBox/VocalBtn"
-	},
-	{
-		"id": "instrumental",
-		"name": "器乐补习",
-		"stats": {"stat_perception": 3.0, "stat_rhythm": 2.0},
-		"node_path": "MenuPanel/OptionsHBox/InstrumentalBtn"
-	},
-	{
-		"id": "theory",
-		"name": "乐理补习",
+		"id": "theory_exchange",
+		"name": "乐理交流",
+		"icon": "🎼",
+		"subtitle": "- THEORY -",
+		"desc": "拆解和声与结构，和铃一起理顺谱面和听感逻辑。",
+		"cost_lines": [
+			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "◷", "label": "时间", "value": "+60"}
+		],
+		"gain_tags": [
+			{"icon": "✦", "text": "学识 +3"},
+			{"icon": "✦", "text": "审美 +2"}
+		],
 		"stats": {"stat_knowledge": 3.0, "stat_aesthetics": 2.0},
-		"node_path": "MenuPanel/OptionsHBox/TheoryBtn"
+		"review_focus": "围绕和声、结构与段落理解交流，铃会用傲娇但专业的语气点评Luna的理解力与思路。",
+		"fallback_review": "“这次思路顺多了，至少没让我一直给你兜底。”"
+	},
+	{
+		"id": "vocal_practice",
+		"name": "声乐练声",
+		"icon": "🎤",
+		"subtitle": "- VOCAL -",
+		"desc": "练气息、咬字和音准，把今天的声音状态稳下来。",
+		"cost_lines": [
+			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "◷", "label": "时间", "value": "+60"}
+		],
+		"gain_tags": [
+			{"icon": "✦", "text": "表达 +3"},
+			{"icon": "✦", "text": "气质 +2"}
+		],
+		"stats": {"stat_expression": 3.0, "stat_temperament": 2.0},
+		"review_focus": "围绕气息、咬字和音准做练声，铃会点评Luna今天的声音状态和稳定度。",
+		"fallback_review": "“气息稳了不少，再练一阵子就不会一开高音就飘了。”"
+	},
+	{
+		"id": "ensemble",
+		"name": "器乐合奏",
+		"icon": "🎻",
+		"subtitle": "- ENSEMBLE -",
+		"desc": "和铃一起磨节奏与配合，把合奏默契真正带出来。",
+		"cost_lines": [
+			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "◷", "label": "时间", "value": "+60"}
+		],
+		"gain_tags": [
+			{"icon": "✦", "text": "感知 +3"},
+			{"icon": "✦", "text": "反应 +2"}
+		],
+		"stats": {"stat_perception": 3.0, "stat_rhythm": 2.0},
+		"review_focus": "围绕配合、节奏与彼此呼应完成合奏，铃会点评Luna的跟拍、默契和合奏感。",
+		"fallback_review": "“这次总算能跟上我了，合奏听起来像样多了。”"
 	}
 ]
 
@@ -31,10 +68,25 @@ var _ai_finished = false
 var _anim_finished = false
 var _ai_result_text = ""
 var _current_opt_name = ""
+var _option_cards: Dictionary = {}
+
+func _sanitize_review_text(text: String) -> String:
+	var cleaned := text.strip_edges()
+	var patterns := [
+		"\\([^()]*\\)",
+		"（[^（）]*）"
+	]
+	for pattern in patterns:
+		var regex := RegEx.new()
+		if regex.compile(pattern) == OK:
+			cleaned = regex.sub(cleaned, "", true)
+	return cleaned.strip_edges()
 
 @onready var menu_panel = $MenuPanel
 @onready var close_btn = $MenuPanel/CloseBtn
 @onready var start_btn = $MenuPanel/BottomHBox/StartBtn
+@onready var options_container: HBoxContainer = $MenuPanel/OptionsHBox
+@onready var cost_label: Label = $MenuPanel/BottomHBox/CostLabel
 @onready var study_popup = $StudyPopup
 @onready var popup_title = $StudyPopup/PopupTitle
 @onready var progress_bar = $StudyPopup/ProgressBar
@@ -48,33 +100,38 @@ func _ready():
 	close_btn.pressed.connect(_on_close_pressed)
 	start_btn.pressed.connect(_on_start_pressed)
 	finish_btn.pressed.connect(_on_finish_pressed)
-	
-	for i in range(options.size()):
-		var opt = options[i]
-		var btn = get_node(opt["node_path"]) as Button
-		opt["button"] = btn
-		
-		# 绑定选择事件
-		btn.pressed.connect(_on_option_selected.bind(opt["id"]))
+	_build_option_cards()
 		
 	# Initial selection
 	if options.size() > 0:
 		_on_option_selected(options[0]["id"])
 
+func _build_option_cards() -> void:
+	_option_cards.clear()
+	for child in options_container.get_children():
+		child.queue_free()
+	for opt in options:
+		var item := StudyOptionItemScene.instantiate()
+		options_container.add_child(item)
+		item.setup_option(opt)
+		item.option_pressed.connect(_on_option_selected)
+		_option_cards[opt["id"]] = item
+
 func _on_option_selected(id: String):
 	selected_option_id = id
-	for i in range(options.size()):
-		var opt = options[i]
-		var btn = opt["button"] as Button
-		
-		var hover_style = btn.get_theme_stylebox("hover") as StyleBoxFlat
-		
-		if opt["id"] == id:
-			# 选中状态，可以设置边框高亮
-			btn.add_theme_stylebox_override("normal", hover_style)
-		else:
-			# 恢复默认
-			btn.remove_theme_stylebox_override("normal")
+	for opt in options:
+		var card = _option_cards.get(opt["id"], null)
+		if card:
+			card.set_selected(opt["id"] == id)
+	var selected_opt := _get_selected_option()
+	if selected_opt:
+		cost_label.text = "已选择：%s  |  消耗行动力：%d" % [selected_opt["name"], energy_cost]
+
+func _get_selected_option() -> Dictionary:
+	for opt in options:
+		if opt["id"] == selected_option_id:
+			return opt
+	return {}
 
 func _on_close_pressed():
 	if not is_studying:
@@ -105,12 +162,7 @@ func _on_start_pressed():
 			
 	is_studying = true
 	
-	var selected_opt = null
-	for i in range(options.size()):
-		var o = options[i]
-		if o["id"] == selected_option_id:
-			selected_opt = o
-			break
+	var selected_opt := _get_selected_option()
 			
 	# Hide menu content
 	menu_panel.hide()
@@ -126,7 +178,7 @@ func _show_studying_popup(opt: Dictionary):
 	
 	popup_title.text = "正在进行 " + opt["name"] + "..."
 	progress_bar.value = 0
-	ai_label.text = "[center]等待静的评价...[/center]"
+	ai_label.text = "[center]等待铃的点评...[/center]"
 	finish_btn.hide()
 	
 	_ai_finished = false
@@ -146,7 +198,7 @@ func _show_studying_popup(opt: Dictionary):
 	# Call AI
 	var profile = GameDataManager.profile
 	var char_name = profile.char_name if profile.char_name != "" else "Luna"
-	var prompt = "【系统指令】\n%s刚刚完成了一节【%s】。\n请以静（高冷、严厉但内心护短的高级辅导员）的口吻，给出一句简短的评价（20字以内）。" % [char_name, opt["name"]]
+	var prompt = "【系统指令】\n%s刚刚和铃完成了一次【%s】。\n学习内容：%s\n请以铃的口吻给出一句简短点评。\n人设要求：铃是Luna的同学兼闺蜜，傲娇、嘴硬、会损人，但专业认真，主修小提琴。\n输出要求：\n1. 只输出一句点评，不要解释。\n2. 16到24字。\n3. 只保留说话内容，不要括号动作，不要旁白。" % [char_name, opt["name"], opt.get("review_focus", "请结合本次练习内容进行点评。")]
 	
 	var deepseek_client = null
 	for child in get_tree().root.get_children():
@@ -159,15 +211,15 @@ func _show_studying_popup(opt: Dictionary):
 			break
 				
 	if not deepseek_client:
-		_ai_result_text = "“还算差强人意，继续保持。”"
+		_ai_result_text = opt.get("fallback_review", "“还算像样，继续练，别松劲。”")
 		_ai_finished = true
 		_check_finish()
 	else:
 		deepseek_client.generate_dynamic_topics(prompt, func(text: String):
 			if text.is_empty():
-				_ai_result_text = "“还算差强人意，继续保持。”"
+				_ai_result_text = opt.get("fallback_review", "“还算像样，继续练，别松劲。”")
 			else:
-				text = text.strip_edges()
+				text = _sanitize_review_text(text)
 				if text.begins_with("\"") or text.begins_with("“"): text = text.substr(1)
 				if text.ends_with("\"") or text.ends_with("”"): text = text.substr(0, text.length()-1)
 				_ai_result_text = "“" + text + "”"
@@ -182,12 +234,7 @@ func _check_finish():
 		popup_title.text = _current_opt_name + " 完成！"
 
 func _on_finish_pressed():
-	var selected_opt = null
-	for i in range(options.size()):
-		var o = options[i]
-		if o["id"] == selected_option_id:
-			selected_opt = o
-			break
+	var selected_opt := _get_selected_option()
 			
 	if selected_opt:
 		var profile = GameDataManager.profile
@@ -226,4 +273,12 @@ func _on_finish_pressed():
 	closing_started.emit()
 	var tween = create_tween()
 	tween.tween_property($StudyPopup, "modulate:a", 0.0, 0.3)
+	
+	# 完成学习后，通知主场景刷新动作气泡
+	var parent_scene = get_parent()
+	while parent_scene and not parent_scene.has_method("_on_menu_action_pressed"):
+		parent_scene = parent_scene.get_parent()
+	if parent_scene and parent_scene.has_method("_show_action_bubble_from_ai"):
+		parent_scene._show_action_bubble_from_ai("study")
+		
 	tween.tween_callback(queue_free)

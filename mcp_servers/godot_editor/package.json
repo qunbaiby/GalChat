@@ -1,13 +1,14 @@
 {
   "name": "godot_editor",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.2.0",
+  "description": "Godot Editor MCP server for local scene inspection and project bootstrapping.",
   "main": "build/index.js",
   "type": "module",
   "scripts": {
     "start": "node build/index.js",
     "dev": "tsx index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "inspector": "npx @modelcontextprotocol/inspector node build/index.js"
   },
   "keywords": [],
   "author": "",

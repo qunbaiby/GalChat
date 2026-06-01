@@ -230,7 +230,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 18
-text = "已安排行程"
+text = "身心健康"
 
 [node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_physical_health/Header"]
 layout_mode = 2
@@ -257,7 +257,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 18
-text = "0/10"
+text = "创作设计"
 
 [node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_creation_design/Header"]
 layout_mode = 2
@@ -284,7 +284,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 18
-text = "撤销"
+text = "乐舞演艺"
 
 [node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_music_dance_performance/Header"]
 layout_mode = 2
@@ -311,7 +311,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 18
-text = "清空"
+text = "社交礼仪"
 
 [node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_social_etiquette/Header"]
 layout_mode = 2
@@ -338,7 +338,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_font_sizes/font_size = 18
-text = "Luna"
+text = "轻享休憩"
 
 [node name="RightSeparator" type="HSeparator" parent="Margin/MainHBox/LeftPanel/Margin/VBox/ScrollContainer/ColumnsContainer/Cat_rest/Header"]
 layout_mode = 2
@@ -362,14 +362,14 @@ alignment = 2
 [node name="ScheduleTitle" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.31, 0.28, 1)
-text = "精力 100"
+text = "安排进度"
 horizontal_alignment = 1
 
 [node name="ScheduleLabel" type="Label" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
-text = "+0"
-horizontal_alignment = 2
+text = "0/5"
+horizontal_alignment = 1
 
 [node name="ScheduleSlots" type="VBoxContainer" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
 layout_mode = 2
@@ -417,7 +417,7 @@ size_flags_vertical = 8
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
-text = "心情 平静"
+text = "撤销"
 
 [node name="ClearButton" type="Button" parent="Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon"]
 custom_minimum_size = Vector2(80, 40)
@@ -426,7 +426,7 @@ size_flags_vertical = 8
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
-text = "+0"
+text = "清空"
 
 [node name="RightPanel" type="PanelContainer" parent="Margin/MainHBox"]
 layout_mode = 2
@@ -490,8 +490,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-text = "+0"
+theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
+text = "精力 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -505,7 +505,7 @@ offset_right = 85.0
 offset_bottom = 5.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
-text = "金币消耗: 0"
+text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -528,7 +528,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
-text = "收益增加0%"
+text = "心情 平静"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -542,7 +542,7 @@ offset_right = 85.0
 offset_bottom = 5.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_Bubble")
-text = "✦ 属性变化预测"
+text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -565,7 +565,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
-text = "体"
+text = "压力 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -579,7 +579,7 @@ offset_right = 85.0
 offset_bottom = 5.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_BubbleNeg")
-text = "0 > 0"
+text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -587,14 +587,14 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
-text = "体能"
+text = "金币消耗: 0"
 horizontal_alignment = 1
 
 [node name="BonusLabel" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-text = "-"
+text = "无特殊加成"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
@@ -603,7 +603,7 @@ layout_mode = 2
 [node name="AttributeTitle" type="Label" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.31, 0.28, 1)
-text = "反应"
+text = "✦ 属性变化预测"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
@@ -652,7 +652,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "-"
+text = "体能"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -662,7 +662,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "智"
+text = "0 > 0"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
 layout_mode = 2
@@ -683,7 +683,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "体能"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
 layout_mode = 2
@@ -693,7 +693,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "学识"
+text = "-"
 
 [node name="Sub_stat_rhythm" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -703,7 +703,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "反应"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
 layout_mode = 2
@@ -713,7 +713,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "表达"
+text = "-"
 
 [node name="Block_Intelligence" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
 layout_mode = 2
@@ -751,7 +751,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "-"
+text = "智力"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -761,7 +761,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "魅"
+text = "0 > 0"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
 layout_mode = 2
@@ -782,7 +782,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "学识"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
 layout_mode = 2
@@ -792,7 +792,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "气质"
+text = "-"
 
 [node name="Sub_stat_expression" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -802,7 +802,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "表达"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
 layout_mode = 2
@@ -812,7 +812,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "礼仪"
+text = "-"
 
 [node name="Block_Charm" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
 layout_mode = 2
@@ -850,7 +850,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "-"
+text = "魅力"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -860,7 +860,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "感"
+text = "0 > 0"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
 layout_mode = 2
@@ -881,7 +881,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 > 0"
+text = "气质"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
 layout_mode = 2
@@ -891,7 +891,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "审美"
+text = "-"
 
 [node name="Sub_stat_etiquette" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
 layout_mode = 2
@@ -901,7 +901,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_font_sizes/font_size = 14
-text = "-"
+text = "礼仪"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
 layout_mode = 2
@@ -911,7 +911,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "感知"
+text = "-"
 
 [node name="Block_Sensibility" type="PanelContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
 layout_mode = 2
@@ -949,7 +949,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.890196, 0.698039, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "-"
+text = "感知"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
 layout_mode = 2
@@ -959,7 +959,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "开始执行安排"
+text = "0 > 0"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
 layout_mode = 2
@@ -980,7 +980,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 14
-text = "正在前往学校..."
+text = "审美"
 
 [node name="Spacer" type="Control" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
 layout_mode = 2
@@ -990,7 +990,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 14
-text = "规划本周行程中，请稍候..."
+text = "-"
 
 [node name="Sub_stat_perception" type="HBoxContainer" parent="Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
 layout_mode = 2

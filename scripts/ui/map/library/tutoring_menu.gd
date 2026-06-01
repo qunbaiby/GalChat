@@ -292,9 +292,20 @@ func _on_start_pressed() -> void:
 	if GameDataManager.interaction_manager:
 		GameDataManager.interaction_manager.execute_interaction("tutoring")
 			
-	_on_close_pressed()
+	closing_started.emit()
+	var tween = create_tween()
+	tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)
+	
+	# 完成学习后，通知主场景刷新动作气泡
+	var parent_scene = get_parent()
+	while parent_scene and not parent_scene.has_method("_on_menu_action_pressed"):
+		parent_scene = parent_scene.get_parent()
+	if parent_scene and parent_scene.has_method("_show_action_bubble_from_ai"):
+		parent_scene._show_action_bubble_from_ai("tutoring")
+		
+	tween.tween_callback(queue_free)
 
-func _on_close_pressed() -> void:
+func _on_close_pressed():
 	closing_started.emit()
 	var tween = create_tween()
 	tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)

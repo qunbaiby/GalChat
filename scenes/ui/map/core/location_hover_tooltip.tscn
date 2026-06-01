@@ -9,22 +9,22 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.95, 0.81, 0.63, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 shadow_color = Color(0, 0, 0, 0.1)
-shadow_size = 8
+shadow_size = 6
 shadow_offset = Vector2(0, 3)
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
 
 [node name="LocationHoverTooltip" type="PanelContainer"]
 top_level = true
 z_index = 50
-custom_minimum_size = Vector2(220, 0)
+custom_minimum_size = Vector2(188, 0)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Tooltip")
 script = ExtResource("1_script")
 
@@ -32,9 +32,9 @@ script = ExtResource("1_script")
 layout_mode = 2
 
 [node name="DescLabel" type="Label" parent="Margin"]
-custom_minimum_size = Vector2(220, 0)
+custom_minimum_size = Vector2(188, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.27, 0.16, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 text = "暂无描述"
 autowrap_mode = 3

@@ -1,0 +1,15 @@
+{
+  "char_id": "aili",
+  "stages": [
+    {
+      "stage": 1,
+      "exp_cost": 9999,
+      "resonance_threshold": 0,
+      "milestone_story": "",
+      "stageTitle": "舞台前辈",
+      "stageDesc": "艾莉是从江屿走出去的当红演员，也是周末常回大剧院沉淀表演的学姐。她台前锋芒夺目，私下却比想象中柔和许多，对真正信任的人很护短，也愿意认真带着Luna磨练表演感觉。",
+      "intimacy_multiplier": 1.0,
+      "mood_switch": "neutral"
+    }
+  ]
+}

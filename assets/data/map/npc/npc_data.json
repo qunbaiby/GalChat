@@ -16,7 +16,7 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "study", "label": "补习"},
+      {"id": "study", "label": "课业指导"},
       {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
@@ -27,7 +27,29 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "study", "label": "课业指导"},
+      {"id": "study", "label": "作品讲评"},
+      {"id": "gift", "label": "送礼"},
+      {"id": "leave", "label": "离开"}
+    ]
+  },
+  "ling": {
+    "id": "ling",
+    "name": "铃",
+    "type": "resident",
+    "interactions": [
+      {"id": "chat", "label": "聊天"},
+      {"id": "study", "label": "共同练习"},
+      {"id": "gift", "label": "送礼"},
+      {"id": "leave", "label": "离开"}
+    ]
+  },
+  "aili": {
+    "id": "aili",
+    "name": "艾莉",
+    "type": "resident",
+    "interactions": [
+      {"id": "chat", "label": "聊天"},
+      {"id": "study", "label": "表演学习"},
       {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
