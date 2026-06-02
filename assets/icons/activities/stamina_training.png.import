@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ck5kacfopf7jr"
-path="res://.godot/imported/art_planning.png-18dafcdf80fd85fe90f36b8d4a95ead7.ctex"
+uid="uid://ceqmfgb855mq7"
+path="res://.godot/imported/stamina_training.png-6860187ab235fc73e3b8e1bb4191fe4f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/activities/art_planning.png"
-dest_files=["res://.godot/imported/art_planning.png-18dafcdf80fd85fe90f36b8d4a95ead7.ctex"]
+source_file="res://assets/icons/activities/stamina_training.png"
+dest_files=["res://.godot/imported/stamina_training.png-6860187ab235fc73e3b8e1bb4191fe4f.ctex"]
 
 [params]
 

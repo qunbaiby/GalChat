@@ -9,9 +9,9 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.12)
+corner_radius_top_left = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_OptionNormal"]
@@ -21,11 +21,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.06)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_OptionHover"]
@@ -34,11 +34,11 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.96, 0.53, 0.19, 0.7)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+border_color = Color(0.57, 0.82, 0.76, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="MusicStudyMenu" type="CanvasLayer"]
 layer = 100
@@ -124,7 +124,7 @@ alignment = 2
 
 [node name="CostLabel" type="Label" parent="MenuPanel/BottomHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.91, 0.59, 0.23, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
 text = "消耗行动力：15"
 

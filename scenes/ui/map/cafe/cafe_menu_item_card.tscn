@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://dtf3n4mwv5urj"]
+﻿[gd_scene load_steps=7 format=3 uid="uid://dtf3n4mwv5urj"]
 
 [ext_resource type="Script" uid="uid://di53qfwsapd57" path="res://scripts/ui/map/cafe/cafe_menu_item_card.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://bsgllhd1vqn5d" path="res://assets/images/activities/cafe_break.png" id="2_fallback"]
+[ext_resource type="Texture2D" uid="uid://bsgllhd1vqn5d" path="res://assets/icons/activities/cafe_break.png" id="2_fallback"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardNormal"]
 bg_color = Color(1, 1, 1, 0.98)
@@ -10,11 +10,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.08)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
@@ -24,12 +24,12 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.96, 0.53, 0.19, 0.7)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.1)
+border_color = Color(0.57, 0.82, 0.76, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 12
 shadow_offset = Vector2(0, 4)
 
@@ -40,17 +40,17 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.95, 0.81, 0.63, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PricePanel"]
 bg_color = Color(0.985, 0.988, 0.995, 1)
 border_width_top = 1
 border_color = Color(0.9, 0.92, 0.95, 1)
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="CafeMenuItemCard" type="Button"]
 custom_minimum_size = Vector2(138, 176)
@@ -97,7 +97,7 @@ stretch_mode = 5
 [node name="QtyBg" type="ColorRect" parent="CardPanel/VBox/TopMargin/IconPanel"]
 custom_minimum_size = Vector2(28, 18)
 layout_mode = 2
-color = Color(0.956863, 0.529412, 0.188235, 0.9)
+color = Color(0.57, 0.82, 0.76, 0.9)
 
 [node name="QtyLabel" type="Label" parent="CardPanel/VBox/TopMargin/IconPanel/QtyBg"]
 layout_mode = 1
@@ -118,7 +118,7 @@ custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 14
-text = "商品名称"
+text = "鍟嗗搧鍚嶇О"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -133,8 +133,8 @@ alignment = 1
 
 [node name="CoinLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
-text = "◎"
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+text = "鈼?
 
 [node name="PriceLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
 unique_name_in_owner = true

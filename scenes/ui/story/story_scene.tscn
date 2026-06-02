@@ -19,11 +19,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.12)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
@@ -34,10 +34,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -176,7 +176,7 @@ theme_override_constants/separation = 5
 
 [node name="RoundLabel" type="Label" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 18
 text = "自由对话轮次: 0 / 5"
 

@@ -13,10 +13,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(0.95, 0.78, 0.85, 0.95)
-corner_radius_top_left = 180
-corner_radius_top_right = 180
-corner_radius_bottom_right = 180
-corner_radius_bottom_left = 180
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 shadow_color = Color(0.93, 0.52, 0.67, 0.12)
 shadow_size = 12
 
@@ -27,10 +27,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.97, 0.9, 0.93, 1)
-corner_radius_top_left = 160
-corner_radius_top_right = 160
-corner_radius_bottom_right = 160
-corner_radius_bottom_left = 160
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
 bg_color = Color(0.85, 0.85, 0.87, 1)
@@ -46,11 +46,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.92, 0.92, 0.94, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.03)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Row"]
@@ -67,10 +67,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 0.72, 0.8, 0.32)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="AffectionPanel" type="PanelContainer"]
 anchors_preset = 15
@@ -235,7 +235,7 @@ vertical_alignment = 1
 
 [node name="Value" type="Label" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/StatsCard/Margin/StatsVBox/IntimacyRow/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.97, 0.54, 0.16, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
 text = "+0"
 horizontal_alignment = 2
@@ -258,7 +258,7 @@ vertical_alignment = 1
 
 [node name="Value" type="Label" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/StatsCard/Margin/StatsVBox/TrustRow/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.97, 0.54, 0.16, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
 text = "+0"
 horizontal_alignment = 2
@@ -281,7 +281,7 @@ vertical_alignment = 1
 
 [node name="Value" type="Label" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/StatsCard/Margin/StatsVBox/InteractionExpRow/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.97, 0.54, 0.16, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
 text = "0"
 horizontal_alignment = 2

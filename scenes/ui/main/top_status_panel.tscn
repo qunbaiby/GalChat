@@ -9,10 +9,10 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PillBg"]
 bg_color = Color(0, 0, 0, 0.65)
-corner_radius_top_left = 10
+corner_radius_top_left = 8
 corner_radius_top_right = 2
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="TopStatusPanel" type="PanelContainer"]
 self_modulate = Color(1, 1, 1, 0)

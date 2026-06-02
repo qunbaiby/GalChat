@@ -9,11 +9,11 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.513726, 0.678431, 0.67451, 0.85)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.18)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 6)
 
@@ -25,8 +25,8 @@ content_margin_bottom = 8.0
 bg_color = Color(1, 0.988235, 0.972549, 1)
 border_width_bottom = 1
 border_color = Color(0.95, 0.88, 0.82, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
+corner_radius_top_left = 12
+corner_radius_top_right = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnSecondary"]
 content_margin_left = 18.0
@@ -39,10 +39,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.521569, 0.741176, 0.737255, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnPrimary"]
 content_margin_left = 18.0
@@ -55,10 +55,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.439216, 0.662745, 0.658824, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
 content_margin_left = 14.0
@@ -139,7 +139,7 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
-theme_override_colors/font_hover_color = Color(0.9, 0.5, 0.25, 1)
+theme_override_colors/font_hover_color = Color(0.45, 0.72, 0.65, 1)
 theme_override_font_sizes/font_size = 22
 text = "✕"
 flat = true

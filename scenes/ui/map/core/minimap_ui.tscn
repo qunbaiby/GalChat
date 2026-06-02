@@ -4,16 +4,16 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SmallMap"]
 bg_color = Color(0.985, 0.988, 0.995, 0.94)
-corner_radius_top_left = 75
-corner_radius_top_right = 75
-corner_radius_bottom_right = 75
-corner_radius_bottom_left = 75
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-shadow_color = Color(0, 0, 0, 0.12)
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
@@ -27,11 +27,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-shadow_color = Color(0, 0, 0, 0.14)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 20
 shadow_offset = Vector2(0, 4)
 
@@ -42,10 +42,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButtonHover"]
 bg_color = Color(1, 0.98, 0.95, 1)
@@ -53,11 +53,11 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.96, 0.53, 0.19, 0.65)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
+border_color = Color(0.57, 0.82, 0.76, 0.65)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="MinimapUI" type="CanvasLayer"]
 script = ExtResource("1_script")
@@ -112,7 +112,7 @@ offset_left = 67.0
 offset_top = 67.0
 offset_right = 83.0
 offset_bottom = 83.0
-color = Color(0.956863, 0.529412, 0.188235, 1)
+color = Color(0.57, 0.82, 0.76, 1)
 mouse_filter = 2
 
 [node name="N_Label" type="Label" parent="SmallMapContainer"]
@@ -170,7 +170,7 @@ offset_left = 488.0
 offset_top = 238.0
 offset_right = 512.0
 offset_bottom = 262.0
-color = Color(0.956863, 0.529412, 0.188235, 1)
+color = Color(0.57, 0.82, 0.76, 1)
 
 [node name="CloseButton" type="Button" parent="ExpandedMapPanel"]
 layout_mode = 1

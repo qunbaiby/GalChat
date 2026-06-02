@@ -1,0 +1,40 @@
+{
+  "date_types": [
+    {
+      "id": "stroll",
+      "name": "漫步散心",
+      "locations": [
+        "sakura_avenue",
+        "golden_beach",
+        "sunset_park",
+        "wangjiang_pavilion",
+        "music_corner"
+      ]
+    },
+    {
+      "id": "shopping",
+      "name": "逛街购物",
+      "locations": [
+        "yuli_alley",
+        "pop_up_market"
+      ]
+    },
+    {
+      "id": "exhibition",
+      "name": "观影看展",
+      "locations": [
+        "movie_theater",
+        "yuguang_gallery",
+        "art_gallery"
+      ]
+    },
+    {
+      "id": "dining",
+      "name": "餐饮小聚",
+      "locations": [
+        "qingyu_time_cafe",
+        "midnight_pub"
+      ]
+    }
+  ]
+}

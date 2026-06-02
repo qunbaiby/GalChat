@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsgllhd1vqn5d"
-path="res://.godot/imported/cafe_break.png-1575f4339a981098c7bcbdaaf3e69a2d.ctex"
+uid="uid://c2hwcce888nx"
+path="res://.godot/imported/camera_manner.png-3356aeaf3c973cfe27a06d6294dc960f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/activities/cafe_break.png"
-dest_files=["res://.godot/imported/cafe_break.png-1575f4339a981098c7bcbdaaf3e69a2d.ctex"]
+source_file="res://assets/icons/activities/camera_manner.png"
+dest_files=["res://.godot/imported/camera_manner.png-3356aeaf3c973cfe27a06d6294dc960f.ctex"]
 
 [params]
 

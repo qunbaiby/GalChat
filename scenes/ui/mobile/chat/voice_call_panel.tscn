@@ -6,8 +6,8 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VoiceBg"]
 bg_color = Color(0.985, 0.988, 0.995, 0.94)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
+corner_radius_top_left = 12
+corner_radius_top_right = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -16,16 +16,16 @@ border_color = Color(0.87, 0.89, 0.93, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarBg"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 60
-corner_radius_top_right = 60
-corner_radius_bottom_right = 60
-corner_radius_bottom_left = 60
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.91, 0.95, 1)
-shadow_color = Color(0, 0, 0, 0.06)
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
@@ -35,31 +35,31 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 35
-corner_radius_top_right = 35
-corner_radius_bottom_right = 35
-corner_radius_bottom_left = 35
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xi0o"]
 bg_color = Color(0.78, 0.68, 0.62, 1)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
-corner_radius_top_left = 35
-corner_radius_top_right = 35
-corner_radius_bottom_right = 35
-corner_radius_bottom_left = 35
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k5ilk"]
 bg_color = Color(0.72, 0.58, 0.46, 1)
-corner_radius_top_left = 35
-corner_radius_top_right = 35
-corner_radius_bottom_right = 35
-corner_radius_bottom_left = 35
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="VoiceCallPanel" type="Control"]
 custom_minimum_size = Vector2(400, 0)
@@ -117,7 +117,7 @@ stretch_mode = 6
 
 [node name="NameLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 24
 text = "Name"
 horizontal_alignment = 1
@@ -138,7 +138,7 @@ theme_override_constants/margin_right = 30
 [node name="MessageLabel" type="RichTextLabel" parent="Panel/VBox/MessageCenter"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/default_color = Color(0.258824, 0.27451, 0.313726, 1)
+theme_override_colors/default_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
 text = "[center]...[/center]"

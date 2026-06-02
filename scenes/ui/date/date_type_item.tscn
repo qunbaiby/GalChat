@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://ddy6t8h1kdate"]
+
+[ext_resource type="Script" path="res://scripts/ui/date/date_type_item.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.9, 0.9, 0.9, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="DateTypeItem" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="HeaderButton" type="Button" parent="."]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_Header")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Header")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Header")
+text = "Type Title"
+
+[node name="LocationList" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 2

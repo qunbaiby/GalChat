@@ -5,20 +5,20 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Click"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarGlow"]
-bg_color = Color(1, 0.972549, 0.945098, 0.9)
-corner_radius_top_left = 34
-corner_radius_top_right = 34
-corner_radius_bottom_right = 34
-corner_radius_bottom_left = 34
-shadow_color = Color(0.956863, 0.529412, 0.188235, 0.22)
+bg_color = Color(0.94, 0.98, 0.97, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.22)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
 bg_color = Color(1, 1, 1, 0.98)
-corner_radius_top_left = 31
-corner_radius_top_right = 31
-corner_radius_bottom_right = 31
-corner_radius_bottom_left = 31
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarBorder"]
 bg_color = Color(1, 1, 1, 0)
@@ -26,11 +26,11 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.956863, 0.529412, 0.188235, 0.55)
-corner_radius_top_left = 34
-corner_radius_top_right = 34
-corner_radius_bottom_right = 34
-corner_radius_bottom_left = 34
+border_color = Color(0.57, 0.82, 0.76, 0.55)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="RelationGraphNodeCard" type="Control"]
 custom_minimum_size = Vector2(92, 116)
@@ -110,7 +110,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1

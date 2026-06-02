@@ -10,12 +10,12 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87058824, 0.8901961, 0.92941177, 0)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0, 0, 0, 0.08)
-shadow_size = 10
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 3
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aprbl"]
@@ -31,7 +31,7 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBar"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -119,7 +119,7 @@ flat = true
 [node name="PlayPauseBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 18
 text = "⏸"
 flat = true

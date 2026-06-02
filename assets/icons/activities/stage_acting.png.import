@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpexrj2owfuxs"
-path="res://.godot/imported/stamina_training.png-da1656dd3cca8a27bd8734c0f385949d.ctex"
+uid="uid://cb6alv0u65op8"
+path="res://.godot/imported/stage_acting.png-97c503370d96ca3409dbd7937acaf8a1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/activities/stamina_training.png"
-dest_files=["res://.godot/imported/stamina_training.png-da1656dd3cca8a27bd8734c0f385949d.ctex"]
+source_file="res://assets/icons/activities/stage_acting.png"
+dest_files=["res://.godot/imported/stage_acting.png-97c503370d96ca3409dbd7937acaf8a1.ctex"]
 
 [params]
 

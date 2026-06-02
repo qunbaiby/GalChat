@@ -9,10 +9,10 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvMask"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvFrame"]
 draw_center = false
@@ -21,10 +21,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.756863, 0.921569, 0.819608, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_NamePlate"]
 content_margin_left = 10.0
@@ -37,10 +37,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharAvMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -49,10 +49,10 @@ border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
 border_color = Color(0.968627, 0.831373, 0.831373, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharAvFrame"]
 draw_center = false
@@ -61,10 +61,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.968627, 0.831373, 0.831373, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ExpBgNew"]
 bg_color = Color(0.89, 0.91, 0.95, 1)
@@ -91,11 +91,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0, 0, 0.04)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_te7qg"]
@@ -105,10 +105,10 @@ border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
 border_color = Color(0.968627, 0.831373, 0.831373, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8r0ra"]
 draw_center = false
@@ -117,10 +117,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.968627, 0.831373, 0.831373, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ListContent"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -129,34 +129,34 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_EntryIcon"]
-bg_color = Color(1, 0.972549, 0.945098, 1)
+bg_color = Color(0.94, 0.98, 0.97, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.956863, 0.529412, 0.188235, 0.25)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+border_color = Color(0.57, 0.82, 0.76, 0.25)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PowerBtn"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.901961, 0.45098, 0.121569, 1)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
 bg_color = Color(0.965, 0.972, 0.985, 0.98)
@@ -407,7 +407,7 @@ alignment = 1
 
 [node name="PlayerName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 14
 text = "Player"
 
@@ -467,7 +467,7 @@ alignment = 1
 
 [node name="CharName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/NamePlate/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 14
 text = "Luna"
 
@@ -500,7 +500,7 @@ text = "0/100"
 [node name="LevelNum" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_outline_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 40
 text = "1"
@@ -617,7 +617,7 @@ theme_override_constants/separation = 16
 [node name="PomodoroBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/PomodoroContainer"]
 custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -649,7 +649,7 @@ theme_override_constants/separation = 16
 [node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
 custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -694,7 +694,7 @@ vertical_alignment = 1
 [node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
 custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -743,7 +743,7 @@ theme_override_constants/separation = 16
 [node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
 custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -788,7 +788,7 @@ vertical_alignment = 1
 [node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
 custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
@@ -859,7 +859,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_EntryIcon")
 
 [node name="BetweenEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/BetweenEntryIcon"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 34
 text = "你我之间"
 horizontal_alignment = 1
@@ -873,7 +873,7 @@ theme_override_constants/separation = 6
 
 [node name="BetweenEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 15
 text = "共同回忆入口"
 

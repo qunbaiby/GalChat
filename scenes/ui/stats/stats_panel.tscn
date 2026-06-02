@@ -7,72 +7,62 @@
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="tex_core_physical"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelMain"]
-bg_color = Color(0.968627, 0.972549, 0.980392, 0.82)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.95)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.12)
-shadow_size = 8
-
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.92, 0.9, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.15)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatCard"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.96, 0.98, 0.97, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.862745, 0.890196, 0.929412, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0, 0, 0, 0.05)
-shadow_size = 4
-shadow_offset = Vector2(0, 1)
-
+border_color = Color(0.85, 0.92, 0.9, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarBg"]
-bg_color = Color(0.878431, 0.878431, 0.878431, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
+bg_color = Color(0.9, 0.94, 0.93, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Phys"]
-bg_color = Color(0.905882, 0.435294, 0.317647, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
+bg_color = Color(0.96, 0.76, 0.56, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
-color = Color(0.890196, 0.909804, 0.941176, 1)
-
+color = Color(0.85, 0.92, 0.9, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Int"]
-bg_color = Color(0.164706, 0.615686, 0.560784, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Charm"]
-bg_color = Color(0.878431, 0.666667, 1, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
+bg_color = Color(0.76, 0.7, 0.88, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Sens"]
-bg_color = Color(0.501961, 0.929412, 0.6, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
+bg_color = Color(0.96, 0.65, 0.7, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 [node name="StatsPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(350, 200)
 offset_right = 340.0
@@ -130,7 +120,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.321569, 0.356863, 0.427451, 1)
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_font_sizes/font_size = 16
 text = "体"
 
@@ -140,7 +130,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.721569, 0.556863, 0.168627, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 12
 text = "0 (0/800)"
 
@@ -153,7 +143,7 @@ show_percentage = false
 
 [node name="GradeLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.905882, 0.435294, 0.317647, 1)
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_font_sizes/font_size = 20
 text = "E-"
 vertical_alignment = 1
@@ -174,7 +164,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_stamina"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "体能"
 
@@ -184,7 +174,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_stamina"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -194,7 +184,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_rhythm"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "反应"
 
@@ -204,7 +194,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/SubGrid/Sub_stat_rhythm"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -244,7 +234,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.321569, 0.356863, 0.427451, 1)
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_font_sizes/font_size = 16
 text = "智"
 
@@ -254,7 +244,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.721569, 0.556863, 0.168627, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 12
 text = "0 (0/800)"
 
@@ -267,7 +257,7 @@ show_percentage = false
 
 [node name="GradeLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.164706, 0.615686, 0.560784, 1)
+theme_override_colors/font_color = Color(0.45, 0.82, 0.72, 1)
 theme_override_font_sizes/font_size = 20
 text = "E-"
 vertical_alignment = 1
@@ -288,7 +278,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_knowledge"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "学识"
 
@@ -298,7 +288,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_knowledge"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -308,7 +298,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_expression"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "表达"
 
@@ -318,7 +308,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/SubGrid/Sub_stat_expression"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -358,7 +348,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.321569, 0.356863, 0.427451, 1)
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_font_sizes/font_size = 16
 text = "魅"
 
@@ -368,7 +358,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.721569, 0.556863, 0.168627, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 12
 text = "0 (0/800)"
 
@@ -381,7 +371,7 @@ show_percentage = false
 
 [node name="GradeLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.666667, 1, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 20
 text = "E-"
 vertical_alignment = 1
@@ -402,7 +392,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_temperament"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "气质"
 
@@ -412,7 +402,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_temperament"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -422,7 +412,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_etiquette"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "礼仪"
 
@@ -432,7 +422,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/SubGrid/Sub_stat_etiquette"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -472,7 +462,7 @@ layout_mode = 2
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.321569, 0.356863, 0.427451, 1)
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_font_sizes/font_size = 16
 text = "感"
 
@@ -482,7 +472,7 @@ size_flags_horizontal = 3
 
 [node name="ValLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/TitleVBox/TitleHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.721569, 0.556863, 0.168627, 1)
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 12
 text = "0 (0/800)"
 
@@ -495,7 +485,7 @@ show_percentage = false
 
 [node name="GradeLabel" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.501961, 0.929412, 0.6, 1)
+theme_override_colors/font_color = Color(0.65, 0.88, 0.81, 1)
 theme_override_font_sizes/font_size = 20
 text = "E-"
 vertical_alignment = 1
@@ -516,7 +506,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_aesthetics"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "审美"
 
@@ -526,7 +516,7 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_aesthetics"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
@@ -536,7 +526,7 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_perception"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.576471, 0.627451, 1)
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "感知"
 
@@ -546,6 +536,6 @@ size_flags_horizontal = 3
 
 [node name="Val" type="Label" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/SubGrid/Sub_stat_perception"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.415686, 0.443137, 0.490196, 1)
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"

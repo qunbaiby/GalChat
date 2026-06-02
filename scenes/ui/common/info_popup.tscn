@@ -13,7 +13,7 @@ corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
-shadow_color = Color(0, 0, 0, 0.16)
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 12
 
 [sub_resource type="Gradient" id="Gradient_LeftBg"]
@@ -33,7 +33,7 @@ border_color = Color(0.88, 0.69, 0.49, 0.5)
 border_blend = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TagBg"]
-bg_color = Color(0.96, 0.53, 0.19, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
 color = Color(0.8, 0.82, 0.85, 1)

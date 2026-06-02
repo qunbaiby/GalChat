@@ -51,7 +51,7 @@ layout_mode = 2
 [node name="BackBtn" type="Button" parent="VBox/TopBar"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 24
 text = "<"
 flat = true
@@ -59,7 +59,7 @@ flat = true
 [node name="Title" type="Label" parent="VBox/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 18
 text = "微聊"
 horizontal_alignment = 1
@@ -84,7 +84,7 @@ layout_mode = 2
 [node name="BtnChat" type="Button" parent="VBox/BottomNav/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
 text = "聊天"
 flat = true

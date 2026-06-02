@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=29 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_6p2kk"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
@@ -15,44 +15,83 @@
 [ext_resource type="Shader" uid="uid://bvr4ey2nio3wm" path="res://assets/shaders/left_trapezoid.gdshader" id="15_trapezoid_shader"]
 [ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconNormal"]
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.92, 0.9, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconPressed"]
+bg_color = Color(0.85, 0.94, 0.92, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconHover"]
+bg_color = Color(0.94, 0.98, 0.97, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fvueq"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(1, 1, 1, 0.95)
 skew = Vector2(0.3, 0)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+border_color = Color(0.85, 0.92, 0.9, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fmm1x"]
-bg_color = Color(1, 0.98, 0.95, 1)
+bg_color = Color(0.85, 0.94, 0.92, 1)
 skew = Vector2(0.3, 0)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.96, 0.53, 0.19, 0.7)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rntma"]
-bg_color = Color(1, 0.98, 0.95, 1)
+bg_color = Color(0.94, 0.98, 0.97, 1)
 skew = Vector2(0.3, 0)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.96, 0.53, 0.19, 0.7)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActivityDisabled"]
 bg_color = Color(0.8, 0.8, 0.8, 0.5)
@@ -68,15 +107,15 @@ corner_radius_bottom_left = 8
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
 shader = ExtResource("15_trapezoid_shader")
-shader_parameter/slant = 0.30000001425
-shader_parameter/corner_radius = 0.06000000285
-shader_parameter/aspect_ratio = 2.53333330154
+shader_parameter/slant = 0.3550000168625
+shader_parameter/corner_radius = 0.06
+shader_parameter/aspect_ratio = 2.533
 shader_parameter/padding = 0.0
-shader_parameter/border_width = 0.010000000475
-shader_parameter/border_color = Color(0.96, 0.53, 0.19, 0.7)
+shader_parameter/border_width = 0.0
+shader_parameter/border_color = Color(0.57, 0.82, 0.76, 1)
 shader_parameter/glow_size = 0.0
-shader_parameter/glow_color = Color(0, 0.8, 1, 0)
-shader_parameter/bg_color = Color(0, 0, 0, 0)
+shader_parameter/glow_color = Color(0, 0, 0, 0)
+shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
 bg_color = Color(0.98039216, 0.9843137, 0.9882353, 1)
@@ -85,7 +124,46 @@ bg_color = Color(0.98039216, 0.9843137, 0.9882353, 1)
 bg_color = Color(1, 0.96, 0.9, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
-bg_color = Color(1, 0.98, 0.95, 1)
+bg_color = Color(0.94, 0.98, 0.97, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecNormal"]
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.92, 0.9, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecPressed"]
+bg_color = Color(0.85, 0.94, 0.92, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecHover"]
+bg_color = Color(0.94, 0.98, 0.97, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="MainScene" type="Control"]
 layout_mode = 3
@@ -155,28 +233,44 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "🐾"
 
 [node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "📖"
 
 [node name="WeChatButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "💬"
 
 [node name="WardrobeButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "👗"
 
 [node name="MusicPlayer" parent="UIPanel/BottomBarHBox" instance=ExtResource("10_music_player")]
@@ -194,7 +288,7 @@ theme_override_constants/separation = 5
 custom_minimum_size = Vector2(110, 75)
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_fvueq")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fmm1x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_rntma")
@@ -206,7 +300,7 @@ material = SubResource("ShaderMaterial_trapezoid_map")
 custom_minimum_size = Vector2(160, 75)
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
@@ -289,6 +383,10 @@ theme_override_constants/separation = 15
 [node name="HideUIButton" type="Button" parent="UIPanel/SystemButton"]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 icon = ExtResource("7_eye")
 icon_alignment = 1
 expand_icon = true
@@ -296,6 +394,10 @@ expand_icon = true
 [node name="CameraButton" type="Button" parent="UIPanel/SystemButton"]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "📷"
 icon_alignment = 1
 expand_icon = true
@@ -303,6 +405,10 @@ expand_icon = true
 [node name="PhoneButton" type="Button" parent="UIPanel/SystemButton"]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "📱"
 icon_alignment = 1
 expand_icon = true
@@ -343,25 +449,45 @@ theme_override_constants/separation = 10
 [node name="ChatButton" type="Button" parent="UIPanel/InteractGroup"]
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "与【角色名】聊天"
 
 [node name="GiftButton" type="Button" parent="UIPanel/InteractGroup"]
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "送礼"
 
-[node name="CookButton" type="Button" parent="UIPanel/InteractGroup"]
+[node name="DateButton" type="Button" parent="UIPanel/InteractGroup"]
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
-text = "做饭"
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
+text = "约会"
 
 [node name="InteractiveButton" type="Button" parent="UIPanel/InteractGroup"]
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "互动"
 
 [node name="InteractiveSubMenu" type="PanelContainer" parent="UIPanel"]
@@ -390,7 +516,12 @@ alignment = 1
 
 [node name="CoCreateButton" type="Button" parent="UIPanel/InteractiveSubMenu/Margin/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "共创画板"
 
 [node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]

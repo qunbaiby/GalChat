@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://djwu3cx0db4pi"
-path="res://.godot/imported/visual_aesthetics.png-f1e9b6a0383303ecc0f821e2564d6e1a.ctex"
+uid="uid://c70uugn8ycqic"
+path="res://.godot/imported/art_history.png-b578c0367d8c8b8a6a9ce71850f790f5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/activities/visual_aesthetics.png"
-dest_files=["res://.godot/imported/visual_aesthetics.png-f1e9b6a0383303ecc0f821e2564d6e1a.ctex"]
+source_file="res://assets/icons/activities/art_history.png"
+dest_files=["res://.godot/imported/art_history.png-b578c0367d8c8b8a6a9ce71850f790f5.ctex"]
 
 [params]
 

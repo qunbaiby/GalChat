@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0moo6qe3sdes"
-path="res://.godot/imported/body_rhythm.png-b3a6e1055bf0c8125ca77a4afc97c4fb.ctex"
+uid="uid://dlh87cuvgqdtw"
+path="res://.godot/imported/visual_aesthetics.png-e1c077d1e9939c5e18cbf21b6b214355.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/activities/body_rhythm.png"
-dest_files=["res://.godot/imported/body_rhythm.png-b3a6e1055bf0c8125ca77a4afc97c4fb.ctex"]
+source_file="res://assets/icons/activities/visual_aesthetics.png"
+dest_files=["res://.godot/imported/visual_aesthetics.png-e1c077d1e9939c5e18cbf21b6b214355.ctex"]
 
 [params]
 

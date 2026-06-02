@@ -21,7 +21,7 @@ offset_left = 8.0
 offset_top = 34.0
 offset_right = 22.0
 offset_bottom = 48.0
-color = Color(0.956863, 0.529412, 0.188235, 1)
+color = Color(0.57, 0.82, 0.76, 1)
 
 [node name="LineBottom" type="ColorRect" parent="Rail"]
 offset_left = 14.0

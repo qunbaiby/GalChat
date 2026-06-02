@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bcod16m3i2lcm"
-path="res://.godot/imported/stage_acting.png-fd7333be01821d1b64a3eec3e1b12cf6.ctex"
+uid="uid://citgbdhc708pn"
+path="res://.godot/imported/art_planning.png-7f10df80ad3aa5b5bb87c317b1bded2c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/activities/stage_acting.png"
-dest_files=["res://.godot/imported/stage_acting.png-fd7333be01821d1b64a3eec3e1b12cf6.ctex"]
+source_file="res://assets/icons/activities/art_planning.png"
+dest_files=["res://.godot/imported/art_planning.png-7f10df80ad3aa5b5bb87c317b1bded2c.ctex"]
 
 [params]
 

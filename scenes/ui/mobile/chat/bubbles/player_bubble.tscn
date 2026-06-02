@@ -3,18 +3,18 @@
 [ext_resource type="Script" uid="uid://c05aueqov4wu" path="res://scripts/ui/mobile/chat/bubbles/player_bubble.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerBubble"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 0.96)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
+bg_color = Color(0.57, 0.82, 0.76, 0.96)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
 corner_radius_bottom_right = 6
-corner_radius_bottom_left = 18
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvatar"]
 bg_color = Color(1, 1, 1, 0.98)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1

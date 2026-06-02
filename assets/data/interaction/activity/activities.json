@@ -1,4 +1,4 @@
-{
+﻿{
   "categories": [
     {
       "id": "physical_health",
@@ -31,8 +31,8 @@
       "gold_cost": 0,
       "stress_change": 5,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/body_rhythm.png",
-      "preview_image": "res://assets/images/activities/body_rhythm.png",
+      "icon_path": "res://assets/icons/activities/body_rhythm.png",
+      "preview_image": "res://assets/icons/activities/body_rhythm.png",
       "rewards": {
         "stat_rhythm": [
           10,
@@ -55,8 +55,8 @@
       "gold_cost": 0,
       "stress_change": 10,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/stamina_training.png",
-      "preview_image": "res://assets/images/activities/stamina_training.png",
+      "icon_path": "res://assets/icons/activities/stamina_training.png",
+      "preview_image": "res://assets/icons/activities/stamina_training.png",
       "rewards": {
         "stat_stamina": [
           15,
@@ -75,8 +75,8 @@
       "gold_cost": 0,
       "stress_change": 12,
       "mood_change": -8,
-      "icon_path": "res://assets/images/activities/stamina_training.png",
-      "preview_image": "res://assets/images/activities/stamina_training.png",
+      "icon_path": "res://assets/icons/activities/stamina_training.png",
+      "preview_image": "res://assets/icons/activities/stamina_training.png",
       "rewards": {
         "stat_stamina": [
           20,
@@ -99,8 +99,8 @@
       "gold_cost": 0,
       "stress_change": 15,
       "mood_change": -10,
-      "icon_path": "res://assets/images/activities/stamina_training.png",
-      "preview_image": "res://assets/images/activities/stamina_training.png",
+      "icon_path": "res://assets/icons/activities/stamina_training.png",
+      "preview_image": "res://assets/icons/activities/stamina_training.png",
       "rewards": {
         "stat_stamina": [
           30,
@@ -123,8 +123,8 @@
       "gold_cost": 0,
       "stress_change": 5,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/art_history.png",
-      "preview_image": "res://assets/images/activities/art_history.png",
+      "icon_path": "res://assets/icons/activities/art_history.png",
+      "preview_image": "res://assets/icons/activities/art_history.png",
       "rewards": {
         "stat_expression": [
           15,
@@ -147,8 +147,8 @@
       "gold_cost": 0,
       "stress_change": 8,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/visual_aesthetics.png",
-      "preview_image": "res://assets/images/activities/visual_aesthetics.png",
+      "icon_path": "res://assets/icons/activities/visual_aesthetics.png",
+      "preview_image": "res://assets/icons/activities/visual_aesthetics.png",
       "rewards": {
         "stat_aesthetics": [
           15,
@@ -171,8 +171,8 @@
       "gold_cost": 0,
       "stress_change": 10,
       "mood_change": -8,
-      "icon_path": "res://assets/images/activities/visual_aesthetics.png",
-      "preview_image": "res://assets/images/activities/visual_aesthetics.png",
+      "icon_path": "res://assets/icons/activities/visual_aesthetics.png",
+      "preview_image": "res://assets/icons/activities/visual_aesthetics.png",
       "rewards": {
         "stat_aesthetics": [
           20,
@@ -195,8 +195,8 @@
       "gold_cost": 0,
       "stress_change": 15,
       "mood_change": -12,
-      "icon_path": "res://assets/images/activities/art_planning.png",
-      "preview_image": "res://assets/images/activities/art_planning.png",
+      "icon_path": "res://assets/icons/activities/art_planning.png",
+      "preview_image": "res://assets/icons/activities/art_planning.png",
       "rewards": {
         "stat_knowledge": [
           30,
@@ -219,8 +219,8 @@
       "gold_cost": 0,
       "stress_change": 8,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/stage_acting.png",
-      "preview_image": "res://assets/images/activities/stage_acting.png",
+      "icon_path": "res://assets/icons/activities/stage_acting.png",
+      "preview_image": "res://assets/icons/activities/stage_acting.png",
       "rewards": {
         "stat_temperament": [
           15,
@@ -243,8 +243,8 @@
       "gold_cost": 0,
       "stress_change": 5,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/body_rhythm.png",
-      "preview_image": "res://assets/images/activities/body_rhythm.png",
+      "icon_path": "res://assets/icons/activities/body_rhythm.png",
+      "preview_image": "res://assets/icons/activities/body_rhythm.png",
       "rewards": {
         "stat_rhythm": [
           15,
@@ -267,8 +267,8 @@
       "gold_cost": 0,
       "stress_change": 12,
       "mood_change": -10,
-      "icon_path": "res://assets/images/activities/body_rhythm.png",
-      "preview_image": "res://assets/images/activities/body_rhythm.png",
+      "icon_path": "res://assets/icons/activities/body_rhythm.png",
+      "preview_image": "res://assets/icons/activities/body_rhythm.png",
       "rewards": {
         "stat_rhythm": [
           20,
@@ -291,8 +291,8 @@
       "gold_cost": 0,
       "stress_change": 15,
       "mood_change": -12,
-      "icon_path": "res://assets/images/activities/camera_manner.png",
-      "preview_image": "res://assets/images/activities/camera_manner.png",
+      "icon_path": "res://assets/icons/activities/camera_manner.png",
+      "preview_image": "res://assets/icons/activities/camera_manner.png",
       "rewards": {
         "stat_temperament": [
           25,
@@ -315,8 +315,8 @@
       "gold_cost": 0,
       "stress_change": 8,
       "mood_change": -5,
-      "icon_path": "res://assets/images/activities/camera_manner.png",
-      "preview_image": "res://assets/images/activities/camera_manner.png",
+      "icon_path": "res://assets/icons/activities/camera_manner.png",
+      "preview_image": "res://assets/icons/activities/camera_manner.png",
       "rewards": {
         "stat_expression": [
           15,
@@ -339,8 +339,8 @@
       "gold_cost": 0,
       "stress_change": 10,
       "mood_change": -8,
-      "icon_path": "res://assets/images/activities/camera_manner.png",
-      "preview_image": "res://assets/images/activities/camera_manner.png",
+      "icon_path": "res://assets/icons/activities/camera_manner.png",
+      "preview_image": "res://assets/icons/activities/camera_manner.png",
       "rewards": {
         "stat_expression": [
           20,
@@ -363,8 +363,8 @@
       "gold_cost": 0,
       "stress_change": 12,
       "mood_change": -10,
-      "icon_path": "res://assets/images/activities/camera_manner.png",
-      "preview_image": "res://assets/images/activities/camera_manner.png",
+      "icon_path": "res://assets/icons/activities/camera_manner.png",
+      "preview_image": "res://assets/icons/activities/camera_manner.png",
       "rewards": {
         "stat_etiquette": [
           15,
@@ -387,8 +387,8 @@
       "gold_cost": 0,
       "stress_change": 15,
       "mood_change": -12,
-      "icon_path": "res://assets/images/activities/camera_manner.png",
-      "preview_image": "res://assets/images/activities/camera_manner.png",
+      "icon_path": "res://assets/icons/activities/camera_manner.png",
+      "preview_image": "res://assets/icons/activities/camera_manner.png",
       "rewards": {
         "stat_temperament": [
           25,
@@ -411,8 +411,8 @@
       "gold_cost": 0,
       "stress_change": -15,
       "mood_change": 15,
-      "icon_path": "res://assets/images/activities/rest_at_home.png",
-      "preview_image": "res://assets/images/activities/rest_at_home.png"
+      "icon_path": "res://assets/icons/activities/rest_at_home.png",
+      "preview_image": "res://assets/icons/activities/rest_at_home.png"
     },
     {
       "id": "cafe_break",
@@ -423,8 +423,8 @@
       "gold_cost": 80,
       "stress_change": -25,
       "mood_change": 25,
-      "icon_path": "res://assets/images/activities/cafe_break.png",
-      "preview_image": "res://assets/images/activities/cafe_break.png"
+      "icon_path": "res://assets/icons/activities/cafe_break.png",
+      "preview_image": "res://assets/icons/activities/cafe_break.png"
     }
   ]
 }

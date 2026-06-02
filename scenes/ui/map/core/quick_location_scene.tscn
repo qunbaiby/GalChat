@@ -15,11 +15,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.12)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 4)
 
@@ -30,11 +30,11 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.882353, 0.760784, 0.643137, 0.95)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0, 0, 0, 0.18)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
@@ -48,10 +48,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="QuickLocationScene" type="Control"]
 layout_mode = 3
@@ -128,7 +128,7 @@ position = Vector2(20, -520)
 position = Vector2(180, -430)
 
 [node name="BubbleRoot" type="Node2D" parent="InteractionMenu/NPCPortrait"]
-position = Vector2(-207, -680)
+position = Vector2(-207, -727)
 
 [node name="SpeechBubble" type="PanelContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot"]
 modulate = Color(1, 1, 1, 0)
@@ -183,7 +183,7 @@ alignment = 1
 
 [node name="NameLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
 layout_mode = 2
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_colors/font_shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 48
 text = "名字"
@@ -218,7 +218,7 @@ color = Color(0.8, 0.8, 0.8, 0.6)
 [node name="HeartsLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.6, 0.9, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_colors/font_shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 theme_override_font_sizes/font_size = 24
 text = "♡♡♡♡♡♡♡♡♡♡"
 horizontal_alignment = 1
@@ -238,7 +238,7 @@ visible = false
 custom_minimum_size = Vector2(280, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_colors/font_hover_color = Color(0.96, 0.53, 0.19, 1)
+theme_override_colors/font_hover_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")

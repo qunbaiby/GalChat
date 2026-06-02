@@ -9,7 +9,7 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-shadow_color = Color(0, 0, 0, 0.08)
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 12
 shadow_offset = Vector2(0, 4)
 
@@ -19,7 +19,7 @@ border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -39,10 +39,10 @@ corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
 bg_color = Color(1, 1, 1, 0.98)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -62,7 +62,7 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Action"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -130,7 +130,7 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 18
 text = "你我之间"
 
@@ -298,7 +298,7 @@ layout_mode = 2
 [node name="DetailTitle" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 18
 text = "回忆详情"
 autowrap_mode = 3
@@ -338,7 +338,7 @@ stretch_mode = 5
 [node name="DetailTags" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 autowrap_mode = 3
 
 [node name="DetailSummary" type="RichTextLabel" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
@@ -365,7 +365,7 @@ theme_override_constants/separation = 6
 [node name="DetailRelationTitle" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 
 [node name="DetailRelationBody" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox"]
 layout_mode = 2

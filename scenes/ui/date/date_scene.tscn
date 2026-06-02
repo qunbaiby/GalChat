@@ -1,0 +1,319 @@
+[gd_scene load_steps=11 format=3 uid="uid://byx478t0rya52"]
+
+[ext_resource type="Script" uid="uid://wgu600nx6tdy" path="res://scripts/ui/date/date_scene.gd" id="1_script"]
+[ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="2_frames"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
+bg_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPanel"]
+bg_color = Color(0.96, 0.96, 0.96, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.5)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BottomBar"]
+bg_color = Color(0.98, 0.98, 0.98, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Heart"]
+bg_color = Color(0.96, 0.35, 0.49, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBarBG"]
+bg_color = Color(0.9, 0.9, 0.9, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBarFill"]
+bg_color = Color(0.96, 0.35, 0.49, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnDate"]
+bg_color = Color(0.8, 0.8, 0.8, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnCancel"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="DateScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="PortraitTexture" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(317.98822, 553.99994)
+scale = Vector2(0.5959367, 0.5959368)
+sprite_frames = ExtResource("2_frames")
+
+[node name="BubblePanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 200.0
+offset_top = -220.0
+offset_right = 520.0
+offset_bottom = -120.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Bubble")
+
+[node name="Margin" type="MarginContainer" parent="BubblePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="BubbleText" type="Label" parent="BubblePanel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 18
+text = "..."
+autowrap_mode = 3
+
+[node name="RightPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -660.0
+offset_top = -240.0
+offset_right = -60.0
+offset_bottom = 240.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_RightPanel")
+
+[node name="VBox" type="VBoxContainer" parent="RightPanel"]
+layout_mode = 2
+
+[node name="TitleMargin" type="MarginContainer" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="TitleLabel" type="Label" parent="RightPanel/VBox/TitleMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 20
+text = "约会选择 "
+horizontal_alignment = 1
+
+[node name="ContentMargin" type="MarginContainer" parent="RightPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="ScrollContainer" type="ScrollContainer" parent="RightPanel/VBox/ContentMargin"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="DateTypeVBox" type="VBoxContainer" parent="RightPanel/VBox/ContentMargin/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BottomBar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -550.0
+offset_top = -99.0
+offset_right = 581.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_BottomBar")
+
+[node name="HBox" type="HBoxContainer" parent="BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="HeartMargin" type="MarginContainer" parent="BottomBar/HBox"]
+layout_mode = 2
+theme_override_constants/margin_left = -20
+theme_override_constants/margin_top = -20
+theme_override_constants/margin_bottom = -10
+
+[node name="HeartPanel" type="PanelContainer" parent="BottomBar/HBox/HeartMargin"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Heart")
+
+[node name="HeartLevel" type="Label" parent="BottomBar/HBox/HeartMargin/HeartPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "LV
+1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressVBox" type="VBoxContainer" parent="BottomBar/HBox"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="ProgressTop" type="HBoxContainer" parent="BottomBar/HBox/ProgressVBox"]
+layout_mode = 2
+
+[node name="ResonanceLabel" type="Label" parent="BottomBar/HBox/ProgressVBox/ProgressTop"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 16
+text = "共感值"
+
+[node name="Spacer" type="Control" parent="BottomBar/HBox/ProgressVBox/ProgressTop"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ResonanceText" type="Label" parent="BottomBar/HBox/ProgressVBox/ProgressTop"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.35, 0.49, 1)
+theme_override_font_sizes/font_size = 16
+text = "0 / 80"
+
+[node name="ResonanceBar" type="ProgressBar" parent="BottomBar/HBox/ProgressVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBarBG")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressBarFill")
+show_percentage = false
+
+[node name="Spacer" type="Control" parent="BottomBar/HBox"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
+[node name="BtnMargin" type="MarginContainer" parent="BottomBar/HBox"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="BtnHBox" type="HBoxContainer" parent="BottomBar/HBox/BtnMargin"]
+layout_mode = 2
+theme_override_constants/separation = 50
+
+[node name="SlotHBox" type="HBoxContainer" parent="BottomBar/HBox/BtnMargin/BtnHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="SlotMorning" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+text = "早上 (空)"
+
+[node name="SlotAfternoon" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+text = "下午 (空)"
+
+[node name="SlotEvening" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+text = "晚上 (空)"
+
+[node name="DateButton" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnDate")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnDate")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnDate")
+text = "去约会"
+
+[node name="TopLeftMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+offset_right = 150.0
+offset_bottom = 70.0
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+
+[node name="CancelButton" type="Button" parent="TopLeftMargin"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCancel")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCancel")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCancel")
+text = "< 返回"

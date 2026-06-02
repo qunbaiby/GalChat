@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://dxmakepopup"]
+[gd_scene load_steps=8 format=3 uid="uid://dxmakepopup"]
 
-[ext_resource type="Script" path="res://scripts/ui/map/cafe/cafe_making_popup.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://06wylypiqxij" path="res://scripts/ui/map/cafe/cafe_making_popup.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.985, 0.988, 0.995, 0.98)
@@ -9,37 +9,51 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
-shadow_color = Color(0, 0, 0, 0.16)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 18
 shadow_offset = Vector2(0, 4)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
+bg_color = Color(0.94, 0.95, 0.97, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.52, 0.21, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonHover"]
-bg_color = Color(1, 0.6, 0.28, 1)
+bg_color = Color(0.65, 0.88, 0.82, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.52, 0.21, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Close"]
 bg_color = Color(1, 1, 1, 0.96)
@@ -48,36 +62,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
-bg_color = Color(0.94, 0.95, 0.97, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
-bg_color = Color(0.956863, 0.529412, 0.188235, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultIcon"]
-bg_color = Color(1, 0.988235, 0.972549, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.95, 0.81, 0.63, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="CafeMakingPopup" type="CanvasLayer"]
 script = ExtResource("1_script")
@@ -128,7 +116,6 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
-value = 0.0
 
 [node name="ResultIcon" type="TextureRect" parent="Panel"]
 visible = false
@@ -200,8 +187,8 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonHover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonHover")
 text = "食用"
 
 [node name="CloseButton" type="Button" parent="Panel"]
@@ -218,8 +205,8 @@ grow_horizontal = 0
 theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
 theme_override_colors/font_hover_color = Color(0.756863, 0.409412, 0.128235, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Close")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Close")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Close")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Close")
 text = "X"
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
@@ -227,5 +214,3 @@ text = "X"
 [connection signal="pressed" from="Panel/ConsumeButton" to="." method="_on_consume_button_pressed"]
 [connection signal="pressed" from="Panel/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="request_completed" from="HTTPRequest" to="." method="_on_http_request_completed"]
-
-

@@ -4,16 +4,16 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 0.96)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.88, 0.9, 0.94, 1)
-shadow_color = Color(0, 0, 0, 0.05)
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBG"]
@@ -24,7 +24,7 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
-bg_color = Color(0.96, 0.53, 0.19, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -75,7 +75,7 @@ clip_text = true
 
 [node name="IncrementLabel" type="Label" parent="Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.53, 0.19, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 11
 text = "+10/次"
 vertical_alignment = 1

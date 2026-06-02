@@ -9,11 +9,11 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.08)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
@@ -76,13 +76,13 @@ stretch_mode = 5
 [node name="Name" type="Label" parent="Header"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.203922, 0.219608, 0.25098, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 text = "Author Name"
 
 [node name="Content" type="Label" parent="CardBg/CardMargin/CardVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.258824, 0.27451, 0.313726, 1)
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 text = "Moment content goes here..."
 autowrap_mode = 3
 
@@ -143,7 +143,7 @@ theme_override_constants/separation = 5
 [node name="LikesLabel" type="Label" parent="CommentsArea/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.956863, 0.529412, 0.188235, 1)
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 
 [node name="HSeparator" type="HSeparator" parent="CommentsArea/Margin/VBox"]
 layout_mode = 2
