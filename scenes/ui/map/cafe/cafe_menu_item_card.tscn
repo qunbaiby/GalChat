@@ -1,7 +1,7 @@
-﻿[gd_scene load_steps=7 format=3 uid="uid://dtf3n4mwv5urj"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://di53qfwsapd57" path="res://scripts/ui/map/cafe/cafe_menu_item_card.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://bsgllhd1vqn5d" path="res://assets/icons/activities/cafe_break.png" id="2_fallback"]
+[ext_resource type="Script" path="res://scripts/ui/map/cafe/cafe_menu_item_card.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/icons/activities/cafe_break.png" id="2_fallback"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardNormal"]
 bg_color = Color(1, 1, 1, 0.98)
@@ -118,7 +118,7 @@ custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 14
-text = "鍟嗗搧鍚嶇О"
+text = "商品名称"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -134,7 +134,7 @@ alignment = 1
 [node name="CoinLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-text = "鈼?
+text = "○"
 
 [node name="PriceLabel" type="Label" parent="CardPanel/VBox/PricePanel/PriceHBox"]
 unique_name_in_owner = true

@@ -14,11 +14,12 @@ const BUBBLE_RECENT_HISTORY_LIMIT := 4
 const SUBMENU_PANEL_CENTER_RATIO := 2.0 / 3.0
 const SUBMENU_PANEL_MIN_RIGHT_MARGIN := 28.0
 const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
+const QUICK_ACTION_BUTTON_SCENE = preload("res://scenes/ui/map/core/quick_action_button.tscn")
 
 @onready var bg_texture: TextureRect = $Background
 @onready var map_info_panel: PanelContainer = $MapInfoPanel
-@onready var name_label: Label = $MapInfoPanel/VBox/NameLabel
-@onready var desc_label: Label = $MapInfoPanel/VBox/DescLabel
+@onready var name_label: Label = $MapInfoPanel/InfoMargin/VBox/NameLabel
+@onready var desc_label: Label = $MapInfoPanel/InfoMargin/VBox/DescLabel
 @onready var back_button: Button = $BackButton
 
 @onready var interaction_menu = $InteractionMenu
@@ -35,7 +36,6 @@ const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
 @onready var bubble_anchor_side: Marker2D = $InteractionMenu/NPCPortrait/BubbleAnchorSide
 
 @onready var menu_options_vbox = $InteractionMenu/InfoAndOptions/OptionsVBox
-@onready var action_button_template: Button = $InteractionMenu/InfoAndOptions/OptionsVBox/ActionButtonTemplate
 
 @onready var dialogue_panel = $DialoguePanel
 @onready var dialogue_name_label: Label = $DialoguePanel/DialogueLayer/VBox/NameLabel
@@ -532,8 +532,6 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 
 	# Clear existing buttons
 	for child in menu_options_vbox.get_children():
-		if child == action_button_template:
-			continue
 		child.queue_free()
 
 	# Generate dynamic interaction buttons based on NPC data
@@ -542,22 +540,16 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 		interactions = [{"id": "chat", "label": "聊天"}, {"id": "leave", "label": "离开"}]
 
 	for action in interactions:
-		var btn := _create_action_button()
+		var btn = QUICK_ACTION_BUTTON_SCENE.instantiate()
+		var action_id = action.get("id", "")
 		var action_label = action.get("label", "未知操作")
 		
-		# 添加对应的图标前缀 (根据ID简单匹配)
-		var icon_str = "💬 "
-		match action.get("id", ""):
-			"chat": icon_str = "💬 "
-			"order": icon_str = "☕ "
-			"study": icon_str = "📖 "
-			"gift": icon_str = "🎁 "
-			"leave": icon_str = "🏃 "
-			"interact": icon_str = "✨ "
-			"invite", "date": icon_str = "💕 "
+		btn.setup(action_id, action_label)
 		
-		btn.text = icon_str + action_label
-		btn.pressed.connect(_on_menu_action_pressed.bind(action.get("id", "")))
+		# Store original text
+		btn.set_meta("original_text", action_label)
+		
+		btn.pressed.connect(_on_menu_action_pressed.bind(action_id))
 		menu_options_vbox.add_child(btn)
 
 	back_button.hide() # 隐藏返回地图按钮
@@ -601,17 +593,6 @@ func _get_npc_stage_data(npc_id: String) -> Dictionary:
 				# TODO: 接入真实的 NPC 好感度管理器来获取实际进度，这里暂时取第一阶段
 				return data["stages"][0]
 	return {"stageTitle": "普通朋友", "heartCount": 0}
-
-func _create_action_button() -> Button:
-	if action_button_template:
-		var btn := action_button_template.duplicate() as Button
-		if btn:
-			btn.name = "ActionButton"
-			btn.visible = true
-			return btn
-	var fallback_btn := Button.new()
-	fallback_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	return fallback_btn
 
 func _open_sub_menu(scene_path: String, action_id: String = "") -> void:
 	_submenu_restore_started = false

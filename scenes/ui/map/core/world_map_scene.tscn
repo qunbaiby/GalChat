@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c1wbpr22f0ufh"]
+[gd_scene load_steps=6 format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://8mlvxtfblldg" path="res://assets/images/backgrounds/map/background/WorldMap.png" id="2_k082m"]
@@ -17,20 +17,6 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.98, 0.985, 0.99, 0.82)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.86, 0.89, 0.93, 0.95)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
 content_margin_left = 16.0
@@ -127,6 +113,7 @@ size_flags_vertical = 4
 theme_override_constants/separation = 20
 
 [node name="TopBar" type="PanelContainer" parent="."]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -135,7 +122,6 @@ offset_top = 10.0
 offset_right = -812.0
 offset_bottom = 71.0
 grow_horizontal = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
 [node name="TopBarMargin" type="MarginContainer" parent="TopBar"]
 layout_mode = 2

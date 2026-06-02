@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://byx478t0rya52"]
+[gd_scene load_steps=12 format=3 uid="uid://byx478t0rya52"]
 
 [ext_resource type="Script" uid="uid://wgu600nx6tdy" path="res://scripts/ui/date/date_scene.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dmckiigrj527n" path="res://assets/images/backgrounds/main/story_scene_sunny_door_bg.png" id="2_5r2b5"]
 [ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="2_frames"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
@@ -83,19 +84,20 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="BG" type="ColorRect" parent="."]
+[node name="BG" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
+texture = ExtResource("2_5r2b5")
+expand_mode = 1
 
 [node name="PortraitTexture" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(317.98822, 553.99994)
-scale = Vector2(0.5959367, 0.5959368)
+position = Vector2(323.4814, 564.3442)
+scale = Vector2(0.62376493, 0.62376505)
 sprite_frames = ExtResource("2_frames")
 
 [node name="BubblePanel" type="PanelContainer" parent="."]
