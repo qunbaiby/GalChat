@@ -45,6 +45,10 @@
             "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
         },
         {
+            "id": "grand_theater",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/grand_theater/grand_theater.png"
+        },
+        {
             "id": "bg_art_gallery",
             "path": "res://assets/images/backgrounds/map/background/art_academy/art_gallery/art_gallery.png"
         }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://0cfy2ephvsle"]
+[gd_scene load_steps=8 format=3 uid="uid://0cfy2ephvsle"]
 
 [ext_resource type="Script" uid="uid://cvxfblkpaci4e" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
@@ -40,6 +40,25 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultPanel"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_EffectPanel"]
+bg_color = Color(0.985, 0.988, 0.995, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="ScheduleEventPanel" type="Control"]
 layout_mode = 3
@@ -104,12 +123,12 @@ theme_override_font_sizes/normal_font_size = 20
 bbcode_enabled = true
 text = "事件描述..."
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="OptionsHBox" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 40
 alignment = 1
 
-[node name="BtnOpt1" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]
+[node name="BtnOpt1" type="Button" parent="Panel/VBoxContainer/OptionsHBox"]
 custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -118,7 +137,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "选项1"
 
-[node name="BtnOpt2" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]
+[node name="BtnOpt2" type="Button" parent="Panel/VBoxContainer/OptionsHBox"]
 custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
@@ -126,5 +145,66 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
 text = "选项2"
+
+[node name="ResultBox" type="VBoxContainer" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="ResultPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_ResultPanel")
+
+[node name="ResultMargin" type="MarginContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="ResultInnerVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ResultDesc" type="RichTextLabel" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.35, 0.37, 0.42, 1)
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+scroll_active = false
+text = "结果描述..."
+
+[node name="EffectsPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_EffectPanel")
+
+[node name="EffectsMargin" type="MarginContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="EffectsLabel" type="RichTextLabel" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel/EffectsMargin"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+scroll_active = false
+text = "[center]属性变化[/center]"
+
+[node name="ContinueButton" type="Button" parent="Panel/VBoxContainer/ResultBox"]
+custom_minimum_size = Vector2(180, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+text = "继续课程"
 
 

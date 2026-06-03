@@ -2,6 +2,9 @@ extends Panel
 
 signal back_requested
 signal cover_pick_requested
+signal top_style_progress_changed(progress: float)
+
+const MOMENT_ITEM_SCENE = preload("res://scenes/ui/mobile/moments/moment_item.tscn")
 
 @onready var back_btn: Button = $TopBar/BackBtn
 @onready var title_label: Label = $TopBar/Title
@@ -20,9 +23,8 @@ signal cover_pick_requested
 @onready var full_image: TextureRect = $ImageViewer/FullImage
 @onready var close_viewer_btn: Button = $ImageViewer/CloseViewerBtn
 
-@onready var avatar_bg: ColorRect = $Scroll/ContentVBox/Header/AvatarBg
+@onready var avatar_bg: Control = $Scroll/ContentVBox/Header/AvatarBg
 
-var moment_item_scene = preload("res://scenes/ui/mobile/moments/moment_item.tscn")
 var _is_cover_expanded: bool = false
 var _original_header_height: float = 350.0
 var _local_cover_path: String = ""
@@ -46,6 +48,8 @@ func _connect_signals() -> void:
             deepseek_client.moment_reply_generated.connect(_on_ai_reply_generated)
         if deepseek_client.has_signal("moment_generated") and not deepseek_client.moment_generated.is_connected(_on_ai_moment_generated):
             deepseek_client.moment_generated.connect(_on_ai_moment_generated)
+    if MomentsManager and MomentsManager.has_signal("moments_updated") and not MomentsManager.moments_updated.is_connected(_on_moments_updated):
+        MomentsManager.moments_updated.connect(_on_moments_updated)
 
 func _get_deepseek_client() -> Node:
     var llm_manager = get_node_or_null("/root/LLMManager")
@@ -72,6 +76,10 @@ func _on_ai_reply_generated(post_id: String, reply_text: String) -> void:
     if visible:
         refresh_list()
 
+func _on_moments_updated() -> void:
+    if visible:
+        refresh_list()
+
 func show_panel() -> void:
     show()
     MomentsManager.mark_all_read()
@@ -82,16 +90,16 @@ func show_panel() -> void:
     _on_scroll_changed(scroll.scroll_vertical)
 
 func _on_scroll_changed(value: float) -> void:
-    # 顶部渐变黑底和文字，只有当滚动超过封面高度的一大半时才开始渐现
-    var fade_start = _original_header_height - 120.0
-    var fade_end = _original_header_height - 20.0
-    
-    var alpha = 0.0
-    if value > fade_start:
-        alpha = clamp((value - fade_start) / (fade_end - fade_start), 0.0, 0.95)
-        
-    top_bar_bg.color = Color(0.15, 0.15, 0.18, alpha)
-    title_label.modulate.a = alpha
+    # 模拟微信朋友圈：顶部标题和背景从封面覆盖态逐步过渡到浅色导航栏
+    var fade_start = 32.0
+    var fade_end = maxf(120.0, _original_header_height - 92.0)
+    var progress = clamp((value - fade_start) / maxf(1.0, fade_end - fade_start), 0.0, 1.0)
+    top_bar_bg.color = Color(0.985, 0.988, 0.995, progress * 0.98)
+    var title_color = Color(1, 1, 1, 1).lerp(Color(0.3, 0.35, 0.35, 1), progress)
+    title_label.add_theme_color_override("font_color", title_color)
+    if is_instance_valid(back_btn):
+        back_btn.add_theme_color_override("font_color", title_color)
+    top_style_progress_changed.emit(progress)
 
 func _on_cover_gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -226,6 +234,13 @@ func refresh_list() -> void:
         
     var moments = MomentsManager.get_all_moments()
     for moment_data in moments:
-        var item = moment_item_scene.instantiate()
+        if MOMENT_ITEM_SCENE == null:
+            push_error("[MomentsPanel] 无法加载朋友圈条目场景：res://scenes/ui/mobile/moments/moment_item.tscn")
+            return
+        var item = MOMENT_ITEM_SCENE.instantiate()
         moment_list.add_child(item)
-        item.setup(moment_data)
+        if item and item.has_method("setup"):
+            item.setup(moment_data)
+
+func get_header_height() -> float:
+    return _original_header_height

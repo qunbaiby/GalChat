@@ -132,17 +132,17 @@ text = "强制切换宏观心情："
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="工具与测�? type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
+[node name="工具与测试" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 20
 metadata/_tab_index = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
 layout_mode = 2
 alignment = 1
 
-[node name="SwitchCharButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?HBoxContainer"]
+[node name="SwitchCharButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
@@ -151,7 +151,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "切换角色"
 
-[node name="TestCallButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?HBoxContainer"]
+[node name="TestCallButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
@@ -160,7 +160,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "模拟来电"
 
-[node name="GenerateDiaryButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?HBoxContainer"]
+[node name="GenerateDiaryButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
@@ -169,28 +169,28 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
 text = "生成日记"
 
-[node name="MomentsTestLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
+[node name="MomentsTestLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
 layout_mode = 2
 text = "--- 朋友圈测试 ---"
 horizontal_alignment = 1
 
-[node name="MomentsAuthorBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
+[node name="MomentsAuthorBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
 layout_mode = 2
 text = "发送者:"
 
-[node name="MomentAuthor" type="LineEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
+[node name="MomentAuthor" type="LineEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "AI"
 
-[node name="Label2" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
+[node name="Label2" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
 layout_mode = 2
 text = " 模式:"
 
-[node name="MomentMode" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsAuthorBox"]
+[node name="MomentMode" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
 layout_mode = 2
 item_count = 2
 selected = 0
@@ -199,25 +199,25 @@ popup/item_0/id = 0
 popup/item_1/text = "纯文字"
 popup/item_1/id = 1
 
-[node name="MomentsContentBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
+[node name="MomentsContentBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsContentBox"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsContentBox"]
 layout_mode = 2
 text = "内容:"
 
-[node name="MomentContent" type="TextEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsContentBox"]
+[node name="MomentContent" type="TextEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsContentBox"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "这是一条测试朋友圈。"
 
-[node name="MomentsBtnBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?]
+[node name="MomentsBtnBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 20
 
-[node name="SendMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsBtnBox"]
+[node name="SendMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -226,7 +226,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
 text = "手动发送"
 
-[node name="AIGenerateMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测�?MomentsBtnBox"]
+[node name="AIGenerateMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)

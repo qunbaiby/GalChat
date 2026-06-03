@@ -76,7 +76,7 @@
       "id": "gym",
       "name": "体育馆",
       "description": "充满活力的运动场所。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "scene_path": "res://scenes/ui/map/core/quick_location_scene.tscn",
       "bg_id": "bg_gym",
       "map_position": {"x": 380, "y": 220},
       "resident_npcs": [],
@@ -107,6 +107,7 @@
       "name": "大剧院",
       "description": "校内用于大型演出、公开排练与舞台实验的专业剧场。",
       "scene_path": "res://scenes/map/core/base_location_scene.tscn",
+      "bg_id": "grand_theater",
       "map_position": {"x": 690, "y": 24},
       "resident_npcs": ["aili"],
       "events": []

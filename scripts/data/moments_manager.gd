@@ -57,12 +57,16 @@ func _on_ai_moment_generated(moment_data: Dictionary) -> void:
 	if moment_data.has("image_url") and not moment_data["image_url"].is_empty():
 		images.append(moment_data["image_url"])
 	add_moment(author, moment_data.get("date", Time.get_date_string_from_system()), moment_data.get("content", ""), images, 0, false, [], avatar, true)
+	if GameDataManager.save_manager and GameDataManager.save_manager.has_method("auto_save"):
+		GameDataManager.save_manager.call_deferred("auto_save")
 
 func _on_ai_reply_generated(post_id: String, reply_text: String) -> void:
 	var moment_data = get_moment(post_id)
 	if not moment_data.is_empty():
 		var author = moment_data.get("author", "未知")
 		add_comment(post_id, author, reply_text, true)
+		if GameDataManager.save_manager and GameDataManager.save_manager.has_method("auto_save"):
+			GameDataManager.save_manager.call_deferred("auto_save")
 
 
 func load_data(char_id: String = "") -> void:

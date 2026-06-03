@@ -8,6 +8,7 @@ var _base_bubble_pos := Vector2.ZERO
 var _bubble_tween: Tween
 var _base_interact_pos := Vector2.ZERO
 var _interact_bubble_tween: Tween
+var _ui_tween: Tween
 
 func _ready() -> void:
 	super._ready()
@@ -22,9 +23,21 @@ func _ready() -> void:
 			GameDataManager.story_time_manager.time_advanced.connect(_on_time_advanced)
 			
 	_play_bubble_anim()
+	
+	# Initial UI state check
+	var main_scene = get_tree().root.get_node_or_null("MainScene")
+	if main_scene and main_scene.get("chat_scene_instance") and main_scene.chat_scene_instance.visible:
+		set_ui_hidden(true)
+	elif main_scene and main_scene.get("_story_mode_active"):
+		set_ui_hidden(true)
 
 func _on_time_advanced(_days: int, _current_period: String) -> void:
 	_check_story_button_visibility()
+	
+	# After time advance, check if we need to hide buttons (e.g. story triggered immediately)
+	var main_scene = get_tree().root.get_node_or_null("MainScene")
+	if main_scene and main_scene.get("_story_mode_active"):
+		set_ui_hidden(true)
 
 func _check_story_button_visibility() -> void:
 	if not is_instance_valid(story_button): return
@@ -63,26 +76,28 @@ func _check_story_button_visibility() -> void:
 		story_button.text = mood_name
 
 func set_ui_hidden(is_hidden: bool) -> void:
-	if is_instance_valid(story_button):
-		if is_hidden:
-			story_button.hide()
-		else:
-			_check_story_button_visibility()
-			
-	if is_instance_valid(interact_trigger_button):
-		if is_hidden:
-			interact_trigger_button.hide()
-		else:
-			# Only show if not in interact group mode
-			var main_scene = get_tree().root.get_node_or_null("MainScene")
-			if main_scene and main_scene.has_node("UIPanel/InteractGroup"):
-				var interact_group = main_scene.get_node("UIPanel/InteractGroup")
-				if not interact_group.visible:
-					# Let main_scene _update_button_states_by_time decide if it should be visible
-					pass
-			
-			if main_scene and main_scene.has_method("_update_button_states_by_time"):
-				main_scene._update_button_states_by_time()
+	var story_button = get_node_or_null("StoryButton")
+	var interact_button = get_node_or_null("InteractTriggerButton")
+	
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	
+	var target_a = 0.0 if is_hidden else 1.0
+	
+	if story_button:
+		_ui_tween.parallel().tween_property(story_button, "modulate:a", target_a, 0.3)
+	if interact_button:
+		_ui_tween.parallel().tween_property(interact_button, "modulate:a", target_a, 0.3)
+		
+	if is_hidden:
+		_ui_tween.tween_callback(func():
+			if story_button: story_button.visible = false
+			if interact_button: interact_button.visible = false
+		)
+	else:
+		if story_button: story_button.visible = true
+		if interact_button: interact_button.visible = true
 
 # 如果有特殊的环境切换需求可以在这里实现
 func play_environment_anim(anim_name: String) -> void:

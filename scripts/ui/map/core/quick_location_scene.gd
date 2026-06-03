@@ -133,7 +133,17 @@ func _ready() -> void:
 		if event_manager and event_manager.has_method("broadcast_state_change"):
 			event_manager.broadcast_state_change({"location_id": location_id})
 			
-	if initial_npc_id != "":
+	if location_id == "gym" and initial_npc_id == "":
+		interaction_menu.hide()
+		if map_info_panel:
+			map_info_panel.hide()
+		var gym_menu_scene = load("res://scenes/ui/map/gym/gym_training_menu.tscn")
+		if gym_menu_scene:
+			var gym_menu = gym_menu_scene.instantiate()
+			gym_menu.closed.connect(_on_back_pressed)
+			add_child(gym_menu)
+			
+	elif initial_npc_id != "":
 		# 进入场景时先自动展示角色，但不触发“打开菜单”台词
 		call_deferred("_on_npc_clicked", initial_npc_id, false)
 		call_deferred("_schedule_scene_entry_bubble", initial_npc_id)
@@ -562,9 +572,8 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 	tween.set_parallel(true)
 	tween.tween_property(info_and_options, "modulate:a", 1.0, 0.3)
 	
-	var original_x = info_and_options.position.x
-	info_and_options.position.x += 150
-	tween.tween_property(info_and_options, "position:x", original_x, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	info_and_options.position.x = original_info_x + 150
+	tween.tween_property(info_and_options, "position:x", original_info_x, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	if npc_portrait:
 		npc_portrait.position.x = original_char_x
@@ -794,8 +803,7 @@ func _on_menu_action_pressed(action_id: String):
 			tween.set_parallel(true)
 			tween.tween_property(interaction_menu, "modulate:a", 0.0, 0.3)
 			
-			var original_x = info_and_options.position.x
-			tween.tween_property(info_and_options, "position:x", original_x + 150, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			tween.tween_property(info_and_options, "position:x", original_info_x + 150, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			
 			if npc_portrait:
 				var orig_char_y = npc_portrait.position.y
@@ -805,7 +813,7 @@ func _on_menu_action_pressed(action_id: String):
 				current_interacting_npc_id = ""
 				interaction_menu.hide()
 				# Restore positions for next time
-				info_and_options.position.x = original_x
+				info_and_options.position.x = original_info_x
 				if npc_portrait:
 					npc_portrait.position.x = original_char_x
 					npc_portrait.position.y = original_char_y

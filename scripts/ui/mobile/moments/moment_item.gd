@@ -1,32 +1,71 @@
 extends VBoxContainer
 
-@onready var avatar_rect: TextureRect = $Header/Avatar
-@onready var name_label: Label = $Header/Name
-@onready var content_label: Label = $Content
-@onready var images_grid: GridContainer = $ImagesGrid
-@onready var time_label: Label = $Actions/TimeLabel
-@onready var like_btn: Button = $Actions/LikeBtn
-@onready var comment_btn: Button = $Actions/CommentBtn
+var avatar_rect: TextureRect
+var name_label: Label
+var content_label: Label
+var images_grid: GridContainer
+var time_label: Label
+var like_btn: Button
+var comment_btn: Button
+var more_btn: Button
+var popup_actions: Control
 
-@onready var comments_area: PanelContainer = $CommentsArea
-@onready var likes_label: Label = $CommentsArea/Margin/VBox/LikesLabel
-@onready var h_separator: HSeparator = $CommentsArea/Margin/VBox/HSeparator
-@onready var comments_list: VBoxContainer = $CommentsArea/Margin/VBox/CommentsList
+var comments_area: PanelContainer
+var likes_label: Label
+var h_separator: HSeparator
+var comments_list: VBoxContainer
 
-@onready var comment_input_area: HBoxContainer = $CommentInputArea
-@onready var comment_input: LineEdit = $CommentInputArea/LineEdit
-@onready var send_comment_btn: Button = $CommentInputArea/SendBtn
+var comment_input_area: HBoxContainer
+var comment_input: LineEdit
+var send_comment_btn: Button
 
 var _moment_id: String = ""
 
 func _ready() -> void:
-	like_btn.pressed.connect(_on_like_pressed)
-	comment_btn.pressed.connect(_on_comment_pressed)
-	send_comment_btn.pressed.connect(_on_send_comment_pressed)
-	comment_input_area.hide()
+	_bind_nodes()
+	if like_btn:
+		like_btn.pressed.connect(_on_like_pressed)
+	if comment_btn:
+		comment_btn.pressed.connect(_on_comment_pressed)
+	if more_btn:
+		more_btn.pressed.connect(_on_more_pressed)
+	if send_comment_btn:
+		send_comment_btn.pressed.connect(_on_send_comment_pressed)
+	if comment_input_area:
+		comment_input_area.hide()
+	if popup_actions:
+		popup_actions.hide()
+
+func _bind_nodes() -> void:
+	avatar_rect = get_node_or_null("MainHBox/AvatarContainer/AvatarMask/Avatar") as TextureRect
+	name_label = get_node_or_null("MainHBox/ContentVBox/Name") as Label
+	content_label = get_node_or_null("MainHBox/ContentVBox/Content") as Label
+	images_grid = get_node_or_null("MainHBox/ContentVBox/ImagesGrid") as GridContainer
+	time_label = get_node_or_null("MainHBox/ContentVBox/ActionsHBox/TimeLabel") as Label
+	like_btn = get_node_or_null("MainHBox/ContentVBox/ActionsHBox/ActionBubbleRow/PopupActions/PopupHBox/LikeBtn") as Button
+	comment_btn = get_node_or_null("MainHBox/ContentVBox/ActionsHBox/ActionBubbleRow/PopupActions/PopupHBox/CommentBtn") as Button
+	more_btn = get_node_or_null("MainHBox/ContentVBox/ActionsHBox/ActionBubbleRow/MoreBtn") as Button
+	popup_actions = get_node_or_null("MainHBox/ContentVBox/ActionsHBox/ActionBubbleRow/PopupActions") as Control
+	comments_area = get_node_or_null("MainHBox/ContentVBox/CommentsArea") as PanelContainer
+	likes_label = get_node_or_null("MainHBox/ContentVBox/CommentsArea/Margin/VBox/LikesLabel") as Label
+	h_separator = get_node_or_null("MainHBox/ContentVBox/CommentsArea/Margin/VBox/HSeparator") as HSeparator
+	comments_list = get_node_or_null("MainHBox/ContentVBox/CommentsArea/Margin/VBox/CommentsList") as VBoxContainer
+	comment_input_area = get_node_or_null("MainHBox/ContentVBox/CommentInputArea") as HBoxContainer
+	comment_input = get_node_or_null("MainHBox/ContentVBox/CommentInputArea/LineEdit") as LineEdit
+	send_comment_btn = get_node_or_null("MainHBox/ContentVBox/CommentInputArea/SendBtn") as Button
+
+func _find_node(paths: Array[String]) -> Node:
+	for node_path in paths:
+		var node := get_node_or_null(node_path)
+		if node:
+			return node
+	return null
 
 func setup(data: Dictionary) -> void:
 	_moment_id = data.get("id", "")
+	if not name_label or not content_label or not time_label or not images_grid:
+		push_warning("[MomentItem] 朋友圈条目节点绑定失败，跳过渲染。")
+		return
 	name_label.text = data.get("author", "未知")
 	content_label.text = data.get("content", "")
 	time_label.text = data.get("time", "")
@@ -92,7 +131,9 @@ func _update_likes_and_comments(data: Dictionary) -> void:
 	var likes_count = data.get("likes", 0)
 	var is_liked = data.get("is_liked", false)
 	
-	like_btn.text = "取消" if is_liked else "点赞"
+	if not like_btn or not likes_label or not comments_list or not h_separator or not comments_area:
+		return
+	like_btn.text = " 已赞 " if is_liked else " 赞 "
 	
 	if likes_count > 0:
 		likes_label.text = "❤ %d 人觉得很赞" % likes_count
@@ -127,13 +168,26 @@ func _on_like_pressed() -> void:
 	MomentsManager.toggle_like(_moment_id)
 	var updated_data = MomentsManager.get_moment(_moment_id)
 	_update_likes_and_comments(updated_data)
+	if popup_actions:
+		popup_actions.hide()
 
 func _on_comment_pressed() -> void:
+	if not comment_input_area or not comment_input:
+		return
+	if popup_actions:
+		popup_actions.hide()
 	comment_input_area.visible = !comment_input_area.visible
 	if comment_input_area.visible:
 		comment_input.grab_focus()
 
+func _on_more_pressed() -> void:
+	if not popup_actions:
+		return
+	popup_actions.visible = !popup_actions.visible
+
 func _on_send_comment_pressed() -> void:
+	if not comment_input_area or not comment_input:
+		return
 	var text = comment_input.text.strip_edges()
 	if text == "" or _moment_id == "": return
 	
@@ -144,6 +198,8 @@ func _on_send_comment_pressed() -> void:
 	MomentsManager.add_comment(_moment_id, player_name, text)
 	comment_input.text = ""
 	comment_input_area.hide()
+	if popup_actions:
+		popup_actions.hide()
 	
 	var updated_data = MomentsManager.get_moment(_moment_id)
 	_update_likes_and_comments(updated_data)

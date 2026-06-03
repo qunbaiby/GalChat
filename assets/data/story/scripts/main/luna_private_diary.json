@@ -1,0 +1,160 @@
+{
+    "script_id": "luna_private_diary",
+    "story_location_id": "studio",
+    "day_offset": 0,
+    "story_period": "夜晚",
+    "use_portraits": false,
+    "memory_enabled": true,
+    "memory_records": [
+        {
+            "title": "灯下的私密日记",
+            "layer": "bond",
+            "scope": "player_shared",
+            "visibility": "prompt",
+            "participants": ["player", "luna"],
+            "player_involved": true,
+            "player_witnessed": true,
+            "is_bond_mark": true,
+            "content": "周日晚间的工作室里，她第一次把自己私密的日记主动推到你面前。那本写满细碎心事的日记，也成了她将信任与依赖悄悄交给你的证明。"
+        },
+        {
+            "title": "藏在纸页里的安心",
+            "layer": "emotion",
+            "scope": "private_self",
+            "visibility": "hidden",
+            "participants": ["luna", "player"],
+            "player_involved": false,
+            "player_witnessed": false,
+            "content": "她把每周的开心、难过与想记住的小事都写进日记里，而最近越来越多的篇幅，都与那位让她感到安心的人有关。"
+        }
+    ],
+    "cover_image": "bg_luna_drawing_sunset",
+    "summary": "周日夜晚的工作室里，Luna在暖黄灯光下独自写着私密日记。被你撞见后，她从最初的慌乱羞涩，到最终鼓起勇气将日记本推到你面前，第一次把自己最柔软、最真实的心事坦然交给你看。",
+    "chapters": {
+        "start": {
+            "events": [
+                {
+                    "type": "background",
+                    "bg_id": "bg_luna_drawing_sunset",
+                    "transition_type": "fade",
+                    "duration": 0.5
+                },
+                {
+                    "type": "audio",
+                    "audio_id": "luna_bgm",
+                    "audio_type": "bgm",
+                    "action": "play"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "夜色沉落，晚风轻柔。夜里八点的工作室格外静谧，暖黄的落地台灯点亮一室温柔，隔绝了窗外的喧嚣。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "我整理完二楼，踏着轻步走下楼梯，屋内寂静无声，往日熟悉的笔墨翻书声尽数消失。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "目光投向窗边书桌，Luna纤细的身影正静坐在灯光下。暖光裹着她柔软的身形，她微微躬身，垂着长睫专注执笔，全身心沉浸在书写中，室内只剩笔尖划过纸张的细碎轻响。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "楼梯的轻响打破静谧，Luna身形骤然一僵，像被抓包的孩童般慌乱不已。她飞快放下笔，双手死死捂住纸面，身体前倾想要将本子藏起，耳尖瞬间泛红，透着满满的局促羞涩。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她匆匆瞥了我一眼，便立刻低头躲闪目光，紧张得不知所措。短暂的沉默里，她指尖攥紧，呼吸微乱，在心底反复纠结挣扎。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "片刻后，她紧绷的身形缓缓放松，像是终于下定了决心。Luna轻吸一口气，抬眼望向我，眼底还带着未散的羞涩与忐忑，缓缓挪开双手，将日记本轻轻推到灯光中央。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "{player_title}……你、你要看的话，也可以看的。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她的声音轻轻软软的，带着未散的羞怯，细细小小的，像是把最私密的心事也一并捧到了我面前。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "我缓步走到书桌前，低头望去。那是一本封面干净温柔的白色日记本，纸面整洁平整，上面是Luna清秀温柔的字迹，一笔一画都写得很工整。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "没有华丽的辞藻，只有简单质朴的文字，记录着日常细碎的点滴。字迹里藏着她细腻敏感的小心思，还有独属于她的、温柔又纯粹的内心世界。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "player",
+                    "content": "在写日记？"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "Luna轻轻点头，脸颊依旧滚烫。她微微垂着眸，指尖轻轻抠着日记本的边角，带着几分不好意思的腼腆。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "嗯……我习惯每周写一点。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "以前姐姐会看我写的东西，现在……我会把每天开心的、难过的，还有想记住的事情，都写下来。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她抬眸看向我，眼底澄澈又真诚。褪去了最初的慌乱之后，那份躲闪的羞涩慢慢化成了坦然的柔软。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "今天、今天也写了和{player_title}有关的事情。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "像是怕我误会，她又连忙小声补充了一句，语气软糯又认真。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "content": "不是奇怪的内容！是……是和{player_title}待在一起，我觉得很安心、很开心的小事。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "暖黄的灯光落在女孩泛红的脸颊上，温柔得不像话。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "这本小小的日记，藏着Luna从不轻易对外展露的心事，藏着她对姐姐的思念、对日常的珍惜，还有她悄悄积攒起来、几乎全然交付给我的信任与依赖。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她原本想偷偷藏起这份私密的小心思，可面对我，她终究还是选择坦诚相待，将自己最柔软、最真实的内心，毫无保留地展示出来。"
+                },
+                {
+                    "type": "jump",
+                    "target_chapter": "end"
+                }
+            ]
+        }
+    }
+}

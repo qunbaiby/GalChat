@@ -513,29 +513,69 @@ func build_memory_revisit_prompt(profile: CharacterProfile, revisit_data: Dictio
     prompt += "5. 不要输出系统提示，不要解释你在调用记忆系统。\n"
     return prompt
 
-func build_schedule_event_prompt(course_name: String, course_desc: String) -> String:
-    var prompt = "你是一个生活事件生成器。请根据给定的课程/活动名称和描述，生成一个可能在进行该活动时发生的突发小事件。\n"
-    prompt += "输出必须是纯 JSON 格式，不含任何其他内容，字段如下：\n"
+func build_schedule_event_prompt(context: Dictionary) -> String:
+    var course_name = str(context.get("course_name", "未知课程"))
+    var course_desc = str(context.get("course_desc", ""))
+    var category_name = str(context.get("category_name", "综合课程"))
+    var day_label = str(context.get("day_label", "本日"))
+    var bonus_summary = str(context.get("bonus_summary", "无"))
+    var mood = int(context.get("mood", 50))
+    var stress = int(context.get("stress", 0))
+
+    var prompt = "你是一个校园课程随机事件生成器。请围绕指定课程，生成一个与课程内容强相关的课堂/训练/实践中的小事件。\n"
+    prompt += "课程名称：%s\n" % course_name
+    prompt += "课程描述：%s\n" % course_desc
+    prompt += "课程类别：%s\n" % category_name
+    prompt += "发生时间：%s\n" % day_label
+    prompt += "课程主要收益：%s\n" % bonus_summary
+    prompt += "角色当前心情：%d，当前压力：%d\n" % [mood, stress]
+    prompt += "要求：\n"
+    prompt += "1. 事件必须与该课程强相关，不能写成泛化的日常事件。\n"
+    prompt += "2. 事件描述 30 到 60 字，选项文案 12 字以内。\n"
+    prompt += "3. 两个选项要体现不同倾向，例如稳妥/冒险、专注/社交、保守/激进。\n"
+    prompt += "4. 输出必须是纯 JSON，不要附加解释。\n"
+    prompt += "JSON 格式如下：\n"
     prompt += "{\n"
-    prompt += "  \"description\": \"事件描述（50字以内）\",\n"
-    prompt += "  \"option1\": \"选项1（10字以内）\",\n"
-    prompt += "  \"option2\": \"选项2（10字以内）\"\n"
+    prompt += "  \"event_title\": \"事件标题\",\n"
+    prompt += "  \"event_desc\": \"事件描述\",\n"
+    prompt += "  \"options\": [\n"
+    prompt += "    {\"text\": \"选项1\", \"style\": \"稳妥\", \"effects_hint\": \"偏向稳定收益\"},\n"
+    prompt += "    {\"text\": \"选项2\", \"style\": \"冒险\", \"effects_hint\": \"偏向高风险高收益\"}\n"
+    prompt += "  ]\n"
     prompt += "}\n"
     return prompt
 
-func build_schedule_resolve_prompt() -> String:
-    var prompt = "你是一个事件结算生成器。请根据事件描述和用户选择的选项，给出事件的结果。\n"
-    prompt += "输出必须是纯 JSON 格式，包含结算描述以及属性变化，字段如下：\n"
+func build_schedule_resolve_prompt(context: Dictionary) -> String:
+    var course_name = str(context.get("course_name", "未知课程"))
+    var category_name = str(context.get("category_name", "综合课程"))
+    var bonus_summary = str(context.get("bonus_summary", "无"))
+
+    var prompt = "你是一个课程随机事件结算生成器。请根据课程背景、事件描述和玩家选择，输出一次简洁明确的结算结果。\n"
+    prompt += "课程名称：%s\n" % course_name
+    prompt += "课程类别：%s\n" % category_name
+    prompt += "课程主要收益：%s\n" % bonus_summary
+    prompt += "要求：\n"
+    prompt += "1. 结算必须与课程和选项倾向相关。\n"
+    prompt += "2. 属性变化范围通常在 -12 到 12 之间，避免所有属性同时变化。\n"
+    prompt += "3. 尽量只影响 1 到 3 个属性。\n"
+    prompt += "4. 输出必须是纯 JSON，不要附加解释。\n"
+    prompt += "JSON 格式如下：\n"
     prompt += "{\n"
-    prompt += "  \"result_desc\": \"结果描述（50字以内）\",\n"
-    prompt += "  \"rewards\": {\n"
-    prompt += "    \"vitality\": 0,\n"
-    prompt += "    \"social\": 0,\n"
-    prompt += "    \"knowledge\": 0,\n"
-    prompt += "    \"gold\": 0\n"
+    prompt += "  \"result_desc\": \"结果描述（20到50字）\",\n"
+    prompt += "  \"attr_changes\": {\n"
+    prompt += "    \"体能\": 0,\n"
+    prompt += "    \"反应\": 0,\n"
+    prompt += "    \"学识\": 0,\n"
+    prompt += "    \"表达\": 0,\n"
+    prompt += "    \"气质\": 0,\n"
+    prompt += "    \"礼仪\": 0,\n"
+    prompt += "    \"审美\": 0,\n"
+    prompt += "    \"感知\": 0,\n"
+    prompt += "    \"金币\": 0,\n"
+    prompt += "    \"心情\": 0,\n"
+    prompt += "    \"压力\": 0\n"
     prompt += "  }\n"
     prompt += "}\n"
-    prompt += "属性变化可以为正数或负数，范围通常在 -10 到 10 之间。未提到的属性视为不变。\n"
     return prompt
 
 func build_moment_generation_prompt(profile: CharacterProfile) -> String:

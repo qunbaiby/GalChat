@@ -120,13 +120,7 @@ offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 14
-alignment = 2
-
-[node name="CostLabel" type="Label" parent="MenuPanel/BottomHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 16
-text = "消耗行动力：15"
+alignment = 1
 
 [node name="StartBtn" type="Button" parent="MenuPanel/BottomHBox"]
 custom_minimum_size = Vector2(172, 44)

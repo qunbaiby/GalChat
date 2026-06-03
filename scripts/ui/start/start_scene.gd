@@ -1,5 +1,7 @@
 extends Control
 
+const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
+
 @onready var start_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/StartButton
 @onready var load_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/LoadButton
 @onready var desktop_pet_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/DesktopPetButton
@@ -142,8 +144,10 @@ func _on_settings_pressed() -> void:
 
 func _open_debug_panel() -> void:
     if debug_panel_instance == null:
-        var DebugPanelObj = load("res://scenes/ui/story/debug_panel.tscn")
-        debug_panel_instance = DebugPanelObj.instantiate()
+        if DEBUG_PANEL_SCENE == null:
+            push_error("[StartScene] 无法加载调试面板场景：res://scenes/ui/story/debug_panel.tscn")
+            return
+        debug_panel_instance = DEBUG_PANEL_SCENE.instantiate()
         add_child(debug_panel_instance)
         debug_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         debug_panel_instance.is_from_title = true
