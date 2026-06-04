@@ -1,5 +1,6 @@
-[gd_scene load_steps=37 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=41 format=3 uid="uid://bl0bceh1xgj74"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_d6qgp"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://dxe3r2b5g7na" path="res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
@@ -135,6 +136,10 @@ bg_color = Color(1, 0.96, 0.9, 1)
 bg_color = Color(0.94, 0.98, 0.97, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecNormal"]
+bg_color = Color(0.11372549, 0.11372549, 0.11372549, 0.84313726)
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n3i0f"]
 bg_color = Color(1, 1, 1, 0.95)
 border_width_left = 1
 border_width_top = 1
@@ -149,7 +154,7 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 4
 shadow_offset = Vector2(0, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecPressed"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d6qgp"]
 bg_color = Color(0.85, 0.94, 0.92, 1)
 border_width_left = 1
 border_width_top = 1
@@ -161,7 +166,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecHover"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rl784"]
 bg_color = Color(0.94, 0.98, 0.97, 1)
 border_width_left = 1
 border_width_top = 1
@@ -182,8 +187,6 @@ border_width_bottom = 1
 border_color = Color(0.18, 0.18, 0.24, 0.78)
 corner_radius_top_left = 16
 corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 8
 shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SystemToolbarButton"]
@@ -210,6 +213,30 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecPressed"]
+bg_color = Color(0.85, 0.94, 0.92, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecHover"]
+bg_color = Color(0.94, 0.98, 0.97, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="MainScene" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -218,6 +245,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme = ExtResource("1_d6qgp")
 script = ExtResource("1_main")
 
 [node name="BackgroundContainer" type="Control" parent="."]
@@ -249,9 +277,9 @@ mouse_filter = 2
 
 [node name="TopStatusPanel" parent="UIPanel" instance=ExtResource("11_top_panel")]
 layout_mode = 1
-offset_left = 765.0
+offset_left = 754.0
 offset_top = 7.0
-offset_right = 1119.0
+offset_right = 1148.0
 offset_bottom = 51.0
 
 [node name="BottomBarHBox" type="HBoxContainer" parent="UIPanel"]
@@ -474,9 +502,8 @@ text = "外出"
 [node name="GoalPanel" type="PanelContainer" parent="UIPanel"]
 custom_minimum_size = Vector2(240, 72)
 layout_mode = 0
-offset_left = 13.0
 offset_top = 94.0
-offset_right = 253.0
+offset_right = 257.0
 offset_bottom = 166.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_SecNormal")
 
@@ -501,20 +528,18 @@ text = "养成目标"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 12
-text = "下一阶段：相识
-共感进度：10 / 40"
+text = "下一阶段：相识"
 autowrap_mode = 3
 
 [node name="AffectionButton" type="Button" parent="UIPanel"]
 layout_mode = 0
-offset_left = 13.0
-offset_top = 185.0
-offset_right = 110.0
-offset_bottom = 233.0
-pivot_offset = Vector2(120, 24)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
+offset_left = 9.0
+offset_top = 178.0
+offset_right = 92.0
+offset_bottom = 215.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_d6qgp")
+theme_override_styles/hover = SubResource("StyleBoxFlat_rl784")
 
 [node name="ContentHBox" type="HBoxContainer" parent="UIPanel/AffectionButton"]
 layout_mode = 1
@@ -576,9 +601,9 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -131.0
+offset_left = -129.0
 offset_top = 7.0
-offset_right = -1.0
+offset_right = 1.0
 offset_bottom = 49.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_SystemToolbar")
@@ -743,10 +768,10 @@ layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 463.0
-offset_top = -198.0
-offset_right = 625.0
-offset_bottom = -18.0
+offset_left = 443.0
+offset_top = -213.0
+offset_right = 605.0
+offset_bottom = -3.0
 grow_vertical = 2
 theme_override_constants/separation = 10
 
@@ -756,7 +781,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "与【角色名】聊天"
@@ -767,7 +792,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "送礼"
@@ -778,7 +803,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "约会"
@@ -789,7 +814,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "互动"
@@ -823,7 +848,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "共创画板"

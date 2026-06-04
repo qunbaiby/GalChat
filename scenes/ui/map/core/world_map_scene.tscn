@@ -62,7 +62,7 @@ stretch_mode = 6
 
 [node name="TopStatusPanel" parent="." instance=ExtResource("top_status_panel")]
 layout_mode = 1
-offset_left = 665.0
+offset_left = 897.0
 offset_top = 20.0
 offset_right = 1249.0
 offset_bottom = 64.0

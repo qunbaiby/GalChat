@@ -270,24 +270,90 @@ theme_override_constants/separation = 15
 
 [node name="SlotMorning" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox"]
 unique_name_in_owner = true
+clip_contents = true
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
+
+[node name="ThumbRect" type="TextureRect" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotMorning"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="SlotLabel" type="Label" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotMorning"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-text = "早上 (空)"
+text = "早上\n(空)"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="SlotAfternoon" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox"]
 unique_name_in_owner = true
+clip_contents = true
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
+
+[node name="ThumbRect" type="TextureRect" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotAfternoon"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="SlotLabel" type="Label" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotAfternoon"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-text = "下午 (空)"
+text = "下午\n(空)"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="SlotEvening" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox"]
 unique_name_in_owner = true
+clip_contents = true
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
+
+[node name="ThumbRect" type="TextureRect" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotEvening"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="SlotLabel" type="Label" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotEvening"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-text = "晚上 (空)"
+text = "晚上\n(空)"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="DateButton" type="Button" parent="BottomBar/HBox/BtnMargin/BtnHBox"]
 unique_name_in_owner = true
@@ -319,3 +385,98 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCancel")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCancel")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCancel")
 text = "< 返回"
+
+[node name="CustomImagePopup" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="PanelContainer" parent="CustomImagePopup"]
+custom_minimum_size = Vector2(400, 300)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="CustomImagePopup/Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CustomImagePopup/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "添加现实世界场景"
+horizontal_alignment = 1
+
+[node name="Margin" type="MarginContainer" parent="CustomImagePopup/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="DropArea" type="ColorRect" parent="CustomImagePopup/Panel/VBox/Margin"]
+layout_mode = 2
+color = Color(0.2, 0.2, 0.2, 1)
+
+[node name="DropHint" type="Label" parent="CustomImagePopup/Panel/VBox/Margin/DropArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "将图片文件拖拽至此处"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PreviewRect" type="TextureRect" parent="CustomImagePopup/Panel/VBox/Margin/DropArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HBox" type="HBoxContainer" parent="CustomImagePopup/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 40
+
+[node name="ConfirmImageBtn" type="Button" parent="CustomImagePopup/Panel/VBox/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnDate")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnDate")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnDate")
+text = "确定"
+
+[node name="CancelImageBtn" type="Button" parent="CustomImagePopup/Panel/VBox/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnCancel")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnCancel")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnCancel")
+text = "取消"

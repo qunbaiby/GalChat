@@ -62,6 +62,12 @@ func _on_time_advanced(_days: int, _current_period: String) -> void:
 func _check_story_button_visibility() -> void:
 	if not is_instance_valid(story_button): return
 	if not GameDataManager.story_time_manager: return
+
+	if _is_ui_hidden:
+		story_button.visible = false
+		if _bubble_tween and _bubble_tween.is_valid():
+			_bubble_tween.kill()
+		return
 	
 	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
 	var weekday = date_dict.weekday
@@ -78,6 +84,8 @@ func _check_story_button_visibility() -> void:
 			should_show = true
 			
 	story_button.visible = should_show
+	if should_show:
+		story_button.modulate.a = 1.0
 	
 	if should_show:
 		if not _bubble_tween or not _bubble_tween.is_valid():
@@ -118,21 +126,10 @@ func _update_mood_bubble() -> void:
 	if is_instance_valid(mood_name_label):
 		mood_name_label.text = mood_name
 
-	var main_scene = get_tree().root.get_node_or_null("MainScene")
-	var should_hide := false
-	if _is_ui_hidden:
-		should_hide = true
-	elif main_scene and main_scene.get("mobile_interface_instance") and main_scene.mobile_interface_instance.visible:
-		should_hide = true
-	elif main_scene and main_scene.get("camera_panel_instance") and main_scene.camera_panel_instance.visible:
-		should_hide = true
-	elif main_scene and main_scene.get("chat_scene_instance") and main_scene.chat_scene_instance.visible:
-		should_hide = true
-	elif main_scene and main_scene.get("_story_mode_active"):
-		should_hide = true
-
-	mood_bubble.visible = not should_hide
-	if should_hide and is_instance_valid(mood_name_tag):
+	mood_bubble.visible = not _is_ui_hidden
+	if not _is_ui_hidden:
+		mood_bubble.modulate.a = 1.0
+	if _is_ui_hidden and is_instance_valid(mood_name_tag):
 		mood_name_tag.visible = false
 
 func _on_mood_bubble_mouse_entered() -> void:
@@ -198,10 +195,19 @@ func set_ui_hidden(is_hidden: bool) -> void:
 			if interact_button: interact_button.visible = false
 		)
 	else:
-		if story_button: story_button.visible = true
-		if mood_bubble_node: mood_bubble_node.visible = true
-		if mood_name_tag_node: mood_name_tag_node.visible = false
-		if interact_button: interact_button.visible = true
+		if story_button:
+			story_button.visible = false
+			story_button.modulate.a = 1.0
+		if mood_bubble_node:
+			mood_bubble_node.visible = true
+			mood_bubble_node.modulate.a = 1.0
+		if mood_name_tag_node:
+			mood_name_tag_node.visible = false
+			mood_name_tag_node.modulate.a = 1.0
+		if interact_button:
+			interact_button.visible = true
+			interact_button.modulate.a = 1.0
+		_check_story_button_visibility()
 		_update_mood_bubble()
 
 # 如果有特殊的环境切换需求可以在这里实现

@@ -14,6 +14,12 @@ extends Control
 @onready var slot_afternoon = %SlotAfternoon
 @onready var slot_evening = %SlotEvening
 
+@onready var custom_image_popup = %CustomImagePopup
+@onready var drop_hint = %DropHint
+@onready var preview_rect = %PreviewRect
+@onready var confirm_image_btn = %ConfirmImageBtn
+@onready var cancel_image_btn = %CancelImageBtn
+
 var _bubble_stream_buffer: String = ""
 var _is_closing: bool = false
 var _deepseek_client: Node = null
@@ -25,10 +31,12 @@ var _bubble_current_tts_text: String = ""
 
 var _date_config: Dictionary = {}
 var _slots: Dictionary = {
-	"morning": {"button": null, "location_id": "", "enabled": true, "name": "早上"},
-	"afternoon": {"button": null, "location_id": "", "enabled": true, "name": "下午"},
-	"evening": {"button": null, "location_id": "", "enabled": true, "name": "晚上"}
+	"morning": {"button": null, "thumb": null, "label": null, "location_id": "", "enabled": true, "name": "早上", "custom_texture": null},
+	"afternoon": {"button": null, "thumb": null, "label": null, "location_id": "", "enabled": true, "name": "下午", "custom_texture": null},
+	"evening": {"button": null, "thumb": null, "label": null, "location_id": "", "enabled": true, "name": "晚上", "custom_texture": null}
 }
+
+var _pending_custom_texture: Texture2D = null
 
 const BUBBLE_TYPEWRITER_CHAR_TIME := 0.045
 const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
@@ -36,6 +44,11 @@ const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
 func _ready() -> void:
 	cancel_btn.pressed.connect(_on_cancel_pressed)
 	date_btn.pressed.connect(_on_date_pressed)
+	
+	confirm_image_btn.pressed.connect(_on_confirm_image_pressed)
+	cancel_image_btn.pressed.connect(_on_cancel_image_pressed)
+	
+	get_window().files_dropped.connect(_on_files_dropped)
 	
 	_init_slots()
 	_load_date_config()
@@ -113,6 +126,14 @@ func _init_slots() -> void:
 	_slots["afternoon"]["button"] = slot_afternoon
 	_slots["evening"]["button"] = slot_evening
 	
+	_slots["morning"]["thumb"] = slot_morning.get_node("ThumbRect")
+	_slots["afternoon"]["thumb"] = slot_afternoon.get_node("ThumbRect")
+	_slots["evening"]["thumb"] = slot_evening.get_node("ThumbRect")
+	
+	_slots["morning"]["label"] = slot_morning.get_node("SlotLabel")
+	_slots["afternoon"]["label"] = slot_afternoon.get_node("SlotLabel")
+	_slots["evening"]["label"] = slot_evening.get_node("SlotLabel")
+	
 	var current_period_str = "上午"
 	if GameDataManager.story_time_manager:
 		current_period_str = GameDataManager.story_time_manager.current_period
@@ -132,12 +153,18 @@ func _init_slots() -> void:
 	for period_id in _slots.keys():
 		var slot = _slots[period_id]
 		var btn = slot["button"]
+		var lbl = slot["label"]
 		if not slot["enabled"]:
 			btn.disabled = true
-			btn.text = slot["name"] + " (不可用)"
+			lbl.text = slot["name"] + "\n(不可用)"
 		else:
 			btn.disabled = false
-			btn.text = slot["name"] + " (空)"
+			lbl.text = slot["name"] + "\n(空)"
+			
+		slot["thumb"].texture = null
+		lbl.add_theme_color_override("font_color", Color(0.3, 0.3, 0.3, 1))
+		lbl.remove_theme_color_override("font_shadow_color")
+		lbl.remove_theme_constant_override("shadow_outline_size")
 		
 		if not btn.pressed.is_connected(_on_slot_pressed.bind(period_id)):
 			btn.pressed.connect(_on_slot_pressed.bind(period_id))
@@ -180,13 +207,18 @@ func _populate_date_types() -> void:
 		
 		if type_data.has("locations"):
 			for loc_id in type_data["locations"]:
-				var loc_data = MapDataManager.get_location(loc_id)
-				var loc_name = loc_data.get("name", loc_id)
+				var loc_data_dict = MapDataManager.get_location(loc_id)
+				var loc_name = loc_data_dict.get("name", loc_id)
 				
 				var loc_item = _date_location_item_scene.instantiate()
 				type_item.add_location_node(loc_item)
 				loc_item.setup(loc_id, loc_name, type_data["id"])
 				loc_item.add_requested.connect(_on_add_location_pressed)
+				
+		var custom_item = _date_location_item_scene.instantiate()
+		type_item.add_location_node(custom_item)
+		custom_item.setup("custom_" + type_data["id"], "添加现实世界场景", type_data["id"])
+		custom_item.add_requested.connect(_on_add_custom_location_pressed)
 
 func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:
 	var slot_order = ["morning", "afternoon", "evening"]
@@ -198,17 +230,111 @@ func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:
 			
 	if found_slot != "":
 		_slots[found_slot]["location_id"] = loc_id
-		_slots[found_slot]["button"].text = _slots[found_slot]["name"] + " (" + loc_name + ")"
+		_slots[found_slot]["custom_texture"] = null
+		_slots[found_slot]["label"].text = _slots[found_slot]["name"] + "\n(" + loc_name + ")"
+		
+		# 获取地点背景图并设置给 thumb
+		var loc_data = MapDataManager.get_location(loc_id)
+		var bg_id = loc_data.get("bg_id", "")
+		var real_path = ""
+		if not bg_id.is_empty():
+			real_path = ImageManager.get_image_path(bg_id)
+			if real_path.is_empty():
+				real_path = bg_id
+		if not real_path.is_empty() and ResourceLoader.exists(real_path):
+			_slots[found_slot]["thumb"].texture = load(real_path)
+			_slots[found_slot]["label"].add_theme_color_override("font_color", Color.WHITE)
+			_slots[found_slot]["label"].add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+			_slots[found_slot]["label"].add_theme_constant_override("shadow_outline_size", 4)
+		else:
+			_slots[found_slot]["thumb"].texture = null
+			_slots[found_slot]["label"].add_theme_color_override("font_color", Color(0.3, 0.3, 0.3, 1))
+			_slots[found_slot]["label"].remove_theme_color_override("font_shadow_color")
+			_slots[found_slot]["label"].remove_theme_constant_override("shadow_outline_size")
 	else:
 		if ToastManager:
 			ToastManager.show_toast("没有可用的空闲时间段了")
+
+func _on_add_custom_location_pressed(loc_id: String, loc_name: String) -> void:
+	var slot_order = ["morning", "afternoon", "evening"]
+	var found_slot = ""
+	for period in slot_order:
+		if _slots[period]["enabled"] and _slots[period]["location_id"] == "":
+			found_slot = period
+			break
+			
+	if found_slot == "":
+		if ToastManager:
+			ToastManager.show_toast("没有可用的空闲时间段了")
+		return
+		
+	# 记录准备加入的槽位（这里简单化，先弹窗，点确定后再找也可以，或者弹窗直接打开）
+	_pending_custom_texture = null
+	preview_rect.texture = null
+	drop_hint.show()
+	custom_image_popup.show()
+
+func _on_files_dropped(files: PackedStringArray) -> void:
+	if not custom_image_popup.visible:
+		return
+	if files.size() > 0:
+		var file_path = files[0]
+		if file_path.to_lower().ends_with(".png") or file_path.to_lower().ends_with(".jpg") or file_path.to_lower().ends_with(".jpeg"):
+			var image = Image.new()
+			var err = image.load(file_path)
+			if err == OK:
+				var tex = ImageTexture.create_from_image(image)
+				_pending_custom_texture = tex
+				preview_rect.texture = tex
+				drop_hint.hide()
+			else:
+				if ToastManager:
+					ToastManager.show_toast("图片加载失败")
+		else:
+			if ToastManager:
+				ToastManager.show_toast("请拖入有效的图片文件 (png/jpg/jpeg)")
+
+func _on_confirm_image_pressed() -> void:
+	if _pending_custom_texture == null:
+		if ToastManager:
+			ToastManager.show_toast("请先拖入图片")
+		return
+		
+	var slot_order = ["morning", "afternoon", "evening"]
+	var found_slot = ""
+	for period in slot_order:
+		if _slots[period]["enabled"] and _slots[period]["location_id"] == "":
+			found_slot = period
+			break
+			
+	if found_slot != "":
+		_slots[found_slot]["location_id"] = "custom_location"
+		_slots[found_slot]["custom_texture"] = _pending_custom_texture
+		_slots[found_slot]["label"].text = _slots[found_slot]["name"] + "\n(现实世界)"
+		_slots[found_slot]["thumb"].texture = _pending_custom_texture
+		_slots[found_slot]["label"].add_theme_color_override("font_color", Color.WHITE)
+		_slots[found_slot]["label"].add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+		_slots[found_slot]["label"].add_theme_constant_override("shadow_outline_size", 4)
+	else:
+		if ToastManager:
+			ToastManager.show_toast("没有可用的空闲时间段了")
+			
+	custom_image_popup.hide()
+
+func _on_cancel_image_pressed() -> void:
+	custom_image_popup.hide()
 
 func _on_slot_pressed(period_id: String) -> void:
 	if not _slots[period_id]["enabled"]:
 		return
 	if _slots[period_id]["location_id"] != "":
 		_slots[period_id]["location_id"] = ""
-		_slots[period_id]["button"].text = _slots[period_id]["name"] + " (空)"
+		_slots[period_id]["custom_texture"] = null
+		_slots[period_id]["label"].text = _slots[period_id]["name"] + "\n(空)"
+		_slots[period_id]["thumb"].texture = null
+		_slots[period_id]["label"].add_theme_color_override("font_color", Color(0.3, 0.3, 0.3, 1))
+		_slots[period_id]["label"].remove_theme_color_override("font_shadow_color")
+		_slots[period_id]["label"].remove_theme_constant_override("shadow_outline_size")
 
 func _trigger_greeting_bubble() -> void:
 	bubble_panel.hide()
@@ -354,9 +480,15 @@ func _strip_bubble_action_descriptions(text: String) -> String:
 			cleaned = regex.sub(cleaned, "", true)
 	return cleaned.strip_edges()
 
+func _exit_tree() -> void:
+	if get_window() and get_window().files_dropped.is_connected(_on_files_dropped):
+		get_window().files_dropped.disconnect(_on_files_dropped)
+
 func _on_cancel_pressed() -> void:
-	if _is_closing: return
+	if _is_closing:
+		return
 	_is_closing = true
+	
 	_disconnect_ai_signals()
 	if _bubble_audio_player:
 		_bubble_audio_player.stop()
@@ -382,7 +514,8 @@ func _on_date_pressed() -> void:
 		if _slots[period]["enabled"] and _slots[period]["location_id"] != "":
 			plan_list.append({
 				"period": period,
-				"location_id": _slots[period]["location_id"]
+				"location_id": _slots[period]["location_id"],
+				"custom_texture": _slots[period]["custom_texture"]
 			})
 			
 	if plan_list.is_empty():

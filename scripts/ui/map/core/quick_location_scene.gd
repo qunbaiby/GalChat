@@ -109,6 +109,8 @@ func _ready() -> void:
 			dialogue_quick_option_layer.hide()
 		if dialogue_panel.has_signal("message_sent"):
 			dialogue_panel.message_sent.connect(_on_dialogue_message_sent)
+		if dialogue_send_button and not dialogue_send_button.pressed.is_connected(_on_dialogue_send_pressed):
+			dialogue_send_button.pressed.connect(_on_dialogue_send_pressed)
 		if dialogue_end_button and not dialogue_end_button.pressed.is_connected(_on_dialogue_close_pressed):
 			dialogue_end_button.pressed.connect(_on_dialogue_close_pressed)
 		# 监听对话结束信号，以便恢复互动选项
@@ -851,8 +853,10 @@ func _show_topic_selection_in_dialogue() -> void:
 	dialogue_text_label.visible_ratio = 1.0
 	dialogue_text_label.visible_characters = -1
 
-	if dialogue_input_layer:
-		dialogue_input_layer.hide()
+	if dialogue_panel and dialogue_panel.has_method("set_input_waiting_state"):
+		dialogue_panel.set_input_waiting_state(npc_name)
+	elif dialogue_input_layer:
+		dialogue_input_layer.show()
 	if dialogue_history_button:
 		dialogue_history_button.hide()
 	if dialogue_end_button:
@@ -984,9 +988,15 @@ func _on_topic_selected(topic: String) -> void:
 		dialogue_history_button.hide()
 	if dialogue_end_button:
 		dialogue_end_button.show()
-	dialogue_input_field.text = ""
-	dialogue_input_field.editable = false
-	dialogue_send_button.disabled = true
+	var npc_name := str(menu_name_label.text).strip_edges()
+	if npc_name == "":
+		npc_name = current_interacting_npc_id
+	if dialogue_panel and dialogue_panel.has_method("set_input_waiting_state"):
+		dialogue_panel.set_input_waiting_state(npc_name)
+	else:
+		dialogue_input_field.text = ""
+		dialogue_input_field.editable = false
+		dialogue_send_button.disabled = true
 
 	var profile = GameDataManager.profile
 	var char_name = profile.char_name if profile.char_name != "" else "Luna"
@@ -1029,8 +1039,11 @@ func _on_topic_reply_generated(reply_text: String) -> void:
 	dialogue_text_label.text = reply_text
 	dialogue_text_label.visible_ratio = 1.0
 	dialogue_text_label.visible_characters = -1
-	dialogue_input_field.editable = true
-	dialogue_send_button.disabled = false
+	if dialogue_panel and dialogue_panel.has_method("set_input_ready_state"):
+		dialogue_panel.set_input_ready_state()
+	else:
+		dialogue_input_field.editable = true
+		dialogue_send_button.disabled = false
 
 func _on_topic_reply_failed(_error_msg: String) -> void:
 	if not dialogue_panel or not dialogue_panel.visible:
@@ -1043,10 +1056,16 @@ func _on_topic_reply_failed(_error_msg: String) -> void:
 	dialogue_text_label.text = "……（默认回应）"
 	dialogue_text_label.visible_ratio = 1.0
 	dialogue_text_label.visible_characters = -1
-	dialogue_input_field.editable = true
-	dialogue_send_button.disabled = false
+	if dialogue_panel and dialogue_panel.has_method("set_input_ready_state"):
+		dialogue_panel.set_input_ready_state()
+	else:
+		dialogue_input_field.editable = true
+		dialogue_send_button.disabled = false
 
 func _on_dialogue_message_sent(text: String) -> void:
+	if _awaiting_topic_selection:
+		_on_topic_selected(text)
+		return
 	if not _quick_chat_active:
 		return
 	var trimmed_text := text.strip_edges()
@@ -1058,11 +1077,18 @@ func _on_dialogue_message_sent(text: String) -> void:
 	dialogue_text_label.text = trimmed_text
 	dialogue_text_label.visible_ratio = 1.0
 	dialogue_text_label.visible_characters = -1
-	dialogue_input_field.editable = false
-	dialogue_send_button.disabled = true
+	if dialogue_panel and dialogue_panel.has_method("set_input_waiting_state"):
+		dialogue_panel.set_input_waiting_state(str(menu_name_label.text).strip_edges())
+	else:
+		dialogue_input_field.editable = false
+		dialogue_send_button.disabled = true
 
 	var event_desc := "当前聊天话题：%s\n%s对你说：%s" % [_selected_topic, GameDataManager.profile.char_name, trimmed_text]
 	_trigger_npc_event_dialogue(current_interacting_npc_id, event_desc)
+
+func _on_dialogue_send_pressed() -> void:
+	if dialogue_panel and dialogue_panel.has_method("submit_input_text"):
+		dialogue_panel.submit_input_text()
 
 func _on_dialogue_close_pressed() -> void:
 	if not _awaiting_topic_selection and not _quick_chat_active:

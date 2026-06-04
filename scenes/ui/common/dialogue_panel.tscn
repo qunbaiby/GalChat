@@ -4,13 +4,13 @@
 [ext_resource type="StyleBox" uid="uid://cx1g6j2n0v2t2" path="res://assets/themes/dialogue_panel_style.tres" id="2_dialogue_style"]
 [ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
 [ext_resource type="StyleBox" uid="uid://dfsdfsdf" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
-[ext_resource type="Shader" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
+[ext_resource type="Shader" uid="uid://d0c1rjblvrdaf" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
 [ext_resource type="Texture2D" uid="uid://c365ggpx3ygkn" path="res://assets/images/icons/ui/story/hide_ui.svg" id="6_hide_ui_icon"]
 [ext_resource type="Texture2D" uid="uid://ce5m5p6dofc43" path="res://assets/images/icons/ui/story/camera.svg" id="7_camera_icon"]
 [ext_resource type="Texture2D" uid="uid://cjs8e6avuoiey" path="res://assets/images/icons/ui/story/record.svg" id="8_history_icon"]
 [ext_resource type="Texture2D" uid="uid://dwamfe6gwsmfi" path="res://assets/images/icons/ui/story/close.svg" id="9_close_icon"]
-[ext_resource type="Texture2D" path="res://assets/images/icons/ui/story/voice_record.svg" id="10_voice_icon"]
-[ext_resource type="Texture2D" path="res://assets/images/icons/ui/story/send_message.svg" id="11_send_icon"]
+[ext_resource type="Texture2D" uid="uid://bgm6vn1eos1u3" path="res://assets/images/icons/ui/story/voice_record.svg" id="10_voice_icon"]
+[ext_resource type="Texture2D" uid="uid://dm6oxnmuvephf" path="res://assets/images/icons/ui/story/send_message.svg" id="11_send_icon"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_DialogueLayer"]
 
@@ -297,10 +297,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 57.0
-offset_top = -60.0
-offset_right = -56.0
-offset_bottom = -8.0
+offset_top = -57.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = ExtResource("2_dialogue_style")
@@ -310,9 +307,9 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
+offset_left = 69.0
 offset_top = 6.5
-offset_right = -9.0
+offset_right = -65.0
 offset_bottom = -5.5
 grow_horizontal = 2
 grow_vertical = 2
@@ -350,12 +347,12 @@ horizontal_alignment = 2
 [node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
+tooltip_text = "语音"
 theme_override_colors/font_color = Color(0.94, 0.94, 0.98, 1)
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
-tooltip_text = "语音"
 
 [node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/VoiceRecordButton"]
 custom_minimum_size = Vector2(18, 18)
@@ -379,11 +376,11 @@ stretch_mode = 5
 [node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
+tooltip_text = "发送"
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
-tooltip_text = "发送"
 
 [node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/SendButton"]
 custom_minimum_size = Vector2(18, 18)

@@ -1,36 +1,52 @@
-[gd_scene load_steps=4 format=3 uid="uid://ddy6t8h2kloc"]
+[gd_scene load_steps=7 format=3 uid="uid://ddy6t8h2kloc"]
 
 [ext_resource type="Script" path="res://scripts/ui/date/date_location_item.gd" id="1_script"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LocationButton"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LocationPanel"]
 bg_color = Color(0.98, 0.98, 0.985, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.89, 0.89, 0.92, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 shadow_color = Color(0, 0, 0, 0.06)
 shadow_size = 4
 shadow_offset = Vector2(0, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LocationButtonHover"]
-bg_color = Color(1, 1, 1, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ThumbContainer"]
+bg_color = Color(0.9, 0.9, 0.9, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AddBtn"]
+bg_color = Color(0.92, 0.96, 0.94, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.84, 0.84, 0.88, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.08)
-shadow_size = 5
-shadow_offset = Vector2(0, 2)
+border_color = Color(0.65, 0.82, 0.75, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AddBtnHover"]
+bg_color = Color(0.85, 0.92, 0.88, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.75, 0.65, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
 
 [node name="DateLocationItem" type="MarginContainer"]
 anchors_preset = 15
@@ -43,52 +59,63 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_bottom = 5
 script = ExtResource("1_script")
 
-[node name="HBox" type="HBoxContainer" parent="."]
+[node name="BgPanel" type="PanelContainer" parent="."]
 layout_mode = 2
-mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_LocationPanel")
 
-[node name="ActionButton" type="Button" parent="HBox"]
-custom_minimum_size = Vector2(0, 48)
+[node name="ContentMargin" type="MarginContainer" parent="BgPanel"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_LocationButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_LocationButtonHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_LocationButtonHover")
-text = ""
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 10
 
-[node name="ContentHBox" type="HBoxContainer" parent="HBox/ActionButton"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = 0.0
-offset_right = -16.0
-offset_bottom = 0.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="IconRect" type="TextureRect" parent="HBox/ActionButton/ContentHBox"]
-custom_minimum_size = Vector2(20, 20)
+[node name="HBox" type="HBoxContainer" parent="BgPanel/ContentMargin"]
 layout_mode = 2
-mouse_filter = 2
+theme_override_constants/separation = 15
+
+[node name="ThumbContainer" type="PanelContainer" parent="BgPanel/ContentMargin/HBox"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+size_flags_vertical = 4
+clip_contents = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_ThumbContainer")
+
+[node name="ThumbRect" type="TextureRect" parent="BgPanel/ContentMargin/HBox/ThumbContainer"]
+unique_name_in_owner = true
+layout_mode = 2
 expand_mode = 1
-stretch_mode = 5
+stretch_mode = 6
 
-[node name="NameLabel" type="Label" parent="HBox/ActionButton/ContentHBox"]
+[node name="TextVBox" type="VBoxContainer" parent="BgPanel/ContentMargin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.35, 0.35, 0.38, 1)
-theme_override_font_sizes/font_size = 17
-text = "Location Name"
-horizontal_alignment = 1
-vertical_alignment = 1
+alignment = 1
+theme_override_constants/separation = 5
 
-[node name="RightSpacer" type="Control" parent="HBox/ActionButton/ContentHBox"]
-custom_minimum_size = Vector2(20, 0)
+[node name="NameLabel" type="Label" parent="BgPanel/ContentMargin/HBox/TextVBox"]
+unique_name_in_owner = true
 layout_mode = 2
-mouse_filter = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "地点名称"
+
+[node name="DescLabel" type="Label" parent="BgPanel/ContentMargin/HBox/TextVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+theme_override_font_sizes/font_size = 14
+text = "地点描述"
+autowrap_mode = 3
+
+[node name="AddButton" type="Button" parent="BgPanel/ContentMargin/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_AddBtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_AddBtnHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_AddBtnHover")
+theme_override_colors/font_color = Color(0.4, 0.65, 0.55, 1)
+theme_override_font_sizes/font_size = 28
+text = "+"

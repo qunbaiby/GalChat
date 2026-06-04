@@ -2,16 +2,19 @@
 
 [resource]
 content_margin_left = 16.0
-content_margin_top = 12.0
+content_margin_top = 10.0
 content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(1, 1, 1, 1)
+content_margin_bottom = 10.0
+bg_color = Color(0.035, 0.035, 0.05, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.85, 0.92, 0.9, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.18, 0.2, 0.24, 0.92)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
