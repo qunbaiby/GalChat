@@ -16,27 +16,37 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputBg"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SendBtn"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="MobileChatPanel" type="Control"]
-custom_minimum_size = Vector2(400, 0)
 layout_mode = 3
-anchor_right = 0.312
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 0.63998413
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
@@ -61,14 +71,15 @@ grow_vertical = 2
 theme_override_constants/separation = 0
 
 [node name="TopBar" type="HBoxContainer" parent="Panel/VBox"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="BackBtn" type="Button" parent="Panel/VBox/TopBar"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 25
 text = "<"
 flat = true
 
@@ -82,10 +93,10 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="MoreBtn" type="Button" parent="Panel/VBox/TopBar"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "..."
 flat = true
 
@@ -98,22 +109,22 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_left = 13
+theme_override_constants/margin_top = 13
+theme_override_constants/margin_right = 13
+theme_override_constants/margin_bottom = 13
 
 [node name="MessageList" type="VBoxContainer" parent="Panel/VBox/ScrollContainer/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 
 [node name="BottomArea" type="VBoxContainer" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 10
 
 [node name="InputRow" type="HBoxContainer" parent="Panel/VBox/BottomArea"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 43)
 layout_mode = 2
 theme_override_constants/separation = 10
 
@@ -122,11 +133,11 @@ custom_minimum_size = Vector2(5, 0)
 layout_mode = 2
 
 [node name="EmojiBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "☺"
 flat = true
 
@@ -137,11 +148,11 @@ theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_InputBg")
-placeholder_text = " 输入消息内容..."
+placeholder_text = "输入消息内容..."
 caret_blink = true
 
 [node name="SendBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow"]
-custom_minimum_size = Vector2(70, 40)
+custom_minimum_size = Vector2(60, 35)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -157,7 +168,7 @@ layout_mode = 2
 
 [node name="ActionRow" type="HBoxContainer" parent="Panel/VBox/BottomArea"]
 layout_mode = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 15
 alignment = 1
 
 [node name="VoiceCallBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/ActionRow"]
@@ -166,7 +177,7 @@ theme_override_constants/separation = 2
 
 [node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/VoiceCallBtn"]
 modulate = Color(0.9, 0.84, 0.76, 1)
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 4
 texture_normal = ExtResource("7_voice")
@@ -186,7 +197,7 @@ theme_override_constants/separation = 2
 
 [node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/VideoBtn"]
 modulate = Color(0.9, 0.84, 0.76, 1)
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("4_eye")
@@ -206,7 +217,7 @@ theme_override_constants/separation = 2
 
 [node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/ImageBtn"]
 modulate = Color(0.9, 0.84, 0.76, 1)
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 4
 texture_normal = ExtResource("6_image")
@@ -226,7 +237,7 @@ theme_override_constants/separation = 2
 
 [node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/ActionRow/RedPacketBtn"]
 modulate = Color(0.9, 0.84, 0.76, 1)
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 4
 texture_normal = ExtResource("8_red_packet")
@@ -246,7 +257,7 @@ theme_override_constants/separation = 2
 
 [node name="Icon" type="TextureRect" parent="Panel/VBox/BottomArea/ActionRow/GiftBtn"]
 modulate = Color(0.9, 0.84, 0.76, 1)
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("5_gift")
@@ -261,7 +272,7 @@ text = "礼物"
 horizontal_alignment = 1
 
 [node name="BottomSpacer" type="Control" parent="Panel/VBox/BottomArea"]
-custom_minimum_size = Vector2(0, 15)
+custom_minimum_size = Vector2(0, 13)
 layout_mode = 2
 
 [node name="DeepSeekClient" type="Node" parent="."]

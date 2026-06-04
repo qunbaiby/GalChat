@@ -52,7 +52,7 @@ corner_radius_bottom_right = 11
 corner_radius_bottom_left = 11
 
 [node name="MobileContactListItem" type="Button"]
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 68)
 offset_right = 389.0
 offset_bottom = 80.0
 theme_override_styles/normal = SubResource("StyleBoxFlat_Normal")
@@ -73,18 +73,18 @@ offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 13
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 13
+theme_override_constants/margin_bottom = 8
 
 [node name="HBox" type="HBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 13
 
 [node name="AvatarMask" type="PanelContainer" parent="Margin/HBox"]
 clip_children = 1
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
@@ -121,7 +121,7 @@ text = "12:00"
 
 [node name="UnreadBadge" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
 visible = false
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 11
@@ -131,7 +131,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="MsgLabel" type="Label" parent="Margin/HBox/TextVBox"]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.56, 0.5, 1)
 theme_override_font_sizes/font_size = 14

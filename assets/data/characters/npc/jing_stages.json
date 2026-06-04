@@ -2,7 +2,6 @@
     "stages": [
         {
             "stage": 1,
-            "exp_cost": 9999,
             "resonance_threshold": 0,
             "milestone_story": "",
             "stageTitle": "严厉导师",

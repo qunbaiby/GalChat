@@ -6,6 +6,10 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VideoBg"]
 bg_color = Color(0.985, 0.988, 0.995, 0.24)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
 bg_color = Color(1, 1, 1, 0.98)
@@ -34,11 +38,11 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="VideoCallPanel" type="Control"]
-custom_minimum_size = Vector2(400, 0)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 3
-anchor_right = 0.312
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 0.63998413
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
@@ -72,8 +76,8 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CharacterAni" type="AnimatedSprite2D" parent="Panel/CharacterContainer"]
-position = Vector2(198.60745, 503.03128)
-scale = Vector2(0.30080566, 0.3008057)
+position = Vector2(165.0, 420.0)
+scale = Vector2(0.25, 0.25)
 sprite_frames = ExtResource("2_luna_frames")
 animation = &"calm"
 
@@ -84,14 +88,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 14
 
 [node name="NameLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "Name"
 horizontal_alignment = 1
 
@@ -107,8 +111,8 @@ horizontal_alignment = 1
 [node name="MessageCenter" type="MarginContainer" parent="Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_right = 30
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_right = 25
 
 [node name="MessageLabel" type="RichTextLabel" parent="Panel/VBox/MessageCenter"]
 layout_mode = 2
@@ -122,9 +126,9 @@ text = "[center]...[/center]"
 fit_content = true
 
 [node name="BottomBar" type="HBoxContainer" parent="Panel/VBox"]
-custom_minimum_size = Vector2(0, 100)
+custom_minimum_size = Vector2(0, 85)
 layout_mode = 2
-theme_override_constants/separation = 80
+theme_override_constants/separation = 40
 alignment = 1
 
 [node name="HangupVBox" type="VBoxContainer" parent="Panel/VBox/BottomBar"]
@@ -133,11 +137,11 @@ theme_override_constants/separation = 10
 alignment = 1
 
 [node name="HangupBtn" type="Button" parent="Panel/VBox/BottomBar/HangupVBox"]
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_HangupBtn")
@@ -159,11 +163,11 @@ theme_override_constants/separation = 10
 alignment = 1
 
 [node name="RecordBtn" type="Button" parent="Panel/VBox/BottomBar/RecordVBox"]
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_RecordBtn")
@@ -180,7 +184,7 @@ text = "按住说话"
 horizontal_alignment = 1
 
 [node name="BottomSpacer" type="Control" parent="Panel/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

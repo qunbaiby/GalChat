@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://0cfy2ephvsle"]
+[gd_scene load_steps=7 format=3 uid="uid://0cfy2ephvsle"]
 
 [ext_resource type="Script" uid="uid://cvxfblkpaci4e" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
@@ -17,18 +17,6 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 18
 shadow_offset = Vector2(0, 4)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
 border_width_left = 1
@@ -36,6 +24,18 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -79,17 +79,17 @@ grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(600, 400)
+custom_minimum_size = Vector2(680, 440)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -200.0
-offset_right = 300.0
-offset_bottom = 200.0
+offset_left = -350.0
+offset_top = -310.0
+offset_right = 350.0
+offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
@@ -99,58 +99,61 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = 40.0
-offset_right = -40.0
-offset_bottom = -40.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = -32.0
+offset_bottom = -32.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 30
-alignment = 1
+theme_override_constants/separation = 20
 
 [node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.65, 0.58, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 26
 text = "突发事件！"
-horizontal_alignment = 1
 
 [node name="DescLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.43, 0.45, 0.5, 1)
-theme_override_font_sizes/normal_font_size = 20
+theme_override_font_sizes/normal_font_size = 19
 bbcode_enabled = true
 text = "事件描述..."
+scroll_active = false
 
 [node name="OptionsHBox" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 40
-alignment = 1
+theme_override_constants/separation = 14
 
 [node name="BtnOpt1" type="Button" parent="Panel/VBoxContainer/OptionsHBox"]
-custom_minimum_size = Vector2(200, 50)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "选项1"
 
 [node name="BtnOpt2" type="Button" parent="Panel/VBoxContainer/OptionsHBox"]
-custom_minimum_size = Vector2(200, 50)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 text = "选项2"
 
 [node name="ResultBox" type="VBoxContainer" parent="Panel/VBoxContainer"]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 18
+theme_override_constants/separation = 14
 
 [node name="ResultPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox"]
 layout_mode = 2
@@ -175,8 +178,8 @@ size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.35, 0.37, 0.42, 1)
 theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
-scroll_active = false
 text = "结果描述..."
+scroll_active = false
 
 [node name="EffectsPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox"]
 layout_mode = 2
@@ -194,17 +197,15 @@ custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
-scroll_active = false
 text = "[center]属性变化[/center]"
+scroll_active = false
 
 [node name="ContinueButton" type="Button" parent="Panel/VBoxContainer/ResultBox"]
-custom_minimum_size = Vector2(180, 48)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "继续课程"
-
-

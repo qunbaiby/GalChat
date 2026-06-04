@@ -17,7 +17,7 @@ const MOMENT_ITEM_SCENE = preload("res://scenes/ui/mobile/moments/moment_item.ts
 @onready var player_name: Label = $Scroll/ContentVBox/Header/PlayerName
 @onready var player_avatar: TextureRect = $Scroll/ContentVBox/Header/AvatarBg/PlayerAvatar
 
-@onready var moment_list: VBoxContainer = $Scroll/ContentVBox/MomentListMargin/MomentList
+@onready var moment_list: VBoxContainer = $Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox/MomentListMargin/MomentList
 
 @onready var image_viewer: ColorRect = $ImageViewer
 @onready var full_image: TextureRect = $ImageViewer/FullImage
@@ -28,10 +28,12 @@ const MOMENT_ITEM_SCENE = preload("res://scenes/ui/mobile/moments/moment_item.ts
 var _is_cover_expanded: bool = false
 var _original_header_height: float = 350.0
 var _local_cover_path: String = ""
+var _suppress_cover_click_once: bool = false
 
 func _ready() -> void:
     back_btn.pressed.connect(_on_back_pressed)
     scroll.get_v_scroll_bar().value_changed.connect(_on_scroll_changed)
+    header.resized.connect(_update_cover_corner_mask)
     
     cover_image.gui_input.connect(_on_cover_gui_input)
     change_cover_btn.pressed.connect(_on_change_cover_pressed)
@@ -39,6 +41,7 @@ func _ready() -> void:
     close_viewer_btn.pressed.connect(_on_close_viewer_pressed)
     
     call_deferred("_connect_signals")
+    call_deferred("_update_cover_corner_mask")
     hide()
 
 func _connect_signals() -> void:
@@ -86,8 +89,16 @@ func show_panel() -> void:
     # 强制在显示时清理旧的 _local_cover_path，以防止打开时卡在旧的局部变量上
     _local_cover_path = ""
     _update_header()
+    _update_cover_corner_mask()
     refresh_list()
     _on_scroll_changed(scroll.scroll_vertical)
+
+func _update_cover_corner_mask() -> void:
+    var cover_size := Vector2(maxf(1.0, header.size.x), maxf(1.0, header.size.y))
+    if cover_image.material is ShaderMaterial:
+        (cover_image.material as ShaderMaterial).set_shader_parameter("rect_size", cover_size)
+    if $Scroll/ContentVBox/Header/CoverShade.material is ShaderMaterial:
+        ($Scroll/ContentVBox/Header/CoverShade.material as ShaderMaterial).set_shader_parameter("rect_size", cover_size)
 
 func _on_scroll_changed(value: float) -> void:
     # 模拟微信朋友圈：顶部标题和背景从封面覆盖态逐步过渡到浅色导航栏
@@ -102,8 +113,14 @@ func _on_scroll_changed(value: float) -> void:
     top_style_progress_changed.emit(progress)
 
 func _on_cover_gui_input(event: InputEvent) -> void:
-    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+    if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+        if _suppress_cover_click_once:
+            _suppress_cover_click_once = false
+            return
         _toggle_cover()
+
+func suppress_cover_click_once() -> void:
+    _suppress_cover_click_once = true
 
 func _toggle_cover() -> void:
     _is_cover_expanded = !_is_cover_expanded
@@ -228,6 +245,9 @@ func _on_back_pressed() -> void:
     hide_panel()
 
 func refresh_list() -> void:
+    if moment_list == null:
+        push_error("[MomentsPanel] 朋友圈列表节点不存在，请检查 BodyInset/BodyPanel 场景结构。")
+        return
     # Clear list
     for child in moment_list.get_children():
         child.queue_free()

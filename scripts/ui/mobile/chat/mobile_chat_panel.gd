@@ -7,10 +7,15 @@ signal incoming_call_ended
 
 @onready var back_btn: Button = $Panel/VBox/TopBar/BackBtn
 @onready var title_label: Label = $Panel/VBox/TopBar/Title
+@onready var panel_bg: Panel = $Panel
+@onready var top_bar: HBoxContainer = $Panel/VBox/TopBar
 @onready var voice_call_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/VoiceCallBtn/Btn
 @onready var video_call_btn: TextureRect = $Panel/VBox/BottomArea/ActionRow/VideoBtn/Icon
 @onready var image_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/ImageBtn/Btn
 @onready var red_packet_btn: TextureButton = $Panel/VBox/BottomArea/ActionRow/RedPacketBtn/Btn
+@onready var scroll_margin: MarginContainer = $Panel/VBox/ScrollContainer/Margin
+@onready var bottom_area: VBoxContainer = $Panel/VBox/BottomArea
+@onready var action_row: HBoxContainer = $Panel/VBox/BottomArea/ActionRow
 @onready var message_list: VBoxContainer = $Panel/VBox/ScrollContainer/Margin/MessageList
 @onready var input_edit: LineEdit = $Panel/VBox/BottomArea/InputRow/InputEdit
 @onready var send_btn: Button = $Panel/VBox/BottomArea/InputRow/SendBtn
@@ -42,8 +47,14 @@ var _current_call_is_incoming: bool = false
 var _current_viewing_image_path: String = ""
 var _follow_up_serial: int = 0
 var _last_player_mobile_text: String = ""
+var ui_context: Node = null
+var call_window_host: Node = null
+var is_embedded_mode: bool = false
 const FOLLOW_UP_DELAY_MIN: float = 12.0
 const FOLLOW_UP_DELAY_MAX: float = 24.0
+var _default_panel_style: StyleBox = null
+var _default_panel_minimum_size: Vector2 = Vector2.ZERO
+var _default_top_bar_height: float = 60.0
 
 func _load_texture_from_path(path: String) -> Texture2D:
 	var final_path = path.strip_edges()
@@ -88,6 +99,93 @@ func _ready() -> void:
 	
 	TTSManager.tts_success.connect(_on_tts_success)
 	TTSManager.tts_failed.connect(_on_tts_failed)
+	_default_panel_style = panel_bg.get_theme_stylebox("panel")
+	_default_panel_minimum_size = custom_minimum_size
+	_default_top_bar_height = top_bar.custom_minimum_size.y
+	_apply_panel_mode()
+
+func set_ui_context(context: Node) -> void:
+	ui_context = context
+
+func set_call_window_host(host: Node) -> void:
+	call_window_host = host
+
+func set_embedded_mode(enabled: bool) -> void:
+	is_embedded_mode = enabled
+	if is_node_ready():
+		_apply_panel_mode()
+
+func _apply_panel_mode() -> void:
+	if is_instance_valid(back_btn):
+		back_btn.visible = not is_embedded_mode
+	var more_btn := get_node_or_null("Panel/VBox/TopBar/MoreBtn") as Control
+	if more_btn:
+		more_btn.visible = not is_embedded_mode
+	if not is_instance_valid(panel_bg):
+		return
+	if is_embedded_mode:
+		custom_minimum_size = Vector2.ZERO
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		size_flags_vertical = Control.SIZE_EXPAND_FILL
+		top_bar.custom_minimum_size = Vector2(0, 68)
+		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		title_label.add_theme_font_size_override("font_size", 24)
+		title_label.add_theme_color_override("font_color", Color(0.24, 0.26, 0.30, 1.0))
+		scroll_margin.add_theme_constant_override("margin_left", 22)
+		scroll_margin.add_theme_constant_override("margin_top", 18)
+		scroll_margin.add_theme_constant_override("margin_right", 22)
+		scroll_margin.add_theme_constant_override("margin_bottom", 18)
+		bottom_area.add_theme_constant_override("separation", 12)
+		action_row.add_theme_constant_override("separation", 18)
+		action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		var embedded_style := StyleBoxFlat.new()
+		embedded_style.bg_color = Color(1, 1, 1, 0.0)
+		embedded_style.border_width_left = 0
+		embedded_style.border_width_top = 0
+		embedded_style.border_width_right = 0
+		embedded_style.border_width_bottom = 0
+		panel_bg.add_theme_stylebox_override("panel", embedded_style)
+	else:
+		custom_minimum_size = _default_panel_minimum_size
+		top_bar.custom_minimum_size = Vector2(0, _default_top_bar_height)
+		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title_label.add_theme_font_size_override("font_size", 18)
+		title_label.add_theme_color_override("font_color", Color(0.3, 0.35, 0.35, 1.0))
+		scroll_margin.add_theme_constant_override("margin_left", 15)
+		scroll_margin.add_theme_constant_override("margin_top", 15)
+		scroll_margin.add_theme_constant_override("margin_right", 15)
+		scroll_margin.add_theme_constant_override("margin_bottom", 15)
+		bottom_area.add_theme_constant_override("separation", 15)
+		action_row.add_theme_constant_override("separation", 25)
+		action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		if _default_panel_style:
+			panel_bg.add_theme_stylebox_override("panel", _default_panel_style)
+
+func _resolve_ui_context() -> Node:
+	if is_instance_valid(ui_context):
+		return ui_context
+	var current := get_parent()
+	while current:
+		if current.has_method("_on_album_app_pressed") or current.has_method("_update_social_entry_labels"):
+			return current
+		current = current.get_parent()
+	return null
+
+func _refresh_top_status_panel() -> void:
+	var top_panel = get_tree().get_root().find_child("TopStatusPanel", true, false)
+	if top_panel and top_panel.has_method("_update_ui"):
+		top_panel._update_ui()
+
+func _mount_call_panel(panel: Control, window_title: String, default_size: Vector2) -> void:
+	if is_instance_valid(call_window_host) and call_window_host.has_method("attach_floating_call_panel"):
+		call_window_host.attach_floating_call_panel(panel, window_title, default_size)
+		return
+
+	if panel.get_parent() != self:
+		if panel.get_parent():
+			panel.get_parent().remove_child(panel)
+		add_child(panel)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		
 func _on_tts_success(stream: AudioStream, _text: String) -> void:
 	if audio_player:
@@ -139,9 +237,7 @@ func _on_rp_send_pressed() -> void:
 	GameDataManager.profile.gold -= amount
 	GameDataManager.profile.save_profile()
 	
-	var top_panel = get_tree().get_root().find_child("TopStatusPanel", true, false)
-	if top_panel and top_panel.has_method("_update_ui"):
-		top_panel._update_ui()
+	_refresh_top_status_panel()
 	
 	red_packet_overlay.hide()
 	
@@ -208,7 +304,7 @@ func _on_rp_send_pressed() -> void:
 
 func _on_image_btn_pressed() -> void:
 	print("Image button pressed!")
-	var mobile_interface = get_parent().get_parent() # Assuming it's inside PhonePanel
+	var mobile_interface = _resolve_ui_context()
 	print("mobile_interface: ", mobile_interface, ", has method: ", mobile_interface.has_method("_on_album_app_pressed") if mobile_interface else "null")
 	if mobile_interface and mobile_interface.has_method("_on_album_app_pressed"):
 		mobile_interface._on_album_app_pressed()
@@ -225,7 +321,7 @@ func _on_photo_picked(path: String) -> void:
 	_send_player_message(msg_text)
 	
 	# After picking, we should return to chat
-	var mobile_interface = get_parent().get_parent()
+	var mobile_interface = _resolve_ui_context()
 	if mobile_interface and mobile_interface.album_panel_instance:
 		mobile_interface.album_panel_instance.hide_panel()
 		mobile_interface.album_panel_instance.set_picker_mode(false)
@@ -239,10 +335,9 @@ func start_voice_call(is_incoming: bool, is_fixed: bool = false) -> void:
 	if voice_call_panel_instance == null:
 		var VoiceCallObj = load("res://scenes/ui/mobile/chat/voice_call_panel.tscn")
 		voice_call_panel_instance = VoiceCallObj.instantiate()
-		add_child(voice_call_panel_instance)
-		voice_call_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		voice_call_panel_instance.call_ended.connect(_on_voice_call_ended)
 		voice_call_panel_instance.message_sent.connect(_on_voice_call_message_sent)
+	_mount_call_panel(voice_call_panel_instance, "语音通话", Vector2(360, 540))
 		
 	voice_call_panel_instance.setup(current_char_id, char_profile, is_incoming, is_fixed)
 	voice_call_panel_instance.show()
@@ -252,9 +347,10 @@ func start_voice_call(is_incoming: bool, is_fixed: bool = false) -> void:
 		_request_proactive_call_message(is_incoming, false)
 
 func _on_voice_call_ended() -> void:
-	if not _current_call_is_incoming:
-		if voice_call_panel_instance:
-			voice_call_panel_instance.hide()
+	if voice_call_panel_instance:
+		voice_call_panel_instance.hide()
+	if is_instance_valid(call_window_host) and call_window_host.has_method("detach_floating_call_panel"):
+		call_window_host.detach_floating_call_panel(voice_call_panel_instance)
 			
 	is_voice_call_mode = false
 	
@@ -276,10 +372,9 @@ func start_video_call(is_incoming: bool, is_fixed: bool = false) -> void:
 	if video_call_panel_instance == null:
 		var VideoCallObj = load("res://scenes/ui/mobile/chat/video_call_panel.tscn")
 		video_call_panel_instance = VideoCallObj.instantiate()
-		add_child(video_call_panel_instance)
-		video_call_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		video_call_panel_instance.call_ended.connect(_on_video_call_ended)
 		video_call_panel_instance.message_sent.connect(_on_voice_call_message_sent)
+	_mount_call_panel(video_call_panel_instance, "视频通话", Vector2(420, 680))
 		
 	video_call_panel_instance.setup(current_char_id, char_profile, is_incoming, is_fixed)
 	
@@ -293,9 +388,10 @@ func start_video_call(is_incoming: bool, is_fixed: bool = false) -> void:
 		_request_proactive_call_message(is_incoming, true)
 
 func _on_video_call_ended() -> void:
-	if not _current_call_is_incoming:
-		if video_call_panel_instance:
-			video_call_panel_instance.hide()
+	if video_call_panel_instance:
+		video_call_panel_instance.hide()
+	if is_instance_valid(call_window_host) and call_window_host.has_method("detach_floating_call_panel"):
+		call_window_host.detach_floating_call_panel(video_call_panel_instance)
 			
 	is_voice_call_mode = false
 	
@@ -605,9 +701,7 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 			GameDataManager.profile.gold += amount
 			GameDataManager.profile.save_profile()
 			
-			var top_panel = get_tree().get_root().find_child("TopStatusPanel", true, false)
-			if top_panel and top_panel.has_method("_update_ui"):
-				top_panel._update_ui()
+			_refresh_top_status_panel()
 		
 		# 添加系统消息
 		var sys_msg = {
@@ -785,7 +879,11 @@ func _normalize_history_message(msg: Dictionary) -> Dictionary:
 	return normalized
 
 func _notify_mobile_social_changed() -> void:
-	var curr = get_parent()
+	var curr = _resolve_ui_context()
+	if curr and curr.has_method("_update_social_entry_labels"):
+		curr._update_social_entry_labels()
+		return
+	curr = get_parent()
 	while curr:
 		if curr.has_method("_update_social_entry_labels"):
 			curr._update_social_entry_labels()
@@ -843,6 +941,12 @@ func show_panel() -> void:
 	show()
 	_mark_all_incoming_messages_read()
 	_notify_mobile_social_changed()
+	if is_embedded_mode:
+		modulate.a = 1.0
+		position = Vector2.ZERO
+		await get_tree().process_frame
+		scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+		return
 	position.x = size.x
 	modulate.a = 0.0
 	var tween = create_tween()
@@ -855,6 +959,11 @@ func show_panel() -> void:
 	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
 
 func hide_panel(immediate: bool = false) -> void:
+	if is_embedded_mode:
+		modulate.a = 1.0
+		position = Vector2.ZERO
+		hide()
+		return
 	if immediate:
 		modulate.a = 0.0
 		position.x = size.x

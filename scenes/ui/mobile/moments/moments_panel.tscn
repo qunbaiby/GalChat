@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bqhy5nsoe5rrr"]
+[gd_scene load_steps=10 format=3 uid="uid://bqhy5nsoe5rrr"]
 
 [ext_resource type="Script" uid="uid://drb4rgnlrf2iw" path="res://scripts/ui/mobile/moments/moments_panel.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
@@ -7,18 +7,27 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MomentsBg"]
 bg_color = Color(0.985, 0.988, 0.995, 0.98)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 18
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChangeCoverBtn"]
-bg_color = Color(1, 1, 1, 0.92)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="Gradient" id="Gradient_CoverShade"]
+offsets = PackedFloat32Array(0, 0.45, 0.8, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.08, 0, 0, 0, 0.42, 0, 0, 0, 0.68)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_CoverShade"]
+gradient = SubResource("Gradient_CoverShade")
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Shader" id="Shader_RoundTopCorners"]
+code = "shader_type canvas_item;\n\nuniform vec2 rect_size = vec2(380.0, 293.0);\nuniform float corner_radius = 20.0;\n\nvoid fragment() {\n\tvec2 p = UV * rect_size;\n\tif (p.y < corner_radius) {\n\t\tif (p.x < corner_radius && distance(p, vec2(corner_radius, corner_radius)) > corner_radius) {\n\t\t\tdiscard;\n\t\t}\n\t\tif (p.x > rect_size.x - corner_radius && distance(p, vec2(rect_size.x - corner_radius, corner_radius)) > corner_radius) {\n\t\t\tdiscard;\n\t\t}\n\t}\n\tCOLOR = texture(TEXTURE, UV) * COLOR;\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_RoundTopCorners"]
+shader = SubResource("Shader_RoundTopCorners")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -32,14 +41,28 @@ corner_radius_top_right = 35
 corner_radius_bottom_right = 35
 corner_radius_bottom_left = 35
 
-[sub_resource type="Gradient" id="Gradient_CoverShade"]
-offsets = PackedFloat32Array(0, 0.45, 0.8, 1)
-colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.08, 0, 0, 0, 0.42, 0, 0, 0, 0.68)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChangeCoverBtn"]
+bg_color = Color(1, 1, 1, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_CoverShade"]
-gradient = SubResource("Gradient_CoverShade")
-fill_from = Vector2(0.5, 0)
-fill_to = Vector2(0.5, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BodyPanel"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="Shader" id="Shader_CircleCrop"]
+code = "shader_type canvas_item;\n\nvoid fragment() {\n\tvec2 centered_uv = UV * 2.0 - vec2(1.0);\n\tif (dot(centered_uv, centered_uv) > 1.0) {\n\t\tdiscard;\n\t}\n\tCOLOR = texture(TEXTURE, UV) * COLOR;\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_CircleCrop"]
+shader = SubResource("Shader_CircleCrop")
 
 [node name="MomentsPanel" type="Panel"]
 anchors_preset = 15
@@ -47,6 +70,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+clip_contents = true
 theme = ExtResource("2_theme")
 theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsBg")
 script = ExtResource("1_script")
@@ -58,7 +82,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.985, 0.988, 0.995, 0.98)
+color = Color(0.985, 0.988, 0.995, 0)
 
 [node name="Scroll" type="ScrollContainer" parent="."]
 layout_mode = 1
@@ -76,7 +100,7 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="Header" type="Control" parent="Scroll/ContentVBox"]
-custom_minimum_size = Vector2(0, 350)
+custom_minimum_size = Vector2(0, 293)
 layout_mode = 2
 
 [node name="CoverImage" type="TextureRect" parent="Scroll/ContentVBox/Header"]
@@ -87,6 +111,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
+material = SubResource("ShaderMaterial_RoundTopCorners")
 texture = ExtResource("3_cover")
 expand_mode = 1
 stretch_mode = 6
@@ -99,6 +124,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+material = SubResource("ShaderMaterial_RoundTopCorners")
 texture = SubResource("GradientTexture2D_CoverShade")
 
 [node name="PlayerName" type="Label" parent="Scroll/ContentVBox/Header"]
@@ -108,33 +134,33 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -250.0
-offset_top = -65.0
-offset_right = -100.0
-offset_bottom = -35.0
+offset_left = -209.0
+offset_top = -54.0
+offset_right = -84.0
+offset_bottom = -29.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 20
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
 text = "Player"
 horizontal_alignment = 2
 
 [node name="AvatarBg" type="Panel" parent="Scroll/ContentVBox/Header"]
+clip_contents = true
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -85.0
-offset_top = -80.0
-offset_right = -15.0
-offset_bottom = -10.0
+offset_left = -71.0
+offset_top = -68.0
+offset_right = -13.0
+offset_bottom = -9.0
 grow_horizontal = 0
 grow_vertical = 0
-clip_contents = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
 [node name="PlayerAvatar" type="TextureRect" parent="Scroll/ContentVBox/Header/AvatarBg"]
@@ -142,12 +168,13 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 3.0
-offset_top = 3.0
-offset_right = -3.0
-offset_bottom = -3.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
+material = SubResource("ShaderMaterial_CircleCrop")
 texture = ExtResource("4_avatar")
 expand_mode = 1
 stretch_mode = 6
@@ -160,36 +187,53 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -100.0
-offset_top = -120.0
-offset_right = -20.0
-offset_bottom = -80.0
+offset_left = -84.0
+offset_top = -100.0
+offset_right = -16.0
+offset_bottom = -66.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_ChangeCoverBtn")
 text = "换封面"
 
-[node name="Spacer" type="Control" parent="Scroll/ContentVBox"]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-
-[node name="MomentListMargin" type="MarginContainer" parent="Scroll/ContentVBox"]
+[node name="BodyInset" type="MarginContainer" parent="Scroll/ContentVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="MomentList" type="VBoxContainer" parent="Scroll/ContentVBox/MomentListMargin"]
+[node name="BodyPanel" type="PanelContainer" parent="Scroll/ContentVBox/BodyInset"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_styles/panel = SubResource("StyleBoxFlat_BodyPanel")
+
+[node name="BodyVBox" type="VBoxContainer" parent="Scroll/ContentVBox/BodyInset/BodyPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Spacer" type="Control" parent="Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+
+[node name="MomentListMargin" type="MarginContainer" parent="Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 13
+theme_override_constants/margin_right = 13
+theme_override_constants/margin_bottom = 18
+
+[node name="MomentList" type="VBoxContainer" parent="Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox/MomentListMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
 
 [node name="TopBarBg" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 60.0
+offset_bottom = 50.0
 grow_horizontal = 2
 mouse_filter = 2
 color = Color(0.985, 0.988, 0.995, 0)
@@ -198,17 +242,17 @@ color = Color(0.985, 0.988, 0.995, 0)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 15.0
-offset_top = 10.0
-offset_right = -15.0
-offset_bottom = 50.0
+offset_left = 13.0
+offset_top = 9.0
+offset_right = -13.0
+offset_bottom = 43.0
 grow_horizontal = 2
 mouse_filter = 2
 
 [node name="BackBtn" type="Button" parent="TopBar"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "‹"
 flat = true
 
@@ -241,16 +285,16 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="CloseViewerBtn" type="Button" parent="ImageViewer"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -50.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 50.0
+offset_left = -44.0
+offset_top = 9.0
+offset_right = -9.0
+offset_bottom = 44.0
 grow_horizontal = 0
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "×"
 flat = true

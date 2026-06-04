@@ -1,9 +1,24 @@
-[gd_scene load_steps=11 format=3 uid="uid://dg38tk2bw0yfk"]
+[gd_scene load_steps=12 format=3 uid="uid://dg38tk2bw0yfk"]
 
+[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_5ofb5"]
 [ext_resource type="Script" uid="uid://b38a0dd45yqk4" path="res://scripts/ui/activity/schedule_execution_panel.gd" id="1_exec"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="PackedScene" uid="uid://bg7h8fad1f" path="res://scenes/ui/activity/course_slot.tscn" id="2_slot"]
 [ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="3_cgj2u"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ControlToolbar"]
+bg_color = Color(1, 1, 1, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.92, 0.95, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.1, 0.15, 0.12, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultTopBar"]
 bg_color = Color(1, 0.988235, 0.972549, 1)
@@ -45,7 +60,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
+theme = ExtResource("1_5ofb5")
 script = ExtResource("1_exec")
 slot_scene = ExtResource("2_slot")
 
@@ -58,36 +73,35 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
-[node name="MainPanel" type="Panel" parent="."]
-custom_minimum_size = Vector2(900, 650)
+[node name="InfoPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(700, 450)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -450.0
-offset_top = -325.0
-offset_right = 450.0
-offset_bottom = 325.0
+offset_left = -350.0
+offset_top = -310.0
+offset_right = 350.0
+offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TopImageRect" type="TextureRect" parent="MainPanel"]
-custom_minimum_size = Vector2(800, 360)
+[node name="TopImageRect" type="TextureRect" parent="InfoPanel"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -400.0
-offset_top = 40.0
-offset_right = 400.0
-offset_bottom = 400.0
+offset_left = -321.0
+offset_top = 28.0
+offset_right = 323.0
+offset_bottom = 332.0
 grow_horizontal = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect" type="ColorRect" parent="MainPanel/TopImageRect"]
+[node name="ColorRect" type="ColorRect" parent="InfoPanel/TopImageRect"]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -97,7 +111,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.8039216, 1, 0.9372549, 0.5411765)
 
-[node name="TitleContainer" type="PanelContainer" parent="MainPanel/TopImageRect"]
+[node name="TitleContainer" type="PanelContainer" parent="InfoPanel/TopImageRect"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -111,104 +125,28 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="TitleLabel" type="Label" parent="MainPanel/TopImageRect/TitleContainer"]
+[node name="TitleLabel" type="Label" parent="InfoPanel/TopImageRect/TitleContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_color = Color(0.15294118, 0.32156864, 0.33333334, 1)
 theme_override_font_sizes/font_size = 22
 text = "课程标题"
 horizontal_alignment = 1
 
-[node name="DescLabel" type="Label" parent="MainPanel"]
-custom_minimum_size = Vector2(800, 60)
+[node name="DescLabel" type="Label" parent="InfoPanel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = 115.0
-offset_right = 400.0
-offset_bottom = 175.0
+offset_left = -320.0
+offset_top = 134.0
+offset_right = 322.0
+offset_bottom = 211.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.3, 0.25, 0.2, 1)
-theme_override_font_sizes/font_size = 18
 text = "获取描述中..."
 horizontal_alignment = 1
-autowrap_mode = 3
-max_lines_visible = 3
-
-[node name="BonusHBox" type="HBoxContainer" parent="MainPanel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = 180.0
-offset_right = 400.0
-offset_bottom = 210.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 20
-alignment = 1
-
-
-[node name="ControlButtons" type="HBoxContainer" parent="MainPanel"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -220.0
-offset_top = -60.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_constants/separation = 20
-alignment = 2
-
-[node name="AutoButton" type="Button" parent="MainPanel/ControlButtons"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_font_sizes/font_size = 18
-text = "自动"
-
-[node name="SkipButton" type="Button" parent="MainPanel/ControlButtons"]
-custom_minimum_size = Vector2(80, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "跳过"
-
-[node name="TrackContainer" type="HBoxContainer" parent="MainPanel"]
-custom_minimum_size = Vector2(850, 90)
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -425.0
-offset_top = -90.0
-offset_right = 425.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/separation = 20
-alignment = 1
-
-[node name="CharacterIcon" type="AnimatedSprite2D" parent="MainPanel/TrackContainer"]
-z_index = 1
-position = Vector2(412, 7)
-scale = Vector2(0.10058594, 0.10058594)
-sprite_frames = ExtResource("3_cgj2u")
 
 [node name="ClickArea" type="Button" parent="."]
 layout_mode = 1
@@ -220,16 +158,94 @@ grow_vertical = 2
 focus_mode = 0
 flat = true
 
+[node name="ControlToolbar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -117.0
+offset_top = -84.0
+offset_right = 113.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ControlToolbar")
 
-[node name="LoadingOverlay" type="Control" parent="."]
-visible = false
+[node name="Margin" type="MarginContainer" parent="ControlToolbar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="ControlButtons" type="HBoxContainer" parent="ControlToolbar/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="AutoButton" type="Button" parent="ControlToolbar/Margin/ControlButtons"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.48235294, 0.50980395, 1)
+theme_override_colors/font_pressed_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "自动"
+
+[node name="SkipButton" type="Button" parent="ControlToolbar/Margin/ControlButtons"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.48235294, 0.50980395, 1)
+theme_override_font_sizes/font_size = 18
+text = "跳过"
+
+[node name="TrackPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = 162.0
+offset_right = 350.0
+offset_bottom = 264.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TrackMargin" type="MarginContainer" parent="TrackPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="TrackContainer" type="HBoxContainer" parent="TrackPanel/TrackMargin"]
+custom_minimum_size = Vector2(700, 80)
+layout_mode = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="CharacterIcon" type="AnimatedSprite2D" parent="TrackPanel/TrackMargin/TrackContainer"]
+z_index = 1
+position = Vector2(348, 7)
+scale = Vector2(0.10058594, 0.10058594)
+sprite_frames = ExtResource("3_cgj2u")
+
+[node name="LoadingOverlay" type="Control" parent="."]
+visible = false
 z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="ColorRect" type="ColorRect" parent="LoadingOverlay"]
 layout_mode = 1
@@ -248,9 +264,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = -50.0
+offset_top = -210.0
 offset_right = 150.0
-offset_bottom = 50.0
+offset_bottom = -110.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20

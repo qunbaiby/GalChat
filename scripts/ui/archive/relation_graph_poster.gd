@@ -502,7 +502,7 @@ func _evaluate_unlock_rule(rule: Dictionary) -> bool:
 		"npc_contact_started":
 			var npc_id: String = str(rule.get("npc_id", ""))
 			var npc_state: Dictionary = dynamic_state.get("npc_states", {}).get(npc_id, {})
-			return float(npc_state.get("intimacy", 0.0)) > 0.0 or float(npc_state.get("trust", 0.0)) > 0.0 or int(npc_state.get("interaction_exp", 0)) > 0 or int(npc_state.get("stage", 1)) > 1
+			return float(npc_state.get("intimacy", 0.0)) > 0.0 or float(npc_state.get("trust", 0.0)) > 0.0 or int(npc_state.get("stage", 1)) > 1
 		_:
 			return true
 

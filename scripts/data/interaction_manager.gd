@@ -1,7 +1,7 @@
 extends Node
 
 # 互动行为开销与收益管理器
-# 用于统一管理玩家与角色交互时产生的行动力、金币、经验、心情、压力等影响
+# 用于统一管理玩家与角色交互时产生的行动力、金币、心情、压力等影响
 
 var interaction_config: Dictionary = {}
 
@@ -42,13 +42,6 @@ func execute_interaction(action_id: String) -> bool:
         profile.consume_energy(energy_cost)
     if gold_cost > 0:
         profile.gold -= gold_cost
-        
-    # 增加互动经验
-    var exp_gain = int(config.get("exp_gain", 0))
-    if exp_gain > 0:
-        profile.interaction_exp += exp_gain
-        profile.check_stage_upgrade()
-        ToastManager.show_toast("互动经验 +%d" % exp_gain, Color(0.9, 0.6, 0.4, 0.9))
         
     # 调整心情与压力
     var mood_impact = int(config.get("mood_impact", 0))

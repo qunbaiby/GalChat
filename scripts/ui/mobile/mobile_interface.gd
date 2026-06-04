@@ -5,17 +5,16 @@ signal phone_closing
 
 const MemoryAlbumManagerScript = preload("res://scripts/data/memory_album_manager.gd")
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
-const AffectionPanelScene = preload("res://scenes/ui/mobile/affection_panel.tscn")
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
-@onready var archive_btn: Button = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/BtnHBox/ArchiveBtn
-@onready var pomodoro_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/PomodoroContainer/PomodoroBtn
-@onready var affection_btn: Button = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/BtnHBox/AffectionButton
-@onready var settings_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SettingsBtn
-@onready var save_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SaveBtn
-@onready var load_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/LoadBtn
-@onready var album_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/AlbumBtn
+@onready var pomodoro_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/PomodoroBtn
+@onready var archive_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/ArchiveBtn
+@onready var desktop_pet_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/DesktopPetBtn
+@onready var settings_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/SettingsBtn
+@onready var save_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/SaveBtn
+@onready var load_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/LoadBtn
+@onready var album_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/AlbumBtn
 @onready var preview_image: TextureRect = $PhonePanel/MainMargin/VBox/CardsHBox/ImagePreview/ImageCard/Image
 @onready var power_btn: Button = $PhonePanel/MainMargin/VBox/PowerBtn
 @onready var between_entry_panel: PanelContainer = $PhonePanel/MainMargin/VBox/ListCards/BetweenEntry
@@ -28,12 +27,6 @@ const AffectionPanelScene = preload("res://scenes/ui/mobile/affection_panel.tscn
 @onready var char_name_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/NamePlate/HBox/CharName
 @onready var char_avatar_rect: TextureRect = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/AvatarContainer/AvatarMask/Avatar
 @onready var player_avatar_rect: TextureRect = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer/AvatarMask/Avatar
-@onready var lvl_num_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/LevelNum
-@onready var lvl_progress_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox/LevelProgress
-@onready var exp_bar: ProgressBar = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/ExpBar
-
-@onready var affection_panel = $PhonePanel/AffectionPanel
-
 @onready var phone_panel: Panel = $PhonePanel
 @onready var color_rect: ColorRect = $ColorRect
 
@@ -52,13 +45,11 @@ var _album_photos: Array = []
 var _current_photo_idx: int = 0
 var _photo_timer: float = 0.0
 const PHOTO_CHANGE_INTERVAL: float = 5.0
-const AFFECTION_OPEN_SOURCE_PHONE := "phone"
-const AFFECTION_OPEN_SOURCE_MAIN := "main"
-var _affection_open_source: String = AFFECTION_OPEN_SOURCE_PHONE
 
 var preview_image_next: TextureRect = null
 var _preview_tween: Tween
 var _slide_tween: Tween
+var _wechat_overlay_only: bool = false
 
 func _ready() -> void:
 	visible = false
@@ -83,15 +74,13 @@ func _ready() -> void:
 	# 绑定信号
 	archive_btn.pressed.connect(_on_archive_app_pressed)
 	pomodoro_btn.pressed.connect(_on_pomodoro_app_pressed)
+	desktop_pet_btn.pressed.connect(_on_desktop_pet_pressed)
 	settings_btn.pressed.connect(_on_settings_app_pressed)
 	save_btn.pressed.connect(_on_save_app_pressed)
 	load_btn.pressed.connect(_on_load_app_pressed)
 	album_btn.pressed.connect(_on_album_app_pressed)
-	affection_btn.pressed.connect(_on_affection_button_pressed)
 	power_btn.pressed.connect(_on_close_pressed)
 	between_entry_btn.pressed.connect(_on_between_entry_pressed)
-	if is_instance_valid(affection_panel) and affection_panel.has_signal("back_requested"):
-		affection_panel.back_requested.connect(_on_affection_back_pressed)
 	# camera_btn.pressed.connect(_on_camera_app_pressed)
 	if MomentsManager and MomentsManager.has_signal("moments_updated"):
 		MomentsManager.moments_updated.connect(_update_social_entry_labels)
@@ -111,7 +100,8 @@ func _update_time() -> void:
 	pass
 
 func show_phone() -> void:
-	_affection_open_source = AFFECTION_OPEN_SOURCE_PHONE
+	_wechat_overlay_only = false
+	phone_panel.show()
 	if GameDataManager.config and GameDataManager.profile:
 		var profile = GameDataManager.profile
 		if is_instance_valid(player_name_lbl):
@@ -127,34 +117,10 @@ func show_phone() -> void:
 			var tex = load(profile.avatar)
 			if tex: char_avatar_rect.texture = tex
 			
-		var current_stage = profile.current_stage
-		var conf = profile.get_current_stage_config()
-		
-		if is_instance_valid(lvl_num_lbl): lvl_num_lbl.text = str(current_stage)
-		
-		var current_resonance = profile.intimacy + profile.trust
-		var res_threshold = 9999.0
-		if not conf.is_empty():
-			res_threshold = float(conf.get("resonance_threshold", 9999))
-			
-		var display_res_max = res_threshold
-		if res_threshold >= 9999:
-			display_res_max = max(current_resonance, 100)
-			
-		if is_instance_valid(lvl_progress_lbl): 
-			lvl_progress_lbl.text = "%.1f/MAX" % current_resonance if res_threshold >= 9999 else "%.1f/%d" % [current_resonance, int(res_threshold)]
-			
-		if is_instance_valid(exp_bar):
-			exp_bar.min_value = 0
-			exp_bar.max_value = display_res_max
-			exp_bar.value = min(current_resonance, display_res_max)
-
 	_update_time()
 	_load_album_photos()
 	_update_social_entry_labels()
 	_update_between_entry_card()
-	if is_instance_valid(affection_panel):
-		affection_panel.hide()
 	
 	show()
 	color_rect.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -280,6 +246,14 @@ func _get_unread_count_for_char(char_id: String) -> int:
 	return unread
 
 func hide_phone(emit_closing: bool = true) -> void:
+	if _wechat_overlay_only:
+		_wechat_overlay_only = false
+		if wechat_panel_instance:
+			wechat_panel_instance.hide_panel(true)
+		phone_panel.hide()
+		color_rect.color.a = 0.0
+		hide()
+		return
 	if emit_closing:
 		phone_closing.emit()
 	color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -292,8 +266,6 @@ func hide_phone(emit_closing: bool = true) -> void:
 	_slide_tween.tween_property(color_rect, "color:a", 0.0, 0.4)
 	_slide_tween.chain().tween_callback(func():
 		hide()
-		if affection_panel:
-			affection_panel.hide()
 		if between_panel_instance:
 			between_panel_instance.hide()
 		if chat_panel_instance:
@@ -313,23 +285,6 @@ func _on_color_rect_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		hide_phone()
 
-func _on_affection_button_pressed() -> void:
-	_affection_open_source = AFFECTION_OPEN_SOURCE_PHONE
-	if is_instance_valid(affection_panel) and affection_panel.has_method("show_panel"):
-		affection_panel.show_panel(GameDataManager.profile)
-
-func _on_affection_back_pressed() -> void:
-	if _affection_open_source == AFFECTION_OPEN_SOURCE_MAIN:
-		hide_phone()
-		return
-	if is_instance_valid(affection_panel):
-		affection_panel.hide()
-
-func open_affection_directly() -> void:
-	_affection_open_source = AFFECTION_OPEN_SOURCE_MAIN
-	if is_instance_valid(affection_panel) and affection_panel.has_method("show_panel"):
-		affection_panel.show_panel(GameDataManager.profile)
-
 func _on_archive_app_pressed() -> void:
 	if archive_panel_instance == null:
 		var ArchivePanelObj = load("res://scenes/ui/archive/archive_panel.tscn")
@@ -339,6 +294,10 @@ func _on_archive_app_pressed() -> void:
 	else:
 		phone_panel.move_child(archive_panel_instance, -1)
 	archive_panel_instance.show_panel()
+
+func _on_desktop_pet_pressed() -> void:
+	hide_phone()
+	app_opened.emit("desktop_pet")
 
 func _on_pomodoro_app_pressed() -> void:
 	if pomodoro_panel_instance == null:
@@ -460,24 +419,46 @@ func _on_album_app_pressed() -> void:
 
 var wechat_panel_instance = null
 
-func open_wechat_directly() -> void:
+func _show_wechat_overlay_root() -> void:
+	_wechat_overlay_only = true
+	show()
+	phone_panel.hide()
+	phone_panel.position.x = 1280.0
+	color_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	color_rect.color.a = 0.22
+
+func open_wechat_directly(standalone: bool = false) -> void:
+	if standalone:
+		_show_wechat_overlay_root()
+	else:
+		_wechat_overlay_only = false
+		phone_panel.show()
 	if wechat_panel_instance == null:
 		var WeChatPanelObj = load("res://scenes/ui/mobile/wechat/wechat_main_panel.tscn")
 		wechat_panel_instance = WeChatPanelObj.instantiate()
-		phone_panel.add_child(wechat_panel_instance)
+		add_child(wechat_panel_instance)
 		wechat_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		wechat_panel_instance.back_requested.connect(_on_wechat_panel_back)
-		wechat_panel_instance.character_selected.connect(_on_character_selected)
 		wechat_panel_instance.cover_pick_requested.connect(_on_moments_cover_pick_requested)
 	else:
-		phone_panel.move_child(wechat_panel_instance, -1)
+		move_child(wechat_panel_instance, -1)
+	if wechat_panel_instance.has_method("set_ui_context"):
+		wechat_panel_instance.set_ui_context(self)
 	wechat_panel_instance.show_panel()
-	if wechat_panel_instance.has_method("_on_tab_pressed"):
-		wechat_panel_instance._on_tab_pressed(0)
+	if wechat_panel_instance.has_method("open_default_mode"):
+		wechat_panel_instance.open_default_mode()
 	_update_social_entry_labels()
 
 func _on_wechat_panel_back() -> void:
 	_update_social_entry_labels()
+	if _wechat_overlay_only:
+		_wechat_overlay_only = false
+		if wechat_panel_instance:
+			wechat_panel_instance.hide_panel(true)
+		phone_panel.hide()
+		color_rect.color.a = 0.0
+		hide()
+		return
 	hide_phone()
 
 func _on_moments_cover_pick_requested() -> void:
@@ -517,6 +498,12 @@ func _on_character_selected(char_id: String) -> void:
 		chat_panel_instance.incoming_call_ended.connect(_on_incoming_call_ended)
 	else:
 		phone_panel.move_child(chat_panel_instance, -1)
+	if chat_panel_instance.has_method("set_ui_context"):
+		chat_panel_instance.set_ui_context(self)
+	if chat_panel_instance.has_method("set_embedded_mode"):
+		chat_panel_instance.set_embedded_mode(false)
+	if chat_panel_instance.has_method("set_call_window_host"):
+		chat_panel_instance.set_call_window_host(null)
 		
 	chat_panel_instance.setup(char_id)
 	chat_panel_instance.show_panel()
@@ -541,6 +528,12 @@ func open_call_directly(char_id: String, is_video: bool, is_fixed: bool = false)
 		chat_panel_instance.incoming_call_ended.connect(_on_incoming_call_ended)
 	else:
 		phone_panel.move_child(chat_panel_instance, -1)
+	if chat_panel_instance.has_method("set_ui_context"):
+		chat_panel_instance.set_ui_context(self)
+	if chat_panel_instance.has_method("set_embedded_mode"):
+		chat_panel_instance.set_embedded_mode(false)
+	if chat_panel_instance.has_method("set_call_window_host"):
+		chat_panel_instance.set_call_window_host(null)
 		
 	chat_panel_instance.setup(char_id)
 	chat_panel_instance.show_panel()

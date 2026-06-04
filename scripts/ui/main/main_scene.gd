@@ -2,14 +2,22 @@ extends Control
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
+const AffectionPanelScene = preload("res://scenes/ui/mobile/affection_panel.tscn")
+const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
+const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
 @onready var ui_panel: Panel = $UIPanel
 @onready var rest_button: Button = $UIPanel/BottomBarHBox/ActionHBox/RestButton
-@onready var desktop_pet_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DesktopPetButton
+@onready var skill_button: Button = $UIPanel/BottomBarHBox/BtnHBox/SkillButton
 @onready var hide_ui_button: Button = $UIPanel/SystemButton/HideUIButton
 @onready var camera_button: Button = $UIPanel/SystemButton/CameraButton
 @onready var phone_button: Button = $UIPanel/SystemButton/PhoneButton
 @onready var affection_button: Button = $UIPanel/AffectionButton
+@onready var affection_stage_title_label: Label = $UIPanel/AffectionButton/ContentHBox/StageVBox/StageTitleLabel
+@onready var goal_value_label: Label = $UIPanel/GoalPanel/GoalMargin/GoalVBox/GoalValue
+@onready var affection_overlay: Control = $UIPanel/AffectionOverlay
+@onready var affection_dismiss_button: Button = $UIPanel/AffectionOverlay/DismissButton
+@onready var affection_popup_frame: Control = $UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame
 @onready var wardrobe_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WardrobeButton
 
 @onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
@@ -152,9 +160,145 @@ func _build_main_chat_meta(extra_data: Dictionary = {}) -> Dictionary:
 func _update_affection_button_ui() -> void:
 	if not is_instance_valid(affection_button) or not GameDataManager.profile:
 		return
-	var level_label = affection_button.get_node_or_null("CenterContainer/LevelLabel")
-	if level_label:
-		level_label.text = "LV\n%d" % int(GameDataManager.profile.current_stage)
+	var stage_conf: Dictionary = GameDataManager.profile.get_current_stage_config()
+	if is_instance_valid(affection_stage_title_label):
+		affection_stage_title_label.text = str(stage_conf.get("stageTitle", "未命名阶段"))
+	_update_goal_panel_ui()
+	if is_instance_valid(affection_panel_instance) and affection_panel_instance.visible and affection_panel_instance.has_method("update_ui"):
+		affection_panel_instance.update_ui(GameDataManager.profile)
+
+func _update_goal_panel_ui() -> void:
+	if not is_instance_valid(goal_value_label):
+		return
+	goal_value_label.text = ""
+
+func _build_goal_panel_text(profile) -> String:
+	var current_conf: Dictionary = profile.get_current_stage_config()
+	if current_conf.is_empty():
+		return "当前阶段配置缺失。"
+
+	var next_conf: Dictionary = profile.get_stage_config(int(profile.current_stage) + 1)
+	var current_resonance: float = float(profile.intimacy) + float(profile.trust)
+	var resonance_threshold: float = float(current_conf.get("resonance_threshold", 9999.0))
+	var lines: Array[String] = []
+
+	if next_conf.is_empty() or resonance_threshold >= 9999.0:
+		lines.append("当前已达最高阶段")
+		lines.append("继续推进日常互动与关键剧情")
+		return "\n".join(lines)
+
+	lines.append("下一阶段：%s" % str(next_conf.get("stageTitle", "未命名阶段")))
+	lines.append("共感进度：%.0f / %.0f" % [current_resonance, resonance_threshold])
+
+	var milestone_story := str(current_conf.get("milestone_story", "")).strip_edges()
+	if milestone_story != "":
+		var event_manager = get_tree().root.get_node_or_null("EventManager")
+		var milestone_done := false
+		if event_manager and event_manager.has_method("is_event_triggered"):
+			milestone_done = event_manager.is_event_triggered(milestone_story)
+		lines.append("里程碑：%s%s" % [
+			_describe_goal_milestone(milestone_story),
+			"（已完成）" if milestone_done else "（待触发）"
+		])
+	else:
+		lines.append("里程碑：继续提升亲密与信任")
+
+	return "\n".join(lines)
+
+func _ensure_goal_reference_cache() -> void:
+	if _goal_event_registry_cache.is_empty() and FileAccess.file_exists(EVENT_REGISTRY_PATH):
+		var event_file = FileAccess.open(EVENT_REGISTRY_PATH, FileAccess.READ)
+		if event_file:
+			var event_json = JSON.new()
+			if event_json.parse(event_file.get_as_text()) == OK:
+				var event_data = event_json.get_data()
+				for event_item in event_data.get("events", []):
+					var event_id := str(event_item.get("event_id", "")).strip_edges()
+					if event_id != "":
+						_goal_event_registry_cache[event_id] = event_item
+			event_file.close()
+
+	if _goal_map_name_cache.is_empty() and FileAccess.file_exists(MAP_DATA_PATH):
+		var map_file = FileAccess.open(MAP_DATA_PATH, FileAccess.READ)
+		if map_file:
+			var map_json = JSON.new()
+			if map_json.parse(map_file.get_as_text()) == OK:
+				var map_data = map_json.get_data()
+				var locations: Dictionary = map_data.get("locations", {})
+				for location_id in locations.keys():
+					var location_info = locations[location_id]
+					if location_info is Dictionary:
+						_goal_map_name_cache[str(location_id)] = str(location_info.get("name", location_id))
+			map_file.close()
+
+func _describe_goal_milestone(event_id: String) -> String:
+	if event_id == "":
+		return "继续推进关键剧情"
+
+	_ensure_goal_reference_cache()
+	if not _goal_event_registry_cache.has(event_id):
+		return "完成关键事件【%s】" % event_id
+
+	var event_info: Dictionary = _goal_event_registry_cache[event_id]
+	var parts: Array[String] = []
+	for condition in event_info.get("conditions", []):
+		if not (condition is Dictionary):
+			continue
+		match str(condition.get("type", "")):
+			"location":
+				var location_id := str(condition.get("value", ""))
+				parts.append("前往【%s】" % _goal_map_name_cache.get(location_id, location_id))
+			"time_period":
+				parts.append("时段为【%s】" % str(condition.get("value", "")))
+			"weather":
+				parts.append("天气为【%s】" % str(condition.get("value", "")))
+			"npc_stage":
+				parts.append("相关角色阶段达到 %s" % str(condition.get("min_stage", "")))
+
+	if parts.is_empty():
+		return "完成关键事件【%s】" % event_id
+	return "，".join(parts)
+
+func _ensure_affection_panel_popup() -> void:
+	if is_instance_valid(affection_panel_instance):
+		return
+	affection_panel_instance = AffectionPanelScene.instantiate()
+	affection_popup_frame.add_child(affection_panel_instance)
+	if affection_panel_instance is Control:
+		var panel_control := affection_panel_instance as Control
+		var target_size := panel_control.custom_minimum_size
+		if target_size == Vector2.ZERO:
+			target_size = panel_control.get_combined_minimum_size()
+		if target_size != Vector2.ZERO:
+			affection_popup_frame.custom_minimum_size = target_size
+	affection_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if affection_panel_instance.has_signal("back_requested"):
+		affection_panel_instance.back_requested.connect(_hide_affection_popup)
+
+func _show_affection_popup() -> void:
+	_ensure_affection_panel_popup()
+	if not is_instance_valid(affection_panel_instance):
+		return
+	affection_panel_instance.show_panel(GameDataManager.profile)
+	affection_overlay.show()
+	affection_overlay.modulate.a = 0.0
+	affection_popup_frame.scale = Vector2(0.94, 0.94)
+	affection_popup_frame.pivot_offset = affection_popup_frame.custom_minimum_size * 0.5
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(affection_overlay, "modulate:a", 1.0, 0.2)
+	tween.tween_property(affection_popup_frame, "scale", Vector2.ONE, 0.2)
+
+func _hide_affection_popup() -> void:
+	if not is_instance_valid(affection_overlay) or not affection_overlay.visible:
+		return
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(affection_overlay, "modulate:a", 0.0, 0.18)
+	tween.tween_property(affection_popup_frame, "scale", Vector2(0.94, 0.94), 0.18)
+	tween.chain().tween_callback(func():
+		if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("hide_panel"):
+			affection_panel_instance.hide_panel()
+		affection_overlay.hide()
+	)
 
 func _is_ui_blocked() -> bool:
 	if is_proactive_greeting or proactive_greeting_step > 0:
@@ -1187,6 +1331,7 @@ func _on_emotion_response(response: Dictionary) -> void:
 				stats_panel._update_ui()
 			if top_status_panel and top_status_panel.has_method("_update_ui"):
 				top_status_panel._update_ui()
+			_update_affection_button_ui()
 
 func _on_options_response(response: Dictionary) -> void:
 	if response.has("choices") and response["choices"].size() > 0:
@@ -1258,9 +1403,10 @@ func _ready() -> void:
 	camera_button.pressed.connect(_on_camera_pressed)
 	phone_button.pressed.connect(_on_phone_pressed)
 	affection_button.pressed.connect(_on_affection_pressed)
+	affection_dismiss_button.pressed.connect(_hide_affection_popup)
 	rest_button.pressed.connect(_on_rest_pressed)
 	main_action_button.pressed.connect(_on_main_action_pressed)
-	desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
+	skill_button.pressed.connect(_on_skill_placeholder_pressed)
 	diary_button.pressed.connect(_on_diary_pressed)
 	wechat_button.pressed.connect(_on_wechat_pressed)
 	if wardrobe_button:
@@ -1320,7 +1466,7 @@ func _ready() -> void:
 	camera_button.pivot_offset = camera_button.size / 2
 	phone_button.pivot_offset = phone_button.size / 2
 	rest_button.pivot_offset = rest_button.size / 2
-	desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
+	skill_button.pivot_offset = skill_button.size / 2
 	hide_ui_button.pivot_offset = hide_ui_button.size / 2
 	affection_button.pivot_offset = affection_button.size / 2
 	if is_instance_valid(main_action_button):
@@ -1822,7 +1968,9 @@ func _on_exit_afk() -> void:
 
 func _on_desktop_pet_pressed() -> void:
 	if _is_ui_blocked(): return
-	_animate_button(desktop_pet_button)
+	_toggle_desktop_pet()
+
+func _toggle_desktop_pet() -> void:
 	if is_instance_valid(desktop_pet_instance):
 		# 桌宠已存在，关闭它。先隐藏以防止输入系统报错
 		desktop_pet_instance.hide()
@@ -1833,6 +1981,11 @@ func _on_desktop_pet_pressed() -> void:
 		var DesktopPetObj = load("res://scenes/ui/desktop_pet/desktop_pet.tscn")
 		desktop_pet_instance = DesktopPetObj.instantiate()
 		get_tree().root.add_child(desktop_pet_instance)
+
+func _on_skill_placeholder_pressed() -> void:
+	if _is_ui_blocked(): return
+	_animate_button(skill_button)
+	ToastManager.show_system_toast("技能系统入口预留中", Color(0.57, 0.82, 0.76, 1))
 
 func _on_incoming_call_accepted(char_id: String, is_video: bool, is_fixed: bool = false) -> void:
 	# 接听电话：打开手机面板
@@ -1845,11 +1998,10 @@ func _on_incoming_call_accepted(char_id: String, is_video: bool, is_fixed: bool 
 func _on_wechat_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(wechat_button)
-	_on_phone_pressed()
-	# 等待一帧让手机界面初始化完毕
-	await get_tree().process_frame
+	_ensure_mobile_interface()
 	if mobile_interface_instance and mobile_interface_instance.has_method("open_wechat_directly"):
-		mobile_interface_instance.open_wechat_directly()
+		await get_tree().process_frame
+		mobile_interface_instance.open_wechat_directly(true)
 
 func _ensure_mobile_interface() -> void:
 	if mobile_interface_instance == null:
@@ -1898,7 +2050,9 @@ func _on_phone_closing() -> void:
 		current_bg_scene.set_ui_hidden(false)
 
 func _on_mobile_app_opened(app_name: String) -> void:
-	pass
+	match app_name:
+		"desktop_pet":
+			_toggle_desktop_pet()
 
 func _on_main_action_pressed() -> void:
 	if _is_ui_blocked(): return
@@ -2093,6 +2247,9 @@ func _notification(what: int) -> void:
 			get_tree().quit()
 
 var camera_panel_instance = null
+var affection_panel_instance = null
+var _goal_event_registry_cache: Dictionary = {}
+var _goal_map_name_cache: Dictionary = {}
 
 func _on_camera_pressed() -> void:
 	if _is_ui_blocked(): return
@@ -2132,24 +2289,7 @@ func _on_camera_closed() -> void:
 func _on_affection_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(affection_button)
-	_ensure_mobile_interface()
-	
-	if _ui_tween:
-		_ui_tween.kill()
-	_ui_tween = create_tween()
-	_ui_tween.set_parallel(true)
-	_ui_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.4)
-	_ui_tween.tween_property(bg_container, "position:x", -245.0, 0.4)
-	_ui_tween.chain().tween_callback(func(): ui_panel.visible = false)
-	
-	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-		current_bg_scene.set_ui_hidden(true)
-	
-	mobile_interface_instance.show_phone()
-	await get_tree().process_frame
-	if mobile_interface_instance and mobile_interface_instance.has_method("open_affection_directly"):
-		mobile_interface_instance.open_affection_directly()
+	_show_affection_popup()
 
 func _on_diary_pressed() -> void:
 	if _is_ui_blocked(): return

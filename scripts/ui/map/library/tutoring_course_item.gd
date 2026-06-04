@@ -4,7 +4,7 @@ signal course_clicked(course_data: Dictionary)
 
 @onready var name_label: Label = $Margin/VBox/HeaderHBox/NameLabel
 @onready var increment_label: Label = $Margin/VBox/HeaderHBox/IncrementLabel
-@onready var exp_cost_label: Label = $Margin/VBox/CostHBox/ExpCostLabel
+@onready var energy_cost_label: Label = $Margin/VBox/CostHBox/EnergyCostLabel
 @onready var progress_label: Label = $Margin/VBox/ProgressContainer/ProgressHBox/ProgressLabel
 @onready var progress_bar: ProgressBar = $Margin/VBox/ProgressContainer/ProgressBar
 @onready var button: Button = $Button
@@ -16,6 +16,9 @@ var _increment: int = 0
 
 var style_normal: StyleBoxFlat
 var style_selected: StyleBoxFlat
+
+func _get_energy_cost() -> int:
+	return max(1, int(ceil(float(_increment) / 5.0)))
 
 func _ready() -> void:
 	button.pressed.connect(_on_button_pressed)
@@ -53,7 +56,7 @@ func setup(course: Dictionary, cur: int, max_p: int) -> void:
 	_increment = course.get("progress_increment", 0)
 	
 	name_label.text = course.get("name", "未知课程")
-	exp_cost_label.text = "互动经验 -%d" % (_increment * 5)
+	energy_cost_label.text = "行动力 -%d" % _get_energy_cost()
 	increment_label.text = "+%d/次" % _increment
 	
 	progress_bar.max_value = max_p
@@ -70,14 +73,14 @@ func update_state(planned_count: int) -> void:
 		progress_label.add_theme_color_override("font_color", Color(0.88, 0.53, 0.2))
 		name_label.add_theme_color_override("font_color", Color(0.25, 0.22, 0.2))
 		increment_label.add_theme_color_override("font_color", Color(0.95, 0.51, 0.14))
-		exp_cost_label.add_theme_color_override("font_color", Color(0.77, 0.48, 0.22))
+		energy_cost_label.add_theme_color_override("font_color", Color(0.77, 0.48, 0.22))
 		add_theme_stylebox_override("panel", style_selected)
 	else:
 		progress_label.text = "%d / %d" % [_cur_prog, _max_prog]
 		progress_label.add_theme_color_override("font_color", Color(0.52, 0.56, 0.62))
 		name_label.add_theme_color_override("font_color", Color(0.22, 0.24, 0.28))
 		increment_label.add_theme_color_override("font_color", Color(0.96, 0.53, 0.19))
-		exp_cost_label.add_theme_color_override("font_color", Color(0.45, 0.49, 0.55))
+		energy_cost_label.add_theme_color_override("font_color", Color(0.45, 0.49, 0.55))
 		add_theme_stylebox_override("panel", style_normal)
 
 func _on_button_pressed() -> void:

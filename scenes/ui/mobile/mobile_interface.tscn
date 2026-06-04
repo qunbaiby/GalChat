@@ -1,11 +1,10 @@
-[gd_scene load_steps=24 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=23 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/mobile_panel_wallpaper.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="4_8r0ra"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="4_v7k4o"]
 [ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/story_cg_luna_door_sunset.jpg" id="6_te7qg"]
-[ext_resource type="PackedScene" path="res://scenes/ui/mobile/affection_panel.tscn" id="8_affection_panel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -348,7 +347,7 @@ text = "98% ■"
 
 [node name="InteractionArea" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 20
 alignment = 1
 
 [node name="PlayerVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea"]
@@ -471,100 +470,18 @@ theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 14
 text = "Luna"
 
-[node name="LevelVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-alignment = 1
-
-[node name="TopHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox"]
-layout_mode = 2
-alignment = 2
-
-[node name="TextVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox"]
-layout_mode = 2
-alignment = 2
-
-[node name="LevelTitle" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 12
-text = "共感等级"
-
-[node name="LevelProgress" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox/TextVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 12
-text = "0/100"
-
-[node name="LevelNum" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/TopHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 40
-text = "1"
-
-[node name="ExpBar" type="ProgressBar" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox"]
-custom_minimum_size = Vector2(0, 16)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_styles/background = SubResource("StyleBoxFlat_ExpBgNew")
-theme_override_styles/fill = SubResource("StyleBoxFlat_ExpFillNew")
-value = 50.0
-show_percentage = false
-
-[node name="BtnHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="ArchiveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/BtnHBox"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "记忆档案"
-
-[node name="AffectionButton" type="Button" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/BtnHBox"]
-custom_minimum_size = Vector2(35, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/LevelVBox/BtnHBox/AffectionButton"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
-
 [node name="Separator" type="ColorRect" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 color = Color(0.89, 0.91, 0.95, 1)
 
-[node name="CardsHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox"]
-custom_minimum_size = Vector2(0, 164)
+[node name="CardsHBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
+custom_minimum_size = Vector2(0, 344)
 layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="ImagePreview" type="Control" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
-custom_minimum_size = Vector2(245, 164)
+custom_minimum_size = Vector2(0, 148)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -603,232 +520,105 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8r0ra")
 
-[node name="ButtonContainer" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
-custom_minimum_size = Vector2(160, 0)
+[node name="ButtonPanel" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
+custom_minimum_size = Vector2(0, 184)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 12
-alignment = 1
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
 
-[node name="PomodoroContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
+[node name="ButtonMargin" type="MarginContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
-[node name="PomodoroBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/PomodoroContainer"]
-custom_minimum_size = Vector2(68, 68)
+[node name="AppGrid" type="GridContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin"]
 layout_mode = 2
+columns = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="PomodoroBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "⏱"
+text = "⏱\n专注"
 
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/PomodoroContainer/PomodoroBtn"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -2.0
-offset_right = 20.0
-offset_bottom = 19.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
-theme_override_font_sizes/font_size = 13
-text = "专注"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="CameraContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
+[node name="ArchiveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
-theme_override_constants/separation = 16
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "🗂\n档案"
 
-[node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
-custom_minimum_size = Vector2(68, 68)
+[node name="DesktopPetBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "🐾\n桌宠"
 
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SettingsBtn"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SettingsBtn"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -24.0
-offset_top = 1.0
-offset_right = 24.0
-offset_bottom = 23.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
-theme_override_font_sizes/font_size = 13
-text = "设置"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer"]
-custom_minimum_size = Vector2(68, 68)
+[node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "⚙\n设置"
 
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SaveBtn"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/CameraContainer/SaveBtn"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -24.0
-offset_top = 1.0
-offset_right = 24.0
-offset_bottom = 23.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
-theme_override_font_sizes/font_size = 13
-text = "存档"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer"]
+[node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
-custom_minimum_size = Vector2(68, 68)
-layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "💾\n存档"
 
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/LoadBtn"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/LoadBtn"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -24.0
-offset_top = 1.0
-offset_right = 24.0
-offset_bottom = 23.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
-theme_override_font_sizes/font_size = 13
-text = "读档"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer"]
-custom_minimum_size = Vector2(68, 68)
+[node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "📂\n读档"
 
-[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/AlbumBtn"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -10.0
-offset_top = -10.0
-offset_right = 10.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_v7k4o")
-expand_mode = 1
-stretch_mode = 5
+[node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "🖼\n相册"
 
-[node name="Label" type="Label" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonContainer/VBoxContainer/AlbumBtn"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -24.0
-offset_top = 1.0
-offset_right = 24.0
-offset_bottom = 23.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
-theme_override_font_sizes/font_size = 13
-text = "相册"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="PlaceholderBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
+text = "✨\n更多"
 
 [node name="ListCards" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
 custom_minimum_size = Vector2(0, 112)
@@ -917,9 +707,6 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_PowerBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_PowerBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_PowerBtn")
 text = "⏻"
-
-[node name="AffectionPanel" parent="PhonePanel" instance=ExtResource("8_affection_panel")]
-layout_mode = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

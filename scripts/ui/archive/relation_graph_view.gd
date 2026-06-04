@@ -175,8 +175,7 @@ func _build_dynamic_state(profile) -> Dictionary:
 			"stage_title": stage_title,
 			"intimacy": npc_manager.get_intimacy(npc_id) if npc_manager else 0.0,
 			"trust": npc_manager.get_trust(npc_id) if npc_manager else 0.0,
-			"resonance": (npc_manager.get_intimacy(npc_id) + npc_manager.get_trust(npc_id)) if npc_manager else 0.0,
-			"interaction_exp": npc_manager.get_interaction_exp(npc_id) if npc_manager else 0
+			"resonance": (npc_manager.get_intimacy(npc_id) + npc_manager.get_trust(npc_id)) if npc_manager else 0.0
 		}
 
 	return state
@@ -327,12 +326,11 @@ func _build_edge_dynamic_text(edge: Dictionary) -> String:
 	if source_type == "npc_relationship":
 		var npc_id: String = str(source.get("npc_id", ""))
 		var npc_state: Dictionary = dynamic_state.get("npc_states", {}).get(npc_id, {})
-		return "阶段：%s\n亲密：%.0f\n信任：%.0f\n共鸣：%.0f\n互动经验：%d" % [
+		return "阶段：%s\n亲密：%.0f\n信任：%.0f\n共鸣：%.0f" % [
 			str(npc_state.get("stage_title", "初始关系")),
 			float(npc_state.get("intimacy", 0.0)),
 			float(npc_state.get("trust", 0.0)),
-			float(npc_state.get("resonance", 0.0)),
-			int(npc_state.get("interaction_exp", 0))
+			float(npc_state.get("resonance", 0.0))
 		]
 
 	return ""
@@ -441,7 +439,6 @@ func _evaluate_unlock_rule(rule: Dictionary) -> bool:
 			var npc_state: Dictionary = dynamic_state.get("npc_states", {}).get(npc_id, {})
 			return float(npc_state.get("intimacy", 0.0)) > 0.0 \
 				or float(npc_state.get("trust", 0.0)) > 0.0 \
-				or int(npc_state.get("interaction_exp", 0)) > 0 \
 				or int(npc_state.get("stage", 1)) > 1
 		_:
 			return true

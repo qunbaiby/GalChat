@@ -856,15 +856,17 @@ func _get_story_location_display_name(location_id: String) -> String:
 	return str(location.get("name", final_id))
 
 func _update_free_chat_info() -> void:
-	if free_chat_max_rounds > 0:
-		free_chat_round_label.text = "自由对话轮次: %d / %d" % [free_chat_current_round, free_chat_max_rounds]
-	else:
-		free_chat_round_label.text = "自由对话"
+	if free_chat_round_label:
+		if free_chat_max_rounds > 0:
+			free_chat_round_label.text = "自由对话轮次: %d / %d" % [free_chat_current_round, free_chat_max_rounds]
+		else:
+			free_chat_round_label.text = "自由对话"
 		
-	if free_chat_strategy != "":
-		free_chat_strategy_label.text = "策略: " + free_chat_strategy
-	else:
-		free_chat_strategy_label.text = ""
+	if free_chat_strategy_label:
+		if free_chat_strategy != "":
+			free_chat_strategy_label.text = "策略: " + free_chat_strategy
+		else:
+			free_chat_strategy_label.text = ""
 
 func _reset_free_chat_state() -> void:
 	is_free_chat_mode = false
@@ -872,7 +874,8 @@ func _reset_free_chat_state() -> void:
 	free_chat_max_rounds = 0
 	free_chat_current_round = 0
 	_update_free_chat_info()
-	free_chat_info_layer.hide()
+	if free_chat_info_layer:
+		free_chat_info_layer.hide()
 
 func _finish_script_ai_chat() -> void:
 	_script_ai_chat_active = false
@@ -891,7 +894,7 @@ func _finish_script_ai_chat() -> void:
 		script_engine.resume()
 
 func _send_player_message(text: String, is_system_event: bool = false) -> void:
-	if not is_system_event:
+	if not is_system_event and input_field:
 		input_field.text = ""
 		
 		if is_free_chat_mode:
@@ -926,8 +929,10 @@ func _generate_narrator_and_continue() -> void:
 	input_field.editable = false
 	print("正在生成场景旁白...")
 	# 清空对话框内容，保持干净
-	dialogue_text.text = ""
-	name_label.text = ""
+	if dialogue_text:
+		dialogue_text.text = ""
+	if name_label:
+		name_label.text = ""
 	deepseek_client.send_narrator_generation()
 
 func _on_narrator_response(response: Dictionary) -> void:
@@ -996,9 +1001,11 @@ func _restore_last_message() -> void:
 	if messages.size() > 0:
 		var last_msg = messages[messages.size() - 1]
 		# 直接静默显示最后一条，不触发打字机和语音
-		dialogue_text.text = last_msg["text"]
-		dialogue_text.visible_characters = -1
-		name_label.text = last_msg["speaker"]
+		if dialogue_text:
+			dialogue_text.text = last_msg["text"]
+			dialogue_text.visible_characters = -1
+		if name_label:
+			name_label.text = last_msg["speaker"]
 		
 		# 恢复对应立绘
 		if last_msg["speaker"] == GameDataManager.profile.char_name:
@@ -1007,12 +1014,14 @@ func _restore_last_message() -> void:
 	else:
 		var char_name = GameDataManager.profile.char_name
 		# 如果没有历史记录，静默显示初始问候
-		dialogue_text.text = "你好...今天想聊点什么？"
-		dialogue_text.visible_characters = -1
-		name_label.text = char_name
+		if dialogue_text:
+			dialogue_text.text = "你好...今天想聊点什么？"
+			dialogue_text.visible_characters = -1
+		if name_label:
+			name_label.text = char_name
 
 func _on_input_text_changed() -> void:
-	if input_field.text.length() > 120:
+	if input_field and input_field.text.length() > 120:
 		input_field.text = input_field.text.substr(0, 120)
 		input_field.set_caret_column(120)
 
@@ -1023,8 +1032,10 @@ func _on_character_switched(char_id: String) -> void:
 	ToastManager.show_system_toast("已切换到角色：" + char_id, Color.CYAN)
 	
 	# 清空现有对话UI
-	dialogue_text.text = ""
-	name_label.text = ""
+	if dialogue_text:
+		dialogue_text.text = ""
+	if name_label:
+		name_label.text = ""
 	
 	_update_ui()
 	
@@ -1234,20 +1245,22 @@ var _mood_analysis_running: bool = false
 var _pending_mood_analysis_line: String = ""
 
 func _on_voice_record_down() -> void:
-	voice_record_btn.text = "松开发送"
-	voice_record_btn.modulate = Color(0.8, 0.2, 0.2)
+	if voice_record_btn:
+		voice_record_btn.text = "松开发送"
+		voice_record_btn.modulate = Color(0.8, 0.2, 0.2)
 	if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
 		qwen_asr_client.start_recording()
 
 func _on_voice_record_up() -> void:
-	voice_record_btn.text = "按住说话"
-	voice_record_btn.modulate = Color(1, 1, 1)
+	if voice_record_btn:
+		voice_record_btn.text = "按住说话"
+		voice_record_btn.modulate = Color(1, 1, 1)
 	if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
 		ToastManager.show_system_toast("正在识别语音...", Color.YELLOW)
 		qwen_asr_client.stop_recording()
 
 func _on_asr_success(text: String) -> void:
-	if not text.is_empty():
+	if not text.is_empty() and input_field:
 		input_field.text = text
 		ToastManager.show_system_toast("语音识别成功", Color.GREEN)
 	else:
@@ -1644,7 +1657,8 @@ func _on_quick_option_selected(text: String, index: int = -1) -> void:
 		GameDataManager.profile.update_intimacy(-5)
 		GameDataManager.profile.update_trust(-5)
 		
-	input_field.text = text
+	if input_field:
+		input_field.text = text
 	_on_send_pressed()
 
 func _on_chat_error(error_msg: String) -> void:
@@ -1724,7 +1738,6 @@ func _run_stream_worker() -> void:
 	stream_live_active = false
 	stream_live_worker_running = false
 	
-	GameDataManager.profile.add_interaction_exp()
 	GameDataManager.profile.save_profile()
 	_update_ui()
 	
@@ -1876,7 +1889,6 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 				
 		await _process_single_message_line_async(line, char_name)
 		
-	GameDataManager.profile.add_interaction_exp()
 	GameDataManager.profile.save_profile()
 	_update_ui()
 	
@@ -1969,7 +1981,7 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	if speaker_name == "":
 		speaker_name = GameDataManager.profile.char_name
 		
-	if speaker_name != "":
+	if speaker_name != "" and name_label:
 		name_label.text = speaker_name
 		
 	# 根据当前心情更新立绘
@@ -1981,6 +1993,8 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		_update_character_sprite(current_expression)
 		
 	# 开启 BBCode 渲染
+	if not dialogue_text:
+		return
 	dialogue_text.bbcode_enabled = true
 	dialogue_text.text = text
 	dialogue_text.visible_ratio = 0.0

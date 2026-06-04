@@ -83,12 +83,11 @@ const LOCAL_EVENT_POOL := {
 	]
 }
 
-@onready var top_image_rect: TextureRect = $MainPanel/TopImageRect
-@onready var title_label: Label = $MainPanel/TopImageRect/TitleContainer/TitleLabel
-@onready var desc_label: Label = $MainPanel/DescLabel
-@onready var bonus_hbox: HBoxContainer = $MainPanel/BonusHBox
-@onready var track_container: HBoxContainer = $MainPanel/TrackContainer
-@onready var character_icon: Node2D = $MainPanel/TrackContainer/CharacterIcon
+@onready var top_image_rect: TextureRect = $InfoPanel/TopImageRect
+@onready var title_label: Label = $InfoPanel/TopImageRect/TitleContainer/TitleLabel
+@onready var desc_label: Label = $InfoPanel/DescLabel
+@onready var track_container: HBoxContainer = $TrackPanel/TrackMargin/TrackContainer
+@onready var character_icon: Node2D = $TrackPanel/TrackMargin/TrackContainer/CharacterIcon
 @onready var click_area: Button = $ClickArea
 
 @onready var result_popup: Control = $ResultPopup
@@ -123,8 +122,8 @@ const LOCAL_EVENT_POOL := {
 @onready var footer_gold_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/GoldHBox/Val
 @onready var footer_gold_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/GoldHBox/Diff
 
-@onready var auto_button: Button = $MainPanel/ControlButtons/AutoButton
-@onready var skip_button: Button = $MainPanel/ControlButtons/SkipButton
+@onready var auto_button: Button = $ControlToolbar/Margin/ControlButtons/AutoButton
+@onready var skip_button: Button = $ControlToolbar/Margin/ControlButtons/SkipButton
 @onready var loading_overlay: Control = $LoadingOverlay
 @onready var loading_text: Label = $LoadingOverlay/VBox/LoadingText
 
@@ -134,6 +133,7 @@ var _result_anim_tween: Tween = null
 
 var _courses_data: Array
 var _start_attrs: Dictionary
+var _base_end_attrs: Dictionary
 var _end_attrs: Dictionary
 
 var _current_slot_index: int = 0
@@ -147,7 +147,10 @@ var _current_event_data: Dictionary = {}
 var _current_event_course_index: int = -1
 var _current_event_selected_option: String = ""
 var _last_processed_course_index: int = -1
+var _last_time_synced_course_index: int = -1
 var _weekly_key_events: Array[Dictionary] = []
+var _pending_event_attr_changes: Dictionary = {}
+var _schedule_start_day_offset: int = 0
 
 func _ready() -> void:
 	click_area.pressed.connect(_on_click_area_pressed)
@@ -163,14 +166,21 @@ func _ready() -> void:
 
 func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) -> void:
 	_courses_data = courses_data
-	_start_attrs = start_attrs
-	_end_attrs = end_attrs
+	_start_attrs = start_attrs.duplicate(true)
+	_base_end_attrs = end_attrs.duplicate(true)
+	_end_attrs = _base_end_attrs.duplicate(true)
 	_last_processed_course_index = -1
+	_last_time_synced_course_index = -1
 	_current_event_course_index = -1
 	_current_event_selected_option = ""
 	_current_event_data.clear()
 	_current_event_options.clear()
 	_weekly_key_events.clear()
+	_pending_event_attr_changes.clear()
+	if GameDataManager.story_time_manager:
+		_schedule_start_day_offset = GameDataManager.story_time_manager.current_day_offset
+	else:
+		_schedule_start_day_offset = 0
 	
 	_init_slots()
 	
@@ -237,36 +247,6 @@ func _update_course_info(index: int) -> void:
 	title_label.text = tr(c_name)
 	
 	desc_label.text = current_course.get("desc", "缺少课程描述...")
-	
-	# 3. 属性加成展示
-	update_bonus(current_course.get("bonus_list", []))
-
-func update_bonus(bonus_list: Array) -> void:
-	for child in bonus_hbox.get_children():
-		child.queue_free()
-		
-	for bonus in bonus_list:
-		var hbox = HBoxContainer.new()
-		
-		if bonus.has("icon"):
-			var icon = TextureRect.new()
-			icon.texture = load(bonus["icon"])
-			icon.custom_minimum_size = Vector2(24, 24)
-			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			hbox.add_child(icon)
-			
-		var name_lbl = Label.new()
-		name_lbl.text = tr(bonus.get("name", ""))
-		name_lbl.add_theme_color_override("font_color", Color(0.4, 0.3, 0.2))
-		hbox.add_child(name_lbl)
-		
-		var val_lbl = Label.new()
-		val_lbl.text = "+" + str(bonus.get("value", 0))
-		val_lbl.add_theme_color_override("font_color", Color(0.2, 0.6, 0.2))
-		hbox.add_child(val_lbl)
-		
-		bonus_hbox.add_child(hbox)
 
 func _init_slots() -> void:
 	for child in track_container.get_children():
@@ -301,9 +281,8 @@ func _reset_character_position() -> void:
 
 func _get_day_label(course_index: int) -> String:
 	var weekdays = ["周六", "周日", "周一", "周二", "周三", "周四", "周五"]
-	if GameDataManager.story_time_manager:
-		var absolute_day = GameDataManager.story_time_manager.current_day_offset + course_index
-		return weekdays[posmod(absolute_day, weekdays.size())]
+	var absolute_day = _schedule_start_day_offset + course_index
+	return weekdays[posmod(absolute_day, weekdays.size())]
 	return "本日"
 
 func _build_bonus_summary(course_data: Dictionary) -> String:
@@ -363,12 +342,12 @@ func _render_weekly_event_summary() -> void:
 
 	var separator = HSeparator.new()
 	separator.name = "WeeklyEventSeparator"
-	separator.theme_override_constants.separation = 10
+	separator.add_theme_constant_override("separation", 10)
 	result_content_vbox.add_child(separator)
 
 	var section = VBoxContainer.new()
 	section.name = "WeeklyEventSection"
-	section.theme_override_constants.separation = 10
+	section.add_theme_constant_override("separation", 10)
 	result_content_vbox.add_child(section)
 
 	var title = Label.new()
@@ -390,18 +369,18 @@ func _render_weekly_event_summary() -> void:
 		card_style.corner_radius_top_right = 10
 		card_style.corner_radius_bottom_right = 10
 		card_style.corner_radius_bottom_left = 10
-		card.theme_override_styles.panel = card_style
+		card.add_theme_stylebox_override("panel", card_style)
 		section.add_child(card)
 
 		var margin = MarginContainer.new()
-		margin.theme_override_constants.margin_left = 14
-		margin.theme_override_constants.margin_top = 10
-		margin.theme_override_constants.margin_right = 14
-		margin.theme_override_constants.margin_bottom = 10
+		margin.add_theme_constant_override("margin_left", 14)
+		margin.add_theme_constant_override("margin_top", 10)
+		margin.add_theme_constant_override("margin_right", 14)
+		margin.add_theme_constant_override("margin_bottom", 10)
 		card.add_child(margin)
 
 		var card_vbox = VBoxContainer.new()
-		card_vbox.theme_override_constants.separation = 6
+		card_vbox.add_theme_constant_override("separation", 6)
 		margin.add_child(card_vbox)
 
 		var header = Label.new()
@@ -453,17 +432,59 @@ func _normalize_attr_changes(raw_changes: Dictionary) -> Dictionary:
 		normalized[final_key] = int(raw_changes[raw_key])
 	return normalized
 
-func _apply_attr_changes(raw_changes: Dictionary) -> void:
+func _apply_attr_changes_to_target(raw_changes: Dictionary, target_attrs: Dictionary) -> void:
 	var changes = _normalize_attr_changes(raw_changes)
 	for attr in changes.keys():
 		var val = int(changes[attr])
-		if _end_attrs.has(attr):
-			_end_attrs[attr] += val
+		if target_attrs.has(attr):
+			target_attrs[attr] += val
 		else:
-			_end_attrs[attr] = _start_attrs.get(attr, 0) + val
-	_end_attrs["压力"] = clamp(int(_end_attrs.get("压力", 0)), 0, GameDataManager.profile.max_stress)
-	_end_attrs["心情"] = clamp(int(_end_attrs.get("心情", 0)), 0, 100)
-	_end_attrs["金币"] = max(0, int(_end_attrs.get("金币", 0)))
+			target_attrs[attr] = _start_attrs.get(attr, 0) + val
+	target_attrs["压力"] = clamp(int(target_attrs.get("压力", 0)), 0, GameDataManager.profile.max_stress)
+	target_attrs["心情"] = clamp(int(target_attrs.get("心情", 0)), 0, 100)
+	target_attrs["金币"] = max(0, int(target_attrs.get("金币", 0)))
+
+func _accumulate_pending_event_attr_changes(raw_changes: Dictionary) -> void:
+	var changes = _normalize_attr_changes(raw_changes)
+	for attr in changes.keys():
+		_pending_event_attr_changes[attr] = int(_pending_event_attr_changes.get(attr, 0)) + int(changes[attr])
+
+func _rebuild_final_end_attrs() -> void:
+	_end_attrs = _base_end_attrs.duplicate(true)
+	if not _pending_event_attr_changes.is_empty():
+		_apply_attr_changes_to_target(_pending_event_attr_changes, _end_attrs)
+
+func _set_story_time(day_offset: int, period: String, hour: int, minute: int) -> void:
+	var time_manager = GameDataManager.story_time_manager
+	if not time_manager:
+		return
+
+	var day_delta = day_offset - time_manager.current_day_offset
+	if day_delta > 0:
+		time_manager.advance_day(day_delta)
+	else:
+		time_manager.current_day_offset = day_offset
+
+	var needs_manual_emit = day_delta <= 0
+	if time_manager.current_period != period or time_manager.current_hour != hour or time_manager.current_minute != minute:
+		time_manager.current_period = period
+		time_manager.current_hour = hour
+		time_manager.current_minute = minute
+		needs_manual_emit = true
+
+	if needs_manual_emit:
+		time_manager.time_advanced.emit(0, time_manager.current_period)
+
+func _sync_story_time_after_course(course_index: int) -> void:
+	if course_index < 0:
+		return
+	var time_manager = GameDataManager.story_time_manager
+	if not time_manager:
+		return
+	if course_index < 4:
+		_set_story_time(_schedule_start_day_offset + course_index + 1, time_manager.PERIOD_MORNING, 8, 0)
+	elif course_index == 4:
+		_set_story_time(_schedule_start_day_offset + 4, time_manager.PERIOD_NIGHT, 20, 0)
 
 func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) -> bool:
 	if course_data.get("is_event", false):
@@ -529,24 +550,16 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 	if not skip_ui_update:
 		_update_course_info(_current_slot_index)
 	
-	# 前 4 节课完成后推进到下一天；最后一节课在结果结算时停留到当晚
-	if _current_slot_index > 0 and _current_slot_index < 4:
-		if GameDataManager.story_time_manager:
-			GameDataManager.story_time_manager.advance_day(1)
+	# 每完成一节课后，精确同步到下一天上午；最后一节课结束后同步到周五夜晚
+	if _last_processed_course_index >= 0 and _last_processed_course_index != _last_time_synced_course_index:
+		_sync_story_time_after_course(_last_processed_course_index)
+		_last_time_synced_course_index = _last_processed_course_index
 		
 	if _current_slot_index == 4 and _last_processed_course_index >= 4:
 		# 走到最后一个槽位时，立刻将最后一个也标为完成
 		set_slot_status(_current_slot_index, true)
 		course_completed.emit(_current_slot_index)
 		all_courses_completed.emit()
-		
-		# 第5个课程完成，不跨天，时间设定为周五晚上 20:00
-		if GameDataManager.story_time_manager:
-			GameDataManager.story_time_manager.current_hour = 20
-			GameDataManager.story_time_manager.current_minute = 0
-			GameDataManager.story_time_manager.current_period = GameDataManager.story_time_manager.PERIOD_NIGHT
-			GameDataManager.story_time_manager.time_advanced.emit(0, GameDataManager.story_time_manager.current_period)
-			
 		_show_result_popup()
 	elif _is_auto_playing:
 		if not _is_skipping:
@@ -661,9 +674,13 @@ func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
 	_last_processed_course_index = max(_last_processed_course_index, course_index)
 	_finish_slot_move(true)
 
-func _show_loading(text: String) -> void:
+func _show_loading(text: String = "") -> void:
 	if loading_overlay:
-		loading_text.text = text
+		var has_text = text.strip_edges() != ""
+		if loading_text:
+			loading_text.visible = has_text
+			if has_text:
+				loading_text.text = text
 		loading_overlay.modulate.a = 0.0
 		loading_overlay.show()
 		var t = create_tween()
@@ -689,7 +706,7 @@ func _trigger_schedule_event(course_index: int) -> void:
 	var course_name = course_data.get("name", "未知课程")
 	var course_desc = course_data.get("desc", "")
 	
-	_show_loading("突发事件生成中...")
+	_show_loading("课堂气氛忽然有些变化...")
 	
 	if not client.is_connected("schedule_event_generated", _on_schedule_event_generated):
 		client.schedule_event_generated.connect(_on_schedule_event_generated)
@@ -750,7 +767,7 @@ func _on_schedule_event_error(_error_msg: String) -> void:
 	_on_schedule_event_generated(_get_local_schedule_event(_build_schedule_event_context(_current_event_course_index)))
 
 func _on_event_option_selected(idx: int) -> void:
-	_show_loading("事件结算中...")
+	_show_loading("你的选择让事情有了新的走向...")
 	
 	var client = _get_deepseek_client()
 	var course_data = _courses_data[_current_event_course_index]
@@ -817,15 +834,16 @@ func _on_schedule_event_resolved(result_data: Dictionary) -> void:
 			"result_desc": desc,
 			"attr_summary": _build_attr_changes_summary(changes)
 		})
-	_apply_attr_changes(changes)
+	_accumulate_pending_event_attr_changes(changes)
 	if _current_event_panel and is_instance_valid(_current_event_panel):
 		_current_event_panel.show_result(desc, _normalize_attr_changes(changes))
 		if _is_auto_playing or _is_skipping:
-			await get_tree().create_timer(1.0 if _is_skipping else 1.8).timeout
-			if is_instance_valid(_current_event_panel):
+			await get_tree().create_timer(0.9 if _is_skipping else 1.6).timeout
+			if _current_event_panel and is_instance_valid(_current_event_panel):
 				_on_event_result_confirmed()
 	else:
-		_last_processed_course_index = max(_last_processed_course_index, _current_event_course_index)
+		_cleanup_resolve_state()
+		_last_processed_course_index = max(_last_processed_course_index, resolved_course_index)
 		_finish_slot_move()
 	
 func _on_schedule_event_resolve_error(_error_msg: String) -> void:
@@ -863,6 +881,7 @@ func set_slot_status(index: int, completed: bool) -> void:
 		_slots[index].set_completed(completed)
 
 func _show_result_popup() -> void:
+	_rebuild_final_end_attrs()
 	result_popup.modulate.a = 0
 	result_popup.show()
 	click_area.hide()

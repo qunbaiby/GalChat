@@ -28,7 +28,6 @@ var current_expression: String = "calm" # 瞬时表情ID
 var last_login_date: String = "" # 用于判断是否跨天
 var trust: float = 10.0 # 0-9999
 var current_stage: int = 1 # 1-8
-var interaction_exp: int = 10000 # 初始设置高一点用于测试
 
 var stages_config: Array = []
 var base_personality: Dictionary = {}
@@ -197,7 +196,6 @@ func load_profile(force_char_id: String = "") -> void:
 				last_login_date = data.get("last_login_date", last_login_date)
 				trust = float(str(data.get("trust", trust)))
 				current_stage = int(str(data.get("current_stage", current_stage)))
-				interaction_exp = int(str(data.get("interaction_exp", interaction_exp)))
 				openness = float(str(data.get("openness", base_personality.get("openness", 50.0))))
 				conscientiousness = float(str(data.get("conscientiousness", base_personality.get("conscientiousness", 50.0))))
 				extraversion = float(str(data.get("extraversion", base_personality.get("extraversion", 50.0))))
@@ -490,13 +488,6 @@ func get_current_stage_config() -> Dictionary:
 
 func force_set_stage(new_stage: int) -> void:
 	current_stage = clamp(new_stage, 1, 9)
-	
-	# 获取前一个阶段的配置以确定当前阶段的起点 (由于解耦，此逻辑可能已不再需要强绑定，但保留兼容)
-	var prev_stage = max(1, current_stage - 1)
-	
-	# 强制跳阶时，不再重置 intimacy 和 trust 为配置表最低值，保留其浮动状态
-	interaction_exp = 0 # 互动经验已改为消耗品，强制跳阶时重置为0避免溢出
-	
 	save_profile()
 
 func update_intimacy(amount: float) -> void:
@@ -520,24 +511,10 @@ func update_trust(amount: float) -> void:
 		amount = amount * stage_multi * mood_multi * personality_mult
 	trust = max(trust + amount, 0.0)
 	check_stage_upgrade()
-	
-func add_interaction_exp() -> void:
-	var stage_conf = get_current_stage_config()
-	var base_exp = stage_conf.get("exp_per_interaction", 10)
-	var mood_bonus = GameDataManager.mood_system.get_exp_bonus(mood_value)
-	var total_exp = base_exp + mood_bonus
-	if total_exp < 0:
-		total_exp = 0
-		
-	interaction_exp += total_exp
-	check_stage_upgrade()
 
 func check_stage_upgrade() -> void:
 	var stage_conf = get_current_stage_config()
 	if stage_conf.is_empty(): return
-	
-	# 获取本次升阶需要【消耗】的互动经验值 (默认100，实际由JSON配置决定)
-	var exp_cost = stage_conf.get("exp_cost", 100)
 	
 	# 获取升阶的共感值门槛 (共感值 = 亲密 + 信任)
 	var resonance_threshold = stage_conf.get("resonance_threshold", 0)
@@ -556,17 +533,11 @@ func check_stage_upgrade() -> void:
 			# 如果配置了里程碑但系统未就绪，则判定为不满足
 			is_milestone_met = false
 	
-	# 互动经验作为可积累的消耗资源，不再根据当前阶段截断
-	if interaction_exp > 999999: # 兜底防止数值过大溢出
-		interaction_exp = 999999
-		
-	# 条件：Stage 代表“羁绊深度/认识时间”，受到共感值（情感总容量）的硬门槛限制。
-	# 只要共感值达标、拥有的互动经验足够支付消耗成本、且完成了里程碑事件，即可升级 Stage。
-	if current_stage < 9 and current_resonance >= resonance_threshold and interaction_exp >= exp_cost and is_milestone_met:
-		interaction_exp -= exp_cost # 扣除消耗的互动经验
+	# 只要共感值达标且完成了里程碑事件，就会自动提升情感阶段。
+	if current_stage < 9 and current_resonance >= resonance_threshold and is_milestone_met:
 		current_stage += 1
 		
-		print("【情感系统】升阶！消耗经验: %d, 当前阶段: Stage %d" % [exp_cost, current_stage])
+		print("【情感系统】升阶！当前阶段: Stage %d" % current_stage)
 		if GameDataManager.personality_system and GameDataManager.personality_system.has_method("apply_personality_event"):
 			GameDataManager.personality_system.apply_personality_event(self, "stage_upgraded", {
 				"stage": current_stage,
@@ -665,7 +636,6 @@ func save_profile() -> void:
 		"last_login_date": last_login_date,
 		"trust": trust,
 		"current_stage": current_stage,
-		"interaction_exp": interaction_exp,
 		"openness": openness,
 		"conscientiousness": conscientiousness,
 		"extraversion": extraversion,

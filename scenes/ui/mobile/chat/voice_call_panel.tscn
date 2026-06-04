@@ -6,20 +6,24 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VoiceBg"]
 bg_color = Color(0.985, 0.988, 0.995, 0.94)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarBg"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -62,12 +66,11 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="VoiceCallPanel" type="Control"]
-custom_minimum_size = Vector2(400, 0)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -880.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
@@ -89,10 +92,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 
 [node name="TopSpacer" type="Control" parent="Panel/VBox"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 
 [node name="AvatarCenter" type="CenterContainer" parent="Panel/VBox"]
@@ -100,7 +103,7 @@ layout_mode = 2
 
 [node name="AvatarPanel" type="Panel" parent="Panel/VBox/AvatarCenter"]
 clip_children = 1
-custom_minimum_size = Vector2(120, 120)
+custom_minimum_size = Vector2(113, 113)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarBg")
 
@@ -118,7 +121,7 @@ stretch_mode = 6
 [node name="NameLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "Name"
 horizontal_alignment = 1
 
@@ -132,8 +135,8 @@ horizontal_alignment = 1
 [node name="MessageCenter" type="MarginContainer" parent="Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_right = 30
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_right = 25
 
 [node name="MessageLabel" type="RichTextLabel" parent="Panel/VBox/MessageCenter"]
 layout_mode = 2
@@ -145,9 +148,9 @@ text = "[center]...[/center]"
 fit_content = true
 
 [node name="BottomBar" type="HBoxContainer" parent="Panel/VBox"]
-custom_minimum_size = Vector2(0, 100)
+custom_minimum_size = Vector2(0, 85)
 layout_mode = 2
-theme_override_constants/separation = 80
+theme_override_constants/separation = 40
 alignment = 1
 
 [node name="HangupVBox" type="VBoxContainer" parent="Panel/VBox/BottomBar"]
@@ -156,11 +159,11 @@ theme_override_constants/separation = 10
 alignment = 1
 
 [node name="HangupBtn" type="Button" parent="Panel/VBox/BottomBar/HangupVBox"]
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_HangupBtn")
@@ -180,11 +183,11 @@ theme_override_constants/separation = 10
 alignment = 1
 
 [node name="RecordBtn" type="Button" parent="Panel/VBox/BottomBar/RecordVBox"]
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_RecordBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_RecordBtn")
@@ -199,7 +202,7 @@ text = "按住说话"
 horizontal_alignment = 1
 
 [node name="BottomSpacer" type="Control" parent="Panel/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

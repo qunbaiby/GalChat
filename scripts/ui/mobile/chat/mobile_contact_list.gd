@@ -8,6 +8,9 @@ const CONTACT_ITEM_SCENE = preload("res://scenes/ui/mobile/chat/mobile_contact_l
 @onready var back_btn: Button = $Panel/VBox/TopBar/BackBtn
 @onready var contact_list: VBoxContainer = $Panel/VBox/ScrollContainer/ContactList
 
+var _item_map: Dictionary = {}
+var _selected_char_id: String = ""
+
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back_pressed)
 	_load_contacts()
@@ -16,6 +19,7 @@ func _load_contacts() -> void:
 	# 清空列表
 	for child in contact_list.get_children():
 		child.queue_free()
+	_item_map.clear()
 		
 	var contacts = []
 	
@@ -48,6 +52,8 @@ func _load_contacts() -> void:
 	
 	for c in contacts:
 		_create_contact_item(c)
+
+	_apply_selected_state()
 
 func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 	var info = {
@@ -121,9 +127,36 @@ func _create_contact_item(info: Dictionary) -> void:
 	contact_list.add_child(item)
 	item.setup(info)
 	item.selected.connect(_on_contact_selected)
+	_item_map[str(info.get("id", ""))] = item
 
 func _on_contact_selected(char_id: String) -> void:
+	_selected_char_id = char_id
+	_apply_selected_state()
 	character_selected.emit(char_id)
+
+func select_character(char_id: String, emit_signal: bool = true) -> bool:
+	if char_id == "":
+		return false
+	if _item_map.is_empty():
+		_load_contacts()
+	if not _item_map.has(char_id):
+		return false
+
+	_selected_char_id = char_id
+	_apply_selected_state()
+	if emit_signal:
+		character_selected.emit(char_id)
+	return true
+
+func clear_selection() -> void:
+	_selected_char_id = ""
+	_apply_selected_state()
+
+func _apply_selected_state() -> void:
+	for item_id in _item_map.keys():
+		var item = _item_map[item_id]
+		if is_instance_valid(item) and item.has_method("set_selected"):
+			item.set_selected(item_id == _selected_char_id)
 
 func _on_back_pressed() -> void:
 	back_requested.emit()

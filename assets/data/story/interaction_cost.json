@@ -3,7 +3,6 @@
         "time_cost": 30,
         "energy_cost": 5,
         "gold_cost": 0,
-        "exp_gain": 10,
         "mood_impact": 2,
         "stress_impact": -5
     },
@@ -11,7 +10,6 @@
         "time_cost": 60,
         "energy_cost": 10,
         "gold_cost": 0,
-        "exp_gain": 15,
         "mood_impact": 5,
         "stress_impact": -10
     },
@@ -19,7 +17,6 @@
         "time_cost": 30,
         "energy_cost": 5,
         "gold_cost": 0,
-        "exp_gain": 5,
         "mood_impact": 1,
         "stress_impact": -2
     },
@@ -27,7 +24,6 @@
         "time_cost": 60,
         "energy_cost": 0,
         "gold_cost": 0,
-        "exp_gain": 0,
         "mood_impact": 0,
         "stress_impact": 5
     },
@@ -35,7 +31,6 @@
         "time_cost": 15,
         "energy_cost": 2,
         "gold_cost": 0,
-        "exp_gain": 20,
         "mood_impact": 5,
         "stress_impact": -5
     },
@@ -43,7 +38,6 @@
         "time_cost": 60,
         "energy_cost": 15,
         "gold_cost": 0,
-        "exp_gain": 10,
         "mood_impact": 0,
         "stress_impact": 10
     },
@@ -51,7 +45,6 @@
         "time_cost": 60,
         "energy_cost": 15,
         "gold_cost": 0,
-        "exp_gain": 10,
         "mood_impact": 2,
         "stress_impact": 6
     },
@@ -59,7 +52,6 @@
         "time_cost": 60,
         "energy_cost": 15,
         "gold_cost": 0,
-        "exp_gain": 10,
         "mood_impact": 3,
         "stress_impact": 4
     },
@@ -67,7 +59,6 @@
         "time_cost": 45,
         "energy_cost": 15,
         "gold_cost": 20,
-        "exp_gain": 10,
         "mood_impact": 3,
         "stress_impact": -3
     },
@@ -75,7 +66,6 @@
         "time_cost": 30,
         "energy_cost": 5,
         "gold_cost": 0,
-        "exp_gain": 5,
         "mood_impact": 2,
         "stress_impact": -2
     }

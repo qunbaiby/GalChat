@@ -4,7 +4,7 @@ extends Node
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 
 # 存储各 NPC 的关系数据
-# 格式: { npc_id: { "intimacy": float, "trust": float, "interaction_exp": int, "stage": int } }
+# 格式: { npc_id: { "intimacy": float, "trust": float, "stage": int } }
 var relationships: Dictionary = {}
 
 func _init() -> void:
@@ -38,8 +38,8 @@ func load_relationships() -> void:
                         var old_aff = npc_data["affection"]
                         npc_data["intimacy"] = float(old_aff)
                         npc_data["trust"] = float(old_aff) / 2.0
-                        npc_data["interaction_exp"] = int(old_aff)
                         npc_data.erase("affection")
+                    npc_data.erase("interaction_exp")
                 relationships = data
                 
 func save_relationships() -> void:
@@ -57,11 +57,6 @@ func get_trust(npc_id: String) -> float:
         return float(relationships[npc_id].get("trust", 0.0))
     return 0.0
 
-func get_interaction_exp(npc_id: String) -> int:
-    if relationships.has(npc_id):
-        return relationships[npc_id].get("interaction_exp", 0)
-    return 0
-
 func get_stage(npc_id: String) -> int:
     if relationships.has(npc_id):
         return relationships[npc_id].get("stage", 1)
@@ -69,22 +64,15 @@ func get_stage(npc_id: String) -> int:
 
 func add_intimacy(npc_id: String, amount: float) -> void:
     if not relationships.has(npc_id):
-        relationships[npc_id] = { "intimacy": 0.0, "trust": 0.0, "interaction_exp": 0, "stage": 1 }
+        relationships[npc_id] = { "intimacy": 0.0, "trust": 0.0, "stage": 1 }
     relationships[npc_id]["intimacy"] += amount
     _update_stage(npc_id)
     save_relationships()
 
 func add_trust(npc_id: String, amount: float) -> void:
     if not relationships.has(npc_id):
-        relationships[npc_id] = { "intimacy": 0.0, "trust": 0.0, "interaction_exp": 0, "stage": 1 }
+        relationships[npc_id] = { "intimacy": 0.0, "trust": 0.0, "stage": 1 }
     relationships[npc_id]["trust"] += amount
-    _update_stage(npc_id)
-    save_relationships()
-
-func add_interaction_exp(npc_id: String, amount: int) -> void:
-    if not relationships.has(npc_id):
-        relationships[npc_id] = { "intimacy": 0.0, "trust": 0.0, "interaction_exp": 0, "stage": 1 }
-    relationships[npc_id]["interaction_exp"] += amount
     _update_stage(npc_id)
     save_relationships()
 
@@ -92,7 +80,6 @@ func _update_stage(npc_id: String) -> void:
     var rel = relationships[npc_id]
     var current_stage = rel.get("stage", 1)
     var current_resonance = rel.get("intimacy", 0.0) + rel.get("trust", 0.0)
-    var current_exp = rel.get("interaction_exp", 0)
     
     var stages_file = "res://assets/data/characters/npc/" + npc_id + "_stages.json"
     if not FileAccess.file_exists(stages_file):
@@ -112,7 +99,6 @@ func _update_stage(npc_id: String) -> void:
             var sid = s.get("stage", 1)
             if sid == current_stage:
                 var res_threshold = s.get("resonance_threshold", 0)
-                var exp_cost = s.get("exp_cost", 0)
                 var milestone_story = str(s.get("milestone_story", "")).strip_edges()
                 
                 var is_milestone_met = true
@@ -123,8 +109,7 @@ func _update_stage(npc_id: String) -> void:
                     else:
                         is_milestone_met = false
                         
-                if current_resonance >= res_threshold and current_exp >= exp_cost and is_milestone_met:
-                    rel["interaction_exp"] -= exp_cost
+                if current_resonance >= res_threshold and is_milestone_met:
                     rel["stage"] = current_stage + 1
                     _update_stage(npc_id) # 递归检查是否能连升
                     return

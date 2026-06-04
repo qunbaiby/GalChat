@@ -4,7 +4,7 @@ signal closing_started
 
 @onready var close_btn: Button = $MenuPanel/CloseBtn
 @onready var course_vbox: VBoxContainer = $MenuPanel/ContentHBox/LeftPanel/CourseListPanel/ListMargin/ScrollContainer/CourseVBox
-@onready var exp_label: Label = $MenuPanel/ContentHBox/RightPanel/ExpPanel/Margin/VBox/ExpLabel
+@onready var energy_label: Label = $MenuPanel/ContentHBox/RightPanel/EnergyPanel/Margin/VBox/EnergyLabel
 @onready var detail_title: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DetailTitle
 @onready var detail_meta_label: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DetailMetaLabel
 @onready var desc_label: RichTextLabel = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DescLabel
@@ -59,6 +59,10 @@ func _get_course_by_id(c_id: String) -> Dictionary:
 			return course
 	return {}
 
+func _get_course_energy_cost(course: Dictionary) -> int:
+	var increment = int(course.get("progress_increment", 0))
+	return max(1, int(ceil(float(increment) / 5.0)))
+
 func _refresh_ui() -> void:
 	var profile = GameDataManager.profile
 	_planned_counts.clear()
@@ -101,8 +105,8 @@ func _refresh_ui() -> void:
 func _on_course_clicked(course: Dictionary) -> void:
 	var profile = GameDataManager.profile
 	var c_id = course.get("id", "")
-	var increment = course.get("progress_increment", 0)
-	var single_cost = increment * 5
+	var increment = int(course.get("progress_increment", 0))
+	var single_cost = _get_course_energy_cost(course)
 	var max_prog = course.get("max_progress", 100)
 	var cur_prog = profile.course_progress.get(c_id, 0)
 	
@@ -113,10 +117,10 @@ func _on_course_clicked(course: Dictionary) -> void:
 		_show_warning("该课程进度已满！")
 		return
 		
-	# 检查经验限制
+	# 检查行动力限制
 	var total_planned_cost = _get_total_planned_cost()
-	if profile.interaction_exp < total_planned_cost + single_cost:
-		_show_warning("互动经验不足！")
+	if profile.current_energy < total_planned_cost + single_cost:
+		_show_warning("行动力不足！")
 		return
 		
 	# 隐藏警告
@@ -141,16 +145,15 @@ func _get_total_planned_cost() -> int:
 	var total = 0
 	for c_id in _planned_counts.keys():
 		var course = _get_course_by_id(c_id)
-		var increment = course.get("progress_increment", 0)
-		total += increment * 5 * _planned_counts[c_id]
+		total += _get_course_energy_cost(course) * _planned_counts[c_id]
 	return total
 
 func _update_right_panel() -> void:
 	var profile = GameDataManager.profile
 	var total_cost = _get_total_planned_cost()
-	var remaining_exp = profile.interaction_exp - total_cost
+	var remaining_energy = profile.current_energy - total_cost
 	
-	exp_label.text = "%d" % remaining_exp
+	energy_label.text = "%d / %d" % [remaining_energy, profile.max_energy]
 	
 	var is_empty = _planned_counts.is_empty()
 	start_btn.disabled = is_empty
@@ -191,7 +194,7 @@ func _update_right_panel() -> void:
 	detail_title.text = "指导安排确认"
 	detail_meta_label.text = "已安排 %d 次指导，涉及 %d 门课程" % [total_count, _planned_counts.size()]
 	desc_label.text = courses_summary
-	cost_label.text = "预计消耗互动经验：%d" % total_cost
+	cost_label.text = "预计消耗行动力：%d" % total_cost
 	
 	var preview_str = "[color=#e08b35][b]属性提升预览[/b][/color]\n"
 	if aggregate_rewards.size() > 0:
@@ -238,11 +241,13 @@ func _on_start_pressed() -> void:
 	var profile = GameDataManager.profile
 	var total_cost = _get_total_planned_cost()
 	
-	if profile.interaction_exp < total_cost:
-		_show_warning("互动经验不足！")
+	if profile.current_energy < total_cost:
+		_show_warning("行动力不足！")
 		return
 		
-	profile.interaction_exp -= total_cost
+	if not profile.consume_energy(total_cost):
+		_show_warning("行动力不足！")
+		return
 	
 	var actual_stat_gains = {}
 	var progress_gains = {}
@@ -280,8 +285,7 @@ func _on_start_pressed() -> void:
 	profile.save_profile()
 	
 	if ToastManager:
-		# ToastManager.show_toast(message, color, icon) - We can use a custom color for exp
-		ToastManager.show_toast("互动经验 -%d" % total_cost, Color(0.9, 0.6, 0.4, 0.9))
+		ToastManager.show_toast("行动力 -%d" % total_cost, Color(0.9, 0.6, 0.4, 0.9))
 		
 		# 使用左侧带颜色的属性 Toast
 		for stat_key in actual_stat_gains.keys():

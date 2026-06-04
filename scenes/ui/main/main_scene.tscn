@@ -205,7 +205,7 @@ mouse_filter = 2
 
 [node name="TopStatusPanel" parent="UIPanel" instance=ExtResource("11_top_panel")]
 layout_mode = 1
-offset_left = 533.0
+offset_left = 765.0
 offset_top = 7.0
 offset_right = 1119.0
 offset_bottom = 51.0
@@ -216,7 +216,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 404.0
+offset_left = 413.0
 offset_top = -106.0
 offset_right = -14.0
 offset_bottom = -12.0
@@ -229,7 +229,7 @@ layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 8
 
-[node name="DesktopPetButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
+[node name="SkillButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 size_flags_vertical = 8
@@ -238,7 +238,7 @@ theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_IconNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_IconPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
-text = "🐾"
+text = "✨"
 
 [node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
 custom_minimum_size = Vector2(45, 45)
@@ -306,46 +306,84 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
 text = "外出"
 
-[node name="AffectionButton" type="Button" parent="UIPanel"]
-custom_minimum_size = Vector2(40, 40)
+[node name="GoalPanel" type="PanelContainer" parent="UIPanel"]
+custom_minimum_size = Vector2(240, 72)
 layout_mode = 0
-offset_left = 28.0
-offset_top = 82.0
-offset_right = 82.0
-offset_bottom = 134.0
-pivot_offset = Vector2(29, 29)
-flat = true
+offset_left = 13.0
+offset_top = 94.0
+offset_right = 253.0
+offset_bottom = 166.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_SecNormal")
 
-[node name="CenterContainer" type="CenterContainer" parent="UIPanel/AffectionButton"]
-custom_minimum_size = Vector2(40, 40)
+[node name="GoalMargin" type="MarginContainer" parent="UIPanel/GoalPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="GoalVBox" type="VBoxContainer" parent="UIPanel/GoalPanel/GoalMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="GoalTitle" type="Label" parent="UIPanel/GoalPanel/GoalMargin/GoalVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "养成目标"
+
+[node name="GoalValue" type="Label" parent="UIPanel/GoalPanel/GoalMargin/GoalVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "下一阶段：相识
+共感进度：10 / 40"
+autowrap_mode = 3
+
+[node name="AffectionButton" type="Button" parent="UIPanel"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 185.0
+offset_right = 110.0
+offset_bottom = 233.0
+pivot_offset = Vector2(120, 24)
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
+
+[node name="ContentHBox" type="HBoxContainer" parent="UIPanel/AffectionButton"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -6.0
-offset_top = -10.5
-offset_right = 11.0
-offset_bottom = 7.5
+offset_left = 12.0
+offset_top = 4.0
+offset_right = -12.0
+offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
+alignment = 1
 
-[node name="HeartText" type="Label" parent="UIPanel/AffectionButton/CenterContainer"]
+[node name="HeartText" type="Label" parent="UIPanel/AffectionButton/ContentHBox"]
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.965, 0.36, 0.57, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 28
 text = "❤"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LevelLabel" type="Label" parent="UIPanel/AffectionButton/CenterContainer"]
+[node name="StageVBox" type="VBoxContainer" parent="UIPanel/AffectionButton/ContentHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.89, 0.42, 0.61, 0.95)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 13
-text = "LV1"
-horizontal_alignment = 1
-vertical_alignment = 1
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="StageTitleLabel" type="Label" parent="UIPanel/AffectionButton/ContentHBox/StageVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 15
+text = "初遇"
 
 [node name="WeatherPanel" parent="UIPanel" instance=ExtResource("5_weather")]
 layout_mode = 1
@@ -412,6 +450,47 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_IconHover")
 text = "📱"
 icon_alignment = 1
 expand_icon = true
+
+[node name="AffectionOverlay" type="Control" parent="UIPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Dimmer" type="ColorRect" parent="UIPanel/AffectionOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.3)
+
+[node name="DismissButton" type="Button" parent="UIPanel/AffectionOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="PopupCenter" type="CenterContainer" parent="UIPanel/AffectionOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AffectionPopupFrame" type="Control" parent="UIPanel/AffectionOverlay/PopupCenter"]
+custom_minimum_size = Vector2(930, 438)
+layout_mode = 2
 
 [node name="DiaryNotification" type="PanelContainer" parent="UIPanel"]
 layout_mode = 1

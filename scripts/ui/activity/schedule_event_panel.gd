@@ -9,8 +9,8 @@ signal result_confirmed
 @onready var btn_opt1: Button = $Panel/VBoxContainer/OptionsHBox/BtnOpt1
 @onready var btn_opt2: Button = $Panel/VBoxContainer/OptionsHBox/BtnOpt2
 @onready var result_box: VBoxContainer = $Panel/VBoxContainer/ResultBox
-@onready var result_desc_label: RichTextLabel = $Panel/VBoxContainer/ResultBox/ResultDesc
-@onready var result_effects_label: RichTextLabel = $Panel/VBoxContainer/ResultBox/EffectsLabel
+@onready var result_desc_label: RichTextLabel = $Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/ResultDesc
+@onready var result_effects_label: RichTextLabel = $Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel/EffectsMargin/EffectsLabel
 @onready var continue_button: Button = $Panel/VBoxContainer/ResultBox/ContinueButton
 
 func _ready() -> void:

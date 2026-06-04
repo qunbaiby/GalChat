@@ -2,6 +2,7 @@
     {
         "id": "ecstatic",
         "name": "心花怒放",
+        "emoji": "😄",
         "min_value": 80,
         "max_value": 100,
         "intimacy_multiplier": 1.5,
@@ -12,6 +13,7 @@
     {
         "id": "pleasant",
         "name": "愉悦",
+        "emoji": "😊",
         "min_value": 60,
         "max_value": 79,
         "intimacy_multiplier": 1.2,
@@ -22,6 +24,7 @@
     {
         "id": "calm",
         "name": "平静",
+        "emoji": "🙂",
         "min_value": 40,
         "max_value": 59,
         "intimacy_multiplier": 1.0,
@@ -32,6 +35,7 @@
     {
         "id": "low",
         "name": "低落",
+        "emoji": "😔",
         "min_value": 20,
         "max_value": 39,
         "intimacy_multiplier": 0.8,
@@ -42,6 +46,7 @@
     {
         "id": "broken",
         "name": "崩溃",
+        "emoji": "😭",
         "min_value": 0,
         "max_value": 19,
         "intimacy_multiplier": 0.5,

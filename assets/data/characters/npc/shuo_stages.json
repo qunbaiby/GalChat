@@ -3,7 +3,6 @@
   "stages": [
     {
       "stage": 1,
-      "exp_cost": 50,
       "resonance_threshold": 0,
       "milestone_story": "",
       "stageTitle": "冷漠学长",
@@ -18,7 +17,6 @@
     },
     {
       "stage": 2,
-      "exp_cost": 150,
       "resonance_threshold": 50,
       "milestone_story": "",
       "stageTitle": "目光交汇",
@@ -33,7 +31,6 @@
     },
     {
       "stage": 3,
-      "exp_cost": 300,
       "resonance_threshold": 150,
       "milestone_story": "",
       "stageTitle": "往事缝隙",
@@ -48,7 +45,6 @@
     },
     {
       "stage": 4,
-      "exp_cost": 9999,
       "resonance_threshold": 9999,
       "milestone_story": "",
       "stageTitle": "心灵共鸣",
