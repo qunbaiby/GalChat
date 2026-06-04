@@ -5,8 +5,8 @@ extends Control
 @onready var rich_text_label = $DialogueLayer/VBox/RichTextLabel if has_node("DialogueLayer/VBox/RichTextLabel") else null
 @onready var quick_option_layer = $QuickOptionLayer
 @onready var input_layer = $InputLayer
-@onready var history_button = $HistoryButton
-@onready var end_chat_button = $EndChatButton
+@onready var history_button = $ToolBarContainer/ToolBarMargin/HBox/HistoryButton if has_node("ToolBarContainer/ToolBarMargin/HBox/HistoryButton") else null
+@onready var end_chat_button = $ToolBarContainer/ToolBarMargin/HBox/EndChatButton if has_node("ToolBarContainer/ToolBarMargin/HBox/EndChatButton") else null
 
 @onready var input_field = $InputLayer/HBoxContainer/InputField if has_node("InputLayer/HBoxContainer/InputField") else null
 @onready var char_count_label = $InputLayer/HBoxContainer/InputField/CharCountLabel if has_node("InputLayer/HBoxContainer/InputField/CharCountLabel") else null

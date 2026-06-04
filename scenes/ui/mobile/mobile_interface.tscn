@@ -1,10 +1,23 @@
-[gd_scene load_steps=23 format=3 uid="uid://c3q0g1d3h7gax"]
+[gd_scene load_steps=38 format=3 uid="uid://c3q0g1d3h7gax"]
 
 [ext_resource type="Script" uid="uid://cd41u4lbknqj1" path="res://scripts/ui/mobile/mobile_interface.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwwgtq8lclbyw" path="res://assets/images/backgrounds/main/mobile/mobile_panel_wallpaper.png" id="2_6upme"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="4_8r0ra"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="4_v7k4o"]
 [ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/story_cg_luna_door_sunset.jpg" id="6_te7qg"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/close_back.svg" id="9_back_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/save_data.svg" id="10_save_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/load_data.svg" id="11_load_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/settings_gear.svg" id="12_settings_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/exit_power.svg" id="13_exit_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/album_gallery.svg" id="14_album_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/archive_profile.svg" id="15_archive_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/focus_mode.svg" id="16_focus_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/desktop_pet.svg" id="17_desktop_pet_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/personality_traits.svg" id="18_personality_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/memory_notes.svg" id="19_memory_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/relationship_link.svg" id="20_relation_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/pomodoro_timer.svg" id="21_pomodoro_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -169,6 +182,112 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProfileGlass"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.09, 0.12, 0.12, 0.36)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.54, 0.83, 0.69, 0.45)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.15)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PreviewGlass"]
+bg_color = Color(0.08, 0.12, 0.11, 0.48)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.47, 0.8, 0.66, 0.42)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickApp"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.15, 0.14, 0.42)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.53, 0.82, 0.69, 0.36)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickAppHover"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.14, 0.19, 0.18, 0.54)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.66, 0.91, 0.78, 0.52)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SideBar"]
+content_margin_left = 10.0
+content_margin_top = 12.0
+content_margin_right = 10.0
+content_margin_bottom = 12.0
+bg_color = Color(0.08, 0.12, 0.11, 0.48)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.52, 0.82, 0.68, 0.42)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SideButton"]
+bg_color = Color(0.11, 0.16, 0.15, 0.48)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.8, 0.67, 0.3)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SideButtonHover"]
+bg_color = Color(0.16, 0.2, 0.19, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.66, 0.91, 0.78, 0.46)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
 [sub_resource type="Animation" id="Animation_Init"]
 resource_name = "RESET"
 length = 0.001
@@ -312,56 +431,67 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="PhonePanel/MainMargin"]
+[node name="RootHBox" type="HBoxContainer" parent="PhonePanel/MainMargin"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 18
 
-[node name="PlayerInfoArea" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
+[node name="LeftColumn" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox"]
 layout_mode = 2
-theme_override_constants/separation = 15
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
 
-[node name="UID_Bar" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea"]
+[node name="PlayerInfoCard" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn"]
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_ProfileGlass")
+
+[node name="PlayerInfoArea" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="UID_Bar" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea"]
 layout_mode = 2
 
-[node name="UID_Label" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
+[node name="UID_Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.93, 0.95, 0.92, 1)
+theme_override_font_sizes/font_size = 15
 text = "UID 104384975"
 
-[node name="TopSpacer" type="Control" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
+[node name="TopSpacer" type="Control" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SignalLabel" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
+[node name="SignalLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 14
-text = "●●●●● 6G"
+theme_override_colors/font_color = Color(0.93, 0.95, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "●●●●●"
 
-[node name="BatLabel" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/UID_Bar"]
+[node name="BatLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/UID_Bar"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 14
-text = "98% ■"
+theme_override_colors/font_color = Color(0.93, 0.95, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "98%"
 
-[node name="InteractionArea" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea"]
+[node name="InteractionArea" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 alignment = 1
 
-[node name="PlayerVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea"]
+[node name="PlayerVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 6
 alignment = 1
 
-[node name="AvatarContainer" type="Control" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox"]
-custom_minimum_size = Vector2(80, 80)
+[node name="AvatarContainer" type="Control" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox"]
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="AvatarMask" type="Panel" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer"]
+[node name="AvatarMask" type="Panel" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer"]
 clip_children = 1
 layout_mode = 1
 anchors_preset = 15
@@ -371,7 +501,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PlayerAvMask")
 
-[node name="Avatar" type="TextureRect" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer/AvatarMask"]
+[node name="Avatar" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer/AvatarMask"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -382,7 +512,7 @@ texture = ExtResource("4_8r0ra")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="AvatarFrame" type="Panel" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer"]
+[node name="AvatarFrame" type="Panel" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -395,33 +525,37 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PlayerAvFrame")
 
-[node name="NamePlate" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox"]
-custom_minimum_size = Vector2(100, 0)
+[node name="NamePlate" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox"]
+custom_minimum_size = Vector2(84, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_NamePlate")
 
-[node name="HBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate"]
+[node name="HBox" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate"]
 layout_mode = 2
 alignment = 1
 
-[node name="PlayerName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate/HBox"]
+[node name="PlayerName" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.24, 0.29, 0.29, 1)
+theme_override_font_sizes/font_size = 13
 text = "Player"
 
-[node name="CharVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea"]
+[node name="CharVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea"]
 layout_mode = 2
-theme_override_constants/separation = 5
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CharInfoTop" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
 
-[node name="AvatarContainer" type="Control" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox"]
-custom_minimum_size = Vector2(80, 80)
+[node name="AvatarContainer" type="Control" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop"]
+custom_minimum_size = Vector2(86, 86)
 layout_mode = 2
-size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="AvatarMask" type="Panel" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/AvatarContainer"]
+[node name="AvatarMask" type="Panel" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/AvatarContainer"]
 clip_children = 1
 layout_mode = 1
 anchors_preset = 15
@@ -431,7 +565,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_CharAvMask")
 
-[node name="Avatar" type="TextureRect" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/AvatarContainer/AvatarMask"]
+[node name="Avatar" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/AvatarContainer/AvatarMask"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -442,7 +576,7 @@ texture = ExtResource("4_8r0ra")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="AvatarFrame" type="Panel" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/AvatarContainer"]
+[node name="AvatarFrame" type="Panel" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/AvatarContainer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -455,38 +589,65 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_CharAvFrame")
 
-[node name="NamePlate" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_NamePlate")
-
-[node name="HBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/NamePlate"]
-layout_mode = 2
-alignment = 1
-
-[node name="CharName" type="Label" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/NamePlate/HBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 14
-text = "Luna"
-
-[node name="Separator" type="ColorRect" parent="PhonePanel/MainMargin/VBox/PlayerInfoArea"]
-custom_minimum_size = Vector2(0, 1)
-layout_mode = 2
-color = Color(0.89, 0.91, 0.95, 1)
-
-[node name="CardsHBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
-custom_minimum_size = Vector2(0, 344)
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="ImagePreview" type="Control" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
-custom_minimum_size = Vector2(0, 148)
+[node name="InfoVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
+theme_override_constants/separation = 6
+alignment = 1
 
-[node name="ImageCard" type="Panel" parent="PhonePanel/MainMargin/VBox/CardsHBox/ImagePreview"]
+[node name="CharName" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 24
+text = "Luna"
+
+[node name="DescLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.96, 0.92, 0.9)
+theme_override_font_sizes/font_size = 18
+text = "暂无简介"
+
+[node name="StageLine" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LevelLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/StageLine"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.83, 0.46, 1)
+theme_override_font_sizes/font_size = 14
+text = "开拓等级 70"
+
+[node name="StageSpacer" type="Control" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/StageLine"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StageValueLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/StageLine"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 16
+text = "满级"
+
+[node name="MainContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TopContentHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox"]
+custom_minimum_size = Vector2(0, 168)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PhotoPreviewPanel" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox"]
+custom_minimum_size = Vector2(0, 168)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_PreviewGlass")
+
+[node name="ImagePreview" type="Control" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ImageCard" type="Panel" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview"]
 clip_children = 1
 layout_mode = 1
 anchors_preset = 15
@@ -496,7 +657,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_te7qg")
 
-[node name="Image" type="TextureRect" parent="PhonePanel/MainMargin/VBox/CardsHBox/ImagePreview/ImageCard"]
+[node name="Image" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview/ImageCard"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -507,7 +668,51 @@ texture = ExtResource("6_te7qg")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ImageFrame" type="Panel" parent="PhonePanel/MainMargin/VBox/CardsHBox/ImagePreview"]
+[node name="PreviewShade" type="ColorRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.32)
+
+[node name="PreviewInfo" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -86.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PreviewTagLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview/PreviewInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.88, 0.56, 1)
+theme_override_font_sizes/font_size = 13
+text = "照片预览"
+
+[node name="PreviewTitleLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview/PreviewInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 18
+text = "相册回忆"
+
+[node name="PreviewDescLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview/PreviewInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.96, 0.94, 0.95)
+theme_override_font_sizes/font_size = 11
+text = "自动轮播你记录下的照片"
+autowrap_mode = 3
+
+[node name="ImageFrame" type="Panel" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -520,165 +725,228 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8r0ra")
 
-[node name="ButtonPanel" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox"]
-custom_minimum_size = Vector2(0, 184)
+[node name="TopActionGrid" type="GridContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox"]
+custom_minimum_size = Vector2(168, 168)
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="PersonalityBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickApp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickAppHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickAppHover")
+
+[node name="ContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/PersonalityBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/PersonalityBtn/ContentVBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("18_personality_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/PersonalityBtn/ContentVBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "人格"
+horizontal_alignment = 1
+
+[node name="MemoryBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickApp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickAppHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickAppHover")
+
+[node name="ContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/MemoryBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/MemoryBtn/ContentVBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("19_memory_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/MemoryBtn/ContentVBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "记忆"
+horizontal_alignment = 1
+
+[node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickApp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickAppHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickAppHover")
+
+[node name="ContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/AlbumBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/AlbumBtn/ContentVBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("14_album_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/AlbumBtn/ContentVBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "相册"
+horizontal_alignment = 1
+
+[node name="RelationBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickApp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickAppHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickAppHover")
+
+[node name="ContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/RelationBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/RelationBtn/ContentVBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("20_relation_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/RelationBtn/ContentVBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "关系"
+horizontal_alignment = 1
+
+[node name="BottomContentHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox"]
+custom_minimum_size = Vector2(0, 78)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BetweenEntryPanel" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox"]
+custom_minimum_size = Vector2(0, 78)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
+theme_override_styles/panel = SubResource("StyleBoxFlat_PreviewGlass")
 
-[node name="ButtonMargin" type="MarginContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel"]
+[node name="EntryMargin" type="MarginContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="AppGrid" type="GridContainer" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin"]
-layout_mode = 2
-columns = 4
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-
-[node name="PomodoroBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "⏱\n专注"
-
-[node name="ArchiveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.427451, 0.619608, 0.619608, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "🗂\n档案"
-
-[node name="DesktopPetBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "🐾\n桌宠"
-
-[node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "⚙\n设置"
-
-[node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "💾\n存档"
-
-[node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "📂\n读档"
-
-[node name="AlbumBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "🖼\n相册"
-
-[node name="PlaceholderBtn" type="Button" parent="PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnStyle")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnStyle")
-text = "✨\n更多"
-
-[node name="ListCards" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox"]
-custom_minimum_size = Vector2(0, 112)
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="BetweenEntry" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/ListCards"]
-custom_minimum_size = Vector2(0, 112)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ListContent")
-
-[node name="EntryMargin" type="MarginContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="EntryHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin"]
+[node name="EntryHBox" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="BetweenEntryIcon" type="PanelContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox"]
-custom_minimum_size = Vector2(76, 76)
+[node name="BetweenEntryIconPanel" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox"]
+custom_minimum_size = Vector2(46, 46)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_EntryIcon")
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickApp")
 
-[node name="BetweenEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/BetweenEntryIcon"]
+[node name="BetweenEntryIconLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox/BetweenEntryIconPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 34
-text = "你我之间"
+theme_override_font_sizes/font_size = 20
+text = "纪"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EntryTextVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox"]
+[node name="EntryTextVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
-theme_override_constants/separation = 6
-
-[node name="BetweenEntryTitle" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 15
-text = "共同回忆入口"
-
-[node name="BetweenEntryContent" type="VBoxContainer" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox"]
-layout_mode = 2
 theme_override_constants/separation = 2
+alignment = 1
 
-[node name="BetweenEntryText" type="Label" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox/BetweenEntryContent"]
+[node name="BetweenEntryTitle" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox/EntryTextVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
-theme_override_font_sizes/font_size = 12
-text = "♡"
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 15
+text = "旅情事记"
+
+[node name="BetweenEntryText" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox/EntryTextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.96, 0.94, 0.95)
+theme_override_font_sizes/font_size = 10
+text = "整理共同回忆"
 autowrap_mode = 3
 
-[node name="BetweenEntryBtn" type="Button" parent="PhonePanel/MainMargin/VBox/ListCards/BetweenEntry"]
+[node name="BetweenEntryBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -687,26 +955,244 @@ grow_horizontal = 2
 grow_vertical = 2
 flat = true
 
-[node name="BotSpacer" type="Control" parent="PhonePanel/MainMargin/VBox"]
+[node name="UtilityVBox" type="HBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox"]
+custom_minimum_size = Vector2(168, 78)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DesktopPetBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickApp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickAppHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickAppHover")
+
+[node name="ContentHBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopPetBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopPetBtn/ContentHBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("17_desktop_pet_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopPetBtn/ContentHBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "桌宠"
+horizontal_alignment = 1
+
+[node name="PomodoroBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickApp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickAppHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickAppHover")
+
+[node name="ContentHBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/PomodoroBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/PomodoroBtn/ContentHBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("21_pomodoro_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/PomodoroBtn/ContentHBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "番茄钟"
+horizontal_alignment = 1
+
+[node name="RightSidebar" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_SideBar")
+
+[node name="SideVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/RightSidebar"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="BackBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_SideButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SideButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SideButtonHover")
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/BackBtn"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_back_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TopFill" type="Control" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="HintLabel" type="Label" parent="PhonePanel/MainMargin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 10
-text = "◆ 开启快捷入口后点击主页手机默认进入【你我之间】"
-horizontal_alignment = 1
-
-[node name="PowerBtn" type="Button" parent="PhonePanel/MainMargin/VBox"]
-custom_minimum_size = Vector2(50, 50)
+[node name="SaveBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_PowerBtn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PowerBtn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PowerBtn")
-text = "⏻"
+theme_override_styles/normal = SubResource("StyleBoxFlat_SideButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SideButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SideButtonHover")
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/SaveBtn"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("10_save_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LoadBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_SideButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SideButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SideButtonHover")
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/LoadBtn"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_load_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SettingsBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_SideButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SideButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SideButtonHover")
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/SettingsBtn"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("12_settings_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BottomFill" type="Control" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ExitBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_SideButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SideButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SideButtonHover")
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/ExitBtn"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("13_exit_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

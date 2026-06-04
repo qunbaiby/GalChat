@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=11 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://c63bpyvfuad8k" path="res://assets/images/backgrounds/black.jpg" id="2_2exn1"]
@@ -7,6 +7,18 @@
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="13_dialogue"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToolButton"]
+bg_color = Color(0.98, 0.985, 0.99, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
 content_margin_left = 20.0
@@ -26,18 +38,6 @@ corner_radius_bottom_left = 12
 shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToolButton"]
-bg_color = Color(0.98, 0.985, 0.99, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -108,36 +108,6 @@ mouse_filter = 2
 [node name="DialoguePanel" parent="UIPanel" instance=ExtResource("13_dialogue")]
 layout_mode = 1
 
-[node name="UIOverlay" type="HBoxContainer" parent="UIPanel"]
-layout_mode = 0
-anchor_right = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 61.0
-grow_horizontal = 2
-mouse_filter = 0
-
-[node name="Spacer" type="Control" parent="UIPanel/UIOverlay"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HideUIButton" type="Button" parent="UIPanel/UIOverlay"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_ToolButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ToolButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ToolButton")
-text = "隐藏UI"
-
-[node name="CameraButton" type="Button" parent="UIPanel/UIOverlay"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_ToolButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ToolButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ToolButton")
-text = "相机"
-
 [node name="FreeChatInfoLayer" type="Control" parent="UIPanel"]
 visible = false
 layout_mode = 1
@@ -202,5 +172,3 @@ bus = &"Record"
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_oa57e")
 parameters/looping = true
-
-

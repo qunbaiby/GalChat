@@ -1,6 +1,36 @@
-[gd_scene load_steps=2 format=3 uid="uid://ddy6t8h2kloc"]
+[gd_scene load_steps=4 format=3 uid="uid://ddy6t8h2kloc"]
 
 [ext_resource type="Script" path="res://scripts/ui/date/date_location_item.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LocationButton"]
+bg_color = Color(0.98, 0.98, 0.985, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.89, 0.92, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.06)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LocationButtonHover"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.84, 0.88, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
 
 [node name="DateLocationItem" type="MarginContainer"]
 anchors_preset = 15
@@ -15,15 +45,50 @@ script = ExtResource("1_script")
 
 [node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="NameLabel" type="Label" parent="HBox"]
+[node name="ActionButton" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_LocationButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_LocationButtonHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_LocationButtonHover")
+text = ""
+
+[node name="ContentHBox" type="HBoxContainer" parent="HBox/ActionButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 0.0
+offset_right = -16.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="IconRect" type="TextureRect" parent="HBox/ActionButton/ContentHBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="HBox/ActionButton/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.35, 0.35, 0.38, 1)
+theme_override_font_sizes/font_size = 17
 text = "Location Name"
+horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="AddButton" type="Button" parent="HBox"]
-custom_minimum_size = Vector2(40, 30)
+[node name="RightSpacer" type="Control" parent="HBox/ActionButton/ContentHBox"]
+custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
-text = "+"
+mouse_filter = 2

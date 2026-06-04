@@ -176,7 +176,7 @@ func _populate_date_types() -> void:
 	for type_data in _date_config["date_types"]:
 		var type_item = _date_type_item_scene.instantiate()
 		date_type_vbox.add_child(type_item)
-		type_item.set_title(type_data["name"])
+		type_item.set_type_info(type_data["id"], type_data["name"])
 		
 		if type_data.has("locations"):
 			for loc_id in type_data["locations"]:
@@ -185,7 +185,7 @@ func _populate_date_types() -> void:
 				
 				var loc_item = _date_location_item_scene.instantiate()
 				type_item.add_location_node(loc_item)
-				loc_item.setup(loc_id, loc_name)
+				loc_item.setup(loc_id, loc_name, type_data["id"])
 				loc_item.add_requested.connect(_on_add_location_pressed)
 
 func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:

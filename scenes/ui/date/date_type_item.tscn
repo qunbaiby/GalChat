@@ -1,13 +1,36 @@
-[gd_scene load_steps=3 format=3 uid="uid://ddy6t8h1kdate"]
+[gd_scene load_steps=5 format=3 uid="uid://ddy6t8h1kdate"]
 
 [ext_resource type="Script" path="res://scripts/ui/date/date_type_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.9, 0.9, 0.9, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.98, 0.98, 0.985, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.88, 0.9, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderHover"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.83, 0.83, 0.87, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
 
 [node name="DateTypeItem" type="VBoxContainer"]
 anchors_preset = 15
@@ -15,17 +38,56 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 8
 script = ExtResource("1_script")
 
 [node name="HeaderButton" type="Button" parent="."]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Header")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Header")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Header")
+theme_override_styles/hover = SubResource("StyleBoxFlat_HeaderHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_HeaderHover")
+text = ""
+
+[node name="ContentHBox" type="HBoxContainer" parent="HeaderButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 0.0
+offset_right = -18.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="IconRect" type="TextureRect" parent="HeaderButton/ContentHBox"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="HeaderButton/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.27, 0.27, 0.3, 1)
+theme_override_font_sizes/font_size = 18
 text = "Type Title"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightSpacer" type="Control" parent="HeaderButton/ContentHBox"]
+custom_minimum_size = Vector2(22, 0)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="LocationList" type="VBoxContainer" parent="."]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 6

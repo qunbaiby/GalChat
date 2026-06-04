@@ -97,13 +97,16 @@ func _resolve_nodes() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	if ui_panel:
-		hide_ui_btn = ui_panel.get_node_or_null("UIOverlay/HideUIButton") as Button
-		camera_btn = ui_panel.get_node_or_null("UIOverlay/CameraButton") as Button
 		free_chat_info_layer = ui_panel.get_node_or_null("FreeChatInfoLayer") as Control
+	else:
+		free_chat_info_layer = null
+
+	if dialogue_panel:
+		hide_ui_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/HideUIButton") as Button
+		camera_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/CameraButton") as Button
 	else:
 		hide_ui_btn = null
 		camera_btn = null
-		free_chat_info_layer = null
 
 	if free_chat_info_layer:
 		free_chat_round_label = free_chat_info_layer.get_node_or_null("Panel/Margin/VBox/RoundLabel") as Label
@@ -120,8 +123,8 @@ func _resolve_nodes() -> void:
 		send_btn = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/SendButton") as Button
 		voice_record_btn = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/VoiceRecordButton") as Button
 		quick_options_container = dialogue_panel.get_node_or_null("QuickOptionLayer/ScrollContainer/QuickOptions")
-		end_chat_btn = dialogue_panel.get_node_or_null("EndChatButton") as Button
-		history_btn = dialogue_panel.get_node_or_null("HistoryButton") as Button
+		end_chat_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/EndChatButton") as Button
+		history_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/HistoryButton") as Button
 	else:
 		name_label = null
 		dialogue_text = null
@@ -163,6 +166,11 @@ func _ready() -> void:
 
 	if dialogue_panel:
 		dialogue_panel.show()
+
+	if hide_ui_btn:
+		hide_ui_btn.show()
+	if camera_btn:
+		camera_btn.show()
 	
 	# 故事场景中，我们现在使用结束按钮退出
 	if end_chat_btn:

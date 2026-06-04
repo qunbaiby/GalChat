@@ -8,29 +8,34 @@ const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manage
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
-@onready var pomodoro_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/PomodoroBtn
-@onready var archive_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/ArchiveBtn
-@onready var desktop_pet_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/DesktopPetBtn
-@onready var settings_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/SettingsBtn
-@onready var save_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/SaveBtn
-@onready var load_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/LoadBtn
-@onready var album_btn: Button = $PhonePanel/MainMargin/VBox/CardsHBox/ButtonPanel/ButtonMargin/AppGrid/AlbumBtn
-@onready var preview_image: TextureRect = $PhonePanel/MainMargin/VBox/CardsHBox/ImagePreview/ImageCard/Image
-@onready var power_btn: Button = $PhonePanel/MainMargin/VBox/PowerBtn
-@onready var between_entry_panel: PanelContainer = $PhonePanel/MainMargin/VBox/ListCards/BetweenEntry
-@onready var between_entry_btn: Button = $PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/BetweenEntryBtn
-@onready var between_entry_title: Label = $PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox/BetweenEntryTitle
-@onready var between_entry_text: Label = $PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/EntryTextVBox/BetweenEntryContent/BetweenEntryText
-@onready var between_entry_icon: Label = $PhonePanel/MainMargin/VBox/ListCards/BetweenEntry/EntryMargin/EntryHBox/BetweenEntryIcon/BetweenEntryIconLabel
+@onready var personality_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/PersonalityBtn
+@onready var memory_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/MemoryBtn
+@onready var relation_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/RelationBtn
+@onready var album_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/AlbumBtn
+@onready var desktop_pet_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopPetBtn
+@onready var pomodoro_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/PomodoroBtn
+@onready var settings_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/SettingsBtn
+@onready var save_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/SaveBtn
+@onready var load_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/LoadBtn
+@onready var preview_image: TextureRect = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/PhotoPreviewPanel/ImagePreview/ImageCard/Image
+@onready var back_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/BackBtn
+@onready var exit_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/ExitBtn
+@onready var between_entry_panel: PanelContainer = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel
+@onready var between_entry_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/BetweenEntryBtn
+@onready var between_entry_title: Label = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox/EntryTextVBox/BetweenEntryTitle
+@onready var between_entry_text: Label = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox/EntryTextVBox/BetweenEntryText
+@onready var between_entry_icon: Label = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/BetweenEntryPanel/EntryMargin/EntryHBox/BetweenEntryIconPanel/BetweenEntryIconLabel
 
-@onready var player_name_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate/HBox/PlayerName
-@onready var char_name_lbl: Label = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/NamePlate/HBox/CharName
-@onready var char_avatar_rect: TextureRect = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/CharVBox/AvatarContainer/AvatarMask/Avatar
-@onready var player_avatar_rect: TextureRect = $PhonePanel/MainMargin/VBox/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer/AvatarMask/Avatar
+@onready var player_name_lbl: Label = $PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/NamePlate/HBox/PlayerName
+@onready var char_name_lbl: Label = $PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/InfoVBox/CharName
+@onready var char_avatar_rect: TextureRect = $PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/CharVBox/CharInfoTop/AvatarContainer/AvatarMask/Avatar
+@onready var player_avatar_rect: TextureRect = $PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/InteractionArea/PlayerVBox/AvatarContainer/AvatarMask/Avatar
 @onready var phone_panel: Panel = $PhonePanel
 @onready var color_rect: ColorRect = $ColorRect
 
-var archive_panel_instance = null
+var personality_panel_instance = null
+var memory_panel_instance = null
+var relation_panel_instance = null
 var contact_list_instance = null
 var chat_panel_instance = null
 var settings_panel_instance = null
@@ -72,14 +77,17 @@ func _ready() -> void:
 	$ColorRect.gui_input.connect(_on_color_rect_gui_input)
 	
 	# 绑定信号
-	archive_btn.pressed.connect(_on_archive_app_pressed)
+	personality_btn.pressed.connect(_on_personality_app_pressed)
+	memory_btn.pressed.connect(_on_memory_app_pressed)
+	relation_btn.pressed.connect(_on_relation_app_pressed)
 	pomodoro_btn.pressed.connect(_on_pomodoro_app_pressed)
 	desktop_pet_btn.pressed.connect(_on_desktop_pet_pressed)
 	settings_btn.pressed.connect(_on_settings_app_pressed)
 	save_btn.pressed.connect(_on_save_app_pressed)
 	load_btn.pressed.connect(_on_load_app_pressed)
 	album_btn.pressed.connect(_on_album_app_pressed)
-	power_btn.pressed.connect(_on_close_pressed)
+	back_btn.pressed.connect(_on_back_pressed)
+	exit_btn.pressed.connect(_on_exit_pressed)
 	between_entry_btn.pressed.connect(_on_between_entry_pressed)
 	# camera_btn.pressed.connect(_on_camera_app_pressed)
 	if MomentsManager and MomentsManager.has_signal("moments_updated"):
@@ -150,18 +158,18 @@ func _update_between_entry_card() -> void:
 	var entries = manager.build_entries()
 	var summary = manager.get_summary(entries)
 	if is_instance_valid(between_entry_title):
-		between_entry_title.text = "你我之间"
+		between_entry_title.text = "旅情事记"
 	if is_instance_valid(between_entry_text):
 		var total = int(summary.get("total", 0))
 		var memory_count = int(summary.get("memory", 0))
 		var diary_count = int(summary.get("diary", 0))
 		var photo_count = int(summary.get("photo", 0))
 		if total <= 0:
-			between_entry_text.text = "还没有被收录的共同回忆。\n点开这里整理你们的纪念册。"
+			between_entry_text.text = "暂无旅情记录\n点开整理回忆"
 		else:
-			between_entry_text.text = "已收录 %d 段回忆\n回忆 %d 条 · 日记 %d 页 · 相片 %d 张" % [total, memory_count, diary_count, photo_count]
+			between_entry_text.text = "共 %d 段回忆\n记忆%d 日记%d 相片%d" % [total, memory_count, diary_count, photo_count]
 	if is_instance_valid(between_entry_icon):
-		between_entry_icon.text = "♡"
+		between_entry_icon.text = "纪"
 
 func _on_between_entry_pressed() -> void:
 	if between_panel_instance == null:
@@ -266,6 +274,12 @@ func hide_phone(emit_closing: bool = true) -> void:
 	_slide_tween.tween_property(color_rect, "color:a", 0.0, 0.4)
 	_slide_tween.chain().tween_callback(func():
 		hide()
+		if personality_panel_instance:
+			personality_panel_instance.hide()
+		if memory_panel_instance:
+			memory_panel_instance.hide()
+		if relation_panel_instance:
+			relation_panel_instance.hide()
 		if between_panel_instance:
 			between_panel_instance.hide()
 		if chat_panel_instance:
@@ -278,22 +292,62 @@ func hide_phone(emit_closing: bool = true) -> void:
 			wechat_panel_instance.hide_panel(true)
 	)
 
-func _on_close_pressed() -> void:
+func _on_back_pressed() -> void:
 	hide_phone()
+
+func _on_exit_pressed() -> void:
+	var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
+	if confirm_scene:
+		var confirm_dialog = confirm_scene.instantiate()
+		add_child(confirm_dialog)
+		confirm_dialog.setup("确认退出游戏吗？")
+		confirm_dialog.confirmed.connect(func():
+			if is_instance_valid(confirm_dialog):
+				confirm_dialog.queue_free()
+			get_tree().quit()
+		)
+		confirm_dialog.canceled.connect(func():
+			if is_instance_valid(confirm_dialog):
+				confirm_dialog.queue_free()
+		)
+	else:
+		get_tree().quit()
 
 func _on_color_rect_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		hide_phone()
 
-func _on_archive_app_pressed() -> void:
-	if archive_panel_instance == null:
-		var ArchivePanelObj = load("res://scenes/ui/archive/archive_panel.tscn")
-		archive_panel_instance = ArchivePanelObj.instantiate()
-		phone_panel.add_child(archive_panel_instance)
-		archive_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+func _on_personality_app_pressed() -> void:
+	if personality_panel_instance == null:
+		var panel_scene = load("res://scenes/ui/archive/archive_personality_panel.tscn")
+		personality_panel_instance = panel_scene.instantiate()
+		phone_panel.add_child(personality_panel_instance)
+		personality_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	else:
-		phone_panel.move_child(archive_panel_instance, -1)
-	archive_panel_instance.show_panel()
+		phone_panel.move_child(personality_panel_instance, -1)
+	personality_panel_instance.show_panel()
+
+
+func _on_memory_app_pressed() -> void:
+	if memory_panel_instance == null:
+		var panel_scene = load("res://scenes/ui/archive/archive_memory_panel.tscn")
+		memory_panel_instance = panel_scene.instantiate()
+		phone_panel.add_child(memory_panel_instance)
+		memory_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		phone_panel.move_child(memory_panel_instance, -1)
+	memory_panel_instance.show_panel()
+
+
+func _on_relation_app_pressed() -> void:
+	if relation_panel_instance == null:
+		var panel_scene = load("res://scenes/ui/archive/archive_relation_panel.tscn")
+		relation_panel_instance = panel_scene.instantiate()
+		phone_panel.add_child(relation_panel_instance)
+		relation_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		phone_panel.move_child(relation_panel_instance, -1)
+	relation_panel_instance.show_panel()
 
 func _on_desktop_pet_pressed() -> void:
 	hide_phone()

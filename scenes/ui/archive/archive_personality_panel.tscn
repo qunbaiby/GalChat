@@ -1,0 +1,274 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/archive/archive_personality_panel.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/api/deepseek_client.gd" id="2_deepseek"]
+[ext_resource type="Script" path="res://scripts/ui/archive/radar_chart.gd" id="3_radar"]
+[ext_resource type="Script" path="res://scripts/ui/archive/line_chart.gd" id="4_line"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.94, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(1, 0.988235, 0.972549, 1)
+border_width_bottom = 1
+border_color = Color(0.95, 0.88, 0.82, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 18
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.82, 0.72, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="ArchivePersonalityPanel" type="Control"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -880.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="DeepSeekClient" type="Node" parent="."]
+script = ExtResource("2_deepseek")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="TopBar" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "人格档案"
+
+[node name="Spacer" type="Control" parent="Panel/VBoxContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer/TopBar"]
+custom_minimum_size = Vector2(60, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
+text = "关闭"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="ChartCard" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="ContentVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="ChartsVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+
+[node name="speace" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="RadarChart" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
+custom_minimum_size = Vector2(280, 280)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3_radar")
+
+[node name="LegendVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 5
+
+[node name="LegendBase" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LegendVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 14
+text = "■ 灰色区域: 初始底色"
+
+[node name="LegendDynamic" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LegendVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "■ 青色区域: 当前演化状态"
+
+[node name="LineChart" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
+custom_minimum_size = Vector2(280, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("4_line")
+
+[node name="AnalysisVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="HeaderPanel" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/HeaderPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+text = "  ◆ 当前性格演化分析"
+
+[node name="StatusVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 14
+text = "【性格状态】"
+
+[node name="Text" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "等待分析..."
+fit_content = true
+
+[node name="BehaviorVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 14
+text = "【行为倾向】"
+
+[node name="Text" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "等待分析..."
+fit_content = true
+
+[node name="AdviceVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 14
+text = "【相处建议】"
+
+[node name="Text" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "等待分析..."
+fit_content = true
+
+[node name="PaddingBottom" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
+[node name="BaseTraitsCard" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="ContentVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="AnalysisVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="HeaderPanel" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox/HeaderPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+text = "  ◆ 初始性格底色设定"
+
+[node name="BasePersonalityText" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "正在加载..."
+fit_content = true
+
+[node name="PaddingBottom" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
