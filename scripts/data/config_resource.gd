@@ -71,6 +71,9 @@ var enable_ai_diary_illustration: bool = true
 
 # 当前选择的角色ID，默认为空，运行时会自动寻找第一个可用角色
 var current_character_id: String = ""
+var current_main_bg_id: String = ""
+var unlocked_main_bg_ids: Array = []
+var unlocked_area_ids: Array = []
 
 # 音画配置
 var resolution_idx: int = 0
@@ -131,6 +134,9 @@ func save_config() -> void:
         "doubao_image_model": doubao_image_model,
         "enable_ai_diary_illustration": enable_ai_diary_illustration,
         "current_character_id": current_character_id,
+        "current_main_bg_id": current_main_bg_id,
+        "unlocked_main_bg_ids": unlocked_main_bg_ids,
+        "unlocked_area_ids": unlocked_area_ids,
         "resolution_idx": resolution_idx,
         "fps_idx": fps_idx,
         "vsync_enabled": vsync_enabled,
@@ -213,6 +219,11 @@ func load_config() -> void:
                 doubao_image_model = data.get("doubao_image_model", doubao_image_model)
                 enable_ai_diary_illustration = data.get("enable_ai_diary_illustration", enable_ai_diary_illustration)
                 current_character_id = data.get("current_character_id", current_character_id)
+                current_main_bg_id = data.get("current_main_bg_id", current_main_bg_id)
+                if data.has("unlocked_main_bg_ids") and data["unlocked_main_bg_ids"] is Array:
+                    unlocked_main_bg_ids = data["unlocked_main_bg_ids"]
+                if data.has("unlocked_area_ids") and data["unlocked_area_ids"] is Array:
+                    unlocked_area_ids = data["unlocked_area_ids"]
                 resolution_idx = data.get("resolution_idx", resolution_idx)
                 fps_idx = data.get("fps_idx", fps_idx)
                 vsync_enabled = data.get("vsync_enabled", vsync_enabled)
@@ -267,4 +278,3 @@ func apply_settings() -> void:
     var voice_bus_idx = AudioServer.get_bus_index("Voice")
     if voice_bus_idx >= 0:
         AudioServer.set_bus_volume_db(voice_bus_idx, linear_to_db(voice_volume))
-

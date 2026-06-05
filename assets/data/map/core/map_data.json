@@ -1,44 +1,75 @@
 {
+  "area_order": [
+    "qingyu_street",
+    "art_academy",
+    "qinglan_mt",
+    "j11_center",
+    "jiangyu_bay"
+  ],
   "areas": {
     "qingyu_street": {
       "id": "qingyu_street",
       "name": "青屿街",
       "description": "充满生活气息的街道，工作室与常去的咖啡厅都在这里。",
+      "bg_id": "bg_area_qingyu_street",
+      "default_unlocked": true,
+      "unlock_hint": "初始开放",
       "camera_offset": {"x": 0.22, "y": 0.56},
       "fixed_locations": ["studio", "qingyu_time_cafe", "yuli_alley"],
       "limited_locations": ["midnight_pub"]
-    },
-    "j11_center": {
-      "id": "j11_center",
-      "name": "J11购物艺术中心",
-      "description": "融合现代商业与先锋艺术的潮流综合体。",
-      "camera_offset": {"x": 0.62, "y": 0.22},
-      "fixed_locations": ["movie_theater", "yuguang_gallery"],
-      "limited_locations": ["pop_up_market"]
-    },
-    "qinglan_mt": {
-      "id": "qinglan_mt",
-      "name": "青岚山",
-      "description": "远离喧嚣的宁静山林，可以俯瞰整个江屿市。",
-      "camera_offset": {"x": 0.06, "y": 0.9},
-      "fixed_locations": ["qinglan_cemetery", "wangjiang_pavilion"],
-      "limited_locations": ["secret_hot_spring"]
-    },
-    "jiangyu_bay": {
-      "id": "jiangyu_bay",
-      "name": "江屿湾",
-      "description": "风景优美的海湾，能听到海浪与海鸥的声音。",
-      "camera_offset": {"x": 0.88, "y": 0.74},
-      "fixed_locations": ["golden_beach", "sunset_park", "music_corner"],
-      "limited_locations": ["summer_festival"]
     },
     "art_academy": {
       "id": "art_academy",
       "name": "江屿现代艺术大学",
       "description": "培养顶尖音乐与美术人才的殿堂。",
+      "bg_id": "bg_area_art_academy",
+      "default_unlocked": true,
+      "unlock_hint": "初始开放",
       "camera_offset": {"x": 0.18, "y": 0.12},
       "fixed_locations": ["library", "art_gallery", "gym", "concert_hall", "grand_theater"],
       "limited_locations": ["art_square", "sakura_avenue", "rooftop_garden"]
+    },
+    "qinglan_mt": {
+      "id": "qinglan_mt",
+      "name": "青岚山",
+      "description": "远离喧嚣的宁静山林，可以俯瞰整个江屿市。",
+      "bg_id": "bg_area_qinglan_mt",
+      "default_unlocked": false,
+      "unlock_hint": "审美达到 15 后解锁",
+      "unlock_conditions": [
+        {"type": "stat", "stat_name": "stat_aesthetics", "value": 15}
+      ],
+      "camera_offset": {"x": 0.06, "y": 0.9},
+      "fixed_locations": ["qinglan_cemetery", "wangjiang_pavilion"],
+      "limited_locations": ["secret_hot_spring"]
+    },
+    "j11_center": {
+      "id": "j11_center",
+      "name": "J11购物艺术中心",
+      "description": "融合现代商业与先锋艺术的潮流综合体。",
+      "bg_id": "bg_area_j11_center",
+      "default_unlocked": false,
+      "unlock_hint": "气质达到 15 后解锁",
+      "unlock_conditions": [
+        {"type": "stat", "stat_name": "stat_temperament", "value": 15}
+      ],
+      "camera_offset": {"x": 0.62, "y": 0.22},
+      "fixed_locations": ["movie_theater", "yuguang_gallery"],
+      "limited_locations": ["pop_up_market"]
+    },
+    "jiangyu_bay": {
+      "id": "jiangyu_bay",
+      "name": "江屿湾",
+      "description": "风景优美的海湾，能听到海浪与海鸥的声音。",
+      "bg_id": "bg_area_jiangyu_bay",
+      "default_unlocked": false,
+      "unlock_hint": "情感阶段提升后解锁",
+      "unlock_conditions": [
+        {"type": "stage", "min_stage": 2}
+      ],
+      "camera_offset": {"x": 0.88, "y": 0.74},
+      "fixed_locations": ["golden_beach", "sunset_park", "music_corner"],
+      "limited_locations": ["summer_festival"]
     }
   },
   "locations": {

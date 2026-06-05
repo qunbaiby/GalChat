@@ -1,117 +1,278 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/save_load/save_load_panel.gd" id="1_script"]
+[ext_resource type="Theme" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bg"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(0.1, 0.08, 0.06, 0.34)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
+bg_color = Color(0.95, 0.935, 0.9, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+border_color = Color(0.84, 0.8, 0.72, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 18
-shadow_offset = Vector2(0, 4)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(1, 1, 1, 0.96)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.9, 0.875, 0.81, 0.92)
+border_width_bottom = 1
+border_color = Color(0.83, 0.79, 0.71, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(0.972, 0.962, 0.936, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.86, 0.83, 0.76, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ModeBadge"]
+bg_color = Color(0.45, 0.78, 0.72, 0.16)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.78, 0.72, 0.35)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
+bg_color = Color(0.98, 0.97, 0.94, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.74, 0.68, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Scroll"]
+bg_color = Color(1, 1, 1, 0)
 
 [node name="SaveLoadPanel" type="Control"]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Background" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.07, 0.06, 0.16)
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Bg")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(980, 620)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
 
-[node name="TopBar" type="Control" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 50)
+[node name="MainMargin" type="MarginContainer" parent="CenterContainer/PanelRoot"]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer/TopBar"]
+[node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin"]
+custom_minimum_size = Vector2(980, 620)
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/RootVBox"]
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/TopBar"]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_left = 36.0
+offset_top = 14.0
+offset_right = -118.0
+offset_bottom = 42.0
 grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.23, 0.2, 0.17, 1)
+theme_override_font_sizes/font_size = 26
 text = "保存游戏"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BackButton" type="Button" parent="Panel/VBoxContainer/TopBar"]
+[node name="ModeHintLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/TopBar"]
 layout_mode = 1
-anchors_preset = 4
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 36.0
+offset_top = 46.0
+offset_right = -118.0
+offset_bottom = 68.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.45, 0.42, 0.37, 0.92)
+theme_override_font_sizes/font_size = 14
+text = "整理你的关键进度，随时回到重要时刻。"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/TopBar"]
+custom_minimum_size = Vector2(84, 36)
+layout_mode = 1
+anchor_left = 1.0
 anchor_top = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = 20.0
-offset_top = -25.0
-offset_right = 100.0
-offset_bottom = 25.0
+offset_left = -112.0
+offset_top = -18.0
+offset_right = -28.0
+offset_bottom = 18.0
+grow_horizontal = 0
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
-theme_override_font_sizes/font_size = 20
-text = "返回"
+theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
+text = "关闭"
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="ListContainer" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+[node name="BodyVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="ModeCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="ModeMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="ModeHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ModeBadgePanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox"]
+custom_minimum_size = Vector2(88, 32)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ModeBadge")
+
+[node name="ModeBadgeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox/ModeBadgePanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
+theme_override_font_sizes/font_size = 14
+text = "SAVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ModeTextVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="SectionTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox/ModeTextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "当前模式"
+
+[node name="SectionDesc" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox/ModeTextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.46, 0.43, 0.39, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "保存当前画面、剧情阶段与关键数值。"
+autowrap_mode = 3
+
+[node name="ListCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="ListMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="ListVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="ListHeader" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox"]
+layout_mode = 2
 theme_override_constants/separation = 10
+
+[node name="ListTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ListHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "存档列表"
+
+[node name="Spacer" type="Control" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ListHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CountLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ListHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.46, 0.43, 0.39, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "0 个槽位"
+horizontal_alignment = 2
+
+[node name="ListHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.49, 0.45, 0.94)
+theme_override_font_sizes/font_size = 13
+text = "自动存档用于快速恢复，手动存档适合保留关键节点。"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Scroll")
+
+[node name="ListContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
 
 

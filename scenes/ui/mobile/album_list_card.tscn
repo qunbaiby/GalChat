@@ -25,22 +25,20 @@ corner_radius_bottom_left = 8
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
 
 [node name="AlbumListCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 82)
+custom_minimum_size = Vector2(0, 156)
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Content" type="Control" parent="."]
+[node name="Content" type="VBoxContainer" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_filter = 2
 
 [node name="ThumbMask" type="Panel" parent="Content"]
 clip_children = 1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Mask")
 
 [node name="Thumb" type="TextureRect" parent="Content/ThumbMask"]

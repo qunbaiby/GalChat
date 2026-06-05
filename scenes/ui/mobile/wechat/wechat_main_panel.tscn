@@ -101,6 +101,19 @@ bg_color = Color(0.96, 0.972, 0.985, 1)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MomentsFloatingWindow"]
+bg_color = Color(0.985, 0.988, 0.995, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MomentsTitleBar"]
+bg_color = Color(0.96, 0.972, 0.985, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_WindowClose"]
 bg_color = Color(1, 1, 1, 0.94)
 border_width_left = 1
@@ -614,7 +627,7 @@ offset_top = 30.0
 offset_right = 470.0
 offset_bottom = 690.0
 clip_contents = true
-theme_override_styles/panel = SubResource("StyleBoxFlat_FloatingWindow")
+theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsFloatingWindow")
 
 [node name="WindowRoot" type="Control" parent="MomentsPopupOverlay/FloatingWindow"]
 layout_mode = 2
@@ -640,6 +653,7 @@ offset_right = 0.0
 offset_bottom = 42.0
 grow_horizontal = 2
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsTitleBar")
 
 [node name="HBox" type="HBoxContainer" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar"]
 layout_mode = 1
@@ -653,12 +667,17 @@ offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="LeftSpacer" type="Control" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+
 [node name="Title" type="Label" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.30, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 16
 text = "朋友圈"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CloseBtn" type="Button" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox"]

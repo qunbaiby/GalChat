@@ -3,62 +3,62 @@
 [ext_resource type="Script" path="res://scripts/ui/save_load/save_slot_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Slot"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.985, 0.977, 0.955, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 10
+border_color = Color(0.86, 0.83, 0.76, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.06)
+shadow_size = 12
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.955, 0.945, 0.915, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.82, 0.78, 0.72, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.45, 0.78, 0.72, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.35, 0.66, 0.6, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="SaveSlotItem" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 156)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Slot")
 script = ExtResource("1_script")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
 [node name="MainHBox" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 18
 
 [node name="ScreenshotRect" type="TextureRect" parent="MarginContainer/MainHBox"]
-custom_minimum_size = Vector2(140, 78.75)
+custom_minimum_size = Vector2(180, 101.25)
 layout_mode = 2
 size_flags_vertical = 4
 expand_mode = 1
@@ -72,44 +72,45 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.94, 0.95, 0.97, 1)
+color = Color(0.94, 0.92, 0.88, 1)
 
 [node name="ContentVBox" type="VBoxContainer" parent="MarginContainer/MainHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="InfoVBox" type="VBoxContainer" parent="MarginContainer/MainHBox/ContentVBox"]
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 4
 
 [node name="IdLabel" type="Label" parent="MarginContainer/MainHBox/ContentVBox/InfoVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 19
 text = "Slot 1"
 
 [node name="TimeLabel" type="Label" parent="MarginContainer/MainHBox/ContentVBox/InfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_colors/font_color = Color(0.5, 0.46, 0.42, 1)
 theme_override_font_sizes/font_size = 14
 text = "2025-01-01 12:00:00"
 
 [node name="InfoLabel" type="Label" parent="MarginContainer/MainHBox/ContentVBox/InfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.43, 0.45, 0.5, 1)
+theme_override_colors/font_color = Color(0.4, 0.37, 0.33, 0.96)
 theme_override_font_sizes/font_size = 14
 text = "阶段: 1 | 亲密: 0"
 
 [node name="ButtonsHBox" type="HBoxContainer" parent="MarginContainer/MainHBox/ContentVBox"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 alignment = 2
 
 [node name="DeleteButton" type="Button" parent="MarginContainer/MainHBox/ContentVBox/ButtonsHBox"]
-custom_minimum_size = Vector2(60, 36)
+custom_minimum_size = Vector2(72, 36)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
@@ -117,7 +118,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
 text = "删除"
 
 [node name="ActionButton" type="Button" parent="MarginContainer/MainHBox/ContentVBox/ButtonsHBox"]
-custom_minimum_size = Vector2(80, 36)
+custom_minimum_size = Vector2(88, 36)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 16

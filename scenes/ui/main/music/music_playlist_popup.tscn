@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://nquodglqnhj8"]
 
-[ext_resource type="Script" uid="uid://bxu6ybt3juw7d" path="res://scripts/ui/main/music/music_playlist_popup.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/main/music/music_playlist_popup.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerBg"]
 bg_color = Color(0.98, 0.985, 0.99, 0.96)
@@ -19,9 +19,9 @@ shadow_offset = Vector2(0, 3)
 
 [node name="MusicPlaylistPopup" type="PanelContainer"]
 visible = false
-custom_minimum_size = Vector2(360, 150)
+custom_minimum_size = Vector2(360, 300)
 offset_right = 360.0
-offset_bottom = 270.0
+offset_bottom = 300.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_PlayerBg")
 script = ExtResource("1_script")
 

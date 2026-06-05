@@ -3,6 +3,7 @@ extends Node
 var areas: Dictionary = {}
 var locations: Dictionary = {}
 var npcs_data: Dictionary = {}
+var area_order: Array = []
 
 var _last_visited_area: String = ""
 var _last_visited_location: String = ""
@@ -45,6 +46,7 @@ func _load_map_data():
 	if error == OK:
 		var data = json.data
 		areas = data.get("areas", {})
+		area_order = data.get("area_order", [])
 		
 		# Parse locations and convert dictionary map_position back to Vector2
 		var raw_locations = data.get("locations", {})
@@ -60,8 +62,81 @@ func _load_map_data():
 func get_area(area_id: String) -> Dictionary:
 	return areas.get(area_id, {})
 
+func get_area_order() -> Array:
+	var ordered_ids: Array = []
+	for area_id in area_order:
+		var area_id_str := str(area_id)
+		if area_id_str != "" and areas.has(area_id_str):
+			ordered_ids.append(area_id_str)
+	
+	for area_id in areas.keys():
+		var area_id_str := str(area_id)
+		if not ordered_ids.has(area_id_str):
+			ordered_ids.append(area_id_str)
+	
+	return ordered_ids
+
 func get_location(location_id: String) -> Dictionary:
 	return locations.get(location_id, {})
+
+func is_area_unlocked(area_id: String) -> bool:
+	var area = get_area(area_id)
+	if area.is_empty():
+		return false
+	
+	if bool(area.get("default_unlocked", false)):
+		return true
+	
+	if GameDataManager.config and GameDataManager.config.unlocked_area_ids.has(area_id):
+		return true
+	
+	var conditions = area.get("unlock_conditions", [])
+	if not (conditions is Array) or conditions.is_empty():
+		return true
+	
+	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = ConditionManager.evaluate_conditions(conditions)
+	if bool(eval_result.get("passed", false)):
+		unlock_area(area_id)
+		return true
+	
+	return false
+
+func get_area_lock_reason(area_id: String) -> String:
+	var area = get_area(area_id)
+	if area.is_empty():
+		return ""
+	
+	if is_area_unlocked(area_id):
+		return ""
+	
+	var custom_reason := str(area.get("unlock_hint", "")).strip_edges()
+	if custom_reason != "":
+		return custom_reason
+	
+	var conditions = area.get("unlock_conditions", [])
+	if not (conditions is Array) or conditions.is_empty():
+		return "暂未解锁"
+	
+	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = ConditionManager.evaluate_conditions(conditions)
+	if not bool(eval_result.get("passed", false)):
+		return str(eval_result.get("failed_reason", "暂未解锁"))
+	return "暂未解锁"
+
+func unlock_area(area_id: String, save_now: bool = true) -> void:
+	if area_id == "":
+		return
+	if not areas.has(area_id):
+		return
+	if GameDataManager.config == null:
+		return
+	if GameDataManager.config.unlocked_area_ids.has(area_id):
+		return
+	
+	GameDataManager.config.unlocked_area_ids.append(area_id)
+	if save_now:
+		GameDataManager.config.save_config()
 
 func is_location_unlocked(location_id: String) -> bool:
 	var loc = get_location(location_id)

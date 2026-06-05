@@ -1,52 +1,70 @@
 extends Control
 
-@onready var close_btn: Button = $Panel/VBoxContainer/TopBar/CloseButton
-@onready var radar_chart: Control = $Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/RadarChart
-@onready var line_chart: Control = $Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LineChart
-@onready var base_personality_text: RichTextLabel = $Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox/BasePersonalityText
-@onready var status_text: RichTextLabel = $Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox/Text
-@onready var behavior_text: RichTextLabel = $Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox/Text
-@onready var advice_text: RichTextLabel = $Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox/Text
+@onready var background_panel: ColorRect = $Background
+@onready var panel_root: Panel = $CenterContainer/Panel
+@onready var close_btn: Button = $CenterContainer/Panel/VBoxContainer/TopBar/CloseButton
+@onready var radar_chart: Control = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox/RadarChart
+@onready var line_chart: Control = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox/LineChart
+@onready var base_personality_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox/ContentScroll/BasePersonalityText
+@onready var status_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/StatusVBox/Text
+@onready var behavior_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/BehaviorVBox/Text
+@onready var advice_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/AdviceVBox/Text
 @onready var deepseek_client = $DeepSeekClient
 
+const POPUP_PADDING: float = 72.0
+
+var _popup_min_size: Vector2 = Vector2(850, 600)
+
+var _panel_tween: Tween = null
 
 func _ready() -> void:
+	_popup_min_size = panel_root.custom_minimum_size
+	if _popup_min_size == Vector2.ZERO:
+		_popup_min_size = panel_root.size
+	if _popup_min_size == Vector2.ZERO:
+		_popup_min_size = Vector2(850, 600)
 	close_btn.pressed.connect(_on_close_pressed)
+	background_panel.gui_input.connect(_on_background_gui_input)
+	resized.connect(_on_panel_resized)
+	hide()
 
 
 func show_panel(char_id: String = "") -> void:
-	var target_char_id := char_id
+	var target_char_id: String = char_id
 	if target_char_id == "" and GameDataManager.config and GameDataManager.config.current_character_id != "":
 		target_char_id = GameDataManager.config.current_character_id
 	if target_char_id == "":
 		target_char_id = "luna"
 
 	_load_char_archive(target_char_id)
+	_update_popup_layout()
 	show()
-
-	position.x = size.x
-	modulate.a = 0.0
-	var tween = create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(self, "position:x", 0.0, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "modulate:a", 1.0, 0.2)
+	background_panel.modulate.a = 0.0
+	panel_root.modulate.a = 0.0
+	panel_root.scale = Vector2(0.97, 0.97)
+	_kill_panel_tween()
+	_panel_tween = create_tween()
+	_panel_tween.set_parallel(true)
+	_panel_tween.tween_property(background_panel, "modulate:a", 1.0, 0.18)
+	_panel_tween.tween_property(panel_root, "modulate:a", 1.0, 0.22)
+	_panel_tween.tween_property(panel_root, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _load_char_archive(char_id: String) -> void:
-	var temp_profile := CharacterProfile.new()
+	var temp_profile: CharacterProfile = CharacterProfile.new()
 	temp_profile.load_profile(char_id)
 	_update_personality_display(temp_profile)
 
 
 func _get_story_day_offset_for_char(char_id: String) -> int:
-	var path = "user://saves/%s/story_time_save.json" % char_id
+	var path: String = "user://saves/%s/story_time_save.json" % char_id
 	if not FileAccess.file_exists(path):
 		return 0
-	var file = FileAccess.open(path, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		return 0
-	var json = JSON.new()
-	var result = json.parse(file.get_as_text())
+	var json: JSON = JSON.new()
+	var result: int = json.parse(file.get_as_text())
 	file.close()
 	if result != OK or not json.data is Dictionary:
 		return 0
@@ -70,8 +88,8 @@ func _update_personality_display(profile: CharacterProfile) -> void:
 	]
 	radar_chart.set_values(base_values, dynamic_values)
 
-	var history = profile.personality_history.duplicate()
-	var current_day_offset = _get_story_day_offset_for_char(profile.current_character_id)
+	var history: Array = profile.personality_history.duplicate()
+	var current_day_offset: int = _get_story_day_offset_for_char(profile.current_character_id)
 	history.append({
 		"day_offset": current_day_offset,
 		"openness": float(profile.openness),
@@ -82,7 +100,7 @@ func _update_personality_display(profile: CharacterProfile) -> void:
 	})
 	line_chart.set_data(history)
 
-	var base_traits_str = GameDataManager.personality_system.get_base_traits(profile)
+	var base_traits_str: String = GameDataManager.personality_system.get_base_traits(profile)
 	base_personality_text.text = "暂无初始底色配置" if base_traits_str == "" else base_traits_str
 
 	var dynamic_traits_parts: Array = [
@@ -94,7 +112,7 @@ func _update_personality_display(profile: CharacterProfile) -> void:
 		"",
 		GameDataManager.personality_system.get_dynamic_traits(profile)
 	]
-	var dynamic_traits_str = "\n".join(dynamic_traits_parts)
+	var dynamic_traits_str: String = "\n".join(dynamic_traits_parts)
 	status_text.text = "AI 正在分析性格演化..."
 	behavior_text.text = "等待分析..."
 	advice_text.text = "等待分析..."
@@ -126,9 +144,9 @@ func _on_ai_summary_completed(response: Dictionary) -> void:
 	if not is_instance_valid(status_text):
 		return
 	if response.has("choices") and response["choices"].size() > 0:
-		var content = response["choices"][0].get("message", {}).get("content", "")
-		var json = JSON.new()
-		var err = json.parse(content)
+		var content: String = str(response["choices"][0].get("message", {}).get("content", ""))
+		var json: JSON = JSON.new()
+		var err: int = json.parse(content)
 		if err == OK and typeof(json.data) == TYPE_DICTIONARY:
 			status_text.text = json.data.get("status", "分析失败")
 			behavior_text.text = json.data.get("behavior", "分析失败")
@@ -149,8 +167,38 @@ func _on_ai_summary_failed(err_msg: String) -> void:
 
 
 func _on_close_pressed() -> void:
-	var tween = create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(self, "position:x", size.x, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "modulate:a", 0.0, 0.2)
-	tween.chain().tween_callback(hide)
+	hide_panel()
+
+func hide_panel() -> void:
+	if not visible:
+		return
+	_kill_panel_tween()
+	_panel_tween = create_tween()
+	_panel_tween.set_parallel(true)
+	_panel_tween.tween_property(background_panel, "modulate:a", 0.0, 0.16)
+	_panel_tween.tween_property(panel_root, "modulate:a", 0.0, 0.16)
+	_panel_tween.tween_property(panel_root, "scale", Vector2(0.97, 0.97), 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_panel_tween.set_parallel(false)
+	_panel_tween.tween_callback(hide)
+
+func _on_background_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		hide_panel()
+
+func _on_panel_resized() -> void:
+	if visible:
+		_update_popup_layout()
+
+func _update_popup_layout() -> void:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var target_size: Vector2 = _popup_min_size
+	target_size.x = minf(target_size.x, viewport_size.x - POPUP_PADDING)
+	target_size.y = minf(target_size.y, viewport_size.y - POPUP_PADDING)
+	panel_root.custom_minimum_size = target_size
+	panel_root.size = target_size
+	panel_root.pivot_offset = target_size * 0.5
+
+func _kill_panel_tween() -> void:
+	if _panel_tween != null:
+		_panel_tween.kill()
+		_panel_tween = null

@@ -403,13 +403,13 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.08, 0.09, 1)
 theme_override_font_sizes/font_size = 26
-text = "玩家"
+text = "Luna"
 
 [node name="TitleLabel" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/ProfileMargin/ProfileVBox/HeaderRow/NameArea"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.23, 0.24, 1)
 theme_override_font_sizes/font_size = 14
-text = "称呼  未设称呼"
+text = "角色资料"
 
 [node name="DashLine1" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/ProfileMargin/ProfileVBox"]
 layout_mode = 2
@@ -427,14 +427,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 12
-text = "性别：未填写"
+text = "年龄：21岁"
 
 [node name="BirthdayLine" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/ProfileMargin/ProfileVBox/InfoRowTop"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 12
-text = "生日：未填写"
+text = "生日：待补充"
 
 [node name="DashLine2" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/ProfileMargin/ProfileVBox"]
 layout_mode = 2
@@ -455,11 +455,12 @@ theme_override_font_sizes/font_size = 12
 text = "星座：待补充"
 
 [node name="MBTILine" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/PlayerInfoCard/PlayerInfoArea/ProfileMargin/ProfileVBox/InfoRowBottom"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 12
-text = "人格：未选择"
+text = ""
 
 [node name="MainContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn"]
 layout_mode = 2

@@ -45,7 +45,7 @@ corner_radius_bottom_left = 4
 [node name="ActivityItem" type="PanelContainer"]
 custom_minimum_size = Vector2(190, 76)
 offset_right = 190.0
-offset_bottom = 76.0
+offset_bottom = 80.0
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ShadowCard")
 script = ExtResource("1_item")

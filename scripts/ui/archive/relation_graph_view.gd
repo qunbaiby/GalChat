@@ -1,4 +1,4 @@
-extends VBoxContainer
+extends HBoxContainer
 class_name RelationGraphView
 
 const MemoryAlbumManagerScript = preload("res://scripts/data/memory_album_manager.gd")
@@ -8,13 +8,15 @@ const LAYOUT_SAVE_TEMPLATE: String = "user://graph_layout_%s.json"
 @onready var graph_card: PanelContainer = $GraphCard
 @onready var detail_card: PanelContainer = $DetailCard
 @onready var graph_header: PanelContainer = $GraphCard/VBox/HeaderPanel
-@onready var graph_canvas: Control = $GraphCard/VBox/Viewport/RelationGraphCanvas
+@onready var graph_summary_label: Label = $GraphCard/VBox/ToolbarMargin/Toolbar/SummaryChip/SummaryLabel
+@onready var graph_canvas: Control = $GraphCard/VBox/Viewport/ViewportMargin/ViewportFrame/CanvasMargin/RelationGraphCanvas
 @onready var hide_locked_check: CheckButton = $GraphCard/VBox/ToolbarMargin/Toolbar/HideLockedCheck
 @onready var faction_option: OptionButton = $GraphCard/VBox/ToolbarMargin/Toolbar/FactionOption
 @onready var detail_header: PanelContainer = $DetailCard/VBox/HeaderPanel
-@onready var detail_title_label: Label = $DetailCard/VBox/Margin/ContentVBox/DetailTitle
-@onready var detail_body_label: RichTextLabel = $DetailCard/VBox/Margin/ContentVBox/DetailBody
-@onready var detail_footer_label: RichTextLabel = $DetailCard/VBox/Margin/ContentVBox/DetailFooter
+@onready var detail_overview_tag: Label = $DetailCard/VBox/Margin/ContentScroll/ContentVBox/OverviewCard/OverviewMargin/OverviewVBox/OverviewTag
+@onready var detail_title_label: Label = $DetailCard/VBox/Margin/ContentScroll/ContentVBox/DetailTitle
+@onready var detail_body_label: RichTextLabel = $DetailCard/VBox/Margin/ContentScroll/ContentVBox/DetailBody
+@onready var detail_footer_label: RichTextLabel = $DetailCard/VBox/Margin/ContentScroll/ContentVBox/DetailFooter
 
 var graph_data: Dictionary = {}
 var dynamic_state: Dictionary = {}
@@ -29,11 +31,6 @@ var _pending_selection_kind: String = ""
 var _pending_selection_id: String = ""
 
 func _ready() -> void:
-	_apply_card_style(graph_card)
-	_apply_card_style(detail_card)
-	_apply_header_style(graph_header)
-	_apply_header_style(detail_header)
-
 	graph_canvas.connect("node_selected", Callable(self, "_on_graph_node_selected"))
 	graph_canvas.connect("edge_selected", Callable(self, "_on_graph_edge_selected"))
 	if graph_canvas.has_signal("layout_changed"):
@@ -63,6 +60,7 @@ func set_archive_data(char_id: String, profile) -> void:
 	_populate_factions()
 	dynamic_state = _build_dynamic_state(profile)
 	memory_entries = _build_memory_entries()
+	_update_summary_text()
 
 	graph_canvas.call("set_graph_data", graph_data, dynamic_state)
 
@@ -112,27 +110,6 @@ func _on_filter_changed(_val = null) -> void:
 	var faction = faction_option.get_item_metadata(faction_option.selected) if faction_option.selected >= 0 else ""
 	if graph_canvas.has_method("set_filters"):
 		graph_canvas.call("set_filters", hide_locked, faction)
-
-func _apply_card_style(card: PanelContainer) -> void:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.13, 0.15, 0.6)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.border_color = Color(1, 1, 1, 0.1)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	card.add_theme_stylebox_override("panel", style)
-
-func _apply_header_style(header: PanelContainer) -> void:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.09, 0.1, 0.8)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	header.add_theme_stylebox_override("panel", style)
 
 func _load_graph_data(char_id: String) -> Dictionary:
 	var path: String = GRAPH_PATH_TEMPLATE % char_id
@@ -201,7 +178,9 @@ func _build_memory_entries() -> Array:
 	return album.build_entries()
 
 func _update_summary_text() -> void:
-	pass
+	var node_total: int = graph_data.get("nodes", []).size()
+	var edge_total: int = graph_data.get("edges", []).size()
+	graph_summary_label.text = "%d 节点 · %d 关系" % [node_total, edge_total]
 
 func _on_graph_node_selected(node_id: String) -> void:
 	_show_node_detail(node_id)
@@ -218,6 +197,7 @@ func _show_node_detail(node_id: String) -> void:
 		return
 
 	detail_title_label.text = str(node.get("name", "未知角色"))
+	detail_overview_tag.text = "角色档案"
 
 	var body_lines: Array[String] = []
 	body_lines.append(_format_section("解锁状态", "未解锁" if _is_node_locked(node) else "已解锁"))
@@ -247,6 +227,7 @@ func _show_edge_detail(edge_id: String) -> void:
 		return
 
 	detail_title_label.text = str(edge.get("title", "未命名关系"))
+	detail_overview_tag.text = "关系档案"
 
 	var body_lines: Array[String] = []
 	body_lines.append(_format_section("解锁状态", "未解锁" if _is_edge_locked(edge) else "已解锁"))

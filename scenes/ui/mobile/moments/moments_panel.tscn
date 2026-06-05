@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bqhy5nsoe5rrr"]
+[gd_scene load_steps=14 format=3 uid="uid://bqhy5nsoe5rrr"]
 
 [ext_resource type="Script" uid="uid://drb4rgnlrf2iw" path="res://scripts/ui/mobile/moments/moments_panel.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
@@ -9,10 +9,10 @@
 bg_color = Color(0.985, 0.988, 0.995, 0.98)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.08)
 shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uuw5o"]
 
 [sub_resource type="Gradient" id="Gradient_CoverShade"]
 offsets = PackedFloat32Array(0, 0.45, 0.8, 1)
@@ -22,12 +22,6 @@ colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.08, 0, 0, 0, 0.42, 0, 0, 0, 0.6
 gradient = SubResource("Gradient_CoverShade")
 fill_from = Vector2(0.5, 0)
 fill_to = Vector2(0.5, 1)
-
-[sub_resource type="Shader" id="Shader_RoundTopCorners"]
-code = "shader_type canvas_item;\n\nuniform vec2 rect_size = vec2(380.0, 293.0);\nuniform float corner_radius = 20.0;\n\nvoid fragment() {\n\tvec2 p = UV * rect_size;\n\tif (p.y < corner_radius) {\n\t\tif (p.x < corner_radius && distance(p, vec2(corner_radius, corner_radius)) > corner_radius) {\n\t\t\tdiscard;\n\t\t}\n\t\tif (p.x > rect_size.x - corner_radius && distance(p, vec2(rect_size.x - corner_radius, corner_radius)) > corner_radius) {\n\t\t\tdiscard;\n\t\t}\n\t}\n\tCOLOR = texture(TEXTURE, UV) * COLOR;\n}\n"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_RoundTopCorners"]
-shader = SubResource("Shader_RoundTopCorners")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
 bg_color = Color(1, 1, 1, 1)
@@ -40,6 +34,21 @@ corner_radius_top_left = 35
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
 corner_radius_bottom_left = 35
+
+[sub_resource type="Shader" id="Shader_CircleCrop"]
+code = "shader_type canvas_item;
+
+void fragment() {
+	vec2 centered_uv = UV * 2.0 - vec2(1.0);
+	if (dot(centered_uv, centered_uv) > 1.0) {
+		discard;
+	}
+	COLOR = texture(TEXTURE, UV) * COLOR;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_CircleCrop"]
+shader = SubResource("Shader_CircleCrop")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChangeCoverBtn"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -58,19 +67,13 @@ bg_color = Color(0.985, 0.988, 0.995, 0.98)
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 
-[sub_resource type="Shader" id="Shader_CircleCrop"]
-code = "shader_type canvas_item;\n\nvoid fragment() {\n\tvec2 centered_uv = UV * 2.0 - vec2(1.0);\n\tif (dot(centered_uv, centered_uv) > 1.0) {\n\t\tdiscard;\n\t}\n\tCOLOR = texture(TEXTURE, UV) * COLOR;\n}\n"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_CircleCrop"]
-shader = SubResource("Shader_CircleCrop")
-
 [node name="MomentsPanel" type="Panel"]
+clip_contents = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-clip_contents = true
 theme = ExtResource("2_theme")
 theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsBg")
 script = ExtResource("1_script")
@@ -103,7 +106,17 @@ theme_override_constants/separation = 0
 custom_minimum_size = Vector2(0, 293)
 layout_mode = 2
 
-[node name="CoverImage" type="TextureRect" parent="Scroll/ContentVBox/Header"]
+[node name="CoverImageFrame" type="Panel" parent="Scroll/ContentVBox/Header"]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_uuw5o")
+
+[node name="CoverImage" type="TextureRect" parent="Scroll/ContentVBox/Header/CoverImageFrame"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -111,7 +124,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-material = SubResource("ShaderMaterial_RoundTopCorners")
 texture = ExtResource("3_cover")
 expand_mode = 1
 stretch_mode = 6
@@ -124,7 +136,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-material = SubResource("ShaderMaterial_RoundTopCorners")
 texture = SubResource("GradientTexture2D_CoverShade")
 
 [node name="PlayerName" type="Label" parent="Scroll/ContentVBox/Header"]
@@ -164,17 +175,13 @@ grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
 [node name="PlayerAvatar" type="TextureRect" parent="Scroll/ContentVBox/Header/AvatarBg"]
+material = SubResource("ShaderMaterial_CircleCrop")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
-material = SubResource("ShaderMaterial_CircleCrop")
 texture = ExtResource("4_avatar")
 expand_mode = 1
 stretch_mode = 6
@@ -237,32 +244,6 @@ offset_bottom = 50.0
 grow_horizontal = 2
 mouse_filter = 2
 color = Color(0.985, 0.988, 0.995, 0)
-
-[node name="TopBar" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 13.0
-offset_top = 9.0
-offset_right = -13.0
-offset_bottom = 43.0
-grow_horizontal = 2
-mouse_filter = 2
-
-[node name="BackBtn" type="Button" parent="TopBar"]
-custom_minimum_size = Vector2(35, 35)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "‹"
-flat = true
-
-[node name="Title" type="Label" parent="TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "朋友圈"
-horizontal_alignment = 1
 
 [node name="ImageViewer" type="ColorRect" parent="."]
 visible = false

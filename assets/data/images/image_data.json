@@ -51,6 +51,26 @@
         {
             "id": "bg_art_gallery",
             "path": "res://assets/images/backgrounds/map/background/art_academy/art_gallery/art_gallery.png"
+        },
+        {
+            "id": "bg_area_qingyu_street",
+            "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
+        },
+        {
+            "id": "bg_area_art_academy",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/library/library.png"
+        },
+        {
+            "id": "bg_area_qinglan_mt",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/sakura_avenue/sakura_avenue.png"
+        },
+        {
+            "id": "bg_area_j11_center",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/grand_theater/grand_theater.png"
+        },
+        {
+            "id": "bg_area_jiangyu_bay",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
         }
     ],
     "maps": [

@@ -1,0 +1,190 @@
+[gd_scene load_steps=10 format=3 uid="uid://buugnyuxisx0o"]
+
+[ext_resource type="Script" uid="uid://ctc5vleqkl1ui" path="res://scripts/ui/main/background_setting_item.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bbhabllvch0x5" path="res://assets/images/backgrounds/main/luna_piano_closeup_bg.png" id="2_s3fq3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PreviewFrame"]
+bg_color = Color(0.97, 0.97, 0.98, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.92)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.14)
+shadow_size = 9
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s0coi"]
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoBubble"]
+bg_color = Color(0.96, 0.96, 0.97, 1)
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
+bg_color = Color(0.43, 0.78, 0.73, 1)
+corner_radius_top_left = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SelectedFrame"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_UnlockCondition"]
+bg_color = Color(0.09, 0.1, 0.13, 0.82)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="BackgroundSettingItem" type="Button"]
+custom_minimum_size = Vector2(250, 228)
+offset_right = 369.0
+offset_bottom = 228.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_Button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_Button")
+script = ExtResource("1_script")
+
+[node name="PreviewFrame" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PreviewFrame")
+
+[node name="PreviewMargin" type="MarginContainer" parent="PreviewFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 30
+
+[node name="PreviewClipPanel" type="Panel" parent="PreviewFrame/PreviewMargin"]
+clip_children = 1
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s0coi")
+
+[node name="Preview" type="TextureRect" parent="PreviewFrame/PreviewMargin/PreviewClipPanel"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 0
+offset_right = 355.0
+offset_bottom = 199.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_s3fq3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="InfoBubble" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_top = 196.0
+offset_right = 217.0
+offset_bottom = 248.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoBubble")
+
+[node name="InfoMargin" type="MarginContainer" parent="InfoBubble"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 5
+
+[node name="InfoVBox" type="VBoxContainer" parent="InfoBubble/InfoMargin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TitleLabel" type="Label" parent="InfoBubble/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.22, 1)
+theme_override_font_sizes/font_size = 16
+text = "卧室日常"
+
+[node name="SubTitleLabel" type="Label" parent="InfoBubble/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.48, 0.54, 1)
+theme_override_font_sizes/font_size = 12
+text = "熟悉陪伴"
+
+[node name="StateBadge" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 0
+offset_left = 289.0
+offset_top = 199.0
+offset_right = 369.0
+offset_bottom = 222.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
+
+[node name="BadgeLabel" type="Label" parent="StateBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "使用中"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SelectionFrame" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 369.0
+offset_bottom = 228.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SelectedFrame")
+
+[node name="UnlockConditionBar" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 20.0
+offset_top = 168.0
+offset_right = 202.0
+offset_bottom = 191.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_UnlockCondition")
+
+[node name="HBox" type="HBoxContainer" parent="UnlockConditionBar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LockLabel" type="Label" parent="UnlockConditionBar/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "锁"
+vertical_alignment = 1
+
+[node name="ConditionLabel" type="Label" parent="UnlockConditionBar/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "好感度达到10级"
+vertical_alignment = 1

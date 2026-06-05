@@ -1,22 +1,28 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mobile/between_panel.gd" id="1_script"]
+[ext_resource type="Theme" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.95, 0.935, 0.9, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 12
-shadow_offset = Vector2(0, 4)
+border_color = Color(0.84, 0.8, 0.72, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.96, 0.97, 0.985, 0.98)
+bg_color = Color(0.9, 0.875, 0.81, 0.92)
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.83, 0.79, 0.71, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
@@ -26,16 +32,28 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonNormal"]
-bg_color = Color(1, 1, 1, 0.98)
+bg_color = Color(0.98, 0.97, 0.94, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.78, 0.74, 0.68, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
+bg_color = Color(0.986, 0.98, 0.962, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.83, 0.77, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
 bg_color = Color(1, 1, 1, 0.98)
@@ -69,6 +87,7 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="BetweenPanel" type="Control"]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -76,6 +95,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
+theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="DimBg" type="ColorRect" parent="."]
@@ -87,77 +107,116 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0)
 
-[node name="PanelRoot" type="PanelContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(1080, 700)
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
-[node name="VBox" type="VBoxContainer" parent="PanelRoot"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
+custom_minimum_size = Vector2(1080, 700)
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="HeaderPanel" type="PanelContainer" parent="PanelRoot/VBox"]
+[node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="Margin" type="MarginContainer" parent="PanelRoot/VBox/HeaderPanel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
 
-[node name="TopBar" type="HBoxContainer" parent="PanelRoot/VBox/HeaderPanel/Margin"]
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="BackBtn" type="Button" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(72, 34)
+[node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(84, 36)
 layout_mode = 2
-text = "返回"
+text = "关闭"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="TitleVBox" type="VBoxContainer" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+[node name="TitleVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "你我之间"
+horizontal_alignment = 1
 
-[node name="SummaryLabel" type="Label" parent="PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
+[node name="SummaryLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 autowrap_mode = 3
+horizontal_alignment = 1
 
-[node name="Margin" type="MarginContainer" parent="PanelRoot/VBox"]
+[node name="TopSpacer" type="Control" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(84, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="RootVBox" type="VBoxContainer" parent="PanelRoot/VBox/Margin"]
+[node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="ModeBar" type="HBoxContainer" parent="PanelRoot/VBox/Margin/RootVBox"]
+[node name="SummaryCard" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Summary")
+
+[node name="SummaryMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/SummaryCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="SummaryVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/SummaryCard/SummaryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SummaryTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/SummaryCard/SummaryMargin/SummaryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
+theme_override_font_sizes/font_size = 13
+text = "关系总览"
+
+[node name="SummaryBody" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/SummaryCard/SummaryMargin/SummaryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.35, 0.31, 0.96)
+theme_override_font_sizes/font_size = 14
+text = "正在整理共同回忆..."
+autowrap_mode = 3
+
+[node name="ModeBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ListModeBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/ModeBar"]
+[node name="ListModeBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/ModeBar"]
 custom_minimum_size = Vector2(104, 32)
 layout_mode = 2
 text = "分类视图"
@@ -165,7 +224,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="TimelineModeBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/ModeBar"]
+[node name="TimelineModeBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/ModeBar"]
 custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 text = "时间线"
@@ -173,17 +232,17 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="FilterScroll" type="ScrollContainer" parent="PanelRoot/VBox/Margin/RootVBox"]
+[node name="FilterScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 horizontal_scroll_mode = 2
 vertical_scroll_mode = 0
 
-[node name="FilterBar" type="HBoxContainer" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll"]
+[node name="FilterBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="AllBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
+[node name="AllBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
 text = "全部"
@@ -191,7 +250,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="MilestoneBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
+[node name="MilestoneBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
 text = "节点"
@@ -199,7 +258,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="MemoryBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
+[node name="MemoryBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
 text = "回忆"
@@ -207,7 +266,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="DiaryBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
+[node name="DiaryBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
 text = "日记"
@@ -215,7 +274,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="MomentBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
+[node name="MomentBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
 text = "动态"
@@ -223,7 +282,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="PhotoBtn" type="Button" parent="PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
+[node name="PhotoBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
 text = "相片"
@@ -231,22 +290,63 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
 
-[node name="ListScroll" type="ScrollContainer" parent="PanelRoot/VBox/Margin/RootVBox"]
+[node name="ListScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ListContent" type="VBoxContainer" parent="PanelRoot/VBox/Margin/RootVBox/ListScroll"]
+[node name="ListContent" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/ListScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 14
 
-[node name="EmptyLabel" type="Label" parent="PanelRoot/VBox/Margin/RootVBox"]
+[node name="EmptyLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 visible = false
 custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 text = "这里还没有被收录的共同回忆。"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="EmptyStateCard" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Summary")
+
+[node name="EmptyStateMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 22
+
+[node name="EmptyStateVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="EmptyStateBadge" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
+theme_override_font_sizes/font_size = 13
+text = "纪念册"
+horizontal_alignment = 1
+
+[node name="EmptyStateTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 22
+text = "还没有新的共同回忆"
+horizontal_alignment = 1
+
+[node name="EmptyStateDesc" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "继续推进剧情、查看动态或触发事件后，这里会逐步收录你与 Luna 的关键纪念。"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3

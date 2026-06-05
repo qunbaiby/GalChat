@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://ddy2f3r6a5c1x"]
+[gd_scene load_steps=8 format=3 uid="uid://ddy2f3r6a5c1x"]
 
 [ext_resource type="Script" uid="uid://bgwghmw24ndbb" path="res://scripts/ui/map/core/area_item.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cwe5wxgvmk2n3" path="res://assets/images/icons/ui/map/area_lock.svg" id="2_lock_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 0.96)
@@ -26,6 +27,13 @@ corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BottomBar"]
 bg_color = Color(0.13, 0.16, 0.22, 0.84)
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LockBadge"]
+bg_color = Color(0.08, 0.1, 0.14, 0.78)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
@@ -132,6 +140,33 @@ theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 12
 text = "进入 >"
 vertical_alignment = 1
+
+[node name="LockedOverlay" type="ColorRect" parent="Mask/ClipControl"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.2, 0.23, 0.28, 0.52)
+
+[node name="LockBadge" type="PanelContainer" parent="Mask/ClipControl"]
+visible = false
+layout_mode = 1
+offset_left = 121.0
+offset_top = 2.0
+offset_right = 152.0
+offset_bottom = 33.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_LockBadge")
+
+[node name="LockIcon" type="TextureRect" parent="Mask/ClipControl/LockBadge"]
+layout_mode = 2
+texture = ExtResource("2_lock_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 2

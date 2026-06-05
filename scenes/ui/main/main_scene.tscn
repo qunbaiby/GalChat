@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=42 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_d6qgp"]
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
@@ -20,6 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://jgctkyqyl1py" path="res://assets/images/icons/ui/main/diary_book.svg" id="20_diary_icon"]
 [ext_resource type="Texture2D" uid="uid://d0mj76s6tvbsv" path="res://assets/images/icons/ui/main/wechat_bubble.svg" id="21_wechat_icon"]
 [ext_resource type="Texture2D" uid="uid://bgh7vobvipdda" path="res://assets/images/icons/ui/main/wardrobe_hanger.svg" id="22_wardrobe_icon"]
+[ext_resource type="Texture2D" uid="uid://cv303mddfg2o" path="res://assets/images/icons/ui/main/background_switch.svg" id="23_bg_switch_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AppCardNormal"]
 bg_color = Color(0.36, 0.4, 0.49, 0.95)
@@ -856,6 +857,52 @@ text = "共创画板"
 [node name="DiaryPanel" parent="UIPanel" instance=ExtResource("12_diary")]
 visible = false
 layout_mode = 1
+
+[node name="BgSwitchButton" type="Button" parent="."]
+visible = false
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -86.0
+offset_right = 74.0
+offset_bottom = -30.0
+grow_vertical = 0
+tooltip_text = "切换大厅背景"
+theme_override_styles/normal = SubResource("StyleBoxFlat_SystemToolbarButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SystemToolbarButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SystemToolbarButtonHover")
+
+[node name="Icon" type="TextureRect" parent="BgSwitchButton"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -13.0
+offset_top = -13.0
+offset_right = 13.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("23_bg_switch_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BgTransitionFade" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="WardrobePanel" parent="." instance=ExtResource("16_wardrobe")]
 visible = false

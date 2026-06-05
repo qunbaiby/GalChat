@@ -1,274 +1,487 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=12 format=3 uid="uid://l3flexjysarb"]
 
-[ext_resource type="Script" path="res://scripts/ui/archive/archive_personality_panel.gd" id="1_script"]
-[ext_resource type="Script" path="res://scripts/api/deepseek_client.gd" id="2_deepseek"]
+[ext_resource type="Script" uid="uid://cgm81vj7t07m5" path="res://scripts/ui/archive/archive_personality_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="2_deepseek"]
 [ext_resource type="Script" path="res://scripts/ui/archive/radar_chart.gd" id="3_radar"]
-[ext_resource type="Script" path="res://scripts/ui/archive/line_chart.gd" id="4_line"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 10
-shadow_offset = Vector2(0, 3)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(1, 0.988235, 0.972549, 1)
-border_width_bottom = 1
-border_color = Color(0.95, 0.88, 0.82, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
+[ext_resource type="Script" uid="uid://dokh2nm04tnpv" path="res://scripts/ui/archive/line_chart.gd" id="4_line"]
+[ext_resource type="Theme" uid="uid://cvykqq68q8lwo" path="res://assets/themes/settings_theme.tres" id="5_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.95, 0.935, 0.9, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+border_color = Color(0.84, 0.8, 0.72, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 18
-shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.9, 0.875, 0.81, 0.92)
+border_width_bottom = 1
+border_color = Color(0.83, 0.79, 0.71, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.98, 0.97, 0.94, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.78, 0.74, 0.68, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(0.986, 0.98, 0.962, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.83, 0.77, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.05)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InnerCard"]
+bg_color = Color(0.992, 0.987, 0.975, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.87, 0.82, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.992, 0.974, 0.94, 1)
+border_width_bottom = 1
+border_color = Color(0.9, 0.84, 0.77, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
 
 [node name="ArchivePersonalityPanel" type="Control"]
-custom_minimum_size = Vector2(400, 0)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -880.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("5_theme")
 script = ExtResource("1_script")
 
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("2_deepseek")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.16862746, 0.16862746, 0.16862746, 0.5568628)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CenterContainer"]
+custom_minimum_size = Vector2(1040, 660)
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_top = 2.0
+offset_bottom = 8.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 0
 
-[node name="TopBar" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="TopBar" type="Panel" parent="CenterContainer/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="Label" type="Label" parent="Panel/VBoxContainer/TopBar"]
-layout_mode = 2
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 36.0
+offset_top = 10.0
+offset_right = -118.0
+offset_bottom = 41.0
+grow_horizontal = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 text = "人格档案"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Spacer" type="Control" parent="Panel/VBoxContainer/TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="HintLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 36.0
+offset_top = 39.0
+offset_right = -118.0
+offset_bottom = 61.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.45, 0.42, 0.37, 0.92)
+theme_override_font_sizes/font_size = 14
+text = "左侧查看性格图表，右侧阅读分析与底色设定。"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="CloseButton" type="Button" parent="Panel/VBoxContainer/TopBar"]
-custom_minimum_size = Vector2(60, 30)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+custom_minimum_size = Vector2(84, 36)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -112.0
+offset_top = -18.0
+offset_right = -28.0
+offset_bottom = 18.0
+grow_horizontal = 0
+grow_vertical = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
 text = "关闭"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+[node name="MainHBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 15
+theme_override_constants/separation = 14
 
-[node name="ChartCard" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox"]
+[node name="ChartCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox"]
+custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="ContentVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard"]
+[node name="ChartMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard"]
 layout_mode = 2
-theme_override_constants/separation = 15
-alignment = 1
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
-[node name="ChartsVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox"]
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 15
+size_flags_vertical = 3
+theme_override_constants/separation = 8
 
-[node name="speace" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
-custom_minimum_size = Vector2(0, 30)
+[node name="HeaderHBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox"]
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="RadarChart" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
-custom_minimum_size = Vector2(280, 280)
+[node name="HeaderTextVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/HeaderHBox"]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="ChartsTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/HeaderHBox/HeaderTextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 15
+text = "性格图谱"
+
+[node name="ChartsHint" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/HeaderHBox/HeaderTextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "基于大五人格维度，观察初始底色与当前演化状态。"
+autowrap_mode = 3
+
+[node name="ChartsVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="RadarCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InnerCard")
+
+[node name="RadarMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="RadarVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RadarChart" type="Control" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox"]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+size_flags_horizontal = 3
 script = ExtResource("3_radar")
 
-[node name="LegendVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
+[node name="LegendVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox"]
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_constants/separation = 5
 
-[node name="LegendBase" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LegendVBox"]
+[node name="LegendBase" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox/LegendVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.46, 0.43, 0.39, 1)
+theme_override_font_sizes/font_size = 12
 text = "■ 灰色区域: 初始底色"
 
-[node name="LegendDynamic" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox/LegendVBox"]
+[node name="LegendDynamic" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox/LegendVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
+theme_override_font_sizes/font_size = 12
 text = "■ 青色区域: 当前演化状态"
 
-[node name="LineChart" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/ChartsVBox"]
-custom_minimum_size = Vector2(280, 180)
+[node name="TrendCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_InnerCard")
+
+[node name="TrendMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="TrendVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TrendTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 15
+text = "趋势曲线"
+
+[node name="TrendHint" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "观察五项特质在剧情推进中的变化节奏。"
+autowrap_mode = 3
+
+[node name="LineChart" type="Control" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox"]
+custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("4_line")
 
-[node name="AnalysisVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox"]
+[node name="TextScroll" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox"]
+custom_minimum_size = Vector2(450, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+size_flags_vertical = 3
 
-[node name="HeaderPanel" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+[node name="TextVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="AnalysisCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="AnalysisMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="AnalysisVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SectionTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "当前分析"
+
+[node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="Label" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/HeaderPanel"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/HeaderPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "  ◆ 当前性格演化分析"
 
-[node name="StatusVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+[node name="ContentScroll" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox"]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="StatusVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Title" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox"]
+[node name="Title" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/StatusVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "【性格状态】"
 
-[node name="Text" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/StatusVBox"]
+[node name="Text" type="RichTextLabel" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/StatusVBox"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
 bbcode_enabled = true
 text = "等待分析..."
 fit_content = true
 
-[node name="BehaviorVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+[node name="BehaviorVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Title" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox"]
+[node name="Title" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/BehaviorVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "【行为倾向】"
 
-[node name="Text" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/BehaviorVBox"]
+[node name="Text" type="RichTextLabel" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/BehaviorVBox"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
 bbcode_enabled = true
 text = "等待分析..."
 fit_content = true
 
-[node name="AdviceVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
+[node name="AdviceVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Title" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox"]
+[node name="Title" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/AdviceVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 14
 text = "【相处建议】"
 
-[node name="Text" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox/AdviceVBox"]
+[node name="Text" type="RichTextLabel" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/AdviceVBox"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
 bbcode_enabled = true
 text = "等待分析..."
 fit_content = true
 
-[node name="PaddingBottom" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/ChartCard/ContentVBox/AnalysisVBox"]
-custom_minimum_size = Vector2(0, 5)
+[node name="BaseTraitsCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox"]
 layout_mode = 2
-
-[node name="BaseTraitsCard" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox"]
-layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="ContentVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard"]
+[node name="BaseTraitsMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard"]
 layout_mode = 2
-theme_override_constants/separation = 15
-alignment = 1
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[node name="AnalysisVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox"]
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SectionTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "初始底色"
+
+[node name="AnalysisVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="HeaderPanel" type="PanelContainer" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
+[node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="Label" type="Label" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox/HeaderPanel"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox/HeaderPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "  ◆ 初始性格底色设定"
 
-[node name="BasePersonalityText" type="RichTextLabel" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
+[node name="ContentScroll" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox"]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="BasePersonalityText" type="RichTextLabel" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox/ContentScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/default_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
 bbcode_enabled = true
 text = "正在加载..."
 fit_content = true
-
-[node name="PaddingBottom" type="Control" parent="Panel/VBoxContainer/ScrollContainer/VBox/BaseTraitsCard/ContentVBox/AnalysisVBox"]
-custom_minimum_size = Vector2(0, 5)
-layout_mode = 2

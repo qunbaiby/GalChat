@@ -1,0 +1,226 @@
+[gd_scene load_steps=9 format=3 uid="uid://cm847nh4wsv5k"]
+
+[ext_resource type="Script" uid="uid://dpx3wd2dqowqk" path="res://scripts/ui/main/background_setting_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(0.96, 0.97, 0.98, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Arrow"]
+bg_color = Color(1, 1, 1, 0.96)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ArrowHover"]
+bg_color = Color(0.98, 0.98, 0.99, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.86, 0.92, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Desc"]
+bg_color = Color(1, 1, 1, 0.52)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Cancel"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.86, 0.92, 0.9)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Apply"]
+bg_color = Color(0.95, 0.55, 0.16, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.84, 0.46, 0.12, 0.22)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ApplyHover"]
+bg_color = Color(0.98, 0.61, 0.22, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[node name="BackgroundSettingPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.03, 0.05, 0.46)
+
+[node name="PanelRoot" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(1190, 620)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="MainMargin" type="MarginContainer" parent="PanelRoot"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="MainVBox" type="VBoxContainer" parent="PanelRoot/MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="HeaderHBox" type="HBoxContainer" parent="PanelRoot/MainMargin/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="BackButton" type="Button" parent="PanelRoot/MainMargin/MainVBox/HeaderHBox"]
+custom_minimum_size = Vector2(74, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.22, 0.24, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_Arrow")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ArrowHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ArrowHover")
+text = "<"
+
+[node name="TitleLabel" type="Label" parent="PanelRoot/MainMargin/MainVBox/HeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.22, 1)
+theme_override_font_sizes/font_size = 25
+text = "主页背景设定"
+vertical_alignment = 1
+
+[node name="CarouselHBox" type="HBoxContainer" parent="PanelRoot/MainMargin/MainVBox"]
+custom_minimum_size = Vector2(0, 450)
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="LeftButton" type="Button" parent="PanelRoot/MainMargin/MainVBox/CarouselHBox"]
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.24, 0.24, 0.26, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("StyleBoxFlat_Arrow")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ArrowHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ArrowHover")
+text = "<"
+
+[node name="CardRow" type="HBoxContainer" parent="PanelRoot/MainMargin/MainVBox/CarouselHBox"]
+custom_minimum_size = Vector2(0, 350)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="LeftSlot" type="Control" parent="PanelRoot/MainMargin/MainVBox/CarouselHBox/CardRow"]
+custom_minimum_size = Vector2(250, 236)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="CenterSlot" type="Control" parent="PanelRoot/MainMargin/MainVBox/CarouselHBox/CardRow"]
+custom_minimum_size = Vector2(500, 332)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="RightSlot" type="Control" parent="PanelRoot/MainMargin/MainVBox/CarouselHBox/CardRow"]
+custom_minimum_size = Vector2(250, 236)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="RightButton" type="Button" parent="PanelRoot/MainMargin/MainVBox/CarouselHBox"]
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.24, 0.24, 0.26, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("StyleBoxFlat_Arrow")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ArrowHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ArrowHover")
+text = ">"
+
+[node name="DescriptionPanel" type="PanelContainer" parent="PanelRoot/MainMargin/MainVBox"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Desc")
+
+[node name="DescriptionMargin" type="MarginContainer" parent="PanelRoot/MainMargin/MainVBox/DescriptionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
+
+[node name="DescriptionLabel" type="Label" parent="PanelRoot/MainMargin/MainVBox/DescriptionPanel/DescriptionMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.28, 0.3, 1)
+theme_override_font_sizes/font_size = 17
+text = "熟悉的卧室日常场景，适合安静陪伴与大多数日常互动。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BottomHBox" type="HBoxContainer" parent="PanelRoot/MainMargin/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Spacer" type="Control" parent="PanelRoot/MainMargin/MainVBox/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ApplyButton" type="Button" parent="PanelRoot/MainMargin/MainVBox/BottomHBox"]
+custom_minimum_size = Vector2(230, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_Apply")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ApplyHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ApplyHover")
+text = "应用到大厅"

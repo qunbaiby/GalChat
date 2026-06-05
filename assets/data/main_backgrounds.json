@@ -1,0 +1,34 @@
+{
+  "backgrounds": [
+    {
+      "id": "default_room",
+      "name": "卧室日常",
+      "subtitle": "熟悉陪伴",
+      "path": "res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn",
+      "preview_path": "res://assets/images/backgrounds/main/default_room_bg.png",
+      "description": "熟悉的卧室日常场景，适合安静陪伴与大多数日常互动。",
+      "unlock_condition": "",
+      "default_unlocked": true
+    },
+    {
+      "id": "piano_room",
+      "name": "琴房练习",
+      "subtitle": "午后琴声",
+      "path": "res://scenes/ui/main/backgrounds/locations/piano_room_bg.tscn",
+      "preview_path": "res://assets/images/backgrounds/main/luna_piano_closeup_bg.png",
+      "description": "午后光影洒进琴房，空气里像是还留着练琴时的余韵。",
+      "unlock_condition": "",
+      "default_unlocked": true
+    },
+    {
+      "id": "art_studio",
+      "name": "晨光画室",
+      "subtitle": "安静创作",
+      "path": "res://scenes/ui/main/backgrounds/locations/art_studio_bg.tscn",
+      "preview_path": "res://assets/images/backgrounds/main/luna_drawing_morning_bg.png",
+      "description": "画室里铺满暖色晨光，适合记录她专注创作时的安静片刻。",
+      "unlock_condition": "Luna角色的好感度达到10级",
+      "default_unlocked": false
+    }
+  ]
+}

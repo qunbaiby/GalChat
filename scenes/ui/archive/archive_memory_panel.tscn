@@ -1,96 +1,197 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3 uid="uid://cj1ccxlak8tc1"]
 
-[ext_resource type="Script" path="res://scripts/ui/archive/archive_memory_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://buwg67llbjnyl" path="res://scripts/ui/archive/archive_memory_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cvykqq68q8lwo" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(0.1, 0.08, 0.06, 0.34)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.95, 0.935, 0.9, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+border_color = Color(0.84, 0.8, 0.72, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 18
-shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.9, 0.875, 0.81, 0.92)
+border_width_bottom = 1
+border_color = Color(0.83, 0.79, 0.71, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.98, 0.97, 0.94, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.78, 0.74, 0.68, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [node name="ArchiveMemoryPanel" type="Control"]
-custom_minimum_size = Vector2(400, 0)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -880.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Background" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CenterContainer"]
+custom_minimum_size = Vector2(1040, 660)
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel"]
+custom_minimum_size = Vector2(1040, 660)
+layout_mode = 0
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="Panel" parent="CenterContainer/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
+
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_left = 36.0
+offset_top = 14.0
+offset_right = -118.0
+offset_bottom = 42.0
 grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 10
-
-[node name="TopBar" type="HBoxContainer" parent="Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Panel/VBoxContainer/TopBar"]
-layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 26
 text = "记忆档案"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Spacer" type="Control" parent="Panel/VBoxContainer/TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="HintLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 36.0
+offset_top = 46.0
+offset_right = -118.0
+offset_bottom = 68.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.45, 0.42, 0.37, 0.92)
+theme_override_font_sizes/font_size = 14
+text = "按分类整理角色记忆，集中查看关键印象与羁绊。"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="CloseButton" type="Button" parent="Panel/VBoxContainer/TopBar"]
-custom_minimum_size = Vector2(60, 30)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+custom_minimum_size = Vector2(84, 36)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -112.0
+offset_top = -18.0
+offset_right = -28.0
+offset_bottom = 18.0
+grow_horizontal = 0
+grow_vertical = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
 text = "关闭"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="MemoryListContainer" type="VBoxContainer" parent="Panel/VBoxContainer/ScrollContainer"]
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="MemoryListContainer" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
+
+[node name="EmptyStateCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
+
+[node name="EmptyStateMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 22
+
+[node name="EmptyStateVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard/EmptyStateMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="EmptyStateBadge" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
+theme_override_font_sizes/font_size = 13
+text = "记忆档案"
+horizontal_alignment = 1
+
+[node name="EmptyStateTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_font_sizes/font_size = 22
+text = "这里还没有新的记忆"
+horizontal_alignment = 1
+
+[node name="EmptyStateDesc" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "继续聊天、推进剧情或触发关键互动后，这里会按分类整理角色对你的记忆。"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

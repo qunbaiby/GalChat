@@ -1,4 +1,4 @@
-﻿extends Control
+extends Control
 
 signal back_requested
 signal character_selected(char_id: String)
@@ -331,7 +331,7 @@ func _open_moments_popup() -> void:
 	moments_popup_window.show()
 	moments_instance.show_panel()
 	_on_moments_top_style_progress_changed(0.0)
-	_center_moments_window()
+	call_deferred("_center_moments_window")
 
 func _close_moments_popup() -> void:
 	_moments_popup_open = false
@@ -399,8 +399,15 @@ func _set_floating_window_position(target: Vector2) -> void:
 
 func _center_moments_window() -> void:
 	var viewport_size := get_viewport_rect().size
-	var target := (viewport_size - moments_popup_window.size) * 0.5
-	target += Vector2(-120, 0)
+	var window_size: Vector2 = moments_popup_window.size
+	if window_size.x <= 1.0 or window_size.y <= 1.0:
+		window_size = moments_popup_window.get_combined_minimum_size()
+	if window_size.x <= 1.0 or window_size.y <= 1.0:
+		window_size = moments_popup_window.custom_minimum_size
+	if window_size.x <= 1.0 or window_size.y <= 1.0:
+		window_size = Vector2(720, 640)
+	moments_popup_window.size = window_size
+	var target := (viewport_size - window_size) * 0.5
 	_set_moments_window_position(target)
 
 func _set_moments_window_position(target: Vector2) -> void:
@@ -487,8 +494,6 @@ func _is_pointer_over_interactive(root: Node, point: Vector2, excluded: Array = 
 func _on_moments_top_style_progress_changed(progress: float) -> void:
 	var title_bar_style := StyleBoxFlat.new()
 	title_bar_style.bg_color = Color(0.985, 0.988, 0.995, progress * 0.96)
-	title_bar_style.corner_radius_top_left = 20
-	title_bar_style.corner_radius_top_right = 20
 	title_bar_style.draw_center = progress > 0.01
 	moments_popup_title_bar.add_theme_stylebox_override("panel", title_bar_style)
 	var title_color := Color(1, 1, 1, 1).lerp(Color(0.30, 0.35, 0.35, 1), progress)
