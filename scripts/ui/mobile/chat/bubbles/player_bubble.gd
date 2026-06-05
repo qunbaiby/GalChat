@@ -97,13 +97,13 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var rp_title = Label.new()
 		rp_title.text = text if text != "" else "恭喜发财，大吉大利"
 		rp_title.add_theme_font_size_override("font_size", 14)
-		rp_title.add_theme_color_override("font_color", Color.WHITE)
+		rp_title.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 		rp_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		
 		var rp_status = Label.new()
 		rp_status.text = "对方已领取" if msg.get("status") == "claimed" else "微信红包"
 		rp_status.add_theme_font_size_override("font_size", 12)
-		rp_status.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
+		rp_status.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 0.7))
 		
 		rp_vbox.add_child(rp_title)
 		rp_vbox.add_child(rp_status)
@@ -134,12 +134,12 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var dur_label = Label.new()
 		dur_label.text = str(duration) + "\""
 		dur_label.add_theme_font_size_override("font_size", 16)
-		dur_label.add_theme_color_override("font_color", Color.WHITE)
+		dur_label.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 		
 		var voice_icon = Label.new()
 		voice_icon.text = "•))"
 		voice_icon.add_theme_font_size_override("font_size", 16)
-		voice_icon.add_theme_color_override("font_color", Color.WHITE)
+		voice_icon.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 		
 		voice_hbox.add_child(dur_label)
 		voice_hbox.add_child(voice_icon)
@@ -180,7 +180,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var label = Label.new()
 		label.text = text
 		label.add_theme_font_size_override("font_size", 16)
-		label.add_theme_color_override("font_color", Color.WHITE)
+		label.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		
 		var font = ThemeDB.fallback_font

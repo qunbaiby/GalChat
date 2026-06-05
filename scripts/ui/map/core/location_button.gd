@@ -154,7 +154,7 @@ func setup(loc_data: Dictionary) -> void:
                 name_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
                 name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
                 name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-                name_lbl.add_theme_color_override("font_color", Color.WHITE)
+                name_lbl.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
                 name_lbl.add_theme_font_size_override("font_size", 15)
                 mask.add_child(name_lbl)
             

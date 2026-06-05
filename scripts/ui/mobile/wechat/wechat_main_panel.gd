@@ -496,7 +496,7 @@ func _on_moments_top_style_progress_changed(progress: float) -> void:
 	title_bar_style.bg_color = Color(0.985, 0.988, 0.995, progress * 0.96)
 	title_bar_style.draw_center = progress > 0.01
 	moments_popup_title_bar.add_theme_stylebox_override("panel", title_bar_style)
-	var title_color := Color(1, 1, 1, 1).lerp(Color(0.30, 0.35, 0.35, 1), progress)
+	var title_color := Color(0.2, 0.2, 0.2, 1).lerp(Color(0.30, 0.35, 0.35, 1), progress)
 	moments_popup_title.add_theme_color_override("font_color", title_color)
 	moments_popup_close_btn.add_theme_color_override("font_color", title_color)
 

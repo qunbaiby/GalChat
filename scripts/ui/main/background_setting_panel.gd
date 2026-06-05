@@ -199,21 +199,22 @@ func _animate_to_index(new_index: int, direction: int) -> void:
 	_animate_incoming_item(_carousel_tween, incoming_left, _get_slot_item_transform(left_slot))
 	_animate_incoming_item(_carousel_tween, incoming_center, _get_slot_item_transform(center_slot))
 	_animate_incoming_item(_carousel_tween, incoming_right, _get_slot_item_transform(right_slot))
+	var original_x = description_label.position.x
 	_carousel_tween.tween_property(description_label, "modulate:a", 0.0, 0.08).from(1.0)
-	_carousel_tween.tween_property(description_label, "position:x", 16.0 * direction, 0.08).from(0.0)
+	_carousel_tween.tween_property(description_label, "position:x", original_x + 16.0 * direction, 0.08).from(original_x)
 	_carousel_tween.chain().tween_callback(func():
 		description_label.text = str(current_entry.get("description", ""))
-		description_label.position = Vector2(-16.0 * direction, 0)
+		# 移除 position 设置，只保留 position:x 相关的动画
 	)
 	_carousel_tween.tween_property(description_label, "modulate:a", 1.0, 0.16).from(0.0)
-	_carousel_tween.tween_property(description_label, "position:x", 0.0, 0.16).from(-16.0 * direction)
+	_carousel_tween.tween_property(description_label, "position:x", original_x, 0.16).from(original_x - 16.0 * direction)
 	await _carousel_tween.finished
 
 	_finalize_slot(left_slot, incoming_left)
 	_finalize_slot(center_slot, incoming_center)
 	_finalize_slot(right_slot, incoming_right)
 	description_label.modulate.a = 1.0
-	description_label.position = Vector2.ZERO
+	description_label.position.x = original_x
 	_is_animating = false
 	_update_button_states()
 

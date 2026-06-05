@@ -106,13 +106,13 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var rp_title = Label.new()
 		rp_title.text = text if text != "" else "恭喜发财，大吉大利"
 		rp_title.add_theme_font_size_override("font_size", 14)
-		rp_title.add_theme_color_override("font_color", Color.WHITE)
+		rp_title.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 		rp_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		
 		var rp_status = Label.new()
 		rp_status.text = "已领取" if msg.get("status") == "claimed" else "微信红包"
 		rp_status.add_theme_font_size_override("font_size", 12)
-		rp_status.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
+		rp_status.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 0.7))
 		
 		rp_vbox.add_child(rp_title)
 		rp_vbox.add_child(rp_status)

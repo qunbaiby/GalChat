@@ -1,6 +1,10 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=6 format=3 uid="uid://bdn1el7qoy447"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FieldNormal"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
 bg_color = Color(0.985, 0.98, 0.965, 1)
 border_width_left = 1
 border_width_top = 1
@@ -11,12 +15,12 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FieldFocus"]
 content_margin_left = 10.0
 content_margin_top = 6.0
 content_margin_right = 10.0
 content_margin_bottom = 6.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FieldFocus"]
 bg_color = Color(1, 0.995, 0.985, 1)
 border_width_left = 1
 border_width_top = 1
@@ -27,18 +31,26 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-content_margin_left = 10.0
-content_margin_top = 6.0
-content_margin_right = 10.0
-content_margin_bottom = 6.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonNormal"]
-bg_color = Color(0.955, 0.945, 0.915, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5xkn"]
+bg_color = Color(0.12941177, 0.7607843, 0.7019608, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.82, 0.78, 0.72, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k741i"]
+bg_color = Color(0.42192078, 0.9854236, 0.92006475, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.78, 0.72, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -57,7 +69,6 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="SettingsVoiceTypeItem" type="VBoxContainer"]
-layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
@@ -72,9 +83,9 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="InputDoubao" type="LineEdit" parent="DoubaoHBox"]
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 size_flags_horizontal = 3
-custom_minimum_size = Vector2(0, 34)
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
 theme_override_colors/font_placeholder_color = Color(0.46, 0.43, 0.38, 0.8)
 theme_override_font_sizes/font_size = 14
@@ -86,10 +97,10 @@ custom_minimum_size = Vector2(96, 34)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPressed")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPressed")
-theme_override_styles/focus = SubResource("StyleBoxFlat_ButtonPressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/focus = SubResource("StyleBoxFlat_k741i")
 text = "试听 (豆包)"
 
 [node name="QwenTTSHBox" type="HBoxContainer" parent="."]
@@ -97,9 +108,9 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="InputQwenTTS" type="LineEdit" parent="QwenTTSHBox"]
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 size_flags_horizontal = 3
-custom_minimum_size = Vector2(0, 34)
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
 theme_override_colors/font_placeholder_color = Color(0.46, 0.43, 0.38, 0.8)
 theme_override_font_sizes/font_size = 14
@@ -111,8 +122,9 @@ custom_minimum_size = Vector2(96, 34)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPressed")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_k741i")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ButtonPressed")
 text = "试听 (阿里)"

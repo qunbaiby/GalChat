@@ -129,6 +129,22 @@ func select_edge(edge_id: String) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	# Draw background grid
+	var grid_color = Color(0.8, 0.8, 0.8, 0.1)
+	var grid_size = 50.0 * zoom_level
+	var offset_mod = Vector2(fmod(pan_offset.x, grid_size), fmod(pan_offset.y, grid_size))
+	var rect = get_rect()
+	
+	var x = offset_mod.x
+	while x < rect.size.x:
+		draw_line(Vector2(x, 0), Vector2(x, rect.size.y), grid_color, 1.0)
+		x += grid_size
+		
+	var y = offset_mod.y
+	while y < rect.size.y:
+		draw_line(Vector2(0, y), Vector2(rect.size.x, y), grid_color, 1.0)
+		y += grid_size
+
 	for edge in graph_data.get("edges", []):
 		if not (edge is Dictionary and _should_draw_edge(edge)):
 			continue
@@ -307,22 +323,83 @@ func _draw_edge_path(line_style: String, path_points: Array[Vector2], color: Col
 	for i in range(path_points.size() - 1):
 		var start: Vector2 = path_points[i]
 		var finish: Vector2 = path_points[i + 1]
+		
+		# Draw a subtle glow for all lines
+		var glow_color = color
+		glow_color.a *= 0.15
 		if line_style == "dashed":
-			_draw_dashed_line(start, finish, color, width, 7.0, 5.0)
+			_draw_dashed_curve(start, finish, glow_color, width * 3.0, 7.0, 5.0)
+			_draw_dashed_curve(start, finish, color, width, 7.0, 5.0)
 		else:
-			draw_line(start, finish, color, width, true)
+			_draw_curve(start, finish, glow_color, width * 3.0)
+			_draw_curve(start, finish, color, width)
 
-func _draw_dashed_line(from_pos: Vector2, to_pos: Vector2, color: Color, width: float, dash_length: float, gap_length: float) -> void:
-	var total_length: float = from_pos.distance_to(to_pos)
-	if total_length <= 0.001:
-		return
-	var direction: Vector2 = (to_pos - from_pos) / total_length
-	var drawn: float = 0.0
+func _draw_curve(start: Vector2, finish: Vector2, color: Color, width: float) -> void:
+	var control_offset = Vector2(abs(finish.x - start.x) * 0.4, 0)
+	if abs(finish.y - start.y) > abs(finish.x - start.x):
+		control_offset = Vector2(0, abs(finish.y - start.y) * 0.4)
+		
+	var p1 = start
+	var p2 = start + control_offset * sign(finish.x - start.x)
+	var p3 = finish - control_offset * sign(finish.x - start.x)
+	var p4 = finish
+	
+	var points = PackedVector2Array()
+	var segments = 30
+	for j in range(segments + 1):
+		var t = j / float(segments)
+		var q0 = p1.lerp(p2, t)
+		var q1 = p2.lerp(p3, t)
+		var q2 = p3.lerp(p4, t)
+		var r0 = q0.lerp(q1, t)
+		var r1 = q1.lerp(q2, t)
+		points.append(r0.lerp(r1, t))
+		
+	for j in range(points.size() - 1):
+		draw_line(points[j], points[j + 1], color, width, true)
+
+func _draw_dashed_curve(start: Vector2, finish: Vector2, color: Color, width: float, dash_length: float, gap_length: float) -> void:
+	var control_offset = Vector2(abs(finish.x - start.x) * 0.4, 0)
+	if abs(finish.y - start.y) > abs(finish.x - start.x):
+		control_offset = Vector2(0, abs(finish.y - start.y) * 0.4)
+		
+	var p1 = start
+	var p2 = start + control_offset * sign(finish.x - start.x)
+	var p3 = finish - control_offset * sign(finish.x - start.x)
+	var p4 = finish
+	
+	var points = PackedVector2Array()
+	var segments = 50
+	for j in range(segments + 1):
+		var t = j / float(segments)
+		var q0 = p1.lerp(p2, t)
+		var q1 = p2.lerp(p3, t)
+		var q2 = p3.lerp(p4, t)
+		var r0 = q0.lerp(q1, t)
+		var r1 = q1.lerp(q2, t)
+		points.append(r0.lerp(r1, t))
+		
+	var total_length = 0.0
+	var lengths = [0.0]
+	for j in range(points.size() - 1):
+		var d = points[j].distance_to(points[j+1])
+		total_length += d
+		lengths.append(total_length)
+		
+	var drawn = 0.0
 	while drawn < total_length:
-		var start: Vector2 = from_pos + direction * drawn
-		var end_distance: float = min(drawn + dash_length, total_length)
-		var finish: Vector2 = from_pos + direction * end_distance
-		draw_line(start, finish, color, width, true)
+		var dash_end = min(drawn + dash_length, total_length)
+		
+		# Find segments within [drawn, dash_end]
+		var dash_points = PackedVector2Array()
+		for j in range(points.size()):
+			if lengths[j] >= drawn and lengths[j] <= dash_end:
+				dash_points.append(points[j])
+				
+		if dash_points.size() > 1:
+			for j in range(dash_points.size() - 1):
+				draw_line(dash_points[j], dash_points[j + 1], color, width, true)
+				
 		drawn += dash_length + gap_length
 
 func _find_edge_at_point(point: Vector2) -> String:
@@ -332,15 +409,45 @@ func _find_edge_at_point(point: Vector2) -> String:
 		if not (edge is Dictionary and _should_draw_edge(edge)):
 			continue
 		var path_points: Array[Vector2] = _get_edge_path(edge)
-		var screen_points: Array[Vector2] = []
-		for p in path_points:
-			screen_points.append(p * zoom_level + pan_offset)
+		if path_points.size() == 2:
+			var start = path_points[0] * zoom_level + pan_offset
+			var finish = path_points[1] * zoom_level + pan_offset
 			
-		for i in range(screen_points.size() - 1):
-			var distance: float = _distance_to_segment(point, screen_points[i], screen_points[i + 1])
-			if distance <= EDGE_HIT_DISTANCE and distance < best_distance:
-				best_distance = distance
-				best_id = str(edge.get("id", ""))
+			var control_offset = Vector2(abs(finish.x - start.x) * 0.4, 0)
+			if abs(finish.y - start.y) > abs(finish.x - start.x):
+				control_offset = Vector2(0, abs(finish.y - start.y) * 0.4)
+				
+			var p1 = start
+			var p2 = start + control_offset * sign(finish.x - start.x)
+			var p3 = finish - control_offset * sign(finish.x - start.x)
+			var p4 = finish
+			
+			var points = PackedVector2Array()
+			var segments = 15
+			for j in range(segments + 1):
+				var t = j / float(segments)
+				var q0 = p1.lerp(p2, t)
+				var q1 = p2.lerp(p3, t)
+				var q2 = p3.lerp(p4, t)
+				var r0 = q0.lerp(q1, t)
+				var r1 = q1.lerp(q2, t)
+				points.append(r0.lerp(r1, t))
+				
+			for i in range(points.size() - 1):
+				var distance: float = _distance_to_segment(point, points[i], points[i + 1])
+				if distance <= EDGE_HIT_DISTANCE and distance < best_distance:
+					best_distance = distance
+					best_id = str(edge.get("id", ""))
+		else:
+			var screen_points: Array[Vector2] = []
+			for p in path_points:
+				screen_points.append(p * zoom_level + pan_offset)
+				
+			for i in range(screen_points.size() - 1):
+				var distance: float = _distance_to_segment(point, screen_points[i], screen_points[i + 1])
+				if distance <= EDGE_HIT_DISTANCE and distance < best_distance:
+					best_distance = distance
+					best_id = str(edge.get("id", ""))
 	return best_id
 
 func _distance_to_segment(point: Vector2, a: Vector2, b: Vector2) -> float:
@@ -382,6 +489,27 @@ func _should_draw_edge(edge: Dictionary) -> bool:
 func _get_path_midpoint(path_points: Array[Vector2]) -> Vector2:
 	if path_points.size() < 2:
 		return Vector2.ZERO
+	# For simplicity with curves, just use a basic curve midpoint if it's 2 points
+	if path_points.size() == 2:
+		var start = path_points[0]
+		var finish = path_points[1]
+		var control_offset = Vector2(abs(finish.x - start.x) * 0.4, 0)
+		if abs(finish.y - start.y) > abs(finish.x - start.x):
+			control_offset = Vector2(0, abs(finish.y - start.y) * 0.4)
+			
+		var p1 = start
+		var p2 = start + control_offset * sign(finish.x - start.x)
+		var p3 = finish - control_offset * sign(finish.x - start.x)
+		var p4 = finish
+		
+		var t = 0.5
+		var q0 = p1.lerp(p2, t)
+		var q1 = p2.lerp(p3, t)
+		var q2 = p3.lerp(p4, t)
+		var r0 = q0.lerp(q1, t)
+		var r1 = q1.lerp(q2, t)
+		return r0.lerp(r1, t)
+		
 	var total_length: float = 0.0
 	for i in range(path_points.size() - 1):
 		total_length += path_points[i].distance_to(path_points[i + 1])
@@ -507,6 +635,13 @@ func _evaluate_unlock_rule(rule: Dictionary) -> bool:
 			return true
 
 func _load_node_avatar(node: Dictionary) -> Texture2D:
+	var node_id = str(node.get("id", ""))
+	if node_id == "player":
+		if GameDataManager.profile and GameDataManager.profile.has_method("get_player_avatar_texture"):
+			var tex = GameDataManager.profile.get_player_avatar_texture()
+			if tex != null:
+				return tex
+
 	var avatar_path: String = str(node.get("avatar", ""))
 	if avatar_path != "" and ResourceLoader.exists(avatar_path):
 		return load(avatar_path) as Texture2D

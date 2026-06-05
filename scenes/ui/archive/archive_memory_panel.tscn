@@ -1,10 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://cj1ccxlak8tc1"]
+[gd_scene load_steps=7 format=3 uid="uid://g7e10lyjcwjo"]
 
 [ext_resource type="Script" uid="uid://buwg67llbjnyl" path="res://scripts/ui/archive/archive_memory_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cvykqq68q8lwo" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
-bg_color = Color(0.1, 0.08, 0.06, 0.34)
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
 bg_color = Color(0.95, 0.935, 0.9, 0.985)
@@ -21,23 +21,36 @@ shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.9, 0.875, 0.81, 0.92)
+bg_color = Color(0.93333334, 0.9137255, 0.84705883, 1)
 border_width_bottom = 1
 border_color = Color(0.83, 0.79, 0.71, 1)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
-bg_color = Color(0.98, 0.97, 0.94, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_khwt6"]
+bg_color = Color(1, 1, 1, 1)
 border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.78, 0.74, 0.68, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[sub_resource type="Shader" id="Shader_ArchiveMemoryBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ArchiveMemoryBlur"]
+shader = SubResource("Shader_ArchiveMemoryBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.1, 0.08, 0.06, 0.34)
 
 [node name="ArchiveMemoryPanel" type="Control"]
 layout_mode = 3
@@ -51,6 +64,7 @@ theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_ArchiveMemoryBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -113,23 +127,22 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
-custom_minimum_size = Vector2(84, 36)
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 1
-anchors_preset = 6
+anchors_preset = 1
 anchor_left = 1.0
-anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -112.0
-offset_top = -18.0
-offset_right = -28.0
-offset_bottom = 18.0
+offset_left = -62.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 62.0
 grow_horizontal = 0
-grow_vertical = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
-text = "关闭"
+theme_override_colors/font_color = Color(0.24, 0.2, 0.17, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_khwt6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_khwt6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_khwt6")
+text = "×"
 
 [node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer"]
 layout_mode = 2

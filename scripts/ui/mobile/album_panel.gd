@@ -212,7 +212,7 @@ func _update_filter_buttons() -> void:
 		var normal_style: StyleBox = _filter_button_active_styles.get(category) if is_current else _filter_button_normal_styles.get(category)
 		if normal_style:
 			btn.add_theme_stylebox_override("normal", normal_style)
-		btn.add_theme_color_override("font_color", Color(1, 1, 1, 1.0) if is_current else Color(0.34, 0.31, 0.28, 1.0))
+		btn.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1.0) if is_current else Color(0.34, 0.31, 0.28, 1.0))
 
 func _update_album_summary() -> void:
 	var all_records = _photo_manager.get_album_records()

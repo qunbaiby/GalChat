@@ -1,7 +1,24 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3 uid="uid://dvj1irx36qmqg"]
 
-[ext_resource type="Script" path="res://scripts/ui/mobile/between_panel.gd" id="1_script"]
-[ext_resource type="Theme" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://br7xynem8tavr" path="res://scripts/ui/mobile/between_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+
+[sub_resource type="Shader" id="Shader_BetweenBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_BetweenBlur"]
+shader = SubResource("Shader_BetweenBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.1, 0.08, 0.06, 0.34)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.95, 0.935, 0.9, 0.985)
@@ -24,13 +41,6 @@ border_color = Color(0.83, 0.79, 0.71, 1)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonNormal"]
 bg_color = Color(0.98, 0.97, 0.94, 1)
 border_width_left = 1
@@ -42,6 +52,13 @@ corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
 bg_color = Color(0.986, 0.98, 0.962, 1)
@@ -57,15 +74,15 @@ corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
 bg_color = Color(1, 1, 1, 0.98)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Relation"]
 bg_color = Color(0.978, 0.982, 0.99, 1)
@@ -99,13 +116,13 @@ theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="DimBg" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_BetweenBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -143,10 +160,10 @@ theme_override_constants/separation = 10
 [node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 custom_minimum_size = Vector2(84, 36)
 layout_mode = 2
-text = "关闭"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "关闭"
 
 [node name="TitleVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
@@ -163,10 +180,10 @@ horizontal_alignment = 1
 [node name="SummaryLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-autowrap_mode = 3
+theme_override_font_sizes/font_size = 12
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="TopSpacer" type="Control" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 custom_minimum_size = Vector2(84, 0)
@@ -219,18 +236,18 @@ theme_override_constants/separation = 8
 [node name="ListModeBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/ModeBar"]
 custom_minimum_size = Vector2(104, 32)
 layout_mode = 2
-text = "分类视图"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonCurrent")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "分类视图"
 
 [node name="TimelineModeBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/ModeBar"]
 custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
-text = "时间线"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "时间线"
 
 [node name="FilterScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 custom_minimum_size = Vector2(0, 38)
@@ -245,50 +262,50 @@ theme_override_constants/separation = 8
 [node name="AllBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "全部"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonCurrent")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "全部"
 
 [node name="MilestoneBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "节点"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "节点"
 
 [node name="MemoryBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "回忆"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "回忆"
 
 [node name="DiaryBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "日记"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "日记"
 
 [node name="MomentBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "动态"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "动态"
 
 [node name="PhotoBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar"]
 custom_minimum_size = Vector2(78, 30)
 layout_mode = 2
-text = "相片"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "相片"
 
 [node name="ListScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 layout_mode = 2
@@ -325,8 +342,8 @@ theme_override_constants/margin_bottom = 22
 
 [node name="EmptyStateVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 8
+alignment = 1
 
 [node name="EmptyStateBadge" type="Label" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox"]
 layout_mode = 2
@@ -406,10 +423,10 @@ autowrap_mode = 3
 [node name="DetailCloseBtn" type="Button" parent="DetailOverlay/DetailPanel/VBoxRoot/HeaderPanel/Margin/TopBar"]
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
-text = "关闭"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "关闭"
 
 [node name="Margin" type="MarginContainer" parent="DetailOverlay/DetailPanel/VBoxRoot"]
 layout_mode = 2
@@ -425,8 +442,8 @@ theme_override_constants/separation = 10
 
 [node name="DetailMeta" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="DetailImage" type="TextureRect" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
@@ -437,15 +454,14 @@ stretch_mode = 5
 
 [node name="DetailTags" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="DetailSummary" type="RichTextLabel" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 fit_content = true
-scroll_active = true
 
 [node name="DetailRelationPanel" type="PanelContainer" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
@@ -464,19 +480,19 @@ theme_override_constants/separation = 6
 
 [node name="DetailRelationTitle" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 13
 
 [node name="DetailRelationBody" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/DetailRelationPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="DetailQuote" type="Label" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.411765, 0.439216, 0.490196, 1)
+theme_override_font_sizes/font_size = 13
 autowrap_mode = 3
 
 [node name="ActionBar" type="HBoxContainer" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
@@ -486,24 +502,24 @@ theme_override_constants/separation = 10
 [node name="DetailFavoriteBtn" type="Button" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/ActionBar"]
 custom_minimum_size = Vector2(78, 38)
 layout_mode = 2
-text = "收藏"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "收藏"
 
 [node name="DetailPinBtn" type="Button" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/ActionBar"]
 custom_minimum_size = Vector2(78, 38)
 layout_mode = 2
-text = "置顶"
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "置顶"
 
 [node name="DetailChatBtn" type="Button" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox/ActionBar"]
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "聊聊这段回忆"
 theme_override_styles/normal = SubResource("StyleBoxFlat_Action")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
+text = "聊聊这段回忆"

@@ -1,6 +1,23 @@
-[gd_scene load_steps=9 format=3 uid="uid://cm847nh4wsv5k"]
+[gd_scene load_steps=10 format=3 uid="uid://cm847nh4wsv5k"]
 
 [ext_resource type="Script" uid="uid://dpx3wd2dqowqk" path="res://scripts/ui/main/background_setting_panel.gd" id="1_script"]
+
+[sub_resource type="Shader" id="Shader_BgSettingBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_BgSettingBlur"]
+shader = SubResource("Shader_BgSettingBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.03, 0.03, 0.05, 0.46)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.96, 0.97, 0.98, 0.72)
@@ -46,34 +63,29 @@ corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Cancel"]
-bg_color = Color(1, 1, 1, 0.96)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5xkn"]
+bg_color = Color(0.12941177, 0.7607843, 0.7019608, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.86, 0.86, 0.92, 0.9)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+border_color = Color(0.82, 0.78, 0.72, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Apply"]
-bg_color = Color(0.95, 0.55, 0.16, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.84, 0.46, 0.12, 0.22)
-shadow_size = 6
-shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ApplyHover"]
-bg_color = Color(0.98, 0.61, 0.22, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k741i"]
+bg_color = Color(0.42192078, 0.9854236, 0.92006475, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.78, 0.72, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="BackgroundSettingPanel" type="Control"]
 layout_mode = 3
@@ -86,13 +98,13 @@ mouse_filter = 1
 script = ExtResource("1_script")
 
 [node name="Dimmer" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_BgSettingBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03, 0.03, 0.05, 0.46)
 
 [node name="PanelRoot" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(1190, 620)
@@ -219,8 +231,11 @@ size_flags_horizontal = 3
 custom_minimum_size = Vector2(230, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_Apply")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ApplyHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ApplyHover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/focus = SubResource("StyleBoxFlat_k741i")
 text = "应用到大厅"

@@ -15,7 +15,7 @@
 			"summary": "玩家以值得信赖的年长前辈、私人导师与朋友的身份进入 Luna 的生活，并逐渐成为她最重要的情感依靠。",
 			"static_subtitle": "陪伴主线",
 			"tags": ["指导", "陪伴", "信任", "成长"],
-			"position": { "x": 285, "y": 215 },
+			"position": { "x": 180, "y": 380 },
 			"visible": true
 		},
 		{
@@ -27,7 +27,7 @@
 			"summary": "Luna 是整张关系图谱的核心节点，她与玩家、静、朔、雅、铃以及姐姐安娜的关系共同构成了她的成长环境与情感网络。",
 			"static_subtitle": "关系中心",
 			"tags": ["主角", "成长", "依恋", "记忆"],
-			"position": { "x": 165, "y": 215 },
+			"position": { "x": 180, "y": 225 },
 			"visible": true
 		},
 		{
@@ -44,7 +44,7 @@
 				"npc_id": "jing"
 			},
 			"unlock_hint": "当 Luna 与静发生首次有效互动，或关系阶段不再停留在初始状态后，这个节点会正式点亮。",
-			"position": { "x": 65, "y": 70 },
+			"position": { "x": 60, "y": 140 },
 			"visible": true
 		},
 		{
@@ -61,7 +61,7 @@
 				"npc_id": "ya"
 			},
 			"unlock_hint": "在咖啡厅与雅建立初步关系后，她的节点会从灰显转为点亮。",
-			"position": { "x": 265, "y": 70 },
+			"position": { "x": 300, "y": 140 },
 			"visible": true
 		},
 		{
@@ -78,7 +78,7 @@
 				"npc_id": "shuo"
 			},
 			"unlock_hint": "当 Luna 真正与朔建立接触后，这条旧识线会被正式点亮。",
-			"position": { "x": 65, "y": 360 },
+			"position": { "x": 60, "y": 310 },
 			"visible": true
 		},
 		{
@@ -95,7 +95,7 @@
 				"npc_id": "ling"
 			},
 			"unlock_hint": "当 Luna 与铃建立起第一段稳定的共同练习关系后，这个节点会正式点亮。",
-			"position": { "x": 165, "y": 35 },
+			"position": { "x": 180, "y": 70 },
 			"visible": true
 		},
 		{
@@ -112,7 +112,7 @@
 				"npc_id": "aili"
 			},
 			"unlock_hint": "在大剧院与艾莉建立初次有效互动后，这个节点会正式点亮。",
-			"position": { "x": 330, "y": 215 },
+			"position": { "x": 300, "y": 310 },
 			"visible": true
 		},
 		{
@@ -124,7 +124,7 @@
 			"summary": "安娜虽然已经不在场，却仍然通过遗留的记忆、作品和故人关系影响着 Luna 的世界，也是多条人物关系线的共同源头。",
 			"static_subtitle": "记忆锚点",
 			"tags": ["姐姐", "已逝", "作品", "牵引"],
-			"position": { "x": 265, "y": 360 },
+			"position": { "x": 380, "y": 225 },
 			"visible": true
 		}
 	],

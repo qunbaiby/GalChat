@@ -4,7 +4,7 @@
 [ext_resource type="Theme" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
-bg_color = Color(0.1, 0.08, 0.06, 0.34)
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
 bg_color = Color(0.95, 0.935, 0.9, 0.985)
@@ -66,6 +66,23 @@ corner_radius_bottom_left = 16
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Scroll"]
 bg_color = Color(1, 1, 1, 0)
 
+[sub_resource type="Shader" id="Shader_SaveLoadBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_SaveLoadBlur"]
+shader = SubResource("Shader_SaveLoadBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.1, 0.08, 0.06, 0.34)
+
 [node name="SaveLoadPanel" type="Control"]
 visible = false
 layout_mode = 3
@@ -79,6 +96,7 @@ theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_SaveLoadBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

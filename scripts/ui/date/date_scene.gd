@@ -243,7 +243,7 @@ func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:
 				real_path = bg_id
 		if not real_path.is_empty() and ResourceLoader.exists(real_path):
 			_slots[found_slot]["thumb"].texture = load(real_path)
-			_slots[found_slot]["label"].add_theme_color_override("font_color", Color.WHITE)
+			_slots[found_slot]["label"].add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 			_slots[found_slot]["label"].add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 			_slots[found_slot]["label"].add_theme_constant_override("shadow_outline_size", 4)
 		else:
@@ -312,7 +312,7 @@ func _on_confirm_image_pressed() -> void:
 		_slots[found_slot]["custom_texture"] = _pending_custom_texture
 		_slots[found_slot]["label"].text = _slots[found_slot]["name"] + "\n(现实世界)"
 		_slots[found_slot]["thumb"].texture = _pending_custom_texture
-		_slots[found_slot]["label"].add_theme_color_override("font_color", Color.WHITE)
+		_slots[found_slot]["label"].add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
 		_slots[found_slot]["label"].add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 		_slots[found_slot]["label"].add_theme_constant_override("shadow_outline_size", 4)
 	else:

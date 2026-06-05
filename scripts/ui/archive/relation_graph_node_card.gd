@@ -105,16 +105,16 @@ func update_visual(_node: Dictionary, subtitle_text: String, base_color: Color, 
 	_update_styles()
 
 func _update_styles() -> void:
-	var text_color: Color = Color(0.96, 0.98, 1.0)
-	var sub_color: Color = Color(0.80, 0.88, 0.95, 0.88)
+	var text_color: Color = Color(0.2, 0.2, 0.2, 1.0)
+	var sub_color: Color = Color(0.45, 0.45, 0.45, 1.0)
 	if _is_locked:
-		text_color = Color(0.72, 0.76, 0.82, 0.9)
-		sub_color = Color(0.62, 0.67, 0.74, 0.9)
+		text_color = Color(0.5, 0.5, 0.5, 0.9)
+		sub_color = Color(0.6, 0.6, 0.6, 0.9)
 
 	name_label.add_theme_color_override("font_color", text_color)
 	subtitle_label.add_theme_color_override("font_color", sub_color)
 	lock_label.visible = _is_locked
-	lock_label.add_theme_color_override("font_color", Color("#ffd166"))
+	lock_label.add_theme_color_override("font_color", Color("#c08b5e"))
 	lock_label.text = "未解锁"
 	avatar_rect.modulate = Color(1, 1, 1, 0.42) if _is_locked else Color(1, 1, 1, 1)
 	placeholder_label.add_theme_color_override("font_color", text_color)
