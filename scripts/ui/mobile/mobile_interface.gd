@@ -623,7 +623,6 @@ func _on_character_selected(char_id: String) -> void:
         chat_panel_instance = ChatPanelObj.instantiate()
         phone_panel.add_child(chat_panel_instance)
         chat_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-        chat_panel_instance.back_requested.connect(_on_chat_panel_back)
         chat_panel_instance.incoming_call_ended.connect(_on_incoming_call_ended)
     else:
         phone_panel.move_child(chat_panel_instance, -1)
@@ -637,13 +636,6 @@ func _on_character_selected(char_id: String) -> void:
     chat_panel_instance.setup(char_id)
     chat_panel_instance.show_panel()
 
-func _on_chat_panel_back() -> void:
-    if chat_panel_instance:
-        chat_panel_instance.hide_panel()
-    if wechat_panel_instance:
-        wechat_panel_instance.show_panel(false)
-    _update_social_entry_labels()
-
 func _on_incoming_call_ended() -> void:
     hide_phone()
 
@@ -653,7 +645,6 @@ func open_call_directly(char_id: String, is_video: bool, is_fixed: bool = false)
         chat_panel_instance = ChatPanelObj.instantiate()
         phone_panel.add_child(chat_panel_instance)
         chat_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-        chat_panel_instance.back_requested.connect(_on_chat_panel_back)
         chat_panel_instance.incoming_call_ended.connect(_on_incoming_call_ended)
     else:
         phone_panel.move_child(chat_panel_instance, -1)

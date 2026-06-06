@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dxe3r2b5g7na"]
+[gd_scene load_steps=15 format=3 uid="uid://dxe3r2b5g7na"]
 
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dxtsg4qyfukjg" path="res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png" id="2_6tba5"]
@@ -146,6 +146,19 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 6
 shadow_offset = Vector2(2, 2)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_idle_quote"]
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.1)
+shadow_size = 4
+
 [node name="DefaultRoomBg" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -169,9 +182,9 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="LunaAni" type="AnimatedSprite2D" parent="."]
-visible = false
-position = Vector2(615.23334, 398.49902)
-scale = Vector2(0.72157085, 0.72157085)
+self_modulate = Color(1, 1, 1, 0)
+position = Vector2(658.76575, 373.99905)
+scale = Vector2(0.7736431, 0.7736431)
 sprite_frames = SubResource("SpriteFrames_6tba5")
 
 [node name="StoryButton" type="Button" parent="."]
@@ -254,3 +267,32 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_bubble_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_bubble_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_bubble_normal")
 text = "互动"
+
+[node name="CharacterClickArea" type="Button" parent="."]
+layout_mode = 0
+offset_left = 380.0
+offset_top = 100.0
+offset_right = 930.0
+offset_bottom = 680.0
+focus_mode = 0
+flat = true
+
+[node name="IdleQuoteBubble" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 464.0
+offset_top = 307.0
+offset_right = 759.0
+offset_bottom = 412.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_idle_quote")
+
+[node name="Label" type="RichTextLabel" parent="IdleQuoteBubble"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 2

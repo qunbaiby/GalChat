@@ -33,6 +33,7 @@ DoubaoEmbeddingClient="*res://scripts/api/doubao_embedding_client.gd"
 MapDataManager="*res://scripts/data/map_data_manager.gd"
 TTSManager="*res://scripts/api/tts/tts_manager.gd"
 EventManager="*res://scripts/data/event_manager.gd"
+MobileFixedChatManager="*res://scripts/data/mobile_fixed_chat_manager.gd"
 
 [display]
 

@@ -10,6 +10,9 @@ signal stage_changed(new_stage: int)
 @onready var test_call_btn: Button = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer/TestCallButton"
 @onready var generate_diary_btn: Button = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer/GenerateDiaryButton"
 
+@onready var free_chat_toggle: CheckButton = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/ChatControlBox/FreeChatToggle"
+@onready var test_fixed_chat_btn: Button = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/ChatControlBox/TestFixedChatBtn"
+
 @onready var send_moment_btn: Button = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox/SendMomentBtn"
 @onready var ai_generate_moment_btn: Button = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox/AIGenerateMomentBtn"
 @onready var moment_author_input: LineEdit = $"CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox/MomentAuthor"
@@ -35,6 +38,20 @@ func _ready() -> void:
     test_call_btn.pressed.connect(_on_test_call_pressed)
     generate_diary_btn.pressed.connect(_on_generate_diary_pressed)
     
+    free_chat_toggle.toggled.connect(_on_free_chat_toggled)
+    # 初始化开关状态
+    if GameDataManager.config:
+        free_chat_toggle.button_pressed = GameDataManager.config.get_custom_config("free_chat_enabled", false)
+    
+    test_fixed_chat_btn.pressed.connect(_on_test_fixed_chat_pressed)
+    
+    var clear_fixed_chat_btn = Button.new()
+    clear_fixed_chat_btn.text = "清除固定对话记录"
+    clear_fixed_chat_btn.pressed.connect(_on_clear_fixed_chat_pressed)
+    var chat_control_box = test_fixed_chat_btn.get_parent()
+    if chat_control_box:
+        chat_control_box.add_child(clear_fixed_chat_btn)
+
     send_moment_btn.pressed.connect(_on_send_moment_pressed)
     ai_generate_moment_btn.pressed.connect(_on_ai_generate_moment_pressed)
     
@@ -359,3 +376,20 @@ func _on_refresh_personality_pressed() -> void:
     if GameDataManager.profile:
         _update_personality_display(GameDataManager.profile)
         print("[DebugPanel] 手动刷新了大五人格显示")
+
+func _on_free_chat_toggled(toggled_on: bool) -> void:
+    if GameDataManager.config:
+        GameDataManager.config.set_custom_config("free_chat_enabled", toggled_on)
+        GameDataManager.config.save_config()
+
+func _on_test_fixed_chat_pressed() -> void:
+    var manager = get_node_or_null("/root/MobileFixedChatManager")
+    if manager:
+        manager.trigger_script("jing_piano_practice_invite")
+        _on_close_pressed()
+
+func _on_clear_fixed_chat_pressed() -> void:
+    var manager = get_node_or_null("/root/MobileFixedChatManager")
+    if manager:
+        manager.clear_all_records()
+        print("[DebugPanel] 已清除所有固定对话记录")

@@ -37,7 +37,7 @@
             "content": "静在听完这首曲子后，决定在周末为她安排一轮额外的专项音乐指导。"
         }
     ],
-    "cover_image": "cg_luna_piano_room",
+    "cover_image": "story_cg_luna_piano_practice",
     "summary": "周四清晨的音乐馆里，Luna沉浸在写给姐姐的曲子《星空下的祈愿》中。曲终之后，静现身聆听，并在察觉到旋律深处的情绪后，决定在周末为她做一轮单独指导。",
     "chapters": {
         "start": {
@@ -254,7 +254,7 @@
                     "speaker": "jing",
                     "position": "left",
                     "expression": "calm",
-                    "content": "这个周末，你让{player_name}带你过来音乐馆。我抽时间，单独给你做一轮专项的音乐指导。"
+                    "content": "这个周末，你让{player_name}带你过来图书馆。我抽时间，单独给你做专项的指导。"
                 },
                 {
                     "type": "dialogue",

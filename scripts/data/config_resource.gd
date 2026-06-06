@@ -89,7 +89,18 @@ var moments_cover_path: String = ""
 var player_level: int = 70
 var player_eq_level: int = 6
 
+# 自定义/扩展配置
+var custom_configs: Dictionary = {}
+
 const CONFIG_PATH = "user://config.json"
+
+func set_custom_config(key: String, value: Variant) -> void:
+    custom_configs[key] = value
+
+func get_custom_config(key: String, default_value: Variant = null) -> Variant:
+    if custom_configs.has(key):
+        return custom_configs[key]
+    return default_value
 
 func save_config() -> void:
     var data = {
@@ -146,7 +157,8 @@ func save_config() -> void:
         "player_bio": player_bio,
         "moments_cover_path": moments_cover_path,
         "player_level": player_level,
-        "player_eq_level": player_eq_level
+        "player_eq_level": player_eq_level,
+        "custom_configs": custom_configs
     }
     var file = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
     if file:
@@ -234,6 +246,10 @@ func load_config() -> void:
                 moments_cover_path = data.get("moments_cover_path", moments_cover_path)
                 player_level = data.get("player_level", player_level)
                 player_eq_level = data.get("player_eq_level", player_eq_level)
+                
+                var custom = data.get("custom_configs", {})
+                if typeof(custom) == TYPE_DICTIONARY:
+                    custom_configs = custom
     
     apply_settings()
 

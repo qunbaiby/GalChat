@@ -9,7 +9,8 @@ const TYPE_ICON_PATHS := {
 	"stroll": "res://assets/images/icons/ui/date/stroll.svg",
 	"shopping": "res://assets/images/icons/ui/date/shopping.svg",
 	"exhibition": "res://assets/images/icons/ui/date/exhibition.svg",
-	"dining": "res://assets/images/icons/ui/date/dining.svg"
+	"dining": "res://assets/images/icons/ui/date/dining.svg",
+	"real_photo": "res://assets/images/icons/ui/story/camera.svg"
 }
 
 var _type_id: String = ""

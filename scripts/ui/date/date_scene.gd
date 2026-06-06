@@ -37,6 +37,7 @@ var _slots: Dictionary = {
 }
 
 var _pending_custom_texture: Texture2D = null
+var _pending_custom_slot: String = ""
 
 const BUBBLE_TYPEWRITER_CHAR_TIME := 0.045
 const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
@@ -204,8 +205,13 @@ func _populate_date_types() -> void:
 		var type_item = _date_type_item_scene.instantiate()
 		date_type_vbox.add_child(type_item)
 		type_item.set_type_info(type_data["id"], type_data["name"])
-		
-		if type_data.has("locations"):
+
+		if bool(type_data.get("custom_upload", false)):
+			var custom_item = _date_location_item_scene.instantiate()
+			type_item.add_location_node(custom_item)
+			custom_item.setup("custom_" + str(type_data["id"]), "上传现实照片", str(type_data["id"]))
+			custom_item.add_requested.connect(_on_add_custom_location_pressed)
+		elif type_data.has("locations"):
 			for loc_id in type_data["locations"]:
 				var loc_data_dict = MapDataManager.get_location(loc_id)
 				var loc_name = loc_data_dict.get("name", loc_id)
@@ -214,11 +220,6 @@ func _populate_date_types() -> void:
 				type_item.add_location_node(loc_item)
 				loc_item.setup(loc_id, loc_name, type_data["id"])
 				loc_item.add_requested.connect(_on_add_location_pressed)
-				
-		var custom_item = _date_location_item_scene.instantiate()
-		type_item.add_location_node(custom_item)
-		custom_item.setup("custom_" + type_data["id"], "添加现实世界场景", type_data["id"])
-		custom_item.add_requested.connect(_on_add_custom_location_pressed)
 
 func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:
 	var slot_order = ["morning", "afternoon", "evening"]
@@ -268,7 +269,8 @@ func _on_add_custom_location_pressed(loc_id: String, loc_name: String) -> void:
 			ToastManager.show_toast("没有可用的空闲时间段了")
 		return
 		
-	# 记录准备加入的槽位（这里简单化，先弹窗，点确定后再找也可以，或者弹窗直接打开）
+	# 记录目标槽位，拖入照片后直接写入该槽位。
+	_pending_custom_slot = found_slot
 	_pending_custom_texture = null
 	preview_rect.texture = null
 	drop_hint.show()
@@ -287,6 +289,7 @@ func _on_files_dropped(files: PackedStringArray) -> void:
 				_pending_custom_texture = tex
 				preview_rect.texture = tex
 				drop_hint.hide()
+				_apply_custom_texture_to_pending_slot()
 			else:
 				if ToastManager:
 					ToastManager.show_toast("图片加载失败")
@@ -295,33 +298,35 @@ func _on_files_dropped(files: PackedStringArray) -> void:
 				ToastManager.show_toast("请拖入有效的图片文件 (png/jpg/jpeg)")
 
 func _on_confirm_image_pressed() -> void:
+	_apply_custom_texture_to_pending_slot()
+
+func _on_cancel_image_pressed() -> void:
+	_pending_custom_slot = ""
+	_pending_custom_texture = null
+	custom_image_popup.hide()
+
+func _apply_custom_texture_to_pending_slot() -> void:
 	if _pending_custom_texture == null:
 		if ToastManager:
 			ToastManager.show_toast("请先拖入图片")
 		return
-		
-	var slot_order = ["morning", "afternoon", "evening"]
-	var found_slot = ""
-	for period in slot_order:
-		if _slots[period]["enabled"] and _slots[period]["location_id"] == "":
-			found_slot = period
-			break
-			
-	if found_slot != "":
-		_slots[found_slot]["location_id"] = "custom_location"
-		_slots[found_slot]["custom_texture"] = _pending_custom_texture
-		_slots[found_slot]["label"].text = _slots[found_slot]["name"] + "\n(现实世界)"
-		_slots[found_slot]["thumb"].texture = _pending_custom_texture
-		_slots[found_slot]["label"].add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
-		_slots[found_slot]["label"].add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-		_slots[found_slot]["label"].add_theme_constant_override("shadow_outline_size", 4)
-	else:
+
+	var target_slot := _pending_custom_slot
+	if target_slot == "" or not _slots.has(target_slot):
 		if ToastManager:
 			ToastManager.show_toast("没有可用的空闲时间段了")
-			
-	custom_image_popup.hide()
+		return
 
-func _on_cancel_image_pressed() -> void:
+	_slots[target_slot]["location_id"] = "custom_location"
+	_slots[target_slot]["custom_texture"] = _pending_custom_texture
+	_slots[target_slot]["label"].text = _slots[target_slot]["name"] + "\n(现实邀约)"
+	_slots[target_slot]["thumb"].texture = _pending_custom_texture
+	_slots[target_slot]["label"].add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
+	_slots[target_slot]["label"].add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	_slots[target_slot]["label"].add_theme_constant_override("shadow_outline_size", 4)
+
+	_pending_custom_slot = ""
+	_pending_custom_texture = null
 	custom_image_popup.hide()
 
 func _on_slot_pressed(period_id: String) -> void:

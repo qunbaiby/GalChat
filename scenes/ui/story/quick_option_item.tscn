@@ -1,55 +1,121 @@
-[gd_scene load_steps=4 format=3 uid="uid://item12346"]
+[gd_scene load_steps=6 format=3 uid="uid://item12346"]
 
 [ext_resource type="Script" uid="uid://o3endo8eh2qc" path="res://scripts/ui/story/quick_option_item.gd" id="1_qopt123"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qopt_focus"]
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt"]
-bg_color = Color(0.03, 0.03, 0.04, 0.9)
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.02, 0.03, 0.05, 0.88)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.22, 0.22, 0.26, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-content_margin_left = 18.0
-content_margin_top = 12.0
-content_margin_right = 18.0
-content_margin_bottom = 12.0
+border_color = Color(0.3, 0.36, 0.45, 0.95)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt_hover"]
-bg_color = Color(0.08, 0.08, 0.1, 0.95)
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.05, 0.07, 0.11, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.42, 0.42, 0.48, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-content_margin_left = 18.0
-content_margin_top = 12.0
-content_margin_right = 18.0
-content_margin_bottom = 12.0
+border_color = Color(0.5, 0.64, 0.86, 0.95)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+shadow_color = Color(0.16, 0.28, 0.52, 0.24)
+shadow_size = 10
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qopt_focus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt_icon"]
+bg_color = Color(0.09, 0.12, 0.18, 0.92)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="QuickOptionItem" type="Button"]
-custom_minimum_size = Vector2(0, 50)
-offset_right = 439.0
-offset_bottom = 52.0
+custom_minimum_size = Vector2(450, 60)
+offset_right = 442.0
+offset_bottom = 60.0
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.93, 0.93, 0.96, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_qopt")
-theme_override_styles/hover = SubResource("StyleBoxFlat_qopt_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_qopt_hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qopt_hover")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_qopt_focus")
-text = "Option Text"
-text_overrun_behavior = 3
-autowrap_mode = 2
 script = ExtResource("1_qopt123")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="IconPanel" type="PanelContainer" parent="HBox"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_qopt_icon")
+
+[node name="IconRect" type="TextureRect" parent="HBox/IconPanel"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Divider" type="ColorRect" parent="HBox"]
+custom_minimum_size = Vector2(1, 52)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.27, 0.31, 0.38, 0.9)
+
+[node name="TextVBox" type="VBoxContainer" parent="HBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="PrimaryLabel" type="Label" parent="HBox/TextVBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.97, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "选项正文"
+vertical_alignment = 1
+autowrap_mode = 0
+text_overrun_behavior = 3
+max_lines_visible = 1

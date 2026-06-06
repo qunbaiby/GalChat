@@ -1,6 +1,7 @@
 extends Control
 
 @onready var dialogue_layer = $DialogueLayer
+@onready var toolbar_container = $ToolBarContainer if has_node("ToolBarContainer") else null
 @onready var name_label = $DialogueLayer/VBox/NameLabel if has_node("DialogueLayer/VBox/NameLabel") else null
 @onready var rich_text_label = $DialogueLayer/VBox/RichTextLabel if has_node("DialogueLayer/VBox/RichTextLabel") else null
 @onready var quick_option_layer = $QuickOptionLayer
@@ -120,6 +121,8 @@ func set_input_ready_state(clear_text: bool = true) -> void:
 
 func set_story_mode(enabled: bool) -> void:
     is_story_mode = enabled
+    if toolbar_container:
+        toolbar_container.show()
     if is_story_mode and end_chat_button:
         end_chat_button.hide()
     elif not is_story_mode and end_chat_button:
@@ -225,19 +228,30 @@ func play_single_line(char_id: String, char_name: String, text: String, hide_inp
     _tts_pending = false
     _tts_playing = false
     
+    if toolbar_container:
+        toolbar_container.show()
+    
     if hide_input:
         if quick_option_layer: quick_option_layer.hide()
         if keep_panel_visible:
             set_input_waiting_state(char_name)
+            if history_button:
+                history_button.show()
+            if end_chat_button:
+                if is_story_mode:
+                    end_chat_button.hide()
+                else:
+                    end_chat_button.show()
         elif input_layer:
             input_layer.hide()
-        if history_button: history_button.hide()
-        # 修复需求：即使是 hide_input == true 的固定单句对话，如果处于故事模式，依然隐藏结束按钮
-        if end_chat_button:
-            if is_story_mode:
-                end_chat_button.hide()
-            else:
-                end_chat_button.hide() # hide_input 状态下本身就不该显示，保持隐藏
+        else:
+            if history_button: history_button.hide()
+            # 修复需求：即使是 hide_input == true 的固定单句对话，如果处于故事模式，依然隐藏结束按钮
+            if end_chat_button:
+                if is_story_mode:
+                    end_chat_button.hide()
+                else:
+                    end_chat_button.hide() # hide_input 状态下本身就不该显示，保持隐藏
     else:
         if quick_option_layer: quick_option_layer.show()
         set_input_ready_state()
@@ -415,5 +429,7 @@ func _on_skip_pressed():
         _advance_dialogue()
 
 func _on_end_chat_pressed():
+    if toolbar_container:
+        toolbar_container.hide()
     if is_playing_single_line:
         _finish_single_line()

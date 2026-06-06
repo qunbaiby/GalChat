@@ -1,0 +1,113 @@
+{
+  "id": "jing_piano_practice_invite",
+  "character_id": "jing",
+  "messages": [
+    {
+      "id": "m1",
+      "speaker": "jing",
+      "text": "在吗？关于Luna的事。",
+      "delay": 0
+    },
+    {
+      "id": "m2",
+      "speaker": "player_options",
+      "options": [
+        {
+          "id": "opt1",
+          "text": "在的，静老师，Luna怎么了？",
+          "next": "m3"
+        },
+        {
+          "id": "opt2",
+          "text": "在，刚刚好像在音乐馆看到你们了。",
+          "next": "m3"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "speaker": "jing",
+      "text": "我刚刚在音乐馆听了她写的那首《星空下的祈愿》。",
+      "delay": 1
+    },
+    {
+      "id": "m3_img",
+      "speaker": "jing",
+      "image": "story_cg_luna_piano_practice",
+      "delay": 1
+    },
+    {
+      "id": "m4",
+      "speaker": "jing",
+      "text": "曲子里的情绪太重了，她把想对姐姐说的话都写了进去。",
+      "delay": 2
+    },
+    {
+      "id": "m6",
+      "speaker": "jing",
+      "text": "要想在艺术大赛拿好成绩，还需要再打磨细节和情绪。",
+      "delay": 2
+    },
+    {
+      "id": "m6_rp",
+      "speaker": "jing",
+      "type": "red_packet",
+      "text": "给你发个红包，带Luna去吃点好的。",
+      "amount": 100,
+      "delay": 1
+    },
+    {
+      "id": "m7",
+      "speaker": "player_options",
+      "options": [
+        {
+          "id": "opt3",
+          "text": "那需要我做些什么吗？",
+          "next": "m8"
+        }
+      ]
+    },
+    {
+      "id": "m8",
+      "speaker": "jing",
+      "text": "这个周末，你带她过来市立图书馆的研讨室找我。",
+      "is_voice": true,
+      "duration": 5,
+      "delay": 1
+    },
+    {
+      "id": "m9",
+      "speaker": "jing",
+      "text": "我抽时间单独给她做专项指导。",
+      "delay": 2
+    },
+    {
+      "id": "m10",
+      "speaker": "player_options",
+      "options": [
+        {
+          "id": "opt4",
+          "text": "好的，我会准时带她过去的，谢谢静老师！",
+          "next": "m11"
+        },
+        {
+          "id": "opt5",
+          "text": "太好了，Luna知道一定会很高兴的。",
+          "next": "m11"
+        }
+      ]
+    },
+    {
+      "id": "m11",
+      "speaker": "jing",
+      "text": "嗯，别迟到。",
+      "delay": 1
+    },
+    {
+      "id": "m12",
+      "speaker": "system",
+      "text": "本轮对话已结束",
+      "delay": 1
+    }
+  ]
+}

@@ -1,18 +1,15 @@
 extends Control
 
-signal back_requested
 signal character_selected(char_id: String)
 
 const CONTACT_ITEM_SCENE = preload("res://scenes/ui/mobile/chat/mobile_contact_list_item.tscn")
 
-@onready var back_btn: Button = $Panel/VBox/TopBar/BackBtn
 @onready var contact_list: VBoxContainer = $Panel/VBox/ScrollContainer/ContactList
 
 var _item_map: Dictionary = {}
 var _selected_char_id: String = ""
 
 func _ready() -> void:
-	back_btn.pressed.connect(_on_back_pressed)
 	_load_contacts()
 
 func _load_contacts() -> void:
@@ -158,9 +155,6 @@ func _apply_selected_state() -> void:
 		if is_instance_valid(item) and item.has_method("set_selected"):
 			item.set_selected(item_id == _selected_char_id)
 
-func _on_back_pressed() -> void:
-	back_requested.emit()
-	
 func show_panel() -> void:
 	show()
 	_load_contacts() # 每次显示时重新加载，更新最新消息

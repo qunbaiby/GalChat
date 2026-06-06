@@ -228,28 +228,28 @@ func get_option_constraints(profile: CharacterProfile) -> String:
 	
 	# 1. 神经质极高 (易碎/敏感状态)
 	if profile.neuroticism >= 80:
-		constraints.append("当前角色情绪极其敏感脆弱，即使是负面选项，也请尽量表现为'严厉的关怀'或'恨铁不成钢'，不要生成纯粹的恶意冷落或谩骂！")
+		constraints.append("当前角色情绪极其敏感脆弱，两个选项都必须温柔、安全、可依赖，不要生成任何冷落、讽刺、施压或伤害性表达。")
 		
 	# 2. 复合状态：傲娇
 	var comp = _get_composite_traits(profile)
 	for c in comp:
 		if "【傲娇" in c:
-			constraints.append("角色当前处于'傲娇'状态，请在生成的选项中，正面选项可以尝试'直接看穿她嘴硬心软并给予温柔暴击'，负面选项可以尝试'故意顺着她的话气她/逗她'。")
+			constraints.append("角色当前处于'傲娇'状态，请让亲密向选项更像看穿她嘴硬心软后的温柔接近，信任向选项更像稳稳接住她别扭情绪后的可靠回应。")
 			
 		elif "【小恶魔" in c:
-			constraints.append("角色当前处于'腹黑/小恶魔'状态，请在生成的选项中加入至少一个'无奈妥协/求饶'的选项，以及一个'反客为主调戏回去'的选项。")
+			constraints.append("角色当前处于'腹黑/小恶魔'状态，请让其中一个选项带一点暧昧拉扯感，另一个选项体现看懂她试探后的冷静可靠。")
 			
 		elif "【极度社恐" in c:
-			constraints.append("角色当前极度社恐害怕，生成的四个选项必须全部保持极度克制、温柔、不带任何压迫感的社交距离。")
+			constraints.append("角色当前极度社恐害怕，两个选项都必须保持极度克制、温柔、不带压迫感的社交距离。")
 			
 		elif "【地雷系" in c:
-			constraints.append("角色当前处于'地雷系'状态，极度缺乏安全感，选项中必须包含一个'无条件包容和秒回式的热烈安抚'的选项，绝不能有任何冷落。")
+			constraints.append("角色当前处于'地雷系'状态，极度缺乏安全感，至少一个选项要体现无条件包容和热烈安抚，另一个选项要给出明确的安全感与陪伴承诺。")
 			
 		elif "【毒舌" in c:
-			constraints.append("角色当前处于'毒舌'状态，请在选项中加入至少一个'抖M式欣然接受嘲讽'的选项，以及一个'冷静反驳互怼'的选项。")
+			constraints.append("角色当前处于'毒舌'状态，请让一个选项顺着她的锋利语气轻松接梗拉近距离，另一个选项则冷静回应并表现理解与可靠。")
 			
 	if constraints.size() == 0:
-		return "四个选项的口吻分别为：温柔、沙雕、高冷、直球。"
+		return "两个选项都必须是正向回应，其中一个偏向拉近距离，一个偏向建立安全感。"
 		
 	return "\n".join(constraints)
 

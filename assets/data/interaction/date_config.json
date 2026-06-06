@@ -35,6 +35,11 @@
         "qingyu_time_cafe",
         "midnight_pub"
       ]
+    },
+    {
+      "id": "real_photo",
+      "name": "现实邀约",
+      "custom_upload": true
     }
   ]
 }

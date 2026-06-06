@@ -95,6 +95,10 @@
         {
             "id": "cg_music_room",
             "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
+        },
+        {
+            "id": "story_cg_luna_piano_practice",
+            "path": "res://assets/images/story/cg/story_cg_luna_piano_practice.png"
         }
     ],
     "ui": [

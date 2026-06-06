@@ -3,6 +3,7 @@ extends MarginContainer
 signal add_requested(loc_id: String, loc_name: String)
 
 @onready var add_btn = %AddButton
+@onready var thumb_container: Control = $BgPanel/ContentMargin/HBox/ThumbContainer
 @onready var thumb_rect = %ThumbRect
 @onready var name_lbl = %NameLabel
 @onready var desc_lbl = %DescLabel
@@ -18,13 +19,17 @@ func setup(loc_id: String, loc_name: String, type_id: String = "") -> void:
 	_sync_ui()
 	
 	if _loc_id.begins_with("custom_"):
+		if thumb_container:
+			thumb_container.hide()
 		if name_lbl:
 			name_lbl.add_theme_color_override("font_color", Color(0.96, 0.35, 0.49)) # 粉色特殊高亮
 		if desc_lbl:
-			desc_lbl.text = "添加自定义本地图片作为现实世界约会场景。"
+			desc_lbl.text = "上传一张现实照片，作为独立的现实世界约会场景。"
 		if thumb_rect:
 			thumb_rect.texture = null
 	else:
+		if thumb_container:
+			thumb_container.show()
 		if MapDataManager.has_method("get_location"):
 			var loc_data = MapDataManager.get_location(_loc_id)
 			if desc_lbl:

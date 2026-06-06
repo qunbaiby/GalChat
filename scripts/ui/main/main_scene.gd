@@ -26,6 +26,7 @@ const MAIN_BACKGROUND_DATA_PATH := "res://assets/data/main_backgrounds.json"
 
 @onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
 @onready var wechat_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton
+@onready var wechat_unread_badge: Label = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton/UnreadBadge
 @onready var main_action_button: Button = $UIPanel/BottomBarHBox/ActionHBox/MainActionButton
 
 var _photo_manager = PhotoMemoryManagerScript.new()
@@ -43,6 +44,7 @@ var _photo_manager = PhotoMemoryManagerScript.new()
 @onready var input_layer: Panel = $DialoguePanel/InputLayer
 @onready var input_field: TextEdit = $DialoguePanel/InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/SendButton
+@onready var dialogue_toolbar_container: Control = $DialoguePanel/ToolBarContainer
 @onready var end_chat_btn: Button = $DialoguePanel/ToolBarContainer/ToolBarMargin/HBox/EndChatButton
 @onready var history_btn: Button = $DialoguePanel/ToolBarContainer/ToolBarMargin/HBox/HistoryButton
 @onready var quick_options_container = $DialoguePanel/QuickOptionLayer/ScrollContainer/QuickOptions
@@ -74,8 +76,6 @@ var _accumulated_stats: Dictionary = {
     "agreeableness": 0.0,
     "neuroticism": 0.0
 }
-
-const QUICK_OPTION_LIST_HELPER = preload("res://scripts/ui/story/quick_option_list_helper.gd")
 
 var settings_panel_instance = null
 var desktop_pet_instance: Window = null
@@ -122,6 +122,7 @@ var _waiting_for_chat_click: bool = false
 signal _chat_click_proceed
 
 var pending_options_data = []
+var _rendered_quick_options: Array = []
 var is_text_playback_finished = true
 var _awaiting_topic_selection: bool = false
 var _topic_greeting_playing: bool = false
@@ -351,10 +352,7 @@ func _show_dialogue_topic_selection() -> void:
     dialogue_text.visible_characters = -1
 
     _set_dialogue_input_waiting(GameDataManager.profile.char_name)
-    if history_btn:
-        history_btn.hide()
-    if end_chat_btn:
-        end_chat_btn.show()
+    _set_dialogue_toolbar_visible(true, true, true)
     if quick_option_layer:
         quick_option_layer.hide()
 
@@ -367,7 +365,7 @@ func _populate_topics() -> void:
     var stage_title = stage_conf.get("stageTitle", "陌生人")
     var world_bg = profile.description.replace("{char_name}", profile.char_name)
     
-    var prompt = "【系统指令】\n当前世界观与角色设定：%s\n\n请基于当前玩家作为少女【%s】的“指导人”身份，以及你们当前的情感阶段（当前阶段：%s），以指导人的口吻，生成 3 个符合当前关系深度的聊天话题选项。\n要求：\n1. 话题必须严格符合上述的世界观设定！绝对禁止凭空捏造“魔法”、“修仙”、“草药学”等不符合设定的元素。\n2. 话题可以是符合世界观的教导、关心、日常询问或指导性的话语。\n3. 直接输出 3 个选项，每行一个。\n4. 不要带有序号（如 1. 2. 3.）、破折号或其他前缀。\n5. 话题要自然、简短（20字以内）。" % [world_bg, profile.char_name, stage_title]
+    var prompt = "【系统指令】\n当前世界观与角色设定：%s\n\n请基于当前玩家作为少女【%s】的“指导人”身份，以及你们当前的情感阶段（当前阶段：%s），分别生成 3 个固定类别的话题选项：1 个学习话题、1 个生活话题、1 个情感话题。\n要求：\n1. 话题必须严格符合上述世界观设定，绝对禁止凭空捏造不符合设定的元素。\n2. 三个话题都要符合指导人身份，可以体现教导、关心、日常询问、鼓励或情感陪伴。\n3. 每个话题 20 字以内，自然简短，且必须是可以直接点击发送的玩家台词。\n4. 只输出 JSON，不要输出任何解释文字。\n5. JSON 格式必须严格如下：{\"study_topic\":\"...\",\"life_topic\":\"...\",\"emotion_topic\":\"...\"}" % [world_bg, profile.char_name, stage_title]
     
     deepseek_client.generate_dynamic_topics(prompt, func(text: String):
         if not _awaiting_topic_selection:
@@ -379,13 +377,52 @@ func _populate_topics() -> void:
     )
 
 func _render_dynamic_topics(raw_text: String) -> void:
-    _pending_topic_options = QUICK_OPTION_LIST_HELPER.parse_topic_lines(
-        raw_text,
-        ["聊点什么呢？", "天气不错", "分享件有趣的事"],
-        3
-    )
+    var topic_map := _parse_topic_topic_map(raw_text)
+    _pending_topic_options = [
+        QuickOptionListHelper.build_topic_option_item(str(topic_map.get("study", "最近学习进度还顺利吗？")), "study"),
+        QuickOptionListHelper.build_topic_option_item(str(topic_map.get("life", "今天过得怎么样？")), "life"),
+        QuickOptionListHelper.build_topic_option_item(str(topic_map.get("emotion", "最近有没有什么心事想和我说？")), "emotion")
+    ]
     if _awaiting_topic_selection and not _topic_greeting_playing:
         _show_topic_options()
+
+func _parse_topic_topic_map(raw_text: String) -> Dictionary:
+    var fallback := {
+        "study": "最近学习进度还顺利吗？",
+        "life": "今天过得怎么样？",
+        "emotion": "最近有没有什么心事想和我说？"
+    }
+    var json_text := raw_text.strip_edges()
+    var regex := RegEx.new()
+    regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
+    var match = regex.search(raw_text)
+    if match:
+        json_text = match.get_string(1).strip_edges()
+    else:
+        var start_idx := raw_text.find("{")
+        var end_idx := raw_text.rfind("}")
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            json_text = raw_text.substr(start_idx, end_idx - start_idx + 1).strip_edges()
+
+    var json := JSON.new()
+    if json_text != "" and json.parse(json_text) == OK and json.data is Dictionary:
+        var data := json.data as Dictionary
+        return {
+            "study": str(data.get("study_topic", fallback["study"])).strip_edges(),
+            "life": str(data.get("life_topic", fallback["life"])).strip_edges(),
+            "emotion": str(data.get("emotion_topic", fallback["emotion"])).strip_edges()
+        }
+
+    var topics := QuickOptionListHelper.parse_topic_lines(
+        raw_text,
+        [fallback["study"], fallback["life"], fallback["emotion"]],
+        3
+    )
+    return {
+        "study": str(topics[0] if topics.size() > 0 else fallback["study"]),
+        "life": str(topics[1] if topics.size() > 1 else fallback["life"]),
+        "emotion": str(topics[2] if topics.size() > 2 else fallback["emotion"])
+    }
 
 func _clear_topic_options() -> void:
     for child in quick_options_container.get_children():
@@ -396,9 +433,9 @@ func _show_topic_options() -> void:
     if quick_option_layer:
         quick_option_layer.show()
     if _pending_topic_options.is_empty():
-        QUICK_OPTION_LIST_HELPER.show_loading_item(quick_options_container)
+        QuickOptionListHelper.show_loading_item(quick_options_container)
         return
-    QUICK_OPTION_LIST_HELPER.populate_option_items(quick_options_container, _pending_topic_options, _on_topic_selected, 60.0)
+    QuickOptionListHelper.populate_option_items(quick_options_container, _pending_topic_options, _on_topic_selected, 74.0)
 
 func _request_topic_greeting() -> void:
     if deepseek_client.is_connected("npc_event_dialogue_completed", _on_topic_greeting_generated):
@@ -435,6 +472,7 @@ func _on_topic_greeting_finished() -> void:
     if not _awaiting_topic_selection:
         return
     _topic_greeting_playing = false
+    _set_dialogue_toolbar_visible(true, true, true)
     _show_topic_options()
 
 func _on_topic_selected(topic: String) -> void:
@@ -458,10 +496,7 @@ func _on_topic_selected(topic: String) -> void:
 
     if input_layer:
         input_layer.show()
-    if end_chat_btn:
-        end_chat_btn.show()
-    if history_btn:
-        history_btn.show()
+    _set_dialogue_toolbar_visible(true, true, true)
 
     for child in quick_options_container.get_children():
         child.queue_free()
@@ -854,6 +889,16 @@ func _set_dialogue_input_waiting(char_name: String = "") -> void:
         input_field.editable = false
     if send_btn:
         send_btn.disabled = true
+
+func _set_dialogue_toolbar_visible(visible: bool, show_end: bool = true, show_history: bool = true) -> void:
+    if dialogue_toolbar_container:
+        dialogue_toolbar_container.visible = visible
+    if not visible:
+        return
+    if end_chat_btn:
+        end_chat_btn.visible = show_end
+    if history_btn:
+        history_btn.visible = show_history
 
 func _set_dialogue_input_ready(clear_text: bool = true) -> void:
     if dialogue_panel and dialogue_panel.has_method("set_input_ready_state"):
@@ -1380,22 +1425,25 @@ func _try_show_options() -> void:
     if is_text_playback_finished and pending_options_data.size() > 0:
         if quick_option_layer:
             quick_option_layer.show()
-        QUICK_OPTION_LIST_HELPER.populate_option_items_with_index(
+        _rendered_quick_options = QuickOptionListHelper.normalize_dialogue_choice_options(pending_options_data)
+        QuickOptionListHelper.populate_option_items_with_index(
             quick_options_container,
-            pending_options_data,
-            _on_quick_option_selected
+            _rendered_quick_options,
+            _on_quick_option_selected,
+            74.0
         )
         pending_options_data.clear()
 
 func _on_quick_option_selected(text: String, index: int = -1) -> void:
-    if index == 0:
-        # 正面选项
-        GameDataManager.profile.update_intimacy(5)
-        GameDataManager.profile.update_trust(5)
-    elif index == 1:
-        # 负面选项
-        GameDataManager.profile.update_intimacy(-5)
-        GameDataManager.profile.update_trust(-5)
+    if index >= 0 and index < _rendered_quick_options.size():
+        var option_data := _rendered_quick_options[index] as Dictionary
+        var kind := str(option_data.get("kind", "")).strip_edges()
+        if kind == "trust":
+            GameDataManager.profile.update_intimacy(2)
+            GameDataManager.profile.update_trust(6)
+        else:
+            GameDataManager.profile.update_intimacy(6)
+            GameDataManager.profile.update_trust(2)
         
     input_field.text = text
     _on_send_pressed()
@@ -1606,7 +1654,24 @@ func _ready() -> void:
     main_action_button.pressed.connect(_on_main_action_pressed)
     skill_button.pressed.connect(_on_skill_placeholder_pressed)
     diary_button.pressed.connect(_on_diary_pressed)
-    wechat_button.pressed.connect(_on_wechat_pressed)
+    if wechat_button:
+        wechat_button.pressed.connect(_on_wechat_pressed)
+    if wechat_unread_badge:
+        var badge_style = StyleBoxFlat.new()
+        badge_style.bg_color = Color("eb4545")
+        badge_style.corner_radius_top_left = 11
+        badge_style.corner_radius_top_right = 11
+        badge_style.corner_radius_bottom_right = 11
+        badge_style.corner_radius_bottom_left = 11
+        wechat_unread_badge.add_theme_stylebox_override("normal", badge_style)
+        var badge_bg = wechat_unread_badge.get_node_or_null("BadgeBg")
+        if badge_bg:
+            badge_bg.queue_free()
+            
+    if MobileFixedChatManager.has_signal("unread_count_changed"):
+        MobileFixedChatManager.unread_count_changed.connect(_on_wechat_unread_changed)
+    _on_wechat_unread_changed()
+    
     if wardrobe_button:
         wardrobe_button.pressed.connect(_on_wardrobe_pressed)
     if wardrobe_panel:
@@ -1727,17 +1792,36 @@ func _ready() -> void:
 func _process(delta: float) -> void:
     pass
 
+func _get_interact_trigger_button() -> Button:
+    if not is_instance_valid(current_bg_scene):
+        return null
+    return current_bg_scene.get_node_or_null("InteractTriggerButton") as Button
+
+func _sync_interaction_entry_mutual_exclusion() -> void:
+    var interact_trigger_btn := _get_interact_trigger_button()
+    if interact_group and (_phone_mode_active or (is_instance_valid(mobile_interface_instance) and mobile_interface_instance.visible)):
+        interact_group.visible = false
+        interact_group.modulate.a = 0.0
+    if interact_trigger_btn and (_phone_mode_active or (is_instance_valid(mobile_interface_instance) and mobile_interface_instance.visible)):
+        interact_trigger_btn.visible = false
+        interact_trigger_btn.modulate.a = 0.0
+        return
+    if not interact_trigger_btn or not interact_group:
+        return
+
+    if interact_trigger_btn.visible and interact_trigger_btn.modulate.a > 0.0:
+        interact_group.visible = false
+        interact_group.modulate.a = 0.0
+
 func _update_button_states_by_time() -> void:
     if not GameDataManager.story_time_manager: return
     var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
     var weekday = date_dict.weekday
     var current_hour = GameDataManager.story_time_manager.current_hour
     
-    var interact_trigger_btn = null
-    if is_instance_valid(current_bg_scene):
-        interact_trigger_btn = current_bg_scene.get_node_or_null("InteractTriggerButton")
+    var interact_trigger_btn := _get_interact_trigger_button()
 
-    if _interaction_ui_locked_by_dialogue:
+    if _interaction_ui_locked_by_dialogue or _phone_mode_active or (is_instance_valid(mobile_interface_instance) and mobile_interface_instance.visible):
         if interact_group:
             interact_group.visible = false
             interact_group.modulate.a = 0.0
@@ -1793,10 +1877,7 @@ func _set_interaction_ui_hidden_for_dialogue(hidden: bool) -> void:
         interact_group.visible = false
         interact_group.modulate.a = 0.0
 
-    if not is_instance_valid(current_bg_scene):
-        return
-
-    var interact_trigger_btn = current_bg_scene.get_node_or_null("InteractTriggerButton")
+    var interact_trigger_btn := _get_interact_trigger_button()
     if not interact_trigger_btn:
         return
 
@@ -2190,12 +2271,51 @@ func _on_incoming_call_accepted(char_id: String, is_video: bool, is_fixed: bool 
     mobile_interface_instance.open_call_directly(char_id, is_video, is_fixed)
 
 func _on_wechat_pressed() -> void:
+    if wechat_unread_badge:
+        wechat_unread_badge.hide()
+    _stop_wechat_shake()
+
     if _is_ui_blocked(): return
     _animate_button(wechat_button)
     _ensure_mobile_interface()
     if mobile_interface_instance and mobile_interface_instance.has_method("open_wechat_directly"):
         await get_tree().process_frame
         mobile_interface_instance.open_wechat_directly(true)
+
+var _wechat_shake_tween: Tween = null
+
+func _on_wechat_unread_changed(char_id: String = "", unread_count: int = 0) -> void:
+    var total_unread = MobileFixedChatManager.get_total_unread_count()
+    if wechat_unread_badge:
+        if total_unread > 0:
+            wechat_unread_badge.text = str(total_unread)
+            wechat_unread_badge.show()
+            _start_wechat_shake()
+        else:
+            wechat_unread_badge.hide()
+            _stop_wechat_shake()
+
+func _start_wechat_shake() -> void:
+    if not is_instance_valid(wechat_button):
+        return
+    if _wechat_shake_tween and _wechat_shake_tween.is_valid():
+        return
+        
+    wechat_button.pivot_offset = wechat_button.size / 2.0
+    _wechat_shake_tween = create_tween().set_loops()
+    _wechat_shake_tween.tween_property(wechat_button, "rotation_degrees", 5.0, 0.1)
+    _wechat_shake_tween.tween_property(wechat_button, "rotation_degrees", -5.0, 0.1)
+    _wechat_shake_tween.tween_property(wechat_button, "rotation_degrees", 5.0, 0.1)
+    _wechat_shake_tween.tween_property(wechat_button, "rotation_degrees", -5.0, 0.1)
+    _wechat_shake_tween.tween_property(wechat_button, "rotation_degrees", 0.0, 0.1)
+    _wechat_shake_tween.tween_interval(1.5)
+
+func _stop_wechat_shake() -> void:
+    if _wechat_shake_tween and _wechat_shake_tween.is_valid():
+        _wechat_shake_tween.kill()
+        _wechat_shake_tween = null
+    if is_instance_valid(wechat_button):
+        wechat_button.rotation_degrees = 0.0
 
 func _ensure_mobile_interface() -> void:
     if mobile_interface_instance == null:
@@ -2216,6 +2336,9 @@ func _on_phone_pressed() -> void:
     _animate_button(phone_button)
     _ensure_mobile_interface()
     _phone_mode_active = true
+    if interact_group:
+        interact_group.visible = false
+        interact_group.modulate.a = 0.0
     
     if _ui_tween:
         _ui_tween.kill()
@@ -2228,6 +2351,7 @@ func _on_phone_pressed() -> void:
     
     if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
         current_bg_scene.set_ui_hidden(true)
+    _sync_interaction_entry_mutual_exclusion()
         
     mobile_interface_instance.show_phone()
     _update_bg_switch_button_visibility()
@@ -2303,8 +2427,8 @@ func _load_bg_scene(path: String) -> void:
 
 func _on_interact_trigger_pressed() -> void:
     if _is_ui_blocked(): return
-    if is_instance_valid(current_bg_scene) and current_bg_scene.has_node("InteractTriggerButton"):
-        var btn = current_bg_scene.get_node("InteractTriggerButton")
+    var btn := _get_interact_trigger_button()
+    if btn:
         _animate_button(btn)
         var tween = create_tween()
         tween.tween_property(btn, "modulate:a", 0.0, 0.2)
@@ -2315,6 +2439,7 @@ func _on_interact_trigger_pressed() -> void:
         interact_group.visible = true
         var g_tween = create_tween()
         g_tween.tween_property(interact_group, "modulate:a", 1.0, 0.3)
+        g_tween.finished.connect(_sync_interaction_entry_mutual_exclusion, CONNECT_ONE_SHOT)
 
 func _on_galchat_pressed() -> void:
     if _is_ui_blocked(): return
@@ -2611,12 +2736,13 @@ func _unhandled_input(event: InputEvent) -> void:
             tween.tween_property(interact_group, "modulate:a", 0.0, 0.2)
             tween.tween_callback(func(): interact_group.visible = false)
             
-            if is_instance_valid(current_bg_scene) and current_bg_scene.has_node("InteractTriggerButton"):
-                var btn = current_bg_scene.get_node("InteractTriggerButton")
+            var btn := _get_interact_trigger_button()
+            if btn:
                 if not _story_mode_active and not (chat_scene_instance and chat_scene_instance.visible):
                     btn.visible = true
                     var b_tween = create_tween()
                     b_tween.tween_property(btn, "modulate:a", 1.0, 0.3)
+                    b_tween.finished.connect(_sync_interaction_entry_mutual_exclusion, CONNECT_ONE_SHOT)
             
             get_viewport().set_input_as_handled()
             return

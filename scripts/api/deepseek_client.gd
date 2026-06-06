@@ -40,6 +40,9 @@ signal schedule_event_error(error_msg: String)
 signal schedule_event_resolved(result_data: Dictionary)
 signal schedule_event_resolve_error(error_msg: String)
 
+signal idle_quote_completed(quote: String)
+signal idle_quote_failed(error_msg: String)
+
 signal image_to_image_completed(image_path: String)
 signal image_to_image_failed(error_message: String)
 
@@ -56,6 +59,7 @@ var moment_http: HTTPRequest
 var moment_reply_http: HTTPRequest
 var schedule_event_http: HTTPRequest
 var schedule_resolve_http: HTTPRequest
+var idle_quote_http: HTTPRequest
 
 var _chat_stream_client: HTTPClient
 var _chat_stream_active: bool = false
@@ -116,6 +120,7 @@ func _reinitialize_http_nodes() -> void:
     moment_reply_http = reset_node.call("MomentReplyHTTP", 15.0, "request_completed", "_on_moment_reply_request_completed")
     schedule_event_http = reset_node.call("ScheduleEventHTTP", 20.0, "request_completed", "_on_schedule_event_completed")
     schedule_resolve_http = reset_node.call("ScheduleResolveHTTP", 20.0, "request_completed", "_on_schedule_resolve_completed")
+    idle_quote_http = reset_node.call("IdleQuoteHTTP", 15.0, "request_completed", "_on_idle_quote_completed")
 
 func _is_api_key_empty() -> bool:
     return GameDataManager.config.api_key.is_empty()
@@ -1647,3 +1652,69 @@ func send_image_to_image_request(base64_image: String, prompt: String) -> void:
     
     # 使用 "i2i" 作为ID标识，底层会复用生成逻辑并返回保存的路径
     image_client.generate_diary_illustration("i2i", prompt)
+
+func send_idle_quote_generation(char_id: String) -> void:
+    _update_script()
+    if _is_api_key_empty():
+        idle_quote_failed.emit("API Key未设置")
+        return
+        
+    var profile = GameDataManager.profile
+    if not profile or profile.current_character_id != char_id:
+        profile = CharacterProfile.new()
+        profile.load_profile(char_id)
+        
+    var char_name = profile.char_name
+    var personality = GameDataManager.personality_system.get_personality_summary(profile)
+    var stage_conf = profile.get_current_stage_config()
+    var stage_title = stage_conf.get("stageTitle", "陌生人")
+    var intimacy = profile.intimacy
+    var mood = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
+    
+    var player_name = profile.player_title
+    if player_name.is_empty():
+        player_name = "指导人"
+        
+    var system_prompt = "【系统设定】\n"
+    system_prompt += "你扮演的角色是：%s。\n" % char_name
+    system_prompt += "你的性格特征是：%s。\n" % personality
+    system_prompt += "你当前与【%s】的情感关系处于【%s】（亲密度：%.1f）。\n" % [player_name, stage_title, intimacy]
+    system_prompt += "你当前的心情是：%s。\n" % mood
+    system_prompt += "【任务要求】\n"
+    system_prompt += "请根据你的性格、情感阶段以及当前心情，对【%s】说一句简短的话，比如倾诉心事、撒娇、吐槽或者打招呼。\n" % player_name
+    system_prompt += "要求：\n1. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n2. 字数限制在25字以内。\n3. 语气要自然、生活化。"
+    
+    var api_messages = [
+        {"role": "system", "content": system_prompt}
+    ]
+    
+    var body = {
+        "model": GameDataManager.config.model,
+        "messages": api_messages,
+        "temperature": 0.7,
+        "max_tokens": 100
+    }
+    
+    if idle_quote_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+        idle_quote_http.cancel_request()
+        
+    idle_quote_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
+func _on_idle_quote_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+    if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+        idle_quote_failed.emit("网络请求失败 (HTTP " + str(response_code) + ")")
+        return
+        
+    var json = JSON.new()
+    if json.parse(body.get_string_from_utf8()) == OK:
+        var response = json.get_data()
+        if typeof(response) == TYPE_DICTIONARY and response.has("choices") and response["choices"].size() > 0:
+            var quote = response["choices"][0]["message"]["content"].strip_edges()
+            var regex = RegEx.new()
+            regex.compile("（.*?）|\\(.*?\\)|\\[.*?\\]|\\*.*?\\*")
+            quote = regex.sub(quote, "", true).strip_edges()
+            quote = quote.replace("\"", "").replace("“", "").replace("”", "")
+            idle_quote_completed.emit(quote)
+            return
+            
+    idle_quote_failed.emit("返回数据解析失败")

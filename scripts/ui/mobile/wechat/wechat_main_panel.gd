@@ -16,28 +16,28 @@ enum PanelMode {
 
 @onready var dim_bg: ColorRect = $DimBg
 @onready var window_panel: PanelContainer = $CenterContainer/WindowPanel
-@onready var btn_chat: Button = $CenterContainer/WindowPanel/MainHBox/NavPanel/NavMargin/NavVBox/BtnChat
-@onready var btn_contacts: Button = $CenterContainer/WindowPanel/MainHBox/NavPanel/NavMargin/NavVBox/BtnContacts
-@onready var btn_moments: Button = $CenterContainer/WindowPanel/MainHBox/NavPanel/NavMargin/NavVBox/BtnMoments
-@onready var btn_close: Button = $CenterContainer/WindowOverlay/BtnClose
-@onready var list_title: Label = $CenterContainer/WindowPanel/MainHBox/ListPanel/ListVBox/HeaderVBox/Title
-@onready var list_subtitle: Label = $CenterContainer/WindowPanel/MainHBox/ListPanel/ListVBox/HeaderVBox/SubTitle
-@onready var list_container: Control = $CenterContainer/WindowPanel/MainHBox/ListPanel/ListVBox/ListContainer
-@onready var chat_empty_state: Control = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ChatEmptyState
-@onready var contact_empty_state: Control = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactEmptyState
-@onready var chat_container: Control = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ChatContainer
-@onready var contact_detail_panel: ScrollContainer = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel
-@onready var detail_avatar: TextureRect = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/AvatarMask/Avatar
-@onready var detail_name: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/Name
-@onready var detail_meta: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/Meta
-@onready var detail_tags: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/Tags
-@onready var detail_desc: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/InfoPanel/InfoVBox/DescValue
-@onready var detail_intimacy: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/IntimacyCard/CardVBox/Value
-@onready var detail_trust: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/TrustCard/CardVBox/Value
-@onready var detail_stage: Label = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/StageCard/CardVBox/Value
-@onready var btn_send_message: Button = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow/BtnSendMessage
-@onready var btn_voice_call: Button = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow/BtnVoiceCall
-@onready var btn_video_call: Button = $CenterContainer/WindowPanel/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow/BtnVideoCall
+@onready var btn_chat: Button = $CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnChat
+@onready var btn_contacts: Button = $CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnContacts
+@onready var btn_moments: Button = $CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnMoments
+@onready var btn_close: Button = $CenterContainer/WindowPanel/WindowVBox/TopBar/TopBarMargin/TopBarHBox/BtnClose
+@onready var list_title: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox/Title
+@onready var list_subtitle: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox/SubTitle
+@onready var list_container: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/ListContainer
+@onready var chat_empty_state: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatEmptyState
+@onready var contact_empty_state: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactEmptyState
+@onready var chat_container: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatContainer
+@onready var contact_detail_panel: ScrollContainer = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel
+@onready var detail_avatar: TextureRect = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/AvatarMask/Avatar
+@onready var detail_name: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/Name
+@onready var detail_meta: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/Meta
+@onready var detail_tags: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox/Tags
+@onready var detail_desc: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/InfoPanel/InfoVBox/DescValue
+@onready var detail_intimacy: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/IntimacyCard/CardVBox/Value
+@onready var detail_trust: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/TrustCard/CardVBox/Value
+@onready var detail_stage: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/StageCard/CardVBox/Value
+@onready var btn_send_message: Button = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow/BtnSendMessage
+@onready var btn_voice_call: Button = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow/BtnVoiceCall
+@onready var btn_video_call: Button = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow/BtnVideoCall
 @onready var moments_popup_overlay: Control = $MomentsPopupOverlay
 @onready var moments_popup_window: PanelContainer = $MomentsPopupOverlay/FloatingWindow
 @onready var moments_popup_title_bar: PanelContainer = $MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar
@@ -92,6 +92,15 @@ func _ready() -> void:
 	floating_call_close_btn.pressed.connect(_on_floating_call_close_pressed)
 	_refresh_nav_state()
 	_show_chat_empty_state()
+	
+	if MobileFixedChatManager.has_signal("unread_count_changed"):
+		MobileFixedChatManager.unread_count_changed.connect(_on_fixed_chat_unread_changed)
+
+func _on_fixed_chat_unread_changed(char_id: String, unread_count: int) -> void:
+	if recent_chats_instance and recent_chats_instance.visible:
+		recent_chats_instance._load_contacts()
+	if contacts_instance and contacts_instance.visible:
+		contacts_instance._load_contacts()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -181,8 +190,16 @@ func _apply_nav_button_state(button: Button, is_active: bool) -> void:
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
-	button.get_node("Text").add_theme_color_override("font_color", font_color)
-	(button.get_node("Icon") as TextureRect).modulate = font_color
+	var text_label := button.get_node_or_null("BtnChatBox/Text") as Label
+	if text_label == null:
+		text_label = button.get_node_or_null("Text") as Label
+	if text_label:
+		text_label.add_theme_color_override("font_color", font_color)
+	var icon_rect := button.get_node_or_null("BtnChatBox/Icon") as TextureRect
+	if icon_rect == null:
+		icon_rect = button.get_node_or_null("Icon") as TextureRect
+	if icon_rect:
+		icon_rect.modulate = font_color
 
 func _ensure_recent_chats() -> void:
 	if recent_chats_instance:

@@ -264,7 +264,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 	elif text.begins_with("[img]") and text.ends_with("[/img]"):
 		margin_container.add_theme_constant_override("margin_left", 0)
 		margin_container.add_theme_constant_override("margin_right", 0)
-		margin_container.add_theme_constant_override("margin_top", 0)
+		margin_container.add_theme_constant_override("margin_top", 4)
 		margin_container.add_theme_constant_override("margin_bottom", 0)
 		
 		var trans_style = StyleBoxFlat.new()
@@ -275,19 +275,41 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var img_rect = TextureRect.new()
 		img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		img_rect.custom_minimum_size = Vector2(200, 200)
+		
+		var tex = null
 		if ResourceLoader.exists(img_path):
-			img_rect.texture = load(img_path)
+			tex = load(img_path)
 		elif FileAccess.file_exists(img_path):
 			var img = Image.load_from_file(img_path)
 			if img:
-				img_rect.texture = ImageTexture.create_from_image(img)
-		
+				tex = ImageTexture.create_from_image(img)
+				
+		if tex:
+			img_rect.texture = tex
+			var aspect = float(tex.get_height()) / float(tex.get_width())
+			img_rect.custom_minimum_size = Vector2(220, 220 * aspect)
+		else:
+			img_rect.custom_minimum_size = Vector2(220, 150)
+			
 		content_container.add_child(img_rect)
 		
 		img_rect.mouse_filter = Control.MOUSE_FILTER_STOP
 		if not img_rect.gui_input.is_connected(_on_img_input.bind(text)):
 			img_rect.gui_input.connect(_on_img_input.bind(text))
+	elif msg_type == "typing":
+		var hbox = HBoxContainer.new()
+		hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+		var typing_label = Label.new()
+		typing_label.text = "· · ·"
+		typing_label.add_theme_font_size_override("font_size", 24)
+		typing_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+		hbox.add_child(typing_label)
+		content_container.add_child(hbox)
+		
+		# 添加一个简单的动画效果
+		var tween = create_tween().set_loops()
+		tween.tween_property(typing_label, "modulate:a", 0.3, 0.5)
+		tween.tween_property(typing_label, "modulate:a", 1.0, 0.5)
 	else:
 		var label = Label.new()
 		label.text = text
