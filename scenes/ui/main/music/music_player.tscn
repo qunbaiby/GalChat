@@ -1,19 +1,25 @@
-[gd_scene load_steps=6 format=3 uid="uid://cy8xxa3qqt3k0"]
+[gd_scene load_steps=12 format=3 uid="uid://cy8xxa3qqt3k0"]
 
 [ext_resource type="Script" uid="uid://dyyfj2pvhqsgc" path="res://scripts/ui/main/music/music_player.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="2_icon"]
+[ext_resource type="Texture2D" uid="uid://cjla5swe4uuyl" path="res://assets/images/icons/ui/music/mv-ai-fill.png" id="2_cover_icon"]
+[ext_resource type="Texture2D" uid="uid://c7i4qen7i4iq8" path="res://assets/images/icons/ui/music/volume-up-fill.png" id="3_volume_icon"]
+[ext_resource type="Texture2D" uid="uid://hitc17qulbok" path="res://assets/images/icons/ui/music/shuffle-fill.png" id="4_shuffle_icon"]
+[ext_resource type="Texture2D" uid="uid://usyrpjohvbh1" path="res://assets/images/icons/ui/music/skip-back-fill.png" id="5_prev_icon"]
+[ext_resource type="Texture2D" uid="uid://ga2dbs7kgotc" path="res://assets/images/icons/ui/music/pause-circle-fill.png" id="6_pause_icon"]
+[ext_resource type="Texture2D" uid="uid://d2o4wqh8uaa46" path="res://assets/images/icons/ui/music/skip-forward-fill.png" id="7_next_icon"]
+[ext_resource type="Texture2D" uid="uid://b2mpo88dgybkg" path="res://assets/images/icons/ui/music/repeat-2-line.png" id="8_repeat_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerBg"]
-bg_color = Color(0.98039216, 0.9843137, 0.9882353, 0)
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.63529414)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.87058824, 0.8901961, 0.92941177, 0)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
 shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 3
 shadow_offset = Vector2(0, 3)
@@ -65,7 +71,7 @@ theme_override_constants/separation = 15
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_vertical = 4
-icon = ExtResource("2_icon")
+icon = ExtResource("2_cover_icon")
 flat = true
 icon_alignment = 1
 expand_icon = true
@@ -78,14 +84,14 @@ theme_override_constants/separation = -2
 
 [node name="TitleLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "BGM"
 clip_text = true
 
 [node name="ArtistLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_colors/font_color = Color(0.23865935, 0.2603993, 0.30131692, 1)
 theme_override_font_sizes/font_size = 10
 text = "Local Music"
 clip_text = true
@@ -98,45 +104,50 @@ theme_override_constants/separation = 0
 [node name="VolumeBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "🔊"
+icon = ExtResource("3_volume_icon")
 flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="ShuffleBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "🔀"
+icon = ExtResource("4_shuffle_icon")
 flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="PrevBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "⏮"
+icon = ExtResource("5_prev_icon")
 flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="PlayPauseBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 18
-text = "⏸"
+icon = ExtResource("6_pause_icon")
 flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="NextBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "⏭"
+icon = ExtResource("7_next_icon")
 flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="RepeatBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "🔁"
+icon = ExtResource("8_repeat_icon")
 flat = true
+icon_alignment = 1
+expand_icon = true
 
 [node name="ProgressBar" type="ProgressBar" parent="Margin/VBox"]
 custom_minimum_size = Vector2(0, 5)

@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://sv4gjnbeh1bx"]
+[gd_scene load_steps=5 format=3 uid="uid://sv4gjnbeh1bx"]
 
 [ext_resource type="Texture2D" uid="uid://hfrk5cefxbbe" path="res://assets/images/icons/ui/stats/gold.svg" id="2_icon_gold"]
 [ext_resource type="Script" uid="uid://dsw7vmfenubsa" path="res://scripts/ui/main/top_status_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="3_icon_energy"]
-[ext_resource type="Texture2D" uid="uid://bpv0e2vd3ujb8" path="res://assets/images/icons/ui/stats/vitality.svg" id="4_icon_stress"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PillBg"]
 bg_color = Color(0, 0, 0, 0.65)
@@ -15,7 +14,7 @@ corner_radius_bottom_left = 8
 [node name="TopStatusPanel" type="PanelContainer"]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 44)
-offset_right = 394.0
+offset_right = 266.0
 offset_bottom = 44.0
 script = ExtResource("2_script")
 
@@ -61,7 +60,6 @@ horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/GoldSlot"]
-z_index = 1
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 4
@@ -120,7 +118,6 @@ horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/EnergySlot"]
-z_index = 1
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 4
@@ -140,65 +137,5 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("3_icon_energy")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="StressSlot" type="Control" parent="MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(118, 35)
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/StressSlot"]
-custom_minimum_size = Vector2(100, 25)
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.5
-anchor_right = 0.85600007
-anchor_bottom = 0.5
-offset_left = 1.0
-offset_top = -13.0
-offset_right = -0.008010864
-offset_bottom = 13.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
-
-[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/StressSlot/BgPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 2
-
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/StressSlot/BgPanel/Margin"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 15
-text = "10"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/StressSlot"]
-z_index = 1
-custom_minimum_size = Vector2(35, 35)
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_top = -17.5
-offset_right = 35.0
-offset_bottom = 17.5
-grow_horizontal = 0
-grow_vertical = 2
-
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/StressSlot/IconControl"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_icon_stress")
 expand_mode = 1
 stretch_mode = 5

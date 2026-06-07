@@ -1,0 +1,537 @@
+{
+  "physical_health": [
+    {
+      "mood_tags": ["broken"],
+      "event_title": "差点喘不过气",
+      "event_desc": "刚进训练状态你就觉得胸口有点发紧，老师看出你不对劲，让你先决定要不要停下来缓一缓。",
+      "options": [
+        {
+          "text": "先停一下",
+          "style": "恢复",
+          "effects_hint": "偏向先保状态",
+          "result_desc": "你没有硬撑，先把呼吸和心跳稳下来，虽然少练了一点，但整个人没有继续往下掉。",
+          "attr_changes": {"心情": 3, "体能": 1}
+        },
+        {
+          "text": "做轻量练习",
+          "style": "缓冲",
+          "effects_hint": "偏向保住进度",
+          "result_desc": "你把强度降下来做基础动作，状态没完全回来，但至少没有彻底中断训练。",
+          "attr_changes": {"体能": 2, "反应": 1, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["low"],
+      "event_title": "呼吸有些发紧",
+      "event_desc": "热身时你明显感觉状态没完全跟上，动作一快就容易乱，老师让你自己决定要不要先调整一下。",
+      "options": [
+        {
+          "text": "先稳住呼吸",
+          "style": "恢复",
+          "effects_hint": "偏向恢复状态",
+          "result_desc": "你先把呼吸和节奏调整回来，虽然训练强度降低了一点，但整个人舒服多了。",
+          "attr_changes": {"体能": 2, "心情": 2}
+        },
+        {
+          "text": "慢慢跟练",
+          "style": "稳妥",
+          "effects_hint": "偏向保住进度",
+          "result_desc": "你没有逞强，而是按能承受的节奏跟完这一组，多少还是练到了东西。",
+          "attr_changes": {"体能": 3, "反应": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["calm"],
+      "event_title": "训练节奏正合适",
+      "event_desc": "今天的训练强度刚好压在你的舒适区边缘，老师问你要不要顺势加一组，看看身体还能不能再提一点。",
+      "options": [
+        {
+          "text": "加一组看看",
+          "style": "尝试",
+          "effects_hint": "偏向小幅突破",
+          "result_desc": "你顺着状态多做了一组，虽然有点累，但能明显感觉到身体在往上提。",
+          "attr_changes": {"体能": 4, "反应": 2}
+        },
+        {
+          "text": "维持原计划",
+          "style": "稳妥",
+          "effects_hint": "偏向稳定积累",
+          "result_desc": "你没有贪多，而是把每个动作都做扎实，整节课的完成度反而更高。",
+          "attr_changes": {"体能": 3, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["pleasant"],
+      "event_title": "训练状态上来了",
+      "event_desc": "一组练下来后你明显越练越顺，老师顺势点你做领练，想看看你能不能把这股劲带起来。",
+      "options": [
+        {
+          "text": "直接领练",
+          "style": "表现",
+          "effects_hint": "偏向表现提升",
+          "result_desc": "你干脆利落地把节奏带了起来，动作和气场都很稳，大家也更愿意跟着你。",
+          "attr_changes": {"体能": 5, "表达": 2, "心情": 1}
+        },
+        {
+          "text": "先示范一段",
+          "style": "稳妥",
+          "effects_hint": "偏向稳中出彩",
+          "result_desc": "你先把关键动作示范清楚，再慢慢带节奏，既没有失误，也把状态稳稳展现出来。",
+          "attr_changes": {"体能": 4, "反应": 2}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["ecstatic"],
+      "event_title": "身体像被点燃",
+      "event_desc": "今天你的爆发力异常在线，老师当场提议把原本留到下周的挑战动作提前试一次，全场都在等你回应。",
+      "options": [
+        {
+          "text": "当场挑战",
+          "style": "突破",
+          "effects_hint": "偏向高收益爆发",
+          "result_desc": "你抓住这股状态狠狠干了一把，动作完成得比预想更漂亮，整个人都像在发光。",
+          "attr_changes": {"体能": 6, "反应": 3, "气质": 2}
+        },
+        {
+          "text": "先做预演",
+          "style": "控制",
+          "effects_hint": "偏向高状态稳落地",
+          "result_desc": "你没有直接冲满，而是先把关键环节预演清楚，再把亮点稳稳打出来。",
+          "attr_changes": {"体能": 5, "表达": 2, "心情": 1}
+        }
+      ]
+    }
+  ],
+  "creation_design": [
+    {
+      "mood_tags": ["broken"],
+      "event_title": "颜色压得人发闷",
+      "event_desc": "盯着稿面久了之后，你忽然觉得眼前的颜色越来越堵，像再多看一会儿就会彻底失去耐心。",
+      "options": [
+        {
+          "text": "先离桌透气",
+          "style": "恢复",
+          "effects_hint": "偏向先找回感受",
+          "result_desc": "你暂时离开画面和颜色，回来后虽然灵感没猛地冒出来，但心口那股闷意散了很多。",
+          "attr_changes": {"心情": 3, "感知": 1}
+        },
+        {
+          "text": "只改一小块",
+          "style": "缓冲",
+          "effects_hint": "偏向保住进度",
+          "result_desc": "你没有逼自己重来，只挑最别扭的一块下手，作品总算重新动了起来。",
+          "attr_changes": {"审美": 2, "学识": 1, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["low"],
+      "event_title": "思路忽然卡住",
+      "event_desc": "盯着草稿看久了之后，你忽然有点不知道该往哪里继续，桌面上的颜色也变得有些刺眼。",
+      "options": [
+        {
+          "text": "先换张草稿纸",
+          "style": "缓冲",
+          "effects_hint": "偏向找回状态",
+          "result_desc": "你给自己留了一点缓冲空间，重新起稿后思路慢慢顺了回来。",
+          "attr_changes": {"心情": 2, "感知": 2}
+        },
+        {
+          "text": "硬着头皮推进",
+          "style": "坚持",
+          "effects_hint": "偏向保住进度",
+          "result_desc": "你还是把草图往前推了一段，虽然没到最佳状态，但今天不算白做。",
+          "attr_changes": {"学识": 2, "审美": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["calm"],
+      "event_title": "灵感开始分叉",
+      "event_desc": "做到一半时，你忽然冒出一个和原方向不同的新构图，但原来的方案其实也还算稳。",
+      "options": [
+        {
+          "text": "试个小样",
+          "style": "尝试",
+          "effects_hint": "偏向探索可能",
+          "result_desc": "你先用小样试了试新的构图，没把项目推翻，却顺利摸到了更好的感觉。",
+          "attr_changes": {"审美": 3, "感知": 2}
+        },
+        {
+          "text": "保留原方案",
+          "style": "稳妥",
+          "effects_hint": "偏向稳定完成",
+          "result_desc": "你决定先把原方案做到位，整体节奏没有乱，完成度也维持得很稳。",
+          "attr_changes": {"学识": 3, "表达": 2}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["pleasant"],
+      "event_title": "灵感顺着往外涌",
+      "event_desc": "你越画越觉得画面可以再大胆一点，旁边的老师也看出你今天手感不错，示意你可以放开试。",
+      "options": [
+        {
+          "text": "大胆改构图",
+          "style": "表现",
+          "effects_hint": "偏向审美提升",
+          "result_desc": "你顺着这股手感把画面重新拉开，视觉冲击力明显比原先强了一截。",
+          "attr_changes": {"审美": 5, "表达": 2}
+        },
+        {
+          "text": "强化亮点区",
+          "style": "稳进",
+          "effects_hint": "偏向细节出彩",
+          "result_desc": "你把最有感觉的区域继续做深，整幅作品的气质一下被提了起来。",
+          "attr_changes": {"感知": 3, "审美": 3}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["ecstatic"],
+      "event_title": "灵感突然成型",
+      "event_desc": "原本分散的想法一下全串起来了，你脑子里甚至已经能看到成品效果，老师问你要不要直接冲最终版。",
+      "options": [
+        {
+          "text": "直接冲终稿",
+          "style": "突破",
+          "effects_hint": "偏向高完成度",
+          "result_desc": "你抓着灵感最热的时候一路推到终稿，画面完成度高得连自己都愣了一下。",
+          "attr_changes": {"审美": 6, "感知": 3, "表达": 1}
+        },
+        {
+          "text": "先锁主视觉",
+          "style": "控制",
+          "effects_hint": "偏向把爆发留住",
+          "result_desc": "你先把最关键的视觉中心定死，再往外扩展，灵感没有散，成品也更稳。",
+          "attr_changes": {"审美": 5, "学识": 2}
+        }
+      ]
+    }
+  ],
+  "music_dance_performance": [
+    {
+      "mood_tags": ["broken"],
+      "event_title": "耳边一瞬发空",
+      "event_desc": "排练刚开始你就有点听不进去拍子，音乐一响反而更慌，连手心都开始发凉。",
+      "options": [
+        {
+          "text": "先退半拍",
+          "style": "恢复",
+          "effects_hint": "偏向稳住节奏",
+          "result_desc": "你先让自己从最慌的状态里退出来，把节拍重新抓回手里，总算没继续乱下去。",
+          "attr_changes": {"心情": 3, "反应": 1}
+        },
+        {
+          "text": "只跟基础拍",
+          "style": "缓冲",
+          "effects_hint": "偏向保住练习",
+          "result_desc": "你把注意力缩回最基础的节拍和动作，虽然发挥一般，但总算顺利把这一段跟完了。",
+          "attr_changes": {"反应": 2, "表达": 1, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["low"],
+      "event_title": "排练有点失拍",
+      "event_desc": "排练时你连着两次没踩准点，旁边的人下意识看了你一眼，你一下更紧张了。",
+      "options": [
+        {
+          "text": "先跟节拍器",
+          "style": "调整",
+          "effects_hint": "偏向稳定找回状态",
+          "result_desc": "你先把注意力放回节拍本身，慢慢把动作和音乐重新贴合到一起。",
+          "attr_changes": {"反应": 3, "心情": 2}
+        },
+        {
+          "text": "继续顶上去",
+          "style": "咬住",
+          "effects_hint": "偏向维持表现",
+          "result_desc": "你咬住后半段没让状态彻底垮掉，虽然不够完美，但还是撑住了场面。",
+          "attr_changes": {"表达": 3, "气质": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["calm"],
+      "event_title": "临场点名",
+      "event_desc": "老师突然点你单独示范一段关键动作，全班的目光一下集中到了你身上。",
+      "options": [
+        {
+          "text": "稳稳示范",
+          "style": "稳妥",
+          "effects_hint": "偏向稳定发挥",
+          "result_desc": "你把注意力全部收回动作本身，示范得很稳，虽然不算炸场，但完成度相当漂亮。",
+          "attr_changes": {"表达": 4, "气质": 2}
+        },
+        {
+          "text": "加点设计感",
+          "style": "尝试",
+          "effects_hint": "偏向表现拔高",
+          "result_desc": "你在细节上加了一点自己的处理，既没出格，又让整段看起来更有味道。",
+          "attr_changes": {"表达": 3, "气质": 3}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["pleasant"],
+      "event_title": "状态越跳越开",
+      "event_desc": "一遍过后你明显把场子热起来了，老师顺势让你站到前面带一次全班，想借你的状态提气。",
+      "options": [
+        {
+          "text": "主动带一遍",
+          "style": "表现",
+          "effects_hint": "偏向台风提升",
+          "result_desc": "你把节奏和情绪一起带了起来，整个人在镜子里都比平时更亮。",
+          "attr_changes": {"表达": 5, "气质": 3, "心情": 1}
+        },
+        {
+          "text": "先领关键段",
+          "style": "稳进",
+          "effects_hint": "偏向稳中出彩",
+          "result_desc": "你没有全盘接下，而是先把最关键的一段带稳，既展现了状态，也没让自己失控。",
+          "attr_changes": {"反应": 3, "表达": 3}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["ecstatic"],
+      "event_title": "一上场就有火花",
+      "event_desc": "音乐一响你就进入了最好的状态，老师甚至临时提议让你试一段更难的变体，当成今天的亮点。",
+      "options": [
+        {
+          "text": "直接上变体",
+          "style": "突破",
+          "effects_hint": "偏向高光表现",
+          "result_desc": "你把整段难度直接拉满，动作和情绪都压得住，现场效果亮得让人移不开眼。",
+          "attr_changes": {"表达": 6, "气质": 3, "反应": 2}
+        },
+        {
+          "text": "先试半段",
+          "style": "控制",
+          "effects_hint": "偏向高状态稳落地",
+          "result_desc": "你先把最难的半段咬下来，确认感觉在线后再往上加，最后依旧打出了很漂亮的效果。",
+          "attr_changes": {"表达": 5, "反应": 3}
+        }
+      ]
+    }
+  ],
+  "social_etiquette": [
+    {
+      "mood_tags": ["broken"],
+      "event_title": "话到嘴边发紧",
+      "event_desc": "轮到你开口时，你忽然觉得嗓子有点发涩，原本想好的回应像一下散开了。",
+      "options": [
+        {
+          "text": "先缓口气",
+          "style": "恢复",
+          "effects_hint": "偏向先稳住自己",
+          "result_desc": "你没有强逼自己立刻接话，而是先把呼吸和语速稳下来，后面的表达总算顺了些。",
+          "attr_changes": {"心情": 3, "礼仪": 1}
+        },
+        {
+          "text": "照提纲回应",
+          "style": "缓冲",
+          "effects_hint": "偏向保住场面",
+          "result_desc": "你按最基础的礼仪框架回应，虽然没有亮点，但也没有让自己彻底慌掉。",
+          "attr_changes": {"礼仪": 2, "表达": 1, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["low"],
+      "event_title": "开口前的停顿",
+      "event_desc": "轮到你发言时，你忽然觉得喉咙有点紧，明明准备过的话到嘴边却卡了一下。",
+      "options": [
+        {
+          "text": "先照稿说完",
+          "style": "保守",
+          "effects_hint": "偏向稳定过关",
+          "result_desc": "你按准备好的内容稳稳说完，虽然少了点灵动，但至少没有失态。",
+          "attr_changes": {"礼仪": 3, "心情": 1}
+        },
+        {
+          "text": "先示意缓一下",
+          "style": "缓冲",
+          "effects_hint": "偏向找回从容",
+          "result_desc": "你礼貌地给自己留了一个呼吸的空档，再开口时反而自然了很多。",
+          "attr_changes": {"气质": 2, "表达": 2, "心情": 2}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["calm"],
+      "event_title": "即兴应对",
+      "event_desc": "课堂模拟环节里，对方忽然抛出计划外的问题，现场气氛一下变得微妙起来。",
+      "options": [
+        {
+          "text": "顺势接话",
+          "style": "社交",
+          "effects_hint": "偏向礼仪表达",
+          "result_desc": "你顺势把话题接住，还自然化解了尴尬，整体表现得体又稳定。",
+          "attr_changes": {"礼仪": 4, "表达": 2}
+        },
+        {
+          "text": "谨慎回应",
+          "style": "稳妥",
+          "effects_hint": "偏向沉稳处理",
+          "result_desc": "你没有急着抢答，而是把措辞整理清楚后再回应，现场氛围被你稳住了。",
+          "attr_changes": {"礼仪": 3, "气质": 2}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["pleasant"],
+      "event_title": "对话接得很顺",
+      "event_desc": "模拟交流时，对方忽然把话题抛给你继续延展，现场明显在等你把气氛往上带。",
+      "options": [
+        {
+          "text": "自然接住",
+          "style": "亲和",
+          "effects_hint": "偏向表达提升",
+          "result_desc": "你很自然地把话题接了下去，不仅没冷场，反而让整段交流更舒服了。",
+          "attr_changes": {"表达": 4, "礼仪": 3, "心情": 1}
+        },
+        {
+          "text": "顺势抛回去",
+          "style": "互动",
+          "effects_hint": "偏向现场掌控",
+          "result_desc": "你接住之后又把问题轻巧地抛回去，互动感一下起来了，整体气场也更从容。",
+          "attr_changes": {"气质": 3, "表达": 3}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["ecstatic"],
+      "event_title": "现场气氛被你带热",
+      "event_desc": "你刚开口两句，整个模拟场的注意力就被你抓住了，老师甚至示意你继续往深里带。",
+      "options": [
+        {
+          "text": "继续主导",
+          "style": "突破",
+          "effects_hint": "偏向高光表现",
+          "result_desc": "你把节奏、礼貌和掌控感都拿得很漂亮，整场互动几乎被你带着走。",
+          "attr_changes": {"表达": 5, "礼仪": 3, "气质": 2}
+        },
+        {
+          "text": "收放并进",
+          "style": "控制",
+          "effects_hint": "偏向成熟拿捏",
+          "result_desc": "你没有一味往前冲，而是把推进和留白都拿捏住了，表现显得更加高级。",
+          "attr_changes": {"礼仪": 4, "气质": 3, "表达": 1}
+        }
+      ]
+    }
+  ],
+  "rest": [
+    {
+      "mood_tags": ["broken"],
+      "event_title": "什么都不想碰",
+      "event_desc": "好不容易有了休息时间，你却只想把自己缩起来，连平时能分散注意力的东西都懒得看。",
+      "options": [
+        {
+          "text": "裹着毯子发呆",
+          "style": "恢复",
+          "effects_hint": "偏向单纯回血",
+          "result_desc": "你什么都不逼自己做，只是安静地窝了一会儿，那种被压住的感觉终于松开一点。",
+          "attr_changes": {"心情": 4}
+        },
+        {
+          "text": "听点轻音乐",
+          "style": "缓冲",
+          "effects_hint": "偏向温和恢复",
+          "result_desc": "你给自己放了一点轻缓的音乐，注意力慢慢从难受里被拽出来，状态没有刚才那么糟了。",
+          "attr_changes": {"心情": 3, "气质": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["low"],
+      "event_title": "短暂放空",
+      "event_desc": "难得的休息时间里，窗外的风和阳光都很舒服，你忽然有点想把手机也一起放下。",
+      "options": [
+        {
+          "text": "彻底发呆",
+          "style": "放松",
+          "effects_hint": "偏向心情恢复",
+          "result_desc": "你让自己彻底放空了一会儿，整个人都松下来不少。",
+          "attr_changes": {"心情": 4}
+        },
+        {
+          "text": "顺手记录",
+          "style": "细腻",
+          "effects_hint": "偏向温柔找回状态",
+          "result_desc": "你顺手把眼前的光影和情绪记了下来，心情变好，观察力也被调动起来。",
+          "attr_changes": {"审美": 2, "感知": 2, "心情": 2}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["calm"],
+      "event_title": "刚刚好的空档",
+      "event_desc": "你难得有一段不赶不忙的休息时间，整个人既不疲惫也不亢奋，正适合做点轻松的小事。",
+      "options": [
+        {
+          "text": "去窗边走走",
+          "style": "轻松",
+          "effects_hint": "偏向平稳放松",
+          "result_desc": "你去窗边吹了会儿风，脑子空下来一些，整个人也更舒展了。",
+          "attr_changes": {"心情": 2, "气质": 1}
+        },
+        {
+          "text": "翻翻随手本",
+          "style": "整理",
+          "effects_hint": "偏向轻度积累",
+          "result_desc": "你把之前随手记下的碎片翻了一遍，没费多少力气，却顺便理清了不少想法。",
+          "attr_changes": {"感知": 2, "学识": 1, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["pleasant"],
+      "event_title": "休息时也想做点什么",
+      "event_desc": "明明是休息时间，但你状态还不错，突然很想趁着这股劲做点轻松又开心的小事。",
+      "options": [
+        {
+          "text": "去窗边走走",
+          "style": "轻快",
+          "effects_hint": "偏向保持好状态",
+          "result_desc": "你去窗边吹了会儿风，心情更舒展，身体也没彻底散掉。",
+          "attr_changes": {"心情": 3, "气质": 1}
+        },
+        {
+          "text": "记下灵感碎片",
+          "style": "延展",
+          "effects_hint": "偏向把好状态转成收获",
+          "result_desc": "你把脑子里一闪而过的想法都记了下来，休息完反而更有劲了。",
+          "attr_changes": {"审美": 2, "表达": 2, "心情": 1}
+        }
+      ]
+    },
+    {
+      "mood_tags": ["ecstatic"],
+      "event_title": "好状态根本停不下来",
+      "event_desc": "明明安排的是休息，可你今天心情太亮，坐下来没一会儿就又想把这股劲顺手变成点什么。",
+      "options": [
+        {
+          "text": "去找点新鲜事",
+          "style": "延展",
+          "effects_hint": "偏向把状态放大",
+          "result_desc": "你顺着这股兴致去碰了点新东西，休息没有白白耗掉，反而像给自己充了更多电。",
+          "attr_changes": {"心情": 3, "感知": 2, "表达": 1}
+        },
+        {
+          "text": "做个小计划",
+          "style": "推进",
+          "effects_hint": "偏向把开心落地",
+          "result_desc": "你把脑子里一连串想法整理成了一个小计划，越写越觉得接下来都值得期待。",
+          "attr_changes": {"学识": 2, "表达": 2, "心情": 2}
+        }
+      ]
+    }
+  ]
+}

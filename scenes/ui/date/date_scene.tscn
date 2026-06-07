@@ -1,8 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://byx478t0rya52"]
+[gd_scene load_steps=14 format=3 uid="uid://byx478t0rya52"]
 
 [ext_resource type="Script" uid="uid://wgu600nx6tdy" path="res://scripts/ui/date/date_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dmckiigrj527n" path="res://assets/images/backgrounds/main/story_scene_sunny_door_bg.png" id="2_5r2b5"]
 [ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="2_frames"]
+[ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="4_top_status_panel"]
+[ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="5_love_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Bubble"]
 bg_color = Color(1, 1, 1, 0.9)
@@ -36,12 +38,8 @@ corner_radius_bottom_left = 12
 shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Heart"]
-bg_color = Color(0.96, 0.35, 0.49, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_twrbv"]
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBarBG"]
 bg_color = Color(0.9, 0.9, 0.9, 1)
@@ -128,6 +126,17 @@ theme_override_font_sizes/font_size = 18
 text = "..."
 autowrap_mode = 3
 
+[node name="TopStatusPanel" parent="." instance=ExtResource("4_top_status_panel")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -302.0
+offset_top = 7.0
+offset_right = -36.0
+offset_bottom = 52.0
+grow_horizontal = 0
+
 [node name="RightPanel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 6
@@ -197,19 +206,27 @@ theme_override_constants/separation = 20
 
 [node name="HeartMargin" type="MarginContainer" parent="BottomBar/HBox"]
 layout_mode = 2
-theme_override_constants/margin_left = -20
-theme_override_constants/margin_top = -20
-theme_override_constants/margin_bottom = -10
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
 
 [node name="HeartPanel" type="PanelContainer" parent="BottomBar/HBox/HeartMargin"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Heart")
+theme_override_styles/panel = SubResource("StyleBoxFlat_twrbv")
+
+[node name="HeartIcon" type="TextureRect" parent="BottomBar/HBox/HeartMargin/HeartPanel"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_love_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="HeartLevel" type="Label" parent="BottomBar/HBox/HeartMargin/HeartPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.88, 0.34, 0.54, 1)
+theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 18
 text = "LV
 1"
@@ -228,7 +245,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 16
-text = "共感值"
+text = "羁绊值"
 
 [node name="Spacer" type="Control" parent="BottomBar/HBox/ProgressVBox/ProgressTop"]
 layout_mode = 2
@@ -293,7 +310,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-text = "早上\n(空)"
+text = "早上
+(空)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -314,7 +332,6 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="SlotLabel" type="Label" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotAfternoon"]
-unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -322,7 +339,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-text = "下午\n(空)"
+text = "下午
+(空)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -343,7 +361,6 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="SlotLabel" type="Label" parent="BottomBar/HBox/BtnMargin/BtnHBox/SlotHBox/SlotEvening"]
-unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -351,7 +368,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
-text = "晚上\n(空)"
+text = "晚上
+(空)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -458,8 +476,8 @@ stretch_mode = 5
 
 [node name="HBox" type="HBoxContainer" parent="CustomImagePopup/Panel/VBox"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 40
+alignment = 1
 
 [node name="ConfirmImageBtn" type="Button" parent="CustomImagePopup/Panel/VBox/HBox"]
 unique_name_in_owner = true

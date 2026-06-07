@@ -165,7 +165,8 @@ func _update_personality_display(profile) -> void:
     text += "\n[b]人格状态:[/b]\n"
     text += GameDataManager.personality_system.get_personality_state_summary(profile) + "\n"
     text += GameDataManager.personality_system.get_recent_event_summary(profile) + "\n"
-    text += GameDataManager.personality_system.get_pressure_summary(profile) + "\n"
+    text += GameDataManager.personality_system.get_tension_summary(profile) + "\n"
+    text += GameDataManager.personality_system.get_mood_summary(profile) + "\n"
     text += GameDataManager.personality_system.get_pattern_summary(profile) + "\n"
     text += GameDataManager.personality_system.get_last_settlement_summary(profile) + "\n"
     

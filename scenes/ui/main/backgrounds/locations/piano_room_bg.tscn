@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b4ei1retvqeqn"]
+[gd_scene load_steps=13 format=3 uid="uid://b4ei1retvqeqn"]
 
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://bbhabllvch0x5" path="res://assets/images/backgrounds/main/luna_piano_closeup_bg.png" id="2_bg"]
@@ -71,39 +71,6 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 4
 shadow_offset = Vector2(2, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MoodBubble"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.97, 0.83, 0.9, 0.95)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 6
-shadow_color = Color(0.93, 0.52, 0.67, 0.12)
-shadow_size = 5
-shadow_offset = Vector2(2, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MoodNameTag"]
-content_margin_left = 12.0
-content_margin_top = 5.0
-content_margin_right = 12.0
-content_margin_bottom = 5.0
-bg_color = Color(0.19, 0.21, 0.28, 0.92)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 4
-shadow_offset = Vector2(1, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InteractNormal"]
 content_margin_left = 15.0
 content_margin_top = 8.0
@@ -146,16 +113,16 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 6
 shadow_offset = Vector2(2, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_idle_quote"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8j4am"]
 content_margin_left = 20.0
 content_margin_top = 12.0
 content_margin_right = 20.0
 content_margin_bottom = 12.0
 bg_color = Color(1, 1, 1, 0.95)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 4
+corner_radius_top_left = 20
+corner_radius_top_right = 2
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 4
 
@@ -203,55 +170,6 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_StoryHover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_StoryFocus")
 text = "心事"
 
-[node name="MoodBubble" type="PanelContainer" parent="."]
-layout_mode = 0
-offset_left = 800.0
-offset_top = 122.0
-offset_right = 905.0
-offset_bottom = 166.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_MoodBubble")
-
-[node name="Margin" type="MarginContainer" parent="MoodBubble"]
-layout_mode = 2
-
-[node name="HBox" type="HBoxContainer" parent="MoodBubble/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="EmojiLabel" type="Label" parent="MoodBubble/Margin/HBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "🙂"
-vertical_alignment = 1
-
-[node name="ValueLabel" type="Label" parent="MoodBubble/Margin/HBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.33, 0.4, 1)
-theme_override_font_sizes/font_size = 17
-text = "50"
-vertical_alignment = 1
-
-[node name="MoodNameTag" type="PanelContainer" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 812.0
-offset_top = 86.0
-offset_right = 902.0
-offset_bottom = 116.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_MoodNameTag")
-
-[node name="Margin" type="MarginContainer" parent="MoodNameTag"]
-layout_mode = 2
-
-[node name="NameLabel" type="Label" parent="MoodNameTag/Margin"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "平静"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="InteractTriggerButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 621.0
@@ -271,12 +189,12 @@ text = "互动"
 [node name="IdleQuoteBubble" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 0
-offset_left = 502.0
-offset_top = 338.0
-offset_right = 779.0
-offset_bottom = 441.0
+offset_left = 534.0
+offset_top = 322.0
+offset_right = 829.0
+offset_bottom = 427.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_idle_quote")
+theme_override_styles/panel = SubResource("StyleBoxFlat_8j4am")
 
 [node name="Label" type="RichTextLabel" parent="IdleQuoteBubble"]
 layout_mode = 2

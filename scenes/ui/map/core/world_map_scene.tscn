@@ -62,10 +62,10 @@ stretch_mode = 6
 
 [node name="TopStatusPanel" parent="." instance=ExtResource("top_status_panel")]
 layout_mode = 1
-offset_left = 897.0
-offset_top = 20.0
-offset_right = 1249.0
-offset_bottom = 64.0
+offset_left = 786.0
+offset_top = 7.0
+offset_right = 1262.0
+offset_bottom = 51.0
 
 [node name="SubAreaContainer" type="Control" parent="."]
 layout_mode = 1

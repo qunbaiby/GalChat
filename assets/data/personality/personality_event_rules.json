@@ -2,6 +2,7 @@
 	"stage_upgraded": {
 		"label": "阶段成长",
 		"snapshot": true,
+		"partial_immediate_ratio": 0.4,
 		"pattern_keys": ["milestone_chain"],
 		"pattern_streak_bonus": 0.18,
 		"short_term_scale": 0.2,
@@ -16,6 +17,7 @@
 	"player_comforted": {
 		"label": "被安抚",
 		"snapshot": false,
+		"partial_immediate_ratio": 0.25,
 		"pattern_keys": ["comfort_chain"],
 		"pattern_streak_bonus": 0.2,
 		"short_term_scale": 0.85,
@@ -28,6 +30,7 @@
 	"player_betrayed_expectation": {
 		"label": "期待落空",
 		"snapshot": false,
+		"partial_immediate_ratio": 0.3,
 		"pattern_keys": ["betrayal_chain"],
 		"pattern_streak_bonus": 0.22,
 		"short_term_scale": 0.9,
@@ -125,6 +128,7 @@
 	"story_milestone": {
 		"label": "剧情里程碑",
 		"snapshot": true,
+		"partial_immediate_ratio": 0.5,
 		"pattern_keys": ["milestone_chain"],
 		"pattern_streak_bonus": 0.2,
 		"short_term_scale": 0.25,

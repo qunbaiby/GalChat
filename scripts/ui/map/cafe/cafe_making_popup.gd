@@ -105,13 +105,6 @@ func _on_consume_button_pressed():
             profile.mood_value = 100
         toast_msg += "心情 +%d  " % val
         
-    if stats_to_add.has("stress"):
-        var val = stats_to_add["stress"]
-        profile.stress_value += val # stress 是负数，所以是加上负数（减少压力）
-        if profile.stress_value < 0:
-            profile.stress_value = 0
-        toast_msg += "压力 %d  " % val
-        
     profile.save_profile()
     
     if toast_msg != "" and ToastManager:

@@ -1,5 +1,17 @@
 extends PanelContainer
 
+const ICON_COVER = preload("res://assets/images/icons/ui/music/mv-ai-fill.png")
+const ICON_VOLUME_LINE = preload("res://assets/images/icons/ui/music/volume-up-line.png")
+const ICON_VOLUME_FILL = preload("res://assets/images/icons/ui/music/volume-up-fill.png")
+const ICON_SHUFFLE_FILL = preload("res://assets/images/icons/ui/music/shuffle-fill.png")
+const ICON_ORDER_PLAY = preload("res://assets/images/icons/ui/music/order-play-line.png")
+const ICON_PREV = preload("res://assets/images/icons/ui/music/skip-back-fill.png")
+const ICON_PLAY = preload("res://assets/images/icons/ui/music/play-fill.png")
+const ICON_PAUSE = preload("res://assets/images/icons/ui/music/pause-circle-fill.png")
+const ICON_NEXT = preload("res://assets/images/icons/ui/music/skip-forward-fill.png")
+const ICON_REPEAT_LIST = preload("res://assets/images/icons/ui/music/repeat-2-line.png")
+const ICON_REPEAT_ONE = preload("res://assets/images/icons/ui/music/repeat-one-line.png")
+
 @onready var title_label: Label = $Margin/VBox/TopHBox/InfoVBox/TitleLabel
 @onready var artist_label: Label = $Margin/VBox/TopHBox/InfoVBox/ArtistLabel
 @onready var progress_bar: ProgressBar = $Margin/VBox/ProgressBar
@@ -64,6 +76,9 @@ func _ready() -> void:
     
     call_deferred("_update_volume_popup_position")
     
+    cover_btn.icon = ICON_COVER
+    prev_btn.icon = ICON_PREV
+    next_btn.icon = ICON_NEXT
     _update_mode_ui()
     _load_bgm_list()
 
@@ -349,14 +364,14 @@ func _on_play_pause_pressed() -> void:
     
     if audio_player.playing:
         audio_player.stream_paused = true
-        play_pause_btn.text = "▶"
+        play_pause_btn.icon = ICON_PLAY
     else:
         audio_player.stream_paused = false
         if not audio_player.stream:
             _play_current_index()
         else:
             audio_player.play(audio_player.get_playback_position())
-        play_pause_btn.text = "⏸"
+        play_pause_btn.icon = ICON_PAUSE
 
 func _on_next_pressed(natural_end: bool = false) -> void:
     if bgm_list.is_empty() or not is_instance_valid(audio_player): return
@@ -397,8 +412,8 @@ func _on_repeat_pressed() -> void:
     _update_mode_ui()
 
 func _update_mode_ui() -> void:
-    shuffle_btn.add_theme_color_override("font_color", Color(0.5, 0.9, 1, 1) if current_mode == PlayMode.SHUFFLE else Color(0.7, 0.7, 0.7, 1))
-    repeat_btn.add_theme_color_override("font_color", Color(0.5, 0.9, 1, 1) if current_mode == PlayMode.REPEAT_ONE else Color(0.7, 0.7, 0.7, 1))
+    shuffle_btn.icon = ICON_SHUFFLE_FILL if current_mode == PlayMode.SHUFFLE else ICON_ORDER_PLAY
+    repeat_btn.icon = ICON_REPEAT_ONE if current_mode == PlayMode.REPEAT_ONE else ICON_REPEAT_LIST
 
 func _on_volume_mouse_entered() -> void:
     _is_hovering_volume = true
@@ -421,12 +436,10 @@ func _on_volume_slider_changed(value: float) -> void:
     _update_volume_icon(value)
 
 func _update_volume_icon(value: float) -> void:
-    if value <= 0:
-        volume_btn.text = "🔇"
-    elif value < 0.5:
-        volume_btn.text = "🔉"
+    if value < 0.5:
+        volume_btn.icon = ICON_VOLUME_LINE
     else:
-        volume_btn.text = "🔊"
+        volume_btn.icon = ICON_VOLUME_FILL
 
 func _play_current_index() -> void:
     if bgm_list.is_empty() or not is_instance_valid(audio_player): return
@@ -459,7 +472,7 @@ func _update_ui() -> void:
         title_label.text = "无正在播放的音乐"
         artist_label.text = "-"
         progress_bar.value = 0
-        play_pause_btn.text = "▶"
+        play_pause_btn.icon = ICON_PLAY
         _update_playlist_ui()
         return
         
@@ -479,8 +492,8 @@ func _update_ui() -> void:
     artist_label.text = artist
     
     if audio_player.playing and not audio_player.stream_paused:
-        play_pause_btn.text = "⏸"
+        play_pause_btn.icon = ICON_PAUSE
     else:
-        play_pause_btn.text = "▶"
+        play_pause_btn.icon = ICON_PLAY
         
     _update_playlist_ui()

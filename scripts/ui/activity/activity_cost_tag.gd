@@ -28,14 +28,6 @@ func setup(cost_type: String, value: int) -> void:
 			text = "心情 +%d" % value
 			add_theme_color_override("font_color", Color(0.3, 0.8, 0.3))
 			style.bg_color = Color(0.3, 0.8, 0.3, 0.15)
-		"stress_increase":
-			text = "压力 +%d" % value
-			add_theme_color_override("font_color", Color(0.8, 0.4, 0.4))
-			style.bg_color = Color(0.8, 0.4, 0.4, 0.15)
-		"stress_decrease":
-			text = "压力 %d" % value
-			add_theme_color_override("font_color", Color(0.4, 0.8, 0.4))
-			style.bg_color = Color(0.4, 0.8, 0.4, 0.15)
 		_:
 			text = "%s %d" % [cost_type, value]
 			

@@ -661,29 +661,6 @@ theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 14
 text = "+2"
 
-[node name="StressHBox" type="HBoxContainer" parent="ResultPopup/VBox/Footer/Margin/HBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Label" type="Label" parent="ResultPopup/VBox/Footer/Margin/HBox/StressHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
-theme_override_font_sizes/font_size = 16
-text = "压力"
-
-[node name="Val" type="Label" parent="ResultPopup/VBox/Footer/Margin/HBox/StressHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
-theme_override_font_sizes/font_size = 16
-text = "0"
-
-[node name="Diff" type="Label" parent="ResultPopup/VBox/Footer/Margin/HBox/StressHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 14
-text = "+0"
-
 [node name="GoldHBox" type="HBoxContainer" parent="ResultPopup/VBox/Footer/Margin/HBox"]
 layout_mode = 2
 theme_override_constants/separation = 10

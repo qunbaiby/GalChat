@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://esq41rrjvxf3"]
+[gd_scene load_steps=15 format=3 uid="uid://esq41rrjvxf3"]
 
 [ext_resource type="Script" uid="uid://cgfv6p5l654kr" path="res://scripts/ui/stats/stats_panel.gd" id="1_stats"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
@@ -6,68 +6,71 @@
 [ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
 [ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="tex_core_physical"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelMain"]
-bg_color = Color(1, 1, 1, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.85, 0.92, 0.9, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.63529414)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.15)
-shadow_size = 10
 shadow_offset = Vector2(0, 4)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatCard"]
-bg_color = Color(0.96, 0.98, 0.97, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.85, 0.92, 0.9, 1)
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.41960785)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_whdwv"]
+bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarBg"]
 bg_color = Color(0.9, 0.94, 0.93, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Phys"]
 bg_color = Color(0.96, 0.76, 0.56, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
 color = Color(0.85, 0.92, 0.9, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Int"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Charm"]
 bg_color = Color(0.76, 0.7, 0.88, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PBarFill_Sens"]
 bg_color = Color(0.96, 0.65, 0.7, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
 [node name="StatsPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(350, 200)
 offset_right = 340.0
 offset_bottom = 196.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_PanelMain")
+theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
 script = ExtResource("1_stats")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -104,7 +107,19 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox"]
+[node name="IconContainer" type="PanelContainer" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_whdwv")
+
+[node name="IconMargin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/IconContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Physical/Margin/VBox/HeaderHBox/IconContainer/IconMargin"]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_core_physical")
@@ -218,7 +233,19 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox"]
+[node name="IconContainer" type="PanelContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_whdwv")
+
+[node name="IconMargin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/IconContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Intelligence/Margin/VBox/HeaderHBox/IconContainer/IconMargin"]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_core_intelligence")
@@ -332,7 +359,19 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox"]
+[node name="IconContainer" type="PanelContainer" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_whdwv")
+
+[node name="IconMargin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/IconContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Charm/Margin/VBox/HeaderHBox/IconContainer/IconMargin"]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_core_charm")
@@ -446,7 +485,19 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox"]
+[node name="IconContainer" type="PanelContainer" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_whdwv")
+
+[node name="IconMargin" type="MarginContainer" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/IconContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/GridContainer/StatBlock_Sensibility/Margin/VBox/HeaderHBox/IconContainer/IconMargin"]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_aesthetics")

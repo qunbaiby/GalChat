@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://djhqebpnxveca"]
+[gd_scene load_steps=10 format=3 uid="uid://djhqebpnxveca"]
 
 [ext_resource type="Script" uid="uid://dnhqa6gfphbe2" path="res://scripts/ui/mobile/affection_panel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="2_love_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
 bg_color = Color(0.985, 0.987, 0.993, 0.99)
@@ -17,10 +18,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.96, 0.79, 0.86, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+corner_radius_top_left = 50
+corner_radius_top_right = 50
+corner_radius_bottom_right = 50
+corner_radius_bottom_left = 50
 shadow_color = Color(0.93, 0.52, 0.67, 0.1)
 shadow_size = 8
 
@@ -170,13 +171,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_HeartInner")
 [node name="HeartWrap" type="CenterContainer" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard"]
 layout_mode = 2
 
-[node name="HeartText" type="Label" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/HeartWrap"]
+[node name="HeartIcon" type="TextureRect" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/HeartWrap"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.97, 0.23, 0.45, 1)
-theme_override_font_sizes/font_size = 96
-text = "♥"
-horizontal_alignment = 1
-vertical_alignment = 1
+texture = ExtResource("2_love_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="LevelLabel" type="Label" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard"]
 layout_mode = 2

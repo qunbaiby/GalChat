@@ -5,7 +5,7 @@ const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 @onready var start_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/StartButton
 @onready var load_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/LoadButton
 @onready var desktop_pet_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/DesktopPetButton
-@onready var settings_button: Button = $CenterContainer/MenuPanel/Margin/VBoxContainer/SettingsButton
+@onready var settings_button: Button = $TopRightBar/SettingsButton
 
 var settings_panel_instance = null
 var save_load_panel_instance = null
@@ -16,7 +16,7 @@ func _ready() -> void:
     if GameDataManager.config:
         GameDataManager.config.apply_settings()
 
-    if start_button == null or load_button == null or desktop_pet_button == null or settings_button == null:
+    if start_button == null or load_button == null or settings_button == null:
         push_error("StartScene 按钮节点缺失，无法初始化开始界面交互。")
         return
         
@@ -36,13 +36,15 @@ func _ready() -> void:
     window.close_requested.connect(_on_close_requested)
     start_button.pressed.connect(_on_start_pressed)
     load_button.pressed.connect(_on_load_pressed)
-    desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
+    if desktop_pet_button:
+        desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
     settings_button.pressed.connect(_on_settings_pressed)
     
     # 动画：按钮点击弹性反馈
     start_button.pivot_offset = start_button.size / 2
     load_button.pivot_offset = load_button.size / 2
-    desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
+    if desktop_pet_button:
+        desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
     settings_button.pivot_offset = settings_button.size / 2
 
 func _on_close_requested() -> void:

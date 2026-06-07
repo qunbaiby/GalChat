@@ -1,7 +1,7 @@
 extends Node
 
 # 互动行为开销与收益管理器
-# 用于统一管理玩家与角色交互时产生的行动力、金币、心情、压力等影响
+# 用于统一管理玩家与角色交互时产生的行动力、金币、心情等影响
 
 var interaction_config: Dictionary = {}
 
@@ -43,14 +43,11 @@ func execute_interaction(action_id: String) -> bool:
     if gold_cost > 0:
         profile.gold -= gold_cost
         
-    # 调整心情与压力
+    # 调整心情
     var mood_impact = int(config.get("mood_impact", 0))
-    var stress_impact = int(config.get("stress_impact", 0))
     
     if mood_impact != 0:
         profile.mood_value = clamp(profile.mood_value + mood_impact, 0, 100)
-    if stress_impact != 0:
-        profile.stress = clamp(profile.stress + stress_impact, 0, 100)
         
     # 推进时间
     var time_cost = int(config.get("time_cost", 0))

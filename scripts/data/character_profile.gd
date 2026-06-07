@@ -50,9 +50,9 @@ var personality_state: Dictionary = {
     "flavor": "Guarded"
 }
 var last_personality_snapshot_day: int = -1
-var personality_pressure: Dictionary = _create_default_personality_pressure() # 兼容旧字段，等同短期压力
-var short_term_personality_pressure: Dictionary = _create_default_personality_pressure()
-var long_term_personality_pressure: Dictionary = _create_default_personality_pressure()
+var personality_tension: Dictionary = _create_default_personality_tension() # 兼容旧字段，等同短期张力
+var short_term_personality_tension: Dictionary = _create_default_personality_tension()
+var long_term_personality_shaping: Dictionary = _create_default_personality_tension()
 var last_personality_settlement: Dictionary = {}
 var personality_pattern_state: Dictionary = {}
 var companion_streak_days: int = 0
@@ -77,8 +77,6 @@ var stat_perception: float = 0.0 # 感知
 var current_energy: int = 20
 var max_energy: int = 50
 var gold: int = 500
-var stress: int = 10 # 0-100
-var max_stress: int = 100
 
 var unlocked_outfits: Array = ["default"] # 已解锁服装的 ID 列表
 
@@ -107,7 +105,7 @@ func get_profile_path() -> String:
 func _init():
     pass
 
-func _create_default_personality_pressure() -> Dictionary:
+func _create_default_personality_tension() -> Dictionary:
     return {
         "openness": 0.0,
         "conscientiousness": 0.0,
@@ -206,9 +204,9 @@ func load_profile(force_char_id: String = "") -> void:
                 personality_event_log = data.get("personality_event_log", [])
                 personality_state = data.get("personality_state", personality_state)
                 last_personality_snapshot_day = int(str(data.get("last_personality_snapshot_day", -1)))
-                personality_pressure = data.get("personality_pressure", _create_default_personality_pressure())
-                short_term_personality_pressure = data.get("short_term_personality_pressure", personality_pressure.duplicate(true))
-                long_term_personality_pressure = data.get("long_term_personality_pressure", _create_default_personality_pressure())
+                personality_tension = data.get("personality_tension", data.get("personality_pressure", _create_default_personality_tension()))
+                short_term_personality_tension = data.get("short_term_personality_tension", data.get("short_term_personality_pressure", personality_tension.duplicate(true)))
+                long_term_personality_shaping = data.get("long_term_personality_shaping", data.get("long_term_personality_pressure", _create_default_personality_tension()))
                 last_personality_settlement = data.get("last_personality_settlement", {})
                 personality_pattern_state = data.get("personality_pattern_state", {})
                 companion_streak_days = int(str(data.get("companion_streak_days", 0)))
@@ -229,7 +227,6 @@ func load_profile(force_char_id: String = "") -> void:
                 current_outfit = data.get("current_outfit", "default")
                 unlocked_outfits = data.get("unlocked_outfits", ["default"])
                 gold = int(str(data.get("gold", 500)))
-                stress = int(str(data.get("stress", 10)))
                 course_progress = data.get("course_progress", {})
                 diaries = data.get("diaries", [])
                 finished_stories = data.get("finished_stories", [])
@@ -264,6 +261,7 @@ func load_profile(force_char_id: String = "") -> void:
     if GameDataManager.personality_system and GameDataManager.personality_system.has_method("resolve_archetype_state"):
         personality_state = GameDataManager.personality_system.resolve_archetype_state(self)
     _bind_event_manager()
+    profile_updated.emit()
 
 func _bind_event_manager() -> void:
     var tree := Engine.get_main_loop() as SceneTree
@@ -428,10 +426,16 @@ func get_companion_streak_summary() -> String:
         return "连续陪伴：暂无记录"
     return "连续陪伴：%d 天" % companion_streak_days
 
-func get_personality_pressure_summary() -> String:
-    var short_summary = _build_pressure_summary("短期压力", short_term_personality_pressure)
-    var long_summary = _build_pressure_summary("长期塑形", long_term_personality_pressure)
+func get_personality_tension_summary() -> String:
+    var short_summary = _build_tension_summary("短期张力", short_term_personality_tension)
+    var long_summary = _build_tension_summary("长期塑形", long_term_personality_shaping)
     return short_summary + "\n" + long_summary
+
+func get_personality_mood_summary() -> String:
+    var mood_name = "平静"
+    if GameDataManager.mood_system:
+        mood_name = GameDataManager.mood_system.get_macro_mood_name(mood_value)
+    return "当前心情：%s（%.0f）" % [mood_name, mood_value]
 
 func get_personality_pattern_summary() -> String:
     if personality_pattern_state.is_empty():
@@ -450,7 +454,7 @@ func get_personality_pattern_summary() -> String:
         return "连续模式：暂无"
     return "连续模式：" + " / ".join(parts)
 
-func _build_pressure_summary(prefix: String, pressure_data: Dictionary) -> String:
+func _build_tension_summary(prefix: String, pressure_data: Dictionary) -> String:
     var parts: Array = []
     for trait_name in pressure_data.keys():
         var value = float(pressure_data.get(trait_name, 0.0))
@@ -486,11 +490,36 @@ func get_stage_config(stage_num: int) -> Dictionary:
 func get_current_stage_config() -> Dictionary:
     return get_stage_config(current_stage)
 
-func force_set_stage(new_stage: int) -> void:
-    current_stage = clamp(new_stage, 1, 9)
+func _emit_profile_changed(trigger_auto_save: bool = false) -> void:
     save_profile()
+    profile_updated.emit()
+    if trigger_auto_save and GameDataManager.save_manager:
+        GameDataManager.save_manager.call_deferred("auto_save")
+
+func _get_stage_resonance_target(stage_num: int) -> float:
+    var clamped_stage = clamp(stage_num, 1, max(stages_config.size(), 1))
+    var lower_bound = 0.0
+    if clamped_stage > 1:
+        lower_bound = float(get_stage_config(clamped_stage - 1).get("resonance_threshold", 0.0))
+    var upper_bound = float(get_stage_config(clamped_stage).get("resonance_threshold", lower_bound + 80.0))
+    if upper_bound <= lower_bound or upper_bound >= 9999.0:
+        upper_bound = lower_bound + 120.0
+    return lower_bound + (upper_bound - lower_bound) * 0.5
+
+func _sync_relationship_metrics_for_stage(stage_num: int) -> void:
+    var target_resonance = _get_stage_resonance_target(stage_num)
+    var per_stat_value = max(target_resonance / 2.0, 0.0)
+    intimacy = per_stat_value
+    trust = per_stat_value
+
+func force_set_stage(new_stage: int, sync_relationship_metrics: bool = true) -> void:
+    current_stage = clamp(new_stage, 1, max(stages_config.size(), 1))
+    if sync_relationship_metrics:
+        _sync_relationship_metrics_for_stage(current_stage)
+    _emit_profile_changed(true)
 
 func update_intimacy(amount: float) -> void:
+    var previous_stage = current_stage
     if amount > 0:
         var stage_conf = get_current_stage_config()
         var stage_multi = stage_conf.get("intimacy_multiplier", 1.0)
@@ -500,8 +529,11 @@ func update_intimacy(amount: float) -> void:
         amount = amount * stage_multi * mood_multi * personality_mult
     intimacy = max(intimacy + amount, 0.0)
     check_stage_upgrade()
+    if current_stage == previous_stage:
+        profile_updated.emit()
 
 func update_trust(amount: float) -> void:
+    var previous_stage = current_stage
     if amount > 0:
         var stage_conf = get_current_stage_config()
         var stage_multi = stage_conf.get("trust_multiplier", 1.0)
@@ -511,6 +543,8 @@ func update_trust(amount: float) -> void:
         amount = amount * stage_multi * mood_multi * personality_mult
     trust = max(trust + amount, 0.0)
     check_stage_upgrade()
+    if current_stage == previous_stage:
+        profile_updated.emit()
 
 func check_stage_upgrade() -> void:
     var stage_conf = get_current_stage_config()
@@ -543,7 +577,7 @@ func check_stage_upgrade() -> void:
                 "stage": current_stage,
                 "force_log": true
             })
-            GameDataManager.personality_system.settle_personality_pressure(self, "stage_upgraded", {
+            GameDataManager.personality_system.settle_personality_tension(self, "stage_upgraded", {
                 "short_settle_scale": 0.8,
                 "long_settle_scale": 0.35,
                 "force_log": true,
@@ -553,10 +587,7 @@ func check_stage_upgrade() -> void:
         var next_stage_conf = get_current_stage_config()
         var unlock_dialog = next_stage_conf.get("unlockDialog", "")
         stage_upgraded.emit(current_stage, unlock_dialog)
-        save_profile()
-        
-        if GameDataManager.save_manager:
-            GameDataManager.save_manager.call_deferred("auto_save")
+        _emit_profile_changed(true)
 
 func consume_energy(amount: int) -> bool:
     if current_energy >= amount:
@@ -645,9 +676,9 @@ func save_profile() -> void:
         "personality_event_log": personality_event_log,
         "personality_state": personality_state,
         "last_personality_snapshot_day": last_personality_snapshot_day,
-        "personality_pressure": personality_pressure,
-        "short_term_personality_pressure": short_term_personality_pressure,
-        "long_term_personality_pressure": long_term_personality_pressure,
+        "personality_tension": personality_tension,
+        "short_term_personality_tension": short_term_personality_tension,
+        "long_term_personality_shaping": long_term_personality_shaping,
         "last_personality_settlement": last_personality_settlement,
         "personality_pattern_state": personality_pattern_state,
         "companion_streak_days": companion_streak_days,
@@ -665,7 +696,6 @@ func save_profile() -> void:
         "current_outfit": current_outfit,
         "unlocked_outfits": unlocked_outfits,
         "gold": gold,
-        "stress": stress,
         "course_progress": course_progress,
         "diaries": diaries,
         "finished_stories": finished_stories

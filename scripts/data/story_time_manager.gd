@@ -104,8 +104,8 @@ func advance_day(days: int = 1) -> void:
             GameDataManager.memory_manager.process_daily_decay(days)
             
     # 记录大五人格变化历史
-    if GameDataManager.personality_system and GameDataManager.personality_system.has_method("settle_personality_pressure"):
-        GameDataManager.personality_system.settle_personality_pressure(GameDataManager.profile, "daily", {
+    if GameDataManager.personality_system and GameDataManager.personality_system.has_method("settle_personality_tension"):
+        GameDataManager.personality_system.settle_personality_tension(GameDataManager.profile, "daily", {
             "short_settle_scale": 0.5,
             "long_settle_scale": 0.12,
             "force_log": false,
@@ -154,8 +154,8 @@ func tick_minutes(mins: int = 1) -> void:
             if GameDataManager.memory_manager != null:
                 if GameDataManager.memory_manager.has_method("process_daily_decay"):
                     GameDataManager.memory_manager.process_daily_decay(days_added)
-            if GameDataManager.personality_system and GameDataManager.personality_system.has_method("settle_personality_pressure"):
-                GameDataManager.personality_system.settle_personality_pressure(GameDataManager.profile, "daily", {
+            if GameDataManager.personality_system and GameDataManager.personality_system.has_method("settle_personality_tension"):
+                GameDataManager.personality_system.settle_personality_tension(GameDataManager.profile, "daily", {
                     "short_settle_scale": 0.5,
                     "long_settle_scale": 0.12,
                     "force_log": false,

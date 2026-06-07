@@ -87,16 +87,6 @@ func setup(data: Dictionary, cur_prog: int = 0) -> void:
             tag.setup("mood_decrease", m_change)
         has_cost = true
         
-    var s_change = data.get("stress_change", 0)
-    if cost_container and s_change != 0:
-        var tag = CostTagScene.instantiate()
-        cost_container.add_child(tag)
-        if s_change > 0:
-            tag.setup("stress_increase", s_change)
-        else:
-            tag.setup("stress_decrease", s_change)
-        has_cost = true
-        
     if cost_container:
         if has_cost:
             cost_container.show()

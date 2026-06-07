@@ -1,430 +1,412 @@
-﻿{
-  "categories": [
-    {
-      "id": "physical_health",
-      "name": "身心健康"
-    },
-    {
-      "id": "creation_design",
-      "name": "创作设计"
-    },
-    {
-      "id": "music_dance_performance",
-      "name": "乐舞演艺"
-    },
-    {
-      "id": "social_etiquette",
-      "name": "社交礼仪"
-    },
-    {
-      "id": "rest",
-      "name": "轻享休憩"
-    }
-  ],
-  "activities": [
-    {
-      "id": "yoga_body",
-      "name": "瑜伽",
-      "category_id": "physical_health",
-      "desc": "艺术生必修体育课。通过瑜伽拉伸与形体训练，改善体态，提升身体柔韧性。",
-      "energy_cost": 20,
-      "gold_cost": 0,
-      "stress_change": 5,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/body_rhythm.png",
-      "preview_image": "res://assets/icons/activities/body_rhythm.png",
-      "rewards": {
-        "stat_rhythm": [
-          10,
-          20
-        ],
-        "stat_stamina": [
-          5,
-          10
-        ]
-      },
-      "progress_increment": 25,
-      "max_progress": 100
-    },
-    {
-      "id": "basic_stamina",
-      "name": "基础体能",
-      "category_id": "physical_health",
-      "desc": "艺术生必修体育课。常规的慢跑与体能测试准备，培养基础体能续航。",
-      "energy_cost": 25,
-      "gold_cost": 0,
-      "stress_change": 10,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/stamina_training.png",
-      "preview_image": "res://assets/icons/activities/stamina_training.png",
-      "rewards": {
-        "stat_stamina": [
-          15,
-          25
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "core_strength",
-      "name": "力量进阶",
-      "category_id": "physical_health",
-      "desc": "加强核心肌群控制，为高难度的舞蹈动作提供支撑。",
-      "energy_cost": 30,
-      "gold_cost": 0,
-      "stress_change": 12,
-      "mood_change": -8,
-      "icon_path": "res://assets/icons/activities/stamina_training.png",
-      "preview_image": "res://assets/icons/activities/stamina_training.png",
-      "rewards": {
-        "stat_stamina": [
-          20,
-          35
-        ],
-        "stat_rhythm": [
-          10,
-          15
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "stage_stamina",
-      "name": "舞台耐力",
-      "category_id": "physical_health",
-      "desc": "模拟连续演出的高压体能消耗，突破体能极限。",
-      "energy_cost": 40,
-      "gold_cost": 0,
-      "stress_change": 15,
-      "mood_change": -10,
-      "icon_path": "res://assets/icons/activities/stamina_training.png",
-      "preview_image": "res://assets/icons/activities/stamina_training.png",
-      "rewards": {
-        "stat_stamina": [
-          30,
-          50
-        ],
-        "stat_rhythm": [
-          15,
-          25
-        ]
-      },
-      "progress_increment": 10,
-      "max_progress": 100
-    },
-    {
-      "id": "design_history",
-      "name": "现代设计史",
-      "category_id": "creation_design",
-      "desc": "设计专业必修课。了解现代设计流派的演变，积累艺术理论。",
-      "energy_cost": 20,
-      "gold_cost": 0,
-      "stress_change": 5,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/art_history.png",
-      "preview_image": "res://assets/icons/activities/art_history.png",
-      "rewards": {
-        "stat_expression": [
-          15,
-          25
-        ],
-        "stat_knowledge": [
-          10,
-          15
-        ]
-      },
-      "progress_increment": 25,
-      "max_progress": 100
-    },
-    {
-      "id": "visual_basics",
-      "name": "视觉传达",
-      "category_id": "creation_design",
-      "desc": "美术设计必修课。掌握构图、排版与视觉中心引导法则。",
-      "energy_cost": 25,
-      "gold_cost": 0,
-      "stress_change": 8,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/visual_aesthetics.png",
-      "preview_image": "res://assets/icons/activities/visual_aesthetics.png",
-      "rewards": {
-        "stat_aesthetics": [
-          15,
-          25
-        ],
-        "stat_perception": [
-          10,
-          20
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "color_psychology",
-      "name": "色彩心理学",
-      "category_id": "creation_design",
-      "desc": "研究色彩对情绪的影响，将感性情绪融入设计表达中。",
-      "energy_cost": 25,
-      "gold_cost": 0,
-      "stress_change": 10,
-      "mood_change": -8,
-      "icon_path": "res://assets/icons/activities/visual_aesthetics.png",
-      "preview_image": "res://assets/icons/activities/visual_aesthetics.png",
-      "rewards": {
-        "stat_aesthetics": [
-          20,
-          30
-        ],
-        "stat_perception": [
-          10,
-          20
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "brand_planning",
-      "name": "品牌视觉",
-      "category_id": "creation_design",
-      "desc": "综合性大作业。独立策划并完成一整套品牌视觉形象设计。",
-      "energy_cost": 35,
-      "gold_cost": 0,
-      "stress_change": 15,
-      "mood_change": -12,
-      "icon_path": "res://assets/icons/activities/art_planning.png",
-      "preview_image": "res://assets/icons/activities/art_planning.png",
-      "rewards": {
-        "stat_knowledge": [
-          30,
-          45
-        ],
-        "stat_expression": [
-          20,
-          30
-        ]
-      },
-      "progress_increment": 10,
-      "max_progress": 100
-    },
-    {
-      "id": "film_acting",
-      "name": "影视表演",
-      "category_id": "music_dance_performance",
-      "desc": "表演专业必修。解放天性，学习声台形表基础知识。",
-      "energy_cost": 25,
-      "gold_cost": 0,
-      "stress_change": 8,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/stage_acting.png",
-      "preview_image": "res://assets/icons/activities/stage_acting.png",
-      "rewards": {
-        "stat_temperament": [
-          15,
-          25
-        ],
-        "stat_etiquette": [
-          10,
-          15
-        ]
-      },
-      "progress_increment": 25,
-      "max_progress": 100
-    },
-    {
-      "id": "music_rhythm",
-      "name": "音乐鉴赏",
-      "category_id": "music_dance_performance",
-      "desc": "音乐与舞蹈必修。培养乐感，提升对复杂节拍的捕捉能力。",
-      "energy_cost": 20,
-      "gold_cost": 0,
-      "stress_change": 5,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/body_rhythm.png",
-      "preview_image": "res://assets/icons/activities/body_rhythm.png",
-      "rewards": {
-        "stat_rhythm": [
-          15,
-          25
-        ],
-        "stat_perception": [
-          5,
-          15
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "modern_dance",
-      "name": "现代舞编导",
-      "category_id": "music_dance_performance",
-      "desc": "将灵感融入肢体，尝试独立编排一段现代舞。",
-      "energy_cost": 30,
-      "gold_cost": 0,
-      "stress_change": 12,
-      "mood_change": -10,
-      "icon_path": "res://assets/icons/activities/body_rhythm.png",
-      "preview_image": "res://assets/icons/activities/body_rhythm.png",
-      "rewards": {
-        "stat_rhythm": [
-          20,
-          30
-        ],
-        "stat_perception": [
-          15,
-          25
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "camera_emotion",
-      "name": "镜头情感",
-      "category_id": "music_dance_performance",
-      "desc": "应对特写镜头，做到情绪收放自如，极具微表情感染力。",
-      "energy_cost": 35,
-      "gold_cost": 0,
-      "stress_change": 15,
-      "mood_change": -12,
-      "icon_path": "res://assets/icons/activities/camera_manner.png",
-      "preview_image": "res://assets/icons/activities/camera_manner.png",
-      "rewards": {
-        "stat_temperament": [
-          25,
-          40
-        ],
-        "stat_etiquette": [
-          20,
-          30
-        ]
-      },
-      "progress_increment": 10,
-      "max_progress": 100
-    },
-    {
-      "id": "business_communication",
-      "name": "沟通礼仪",
-      "category_id": "social_etiquette",
-      "desc": "公关与传媒必修。掌握职场与商务场合的基础沟通规范。",
-      "energy_cost": 20,
-      "gold_cost": 0,
-      "stress_change": 8,
-      "mood_change": -5,
-      "icon_path": "res://assets/icons/activities/camera_manner.png",
-      "preview_image": "res://assets/icons/activities/camera_manner.png",
-      "rewards": {
-        "stat_expression": [
-          15,
-          25
-        ],
-        "stat_etiquette": [
-          10,
-          15
-        ]
-      },
-      "progress_increment": 25,
-      "max_progress": 100
-    },
-    {
-      "id": "public_speaking",
-      "name": "表达艺术",
-      "category_id": "social_etiquette",
-      "desc": "播音主持相关必修。克服怯场，提升演讲时的气场与逻辑。",
-      "energy_cost": 25,
-      "gold_cost": 0,
-      "stress_change": 10,
-      "mood_change": -8,
-      "icon_path": "res://assets/icons/activities/camera_manner.png",
-      "preview_image": "res://assets/icons/activities/camera_manner.png",
-      "rewards": {
-        "stat_expression": [
-          20,
-          30
-        ],
-        "stat_temperament": [
-          10,
-          20
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "media_handling",
-      "name": "媒体应对",
-      "category_id": "social_etiquette",
-      "desc": "学习如何得体地回答记者提问，化解尴尬的公关危机。",
-      "energy_cost": 25,
-      "gold_cost": 0,
-      "stress_change": 12,
-      "mood_change": -10,
-      "icon_path": "res://assets/icons/activities/camera_manner.png",
-      "preview_image": "res://assets/icons/activities/camera_manner.png",
-      "rewards": {
-        "stat_etiquette": [
-          15,
-          25
-        ],
-        "stat_temperament": [
-          15,
-          20
-        ]
-      },
-      "progress_increment": 20,
-      "max_progress": 100
-    },
-    {
-      "id": "high_end_banquet",
-      "name": "宴会礼节",
-      "category_id": "social_etiquette",
-      "desc": "实操训练，掌握晚宴着装、餐桌礼仪与高端社交破冰技巧。",
-      "energy_cost": 30,
-      "gold_cost": 0,
-      "stress_change": 15,
-      "mood_change": -12,
-      "icon_path": "res://assets/icons/activities/camera_manner.png",
-      "preview_image": "res://assets/icons/activities/camera_manner.png",
-      "rewards": {
-        "stat_temperament": [
-          25,
-          40
-        ],
-        "stat_etiquette": [
-          20,
-          30
-        ]
-      },
-      "progress_increment": 10,
-      "max_progress": 100
-    },
-    {
-      "id": "rest_at_home",
-      "name": "在家休息",
-      "category_id": "rest",
-      "desc": "什么也不做，在家睡个好觉。有效缓解压力并改善心情。",
-      "energy_cost": 0,
-      "gold_cost": 0,
-      "stress_change": -15,
-      "mood_change": 15,
-      "icon_path": "res://assets/icons/activities/rest_at_home.png",
-      "preview_image": "res://assets/icons/activities/rest_at_home.png"
-    },
-    {
-      "id": "cafe_break",
-      "name": "咖啡馆小憩",
-      "category_id": "rest",
-      "desc": "去咖啡馆喝杯咖啡，放松心情。大幅缓解压力并改善心情。",
-      "energy_cost": 0,
-      "gold_cost": 80,
-      "stress_change": -25,
-      "mood_change": 25,
-      "icon_path": "res://assets/icons/activities/cafe_break.png",
-      "preview_image": "res://assets/icons/activities/cafe_break.png"
-    }
-  ]
+{
+    "categories":  [
+                       {
+                           "id":  "physical_health",
+                           "name":  "身心健康"
+                       },
+                       {
+                           "id":  "creation_design",
+                           "name":  "创作设计"
+                       },
+                       {
+                           "id":  "music_dance_performance",
+                           "name":  "乐舞演艺"
+                       },
+                       {
+                           "id":  "social_etiquette",
+                           "name":  "社交礼仪"
+                       },
+                       {
+                           "id":  "rest",
+                           "name":  "轻享休憩"
+                       }
+                   ],
+    "activities":  [
+                       {
+                           "id":  "yoga_body",
+                           "name":  "瑜伽",
+                           "category_id":  "physical_health",
+                           "desc":  "艺术生必修体育课。通过瑜伽拉伸与形体训练，改善体态，提升身体柔韧性。",
+                           "energy_cost":  20,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/body_rhythm.png",
+                           "preview_image":  "res://assets/icons/activities/body_rhythm.png",
+                           "rewards":  {
+                                           "stat_rhythm":  [
+                                                               10,
+                                                               20
+                                                           ],
+                                           "stat_stamina":  [
+                                                                5,
+                                                                10
+                                                            ]
+                                       },
+                           "progress_increment":  25,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "basic_stamina",
+                           "name":  "基础体能",
+                           "category_id":  "physical_health",
+                           "desc":  "艺术生必修体育课。常规的慢跑与体能测试准备，培养基础体能续航。",
+                           "energy_cost":  25,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/stamina_training.png",
+                           "preview_image":  "res://assets/icons/activities/stamina_training.png",
+                           "rewards":  {
+                                           "stat_stamina":  [
+                                                                15,
+                                                                25
+                                                            ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "core_strength",
+                           "name":  "力量进阶",
+                           "category_id":  "physical_health",
+                           "desc":  "加强核心肌群控制，为高难度的舞蹈动作提供支撑。",
+                           "energy_cost":  30,
+                           "gold_cost":  0,
+                           "mood_change":  -8,
+                           "icon_path":  "res://assets/icons/activities/stamina_training.png",
+                           "preview_image":  "res://assets/icons/activities/stamina_training.png",
+                           "rewards":  {
+                                           "stat_stamina":  [
+                                                                20,
+                                                                35
+                                                            ],
+                                           "stat_rhythm":  [
+                                                               10,
+                                                               15
+                                                           ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "stage_stamina",
+                           "name":  "舞台耐力",
+                           "category_id":  "physical_health",
+                           "desc":  "模拟连续演出的高压体能消耗，突破体能极限。",
+                           "energy_cost":  40,
+                           "gold_cost":  0,
+                           "mood_change":  -10,
+                           "icon_path":  "res://assets/icons/activities/stamina_training.png",
+                           "preview_image":  "res://assets/icons/activities/stamina_training.png",
+                           "rewards":  {
+                                           "stat_stamina":  [
+                                                                30,
+                                                                50
+                                                            ],
+                                           "stat_rhythm":  [
+                                                               15,
+                                                               25
+                                                           ]
+                                       },
+                           "progress_increment":  10,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "design_history",
+                           "name":  "现代设计史",
+                           "category_id":  "creation_design",
+                           "desc":  "设计专业必修课。了解现代设计流派的演变，积累艺术理论。",
+                           "energy_cost":  20,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/art_history.png",
+                           "preview_image":  "res://assets/icons/activities/art_history.png",
+                           "rewards":  {
+                                           "stat_expression":  [
+                                                                   15,
+                                                                   25
+                                                               ],
+                                           "stat_knowledge":  [
+                                                                  10,
+                                                                  15
+                                                              ]
+                                       },
+                           "progress_increment":  25,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "visual_basics",
+                           "name":  "视觉传达",
+                           "category_id":  "creation_design",
+                           "desc":  "美术设计必修课。掌握构图、排版与视觉中心引导法则。",
+                           "energy_cost":  25,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/visual_aesthetics.png",
+                           "preview_image":  "res://assets/icons/activities/visual_aesthetics.png",
+                           "rewards":  {
+                                           "stat_aesthetics":  [
+                                                                   15,
+                                                                   25
+                                                               ],
+                                           "stat_perception":  [
+                                                                   10,
+                                                                   20
+                                                               ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "color_psychology",
+                           "name":  "色彩心理学",
+                           "category_id":  "creation_design",
+                           "desc":  "研究色彩对情绪的影响，将感性情绪融入设计表达中。",
+                           "energy_cost":  25,
+                           "gold_cost":  0,
+                           "mood_change":  -8,
+                           "icon_path":  "res://assets/icons/activities/visual_aesthetics.png",
+                           "preview_image":  "res://assets/icons/activities/visual_aesthetics.png",
+                           "rewards":  {
+                                           "stat_aesthetics":  [
+                                                                   20,
+                                                                   30
+                                                               ],
+                                           "stat_perception":  [
+                                                                   10,
+                                                                   20
+                                                               ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "brand_planning",
+                           "name":  "品牌视觉",
+                           "category_id":  "creation_design",
+                           "desc":  "综合性大作业。独立策划并完成一整套品牌视觉形象设计。",
+                           "energy_cost":  35,
+                           "gold_cost":  0,
+                           "mood_change":  -12,
+                           "icon_path":  "res://assets/icons/activities/art_planning.png",
+                           "preview_image":  "res://assets/icons/activities/art_planning.png",
+                           "rewards":  {
+                                           "stat_knowledge":  [
+                                                                  30,
+                                                                  45
+                                                              ],
+                                           "stat_expression":  [
+                                                                   20,
+                                                                   30
+                                                               ]
+                                       },
+                           "progress_increment":  10,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "film_acting",
+                           "name":  "影视表演",
+                           "category_id":  "music_dance_performance",
+                           "desc":  "表演专业必修。解放天性，学习声台形表基础知识。",
+                           "energy_cost":  25,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/stage_acting.png",
+                           "preview_image":  "res://assets/icons/activities/stage_acting.png",
+                           "rewards":  {
+                                           "stat_temperament":  [
+                                                                    15,
+                                                                    25
+                                                                ],
+                                           "stat_etiquette":  [
+                                                                  10,
+                                                                  15
+                                                              ]
+                                       },
+                           "progress_increment":  25,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "music_rhythm",
+                           "name":  "音乐鉴赏",
+                           "category_id":  "music_dance_performance",
+                           "desc":  "音乐与舞蹈必修。培养乐感，提升对复杂节拍的捕捉能力。",
+                           "energy_cost":  20,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/body_rhythm.png",
+                           "preview_image":  "res://assets/icons/activities/body_rhythm.png",
+                           "rewards":  {
+                                           "stat_rhythm":  [
+                                                               15,
+                                                               25
+                                                           ],
+                                           "stat_perception":  [
+                                                                   5,
+                                                                   15
+                                                               ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "modern_dance",
+                           "name":  "现代舞编导",
+                           "category_id":  "music_dance_performance",
+                           "desc":  "将灵感融入肢体，尝试独立编排一段现代舞。",
+                           "energy_cost":  30,
+                           "gold_cost":  0,
+                           "mood_change":  -10,
+                           "icon_path":  "res://assets/icons/activities/body_rhythm.png",
+                           "preview_image":  "res://assets/icons/activities/body_rhythm.png",
+                           "rewards":  {
+                                           "stat_rhythm":  [
+                                                               20,
+                                                               30
+                                                           ],
+                                           "stat_perception":  [
+                                                                   15,
+                                                                   25
+                                                               ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "camera_emotion",
+                           "name":  "镜头情感",
+                           "category_id":  "music_dance_performance",
+                           "desc":  "应对特写镜头，做到情绪收放自如，极具微表情感染力。",
+                           "energy_cost":  35,
+                           "gold_cost":  0,
+                           "mood_change":  -12,
+                           "icon_path":  "res://assets/icons/activities/camera_manner.png",
+                           "preview_image":  "res://assets/icons/activities/camera_manner.png",
+                           "rewards":  {
+                                           "stat_temperament":  [
+                                                                    25,
+                                                                    40
+                                                                ],
+                                           "stat_etiquette":  [
+                                                                  20,
+                                                                  30
+                                                              ]
+                                       },
+                           "progress_increment":  10,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "business_communication",
+                           "name":  "沟通礼仪",
+                           "category_id":  "social_etiquette",
+                           "desc":  "公关与传媒必修。掌握职场与商务场合的基础沟通规范。",
+                           "energy_cost":  20,
+                           "gold_cost":  0,
+                           "mood_change":  -5,
+                           "icon_path":  "res://assets/icons/activities/camera_manner.png",
+                           "preview_image":  "res://assets/icons/activities/camera_manner.png",
+                           "rewards":  {
+                                           "stat_expression":  [
+                                                                   15,
+                                                                   25
+                                                               ],
+                                           "stat_etiquette":  [
+                                                                  10,
+                                                                  15
+                                                              ]
+                                       },
+                           "progress_increment":  25,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "public_speaking",
+                           "name":  "表达艺术",
+                           "category_id":  "social_etiquette",
+                           "desc":  "播音主持相关必修。克服怯场，提升演讲时的气场与逻辑。",
+                           "energy_cost":  25,
+                           "gold_cost":  0,
+                           "mood_change":  -8,
+                           "icon_path":  "res://assets/icons/activities/camera_manner.png",
+                           "preview_image":  "res://assets/icons/activities/camera_manner.png",
+                           "rewards":  {
+                                           "stat_expression":  [
+                                                                   20,
+                                                                   30
+                                                               ],
+                                           "stat_temperament":  [
+                                                                    10,
+                                                                    20
+                                                                ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "media_handling",
+                           "name":  "媒体应对",
+                           "category_id":  "social_etiquette",
+                           "desc":  "学习如何得体地回答记者提问，化解尴尬的公关危机。",
+                           "energy_cost":  25,
+                           "gold_cost":  0,
+                           "mood_change":  -10,
+                           "icon_path":  "res://assets/icons/activities/camera_manner.png",
+                           "preview_image":  "res://assets/icons/activities/camera_manner.png",
+                           "rewards":  {
+                                           "stat_etiquette":  [
+                                                                  15,
+                                                                  25
+                                                              ],
+                                           "stat_temperament":  [
+                                                                    15,
+                                                                    20
+                                                                ]
+                                       },
+                           "progress_increment":  20,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "high_end_banquet",
+                           "name":  "宴会礼节",
+                           "category_id":  "social_etiquette",
+                           "desc":  "实操训练，掌握晚宴着装、餐桌礼仪与高端社交破冰技巧。",
+                           "energy_cost":  30,
+                           "gold_cost":  0,
+                           "mood_change":  -12,
+                           "icon_path":  "res://assets/icons/activities/camera_manner.png",
+                           "preview_image":  "res://assets/icons/activities/camera_manner.png",
+                           "rewards":  {
+                                           "stat_temperament":  [
+                                                                    25,
+                                                                    40
+                                                                ],
+                                           "stat_etiquette":  [
+                                                                  20,
+                                                                  30
+                                                              ]
+                                       },
+                           "progress_increment":  10,
+                           "max_progress":  100
+                       },
+                       {
+                           "id":  "rest_at_home",
+                           "name":  "在家休息",
+                           "category_id":  "rest",
+                           "desc":  "什么也不做，在家睡个好觉。能够放松状态并改善心情。",
+                           "energy_cost":  0,
+                           "gold_cost":  0,
+                           "mood_change":  15,
+                           "icon_path":  "res://assets/icons/activities/rest_at_home.png",
+                           "preview_image":  "res://assets/icons/activities/rest_at_home.png"
+                       },
+                       {
+                           "id":  "cafe_break",
+                           "name":  "咖啡馆小憩",
+                           "category_id":  "rest",
+                           "desc":  "去咖啡馆喝杯咖啡，放松心情。能够显著改善当下状态。",
+                           "energy_cost":  0,
+                           "gold_cost":  80,
+                           "mood_change":  25,
+                           "icon_path":  "res://assets/icons/activities/cafe_break.png",
+                           "preview_image":  "res://assets/icons/activities/cafe_break.png"
+                       }
+                   ]
 }

@@ -15,8 +15,17 @@ const MAIN_BACKGROUND_DATA_PATH := "res://assets/data/main_backgrounds.json"
 @onready var camera_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/CameraButton
 @onready var phone_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/PhoneButton
 @onready var affection_button: Button = $UIPanel/AffectionButton
+@onready var affection_stage_level_label: Label = $UIPanel/AffectionButton/ContentHBox/HeartWrap/HeartLevelLabel
 @onready var affection_stage_title_label: Label = $UIPanel/AffectionButton/ContentHBox/StageVBox/StageTitleLabel
 @onready var goal_value_label: Label = $UIPanel/GoalPanel/GoalMargin/GoalVBox/GoalValue
+@onready var mood_panel: Control = $UIPanel/MoodPanel
+@onready var mood_name_container: Control = $UIPanel/MoodNamelContainer
+@onready var mood_title_label: Label = $UIPanel/MoodPanel/MoodMargin/MoodVBox/MoodTopHBox/MoodTitle
+@onready var mood_panel_value_label: Label = $UIPanel/MoodPanel/MoodMargin/MoodVBox/MoodBarTrack/MoodBar/MoodValueLabel
+@onready var mood_panel_hint_label: Label = $UIPanel/MoodPanel/MoodMargin/MoodVBox/MoodHintLabel
+@onready var mood_bar: ProgressBar = $UIPanel/MoodPanel/MoodMargin/MoodVBox/MoodBarTrack/MoodBar
+@onready var mood_name_container_emoji_label: Label = $UIPanel/MoodNamelContainer/MoodNamelMargin/MoodHeadHBox/MoodEmojiLabel
+@onready var mood_name_container_name_label: Label = $UIPanel/MoodNamelContainer/MoodNamelMargin/MoodHeadHBox/MoodNameLabel
 @onready var affection_overlay: Control = $UIPanel/AffectionOverlay
 @onready var affection_dismiss_button: Button = $UIPanel/AffectionOverlay/DismissButton
 @onready var affection_popup_frame: Control = $UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame
@@ -95,6 +104,7 @@ var _window_detector: Node = null
 var _is_afk: bool = false
 var _afk_timer: Timer = null
 var _ui_tween: Tween = null
+var _mood_hover_tween: Tween = null
 var audio_player: AudioStreamPlayer = null
 
 var map_scene_instance = null
@@ -145,7 +155,7 @@ func _reset_main_chat_context() -> void:
 
 func _resolve_topic_chat_subtype(topic: String) -> String:
     var normalized = topic.strip_edges()
-    var concern_keywords = ["心事", "烦恼", "难过", "压力", "委屈", "伤心", "不开心"]
+    var concern_keywords = ["心事", "烦恼", "难过", "委屈", "伤心", "不开心"]
     for keyword in concern_keywords:
         if normalized.find(keyword) != -1:
             return MAIN_CHAT_SUBTYPE_CONCERN
@@ -166,11 +176,181 @@ func _update_affection_button_ui() -> void:
     if not is_instance_valid(affection_button) or not GameDataManager.profile:
         return
     var stage_conf: Dictionary = GameDataManager.profile.get_current_stage_config()
+    if is_instance_valid(affection_stage_level_label):
+        affection_stage_level_label.text = str(GameDataManager.profile.current_stage)
     if is_instance_valid(affection_stage_title_label):
         affection_stage_title_label.text = str(stage_conf.get("stageTitle", "未命名阶段"))
     _update_goal_panel_ui()
+    _update_mood_panel_ui()
     if is_instance_valid(affection_panel_instance) and affection_panel_instance.visible and affection_panel_instance.has_method("update_ui"):
         affection_panel_instance.update_ui(GameDataManager.profile)
+
+func _bind_profile_signals() -> void:
+    if not GameDataManager.profile:
+        return
+    if not GameDataManager.profile.profile_updated.is_connected(_on_profile_updated):
+        GameDataManager.profile.profile_updated.connect(_on_profile_updated)
+
+func _on_profile_updated() -> void:
+    _update_affection_button_ui()
+    if stats_panel and stats_panel.has_method("_update_ui"):
+        stats_panel._update_ui()
+    if top_status_panel and top_status_panel.has_method("_update_ui"):
+        top_status_panel._update_ui()
+
+func _update_mood_panel_ui() -> void:
+    if not is_instance_valid(mood_name_container_name_label) or not is_instance_valid(mood_panel_value_label):
+        return
+
+    if not GameDataManager.profile or not GameDataManager.mood_system:
+        mood_name_container_emoji_label.text = ""
+        mood_name_container_name_label.text = "未知"
+        mood_panel_value_label.text = "-- / 100"
+        mood_panel_hint_label.text = "当前暂无心情数据"
+        if is_instance_valid(mood_bar):
+            mood_bar.value = 0.0
+        return
+
+    var mood_value := int(round(GameDataManager.profile.mood_value))
+    var mood_info: Dictionary = GameDataManager.mood_system.get_macro_mood(mood_value)
+    var mood_id := str(mood_info.get("id", "calm"))
+    var mood_name := str(mood_info.get("name", "平静"))
+    var mood_emoji := str(mood_info.get("emoji", ""))
+    var palette := _get_mood_panel_palette(mood_id)
+
+    mood_name_container_emoji_label.text = mood_emoji
+    mood_name_container_name_label.text = mood_name
+    mood_panel_value_label.text = "%d / 100" % mood_value
+    mood_panel_hint_label.text = _build_mood_panel_hint(mood_id)
+    if is_instance_valid(mood_bar):
+        mood_bar.value = mood_value
+        var fill_style = mood_bar.get("theme_override_styles/fill") as StyleBoxFlat
+        if fill_style:
+            fill_style.bg_color = palette.get("bar_color", Color(0.55, 0.79, 0.76, 1.0))
+
+    if is_instance_valid(mood_title_label):
+        mood_title_label.add_theme_color_override("font_color", palette.get("accent_color", Color(0.13, 0.76, 0.70, 1.0)))
+    mood_name_container_name_label.add_theme_color_override("font_color", palette.get("name_color", Color(1, 1, 1, 1)))
+    mood_panel_value_label.add_theme_color_override("font_color", palette.get("value_color", Color(0.85, 0.94, 0.92, 1.0)))
+    mood_panel_hint_label.add_theme_color_override("font_color", palette.get("hint_color", Color(0.92, 0.92, 0.92, 1.0)))
+
+func _build_mood_panel_hint(mood_id: String) -> String:
+    match mood_id:
+        "broken":
+            return "当前更需要被接住、恢复状态，先别硬推节奏。"
+        "low":
+            return "当前偏向回稳与安抚，适合慢慢找回状态。"
+        "pleasant":
+            return "当前适合主动尝试，也更容易自然拉近关系。"
+        "ecstatic":
+            return "当前适合表现、突破和推进关系，但别用力过猛。"
+        _:
+            return "当前节奏平稳，适合常规推进和日常互动。"
+
+func _get_mood_panel_palette(mood_id: String) -> Dictionary:
+    match mood_id:
+        "broken":
+            return {
+                "accent_color": Color(0.93, 0.47, 0.60, 1.0),
+                "name_color": Color(1.0, 0.86, 0.90, 1.0),
+                "value_color": Color(1.0, 0.78, 0.84, 1.0),
+                "hint_color": Color(0.98, 0.84, 0.88, 1.0),
+                "bar_color": Color(0.92, 0.36, 0.56, 1.0)
+            }
+        "low":
+            return {
+                "accent_color": Color(0.97, 0.67, 0.42, 1.0),
+                "name_color": Color(1.0, 0.90, 0.80, 1.0),
+                "value_color": Color(1.0, 0.84, 0.70, 1.0),
+                "hint_color": Color(0.98, 0.88, 0.78, 1.0),
+                "bar_color": Color(0.95, 0.60, 0.30, 1.0)
+            }
+        "pleasant":
+            return {
+                "accent_color": Color(0.37, 0.84, 0.64, 1.0),
+                "name_color": Color(0.90, 1.0, 0.94, 1.0),
+                "value_color": Color(0.82, 0.98, 0.88, 1.0),
+                "hint_color": Color(0.86, 0.97, 0.90, 1.0),
+                "bar_color": Color(0.31, 0.82, 0.58, 1.0)
+            }
+        "ecstatic":
+            return {
+                "accent_color": Color(0.42, 0.74, 1.0, 1.0),
+                "name_color": Color(0.87, 0.94, 1.0, 1.0),
+                "value_color": Color(0.78, 0.89, 1.0, 1.0),
+                "hint_color": Color(0.84, 0.92, 1.0, 1.0),
+                "bar_color": Color(0.29, 0.63, 1.0, 1.0)
+            }
+        _:
+            return {
+                "accent_color": Color(0.68, 0.84, 0.94, 1.0),
+                "name_color": Color(0.96, 0.98, 1.0, 1.0),
+                "value_color": Color(0.84, 0.92, 0.97, 1.0),
+                "hint_color": Color(0.88, 0.93, 0.96, 1.0),
+                "bar_color": Color(0.58, 0.76, 0.86, 1.0)
+            }
+
+func _setup_mood_hover_ui() -> void:
+    if is_instance_valid(mood_panel):
+        mood_panel.visible = false
+        mood_panel.modulate.a = 0.0
+        if not mood_panel.mouse_entered.is_connected(_on_mood_ui_mouse_entered):
+            mood_panel.mouse_entered.connect(_on_mood_ui_mouse_entered)
+        if not mood_panel.mouse_exited.is_connected(_on_mood_ui_mouse_exited):
+            mood_panel.mouse_exited.connect(_on_mood_ui_mouse_exited)
+    if is_instance_valid(mood_name_container):
+        mood_name_container.self_modulate.a = 1.0
+        if not mood_name_container.mouse_entered.is_connected(_on_mood_ui_mouse_entered):
+            mood_name_container.mouse_entered.connect(_on_mood_ui_mouse_entered)
+        if not mood_name_container.mouse_exited.is_connected(_on_mood_ui_mouse_exited):
+            mood_name_container.mouse_exited.connect(_on_mood_ui_mouse_exited)
+
+func _on_mood_ui_mouse_entered() -> void:
+    _show_mood_panel()
+
+func _on_mood_ui_mouse_exited() -> void:
+    call_deferred("_sync_mood_hover_state")
+
+func _sync_mood_hover_state() -> void:
+    if _is_mouse_over_mood_ui():
+        _show_mood_panel()
+    else:
+        _hide_mood_panel()
+
+func _is_mouse_over_mood_ui() -> bool:
+    var mouse_pos := get_viewport().get_mouse_position()
+    if is_instance_valid(mood_name_container) and mood_name_container.get_global_rect().has_point(mouse_pos):
+        return true
+    if is_instance_valid(mood_panel) and mood_panel.visible and mood_panel.get_global_rect().has_point(mouse_pos):
+        return true
+    return false
+
+func _show_mood_panel() -> void:
+    if not is_instance_valid(mood_panel) or not is_instance_valid(mood_name_container):
+        return
+    if _mood_hover_tween:
+        _mood_hover_tween.kill()
+    mood_panel.visible = true
+    _mood_hover_tween = create_tween()
+    _mood_hover_tween.set_parallel(true)
+    _mood_hover_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+    _mood_hover_tween.tween_property(mood_panel, "modulate:a", 1.0, 0.18)
+    _mood_hover_tween.tween_property(mood_name_container, "self_modulate:a", 0.0, 0.18)
+
+func _hide_mood_panel() -> void:
+    if not is_instance_valid(mood_panel) or not is_instance_valid(mood_name_container):
+        return
+    if _mood_hover_tween:
+        _mood_hover_tween.kill()
+    _mood_hover_tween = create_tween()
+    _mood_hover_tween.set_parallel(true)
+    _mood_hover_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+    _mood_hover_tween.tween_property(mood_panel, "modulate:a", 0.0, 0.18)
+    _mood_hover_tween.tween_property(mood_name_container, "self_modulate:a", 1.0, 0.18)
+    _mood_hover_tween.chain().tween_callback(func():
+        if is_instance_valid(mood_panel):
+            mood_panel.visible = false
+    )
 
 func _update_goal_panel_ui() -> void:
     if not is_instance_valid(goal_value_label):
@@ -347,7 +527,6 @@ func _show_dialogue_topic_selection() -> void:
 
     dialogue_name_label.text = GameDataManager.profile.char_name
     dialogue_text.bbcode_enabled = true
-    dialogue_text.text = "[center]...[/center]"
     dialogue_text.visible_ratio = 1.0
     dialogue_text.visible_characters = -1
 
@@ -1716,11 +1895,13 @@ func _ready() -> void:
     TTSManager.tts_failed.connect(_on_tts_failed)
             
     GameDataManager.character_switched.connect(_on_character_switched)
+    _bind_profile_signals()
     
     if chat_button and GameDataManager.profile:
         chat_button.text = "与 " + GameDataManager.profile.char_name + " 聊天"
     
     _update_affection_button_ui()
+    _setup_mood_hover_ui()
         
     # 动画：按钮点击弹性反馈 - 这些现在可以通过检查是否有 size 动态计算 pivot_offset
     # 或者我们在 inspector 中设置好的也会生效。这里保留以防有些按钮大小动态变化
@@ -2704,7 +2885,6 @@ func _unhandled_input(event: InputEvent) -> void:
             
             # 如果当前是主场景，连上信号
             debug_panel.stage_changed.connect(func(stage: int):
-                GameDataManager.profile.force_set_stage(stage)
                 GameDataManager.history.messages.clear()
                 GameDataManager.history.save_history()
                 print("【Debug】强制切换情感阶段至：" + str(stage))
@@ -2764,6 +2944,7 @@ func _unhandled_input(event: InputEvent) -> void:
             _cancel_topic_selection()
 func _on_character_switched(char_id: String) -> void:
     # 角色切换后更新主界面的面板（特别是数值显示）
+    _bind_profile_signals()
     if stats_panel and stats_panel.has_method("_update_ui"):
         stats_panel._update_ui()
         

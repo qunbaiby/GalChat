@@ -78,8 +78,15 @@ func apply_personality_event(profile: CharacterProfile, event_type: String, payl
 	var pattern_context = _update_event_patterns(profile, event_type, payload)
 	var immediate = bool(payload.get("immediate", false))
 	if immediate:
-		return _apply_resolved_deltas(profile, event_type, resolved_deltas, payload)
-	return _accumulate_personality_pressure(profile, event_type, resolved_deltas, payload, pattern_context)
+		var merged_payload = payload.duplicate(true)
+		if not pattern_context.is_empty():
+			merged_payload["pattern_context"] = pattern_context.duplicate(true)
+		return _apply_resolved_deltas(profile, event_type, resolved_deltas, merged_payload)
+
+	var partial_ratio = _get_partial_immediate_ratio(event_type, payload)
+	if partial_ratio > 0.0:
+		return _apply_partial_tension_event(profile, event_type, resolved_deltas, payload, pattern_context, partial_ratio)
+	return _accumulate_personality_tension(profile, event_type, resolved_deltas, payload, pattern_context)
 
 func apply_personality_feedback(profile: CharacterProfile, trait_deltas: Dictionary, source: String = "unknown", payload: Dictionary = {}) -> Dictionary:
 	var merged_payload = payload.duplicate(true)
@@ -87,45 +94,45 @@ func apply_personality_feedback(profile: CharacterProfile, trait_deltas: Diction
 	merged_payload["source"] = source
 	return apply_personality_event(profile, "llm_feedback", merged_payload)
 
-func settle_personality_pressure(profile: CharacterProfile, reason: String = "daily", payload: Dictionary = {}) -> Dictionary:
+func settle_personality_tension(profile: CharacterProfile, reason: String = "daily", payload: Dictionary = {}) -> Dictionary:
 	if profile == null:
 		return {}
 
 	var short_settle_scale = float(payload.get("short_settle_scale", payload.get("settle_scale", SHORT_PRESSURE_SETTLE_SCALE)))
 	var long_settle_scale = float(payload.get("long_settle_scale", LONG_PRESSURE_SETTLE_SCALE))
 	var applied_deltas: Dictionary = {}
-	var remaining_short_pressure = profile.short_term_personality_pressure.duplicate(true)
-	var remaining_long_pressure = profile.long_term_personality_pressure.duplicate(true)
+	var remaining_short_tension = profile.short_term_personality_tension.duplicate(true)
+	var remaining_long_shaping = profile.long_term_personality_shaping.duplicate(true)
 	var total_abs_delta = 0.0
-	for trait_name in remaining_short_pressure.keys():
-		var short_pressure = float(remaining_short_pressure.get(trait_name, 0.0))
-		var long_pressure = float(remaining_long_pressure.get(trait_name, 0.0))
+	for trait_name in remaining_short_tension.keys():
+		var short_tension = float(remaining_short_tension.get(trait_name, 0.0))
+		var long_shaping = float(remaining_long_shaping.get(trait_name, 0.0))
 		var settle_delta = 0.0
-		if abs(short_pressure) >= PRESSURE_CLEAR_THRESHOLD:
-			settle_delta += short_pressure * short_settle_scale
-		if abs(long_pressure) >= PRESSURE_CLEAR_THRESHOLD:
-			settle_delta += long_pressure * long_settle_scale
+		if abs(short_tension) >= PRESSURE_CLEAR_THRESHOLD:
+			settle_delta += short_tension * short_settle_scale
+		if abs(long_shaping) >= PRESSURE_CLEAR_THRESHOLD:
+			settle_delta += long_shaping * long_settle_scale
 		if abs(settle_delta) > 0.001:
 			var applied_delta = apply_trait_delta(profile, str(trait_name), settle_delta)
 			if abs(applied_delta) > 0.001:
 				applied_deltas[str(trait_name)] = applied_delta
 				total_abs_delta += abs(applied_delta)
 
-		var short_residual = short_pressure * SHORT_PRESSURE_RETAIN_SCALE
-		var long_residual = long_pressure * LONG_PRESSURE_RETAIN_SCALE
-		remaining_short_pressure[trait_name] = 0.0 if abs(short_residual) < PRESSURE_CLEAR_THRESHOLD else short_residual
-		remaining_long_pressure[trait_name] = 0.0 if abs(long_residual) < PRESSURE_CLEAR_THRESHOLD else long_residual
+		var short_residual = short_tension * SHORT_PRESSURE_RETAIN_SCALE
+		var long_residual = long_shaping * LONG_PRESSURE_RETAIN_SCALE
+		remaining_short_tension[trait_name] = 0.0 if abs(short_residual) < PRESSURE_CLEAR_THRESHOLD else short_residual
+		remaining_long_shaping[trait_name] = 0.0 if abs(long_residual) < PRESSURE_CLEAR_THRESHOLD else long_residual
 
-	profile.short_term_personality_pressure = remaining_short_pressure
-	profile.long_term_personality_pressure = remaining_long_pressure
-	profile.personality_pressure = remaining_short_pressure.duplicate(true)
+	profile.short_term_personality_tension = remaining_short_tension
+	profile.long_term_personality_shaping = remaining_long_shaping
+	profile.personality_tension = remaining_short_tension.duplicate(true)
 	var state = resolve_archetype_state(profile)
 	profile.personality_state = state.duplicate(true)
 	profile.last_personality_settlement = {
 		"reason": reason,
 		"applied_deltas": applied_deltas.duplicate(true),
-		"remaining_short_pressure": remaining_short_pressure.duplicate(true),
-		"remaining_long_pressure": remaining_long_pressure.duplicate(true),
+		"remaining_short_tension": remaining_short_tension.duplicate(true),
+		"remaining_long_shaping": remaining_long_shaping.duplicate(true),
 		"timestamp": Time.get_unix_time_from_system(),
 		"day_offset": _get_story_day_offset(),
 		"state": state.duplicate(true)
@@ -134,17 +141,19 @@ func settle_personality_pressure(profile: CharacterProfile, reason: String = "da
 	var should_log = not applied_deltas.is_empty() or bool(payload.get("force_log", false))
 	if should_log and profile.has_method("append_personality_event"):
 		profile.append_personality_event({
-			"event_type": "pressure_settlement",
+			"event_type": "tension_settlement",
 			"label": _get_settlement_label(reason),
 			"mode": "settlement",
 			"applied_deltas": applied_deltas.duplicate(true),
-			"remaining_short_pressure": remaining_short_pressure.duplicate(true),
-			"remaining_long_pressure": remaining_long_pressure.duplicate(true),
+			"remaining_short_tension": remaining_short_tension.duplicate(true),
+			"remaining_long_shaping": remaining_long_shaping.duplicate(true),
 			"payload": payload.duplicate(true),
 			"timestamp": Time.get_unix_time_from_system(),
 			"day_offset": _get_story_day_offset(),
 			"state": state.duplicate(true)
 		})
+
+	_apply_daily_mood_recovery(profile)
 
 	var should_snapshot = bool(payload.get("force_snapshot", false))
 	should_snapshot = should_snapshot or total_abs_delta >= SNAPSHOT_DELTA_THRESHOLD
@@ -156,8 +165,8 @@ func settle_personality_pressure(profile: CharacterProfile, reason: String = "da
 		"reason": reason,
 		"applied_deltas": applied_deltas,
 		"state": state,
-		"remaining_short_pressure": remaining_short_pressure,
-		"remaining_long_pressure": remaining_long_pressure
+		"remaining_short_tension": remaining_short_tension,
+		"remaining_long_shaping": remaining_long_shaping
 	}
 
 func get_intimacy_multiplier(profile: CharacterProfile) -> float:
@@ -302,55 +311,6 @@ func _apply_resolved_deltas(profile: CharacterProfile, event_type: String, resol
 		"state": state
 	}
 
-func _accumulate_personality_pressure(profile: CharacterProfile, event_type: String, resolved_deltas: Dictionary, payload: Dictionary, pattern_context: Dictionary = {}) -> Dictionary:
-	var split_pressure = _split_pressure_deltas(event_type, resolved_deltas, pattern_context)
-	var short_term_deltas: Dictionary = split_pressure.get("short", {})
-	var long_term_deltas: Dictionary = split_pressure.get("long", {})
-	var short_pressure_state = profile.short_term_personality_pressure.duplicate(true)
-	var long_pressure_state = profile.long_term_personality_pressure.duplicate(true)
-
-	for trait_name in short_term_deltas.keys():
-		var short_key = str(trait_name)
-		short_pressure_state[short_key] = float(short_pressure_state.get(short_key, 0.0)) + float(short_term_deltas[short_key])
-	for trait_name in long_term_deltas.keys():
-		var long_key = str(trait_name)
-		long_pressure_state[long_key] = float(long_pressure_state.get(long_key, 0.0)) + float(long_term_deltas[long_key])
-
-	profile.short_term_personality_pressure = short_pressure_state
-	profile.long_term_personality_pressure = long_pressure_state
-	profile.personality_pressure = short_pressure_state.duplicate(true)
-	var state = resolve_archetype_state(profile)
-	profile.personality_state = state.duplicate(true)
-
-	var should_log = not short_term_deltas.is_empty() or not long_term_deltas.is_empty() or bool(payload.get("force_log", false))
-	if should_log and profile.has_method("append_personality_event"):
-		profile.append_personality_event({
-			"event_type": event_type,
-			"label": _get_event_label(event_type),
-			"mode": "pressure",
-			"pressure_deltas": short_term_deltas.duplicate(true),
-			"short_term_deltas": short_term_deltas.duplicate(true),
-			"long_term_deltas": long_term_deltas.duplicate(true),
-			"pattern_context": pattern_context.duplicate(true),
-			"short_term_pressure": short_pressure_state.duplicate(true),
-			"long_term_pressure": long_pressure_state.duplicate(true),
-			"payload": payload.duplicate(true),
-			"timestamp": Time.get_unix_time_from_system(),
-			"day_offset": _get_story_day_offset(),
-			"state": state.duplicate(true)
-		})
-	profile.save_profile()
-
-	return {
-		"event_type": event_type,
-		"short_term_deltas": short_term_deltas,
-		"long_term_deltas": long_term_deltas,
-		"pattern_context": pattern_context,
-		"short_term_pressure": short_pressure_state,
-		"long_term_pressure": long_pressure_state,
-		"state": state
-	}
-
 func get_offline_greeting_strategy(profile: CharacterProfile, offline_seconds: int) -> String:
 	var offline_hours = offline_seconds / 3600.0
 	var strategy = ""
@@ -467,7 +427,7 @@ func get_recent_event_summary(profile: CharacterProfile) -> String:
 	var label = str(event_data.get("label", event_data.get("event_type", "未知事件")))
 	var deltas = event_data.get("applied_deltas", {})
 	if deltas.is_empty():
-		deltas = event_data.get("pressure_deltas", {})
+		deltas = event_data.get("tension_deltas", event_data.get("pressure_deltas", {}))
 	if deltas.is_empty():
 		var short_deltas = event_data.get("short_term_deltas", {})
 		var long_deltas = event_data.get("long_term_deltas", {})
@@ -492,14 +452,21 @@ func get_recent_event_summary(profile: CharacterProfile) -> String:
 	var pattern_suffix = ""
 	if pattern_context is Dictionary and int(pattern_context.get("max_streak", 1)) >= 2:
 		pattern_suffix = " · 连续x%d" % int(pattern_context.get("max_streak", 1))
-	if mode == "pressure":
-		return "最近人格事件：%s（压力 %s%s）" % [label, " / ".join(delta_parts), pattern_suffix]
+	if mode == "tension":
+		return "最近人格事件：%s（张力 %s%s）" % [label, " / ".join(delta_parts), pattern_suffix]
+	if mode == "hybrid":
+		return "最近人格事件：%s（即时+张力 %s%s）" % [label, " / ".join(delta_parts), pattern_suffix]
 	return "最近人格事件：%s（%s%s）" % [label, " / ".join(delta_parts), pattern_suffix]
 
-func get_pressure_summary(profile: CharacterProfile) -> String:
-	if profile == null or not profile.has_method("get_personality_pressure_summary"):
-		return "短期压力：当前平稳\n长期塑形：当前平稳"
-	return profile.get_personality_pressure_summary()
+func get_mood_summary(profile: CharacterProfile) -> String:
+	if profile == null or not profile.has_method("get_personality_mood_summary"):
+		return "当前心情：平静（50）"
+	return profile.get_personality_mood_summary()
+
+func get_tension_summary(profile: CharacterProfile) -> String:
+	if profile == null or not profile.has_method("get_personality_tension_summary"):
+		return "短期张力：当前平稳\n长期塑形：当前平稳"
+	return profile.get_personality_tension_summary()
 
 func get_pattern_summary(profile: CharacterProfile) -> String:
 	if profile == null or not profile.has_method("get_personality_pattern_summary"):
@@ -511,7 +478,7 @@ func get_last_settlement_summary(profile: CharacterProfile) -> String:
 		return "最近结算：暂无"
 	var settlement = profile.last_personality_settlement
 	if not settlement is Dictionary or settlement.is_empty():
-		return "最近结算：暂无"
+		return "最近变化：暂无"
 	var reason = _get_settlement_label(str(settlement.get("reason", "unknown")))
 	var deltas = settlement.get("applied_deltas", {})
 	var parts: Array = []
@@ -523,10 +490,67 @@ func get_last_settlement_summary(profile: CharacterProfile) -> String:
 			var sign = "+" if delta > 0 else ""
 			parts.append("%s %s%.2f" % [str(key), sign, delta])
 	if parts.is_empty():
-		return "最近结算：%s（无显著变化）" % reason
-	return "最近结算：%s（%s）" % [reason, " / ".join(parts)]
+		return "最近变化：%s（无显著变化）" % reason
+	return "最近变化：%s（%s）" % [reason, " / ".join(parts)]
 
-func _split_pressure_deltas(event_type: String, resolved_deltas: Dictionary, pattern_context: Dictionary = {}) -> Dictionary:
+func _get_partial_immediate_ratio(event_type: String, payload: Dictionary) -> float:
+	if payload.has("partial_immediate_ratio"):
+		return clamp(float(payload.get("partial_immediate_ratio", 0.0)), 0.0, 1.0)
+	var rule = _event_rules.get(event_type, {})
+	if rule is Dictionary and rule.has("partial_immediate_ratio"):
+		return clamp(float(rule.get("partial_immediate_ratio", 0.0)), 0.0, 1.0)
+	return 0.0
+
+func _scale_deltas(source: Dictionary, scale: float) -> Dictionary:
+	var result: Dictionary = {}
+	for key in source.keys():
+		result[str(key)] = float(source[key]) * scale
+	return result
+
+func _subtract_deltas(source: Dictionary, subtractor: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for key in source.keys():
+		result[str(key)] = float(source[key]) - float(subtractor.get(key, 0.0))
+	return result
+
+func _apply_partial_tension_event(profile: CharacterProfile, event_type: String, resolved_deltas: Dictionary, payload: Dictionary, pattern_context: Dictionary, partial_ratio: float) -> Dictionary:
+	var immediate_deltas = _scale_deltas(resolved_deltas, partial_ratio)
+	var deferred_deltas = _subtract_deltas(resolved_deltas, immediate_deltas)
+	var merged_payload = payload.duplicate(true)
+	if not pattern_context.is_empty():
+		merged_payload["pattern_context"] = pattern_context.duplicate(true)
+	var immediate_result = _apply_resolved_deltas(profile, event_type, immediate_deltas, merged_payload)
+	var deferred_result = _accumulate_personality_tension(profile, event_type, deferred_deltas, payload, pattern_context)
+	deferred_result["immediate_applied_deltas"] = immediate_result.get("applied_deltas", {})
+	deferred_result["mode"] = "hybrid"
+	return deferred_result
+
+func _apply_daily_mood_recovery(profile: CharacterProfile) -> Dictionary:
+	if profile == null:
+		return {}
+	if profile.mood_value >= 50.0:
+		return {"delta": 0.0}
+
+	var short_tension = profile.short_term_personality_tension
+	var neuroticism_tension = float(short_tension.get("neuroticism", 0.0))
+	var agreeableness_tension = max(float(short_tension.get("agreeableness", 0.0)), 0.0)
+	var extraversion_tension = max(float(short_tension.get("extraversion", 0.0)), 0.0)
+	var recovery_amount = 2.0
+	recovery_amount += agreeableness_tension * 0.8
+	recovery_amount += extraversion_tension * 0.6
+	recovery_amount -= max(neuroticism_tension, 0.0) * 0.9
+	recovery_amount += max(-neuroticism_tension, 0.0) * 0.4
+	recovery_amount = clamp(recovery_amount, 0.25, 5.0)
+
+	var before_mood = profile.mood_value
+	profile.mood_value = min(50.0, profile.mood_value + recovery_amount)
+	return {
+		"delta": profile.mood_value - before_mood,
+		"before": before_mood,
+		"after": profile.mood_value
+	}
+
+func _split_tension_deltas(event_type: String, resolved_deltas: Dictionary, pattern_context: Dictionary = {}) -> Dictionary:
 	var rule = _event_rules.get(event_type, {})
 	var short_scale = 0.85
 	var long_scale = 0.15
@@ -564,6 +588,55 @@ func _split_pressure_deltas(event_type: String, resolved_deltas: Dictionary, pat
 	return {
 		"short": short_result,
 		"long": long_result
+	}
+
+func _accumulate_personality_tension(profile: CharacterProfile, event_type: String, resolved_deltas: Dictionary, payload: Dictionary, pattern_context: Dictionary = {}) -> Dictionary:
+	var split_tension = _split_tension_deltas(event_type, resolved_deltas, pattern_context)
+	var short_term_deltas: Dictionary = split_tension.get("short", {})
+	var long_term_deltas: Dictionary = split_tension.get("long", {})
+	var short_tension_state = profile.short_term_personality_tension.duplicate(true)
+	var long_shaping_state = profile.long_term_personality_shaping.duplicate(true)
+
+	for trait_name in short_term_deltas.keys():
+		var short_key = str(trait_name)
+		short_tension_state[short_key] = float(short_tension_state.get(short_key, 0.0)) + float(short_term_deltas[short_key])
+	for trait_name in long_term_deltas.keys():
+		var long_key = str(trait_name)
+		long_shaping_state[long_key] = float(long_shaping_state.get(long_key, 0.0)) + float(long_term_deltas[long_key])
+
+	profile.short_term_personality_tension = short_tension_state
+	profile.long_term_personality_shaping = long_shaping_state
+	profile.personality_tension = short_tension_state.duplicate(true)
+	var state = resolve_archetype_state(profile)
+	profile.personality_state = state.duplicate(true)
+
+	var should_log = not short_term_deltas.is_empty() or not long_term_deltas.is_empty() or bool(payload.get("force_log", false))
+	if should_log and profile.has_method("append_personality_event"):
+		profile.append_personality_event({
+			"event_type": event_type,
+			"label": _get_event_label(event_type),
+			"mode": "tension",
+			"tension_deltas": short_term_deltas.duplicate(true),
+			"short_term_deltas": short_term_deltas.duplicate(true),
+			"long_term_deltas": long_term_deltas.duplicate(true),
+			"pattern_context": pattern_context.duplicate(true),
+			"short_term_tension": short_tension_state.duplicate(true),
+			"long_term_shaping": long_shaping_state.duplicate(true),
+			"payload": payload.duplicate(true),
+			"timestamp": Time.get_unix_time_from_system(),
+			"day_offset": _get_story_day_offset(),
+			"state": state.duplicate(true)
+		})
+	profile.save_profile()
+
+	return {
+		"event_type": event_type,
+		"short_term_deltas": short_term_deltas,
+		"long_term_deltas": long_term_deltas,
+		"pattern_context": pattern_context,
+		"short_term_tension": short_tension_state,
+		"long_term_shaping": long_shaping_state,
+		"state": state
 	}
 
 func _update_event_patterns(profile: CharacterProfile, event_type: String, payload: Dictionary) -> Dictionary:

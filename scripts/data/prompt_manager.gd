@@ -57,6 +57,19 @@ func load_template(template_name: String) -> String:
         printerr("Prompt template not found: ", path)
         return ""
 
+func _get_relationship_prompt_floor(stage_num: int) -> float:
+    if stage_num >= 9:
+        return 220.0
+    if stage_num >= 8:
+        return 180.0
+    if stage_num >= 6:
+        return 140.0
+    if stage_num >= 4:
+        return 90.0
+    if stage_num >= 3:
+        return 60.0
+    return 0.0
+
 func build_chat_prompt(profile: CharacterProfile, player_message: String = "", query_embedding: Array = []) -> String:
     return build_system_prompt(profile, "default_chat", player_message, query_embedding)
 
@@ -115,7 +128,8 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     var st_title = stage_conf.get("stageTitle", "").replace("{char_name}", safe_char_name)
     var st_desc = stage_conf.get("stageDesc", "").replace("{char_name}", safe_char_name)
     
-    var intimacy_value = profile.intimacy
+    var relationship_floor = _get_relationship_prompt_floor(int(profile.current_stage))
+    var intimacy_value = max(float(profile.intimacy), relationship_floor)
     var intimacy_desc = ""
     if intimacy_value < 50:
         intimacy_desc = "【当前亲密度】：疏离。角色与你保持社交距离，言语客气但有分寸。"
@@ -124,7 +138,7 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
     else:
         intimacy_desc = "【当前亲密度】：炽热。角色与你建立了深厚的情感羁绊，言行间透露着强烈的依赖感。"
         
-    var trust_value = profile.trust
+    var trust_value = max(float(profile.trust), relationship_floor)
     var trust_desc = ""
     if trust_value < 50:
         trust_desc = "【当前信任度】：极低。角色对你极度缺乏安全感，心防很重，哪怕亲密度高也容易患得患失，不敢分享内心的秘密。"
@@ -328,6 +342,9 @@ func build_options_prompt(profile: CharacterProfile, recent_history: String) -> 
         
     var dyn_traits = GameDataManager.personality_system.get_dynamic_traits(profile)
     stage_desc += "\n当前情感状态：亲密度 %.1f，信任度 %.1f。情感风味：%s" % [profile.intimacy, profile.trust, dyn_traits]
+    var mood_data = GameDataManager.mood_system.get_macro_mood(profile.mood_value)
+    var mood_name = str(mood_data.get("name", "平静"))
+    var mood_guidance = _build_option_mood_guidance(str(mood_data.get("id", "calm")), mood_name)
         
     var option_constraints = GameDataManager.personality_system.get_option_constraints(profile)
     
@@ -339,6 +356,8 @@ func build_options_prompt(profile: CharacterProfile, recent_history: String) -> 
         "name": profile.char_name,
         "player_name": player_name,
         "stage_desc": stage_desc,
+        "mood_name": mood_name,
+        "mood_guidance": mood_guidance,
         "option_constraints": option_constraints,
         "recent_history": recent_history
     })
@@ -520,7 +539,8 @@ func build_schedule_event_prompt(context: Dictionary) -> String:
     var day_label = str(context.get("day_label", "本日"))
     var bonus_summary = str(context.get("bonus_summary", "无"))
     var mood = int(context.get("mood", 50))
-    var stress = int(context.get("stress", 0))
+    var mood_name = str(context.get("mood_name", "平静"))
+    var mood_bias = _build_schedule_event_mood_guidance(str(context.get("mood_tag", "calm")), mood_name)
 
     var prompt = "你是一个校园课程随机事件生成器。请围绕指定课程，生成一个与课程内容强相关的课堂/训练/实践中的小事件。\n"
     prompt += "课程名称：%s\n" % course_name
@@ -528,12 +548,14 @@ func build_schedule_event_prompt(context: Dictionary) -> String:
     prompt += "课程类别：%s\n" % category_name
     prompt += "发生时间：%s\n" % day_label
     prompt += "课程主要收益：%s\n" % bonus_summary
-    prompt += "角色当前心情：%d，当前压力：%d\n" % [mood, stress]
+    prompt += "角色当前心情：%s（%d）\n" % [mood_name, mood]
+    prompt += "心情偏向：%s\n" % mood_bias
     prompt += "要求：\n"
     prompt += "1. 事件必须与该课程强相关，不能写成泛化的日常事件。\n"
     prompt += "2. 事件描述 30 到 60 字，选项文案 12 字以内。\n"
     prompt += "3. 两个选项要体现不同倾向，例如稳妥/冒险、专注/社交、保守/激进。\n"
-    prompt += "4. 输出必须是纯 JSON，不要附加解释。\n"
+    prompt += "4. 五档心情要明确区分：崩溃=止损恢复，低落=被接住与回稳，平静=常规推进，愉悦=主动尝试，心花怒放=高光突破。\n"
+    prompt += "5. 输出必须是纯 JSON，不要附加解释。\n"
     prompt += "JSON 格式如下：\n"
     prompt += "{\n"
     prompt += "  \"event_title\": \"事件标题\",\n"
@@ -544,6 +566,36 @@ func build_schedule_event_prompt(context: Dictionary) -> String:
     prompt += "  ]\n"
     prompt += "}\n"
     return prompt
+
+func _build_option_mood_guidance(mood_id: String, mood_name: String) -> String:
+    match mood_id:
+        "broken":
+            return "当前心情为%s。两个选项都必须先止损和接住情绪，优先安抚、陪伴、确认安全感，只能非常轻地表达在乎，绝对不要追问、施压或突然推进关系。" % mood_name
+        "low":
+            return "当前心情为%s。选项1要明显偏安抚、共情和温柔陪伴；选项2偏稳定承接与轻引导，可以小幅拉近距离，但整体仍以让对方放松下来为主。" % mood_name
+        "calm":
+            return "当前心情为%s。选项1偏温柔亲近，选项2偏可靠支持，整体自然平衡，不要刻意卖惨，也不要突然暧昧升温，重点是舒服顺畅地推进对话。" % mood_name
+        "pleasant":
+            return "当前心情为%s。选项1可以更自然地拉近距离、给出夸赞或亲近感；选项2可以更明确地表达支持、期待或下次一起做什么，允许适度推进关系。" % mood_name
+        "ecstatic":
+            return "当前心情为%s。选项整体可以更主动、更明亮，允许轻微暧昧、共享计划、确认彼此亲近感，甚至直接往下一步关系靠近，但仍要自然不油腻。" % mood_name
+        _:
+            return "当前心情为%s。保持一条偏温柔亲近、一条偏可靠支持，整体自然平衡。" % mood_name
+
+func _build_schedule_event_mood_guidance(mood_id: String, mood_name: String) -> String:
+    match mood_id:
+        "broken":
+            return "%s：事件应该优先止损与恢复，强调缓冲、喘息、被照顾、避免失控，尽量不要出现高压硬顶和强行表现。" % mood_name
+        "low":
+            return "%s：事件更偏向被接住、稳妥回稳、慢慢找回手感，可以有轻度坚持，但不能太冲太险。" % mood_name
+        "calm":
+            return "%s：事件保持常规平衡，更像正常发挥中的小岔路，重点是稳步推进、轻微取舍和节奏判断。" % mood_name
+        "pleasant":
+            return "%s：事件可以更偏向主动尝试、顺势表现、放大当前手感，允许适度挑战，但仍要留有稳定落点。" % mood_name
+        "ecstatic":
+            return "%s：事件可以更偏向高光表现、临场突破、抓住机会一口气往上冲，但必须仍然贴着课程内容，不能写飘。" % mood_name
+        _:
+            return "%s：事件保持常规平衡，同时让两个选项走向清晰区分。" % mood_name
 
 func build_schedule_resolve_prompt(context: Dictionary) -> String:
     var course_name = str(context.get("course_name", "未知课程"))
@@ -572,8 +624,7 @@ func build_schedule_resolve_prompt(context: Dictionary) -> String:
     prompt += "    \"审美\": 0,\n"
     prompt += "    \"感知\": 0,\n"
     prompt += "    \"金币\": 0,\n"
-    prompt += "    \"心情\": 0,\n"
-    prompt += "    \"压力\": 0\n"
+    prompt += "    \"心情\": 0\n"
     prompt += "  }\n"
     prompt += "}\n"
     return prompt

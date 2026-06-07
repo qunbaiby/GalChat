@@ -19,8 +19,6 @@ extends Control
 @onready var gold_label: Label = %GoldLabel
 @onready var mood_bubble: Label = %MoodBubble
 @onready var mood_label: Label = %MoodLabel
-@onready var stress_label: Label = %StressLabel
-@onready var stress_bubble: Label = %StressBubble
 @onready var bonus_label: Label = %BonusLabel
 
 @onready var phys_sub: GridContainer = $Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats
@@ -83,7 +81,9 @@ func _ready() -> void:
     clear_button.pressed.connect(_on_clear_pressed)
     
     _style_bubble = mood_bubble.get_theme_stylebox("normal")
-    _style_bubble_neg = stress_bubble.get_theme_stylebox("normal")
+    if _style_bubble and _style_bubble is StyleBoxFlat:
+        _style_bubble_neg = (_style_bubble as StyleBoxFlat).duplicate()
+        (_style_bubble_neg as StyleBoxFlat).bg_color = Color(0.95, 0.55, 0.55, 1)
     
     _init_slots()
     # 类别展示方式修改：不再使用水平Tabs，直接在_populate_activities()中生成多列
@@ -315,32 +315,24 @@ func _update_right_panel(profile) -> void:
     var mood_data = GameDataManager.mood_system.get_macro_mood(profile.mood_value)
     var mood_name = mood_data.get("name", "平静")
     var stat_bonus_rate = GameDataManager.mood_system.get_stat_bonus_rate(profile.mood_value)
-    
-    # 根据压力额外影响加成，暂定压力每 10 点减少 2% 加成，且基础为 0
-    # 假设压力超过 50 开始减少，或者这里暂不引入复杂的计算，只做个简单映射
-    # 综合加成 = mood_bonus - stress_penalty
-    var stress_penalty = 0.0
-    if profile.stress > 50:
-        stress_penalty = (profile.stress - 50) * 0.005 # 最大惩罚 25%
-    
-    var final_bonus_rate = stat_bonus_rate - stress_penalty
+    var final_bonus_rate = stat_bonus_rate
+    var final_multiplier = 1.0 + final_bonus_rate
     
     var bonus_text = ""
     if final_bonus_rate > 0:
-        bonus_text = "收益增加%d%%" % int(final_bonus_rate * 100)
+        bonus_text = "收益增加%d%%（来源：%s心情，属性收益 x%.2f）" % [int(final_bonus_rate * 100), mood_name, final_multiplier]
         bonus_label.add_theme_color_override("font_color", Color("2a9d8f")) # 正面绿色
     elif final_bonus_rate < 0:
-        bonus_text = "收益减少%d%%" % int(-final_bonus_rate * 100)
+        bonus_text = "收益减少%d%%（来源：%s心情，属性收益 x%.2f）" % [int(-final_bonus_rate * 100), mood_name, final_multiplier]
         bonus_label.add_theme_color_override("font_color", Color("e76f51")) # 负面红色
     else:
-        bonus_text = "无特殊加成"
+        bonus_text = "无特殊加成（来源：%s心情，属性收益 x%.2f）" % [mood_name, final_multiplier]
         bonus_label.add_theme_color_override("font_color", Color("555555")) # 平静灰色
         
     bonus_label.text = bonus_text
     
     var total_rewards = {}
     var total_gold_cost = 0
-    var total_stress_change = 0
     var total_mood_change = 0
     
     for item in scheduled_activities:
@@ -348,7 +340,6 @@ func _update_right_panel(profile) -> void:
         var act = GameDataManager.activity_manager.get_activity_by_id(item)
         if act.is_empty(): continue
         total_gold_cost += act.get("gold_cost", 0)
-        total_stress_change += act.get("stress_change", 0)
         total_mood_change += act.get("mood_change", 0)
         
         if act.has("rewards"):
@@ -367,20 +358,7 @@ func _update_right_panel(profile) -> void:
     # 行动力相关的 UI 气泡全部强行隐藏
     if energy_label: energy_label.hide()
     if energy_bubble: energy_bubble.hide()
-        
-    var end_stress = clamp(profile.stress + total_stress_change, 0, profile.max_stress)
-    var stress_diff = end_stress - profile.stress
-    stress_label.text = "压力 %d" % int(end_stress)
-    if stress_diff != 0:
-        stress_bubble.show()
-        stress_bubble.text = "%+d" % int(stress_diff)
-        if stress_diff > 0:
-            if _style_bubble_neg: stress_bubble.add_theme_stylebox_override("normal", _style_bubble_neg)
-        else:
-            if _style_bubble: stress_bubble.add_theme_stylebox_override("normal", _style_bubble)
-    else:
-        stress_bubble.hide()
-        
+
     var end_mood = clamp(profile.mood_value + total_mood_change, 0, 100)
     var mood_diff = end_mood - profile.mood_value
     mood_label.text = "心情 %s" % GameDataManager.mood_system.get_macro_mood(end_mood).get("name", "未知")
@@ -614,23 +592,18 @@ func _on_execute_pressed() -> void:
         "审美": profile_for_exec.stat_aesthetics,
         "感知": profile_for_exec.stat_perception,
         "金币": profile_for_exec.gold,
-        "心情": profile_for_exec.mood_value,
-        "压力": profile_for_exec.stress
+        "心情": profile_for_exec.mood_value
     }
     var end_attrs = start_attrs.duplicate()
     
     var stat_bonus_rate = GameDataManager.mood_system.get_stat_bonus_rate(profile_for_exec.mood_value)
-    var stress_penalty = 0.0
-    if profile_for_exec.stress > 50:
-        stress_penalty = (profile_for_exec.stress - 50) * 0.005
-    var final_bonus_rate = stat_bonus_rate - stress_penalty
+    var final_bonus_rate = stat_bonus_rate
     
     for item in scheduled_activities:
         if typeof(item) == TYPE_STRING:
             var act = GameDataManager.activity_manager.get_activity_by_id(item)
             if act.is_empty(): continue
             end_attrs["金币"] -= act.get("gold_cost", 0)
-            end_attrs["压力"] += act.get("stress_change", 0)
             end_attrs["心情"] += act.get("mood_change", 0)
     
     for course in courses_data:
@@ -641,7 +614,6 @@ func _on_execute_pressed() -> void:
                 end_attrs[zh_name] = start_attrs.get(zh_name, 0)
             end_attrs[zh_name] += (val * (1.0 + final_bonus_rate))
                 
-    end_attrs["压力"] = clamp(end_attrs["压力"], 0, profile_for_exec.max_stress)
     end_attrs["心情"] = clamp(end_attrs["心情"], 0, 100)
     end_attrs["金币"] = max(0, end_attrs["金币"])
             

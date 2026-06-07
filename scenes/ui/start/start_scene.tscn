@@ -1,46 +1,110 @@
-[gd_scene load_steps=6 format=3 uid="uid://cxab3x2x4y5v1"]
+[gd_scene load_steps=12 format=3 uid="uid://cxab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://dtia45vxlbf3v" path="res://scripts/ui/start/start_scene.gd" id="1_ab123"]
-[ext_resource type="Texture2D" uid="uid://dxpa6pdvgk6ov" path="res://assets/images/story/cg/start_scene_luna_drawing.png" id="2_cb6oh"]
+[ext_resource type="Texture2D" uid="uid://qj1pittuuxx6" path="res://assets/images/backgrounds/Title.png" id="2_1ighk"]
+[ext_resource type="Texture2D" uid="uid://dfdvtfnlpm64n" path="res://assets/images/icons/ui/system/gear.svg" id="3_gear"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuPanel"]
-bg_color = Color(0.98, 0.985, 0.99, 0.82)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitlePanel"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopRightButton"]
+bg_color = Color(0.03, 0.05, 0.09, 0.46)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.76, 0.9, 0.88, 0.22)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 18
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopRightButtonPressed"]
+bg_color = Color(0.13, 0.22, 0.26, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.56, 0.83, 0.78, 0.78)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopRightButtonHover"]
+bg_color = Color(0.1, 0.16, 0.22, 0.68)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.56, 0.83, 0.78, 0.55)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 12
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuPanel"]
+bg_color = Color(0.03, 0.05, 0.09, 0.52)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.76, 0.9, 0.88, 0.24)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 22
 shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuButton"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.97, 0.98, 0.99, 0.95)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.79, 0.86, 0.9, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuButtonPressed"]
+bg_color = Color(0.78, 0.91, 0.88, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.72, 0.67, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuButtonHover"]
-bg_color = Color(1, 0.98, 0.95, 1)
+bg_color = Color(0.89, 0.96, 0.94, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 0.7)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.51, 0.8, 0.75, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.16, 0.53, 0.47, 0.18)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
 
 [node name="StartScene" type="Control"]
 layout_mode = 3
@@ -58,68 +122,147 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_cb6oh")
+texture = ExtResource("2_1ighk")
 expand_mode = 1
 stretch_mode = 6
+
+[node name="TitleCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -320.0
+offset_top = 143.0
+offset_right = 320.0
+offset_bottom = 327.0
+grow_horizontal = 2
+
+[node name="TitlePanel" type="PanelContainer" parent="TitleCenter"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TitlePanel")
+
+[node name="TitleMargin" type="MarginContainer" parent="TitleCenter/TitlePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
+
+[node name="TitleVBox" type="VBoxContainer" parent="TitleCenter/TitlePanel/TitleMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="SubTitleLabel" type="Label" parent="TitleCenter/TitlePanel/TitleMargin/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.95, 0.95, 0.92)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.35)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "前路有梦，我为你护航"
+horizontal_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="TitleCenter/TitlePanel/TitleMargin/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.98)
+theme_override_colors/font_shadow_color = Color(0.04, 0.07, 0.12, 0.34)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.24)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 72
+text = "逐 光 梦 旅"
+horizontal_alignment = 1
+
+[node name="TopRightBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -76.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 76.0
+grow_horizontal = 0
+
+[node name="SettingsButton" type="Button" parent="TopRightBar"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_TopRightButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TopRightButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TopRightButtonHover")
+icon = ExtResource("3_gear")
+expand_icon = true
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 280.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MenuPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(320, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MenuPanel")
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/MenuPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/MenuPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 
 [node name="StartButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
-custom_minimum_size = Vector2(200, 80)
+custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
+theme_override_colors/font_focus_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_pressed_color = Color(0.09, 0.24, 0.23, 1)
+theme_override_colors/font_hover_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.2)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "开始陪伴"
 
 [node name="LoadButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
-custom_minimum_size = Vector2(200, 80)
+custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
+theme_override_colors/font_focus_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_pressed_color = Color(0.09, 0.24, 0.23, 1)
+theme_override_colors/font_hover_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.2)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "读取进度"
 
 [node name="DesktopPetButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
-custom_minimum_size = Vector2(200, 80)
+visible = false
+custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
+theme_override_colors/font_focus_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_pressed_color = Color(0.09, 0.24, 0.23, 1)
+theme_override_colors/font_hover_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "启动桌宠"
-
-[node name="SettingsButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
-custom_minimum_size = Vector2(200, 80)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonHover")
-text = "设置"
-
-

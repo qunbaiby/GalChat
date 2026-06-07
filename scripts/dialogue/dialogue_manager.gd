@@ -1333,7 +1333,6 @@ func _trigger_gift_reaction(gift: Dictionary) -> void:
 
 func _on_debug_stage_changed(stage: int) -> void:
     ToastManager.show_system_toast("【Debug】强制切换情感阶段至：" + str(stage), Color.CYAN)
-    GameDataManager.profile.force_set_stage(stage)
     # Clear short term history so the AI doesn't get confused by previous stage's context
     GameDataManager.history.messages.clear()
     GameDataManager.history.save_history()

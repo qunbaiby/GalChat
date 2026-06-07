@@ -106,7 +106,8 @@ func _update_personality_display(profile: CharacterProfile) -> void:
 	var dynamic_traits_parts: Array = [
 		GameDataManager.personality_system.get_personality_state_summary(profile),
 		GameDataManager.personality_system.get_recent_event_summary(profile),
-		GameDataManager.personality_system.get_pressure_summary(profile),
+		GameDataManager.personality_system.get_tension_summary(profile),
+		GameDataManager.personality_system.get_mood_summary(profile),
 		GameDataManager.personality_system.get_pattern_summary(profile),
 		GameDataManager.personality_system.get_last_settlement_summary(profile),
 		"",

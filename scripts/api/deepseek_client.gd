@@ -1675,6 +1675,10 @@ func send_idle_quote_generation(char_id: String) -> void:
     if player_name.is_empty():
         player_name = "指导人"
         
+    var rng = RandomNumberGenerator.new()
+    rng.randomize()
+    var random_seed = rng.randi()
+        
     var system_prompt = "【系统设定】\n"
     system_prompt += "你扮演的角色是：%s。\n" % char_name
     system_prompt += "你的性格特征是：%s。\n" % personality
@@ -1682,16 +1686,22 @@ func send_idle_quote_generation(char_id: String) -> void:
     system_prompt += "你当前的心情是：%s。\n" % mood
     system_prompt += "【任务要求】\n"
     system_prompt += "请根据你的性格、情感阶段以及当前心情，对【%s】说一句简短的话，比如倾诉心事、撒娇、吐槽或者打招呼。\n" % player_name
-    system_prompt += "要求：\n1. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n2. 字数限制在25字以内。\n3. 语气要自然、生活化。"
+    system_prompt += "要求：\n"
+    system_prompt += "1. 每次必须提供完全不同的随机对话，禁止重复以前的回答。你可以随机选择问候、撒娇、开玩笑、表达关心或抱怨等不同方向。\n"
+    system_prompt += "2. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n"
+    system_prompt += "3. 字数限制在25字以内。\n"
+    system_prompt += "4. 语气要自然、生活化。\n"
+    system_prompt += "[随机因子：%d]\n" % random_seed
     
     var api_messages = [
-        {"role": "system", "content": system_prompt}
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "请随机对我说一句符合你人设的话，务必保证每次都截然不同！"}
     ]
     
     var body = {
         "model": GameDataManager.config.model,
         "messages": api_messages,
-        "temperature": 0.7,
+        "temperature": 0.85,
         "max_tokens": 100
     }
     

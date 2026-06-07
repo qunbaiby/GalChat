@@ -1,72 +1,62 @@
 {
-    "chat_luna_topic": {
-        "time_cost": 30,
-        "energy_cost": 5,
-        "gold_cost": 0,
-        "mood_impact": 2,
-        "stress_impact": -5
-    },
-    "co_create_board": {
-        "time_cost": 60,
-        "energy_cost": 10,
-        "gold_cost": 0,
-        "mood_impact": 5,
-        "stress_impact": -10
-    },
-    "chat_jing": {
-        "time_cost": 30,
-        "energy_cost": 5,
-        "gold_cost": 0,
-        "mood_impact": 1,
-        "stress_impact": -2
-    },
-    "tutoring": {
-        "time_cost": 60,
-        "energy_cost": 0,
-        "gold_cost": 0,
-        "mood_impact": 0,
-        "stress_impact": 5
-    },
-    "gift": {
-        "time_cost": 15,
-        "energy_cost": 2,
-        "gold_cost": 0,
-        "mood_impact": 5,
-        "stress_impact": -5
-    },
-    "music_study": {
-        "time_cost": 60,
-        "energy_cost": 15,
-        "gold_cost": 0,
-        "mood_impact": 0,
-        "stress_impact": 10
-    },
-    "art_study": {
-        "time_cost": 60,
-        "energy_cost": 15,
-        "gold_cost": 0,
-        "mood_impact": 2,
-        "stress_impact": 6
-    },
-    "performance_study": {
-        "time_cost": 60,
-        "energy_cost": 15,
-        "gold_cost": 0,
-        "mood_impact": 3,
-        "stress_impact": 4
-    },
-    "cook": {
-        "time_cost": 45,
-        "energy_cost": 15,
-        "gold_cost": 20,
-        "mood_impact": 3,
-        "stress_impact": -3
-    },
-    "interactive": {
-        "time_cost": 30,
-        "energy_cost": 5,
-        "gold_cost": 0,
-        "mood_impact": 2,
-        "stress_impact": -2
-    }
+    "chat_luna_topic":  {
+                            "time_cost":  30,
+                            "energy_cost":  5,
+                            "gold_cost":  0,
+                            "mood_impact":  2
+                        },
+    "co_create_board":  {
+                            "time_cost":  60,
+                            "energy_cost":  10,
+                            "gold_cost":  0,
+                            "mood_impact":  5
+                        },
+    "chat_jing":  {
+                      "time_cost":  30,
+                      "energy_cost":  5,
+                      "gold_cost":  0,
+                      "mood_impact":  1
+                  },
+    "tutoring":  {
+                     "time_cost":  60,
+                     "energy_cost":  0,
+                     "gold_cost":  0,
+                     "mood_impact":  0
+                 },
+    "gift":  {
+                 "time_cost":  15,
+                 "energy_cost":  2,
+                 "gold_cost":  0,
+                 "mood_impact":  5
+             },
+    "music_study":  {
+                        "time_cost":  60,
+                        "energy_cost":  15,
+                        "gold_cost":  0,
+                        "mood_impact":  0
+                    },
+    "art_study":  {
+                      "time_cost":  60,
+                      "energy_cost":  15,
+                      "gold_cost":  0,
+                      "mood_impact":  2
+                  },
+    "performance_study":  {
+                              "time_cost":  60,
+                              "energy_cost":  15,
+                              "gold_cost":  0,
+                              "mood_impact":  3
+                          },
+    "cook":  {
+                 "time_cost":  45,
+                 "energy_cost":  15,
+                 "gold_cost":  20,
+                 "mood_impact":  3
+             },
+    "interactive":  {
+                        "time_cost":  30,
+                        "energy_cost":  5,
+                        "gold_cost":  0,
+                        "mood_impact":  2
+                    }
 }

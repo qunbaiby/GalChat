@@ -20,8 +20,7 @@ const STAT_KEY_ALIASES := {
 	"knowledge": "学识",
 	"social": "表达",
 	"gold": "金币",
-	"mood": "心情",
-	"stress": "压力"
+	"mood": "心情"
 }
 const EVENT_CHANCE_BY_CATEGORY := {
 	"physical_health": 0.28,
@@ -30,58 +29,7 @@ const EVENT_CHANCE_BY_CATEGORY := {
 	"social_etiquette": 0.22,
 	"rest": 0.14
 }
-const LOCAL_EVENT_POOL := {
-	"physical_health": [
-		{
-			"event_title": "训练节奏变化",
-			"event_desc": "训练做到一半，老师临时要求你尝试更高强度的一组动作，大家都在看你的反应。",
-			"options": [
-				{"text": "咬牙跟上", "style": "冒险", "effects_hint": "偏向体能提升", "result_desc": "你硬撑着完成了整组动作，虽然有些吃力，但体能和反应都被逼了出来。", "attr_changes": {"体能": 6, "反应": 3, "压力": 2}},
-				{"text": "稳住节奏", "style": "稳妥", "effects_hint": "偏向稳定发挥", "result_desc": "你选择按自己的节奏完成训练，过程更稳定，身体负担也轻一些。", "attr_changes": {"体能": 3, "心情": 1, "压力": -1}}
-			]
-		}
-	],
-	"creation_design": [
-		{
-			"event_title": "灵感偏航",
-			"event_desc": "做到一半时，你忽然冒出一个完全不同的视觉方案，如果改动，今天的进度就得重来一部分。",
-			"options": [
-				{"text": "直接重做", "style": "冒险", "effects_hint": "偏向审美爆发", "result_desc": "你果断推翻原稿重新构图，虽然累，但最终画面的完成度明显更高。", "attr_changes": {"审美": 5, "感知": 3, "压力": 2}},
-				{"text": "局部微调", "style": "稳妥", "effects_hint": "偏向稳定推进", "result_desc": "你保留主体结构，只对关键细节做优化，整体推进更稳。", "attr_changes": {"学识": 2, "表达": 3, "压力": -1}}
-			]
-		}
-	],
-	"music_dance_performance": [
-		{
-			"event_title": "临场点名",
-			"event_desc": "老师突然点你单独示范一段关键动作，全班的目光一下集中到了你身上。",
-			"options": [
-				{"text": "主动上前", "style": "表现", "effects_hint": "偏向表达提升", "result_desc": "你主动站到最前面完成示范，虽然紧张，但台风和表现力都更亮眼了。", "attr_changes": {"表达": 5, "气质": 3, "压力": 2}},
-				{"text": "先观察下", "style": "保守", "effects_hint": "偏向减少失误", "result_desc": "你先看了别人一轮再调整动作，整体更稳，也避免了明显失误。", "attr_changes": {"反应": 2, "心情": 1, "压力": -1}}
-			]
-		}
-	],
-	"social_etiquette": [
-		{
-			"event_title": "即兴应对",
-			"event_desc": "课堂模拟环节里，对方忽然抛出计划外的问题，现场气氛一下变得微妙起来。",
-			"options": [
-				{"text": "顺势接话", "style": "社交", "effects_hint": "偏向礼仪表达", "result_desc": "你顺势把话题接住，还自然化解了尴尬，礼仪与表达都加分不少。", "attr_changes": {"礼仪": 4, "表达": 3, "心情": 1}},
-				{"text": "谨慎回应", "style": "稳妥", "effects_hint": "偏向稳定发挥", "result_desc": "你没有急着抢答，而是稳稳给出回应，虽然不算惊艳，但相当得体。", "attr_changes": {"礼仪": 3, "气质": 2, "压力": -1}}
-			]
-		}
-	],
-	"rest": [
-		{
-			"event_title": "短暂放空",
-			"event_desc": "难得的休息时间里，窗外的风和阳光都很舒服，你忽然有点想把手机也一起放下。",
-			"options": [
-				{"text": "彻底发呆", "style": "放松", "effects_hint": "偏向减压恢复", "result_desc": "你让自己彻底放空了一会儿，压力和疲惫都松下来不少。", "attr_changes": {"心情": 4, "压力": -4}},
-				{"text": "顺手记录", "style": "细腻", "effects_hint": "偏向感知审美", "result_desc": "你顺手把眼前的光影和情绪记了下来，心情变好，观察力也被调动起来。", "attr_changes": {"审美": 2, "感知": 2, "心情": 2}}
-			]
-		}
-	]
-}
+const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_schedule_events.json"
 
 @onready var top_image_rect: TextureRect = $InfoPanel/TopImageRect
 @onready var title_label: Label = $InfoPanel/TopImageRect/TitleContainer/TitleLabel
@@ -116,9 +64,6 @@ const LOCAL_EVENT_POOL := {
 @onready var footer_mood_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/MoodHBox/Val
 @onready var footer_mood_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/MoodHBox/Diff
 
-@onready var footer_stress_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/StressHBox/Val
-@onready var footer_stress_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/StressHBox/Diff
-
 @onready var footer_gold_val: Label = $ResultPopup/VBox/Footer/Margin/HBox/GoldHBox/Val
 @onready var footer_gold_diff: Label = $ResultPopup/VBox/Footer/Margin/HBox/GoldHBox/Diff
 
@@ -151,8 +96,10 @@ var _last_time_synced_course_index: int = -1
 var _weekly_key_events: Array[Dictionary] = []
 var _pending_event_attr_changes: Dictionary = {}
 var _schedule_start_day_offset: int = 0
+var _local_event_pool: Dictionary = {}
 
 func _ready() -> void:
+	_local_event_pool = _load_local_event_pool()
 	click_area.pressed.connect(_on_click_area_pressed)
 	close_button.pressed.connect(_on_end_button_pressed)
 	
@@ -163,6 +110,31 @@ func _ready() -> void:
 	# 初始状态
 	result_popup.hide()
 	close_button.hide()
+
+func _load_local_event_pool() -> Dictionary:
+	if not FileAccess.file_exists(LOCAL_EVENT_POOL_PATH):
+		push_warning("本地课程事件配置不存在: %s" % LOCAL_EVENT_POOL_PATH)
+		return {}
+
+	var file = FileAccess.open(LOCAL_EVENT_POOL_PATH, FileAccess.READ)
+	if file == null:
+		push_warning("无法打开本地课程事件配置: %s" % LOCAL_EVENT_POOL_PATH)
+		return {}
+
+	var content = file.get_as_text()
+	file.close()
+
+	var json = JSON.new()
+	if json.parse(content) != OK:
+		push_warning("本地课程事件配置解析失败: %s" % LOCAL_EVENT_POOL_PATH)
+		return {}
+
+	var data = json.get_data()
+	if not data is Dictionary:
+		push_warning("本地课程事件配置格式错误: %s" % LOCAL_EVENT_POOL_PATH)
+		return {}
+
+	return (data as Dictionary).duplicate(true)
 
 func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) -> void:
 	_courses_data = courses_data
@@ -293,6 +265,8 @@ func _build_bonus_summary(course_data: Dictionary) -> String:
 
 func _build_schedule_event_context(course_index: int) -> Dictionary:
 	var course_data = _courses_data[course_index]
+	var mood_value = int(_end_attrs.get("心情", _start_attrs.get("心情", 50)))
+	var mood_data = GameDataManager.mood_system.get_macro_mood(mood_value)
 	return {
 		"course_index": course_index,
 		"course_name": course_data.get("name", "未知课程"),
@@ -301,13 +275,14 @@ func _build_schedule_event_context(course_index: int) -> Dictionary:
 		"category_name": course_data.get("category_name", "综合课程"),
 		"day_label": _get_day_label(course_index),
 		"bonus_summary": _build_bonus_summary(course_data),
-		"mood": int(_end_attrs.get("心情", _start_attrs.get("心情", 50))),
-		"stress": int(_end_attrs.get("压力", _start_attrs.get("压力", 0)))
+		"mood": mood_value,
+		"mood_name": str(mood_data.get("name", "平静")),
+		"mood_tag": str(mood_data.get("id", "calm"))
 	}
 
 func _build_attr_changes_summary(raw_changes: Dictionary) -> String:
 	var normalized = _normalize_attr_changes(raw_changes)
-	var ordered_keys = ["体能", "反应", "学识", "表达", "气质", "礼仪", "审美", "感知", "心情", "压力", "金币"]
+	var ordered_keys = ["体能", "反应", "学识", "表达", "气质", "礼仪", "审美", "感知", "心情", "金币"]
 	var parts: Array[String] = []
 	for key in ordered_keys:
 		if not normalized.has(key):
@@ -415,15 +390,57 @@ func _render_weekly_event_summary() -> void:
 		card_vbox.add_child(detail)
 
 func _get_local_schedule_event(context: Dictionary) -> Dictionary:
+	if _local_event_pool.is_empty():
+		_local_event_pool = _load_local_event_pool()
 	var category_id = str(context.get("category_id", "rest"))
-	var pool = LOCAL_EVENT_POOL.get(category_id, LOCAL_EVENT_POOL.get("rest", []))
+	var pool = _local_event_pool.get(category_id, _local_event_pool.get("rest", []))
 	if pool.is_empty():
 		return {}
-	var idx = randi() % pool.size()
+	var mood_tag = str(context.get("mood_tag", "calm"))
+	var weighted_pool: Array[int] = []
+	for i in range(pool.size()):
+		var event_entry = pool[i] as Dictionary
+		var weight = 1
+		var tags = event_entry.get("mood_tags", [])
+		if tags is Array and not tags.is_empty():
+			weight = _get_mood_match_weight(mood_tag, tags)
+		for _j in range(weight):
+			weighted_pool.append(i)
+	var idx = weighted_pool[randi() % weighted_pool.size()] if not weighted_pool.is_empty() else randi() % pool.size()
 	var event_data = (pool[idx] as Dictionary).duplicate(true)
 	if not event_data.has("event_title"):
 		event_data["event_title"] = "%s事件" % str(context.get("category_name", "课程"))
 	return event_data
+
+func _get_mood_match_weight(current_mood: String, tags: Array) -> int:
+	var best_weight := 1
+	for tag in tags:
+		var target_mood = str(tag)
+		var distance = _get_mood_distance(current_mood, target_mood)
+		var weight = 1
+		match distance:
+			0:
+				weight = 8
+			1:
+				weight = 4
+			2:
+				weight = 2
+			_:
+				weight = 1
+		best_weight = max(best_weight, weight)
+	return best_weight
+
+func _get_mood_distance(from_mood: String, to_mood: String) -> int:
+	var mood_order := {
+		"broken": 0,
+		"low": 1,
+		"calm": 2,
+		"pleasant": 3,
+		"ecstatic": 4
+	}
+	var from_index = int(mood_order.get(from_mood, 2))
+	var to_index = int(mood_order.get(to_mood, 2))
+	return absi(from_index - to_index)
 
 func _normalize_attr_changes(raw_changes: Dictionary) -> Dictionary:
 	var normalized := {}
@@ -440,7 +457,6 @@ func _apply_attr_changes_to_target(raw_changes: Dictionary, target_attrs: Dictio
 			target_attrs[attr] += val
 		else:
 			target_attrs[attr] = _start_attrs.get(attr, 0) + val
-	target_attrs["压力"] = clamp(int(target_attrs.get("压力", 0)), 0, GameDataManager.profile.max_stress)
 	target_attrs["心情"] = clamp(int(target_attrs.get("心情", 0)), 0, 100)
 	target_attrs["金币"] = max(0, int(target_attrs.get("金币", 0)))
 
@@ -491,11 +507,12 @@ func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) 
 		return false
 	var category_id = str(course_data.get("category_id", "rest"))
 	var chance = float(EVENT_CHANCE_BY_CATEGORY.get(category_id, 0.2))
-	var stress_bonus = max(0.0, float(_end_attrs.get("压力", 0) - 50) * 0.002)
+	var mood_value = float(_end_attrs.get("心情", 50))
+	var low_mood_bonus = max(0.0, (50.0 - mood_value) * 0.002)
 	var course_repeat_penalty = 0.0
 	if course_index > 0 and _courses_data[course_index - 1].get("id", "") == course_data.get("id", ""):
 		course_repeat_penalty = 0.03
-	return randf() < clamp(chance + stress_bonus - course_repeat_penalty, 0.05, 0.45)
+	return randf() < clamp(chance + low_mood_bonus - course_repeat_penalty, 0.05, 0.45)
 
 func _process_course_at_index(course_index: int) -> void:
 	if course_index < 0 or course_index >= _courses_data.size():
@@ -943,13 +960,6 @@ func _show_result_popup() -> void:
 	footer_mood_diff.text = ("+%d" % diff_mood) if diff_mood >= 0 else str(diff_mood)
 	footer_mood_diff.add_theme_color_override("font_color", Color(0.26, 0.71, 0.97) if diff_mood >= 0 else Color(0.9, 0.4, 0.4))
 	
-	var start_stress = _start_attrs.get("压力", GameDataManager.profile.stress)
-	var end_stress = _end_attrs.get("压力", start_stress)
-	footer_stress_val.text = str(end_stress)
-	var diff_stress = end_stress - start_stress
-	footer_stress_diff.text = ("+%d" % diff_stress) if diff_stress >= 0 else str(diff_stress)
-	footer_stress_diff.add_theme_color_override("font_color", Color(0.9, 0.4, 0.4) if diff_stress > 0 else Color(0.26, 0.71, 0.97))
-	
 	var start_gold = _start_attrs.get("金币", GameDataManager.profile.gold)
 	var end_gold = _end_attrs.get("金币", start_gold)
 	footer_gold_val.text = str(end_gold)
@@ -1052,7 +1062,6 @@ func _on_end_button_pressed() -> void:
 	profile.stat_aesthetics = _end_attrs.get("审美", profile.stat_aesthetics)
 	profile.stat_perception = _end_attrs.get("感知", profile.stat_perception)
 	profile.gold = max(0, _end_attrs.get("金币", profile.gold))
-	profile.stress = clamp(_end_attrs.get("压力", profile.stress), 0, profile.max_stress)
 	profile.mood_value = clamp(_end_attrs.get("心情", profile.mood_value), 0, 100)
 
 	profile.save_profile()
