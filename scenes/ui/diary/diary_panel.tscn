@@ -1,6 +1,23 @@
-[gd_scene load_steps=5 format=3 uid="uid://cy8xxa3qqt4m1"]
+[gd_scene load_steps=7 format=3 uid="uid://cy8xxa3qqt4m1"]
 
 [ext_resource type="Script" uid="uid://bscfneq0ojqtm" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
+
+[sub_resource type="Shader" id="Shader_Blur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.6;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_Blur"]
+shader = SubResource("Shader_Blur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DiaryBook"]
 bg_color = Color(0.985, 0.982, 0.972, 1)
@@ -41,13 +58,13 @@ grow_vertical = 2
 script = ExtResource("1_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_Blur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -58,20 +75,20 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="DiaryBook" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(900, 550)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_DiaryBook")
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook"]
 layout_mode = 2
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 30
-theme_override_constants/margin_bottom = 30
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 32
 
 [node name="HBox" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 26
 
 [node name="LeftPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox"]
 layout_mode = 2
@@ -274,5 +291,3 @@ offset_bottom = 80.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 28
 text = "X"
-
-

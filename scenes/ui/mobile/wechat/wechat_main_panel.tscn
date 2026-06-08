@@ -159,7 +159,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="WindowPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(938, 604)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Window")
 
@@ -168,7 +168,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="TopBar" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 
@@ -205,7 +205,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="NavPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox"]
-custom_minimum_size = Vector2(70, 562)
+custom_minimum_size = Vector2(74, 618)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_NavPanel")
 
@@ -301,7 +301,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="ListPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox"]
-custom_minimum_size = Vector2(268, 562)
+custom_minimum_size = Vector2(286, 618)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=10 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://c63bpyvfuad8k" path="res://assets/images/backgrounds/black.jpg" id="2_2exn1"]
@@ -7,18 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="13_dialogue"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToolButton"]
-bg_color = Color(0.98, 0.985, 0.99, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
 content_margin_left = 20.0

@@ -133,12 +133,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(1080, 700)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
-custom_minimum_size = Vector2(1080, 700)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_constants/separation = 0
 
@@ -199,7 +199,7 @@ theme_override_constants/margin_bottom = 24
 
 [node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="SummaryCard" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 layout_mode = 2

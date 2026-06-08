@@ -154,32 +154,32 @@ func _apply_layout(count: int) -> void:
     
     if count == 1:
         # 单张图：居中放大，轻微倾斜
-        polaroid_1.position = Vector2(50, 60)
-        polaroid_1.size = Vector2(320, 380)
+        polaroid_1.position = Vector2(58, 52)
+        polaroid_1.size = Vector2(360, 430)
         polaroid_1.rotation = -0.05 + rand_offset
         
     elif count == 2:
         # 两张图：上下交错摆放
-        polaroid_1.position = Vector2(40, 30)
-        polaroid_1.size = Vector2(240, 260)
+        polaroid_1.position = Vector2(46, 28)
+        polaroid_1.size = Vector2(270, 300)
         polaroid_1.rotation = -0.1 + rand_offset
         
-        polaroid_2.position = Vector2(140, 230)
-        polaroid_2.size = Vector2(250, 270)
+        polaroid_2.position = Vector2(182, 252)
+        polaroid_2.size = Vector2(280, 308)
         polaroid_2.rotation = 0.08 + rand_offset
         
     elif count == 3:
         # 三张图：原定的左上、右上、左下交错布局
-        polaroid_1.position = Vector2(10, 10)
-        polaroid_1.size = Vector2(200, 190)
+        polaroid_1.position = Vector2(18, 18)
+        polaroid_1.size = Vector2(220, 208)
         polaroid_1.rotation = -0.15 + rand_offset
         
-        polaroid_2.position = Vector2(190, 80)
-        polaroid_2.size = Vector2(200, 190)
+        polaroid_2.position = Vector2(228, 92)
+        polaroid_2.size = Vector2(222, 210)
         polaroid_2.rotation = 0.08 + rand_offset
         
-        polaroid_3.position = Vector2(50, 230)
-        polaroid_3.size = Vector2(200, 190)
+        polaroid_3.position = Vector2(72, 262)
+        polaroid_3.size = Vector2(220, 208)
         polaroid_3.rotation = -0.05 + rand_offset
 
 func _on_polaroid_clicked(event: InputEvent, img_node: TextureRect) -> void:

@@ -763,12 +763,14 @@ offset_right = -3.0
 offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_constants/separation = 10
 alignment = 1
 
 [node name="HeartWrap" type="Control" parent="UIPanel/AffectionButton/ContentHBox"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+mouse_filter = 2
 
 [node name="HeartIcon" type="TextureRect" parent="UIPanel/AffectionButton/ContentHBox/HeartWrap"]
 custom_minimum_size = Vector2(40, 40)
@@ -809,6 +811,7 @@ vertical_alignment = 1
 [node name="StageVBox" type="VBoxContainer" parent="UIPanel/AffectionButton/ContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 alignment = 1
 
 [node name="StageTitleLabel" type="Label" parent="UIPanel/AffectionButton/ContentHBox/StageVBox"]

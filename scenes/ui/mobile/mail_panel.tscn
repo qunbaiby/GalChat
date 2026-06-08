@@ -111,12 +111,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(1120, 700)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
-custom_minimum_size = Vector2(1120, 700)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_constants/separation = 0
 
@@ -177,7 +177,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 18
 
 [node name="LeftPane" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
-custom_minimum_size = Vector2(392, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPane")
@@ -275,7 +275,7 @@ text = "暂无邮件内容。"
 autowrap_mode = 3
 
 [node name="AttachmentPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
-custom_minimum_size = Vector2(0, 162)
+custom_minimum_size = Vector2(0, 148)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AttachmentPanel")
 

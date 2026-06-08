@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene load_steps=9 format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
@@ -27,20 +27,6 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 shadow_color = Color(0.04, 0.1, 0.12, 0.14)
 shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoCard"]
-bg_color = Color(0.08, 0.15, 0.18, 0.58)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.58, 0.86, 0.83, 0.34)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
 content_margin_left = 22.0
@@ -179,22 +165,6 @@ theme_override_font_sizes/normal_font_size = 22
 text = "……"
 fit_content = true
 scroll_active = false
-
-[node name="InfoCard" type="PanelContainer" parent="InteractionMenu"]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -418.0
-offset_top = -274.0
-offset_right = -35.0
-offset_bottom = 170.0
-grow_horizontal = 0
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_InfoCard")
 
 [node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu"]
 layout_mode = 1

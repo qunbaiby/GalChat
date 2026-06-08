@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://wxfo2ad86y3e"]
+[gd_scene load_steps=9 format=3 uid="uid://wxfo2ad86y3e"]
 
 [ext_resource type="Script" uid="uid://d2g72uekyv7s" path="res://scripts/ui/story/player_info_popup.gd" id="1_x0y1z"]
 
@@ -118,9 +118,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -240.0
+offset_left = -280.0
 offset_top = -348.0
-offset_right = 240.0
+offset_right = 280.0
 offset_bottom = 348.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -143,6 +143,7 @@ layout_mode = 2
 theme_override_constants/separation = 14
 
 [node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox"]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderCard")
 
@@ -161,14 +162,14 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 24
-text = "建立你的档案"
+text = "建立档案"
 horizontal_alignment = 1
 
 [node name="HeaderDesc" type="Label" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin/HeaderVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
 theme_override_font_sizes/font_size = 13
-text = "填写基础信息后即可开启陪伴，称呼会在后续剧情节点中单独确认。"
+text = "填写基础信息后即可开启陪伴"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -185,18 +186,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Button")
 
 [node name="AvatarFrame" type="Control" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard"]
 clip_children = 1
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -32.0
-offset_top = -32.0
-offset_right = 32.0
-offset_bottom = 32.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 
 [node name="AvatarPreview" type="TextureRect" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard/AvatarFrame"]
 unique_name_in_owner = true
@@ -254,7 +244,7 @@ alignment = 2
 layout_mode = 2
 
 [node name="GenderField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
@@ -274,14 +264,14 @@ theme_override_constants/separation = 10
 
 [node name="MaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "男"
 
 [node name="FemaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "女"
@@ -290,7 +280,7 @@ text = "女"
 layout_mode = 2
 
 [node name="BirthdayField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 78)
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -312,11 +302,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Field")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Field")
 theme_override_colors/font_color = Color(0.43, 0.43, 0.43, 1)
 theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Field")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Field")
 text = "2003-01-10  >"
 alignment = 2
 
@@ -324,36 +314,36 @@ alignment = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="YearCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(150, 42)
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Field")
 
 [node name="Margin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
+theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 6
+theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="YearMinusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 text = "-"
 
 [node name="YearValueLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin/HBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
@@ -364,43 +354,42 @@ vertical_alignment = 1
 
 [node name="YearPlusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 text = "+"
 
 [node name="MonthCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(114, 42)
 layout_mode = 2
-size_flags_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Field")
 
 [node name="Margin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
+theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 6
+theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="MonthMinusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 text = "-"
 
 [node name="MonthValueLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin/HBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 0)
 layout_mode = 2
-custom_minimum_size = Vector2(58, 0)
 theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
 theme_override_font_sizes/font_size = 15
 text = "01月"
@@ -409,43 +398,42 @@ vertical_alignment = 1
 
 [node name="MonthPlusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 text = "+"
 
 [node name="DayCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(114, 42)
 layout_mode = 2
-size_flags_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Field")
 
 [node name="Margin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
+theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 6
+theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="DayMinusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 text = "-"
 
 [node name="DayValueLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin/HBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 0)
 layout_mode = 2
-custom_minimum_size = Vector2(58, 0)
 theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
 theme_override_font_sizes/font_size = 15
 text = "01日"
@@ -454,11 +442,11 @@ vertical_alignment = 1
 
 [node name="DayPlusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
 text = "+"
 
 [node name="BirthdayDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
@@ -486,11 +474,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Field")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Field")
 theme_override_colors/font_color = Color(0.43, 0.43, 0.43, 1)
 theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Field")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Field")
 text = "未选择  >"
 alignment = 2
 
@@ -510,13 +498,6 @@ theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 11
 text = "未知星座"
 horizontal_alignment = 2
-
-[node name="TipsLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
-theme_override_font_sizes/font_size = 11
-text = "生日默认以单行资料值展示，点击后可展开调整年月日。"
-autowrap_mode = 3
 
 [node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox"]
 unique_name_in_owner = true

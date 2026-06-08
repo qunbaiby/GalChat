@@ -104,7 +104,6 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [node name="TutorialPanel" type="Control"]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -134,12 +133,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(1120, 700)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
-custom_minimum_size = Vector2(1120, 700)
+custom_minimum_size = Vector2(1040, 660)
 layout_mode = 2
 theme_override_constants/separation = 0
 
@@ -192,7 +191,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 18
 
 [node name="LeftSidebar" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
-custom_minimum_size = Vector2(310, 0)
+custom_minimum_size = Vector2(286, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPanel")
@@ -217,7 +216,6 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 12
-alignment = 1
 
 [node name="SectionVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox"]
 layout_mode = 2
@@ -229,7 +227,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.38, 0.42, 1)
 theme_override_font_sizes/font_size = 16
-text = "战斗"
+text = "行程安排"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox/SectionVBox"]
 layout_mode = 2
@@ -248,7 +246,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 16
 
 [node name="PreviewPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent"]
-custom_minimum_size = Vector2(0, 392)
+custom_minimum_size = Vector2(0, 350)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Preview")
@@ -265,6 +263,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Stage")
+
+[node name="PreviewImage" type="TextureRect" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="StageGrid" type="ColorRect" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
 layout_mode = 2

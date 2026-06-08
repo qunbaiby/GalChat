@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://ctejn75g18lnm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Item"]
 bg_color = Color(0.992, 0.998, 0.999, 0.98)
@@ -25,6 +25,8 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="ArchiveMemoryItem" type="PanelContainer"]
+offset_right = 541.0
+offset_bottom = 69.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Item")
 
 [node name="Margin" type="MarginContainer" parent="."]
@@ -64,10 +66,11 @@ theme_override_constants/separation = 6
 [node name="ContentLabel" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/default_color = Color(0.20511743, 0.20511743, 0.20511743, 1)
 bbcode_enabled = true
+text = "记忆内容"
 fit_content = true
 scroll_active = false
-text = "记忆内容"
 
 [node name="MetaLabel" type="Label" parent="Margin/MainHBox/ContentVBox"]
 visible = false

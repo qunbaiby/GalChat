@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://b66u3jjc01x4b"]
+[gd_scene load_steps=14 format=3 uid="uid://b66u3jjc01x4b"]
 
 [ext_resource type="Script" uid="uid://bdcvogjxdy51q" path="res://scripts/ui/mobile/chat/mobile_chat_panel.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://dj142v0c1m65o" path="res://assets/themes/mobile_chat_theme.tres" id="2_theme"]
@@ -8,8 +8,25 @@
 [ext_resource type="Texture2D" uid="uid://blts2rskaripw" path="res://assets/images/icons/ui/stats/social.svg" id="7_voice"]
 [ext_resource type="Texture2D" uid="uid://cvjpyvtuu6t2j" path="res://assets/images/icons/ui/stats/red_packet.svg" id="8_red_packet"]
 
+[sub_resource type="Shader" id="Shader_Blur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.6;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_Blur"]
+shader = SubResource("Shader_Blur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PhoneBg"]
-bg_color = Color(0.963, 0.979, 0.987, 0.98)
+bg_color = Color(0.963, 0.979, 0.987, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -70,6 +87,7 @@ theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Panel" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_Blur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

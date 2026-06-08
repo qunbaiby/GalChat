@@ -25,10 +25,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.56, 0.84, 0.81, 1)
-corner_radius_top_left = 50
-corner_radius_top_right = 50
-corner_radius_bottom_right = 50
-corner_radius_bottom_left = 50
+corner_radius_top_left = 90
+corner_radius_top_right = 90
+corner_radius_bottom_right = 90
+corner_radius_bottom_left = 90
 shadow_color = Color(0.21, 0.55, 0.52, 0.12)
 shadow_size = 12
 
@@ -85,9 +85,9 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="AffectionPanel" type="PanelContainer"]
-custom_minimum_size = Vector2(750, 438)
-offset_right = 720.0
-offset_bottom = 454.0
+custom_minimum_size = Vector2(720, 450)
+offset_right = 650.0
+offset_bottom = 450.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 script = ExtResource("1_script")
 
@@ -157,7 +157,7 @@ theme_override_constants/separation = 18
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.82
-theme_override_constants/separation = 14
+theme_override_constants/separation = 25
 
 [node name="HeroSection" type="VBoxContainer" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn"]
 layout_mode = 2
@@ -165,7 +165,7 @@ theme_override_constants/separation = 10
 alignment = 1
 
 [node name="HeartCard" type="PanelContainer" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection"]
-custom_minimum_size = Vector2(0, 156)
+custom_minimum_size = Vector2(150, 150)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeartCard")
@@ -179,7 +179,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_HeartInner")
 layout_mode = 2
 
 [node name="HeartIcon" type="TextureRect" parent="RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/HeartWrap"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(95, 95)
 layout_mode = 2
 texture = ExtResource("2_love_icon")
 expand_mode = 1
