@@ -1,0 +1,184 @@
+[gd_scene load_steps=7 format=3 uid="uid://0ca65qb3dtnr"]
+
+[ext_resource type="Script" uid="uid://d254ufur2bp43" path="res://scripts/ui/story/player_call_name_popup.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.18, 0.28, 0.33, 0.18)
+shadow_size = 24
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderCard"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.62)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Input"]
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.89, 0.92, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HintCard"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="PlayerCallNamePopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.07, 0.06, 0.16)
+
+[node name="PopupPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -238.0
+offset_top = -156.0
+offset_right = 238.0
+offset_bottom = 156.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="PopupPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 22
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderCard")
+
+[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 23
+text = "想让 Luna 如何称呼你？"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "这个称呼会用于后续剧情与日常对话，也会写入 Luna 的核心记忆。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="TitleInput" type="LineEdit" parent="PopupPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_Input")
+theme_override_styles/focus = SubResource("StyleBoxFlat_Input")
+placeholder_text = "例如 老师、哥哥、小名"
+alignment = 1
+
+[node name="HintCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_HintCard")
+
+[node name="HintMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="HintLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard/HintMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.4, 0.43, 1)
+theme_override_font_sizes/font_size = 13
+text = "建议填写平时最自然、最想被 Luna 使用的称呼。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
+text = "确定"

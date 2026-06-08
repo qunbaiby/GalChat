@@ -7,43 +7,42 @@ content_margin_left = 18.0
 content_margin_top = 14.0
 content_margin_right = 18.0
 content_margin_bottom = 14.0
-bg_color = Color(1, 1, 1, 0.5137255)
+bg_color = Color(0.039215688, 0.039215688, 0.047058824, 0.47058824)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.36, 0.45, 0.95)
+border_color = Color(0.24, 0.27, 0.34, 0.95)
 corner_radius_top_left = 26
 corner_radius_top_right = 26
 corner_radius_bottom_right = 26
 corner_radius_bottom_left = 26
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 8
-shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt_hover"]
 content_margin_left = 18.0
 content_margin_top = 14.0
 content_margin_right = 18.0
 content_margin_bottom = 14.0
-bg_color = Color(1, 1, 1, 0.5137255)
+bg_color = Color(0.078431375, 0.078431375, 0.101960786, 0.47058824)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.5, 0.64, 0.86, 0.95)
+border_color = Color(0.36, 0.41, 0.5, 1)
 corner_radius_top_left = 26
 corner_radius_top_right = 26
 corner_radius_bottom_right = 26
 corner_radius_bottom_left = 26
-shadow_color = Color(0.16, 0.28, 0.52, 0.24)
-shadow_size = 10
-shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qopt_focus"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qopt_icon"]
-bg_color = Color(0.09, 0.12, 0.18, 0.92)
+bg_color = Color(0.09, 0.09, 0.11, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.28, 0.34, 0.9)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
@@ -90,7 +89,7 @@ stretch_mode = 5
 custom_minimum_size = Vector2(1, 52)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.27, 0.31, 0.38, 0.9)
+color = Color(0.24, 0.26, 0.31, 0.92)
 
 [node name="TextVBox" type="VBoxContainer" parent="HBox"]
 custom_minimum_size = Vector2(0, 50)
@@ -103,7 +102,7 @@ mouse_filter = 2
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.97, 0.98, 1, 1)
+theme_override_colors/font_color = Color(0.94, 0.95, 0.98, 1)
 theme_override_font_sizes/font_size = 18
 text = "选项正文"
 vertical_alignment = 1

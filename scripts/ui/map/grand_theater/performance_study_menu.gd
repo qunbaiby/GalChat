@@ -279,6 +279,6 @@ func _on_finish_pressed():
 	while parent_scene and not parent_scene.has_method("_on_menu_action_pressed"):
 		parent_scene = parent_scene.get_parent()
 	if parent_scene and parent_scene.has_method("_show_action_bubble_from_ai"):
-		parent_scene._show_action_bubble_from_ai("study")
+		parent_scene._show_action_bubble_from_ai("study", _ai_result_text)
 		
 	tween.tween_callback(queue_free)

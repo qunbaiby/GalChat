@@ -24,7 +24,6 @@ signal back_requested
 @onready var filter_scroll: ScrollContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll
 @onready var filter_bar: HBoxContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar
 @onready var grid: GridContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/Scroll/Grid
-@onready var empty_label: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyLabel
 @onready var empty_state_card: PanelContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyStateCard
 @onready var empty_state_title: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateTitle
 @onready var empty_state_desc: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
@@ -143,13 +142,10 @@ func _load_photos() -> void:
 	_update_album_summary()
 	_update_filter_buttons()
 	if _album_records.is_empty():
-		empty_label.text = "这个分类里还没有内容。" if _current_filter != CATEGORY_ALL else "相册空空如也~"
 		empty_state_title.text = "这个分类还没有内容" if _current_filter != CATEGORY_ALL else "相册还在等待第一张纪念"
 		empty_state_desc.text = _get_empty_state_desc()
-		empty_label.show()
 		empty_state_card.show()
 		return
-	empty_label.hide()
 	empty_state_card.hide()
 	_render_photos()
 

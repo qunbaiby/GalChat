@@ -87,7 +87,7 @@ func register_photo(photo_path: String, source_type: String, extra: Dictionary =
 
 func get_photo_dir() -> String:
 	var char_id = _get_current_char_id()
-	return "user://saves/%s/%s" % [char_id, PHOTO_SUBDIR]
+	return GameDataManager.get_character_save_dir(char_id).path_join(PHOTO_SUBDIR)
 
 func get_metadata_file() -> String:
 	return get_photo_dir().path_join(METADATA_FILE_NAME)

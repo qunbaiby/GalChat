@@ -35,7 +35,7 @@ func get_save_path(char_id: String = "") -> String:
             final_char_id = GameDataManager.config.current_character_id
         else:
             final_char_id = "default"
-    return "user://saves/%s/story_time_save.json" % final_char_id
+    return GameDataManager.get_character_save_path("story_time_save.json", final_char_id)
 
 func reload_for_current_character(char_id: String = "") -> void:
     load_data(char_id)
@@ -79,11 +79,7 @@ func save_data() -> void:
     var char_id = "default"
     if GameDataManager.config and GameDataManager.config.current_character_id != "":
         char_id = GameDataManager.config.current_character_id
-    var dir_path = "user://saves/%s" % char_id
-    if not DirAccess.dir_exists_absolute(dir_path):
-        DirAccess.make_dir_recursive_absolute(dir_path)
-        
-    var path = dir_path + "/story_time_save.json"
+    var path = GameDataManager.get_character_save_path("story_time_save.json", char_id)
     var file = FileAccess.open(path, FileAccess.WRITE)
     if file:
         file.store_string(JSON.stringify(data, "\t"))

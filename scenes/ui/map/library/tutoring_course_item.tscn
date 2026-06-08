@@ -3,28 +3,28 @@
 [ext_resource type="Script" path="res://scripts/ui/map/library/tutoring_course_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.96)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.992, 0.998, 0.999, 0.96)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
+border_color = Color(0.8, 0.9, 0.91, 0.84)
+shadow_color = Color(0.06, 0.12, 0.15, 0.1)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBG"]
-bg_color = Color(0.92, 0.94, 0.97, 1)
+bg_color = Color(0.86, 0.93, 0.94, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.44, 0.77, 0.73, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -67,7 +67,7 @@ theme_override_constants/separation = 6
 [node name="NameLabel" type="Label" parent="Margin/VBox/HeaderHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 13
 text = "课程名称"
 vertical_alignment = 1
@@ -75,7 +75,7 @@ clip_text = true
 
 [node name="IncrementLabel" type="Label" parent="Margin/VBox/HeaderHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_colors/font_color = Color(0.44, 0.77, 0.73, 1)
 theme_override_font_sizes/font_size = 11
 text = "+10/次"
 vertical_alignment = 1
@@ -86,7 +86,7 @@ mouse_filter = 2
 
 [node name="EnergyCostLabel" type="Label" parent="Margin/VBox/CostHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.49, 0.55, 1)
+theme_override_colors/font_color = Color(0.38, 0.49, 0.53, 1)
 theme_override_font_sizes/font_size = 12
 text = "行动力 -5"
 vertical_alignment = 1
@@ -103,7 +103,7 @@ mouse_filter = 2
 [node name="ProgressLabel" type="Label" parent="Margin/VBox/ProgressContainer/ProgressHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.52, 0.56, 0.62, 1)
+theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
 theme_override_font_sizes/font_size = 11
 text = "0 / 100"
 vertical_alignment = 1

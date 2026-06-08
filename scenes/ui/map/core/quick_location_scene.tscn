@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene load_steps=10 format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
@@ -7,42 +7,58 @@
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="top_status_panel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapInfo"]
-bg_color = Color(0, 0, 0, 0.30980393)
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 10
+bg_color = Color(0.06, 0.11, 0.13, 0.5)
+border_width_top = 1
+border_color = Color(0.58, 0.86, 0.83, 0.28)
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 18
 shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="BubbleStyle"]
-bg_color = Color(1, 0.972549, 0.929412, 0.96)
+bg_color = Color(0.982, 0.996, 0.996, 0.96)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.882353, 0.760784, 0.643137, 0.95)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 6
+border_color = Color(0.62, 0.88, 0.85, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.04, 0.1, 0.12, 0.14)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoCard"]
+bg_color = Color(0.08, 0.15, 0.18, 0.58)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.58, 0.86, 0.83, 0.34)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
 content_margin_left = 22.0
 content_margin_top = 15.0
 content_margin_right = 22.0
 content_margin_bottom = 15.0
-bg_color = Color(0.98, 0.98, 0.98, 1)
+bg_color = Color(0.985, 0.995, 0.998, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.85, 0.85, 0.85, 0.5)
+border_color = Color(0.76, 0.88, 0.9, 0.88)
 corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
-shadow_color = Color(0, 0, 0, 0.05)
-shadow_size = 4
+shadow_color = Color(0.04, 0.1, 0.12, 0.12)
+shadow_size = 8
 shadow_offset = Vector2(0, 2)
 
 [node name="QuickLocationScene" type="Control"]
@@ -64,6 +80,15 @@ grow_vertical = 2
 texture = ExtResource("2_3k4mg")
 expand_mode = 1
 stretch_mode = 6
+
+[node name="BackgroundShade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.08, 0.1, 0.18)
 
 [node name="MapInfoPanel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -149,11 +174,27 @@ theme_override_constants/margin_bottom = 14
 [node name="BubbleText" type="RichTextLabel" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble/BubbleMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/default_color = Color(0.22, 0.18, 0.16, 1)
+theme_override_colors/default_color = Color(0.18, 0.28, 0.31, 1)
 theme_override_font_sizes/normal_font_size = 22
 text = "……"
 fit_content = true
 scroll_active = false
+
+[node name="InfoCard" type="PanelContainer" parent="InteractionMenu"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -418.0
+offset_top = -274.0
+offset_right = -35.0
+offset_bottom = 170.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoCard")
 
 [node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu"]
 layout_mode = 1
@@ -178,7 +219,8 @@ alignment = 1
 
 [node name="NameLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
 layout_mode = 2
-theme_override_colors/font_shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+theme_override_colors/font_color = Color(0.98, 0.995, 0.995, 1)
+theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.3)
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 40
 text = "名字"
@@ -198,7 +240,7 @@ color = Color(0.8, 0.8, 0.8, 0.6)
 
 [node name="StageLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_colors/font_color = Color(0.78, 0.94, 0.92, 1)
 theme_override_font_sizes/font_size = 25
 text = "陌生人"
 horizontal_alignment = 1
@@ -212,8 +254,8 @@ color = Color(0.8, 0.8, 0.8, 0.6)
 
 [node name="HeartsLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.9, 1)
-theme_override_colors/font_shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+theme_override_colors/font_color = Color(0.92, 0.73, 0.92, 1)
+theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.3)
 theme_override_font_sizes/font_size = 25
 text = "♡♡♡♡♡♡♡♡♡♡"
 horizontal_alignment = 1
@@ -234,7 +276,7 @@ offset_left = 41.0
 offset_top = 24.0
 offset_right = 131.0
 offset_bottom = 64.0
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
@@ -245,7 +287,7 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -603.0
+offset_left = -285.0
 offset_top = 14.0
 offset_right = -19.0
 offset_bottom = 58.0

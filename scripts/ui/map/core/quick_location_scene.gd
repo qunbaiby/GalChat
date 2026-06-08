@@ -511,6 +511,7 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 	var interactions = npc_data.get("interactions", [])
 	if interactions.is_empty():
 		interactions = [{"id": "leave", "label": "离开"}]
+	interactions = _inject_placeholder_interactions(interactions)
 
 	for action in interactions:
 		var action_id = str(action.get("id", "")).strip_edges()
@@ -776,6 +777,7 @@ func _on_menu_action_pressed(action_id: String):
 			)
 		_:
 			print("快捷模式 - 未知操作: ", action_id)
+			_show_action_bubble_from_ai(action_id)
 
 func _on_back_pressed():
 	_hide_npc_bubble(true)
@@ -853,6 +855,72 @@ func _pick_action_bubble_line(npc_id: String, npc_name: String, npc_data: Dictio
 	if action_id == "study" and ("老师" in identity_text or "学长" in identity_text):
 		return _pick_line_from_candidates(["开始吧，先从你最没把握的部分讲。", "把注意力收回来，我们现在开始。"])
 	return "%s，准备好了就开始吧。".replace("%s", npc_name)
+
+func _inject_placeholder_interactions(interactions: Array) -> Array:
+	var result: Array = []
+	for action in interactions:
+		result.append(action)
+		if not (action is Dictionary):
+			continue
+		var action_id := str(action.get("id", "")).strip_edges()
+		if location_id == "cafe" and current_interacting_npc_id == "ya" and action_id == "order":
+			result.append({"id": "work", "label": "打工"})
+		elif location_id == "library" and current_interacting_npc_id == "jing" and action_id == "study":
+			result.append({"id": "self_study", "label": "自习"})
+	return result
+
+func _show_action_bubble_from_ai(action_id: String, review_text: String = "") -> void:
+	if current_interacting_npc_id == "":
+		return
+	var npc_data := MapDataManager.get_npc_data(current_interacting_npc_id)
+	var npc_name := str(menu_name_label.text).strip_edges()
+	if npc_name == "":
+		npc_name = str(npc_data.get("name", current_interacting_npc_id))
+	var final_text := review_text.strip_edges()
+	if final_text == "":
+		final_text = _build_action_result_bubble_text(current_interacting_npc_id, npc_name, npc_data, action_id)
+	if final_text == "":
+		return
+	final_text = _normalize_action_result_bubble_text(final_text)
+	_remember_bubble_line(final_text)
+	_show_npc_bubble(final_text)
+
+func _build_action_result_bubble_text(npc_id: String, npc_name: String, npc_data: Dictionary, action_id: String) -> String:
+	var identity_text := str(npc_data.get("identity_background", "")).strip_edges()
+	match action_id:
+		"order":
+			if npc_id == "ya":
+				return _pick_line_from_candidates(["味道合适的话，下次我再给你换个新配方。", "先尝尝看，今天这杯应该挺适合你。"])
+		"study":
+			if "老师" in identity_text or "学长" in identity_text:
+				return _pick_line_from_candidates(["今天状态不错，回去记得把刚才的问题再顺一遍。", "先消化今天讲的内容，下次我再继续往下压。"])
+		"tutoring":
+			return _pick_line_from_candidates(["今天补得差不多了，回去把错的部分再看一遍。", "这轮指导先到这里，剩下的你自己再巩固。"])
+		"work":
+			return "打工功能暂未开放，之后再来安排。"
+		"self_study":
+			return "自习功能暂未开放，先继续当前安排吧。"
+	return "%s，今天就先到这里。".replace("%s", npc_name)
+
+func _normalize_action_result_bubble_text(text: String) -> String:
+	var normalized := _sanitize_result_bubble_text(text)
+	if normalized.begins_with("\"") or normalized.begins_with("“"):
+		normalized = normalized.substr(1)
+	if normalized.ends_with("\"") or normalized.ends_with("”"):
+		normalized = normalized.substr(0, normalized.length() - 1)
+	return normalized.strip_edges()
+
+func _sanitize_result_bubble_text(text: String) -> String:
+	var cleaned := text.strip_edges()
+	var patterns := [
+		"\\([^()]*\\)",
+		"（[^（）]*）"
+	]
+	for pattern in patterns:
+		var regex := RegEx.new()
+		if regex.compile(pattern) == OK:
+			cleaned = regex.sub(cleaned, "", true)
+	return cleaned.strip_edges()
 
 func _show_npc_bubble(text: String) -> void:
 	if not bubble_root or not speech_bubble or not bubble_text_label:

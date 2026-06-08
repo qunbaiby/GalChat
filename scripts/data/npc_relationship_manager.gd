@@ -14,10 +14,7 @@ func get_save_path() -> String:
     var char_id = "default"
     if GameDataManager.config and GameDataManager.config.current_character_id != "":
         char_id = GameDataManager.config.current_character_id
-    var dir_path = "user://saves/%s" % char_id
-    if not DirAccess.dir_exists_absolute(dir_path):
-        DirAccess.make_dir_recursive_absolute(dir_path)
-    return "%s/npc_relationships.json" % dir_path
+    return GameDataManager.get_character_save_path("npc_relationships.json", char_id)
 
 func load_relationships() -> void:
     relationships.clear()

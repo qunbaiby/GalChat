@@ -24,7 +24,6 @@ const TimelineItemScene = preload("res://scenes/ui/mobile/between_timeline_item.
 @onready var filter_bar: HBoxContainer = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/FilterScroll/FilterBar
 @onready var list_scroll: ScrollContainer = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/ListScroll
 @onready var list_content: VBoxContainer = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/ListScroll/ListContent
-@onready var empty_label: Label = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyLabel
 @onready var empty_state_card: PanelContainer = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard
 @onready var empty_state_desc: Label = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
 @onready var detail_overlay: ColorRect = $DetailOverlay
@@ -139,11 +138,9 @@ func _refresh_list() -> void:
 		child.queue_free()
 	var filtered_entries = _get_filtered_entries()
 	var has_entries = not filtered_entries.is_empty()
-	empty_label.visible = not has_entries
 	empty_state_card.visible = not has_entries
 	list_scroll.visible = has_entries
 	if not has_entries:
-		empty_label.text = "这个分类里还没有内容。" if current_filter != "all" else "这里只会收录你与Luna之间的纪念。"
 		empty_state_desc.text = _get_empty_state_desc()
 		return
 	if current_view_mode == "timeline":

@@ -16,10 +16,7 @@ var messages: Array = []
 func get_history_path() -> String:
 	var char_id = GameDataManager.config.current_character_id if GameDataManager.config else "default"
 	if char_id == "": char_id = "default"
-	var dir_path = "user://saves/%s" % char_id
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
-	return "%s/chat_history.json" % dir_path
+	return GameDataManager.get_character_save_path("chat_history.json", char_id)
 
 func add_message(speaker: String, text: String, voice_cache_key: String = "", type: String = "normal", extra_data: Dictionary = {}) -> void:
 	var record = {

@@ -71,6 +71,7 @@ var enable_ai_diary_illustration: bool = true
 
 # 当前选择的角色ID，默认为空，运行时会自动寻找第一个可用角色
 var current_character_id: String = ""
+var active_archive_id: String = ""
 var current_main_bg_id: String = ""
 var unlocked_main_bg_ids: Array = []
 var unlocked_area_ids: Array = []
@@ -145,6 +146,7 @@ func save_config() -> void:
         "doubao_image_model": doubao_image_model,
         "enable_ai_diary_illustration": enable_ai_diary_illustration,
         "current_character_id": current_character_id,
+        "active_archive_id": active_archive_id,
         "current_main_bg_id": current_main_bg_id,
         "unlocked_main_bg_ids": unlocked_main_bg_ids,
         "unlocked_area_ids": unlocked_area_ids,
@@ -231,6 +233,7 @@ func load_config() -> void:
                 doubao_image_model = data.get("doubao_image_model", doubao_image_model)
                 enable_ai_diary_illustration = data.get("enable_ai_diary_illustration", enable_ai_diary_illustration)
                 current_character_id = data.get("current_character_id", current_character_id)
+                active_archive_id = data.get("active_archive_id", active_archive_id)
                 current_main_bg_id = data.get("current_main_bg_id", current_main_bg_id)
                 if data.has("unlocked_main_bg_ids") and data["unlocked_main_bg_ids"] is Array:
                     unlocked_main_bg_ids = data["unlocked_main_bg_ids"]

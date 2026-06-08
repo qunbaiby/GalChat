@@ -3,30 +3,40 @@
 [ext_resource type="Script" path="res://scripts/ui/mobile/moments/moment_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CommentsBg"]
-bg_color = Color(0.95, 0.95, 0.95, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+bg_color = Color(0.975, 0.991, 0.994, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.91, 0.78)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionBubble"]
-bg_color = Color(0.3, 0.3, 0.3, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+bg_color = Color(0.15, 0.22, 0.24, 0.96)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_FlatBtn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.53, 0.81, 0.78, 0.75)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemBottomLine"]
-bg_color = Color(0.93, 0.93, 0.93, 1)
+bg_color = Color(0.84, 0.9, 0.91, 1)
 
 [node name="MomentItem" type="VBoxContainer"]
 anchors_preset = 10
@@ -65,13 +75,13 @@ theme_override_constants/separation = 8
 
 [node name="Name" type="Label" parent="MainHBox/ContentVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.34, 0.4, 0.55, 1)
+theme_override_colors/font_color = Color(0.24, 0.52, 0.49, 1)
 theme_override_font_sizes/font_size = 16
 text = "Author Name"
 
 [node name="Content" type="Label" parent="MainHBox/ContentVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_color = Color(0.18, 0.24, 0.28, 1)
 theme_override_font_sizes/font_size = 15
 text = "Moment content goes here..."
 autowrap_mode = 3
@@ -88,7 +98,7 @@ theme_override_constants/separation = 10
 
 [node name="TimeLabel" type="Label" parent="MainHBox/ContentVBox/ActionsHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
 theme_override_font_sizes/font_size = 13
 text = "刚刚"
 
@@ -141,9 +151,9 @@ text = "💬 评论"
 custom_minimum_size = Vector2(32, 24)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.34, 0.4, 0.55, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.25, 0.35, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.35, 1)
+theme_override_colors/font_color = Color(0.24, 0.52, 0.49, 1)
+theme_override_colors/font_pressed_color = Color(0.19, 0.41, 0.39, 1)
+theme_override_colors/font_hover_color = Color(0.19, 0.41, 0.39, 1)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/focus = SubResource("StyleBoxEmpty_FlatBtn")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_FlatBtn")
@@ -168,7 +178,7 @@ theme_override_constants/separation = 4
 
 [node name="LikesLabel" type="Label" parent="MainHBox/ContentVBox/CommentsArea/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.34, 0.4, 0.55, 1)
+theme_override_colors/font_color = Color(0.24, 0.52, 0.49, 1)
 theme_override_font_sizes/font_size = 14
 text = "♡ Likes"
 autowrap_mode = 3
@@ -189,11 +199,14 @@ theme_override_constants/separation = 8
 [node name="LineEdit" type="LineEdit" parent="MainHBox/ContentVBox/CommentInputArea"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.18, 0.24, 0.28, 1)
+theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 1)
 placeholder_text = "评论..."
 
 [node name="SendBtn" type="Button" parent="MainHBox/ContentVBox/CommentInputArea"]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "发送"
 
 [node name="BottomLine" type="Panel" parent="."]

@@ -1,25 +1,39 @@
-[gd_scene load_steps=8 format=3 uid="uid://ciwgqlah7xsd5"]
+[gd_scene load_steps=9 format=3 uid="uid://ciwgqlah7xsd5"]
 
-[ext_resource type="Script" path="res://scripts/ui/archive/archive_relation_panel.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://scenes/ui/archive/relation_graph_content.tscn" id="2_relation_view"]
-[ext_resource type="Theme" path="res://assets/themes/settings_theme.tres" id="3_theme"]
+[ext_resource type="Script" uid="uid://dlpi17bc8i4hb" path="res://scripts/ui/archive/archive_relation_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://b6xf3g0ef3eiu" path="res://scenes/ui/archive/relation_graph_content.tscn" id="2_relation_view"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="3_theme"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
-bg_color = Color(0.1, 0.08, 0.06, 0.34)
+[sub_resource type="Shader" id="Shader_RelationGraphBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_RelationGraphBlur"]
+shader = SubResource("Shader_RelationGraphBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.168627, 0.168627, 0.168627, 0.556863)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
-bg_color = Color(0.95, 0.935, 0.9, 0.985)
+bg_color = Color(0.958, 0.976, 0.984, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.84, 0.8, 0.72, 1)
+border_color = Color(0.78, 0.87, 0.89, 0.82)
 corner_radius_top_left = 24
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.1)
-shadow_size = 18
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
 bg_color = Color(0.9, 0.875, 0.81, 0.92)
@@ -40,23 +54,6 @@ corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
-[sub_resource type="Shader" id="Shader_RelationGraphBlur"]
-code = "shader_type canvas_item;
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float lod: hint_range(0.0, 5) = 2.0;
-uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
-
-void fragment() {
-	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
-	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_RelationGraphBlur"]
-shader = SubResource("Shader_RelationGraphBlur")
-shader_parameter/lod = 2.5
-shader_parameter/mix_color = Color(0.168627, 0.168627, 0.168627, 0.556863)
-
 [node name="ArchiveRelationPanel" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -76,7 +73,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(1, 1, 1, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -114,7 +110,7 @@ offset_top = 14.0
 offset_right = -118.0
 offset_bottom = 42.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.23, 0.2, 0.17, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 26
 text = "关系档案"
 horizontal_alignment = 1
@@ -129,7 +125,7 @@ offset_top = 46.0
 offset_right = -118.0
 offset_bottom = 68.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.45, 0.42, 0.37, 0.92)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.92)
 theme_override_font_sizes/font_size = 14
 text = "左侧查看关系图谱，右侧阅读节点与关系说明。"
 horizontal_alignment = 1
@@ -138,6 +134,7 @@ vertical_alignment = 1
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
 custom_minimum_size = Vector2(84, 36)
 layout_mode = 1
+anchors_preset = 6
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
@@ -149,8 +146,8 @@ offset_bottom = 18.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
 text = "关闭"
 
 [node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer"]
@@ -163,4 +160,3 @@ theme_override_constants/margin_bottom = 20
 
 [node name="RelationGraphView" parent="CenterContainer/Panel/VBoxContainer/BodyMargin" instance=ExtResource("2_relation_view")]
 layout_mode = 2
-size_flags_vertical = 3

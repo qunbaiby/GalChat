@@ -1,14 +1,13 @@
 [gd_scene load_steps=18 format=3 uid="uid://31rttm1jhadv"]
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
-[ext_resource type="StyleBox" uid="uid://cx1g6j2n0v2t2" path="res://assets/themes/dialogue_panel_style.tres" id="2_dialogue_style"]
 [ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
+[ext_resource type="Texture2D" uid="uid://b5nqn7k2eykxb" path="res://assets/images/icons/ui/dialogue/eye.png" id="3_vt4bd"]
 [ext_resource type="StyleBox" uid="uid://dfsdfsdf" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
-[ext_resource type="Shader" uid="uid://d0c1rjblvrdaf" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
-[ext_resource type="Texture2D" uid="uid://c365ggpx3ygkn" path="res://assets/images/icons/ui/story/hide_ui.svg" id="6_hide_ui_icon"]
-[ext_resource type="Texture2D" uid="uid://ce5m5p6dofc43" path="res://assets/images/icons/ui/story/camera.svg" id="7_camera_icon"]
-[ext_resource type="Texture2D" uid="uid://cjs8e6avuoiey" path="res://assets/images/icons/ui/story/record.svg" id="8_history_icon"]
-[ext_resource type="Texture2D" uid="uid://dwamfe6gwsmfi" path="res://assets/images/icons/ui/story/close.svg" id="9_close_icon"]
+[ext_resource type="Texture2D" uid="uid://b4aaigdk7hte6" path="res://assets/images/icons/ui/dialogue/camera.png" id="4_j786n"]
+[ext_resource type="Texture2D" uid="uid://ywsyminx4cgk" path="res://assets/images/icons/ui/dialogue/document.png" id="5_06rsy"]
+[ext_resource type="Shader" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
+[ext_resource type="Texture2D" uid="uid://c4e6mk7nc4t5w" path="res://assets/images/icons/ui/dialogue/close.png" id="6_e1eto"]
 [ext_resource type="Texture2D" uid="uid://bgm6vn1eos1u3" path="res://assets/images/icons/ui/story/voice_record.svg" id="10_voice_icon"]
 [ext_resource type="Texture2D" uid="uid://dm6oxnmuvephf" path="res://assets/images/icons/ui/story/send_message.svg" id="11_send_icon"]
 
@@ -16,9 +15,9 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_DialogueGradient"]
 shader = ExtResource("5_gradient_shader")
-shader_parameter/center_color = Color(1, 1, 1, 0.9019608)
-shader_parameter/edge_color = Color(1, 1, 1, 0.13725491)
-shader_parameter/edge_softness = 0.94000004465
+shader_parameter/center_color = Color(0.02, 0.02, 0.03, 0.94)
+shader_parameter/edge_color = Color(0, 0, 0, 0.078431375)
+shader_parameter/edge_softness = 1.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Toolbar"]
 bg_color = Color(1, 1, 1, 0.5803922)
@@ -32,6 +31,12 @@ corner_radius_bottom_left = 16
 shadow_color = Color(0, 0, 0, 0.18)
 shadow_size = 8
 shadow_offset = Vector2(0, 2)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_InputGradient"]
+shader = ExtResource("5_gradient_shader")
+shader_parameter/center_color = Color(0.01, 0.01, 0.015, 0.96)
+shader_parameter/edge_color = Color(0, 0, 0, 0.078431375)
+shader_parameter/edge_softness = 1.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
 bg_color = Color(0.04, 0.04, 0.05, 0.82)
@@ -131,13 +136,16 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -164.0
-offset_bottom = 42.0
+offset_left = -170.0
+offset_top = 10.0
+offset_right = -14.0
+offset_bottom = 52.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Toolbar")
 
 [node name="ToolBarMargin" type="MarginContainer" parent="ToolBarContainer"]
 layout_mode = 2
+theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
@@ -148,16 +156,14 @@ theme_override_constants/separation = 6
 alignment = 2
 
 [node name="HideUIButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 tooltip_text = "隐藏UI"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
 [node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/HideUIButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -171,21 +177,19 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("6_hide_ui_icon")
+texture = ExtResource("3_vt4bd")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="CameraButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 tooltip_text = "相机"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
 [node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/CameraButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -199,21 +203,19 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("7_camera_icon")
+texture = ExtResource("4_j786n")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="HistoryButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 tooltip_text = "记录"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
 [node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/HistoryButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -227,21 +229,19 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("8_history_icon")
+texture = ExtResource("5_06rsy")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="EndChatButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 tooltip_text = "结束"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
 [node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/EndChatButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -255,7 +255,7 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("9_close_icon")
+texture = ExtResource("6_e1eto")
 expand_mode = 1
 stretch_mode = 5
 
@@ -299,7 +299,17 @@ anchor_bottom = 1.0
 offset_top = -57.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = ExtResource("2_dialogue_style")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_DialogueLayer")
+
+[node name="GradientBg" type="ColorRect" parent="InputLayer"]
+material = SubResource("ShaderMaterial_InputGradient")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="InputLayer"]
 layout_mode = 1
@@ -354,7 +364,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
 [node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/VoiceRecordButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -382,7 +392,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
 [node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/SendButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

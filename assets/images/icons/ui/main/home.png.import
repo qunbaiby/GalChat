@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://y4cap0nregvt"
-path="res://.godot/imported/money-cny-circle-fill.png-1695abc28d162ef345daf7846ec4ea04.ctex"
+uid="uid://svinccvak8ui"
+path="res://.godot/imported/home.png-d3a5429fbab04b5008cbe2f0aed857a2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/money-cny-circle-fill.png"
-dest_files=["res://.godot/imported/money-cny-circle-fill.png-1695abc28d162ef345daf7846ec4ea04.ctex"]
+source_file="res://assets/images/icons/ui/main/home.png"
+dest_files=["res://.godot/imported/home.png-d3a5429fbab04b5008cbe2f0aed857a2.ctex"]
 
 [params]
 

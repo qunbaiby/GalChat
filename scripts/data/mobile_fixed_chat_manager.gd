@@ -4,7 +4,6 @@ signal unread_count_changed(chat_id: String, unread_count: int)
 signal message_unlocked(chat_id: String, message_index: int)
 signal character_typing_state_changed(char_id: String, is_typing: bool)
 
-const SAVE_PATH = "user://saves/mobile_fixed_chat_state.json"
 const SCRIPT_DIR = "res://assets/data/mobile/fixed_chats/"
 
 # 存储聊天脚本数据
@@ -24,10 +23,17 @@ func _ready() -> void:
 	_load_all_scripts()
 	_load_states()
 
+func _get_state_path() -> String:
+	return GameDataManager.get_archive_state_path("mobile_fixed_chat_state.json")
+
+func _get_mobile_history_path(char_id: String) -> String:
+	return GameDataManager.get_character_save_path("mobile_chat_history.json", char_id)
+
 func _ensure_save_dir() -> void:
-	var dir = DirAccess.open("user://")
-	if dir and not dir.dir_exists("saves"):
-		dir.make_dir("saves")
+	var path = _get_state_path()
+	var dir_path = path.get_base_dir()
+	if not DirAccess.dir_exists_absolute(dir_path):
+		DirAccess.make_dir_recursive_absolute(dir_path)
 
 func _load_all_scripts() -> void:
 	var dir = DirAccess.open(SCRIPT_DIR)
@@ -55,8 +61,9 @@ func _load_script(path: String) -> void:
 		file.close()
 
 func _load_states() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var save_path = _get_state_path()
+	if FileAccess.file_exists(save_path):
+		var file = FileAccess.open(save_path, FileAccess.READ)
 		var content = file.get_as_text()
 		var json = JSON.new()
 		var error = json.parse(content)
@@ -82,7 +89,7 @@ func _load_states() -> void:
 		_save_states()
 
 func _save_states() -> void:
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var file = FileAccess.open(_get_state_path(), FileAccess.WRITE)
 	if file:
 		var data = {
 			"states": _chat_states,
@@ -91,6 +98,11 @@ func _save_states() -> void:
 		var json_string = JSON.stringify(data, "\t")
 		file.store_string(json_string)
 		file.close()
+
+func reload_for_active_archive() -> void:
+	_chat_states.clear()
+	_unread_counts.clear()
+	_load_states()
 
 var _advancing_scripts: Dictionary = {}
 
@@ -229,8 +241,8 @@ func submit_player_option(script_id: String, option_id: String, option_text: Str
 	_advance_script(script_id)
 
 func _append_to_history(char_id: String, msg_data: Dictionary) -> void:
-	var history_path = "user://saves/%s/mobile_chat_history.json" % char_id
-	var dir_path = "user://saves/%s" % char_id
+	var history_path = _get_mobile_history_path(char_id)
+	var dir_path = history_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(dir_path):
 		DirAccess.make_dir_recursive_absolute(dir_path)
 		
@@ -293,13 +305,14 @@ func clear_all_records() -> void:
 	_unread_counts.clear()
 	
 	# 删除状态存档文件
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(SAVE_PATH)
+	var save_path = _get_state_path()
+	if FileAccess.file_exists(save_path):
+		DirAccess.remove_absolute(save_path)
 		
 	# 遍历清除各个角色的聊天历史记录
 	for script_id in _chat_scripts.keys():
 		var char_id = _chat_scripts[script_id]["character_id"]
-		var history_path = "user://saves/%s/mobile_chat_history.json" % char_id
+		var history_path = _get_mobile_history_path(char_id)
 		if FileAccess.file_exists(history_path):
 			DirAccess.remove_absolute(history_path)
 			
@@ -358,4 +371,3 @@ func get_current_options(script_id: String) -> Array:
 		if msg.get("speaker") == "player_options":
 			return msg.get("options", [])
 	return []
-

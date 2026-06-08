@@ -142,14 +142,14 @@ alignment = 1
 [node name="CancelBtn" type="Button" parent="Overlay/ActionRow"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 20
 text = "取消"
 
 [node name="SaveBtn" type="Button" parent="Overlay/ActionRow"]
 custom_minimum_size = Vector2(150, 50)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 20
 text = "保存到相册"
 

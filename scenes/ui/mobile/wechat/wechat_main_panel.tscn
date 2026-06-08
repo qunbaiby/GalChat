@@ -1,66 +1,67 @@
-[gd_scene load_steps=18 format=3 uid="uid://ds6xth3ga52if"]
+[gd_scene load_steps=17 format=3 uid="uid://dmod3eiw0sky4"]
 
 [ext_resource type="Script" uid="uid://o12cctklj301" path="res://scripts/ui/mobile/wechat/wechat_main_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://dodnvu50aoxom" path="res://assets/images/icons/ui/system/chat.svg" id="3_chat"]
 [ext_resource type="Texture2D" uid="uid://7isnld2hxqai" path="res://assets/images/icons/ui/system/invite.svg" id="4_contacts"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="5_moments"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Window"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.96, 0.978, 0.986, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.76, 0.86, 0.88, 0.85)
 corner_radius_top_left = 24
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 34
+shadow_color = Color(0.03, 0.08, 0.1, 0.18)
+shadow_size = 28
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ColumnPanel"]
 content_margin_top = 10.0
-bg_color = Color(1, 1, 1, 0.72)
+bg_color = Color(1, 1, 1, 0.8)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
+border_color = Color(0.83, 0.9, 0.91, 0.9)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+shadow_color = Color(0.07, 0.13, 0.16, 0.06)
+shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_WindowClose"]
-bg_color = Color(1, 1, 1, 0.94)
+bg_color = Color(0.97, 0.982, 0.988, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.78, 0.87, 0.89, 0.85)
 corner_radius_top_left = 19
 corner_radius_top_right = 19
 corner_radius_bottom_right = 19
 corner_radius_bottom_left = 19
-shadow_color = Color(0, 0, 0, 0.1)
+shadow_color = Color(0.05, 0.1, 0.12, 0.1)
 shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_NavPanel"]
-bg_color = Color(0.96, 0.972, 0.985, 1)
+bg_color = Color(0.91, 0.95, 0.965, 0.98)
 border_width_right = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
+border_color = Color(0.78, 0.87, 0.89, 0.9)
 corner_radius_top_left = 24
 corner_radius_bottom_left = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderPanel"]
-bg_color = Color(1, 1, 1, 0.9)
+bg_color = Color(0.985, 0.992, 0.995, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
+border_color = Color(0.81, 0.89, 0.9, 0.85)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
@@ -72,60 +73,62 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.95, 0.81, 0.63, 0.75)
+border_color = Color(0.53, 0.81, 0.78, 0.75)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.44, 0.77, 0.73, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
+shadow_color = Color(0.18, 0.52, 0.5, 0.14)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
-bg_color = Color(1, 1, 1, 0.95)
+bg_color = Color(0.985, 0.992, 0.995, 0.95)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
+border_color = Color(0.8, 0.88, 0.9, 0.82)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MomentsFloatingWindow"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.965, 0.98, 0.988, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-shadow_color = Color(0, 0, 0, 0.18)
+border_color = Color(0.77, 0.87, 0.89, 0.85)
+shadow_color = Color(0.03, 0.08, 0.1, 0.18)
 shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MomentsTitleBar"]
-bg_color = Color(0.96, 0.972, 0.985, 1)
+bg_color = Color(0.91, 0.95, 0.965, 0.98)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FloatingWindow"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.965, 0.98, 0.988, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.77, 0.87, 0.89, 0.85)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.18)
+shadow_color = Color(0.03, 0.08, 0.1, 0.18)
 shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FloatingTitleBar"]
-bg_color = Color(0.96, 0.972, 0.985, 1)
+bg_color = Color(0.91, 0.95, 0.965, 0.98)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 
@@ -136,7 +139,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="DimBg" type="ColorRect" parent="."]
@@ -316,7 +318,7 @@ theme_override_constants/separation = 3
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "聊天列表"
 
@@ -355,7 +357,7 @@ theme_override_constants/separation = 9
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatEmptyState/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 22
 text = "选择一个聊天对象"
 horizontal_alignment = 1
@@ -382,7 +384,7 @@ theme_override_constants/separation = 9
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactEmptyState/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 22
 text = "选择一个联系人"
 horizontal_alignment = 1
@@ -442,7 +444,7 @@ stretch_mode = 6
 
 [node name="Name" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 25
 text = "角色名"
 horizontal_alignment = 1
@@ -483,7 +485,7 @@ horizontal_alignment = 1
 
 [node name="Value" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/IntimacyCard/CardVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "0"
 horizontal_alignment = 1
@@ -506,7 +508,7 @@ horizontal_alignment = 1
 
 [node name="Value" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/TrustCard/CardVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "0"
 horizontal_alignment = 1
@@ -529,7 +531,7 @@ horizontal_alignment = 1
 
 [node name="Value" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/StageCard/CardVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "Lv.1"
 horizontal_alignment = 1
@@ -544,7 +546,7 @@ theme_override_constants/separation = 6
 
 [node name="DescTitle" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/InfoPanel/InfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 15
 text = "角色资料"
 
@@ -574,7 +576,7 @@ text = "发消息"
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
@@ -585,7 +587,7 @@ text = "语音聊天"
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
@@ -646,7 +648,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 16
 text = "朋友圈"
 horizontal_alignment = 1
@@ -698,7 +700,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="FloatingCallOverlay/FloatingWindow/VBox/TitleBar/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 15
 text = "通话"
 vertical_alignment = 1

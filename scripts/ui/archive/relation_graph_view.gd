@@ -3,8 +3,6 @@ class_name RelationGraphView
 
 const MemoryAlbumManagerScript = preload("res://scripts/data/memory_album_manager.gd")
 const GRAPH_PATH_TEMPLATE: String = "res://assets/data/relationships/%s_relationship_graph.json"
-const LAYOUT_SAVE_TEMPLATE: String = "user://graph_layout_%s.json"
-
 @onready var graph_card: PanelContainer = $GraphCard
 @onready var detail_card: PanelContainer = $DetailCard
 @onready var graph_header: PanelContainer = $GraphCard/VBox/HeaderPanel
@@ -364,7 +362,7 @@ func _build_caches() -> void:
 			_edge_cache[str(edge.get("id", ""))] = edge
 
 func _load_custom_layouts(char_id: String) -> void:
-	var path: String = LAYOUT_SAVE_TEMPLATE % char_id
+	var path: String = GameDataManager.get_archive_state_path("graph_layout_%s.json" % char_id)
 	if FileAccess.file_exists(path):
 		var file = FileAccess.open(path, FileAccess.READ)
 		if file:
@@ -375,7 +373,7 @@ func _load_custom_layouts(char_id: String) -> void:
 
 func _save_custom_layouts() -> void:
 	if current_char_id == "": return
-	var path: String = LAYOUT_SAVE_TEMPLATE % current_char_id
+	var path: String = GameDataManager.get_archive_state_path("graph_layout_%s.json" % current_char_id)
 	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(custom_layouts))

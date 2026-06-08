@@ -1,11 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://cxab3x2x4y5v1"]
+[gd_scene load_steps=11 format=3 uid="uid://cxab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://dtia45vxlbf3v" path="res://scripts/ui/start/start_scene.gd" id="1_ab123"]
-[ext_resource type="Texture2D" uid="uid://qj1pittuuxx6" path="res://assets/images/backgrounds/Title.png" id="2_1ighk"]
+[ext_resource type="Texture2D" uid="uid://qj1pittuuxx6" path="res://assets/images/title/titlebackground.png" id="2_1ighk"]
 [ext_resource type="Texture2D" uid="uid://dfdvtfnlpm64n" path="res://assets/images/icons/ui/system/gear.svg" id="3_gear"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitlePanel"]
-bg_color = Color(0, 0, 0, 0)
+[ext_resource type="Texture2D" uid="uid://h30wh56c1e6u" path="res://assets/images/title/title.png" id="3_qukub"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopRightButton"]
 bg_color = Color(0.03, 0.05, 0.09, 0.46)
@@ -48,21 +46,6 @@ corner_radius_bottom_left = 14
 shadow_color = Color(0, 0, 0, 0.2)
 shadow_size = 12
 shadow_offset = Vector2(0, 3)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuPanel"]
-bg_color = Color(0.03, 0.05, 0.09, 0.52)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.76, 0.9, 0.88, 0.24)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 22
-shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuButton"]
 bg_color = Color(0.97, 0.98, 0.99, 0.95)
@@ -126,57 +109,58 @@ texture = ExtResource("2_1ighk")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="TitleCenter" type="CenterContainer" parent="."]
+[node name="ContentRoot" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -320.0
-offset_top = 143.0
-offset_right = 320.0
-offset_bottom = 327.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="TitlePanel" type="PanelContainer" parent="TitleCenter"]
-custom_minimum_size = Vector2(640, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_TitlePanel")
+[node name="BrandGroup" type="Control" parent="ContentRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="TitleMargin" type="MarginContainer" parent="TitleCenter/TitlePanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 12
+[node name="TitleLogo" type="TextureRect" parent="ContentRoot/BrandGroup"]
+custom_minimum_size = Vector2(450, 135)
+layout_mode = 0
+offset_left = 86.0
+offset_top = 135.0
+offset_right = 536.0
+offset_bottom = 270.0
+texture = ExtResource("3_qukub")
+expand_mode = 1
 
-[node name="TitleVBox" type="VBoxContainer" parent="TitleCenter/TitlePanel/TitleMargin"]
-layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="SubTitleLabel" type="Label" parent="TitleCenter/TitlePanel/TitleMargin/TitleVBox"]
-layout_mode = 2
+[node name="SubTitleLabel" type="Label" parent="ContentRoot/BrandGroup"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 284.0
+offset_right = 540.0
+offset_bottom = 319.0
 theme_override_colors/font_color = Color(0.86, 0.95, 0.95, 0.92)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.35)
 theme_override_constants/shadow_offset_x = 0
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 20
-text = "前路有梦，我为你护航"
+theme_override_font_sizes/font_size = 25
+text = "前路有梦，我伴你同行"
 horizontal_alignment = 1
 
-[node name="TitleLabel" type="Label" parent="TitleCenter/TitlePanel/TitleMargin/TitleVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.98)
-theme_override_colors/font_shadow_color = Color(0.04, 0.07, 0.12, 0.34)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.24)
-theme_override_constants/shadow_offset_x = 0
-theme_override_constants/shadow_offset_y = 4
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 72
-text = "逐 光 梦 旅"
-horizontal_alignment = 1
+[node name="ActionGroup" type="Control" parent="ContentRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="TopRightBar" type="HBoxContainer" parent="."]
+[node name="TopRightBar" type="HBoxContainer" parent="ContentRoot/ActionGroup"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -187,7 +171,7 @@ offset_right = -24.0
 offset_bottom = 76.0
 grow_horizontal = 0
 
-[node name="SettingsButton" type="Button" parent="TopRightBar"]
+[node name="SettingsButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar"]
 custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
 theme_override_constants/h_separation = 0
@@ -197,33 +181,24 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_TopRightButtonHover")
 icon = ExtResource("3_gear")
 expand_icon = true
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="MenuGroup" type="Control" parent="ContentRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 280.0
-offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="MenuPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(360, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_MenuPanel")
-
-[node name="Margin" type="MarginContainer" parent="CenterContainer/MenuPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 28
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/MenuPanel/Margin"]
-layout_mode = 2
+[node name="MenuButtons" type="VBoxContainer" parent="ContentRoot/MenuGroup"]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 473.0
+offset_right = 430.0
+offset_bottom = 539.0
 theme_override_constants/separation = 18
 
-[node name="StartButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
+[node name="StartButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons"]
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
@@ -238,22 +213,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "开始陪伴"
 
-[node name="LoadButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
-custom_minimum_size = Vector2(244, 66)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
-theme_override_colors/font_focus_color = Color(0.11, 0.27, 0.26, 1)
-theme_override_colors/font_pressed_color = Color(0.09, 0.24, 0.23, 1)
-theme_override_colors/font_hover_color = Color(0.11, 0.27, 0.26, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 0.2)
-theme_override_constants/outline_size = 1
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
-text = "读取进度"
-
-[node name="DesktopPetButton" type="Button" parent="CenterContainer/MenuPanel/Margin/VBoxContainer"]
+[node name="DesktopPetButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons"]
 visible = false
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2

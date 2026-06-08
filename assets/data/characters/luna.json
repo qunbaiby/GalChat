@@ -4,6 +4,7 @@
     "age": 21,
     "birthday": "待补充",
     "zodiac": "待补充",
+    "one_line_intro": "安静温柔又有点慢热，熟悉之后会把最柔软的依赖与真心都交给你。",
     "avatar": "res://assets/images/characters/Luna/avatar/luna.png",
     "static_portrait": "res://assets/images/characters/Luna/avatar/luna.png",
     "sprite_frames_path": "res://assets/images/characters/Luna/luna.tres",

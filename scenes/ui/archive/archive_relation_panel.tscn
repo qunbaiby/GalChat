@@ -5,36 +5,36 @@
 [ext_resource type="Theme" path="res://assets/themes/settings_theme.tres" id="3_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
-bg_color = Color(0.1, 0.08, 0.06, 0.34)
+bg_color = Color(0.05, 0.1, 0.12, 0.32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
-bg_color = Color(0.95, 0.935, 0.9, 0.985)
+bg_color = Color(0.958, 0.976, 0.984, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.84, 0.8, 0.72, 1)
+border_color = Color(0.78, 0.87, 0.89, 0.82)
 corner_radius_top_left = 24
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.1)
-shadow_size = 18
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.9, 0.875, 0.81, 0.92)
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
-border_color = Color(0.83, 0.79, 0.71, 1)
+border_color = Color(0.79, 0.88, 0.89, 0.9)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
-bg_color = Color(0.98, 0.97, 0.94, 1)
+bg_color = Color(0.985, 0.993, 0.996, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.78, 0.74, 0.68, 1)
+border_color = Color(0.8, 0.88, 0.9, 0.82)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -55,7 +55,7 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ArchiveRelationBlur"]
 shader = SubResource("Shader_ArchiveRelationBlur")
 shader_parameter/lod = 2.5
-shader_parameter/mix_color = Color(0.168627, 0.168627, 0.168627, 0.556863)
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.32)
 
 [node name="ArchiveRelationPanel" type="Control"]
 layout_mode = 3
@@ -114,7 +114,7 @@ offset_top = 14.0
 offset_right = -118.0
 offset_bottom = 42.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.23, 0.2, 0.17, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 26
 text = "关系档案"
 horizontal_alignment = 1
@@ -129,7 +129,7 @@ offset_top = 46.0
 offset_right = -118.0
 offset_bottom = 68.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.45, 0.42, 0.37, 0.92)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.92)
 theme_override_font_sizes/font_size = 14
 text = "左侧查看关系图谱，右侧阅读节点与关系说明。"
 horizontal_alignment = 1

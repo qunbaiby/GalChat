@@ -2,7 +2,7 @@
     "backgrounds": [
         {
             "id": "main_background_image",
-            "path": "res://assets/images/backgrounds/main/main_bg.png"
+            "path": "res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png"
         },
         {
             "id": "bg_art_studio_sunlight",

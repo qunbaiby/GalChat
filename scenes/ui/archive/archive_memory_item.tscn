@@ -1,12 +1,12 @@
 [gd_scene load_steps=3 format=3]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Item"]
-bg_color = Color(0.988, 0.982, 0.968, 1)
+bg_color = Color(0.992, 0.998, 0.999, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.84, 0.79, 1)
+border_color = Color(0.81, 0.89, 0.9, 0.84)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -51,7 +51,7 @@ text = "◆"
 
 [node name="TimeLabel" type="Label" parent="Margin/MainHBox/MetaVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.46, 0.42, 1)
+theme_override_colors/font_color = Color(0.46, 0.53, 0.58, 1)
 theme_override_font_sizes/font_size = 13
 text = "未记录"
 autowrap_mode = 3
@@ -72,7 +72,7 @@ text = "记忆内容"
 [node name="MetaLabel" type="Label" parent="Margin/MainHBox/ContentVBox"]
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.54, 0.49, 0.95)
+theme_override_colors/font_color = Color(0.46, 0.53, 0.58, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "补充说明"
 autowrap_mode = 3

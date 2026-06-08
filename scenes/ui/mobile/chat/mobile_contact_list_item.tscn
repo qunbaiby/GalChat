@@ -3,33 +3,33 @@
 [ext_resource type="Script" uid="uid://bf2sx5f0exv2d" path="res://scripts/ui/mobile/chat/mobile_contact_list_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Normal"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.992, 0.998, 0.999, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
+border_color = Color(0.8, 0.88, 0.9, 0.82)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.18, 0.52, 0.5, 0.08)
+shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hover"]
-bg_color = Color(0.94, 0.98, 0.97, 1)
+bg_color = Color(0.93, 0.985, 0.98, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.95, 0.81, 0.63, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
+border_color = Color(0.47, 0.79, 0.76, 0.92)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.18, 0.52, 0.5, 0.12)
+shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
@@ -38,21 +38,21 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.95, 0.81, 0.63, 0.75)
+border_color = Color(0.53, 0.81, 0.78, 0.75)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_UnreadBadge"]
+bg_color = Color(0.92, 0.27, 0.27, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_UnreadBadge"]
-bg_color = Color(0.92, 0.27, 0.27, 1)
-corner_radius_top_left = 11
-corner_radius_top_right = 11
-corner_radius_bottom_right = 11
-corner_radius_bottom_left = 11
-
 [node name="MobileContactListItem" type="Button"]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 76)
 offset_right = 389.0
 offset_bottom = 80.0
 theme_override_styles/normal = SubResource("StyleBoxFlat_Normal")
@@ -109,13 +109,13 @@ mouse_filter = 2
 [node name="NameLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 16
 text = "联系人"
 
 [node name="TimeLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.56, 0.5, 1)
+theme_override_colors/font_color = Color(0.48, 0.58, 0.62, 1)
 theme_override_font_sizes/font_size = 12
 text = "12:00"
 
@@ -133,7 +133,7 @@ vertical_alignment = 1
 [node name="MsgLabel" type="Label" parent="Margin/HBox/TextVBox"]
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.56, 0.5, 1)
+theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
 theme_override_font_sizes/font_size = 14
 text = "暂无消息"
 clip_text = true

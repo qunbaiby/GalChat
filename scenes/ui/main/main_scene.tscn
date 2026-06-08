@@ -1,8 +1,7 @@
-[gd_scene load_steps=50 format=3 uid="uid://bl0bceh1xgj74"]
+[gd_scene load_steps=49 format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://dxe3r2b5g7na" path="res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn" id="2_fvueq"]
-[ext_resource type="Texture2D" uid="uid://f6xtgsexa7ri" path="res://scenes/ui/main/微信图片_20260607020731_888_65.jpg" id="2_p33vi"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
@@ -11,11 +10,11 @@
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="13_api"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="14_dialogue"]
-[ext_resource type="Texture2D" uid="uid://7c0up8q12dtc" path="res://assets/images/icons/ui/main/eye-fill.png" id="15_p33vi"]
+[ext_resource type="Texture2D" uid="uid://ctdj134k383t1" path="res://assets/images/icons/ui/main/eye.png" id="14_rl784"]
+[ext_resource type="Texture2D" uid="uid://drhwtospoforg" path="res://assets/images/icons/ui/main/camera.png" id="15_p33vi"]
 [ext_resource type="Shader" uid="uid://bvr4ey2nio3wm" path="res://assets/shaders/left_trapezoid.gdshader" id="15_trapezoid_shader"]
-[ext_resource type="Texture2D" uid="uid://bwrmwx56elle3" path="res://assets/images/icons/ui/main/camera-4-fill.png" id="16_fbdjj"]
+[ext_resource type="Texture2D" uid="uid://bu8ct32d0p3mc" path="res://assets/images/icons/ui/main/apps.png" id="16_fbdjj"]
 [ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
-[ext_resource type="Texture2D" uid="uid://bgl6oulfbwret" path="res://assets/images/icons/ui/main/server-fill.png" id="17_spmh8"]
 [ext_resource type="Texture2D" uid="uid://j1ivb0wivpai" path="res://assets/images/icons/ui/main/skill_talent.svg" id="19_skill_icon"]
 [ext_resource type="Texture2D" uid="uid://jgctkyqyl1py" path="res://assets/images/icons/ui/main/diary_book.svg" id="20_diary_icon"]
 [ext_resource type="Texture2D" uid="uid://d0mj76s6tvbsv" path="res://assets/images/icons/ui/main/wechat_bubble.svg" id="21_wechat_icon"]
@@ -318,12 +317,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_main")
-
-[node name="微信图片2026060702073188865" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(631.4999, 288.27002)
-scale = Vector2(0.45042193, 0.4504219)
-texture = ExtResource("2_p33vi")
 
 [node name="BackgroundContainer" type="Control" parent="."]
 layout_mode = 1
@@ -850,7 +843,7 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -124.0
+offset_left = -135.0
 offset_top = 5.0
 offset_bottom = 47.0
 grow_horizontal = 0
@@ -862,7 +855,7 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -124.0
+offset_left = -135.0
 offset_top = 7.0
 offset_bottom = 49.0
 grow_horizontal = 0
@@ -876,7 +869,7 @@ theme_override_constants/margin_bottom = 5
 
 [node name="HBox" type="HBoxContainer" parent="UIPanel/SystemButton/ToolBarMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
 alignment = 2
 
 [node name="HideUIButton" type="Button" parent="UIPanel/SystemButton/ToolBarMargin/HBox"]
@@ -886,7 +879,7 @@ layout_mode = 2
 tooltip_text = "隐藏UI"
 
 [node name="Icon" type="TextureRect" parent="UIPanel/SystemButton/ToolBarMargin/HBox/HideUIButton"]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -894,7 +887,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("15_p33vi")
+texture = ExtResource("14_rl784")
 expand_mode = 1
 stretch_mode = 5
 
@@ -913,7 +906,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("16_fbdjj")
+texture = ExtResource("15_p33vi")
 expand_mode = 1
 stretch_mode = 5
 
@@ -932,7 +925,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("17_spmh8")
+texture = ExtResource("16_fbdjj")
 expand_mode = 1
 stretch_mode = 5
 

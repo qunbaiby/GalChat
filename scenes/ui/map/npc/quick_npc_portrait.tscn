@@ -5,8 +5,8 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
 shader = ExtResource("2_shader")
-shader_parameter/color1 = Color(0.57, 0.82, 0.76, 0.95)
-shader_parameter/color2 = Color(1, 0.854902, 0.627451, 0.95)
+shader_parameter/color1 = Color(0.44, 0.77, 0.73, 0.95)
+shader_parameter/color2 = Color(0.73, 0.94, 0.9, 0.95)
 shader_parameter/speed = 0.4
 shader_parameter/border_width = 0.022
 shader_parameter/blur = 0.015
@@ -72,8 +72,8 @@ flat = true
 
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.98, 0.95, 1)
-theme_override_colors/font_outline_color = Color(0.2, 0.17, 0.14, 0.75)
+theme_override_colors/font_color = Color(0.97, 0.995, 0.995, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.1, 0.12, 0.75)
 theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 24
 text = "NPC: 名字"

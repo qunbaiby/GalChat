@@ -4,33 +4,33 @@
 [ext_resource type="Script" uid="uid://cos7wflrx1mc" path="res://scripts/ui/archive/relation_graph_poster.gd" id="2_poster_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.986, 0.98, 0.962, 1)
+bg_color = Color(0.985, 0.994, 0.996, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.86, 0.83, 0.77, 1)
+border_color = Color(0.81, 0.89, 0.9, 0.84)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.05)
+shadow_color = Color(0.03, 0.08, 0.1, 0.08)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.992, 0.974, 0.94, 1)
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
-border_color = Color(0.9, 0.84, 0.77, 1)
+border_color = Color(0.79, 0.88, 0.89, 0.9)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoCard"]
-bg_color = Color(0.992, 0.987, 0.975, 1)
+bg_color = Color(0.992, 0.998, 0.999, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.9, 0.87, 0.82, 1)
+border_color = Color(0.81, 0.89, 0.9, 0.84)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -75,12 +75,12 @@ theme_override_constants/separation = 2
 
 [node name="Label" type="Label" parent="GraphCard/VBox/HeaderPanel/HeaderMargin/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
 text = "  ◆ 动态关系图谱"
 
 [node name="HeaderHint" type="Label" parent="GraphCard/VBox/HeaderPanel/HeaderMargin/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "左侧查看节点分布、锁定状态与阵营筛选。"
 
@@ -192,12 +192,12 @@ theme_override_constants/separation = 2
 
 [node name="Label" type="Label" parent="DetailCard/VBox/HeaderPanel/HeaderMargin/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
 text = "  ◆ 关系节点详情"
 
 [node name="HeaderHint" type="Label" parent="DetailCard/VBox/HeaderPanel/HeaderMargin/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "右侧集中展示节点、关系与解锁说明。"
 

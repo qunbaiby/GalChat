@@ -136,10 +136,7 @@ func _get_current_char_id() -> String:
 
 func _get_state_path() -> String:
 	var char_id = _get_current_char_id()
-	var dir_path = "user://saves/%s" % char_id
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
-	return "%s/%s" % [dir_path, STATE_FILE_NAME]
+	return GameDataManager.get_character_save_path(STATE_FILE_NAME, char_id)
 
 func _load_state() -> void:
 	_state_loaded = true

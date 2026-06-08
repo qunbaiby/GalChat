@@ -5,33 +5,38 @@
 [ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png" id="2_noiyw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VideoBg"]
-bg_color = Color(0.985, 0.988, 0.995, 0.24)
+bg_color = Color(0.06, 0.12, 0.14, 0.26)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
-bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
+border_color = Color(0.6, 0.88, 0.84, 0.3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HangupBtn"]
+bg_color = Color(0.992, 0.998, 0.999, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.88, 0.9, 0.82)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xi0o"]
-bg_color = Color(0.72, 0.58, 0.46, 1)
+bg_color = Color(0.45, 0.56, 0.58, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordBtn"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.44, 0.77, 0.73, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -93,7 +98,7 @@ theme_override_constants/separation = 14
 [node name="NameLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.07, 0.08, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 22
 text = "Name"
@@ -101,8 +106,8 @@ horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.89, 0.97, 0.96, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.07, 0.08, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 14
 text = "视频通话中"
@@ -117,8 +122,8 @@ theme_override_constants/margin_right = 25
 [node name="MessageLabel" type="RichTextLabel" parent="Panel/VBox/MessageCenter"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/default_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/default_color = Color(0.96, 0.995, 0.995, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.07, 0.08, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
@@ -140,7 +145,7 @@ alignment = 1
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
+theme_override_colors/font_color = Color(0.31, 0.42, 0.46, 1)
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_HangupBtn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_HangupBtn")
@@ -150,8 +155,8 @@ text = "☎"
 
 [node name="HangupLabel" type="Label" parent="Panel/VBox/BottomBar/HangupVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.96, 0.995, 0.995, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.07, 0.08, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 14
 text = "挂断"
@@ -176,8 +181,8 @@ text = "🎙"
 
 [node name="RecordLabel" type="Label" parent="Panel/VBox/BottomBar/RecordVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.97, 0.985, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.96, 0.995, 0.995, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.07, 0.08, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 14
 text = "按住说话"

@@ -3,18 +3,18 @@
 [ext_resource type="Script" uid="uid://b4aiqdf50io6w" path="res://scripts/ui/map/npc/npc_interaction_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoCard"]
-bg_color = Color(0.985, 0.988, 0.995, 0.9)
+bg_color = Color(0.94, 0.972, 0.982, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 12
+border_color = Color(0.74, 0.88, 0.89, 0.88)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.04, 0.1, 0.12, 0.16)
+shadow_size = 20
 shadow_offset = Vector2(0, 4)
 
 [node name="NPCInteractionMenu" type="CanvasLayer"]
@@ -35,7 +35,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.784314)
+color = Color(0.03, 0.08, 0.1, 0.64)
 
 [node name="InfoAndOptions" type="PanelContainer" parent="Control"]
 layout_mode = 1
@@ -71,7 +71,7 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
+theme_override_colors/font_color = Color(0.46, 0.61, 0.65, 1)
 theme_override_font_sizes/font_size = 20
 text = "神秘角色"
 horizontal_alignment = 1
@@ -79,7 +79,7 @@ vertical_alignment = 1
 
 [node name="NameLabel" type="Label" parent="Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.22, 0.27, 1)
+theme_override_colors/font_color = Color(0.19, 0.29, 0.32, 1)
 theme_override_font_sizes/font_size = 48
 text = "名字"
 horizontal_alignment = 1
@@ -94,11 +94,11 @@ alignment = 1
 custom_minimum_size = Vector2(60, 2)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.9, 0.75, 0.56, 0.9)
+color = Color(0.55, 0.85, 0.82, 0.9)
 
 [node name="StageLabel" type="Label" parent="Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox/StageHBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.79, 0.48, 0.24, 1)
+theme_override_colors/font_color = Color(0.24, 0.55, 0.52, 1)
 theme_override_font_sizes/font_size = 22
 text = "陌生人"
 horizontal_alignment = 1
@@ -108,11 +108,11 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(60, 2)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.9, 0.75, 0.56, 0.9)
+color = Color(0.55, 0.85, 0.82, 0.9)
 
 [node name="HeartsLabel" type="Label" parent="Control/InfoAndOptions/Margin/ContentVBox/NPCInfoVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.54, 0.67, 1)
+theme_override_colors/font_color = Color(0.9, 0.71, 0.91, 1)
 theme_override_font_sizes/font_size = 24
 text = "♡♡♡♡♡♡♡♡♡♡"
 horizontal_alignment = 1

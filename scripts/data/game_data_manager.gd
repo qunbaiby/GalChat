@@ -19,6 +19,7 @@ var interaction_manager: Node
 var save_manager: Node
 var weather_manager: Node
 var app_database: Dictionary = {}
+const ARCHIVE_ROOT_DIR := "user://archives"
 
 # 番茄钟与待办事项数据
 var pomodoro_data: Dictionary = {
@@ -116,8 +117,123 @@ func _ready() -> void:
     _load_app_database()
     _load_pomodoro_data()
 
+func get_active_archive_id() -> String:
+    if config:
+        return str(config.active_archive_id).strip_edges()
+    return ""
+
+func has_active_archive() -> bool:
+    return get_active_archive_id() != ""
+
+func set_active_archive_id(archive_id: String, save_config: bool = true) -> void:
+    if config == null:
+        return
+    config.active_archive_id = archive_id.strip_edges()
+    if save_config:
+        config.save_config()
+
+func get_archive_root_dir(archive_id: String = "") -> String:
+    var final_archive_id := archive_id.strip_edges()
+    if final_archive_id == "":
+        final_archive_id = get_active_archive_id()
+    if final_archive_id == "":
+        final_archive_id = "default"
+    var dir_path := "%s/%s" % [ARCHIVE_ROOT_DIR, final_archive_id]
+    if not DirAccess.dir_exists_absolute(dir_path):
+        DirAccess.make_dir_recursive_absolute(dir_path)
+    return dir_path
+
+func get_character_save_dir(char_id: String = "", archive_id: String = "") -> String:
+    var final_char_id := char_id.strip_edges()
+    if final_char_id == "":
+        if config and str(config.current_character_id).strip_edges() != "":
+            final_char_id = str(config.current_character_id).strip_edges()
+        else:
+            final_char_id = "default"
+    var dir_path := get_archive_root_dir(archive_id).path_join("saves").path_join(final_char_id)
+    if not DirAccess.dir_exists_absolute(dir_path):
+        DirAccess.make_dir_recursive_absolute(dir_path)
+    return dir_path
+
+func get_character_save_path(file_name: String, char_id: String = "", archive_id: String = "") -> String:
+    return get_character_save_dir(char_id, archive_id).path_join(file_name)
+
+func get_archive_state_path(file_name: String, archive_id: String = "") -> String:
+    return get_archive_root_dir(archive_id).path_join(file_name)
+
+func get_archive_custom_config(key: String, default_value: Variant = null) -> Variant:
+    if config == null:
+        return default_value
+    var archive_id := get_active_archive_id()
+    if archive_id == "":
+        return default_value
+    var bucket_key := "archive_%s" % archive_id
+    var bucket = config.get_custom_config(bucket_key, {})
+    if bucket is Dictionary and bucket.has(key):
+        return bucket[key]
+    return default_value
+
+func set_archive_custom_config(key: String, value: Variant, save_now: bool = true) -> void:
+    if config == null:
+        return
+    var archive_id := get_active_archive_id()
+    if archive_id == "":
+        return
+    var bucket_key := "archive_%s" % archive_id
+    var bucket = config.get_custom_config(bucket_key, {})
+    if not bucket is Dictionary:
+        bucket = {}
+    bucket[key] = value
+    config.set_custom_config(bucket_key, bucket)
+    if save_now:
+        config.save_config()
+
+func clear_archive_custom_config(archive_id: String, save_now: bool = true) -> void:
+    if config == null:
+        return
+    var final_archive_id := archive_id.strip_edges()
+    if final_archive_id == "":
+        final_archive_id = get_active_archive_id()
+    if final_archive_id == "":
+        return
+    var bucket_key := "archive_%s" % final_archive_id
+    if config.custom_configs.has(bucket_key):
+        config.custom_configs.erase(bucket_key)
+        if save_now:
+            config.save_config()
+
+func sync_profile_to_config() -> void:
+    if config == null or profile == null:
+        return
+    config.player_name = str(profile.player_name)
+    config.player_nickname = str(profile.player_title)
+
+func reload_active_archive_data() -> void:
+    if profile:
+        profile.load_profile()
+    if history:
+        history.load_history()
+    if memory_manager:
+        memory_manager.load_memory()
+    if npc_relationship_manager:
+        npc_relationship_manager.load_relationships()
+    if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
+        story_time_manager.reload_for_current_character(config.current_character_id if config else "")
+    if gift_manager and gift_manager.has_method("reload_for_current_character"):
+        gift_manager.reload_for_current_character(config.current_character_id if config else "")
+    if is_instance_valid(MomentsManager) and MomentsManager.has_method("reload_for_current_character"):
+        MomentsManager.reload_for_current_character(config.current_character_id if config else "")
+    if is_instance_valid(MobileFixedChatManager) and MobileFixedChatManager.has_method("reload_for_active_archive"):
+        MobileFixedChatManager.reload_for_active_archive()
+    var event_manager = get_node_or_null("/root/EventManager")
+    if event_manager and event_manager.has_method("reload_for_current_character"):
+        event_manager.reload_for_current_character()
+    sync_profile_to_config()
+    if config:
+        config.save_config()
+
 func _load_pomodoro_data() -> void:
-    var path = "user://pomodoro_data.json"
+    var path = get_archive_state_path("pomodoro_data.json")
     if FileAccess.file_exists(path):
         var file = FileAccess.open(path, FileAccess.READ)
         var json_text = file.get_as_text()
@@ -130,7 +246,7 @@ func _load_pomodoro_data() -> void:
                     pomodoro_data[key] = data[key]
                     
 func save_pomodoro_data() -> void:
-    var path = "user://pomodoro_data.json"
+    var path = get_archive_state_path("pomodoro_data.json")
     var file = FileAccess.open(path, FileAccess.WRITE)
     file.store_string(JSON.stringify(pomodoro_data))
     file.close()

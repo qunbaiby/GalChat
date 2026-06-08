@@ -94,7 +94,7 @@
                     "content": "一转眼，我们已经相处一个月了，只不过“老师”这个称呼，还是有些生分。"
                 },
                 {
-                    "type": "show_player_info_popup"
+                    "type": "show_player_call_name_popup"
                 },
                 {
                     "type": "dialogue",

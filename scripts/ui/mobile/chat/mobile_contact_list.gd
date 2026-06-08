@@ -71,7 +71,7 @@ func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 			info.avatar = json.data.get("avatar", "")
 			
 	# Get last message from mobile chat history
-	var history_path = "user://saves/%s/mobile_chat_history.json" % char_id
+	var history_path = GameDataManager.get_character_save_path("mobile_chat_history.json", char_id)
 	if FileAccess.file_exists(history_path):
 		var file = FileAccess.open(history_path, FileAccess.READ)
 		var json = JSON.new()

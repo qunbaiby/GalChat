@@ -1,0 +1,305 @@
+[gd_scene load_steps=11 format=3 uid="uid://2nbtxar060nd"]
+
+[ext_resource type="Script" uid="uid://cqop1pdoue1ib" path="res://scripts/ui/mobile/mail_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+
+[sub_resource type="Shader" id="Shader_Blur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.6;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_Blur"]
+shader = SubResource("Shader_Blur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
+bg_color = Color(0.956, 0.974, 0.982, 0.992)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.9, 0.82)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.89, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftPane"]
+bg_color = Color(0.94, 0.945, 0.952, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.84, 0.88, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPane"]
+bg_color = Color(0.985, 0.986, 0.99, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.89, 0.92, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AttachmentPanel"]
+bg_color = Color(0.965, 0.968, 0.973, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.87, 0.9, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="MailPanel" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_Blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(1120, 700)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
+custom_minimum_size = Vector2(1120, 700)
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(84, 36)
+layout_mode = 2
+text = "关闭"
+
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.24, 0.25, 0.28, 1)
+theme_override_font_sizes/font_size = 22
+text = "邮箱"
+
+[node name="CounterLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(88, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.74, 0.78, 1)
+theme_override_font_sizes/font_size = 15
+text = "022 / 100"
+horizontal_alignment = 2
+
+[node name="HeaderAction" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.68, 0.72, 1)
+theme_override_font_sizes/font_size = 18
+text = "X"
+horizontal_alignment = 2
+
+[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="BodyHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LeftPane" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
+custom_minimum_size = Vector2(392, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPane")
+
+[node name="LeftVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="MailScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MailList" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox/MailScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="FooterBar" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox"]
+layout_mode = 2
+
+[node name="FooterHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox/FooterBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ClaimAllBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox/FooterBar/FooterHBox"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "全部领取"
+
+[node name="DeleteReadBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox/FooterBar/FooterHBox"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "删除已读邮件"
+
+[node name="RightPane" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_RightPane")
+
+[node name="RightMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="RightVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="DetailTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.32, 1)
+theme_override_font_sizes/font_size = 28
+text = "邮件标题"
+
+[node name="MetaHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SenderLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/MetaHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.64, 0.68, 1)
+theme_override_font_sizes/font_size = 15
+text = "寄件人：-"
+
+[node name="DateLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/MetaHBox"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.64, 0.68, 1)
+theme_override_font_sizes/font_size = 15
+text = "2026-06-07 12:00"
+horizontal_alignment = 2
+
+[node name="ReceiverLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.42, 0.46, 1)
+theme_override_font_sizes/font_size = 16
+text = "收件人：-"
+
+[node name="BodyLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.34, 0.35, 0.38, 1)
+theme_override_font_sizes/font_size = 17
+text = "暂无邮件内容。"
+autowrap_mode = 3
+
+[node name="AttachmentPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
+custom_minimum_size = Vector2(0, 162)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AttachmentPanel")
+
+[node name="AttachmentMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/AttachmentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="AttachmentGrid" type="GridContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/AttachmentPanel/AttachmentMargin"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 4
+
+[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
+layout_mode = 2
+
+[node name="BottomSpacer" type="Control" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeleteBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/BottomBar"]
+custom_minimum_size = Vector2(170, 48)
+layout_mode = 2
+text = "删除"

@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://sv4gjnbeh1bx"]
 
-[ext_resource type="Texture2D" uid="uid://hfrk5cefxbbe" path="res://assets/images/icons/ui/stats/gold.svg" id="2_icon_gold"]
 [ext_resource type="Script" uid="uid://dsw7vmfenubsa" path="res://scripts/ui/main/top_status_panel.gd" id="2_script"]
-[ext_resource type="Texture2D" uid="uid://cb2a3ywmwvoyo" path="res://assets/images/icons/ui/stats/core_physical.svg" id="3_icon_energy"]
+[ext_resource type="Texture2D" uid="uid://bah2jcles2evt" path="res://assets/images/icons/ui/main/usd-circle.png" id="2_ukdjp"]
+[ext_resource type="Texture2D" uid="uid://c6riiul28b4xc" path="res://assets/images/icons/ui/main/bolt.png" id="3_6ej4b"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PillBg"]
 bg_color = Color(0, 0, 0, 0.65)
@@ -78,7 +78,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_icon_gold")
+texture = ExtResource("2_ukdjp")
 expand_mode = 1
 stretch_mode = 5
 
@@ -136,6 +136,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_icon_energy")
+texture = ExtResource("3_6ej4b")
 expand_mode = 1
 stretch_mode = 5

@@ -7,64 +7,68 @@
 [ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="5_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
-bg_color = Color(0.95, 0.935, 0.9, 0.985)
+bg_color = Color(0.958, 0.976, 0.984, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.84, 0.8, 0.72, 1)
+border_color = Color(0.78, 0.87, 0.89, 0.82)
 corner_radius_top_left = 24
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.1)
-shadow_size = 18
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.93333334, 0.9137255, 0.84705883, 1)
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
-border_color = Color(0.83, 0.79, 0.71, 1)
+border_color = Color(0.79, 0.88, 0.89, 0.9)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hsjgl"]
-bg_color = Color(1, 1, 1, 1)
+bg_color = Color(0.985, 0.993, 0.996, 1)
 border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.88, 0.9, 0.82)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.986, 0.98, 0.962, 1)
+bg_color = Color(0.985, 0.994, 0.996, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.86, 0.83, 0.77, 1)
+border_color = Color(0.81, 0.89, 0.9, 0.84)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.05)
+shadow_color = Color(0.03, 0.08, 0.1, 0.08)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InnerCard"]
-bg_color = Color(0.992, 0.987, 0.975, 1)
+bg_color = Color(0.992, 0.998, 0.999, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.9, 0.87, 0.82, 1)
+border_color = Color(0.81, 0.89, 0.9, 0.84)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.992, 0.974, 0.94, 1)
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
-border_color = Color(0.9, 0.84, 0.77, 1)
+border_color = Color(0.79, 0.88, 0.89, 0.9)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 
@@ -83,7 +87,7 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ArchivePersonalityBlur"]
 shader = SubResource("Shader_ArchivePersonalityBlur")
 shader_parameter/lod = 2.5
-shader_parameter/mix_color = Color(0.168627, 0.168627, 0.168627, 0.556863)
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.32)
 
 [node name="ArchivePersonalityPanel" type="Control"]
 layout_mode = 3
@@ -147,7 +151,7 @@ offset_top = 10.0
 offset_right = -118.0
 offset_bottom = 41.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 22
 text = "人格档案"
 horizontal_alignment = 1
@@ -162,7 +166,7 @@ offset_top = 39.0
 offset_right = -118.0
 offset_bottom = 61.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.45, 0.42, 0.37, 0.92)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.92)
 theme_override_font_sizes/font_size = 14
 text = "左侧查看性格图表，右侧阅读分析与底色设定。"
 horizontal_alignment = 1
@@ -179,7 +183,7 @@ offset_top = 20.0
 offset_right = -20.0
 offset_bottom = 62.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(0.24, 0.2, 0.17, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_hsjgl")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hsjgl")
@@ -231,13 +235,13 @@ theme_override_constants/separation = 2
 
 [node name="ChartsTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/HeaderHBox/HeaderTextVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 15
 text = "性格图谱"
 
 [node name="ChartsHint" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/HeaderHBox/HeaderTextVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "基于大五人格维度，观察初始底色与当前演化状态。"
 autowrap_mode = 3
@@ -303,13 +307,13 @@ theme_override_constants/separation = 8
 
 [node name="TrendTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 15
 text = "趋势曲线"
 
 [node name="TrendHint" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.44, 0.4, 0.95)
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "观察五项特质在剧情推进中的变化节奏。"
 autowrap_mode = 3
@@ -352,7 +356,7 @@ theme_override_constants/separation = 12
 
 [node name="SectionTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "当前分析"
 
@@ -362,7 +366,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/HeaderPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
 text = "  ◆ 当前性格演化分析"
 
 [node name="ContentScroll" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox"]
@@ -462,7 +466,7 @@ theme_override_constants/separation = 12
 
 [node name="SectionTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.19, 0.16, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "初始底色"
 
@@ -477,7 +481,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox/HeaderPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
+theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
 text = "  ◆ 初始性格底色设定"
 
 [node name="ContentScroll" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox"]

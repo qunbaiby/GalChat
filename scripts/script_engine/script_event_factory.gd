@@ -1,6 +1,8 @@
 class_name ScriptEventFactory
 extends RefCounted
 
+const EVENT_SHOW_PLAYER_CALL_NAME_PATH := "res://scripts/script_engine/events/event_show_player_call_name.gd"
+
 static func create_event(data: Dictionary): # 返回 ScriptEvent
     var type = data.get("type", "")
     match type:
@@ -26,8 +28,8 @@ static func create_event(data: Dictionary): # 返回 ScriptEvent
             return preload("res://scripts/script_engine/events/event_hide_character.gd").new(data)
         "voice_call":
             return preload("res://scripts/script_engine/events/event_voice_call.gd").new(data)
-        "show_player_info_popup":
-            return preload("res://scripts/script_engine/events/event_show_player_info.gd").new(data)
+        "show_player_call_name_popup":
+            return load(EVENT_SHOW_PLAYER_CALL_NAME_PATH).new(data)
         "start_free_chat":
             return preload("res://scripts/script_engine/events/event_start_free_chat.gd").new(data)
         _:

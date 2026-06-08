@@ -1,0 +1,341 @@
+[gd_scene load_steps=13 format=3 uid="uid://be7dvcytebwjf"]
+
+[ext_resource type="Script" uid="uid://c4d0absbflk6h" path="res://scripts/ui/mobile/luna_profile_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://dqr6j16vpspjn" path="res://assets/images/story/cg/story_cg_luna_piano_practice.png" id="3_1kv3s"]
+[ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="3_043g4"]
+
+[sub_resource type="Shader" id="Shader_Blur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.7;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.1, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_Blur"]
+shader = SubResource("Shader_Blur")
+shader_parameter/lod = 2.7
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
+bg_color = Color(0.956, 0.974, 0.982, 0.992)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.9, 0.82)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.89, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftAccent"]
+bg_color = Color(0.88, 0.58, 0.73, 0.96)
+corner_radius_top_right = 64
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_WhiteCard"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.89, 0.92, 0.84)
+corner_radius_top_right = 50
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FieldRow"]
+bg_color = Color(1, 1, 1, 0.52)
+draw_center = false
+border_width_bottom = 1
+border_color = Color(0.84, 0.88, 0.9, 0.9)
+
+[node name="LunaProfilePanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_Blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(1120, 700)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
+
+[node name="RootCanvas" type="Control" parent="CenterContainer/PanelRoot"]
+custom_minimum_size = Vector2(1120, 700)
+layout_mode = 2
+
+[node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/RootCanvas"]
+layout_mode = 0
+offset_right = 1120.0
+offset_bottom = 68.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/RootCanvas/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
+
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootCanvas/HeaderPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/RootCanvas/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(62, 32)
+layout_mode = 2
+text = "<"
+
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/HeaderPanel/Margin/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.23, 0.28, 1)
+theme_override_font_sizes/font_size = 19
+text = "个人资料"
+
+[node name="BodyCanvas" type="Control" parent="CenterContainer/PanelRoot/RootCanvas"]
+anchors_preset = 0
+offset_top = 68.0
+offset_right = 1120.0
+offset_bottom = 700.0
+
+[node name="LeftAccentTop" type="Panel" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas"]
+layout_mode = 0
+offset_top = 22.0
+offset_right = 252.0
+offset_bottom = 633.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_LeftAccent")
+
+[node name="AccentLogo" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/LeftAccentTop"]
+layout_mode = 0
+offset_left = 42.0
+offset_top = 26.0
+offset_right = 156.0
+offset_bottom = 160.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.88)
+theme_override_font_sizes/font_size = 12
+text = "LUNA
+PROFILE"
+autowrap_mode = 3
+vertical_alignment = 1
+
+[node name="PortraitStripCard" type="Panel" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas"]
+clip_children = 1
+clip_contents = true
+layout_mode = 0
+offset_top = 167.0
+offset_right = 645.0
+offset_bottom = 311.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_WhiteCard")
+
+[node name="StripPortrait" type="TextureRect" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/PortraitStripCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_1kv3s")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StripShade" type="ColorRect" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/PortraitStripCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.1, 0.14, 0.12)
+
+[node name="HeroStage" type="Control" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas"]
+anchors_preset = 0
+offset_left = 174.0
+offset_top = 20.0
+offset_right = 708.0
+offset_bottom = 628.0
+
+[node name="StaticPortrait" type="TextureRect" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/HeroStage"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_top = 18.0
+offset_right = -98.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/HeroStage"]
+position = Vector2(261.44327, 425.50006)
+scale = Vector2(0.552483, 0.552483)
+sprite_frames = ExtResource("3_043g4")
+
+[node name="InfoColumn" type="PanelContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas"]
+self_modulate = Color(1, 1, 1, 0)
+clip_contents = true
+layout_mode = 0
+offset_left = 700.0
+offset_top = 19.0
+offset_right = 1054.0
+offset_bottom = 560.0
+
+[node name="ContainerMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="InfoContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
+theme_override_font_sizes/font_size = 40
+text = "Luna"
+
+[node name="IntroLabel" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.55, 0.59, 0.62, 1)
+theme_override_font_sizes/font_size = 14
+text = "安静温柔又有点慢热"
+autowrap_mode = 3
+
+[node name="MetaVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="AgeRow" type="PanelContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_FieldRow")
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/AgeRow"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/AgeRow/HBox"]
+custom_minimum_size = Vector2(78, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.64, 1)
+theme_override_font_sizes/font_size = 14
+text = "年龄"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/AgeRow/HBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.35, 0.39, 1)
+theme_override_font_sizes/font_size = 14
+text = "21 岁"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BirthdayRow" type="PanelContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_FieldRow")
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/BirthdayRow"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/BirthdayRow/HBox"]
+custom_minimum_size = Vector2(78, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.64, 1)
+theme_override_font_sizes/font_size = 14
+text = "生日"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/BirthdayRow/HBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.35, 0.39, 1)
+theme_override_font_sizes/font_size = 14
+text = "待补充"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ZodiacRow" type="PanelContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_FieldRow")
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/ZodiacRow"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/ZodiacRow/HBox"]
+custom_minimum_size = Vector2(78, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.64, 1)
+theme_override_font_sizes/font_size = 14
+text = "星座"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer/MetaVBox/ZodiacRow/HBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.35, 0.39, 1)
+theme_override_font_sizes/font_size = 14
+text = "待补充"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="DescriptionBody" type="Label" parent="CenterContainer/PanelRoot/RootCanvas/BodyCanvas/InfoColumn/ContainerMargin/InfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.34, 0.37, 0.42, 1)
+theme_override_font_sizes/font_size = 15
+text = "Luna（21岁）是江屿现代艺术大学的大三学生。"
+autowrap_mode = 3

@@ -2,122 +2,138 @@ extends Node
 class_name SaveManager
 
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
-const SLOTS_DIR_FORMAT = "user://saves/%s/slots/"
+const MAX_ARCHIVE_SLOTS := 6
+const DEFAULT_CHARACTER_ID := "luna"
+const META_FILE_NAME := "meta.json"
 
-# Metadata keys: slot_id, timestamp, playtime, stage, screenshot_path
 var current_slot_id: String = ""
 
 func _ready() -> void:
-	pass
+	current_slot_id = get_active_archive_id()
 
-func get_slots_dir() -> String:
-	var char_id = "default"
-	if GameDataManager.config and GameDataManager.config.current_character_id != "":
-		char_id = GameDataManager.config.current_character_id
-	return SLOTS_DIR_FORMAT % char_id
+func get_archive_slot_ids() -> Array[String]:
+	var slot_ids: Array[String] = []
+	for i in range(1, MAX_ARCHIVE_SLOTS + 1):
+		slot_ids.append("slot_%d" % i)
+	return slot_ids
 
-func get_active_dir() -> String:
-	var char_id = "default"
-	if GameDataManager.config and GameDataManager.config.current_character_id != "":
-		char_id = GameDataManager.config.current_character_id
-	return "user://saves/%s/" % char_id
+func get_active_archive_id() -> String:
+	if GameDataManager and GameDataManager.config:
+		current_slot_id = str(GameDataManager.config.active_archive_id).strip_edges()
+	return current_slot_id
 
-func _replace_directory(source_dir: String, target_dir: String) -> void:
-	_remove_directory_recursive(target_dir)
-	if DirAccess.dir_exists_absolute(source_dir):
-		_copy_directory_recursive(source_dir, target_dir)
+func get_archive_root(slot_id: String = "") -> String:
+	return GameDataManager.get_archive_root_dir(slot_id)
 
-func _copy_directory_recursive(source_dir: String, target_dir: String) -> void:
-	if not DirAccess.dir_exists_absolute(source_dir):
-		return
-	if not DirAccess.dir_exists_absolute(target_dir):
-		DirAccess.make_dir_recursive_absolute(target_dir)
-	var dir = DirAccess.open(source_dir)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var entry = dir.get_next()
-	while entry != "":
-		if entry == "." or entry == "..":
-			entry = dir.get_next()
-			continue
-		var source_path = source_dir.path_join(entry)
-		var target_path = target_dir.path_join(entry)
-		if dir.current_is_dir():
-			_copy_directory_recursive(source_path, target_path)
-		else:
-			var copy_result = dir.copy(source_path, target_path)
-			if copy_result != OK:
-				printerr("[SaveManager] Failed to copy directory file: ", source_path, " -> ", target_path, ", error code: ", copy_result)
-		entry = dir.get_next()
-
-func _remove_directory_recursive(dir_path: String) -> void:
-	if not DirAccess.dir_exists_absolute(dir_path):
-		return
-	var dir = DirAccess.open(dir_path)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var entry = dir.get_next()
-	while entry != "":
-		if entry == "." or entry == "..":
-			entry = dir.get_next()
-			continue
-		var child_path = dir_path.path_join(entry)
-		if dir.current_is_dir():
-			_remove_directory_recursive(child_path)
-			DirAccess.remove_absolute(child_path)
-		else:
-			DirAccess.remove_absolute(child_path)
-		entry = dir.get_next()
-	DirAccess.remove_absolute(dir_path)
+func get_meta_path(slot_id: String = "") -> String:
+	return get_archive_root(slot_id).path_join(META_FILE_NAME)
 
 func get_save_slots() -> Array:
-	var slots_dir = get_slots_dir()
-	if not DirAccess.dir_exists_absolute(slots_dir):
-		return []
-		
-	var slots = []
-	var dir = DirAccess.open(slots_dir)
-	if dir:
-		dir.list_dir_begin()
-		var slot_name = dir.get_next()
-		while slot_name != "":
-			if dir.current_is_dir() and not slot_name.begins_with("."):
-				var meta_path = slots_dir + slot_name + "/meta.json"
-				if FileAccess.file_exists(meta_path):
-					var file = FileAccess.open(meta_path, FileAccess.READ)
-					if file:
-						var content = file.get_as_text()
-						file.close()
-						var json = JSON.new()
-						if json.parse(content) == OK:
-							var meta = json.get_data()
-							meta["slot_id"] = slot_name
-							slots.append(meta)
-			slot_name = dir.get_next()
-			
-	# 按时间降序排序
-	slots.sort_custom(func(a, b):
-		var t_a = a.get("timestamp", "").replace("T", " ")
-		var t_b = b.get("timestamp", "").replace("T", " ")
-		return t_a > t_b
-	)
+	var slots: Array = []
+	for slot_id in get_archive_slot_ids():
+		var meta := load_slot_meta(slot_id)
+		if meta.is_empty():
+			slots.append({
+				"slot_id": slot_id,
+				"is_empty": true
+			})
+		else:
+			meta["slot_id"] = slot_id
+			meta["is_empty"] = false
+			slots.append(meta)
 	return slots
 
-func save_game(slot_id: String, custom_image: Image = null):
-	var image: Image
-	if custom_image != null:
-		image = custom_image
-	else:
-		await RenderingServer.frame_post_draw
-		image = get_viewport().get_texture().get_image()
-		
-	image.resize(320, 180, Image.INTERPOLATE_BILINEAR)
-	
-	# 1. 强制各模块把当前数据保存到活动目录
+func load_slot_meta(slot_id: String) -> Dictionary:
+	var meta_path := get_meta_path(slot_id)
+	if not FileAccess.file_exists(meta_path):
+		if _archive_has_runtime_data(slot_id):
+			var rebuilt := _build_meta_from_archive(slot_id)
+			if not rebuilt.is_empty():
+				_write_slot_meta(slot_id, rebuilt)
+				return rebuilt
+		return {}
+	var file := FileAccess.open(meta_path, FileAccess.READ)
+	if file == null:
+		return {}
+	var json := JSON.new()
+	var result := json.parse(file.get_as_text())
+	file.close()
+	if result != OK or not json.data is Dictionary:
+		return {}
+	var meta: Dictionary = json.data
+	meta["slot_id"] = slot_id
+	return meta
+
+func prepare_empty_archive(slot_id: String) -> bool:
+	var final_slot_id := slot_id.strip_edges()
+	if final_slot_id == "":
+		return false
+	delete_save(final_slot_id)
+	if GameDataManager.config and str(GameDataManager.config.current_character_id).strip_edges() == "":
+		GameDataManager.config.current_character_id = DEFAULT_CHARACTER_ID
+	GameDataManager.set_active_archive_id(final_slot_id, false)
+	GameDataManager.clear_archive_custom_config(final_slot_id, false)
+	current_slot_id = final_slot_id
+	GameDataManager.reload_active_archive_data()
+	if GameDataManager.config:
+		GameDataManager.config.save_config()
+	return true
+
+func load_archive(slot_id: String) -> bool:
+	var final_slot_id := slot_id.strip_edges()
+	if final_slot_id == "" or not _archive_has_runtime_data(final_slot_id):
+		return false
+	if GameDataManager.config and str(GameDataManager.config.current_character_id).strip_edges() == "":
+		GameDataManager.config.current_character_id = DEFAULT_CHARACTER_ID
+	GameDataManager.set_active_archive_id(final_slot_id, false)
+	current_slot_id = final_slot_id
+	GameDataManager.reload_active_archive_data()
+	update_active_archive_meta()
+	return true
+
+func load_game(slot_id: String) -> bool:
+	return load_archive(slot_id)
+
+func delete_save(slot_id: String) -> bool:
+	var archive_root := get_archive_root(slot_id)
+	if not DirAccess.dir_exists_absolute(archive_root):
+		return false
+	_remove_directory_recursive(archive_root)
+	if get_active_archive_id() == slot_id:
+		current_slot_id = ""
+		GameDataManager.set_active_archive_id("", true)
+		GameDataManager.clear_archive_custom_config(slot_id)
+	return true
+
+func save_game(slot_id: String = "", _custom_image: Image = null) -> bool:
+	var target_slot := slot_id.strip_edges()
+	if target_slot == "":
+		target_slot = get_active_archive_id()
+	if target_slot == "":
+		return false
+	if target_slot != get_active_archive_id():
+		if not load_archive(target_slot):
+			return false
+	return auto_save()
+
+func auto_save() -> bool:
+	var active_slot := get_active_archive_id()
+	if active_slot == "":
+		return false
+	_flush_runtime_state()
+	_write_slot_meta(active_slot, _build_runtime_meta(active_slot))
+	return true
+
+func update_active_archive_meta() -> void:
+	var active_slot := get_active_archive_id()
+	if active_slot == "":
+		return
+	_write_slot_meta(active_slot, _build_runtime_meta(active_slot))
+
+func _flush_runtime_state() -> void:
 	if GameDataManager.profile != null:
 		GameDataManager.profile.save_profile()
+		GameDataManager.sync_profile_to_config()
 	if GameDataManager.history != null:
 		GameDataManager.history.save_history()
 	if GameDataManager.npc_relationship_manager != null:
@@ -126,126 +142,150 @@ func save_game(slot_id: String, custom_image: Image = null):
 		GameDataManager.memory_manager.save_memory()
 	if GameDataManager.story_time_manager != null:
 		GameDataManager.story_time_manager.save_data()
-		
-	# 2. 准备槽位目录
-	var slots_dir = get_slots_dir()
-	var slot_dir = slots_dir + slot_id + "/"
-	if not DirAccess.dir_exists_absolute(slot_dir):
-		DirAccess.make_dir_recursive_absolute(slot_dir)
-		
-	var active_dir = get_active_dir()
-	
-	# 3. 拷贝文件
-	var files_to_copy = [
-		"character_profile.json",
-		"chat_history.json",
-		"player_memory.json",
-		"story_time_save.json",
-		"mobile_chat_history.json",
-		"npc_relationships.json",
-		"triggered_events.json",
-		"memory_album_state.json",
-		"moments_data.json"
-	]
-	
-	var dir = DirAccess.open(active_dir)
-	if dir:
-		for f in files_to_copy:
-			if FileAccess.file_exists(active_dir + f):
-				var copy_result = dir.copy(active_dir + f, slot_dir + f)
-				if copy_result != OK:
-					printerr("[SaveManager] Failed to copy file: ", f, ", error code: ", copy_result)
-					return false
-	# _replace_directory(active_dir + "photos", slot_dir + "photos") # 移除：让相册成为角色全局数据，不受读写档回档影响
-				
-	var img_filename = "screenshot.jpg"
-	image.save_jpg(slot_dir + img_filename, 0.8)
-				
-	# 4. 生成 meta.json
-	var profile = GameDataManager.profile
-	var stage_title = "未知"
-	if profile:
-		var s_conf = profile.get_stage_config(profile.current_stage)
-		if not s_conf.is_empty():
-			stage_title = s_conf.get("stageTitle", "未知")
-			
-	var meta = {
-		"slot_id": slot_id,
-		"timestamp": Time.get_datetime_string_from_system().replace("T", " "),
-		"stage": profile.current_stage if profile else 1,
-		"stage_title": stage_title,
-		"intimacy": profile.intimacy if profile else 0,
-		"trust": profile.trust if profile else 0,
-		"screenshot_path": slot_dir + img_filename
-	}
-	
-	var meta_content = JSON.stringify(meta, "\t")
-	SafeFileAccess.store_string(slot_dir + "meta.json", meta_content)
-	
-	print("[SaveManager] Game saved to slot: ", slot_id)
-	return true
-
-func load_game(slot_id: String) -> bool:
-	var slot_dir = get_slots_dir() + slot_id + "/"
-	if not DirAccess.dir_exists_absolute(slot_dir):
-		printerr("[SaveManager] Slot directory not found: ", slot_dir)
-		return false
-		
-	var active_dir = get_active_dir()
-	
-	# 1. 将槽位文件拷贝回活动目录
-	var files_to_copy = [
-		"character_profile.json",
-		"chat_history.json",
-		"player_memory.json",
-		"story_time_save.json",
-		"mobile_chat_history.json",
-		"npc_relationships.json",
-		"triggered_events.json",
-		"memory_album_state.json",
-		"moments_data.json"
-	]
-	
-	var dir = DirAccess.open(slot_dir)
-	if dir:
-		for f in files_to_copy:
-			if FileAccess.file_exists(slot_dir + f):
-				dir.copy(slot_dir + f, active_dir + f)
-	# _replace_directory(slot_dir + "photos", active_dir + "photos") # 移除：让相册成为角色全局数据，不受读写档回档影响
-				
-	# 2. 强制各模块重新加载数据
-	if GameDataManager.profile:
-		GameDataManager.profile.load_profile()
-	if GameDataManager.history:
-		GameDataManager.history.load_history()
-	if GameDataManager.npc_relationship_manager:
-		GameDataManager.npc_relationship_manager.load_relationships()
-	if GameDataManager.memory_manager:
-		GameDataManager.memory_manager.load_memory()
-	if GameDataManager.story_time_manager:
-		GameDataManager.story_time_manager.load_data()
+	if GameDataManager.gift_manager != null and GameDataManager.gift_manager.has_method("save_state"):
+		GameDataManager.gift_manager.save_state()
+	if GameDataManager.has_method("save_pomodoro_data"):
+		GameDataManager.save_pomodoro_data()
+	if is_instance_valid(MomentsManager) and MomentsManager.has_method("save_data"):
+		MomentsManager.save_data()
 	var event_manager = get_node_or_null("/root/EventManager")
-	if event_manager and event_manager.has_method("reload_for_current_character"):
-		event_manager.reload_for_current_character()
-		
-	print("[SaveManager] Game loaded from slot: ", slot_id)
-	return true
+	if event_manager and event_manager.has_method("_save_triggered_events"):
+		event_manager._save_triggered_events()
+	if GameDataManager.config:
+		GameDataManager.config.save_config()
 
-func delete_save(slot_id: String) -> bool:
-	var slot_dir = get_slots_dir() + slot_id + "/"
-	if DirAccess.dir_exists_absolute(slot_dir):
-		var dir = DirAccess.open(slot_dir)
-		if dir:
-			dir.list_dir_begin()
-			var file_name = dir.get_next()
-			while file_name != "":
-				if not dir.current_is_dir():
-					dir.remove(file_name)
-				file_name = dir.get_next()
-			DirAccess.remove_absolute(slot_dir)
-			print("[SaveManager] Deleted slot: ", slot_id)
-			return true
-	return false
+func _build_runtime_meta(slot_id: String) -> Dictionary:
+	var now_text := _get_now_text()
+	var profile := GameDataManager.profile
+	var player_name := "未命名"
+	var stage_title := "相识"
+	var current_stage := 1
+	var day_count := 1
+	if profile != null:
+		player_name = str(profile.player_name).strip_edges()
+		if player_name == "":
+			player_name = "未命名"
+		current_stage = int(profile.current_stage)
+		var stage_conf := profile.get_stage_config(current_stage)
+		if not stage_conf.is_empty():
+			stage_title = str(stage_conf.get("stageTitle", stage_title))
+	if GameDataManager.story_time_manager != null:
+		day_count = maxi(1, int(GameDataManager.story_time_manager.current_day_offset) + 1)
+	return {
+		"slot_id": slot_id,
+		"player_name": player_name,
+		"day_count": day_count,
+		"stage": current_stage,
+		"stage_title": stage_title,
+		"last_played_at": now_text,
+		"display_line_1": "与 Luna 相处第%d天" % day_count,
+		"display_line_2": "%s & Luna  当前情感阶段：%s" % [player_name, stage_title],
+		"display_line_3": "最后游玩：%s" % now_text
+	}
 
-func auto_save():
-	await save_game("auto")
+func _build_meta_from_archive(slot_id: String) -> Dictionary:
+	var profile_path: String = GameDataManager.get_character_save_path("character_profile.json", DEFAULT_CHARACTER_ID, slot_id)
+	var profile_data: Dictionary = {}
+	if FileAccess.file_exists(profile_path):
+		var file := FileAccess.open(profile_path, FileAccess.READ)
+		if file != null:
+			var json := JSON.new()
+			if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+				profile_data = json.data
+			file.close()
+	if profile_data.is_empty():
+		return {}
+	var day_count := 1
+	var time_path: String = GameDataManager.get_character_save_path("story_time_save.json", DEFAULT_CHARACTER_ID, slot_id)
+	if FileAccess.file_exists(time_path):
+		var time_file := FileAccess.open(time_path, FileAccess.READ)
+		if time_file != null:
+			var time_json := JSON.new()
+			if time_json.parse(time_file.get_as_text()) == OK and time_json.data is Dictionary:
+				day_count = maxi(1, int(time_json.data.get("current_day_offset", 0)) + 1)
+			time_file.close()
+	var current_stage := int(profile_data.get("current_stage", 1))
+	var player_name := str(profile_data.get("player_name", "未命名")).strip_edges()
+	if player_name == "":
+		player_name = "未命名"
+	var stage_title := "相识"
+	if GameDataManager.profile != null:
+		var stage_conf := GameDataManager.profile.get_stage_config(current_stage)
+		if not stage_conf.is_empty():
+			stage_title = str(stage_conf.get("stageTitle", stage_title))
+	var last_played_at := _resolve_archive_last_played_at(slot_id, profile_path, time_path)
+	return {
+		"slot_id": slot_id,
+		"player_name": player_name,
+		"day_count": day_count,
+		"stage": current_stage,
+		"stage_title": stage_title,
+		"last_played_at": last_played_at,
+		"display_line_1": "与 Luna 相处第%d天" % day_count,
+		"display_line_2": "%s & Luna  当前情感阶段：%s" % [player_name, stage_title],
+		"display_line_3": "最后游玩：%s" % last_played_at
+	}
+
+func _archive_has_runtime_data(slot_id: String) -> bool:
+	var profile_path: String = GameDataManager.get_character_save_path("character_profile.json", DEFAULT_CHARACTER_ID, slot_id)
+	return FileAccess.file_exists(profile_path)
+
+func _write_slot_meta(slot_id: String, meta: Dictionary) -> void:
+	var meta_path := get_meta_path(slot_id)
+	SafeFileAccess.store_string(meta_path, JSON.stringify(meta, "\t"))
+
+func _get_now_text() -> String:
+	var now := Time.get_datetime_dict_from_system()
+	return "%04d/%02d/%02d %02d:%02d:%02d" % [
+		int(now.get("year", 0)),
+		int(now.get("month", 0)),
+		int(now.get("day", 0)),
+		int(now.get("hour", 0)),
+		int(now.get("minute", 0)),
+		int(now.get("second", 0))
+	]
+
+func _resolve_archive_last_played_at(slot_id: String, profile_path: String, time_path: String) -> String:
+	var latest_unix := 0
+	if FileAccess.file_exists(profile_path):
+		latest_unix = maxi(latest_unix, int(FileAccess.get_modified_time(profile_path)))
+	if FileAccess.file_exists(time_path):
+		latest_unix = maxi(latest_unix, int(FileAccess.get_modified_time(time_path)))
+	var meta_path := get_meta_path(slot_id)
+	if FileAccess.file_exists(meta_path):
+		latest_unix = maxi(latest_unix, int(FileAccess.get_modified_time(meta_path)))
+	if latest_unix <= 0:
+		return _get_now_text()
+	return _format_unix_time(latest_unix)
+
+func _format_unix_time(unix_time: int) -> String:
+	var time_dict := Time.get_datetime_dict_from_unix_time(unix_time)
+	return "%04d/%02d/%02d %02d:%02d:%02d" % [
+		int(time_dict.get("year", 0)),
+		int(time_dict.get("month", 0)),
+		int(time_dict.get("day", 0)),
+		int(time_dict.get("hour", 0)),
+		int(time_dict.get("minute", 0)),
+		int(time_dict.get("second", 0))
+	]
+
+func _remove_directory_recursive(dir_path: String) -> void:
+	if not DirAccess.dir_exists_absolute(dir_path):
+		return
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "":
+		if entry == "." or entry == "..":
+			entry = dir.get_next()
+			continue
+		var child_path := dir_path.path_join(entry)
+		if dir.current_is_dir():
+			_remove_directory_recursive(child_path)
+			DirAccess.remove_absolute(child_path)
+		else:
+			DirAccess.remove_absolute(child_path)
+		entry = dir.get_next()
+	DirAccess.remove_absolute(dir_path)

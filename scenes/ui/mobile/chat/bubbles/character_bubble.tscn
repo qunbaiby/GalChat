@@ -3,28 +3,30 @@
 [ext_resource type="Script" uid="uid://ct1inmjexc2cs" path="res://scripts/ui/mobile/chat/bubbles/character_bubble.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharacterBubble"]
-bg_color = Color(1, 1, 1, 0.98)
+bg_color = Color(0.992, 0.998, 0.999, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 6
+border_color = Color(0.8, 0.88, 0.9, 0.82)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 8
+shadow_color = Color(0.09, 0.15, 0.18, 0.08)
+shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharacterAvatar"]
 bg_color = Color(1, 1, 1, 0.98)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
+border_color = Color(0.53, 0.81, 0.78, 0.75)
 
 [node name="CharacterBubble" type="HBoxContainer"]
 anchors_preset = 15

@@ -1,0 +1,381 @@
+[gd_scene load_steps=13 format=3 uid="uid://dscu6mpedlo0r"]
+
+[ext_resource type="Script" uid="uid://pd1sk7x3pemo" path="res://scripts/ui/mobile/tutorial_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+
+[sub_resource type="Shader" id="Shader_Blur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.6;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_Blur"]
+shader = SubResource("Shader_Blur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
+bg_color = Color(0.956, 0.974, 0.982, 0.992)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.9, 0.82)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.89, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftPanel"]
+bg_color = Color(0.97, 0.972, 0.978, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.9, 0.93, 0.98)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Preview"]
+bg_color = Color(0.97, 0.985, 0.992, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.83, 0.88, 0.93, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.08, 0.12, 0.18, 0.1)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Stage"]
+bg_color = Color(0.11, 0.13, 0.16, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hotspot"]
+bg_color = Color(0.21, 0.24, 0.29, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.55, 0.74, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PagerButton"]
+bg_color = Color(0.96, 0.97, 0.98, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.83, 0.86, 0.9, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="TutorialPanel" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_Blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(1120, 700)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
+custom_minimum_size = Vector2(1120, 700)
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(84, 36)
+layout_mode = 2
+text = "返回"
+
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_font_sizes/font_size = 22
+text = "教学"
+
+[node name="HeaderDots" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
+custom_minimum_size = Vector2(84, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.72, 1)
+theme_override_font_sizes/font_size = 18
+text = "..."
+horizontal_alignment = 2
+
+[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="BodyHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LeftSidebar" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
+custom_minimum_size = Vector2(310, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPanel")
+
+[node name="LeftMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="SidebarHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="IconRail" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox"]
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+
+[node name="CategoryButtonVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox/IconRail"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SectionVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="CategoryTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox/SectionVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.38, 0.42, 1)
+theme_override_font_sizes/font_size = 16
+text = "战斗"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox/SectionVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LessonList" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftSidebar/LeftMargin/SidebarHBox/SectionVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="RightContent" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="PreviewPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent"]
+custom_minimum_size = Vector2(0, 392)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Preview")
+
+[node name="PreviewMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="PreviewStage" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Stage")
+
+[node name="StageGrid" type="ColorRect" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+color = Color(0.92, 0.96, 1, 0.04)
+
+[node name="StageTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 20
+text = "地点选择"
+
+[node name="CharacterDots" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.9, 0.97, 0.9)
+theme_override_font_sizes/font_size = 16
+text = "●   ●   ●"
+
+[node name="HotspotCardA" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Hotspot")
+
+[node name="CardLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage/HotspotCardA"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "当前地点"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HotspotCardB" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Hotspot")
+
+[node name="CardLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage/HotspotCardB"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "可前往地点"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HotspotCardC" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Hotspot")
+
+[node name="CardLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage/HotspotCardC"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "危险区域"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CursorHint" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.98, 0.9)
+theme_override_font_sizes/font_size = 30
+text = "☞"
+
+[node name="StageHint" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/PreviewPanel/PreviewMargin/PreviewStage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.88, 0.92, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "选择与当前位置相连的地点后，即可前往下一处区域。"
+horizontal_alignment = 1
+
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="LessonTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/ContentVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.36, 0.39, 1)
+theme_override_font_sizes/font_size = 26
+text = "地点选择"
+horizontal_alignment = 1
+
+[node name="LessonDesc" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/ContentVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 15
+text = "在卡尼思中，选择与当前地点相连的地点，即可前往所选地点。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PagerRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="PrevBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/ContentVBox/PagerRow"]
+custom_minimum_size = Vector2(48, 40)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_PagerButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PagerButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PagerButton")
+text = "<"
+
+[node name="DotsLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/ContentVBox/PagerRow"]
+custom_minimum_size = Vector2(88, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.56, 0.18, 1)
+theme_override_font_sizes/font_size = 16
+text = "● ○ ○"
+horizontal_alignment = 1
+
+[node name="NextBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightContent/ContentVBox/PagerRow"]
+custom_minimum_size = Vector2(48, 40)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_PagerButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PagerButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PagerButton")
+text = ">"

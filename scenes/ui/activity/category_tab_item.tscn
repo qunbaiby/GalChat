@@ -3,35 +3,35 @@
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Tab"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabHover"]
-bg_color = Color(1, 0.98, 0.95, 1)
+bg_color = Color(0.94, 0.98, 0.97, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.57, 0.82, 0.76, 0.7)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="CategoryTabItem" type="Button"]
 custom_minimum_size = Vector2(100, 40)
 offset_right = 80.0
 offset_bottom = 35.0
 theme = ExtResource("1_theme")
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Tab")
 theme_override_styles/hover = SubResource("StyleBoxFlat_TabHover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_TabHover")

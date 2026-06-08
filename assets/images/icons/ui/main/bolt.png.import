@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://sny78ge0uynd"
-path="res://.godot/imported/road-map-fill.png-776d455d5acefa6fae435bb5fe0b47f6.ctex"
+uid="uid://c6riiul28b4xc"
+path="res://.godot/imported/bolt.png-70f426cf225494fc1fb274f1cd1503e5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/road-map-fill.png"
-dest_files=["res://.godot/imported/road-map-fill.png-776d455d5acefa6fae435bb5fe0b47f6.ctex"]
+source_file="res://assets/images/icons/ui/main/bolt.png"
+dest_files=["res://.godot/imported/bolt.png-70f426cf225494fc1fb274f1cd1503e5.ctex"]
 
 [params]
 

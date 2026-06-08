@@ -3,19 +3,19 @@
 [ext_resource type="Script" uid="uid://cvxfblkpaci4e" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 18
-shadow_offset = Vector2(0, 4)
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.18, 0.28, 0.33, 0.14)
+shadow_size = 24
+shadow_offset = Vector2(0, 6)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
@@ -30,35 +30,40 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(1, 1, 1, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
+border_color = Color(0.79, 0.86, 0.89, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultPanel"]
-bg_color = Color(1, 1, 1, 0.94)
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_EffectPanel"]
+bg_color = Color(1, 1, 1, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.89, 0.92, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_EffectPanel"]
-bg_color = Color(0.985, 0.988, 0.995, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
 
 [node name="ScheduleEventPanel" type="Control"]
 layout_mode = 3
@@ -109,7 +114,7 @@ theme_override_constants/separation = 20
 
 [node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.65, 0.58, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 26
 text = "突发事件！"
 
@@ -117,7 +122,7 @@ text = "突发事件！"
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.43, 0.45, 0.5, 1)
+theme_override_colors/default_color = Color(0.31, 0.39, 0.42, 1)
 theme_override_font_sizes/normal_font_size = 19
 bbcode_enabled = true
 text = "事件描述..."
@@ -142,7 +147,7 @@ text = "选项1"
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
@@ -175,7 +180,7 @@ theme_override_constants/separation = 14
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.35, 0.37, 0.42, 1)
+theme_override_colors/default_color = Color(0.31, 0.39, 0.42, 1)
 theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
 text = "结果描述..."

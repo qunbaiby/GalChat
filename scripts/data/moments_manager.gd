@@ -21,7 +21,7 @@ func _get_save_path(char_id: String = "") -> String:
 	var final_char_id = char_id.strip_edges()
 	if final_char_id == "":
 		final_char_id = _get_current_char_id()
-	return "user://saves/%s/moments_data.json" % final_char_id
+	return GameDataManager.get_character_save_path("moments_data.json", final_char_id)
 
 func reload_for_current_character(char_id: String = "") -> void:
 	load_data(char_id)

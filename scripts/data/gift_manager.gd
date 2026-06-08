@@ -24,7 +24,7 @@ func _get_state_path(char_id: String = "") -> String:
 	var final_char_id = char_id.strip_edges()
 	if final_char_id == "":
 		final_char_id = _get_current_char_id()
-	return "user://saves/%s/%s" % [final_char_id, STATE_FILE_NAME]
+	return GameDataManager.get_character_save_path(STATE_FILE_NAME, final_char_id)
 
 func reload_for_current_character(char_id: String = "") -> void:
 	_load_state(char_id)

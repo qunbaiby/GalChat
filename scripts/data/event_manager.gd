@@ -18,11 +18,7 @@ func get_triggered_events_save_path() -> String:
     var char_id = "default"
     if GameDataManager.config and GameDataManager.config.current_character_id != "":
         char_id = GameDataManager.config.current_character_id
-
-    var dir_path = "user://saves/%s" % char_id
-    if not DirAccess.dir_exists_absolute(dir_path):
-        DirAccess.make_dir_recursive_absolute(dir_path)
-    return "%s/triggered_events.json" % dir_path
+    return GameDataManager.get_character_save_path("triggered_events.json", char_id)
 
 func _load_event_registry() -> void:
     if FileAccess.file_exists(EVENT_REGISTRY_PATH):

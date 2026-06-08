@@ -3,16 +3,18 @@
 [ext_resource type="Script" path="res://scripts/ui/mobile/chat/bubbles/system_bubble.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SystemBubble"]
-bg_color = Color(0.985, 0.988, 0.995, 0.96)
+bg_color = Color(0.97, 0.986, 0.99, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.82, 0.9, 0.91, 0.78)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.09, 0.15, 0.18, 0.06)
+shadow_size = 6
 
 [node name="SystemBubble" type="HBoxContainer"]
 anchors_preset = 15
@@ -37,5 +39,5 @@ theme_override_constants/margin_bottom = 4
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_colors/font_color = Color(0.43, 0.53, 0.58, 1)
 theme_override_font_sizes/font_size = 12

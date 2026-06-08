@@ -3,98 +3,98 @@
 [ext_resource type="Script" uid="uid://dbmnt3qmlkt8q" path="res://scripts/ui/map/library/tutoring_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuPanel"]
-bg_color = Color(0.985, 0.988, 0.995, 0.985)
+bg_color = Color(0.95, 0.976, 0.984, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 20
+border_color = Color(0.74, 0.88, 0.89, 0.88)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.04, 0.1, 0.12, 0.16)
+shadow_size = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SurfacePanel"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.992, 0.998, 0.999, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
+border_color = Color(0.8, 0.9, 0.91, 0.84)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.06, 0.12, 0.15, 0.08)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AccentPanel"]
-bg_color = Color(1, 0.985, 0.962, 1)
+bg_color = Color(0.94, 0.985, 0.982, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.97, 0.82, 0.68, 0.95)
+border_color = Color(0.76, 0.9, 0.88, 0.86)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.18, 0.52, 0.5, 0.12)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondary"]
+bg_color = Color(0.985, 0.995, 0.998, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.88, 0.9, 0.86)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0.93, 0.6, 0.32, 0.15)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondary"]
-bg_color = Color(0.94, 0.95, 0.97, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.84, 0.87, 0.92, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondaryHover"]
-bg_color = Color(0.9, 0.93, 0.97, 1)
+bg_color = Color(0.93, 0.987, 0.982, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.78, 0.84, 0.92, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.52, 0.84, 0.81, 0.94)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.44, 0.77, 0.73, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.57, 0.82, 0.76, 0.78)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.57, 0.82, 0.76, 0.2)
-shadow_size = 8
+border_color = Color(0.34, 0.66, 0.62, 0.88)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.18, 0.52, 0.5, 0.2)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimaryHover"]
-bg_color = Color(0.98, 0.64, 0.31, 1)
+bg_color = Color(0.36, 0.82, 0.76, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.57, 0.82, 0.76, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.57, 0.82, 0.76, 0.24)
-shadow_size = 10
+border_color = Color(0.34, 0.66, 0.62, 0.94)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.18, 0.52, 0.5, 0.24)
+shadow_size = 12
 
 [node name="TutoringMenu" type="CanvasLayer"]
 layer = 100
@@ -148,13 +148,13 @@ theme_override_constants/separation = 2
 
 [node name="Title" type="Label" parent="MenuPanel/Header/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 26
 text = "课业指导"
 
 [node name="SubTitle" type="Label" parent="MenuPanel/Header/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.59, 0.65, 1)
+theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
 theme_override_font_sizes/font_size = 12
 text = "安排补习课程，消耗行动力并预览本次提升。"
 
@@ -168,8 +168,8 @@ offset_top = 12.0
 offset_right = -14.0
 offset_bottom = 48.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(0.45, 0.48, 0.54, 1)
-theme_override_colors/font_hover_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_colors/font_color = Color(0.26, 0.38, 0.41, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.55, 0.52, 1)
 theme_override_font_sizes/font_size = 22
 text = "×"
 flat = true
@@ -199,13 +199,13 @@ theme_override_constants/separation = 2
 
 [node name="ListTitle" type="Label" parent="MenuPanel/ContentHBox/LeftPanel/ListHeader"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.36, 0.42, 1)
+theme_override_colors/font_color = Color(0.24, 0.36, 0.4, 1)
 theme_override_font_sizes/font_size = 16
 text = "待完成课业"
 
 [node name="ListHint" type="Label" parent="MenuPanel/ContentHBox/LeftPanel/ListHeader"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.61, 0.67, 1)
+theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
 theme_override_font_sizes/font_size = 12
 text = "点击课程可追加 1 次指导。"
 
@@ -253,7 +253,7 @@ theme_override_constants/separation = 2
 
 [node name="EnergyCaption" type="Label" parent="MenuPanel/ContentHBox/RightPanel/EnergyPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.53, 0.34, 1)
+theme_override_colors/font_color = Color(0.24, 0.52, 0.49, 1)
 theme_override_font_sizes/font_size = 12
 text = "行动力结余"
 

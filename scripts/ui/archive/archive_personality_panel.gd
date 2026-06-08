@@ -57,7 +57,7 @@ func _load_char_archive(char_id: String) -> void:
 
 
 func _get_story_day_offset_for_char(char_id: String) -> int:
-	var path: String = "user://saves/%s/story_time_save.json" % char_id
+	var path: String = GameDataManager.get_character_save_path("story_time_save.json", char_id)
 	if not FileAccess.file_exists(path):
 		return 0
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)

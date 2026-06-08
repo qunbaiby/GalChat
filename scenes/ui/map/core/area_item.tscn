@@ -4,38 +4,38 @@
 [ext_resource type="Texture2D" uid="uid://cwe5wxgvmk2n3" path="res://assets/images/icons/ui/map/area_lock.svg" id="2_lock_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.992, 0.998, 0.999, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.9, 0.94, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
+border_color = Color(0.78, 0.88, 0.9, 0.88)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.06, 0.12, 0.15, 0.12)
+shadow_size = 12
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Mask"]
 bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BottomBar"]
-bg_color = Color(0.13, 0.16, 0.22, 0.84)
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.08, 0.15, 0.18, 0.84)
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LockBadge"]
-bg_color = Color(0.08, 0.1, 0.14, 0.78)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.08, 0.16, 0.18, 0.8)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x8d2v"]
 
@@ -92,13 +92,13 @@ theme_override_constants/separation = 2
 
 [node name="NameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.19, 0.22, 0.27, 1)
+theme_override_colors/font_color = Color(0.17, 0.28, 0.31, 1)
 theme_override_font_sizes/font_size = 17
 text = "江屿现代艺术大学"
 
 [node name="EnNameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.52, 0.56, 0.62, 1)
+theme_override_colors/font_color = Color(0.44, 0.58, 0.63, 1)
 theme_override_font_sizes/font_size = 11
 text = "ACADEMY"
 
@@ -125,7 +125,7 @@ grow_vertical = 2
 
 [node name="Dots" type="Label" parent="Mask/ClipControl/BottomBar/HBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.99, 0.77, 0.44, 1)
+theme_override_colors/font_color = Color(0.62, 0.9, 0.85, 1)
 theme_override_font_sizes/font_size = 12
 text = "●○○"
 vertical_alignment = 1
@@ -136,7 +136,7 @@ size_flags_horizontal = 3
 
 [node name="Arrow" type="Label" parent="Mask/ClipControl/BottomBar/HBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(0.93, 0.98, 0.98, 1)
 theme_override_font_sizes/font_size = 12
 text = "进入 >"
 vertical_alignment = 1

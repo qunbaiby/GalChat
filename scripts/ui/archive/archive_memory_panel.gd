@@ -43,7 +43,7 @@ func show_panel(char_id: String = "") -> void:
 
 
 func _load_memory_archive(char_id: String) -> void:
-	var mem_path = "user://saves/%s/player_memory.json" % char_id
+	var mem_path = GameDataManager.get_character_save_path("player_memory.json", char_id)
 	var mems = {"core": [], "emotion": [], "habit": [], "bond": []}
 	if FileAccess.file_exists(mem_path):
 		var file = FileAccess.open(mem_path, FileAccess.READ)

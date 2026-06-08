@@ -1,40 +1,152 @@
-[gd_scene load_steps=12 format=3 uid="uid://dg38tk2bw0yfk"]
+[gd_scene load_steps=21 format=3 uid="uid://dg38tk2bw0yfk"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_5ofb5"]
 [ext_resource type="Script" uid="uid://b38a0dd45yqk4" path="res://scripts/ui/activity/schedule_execution_panel.gd" id="1_exec"]
 [ext_resource type="PackedScene" uid="uid://bg7h8fad1f" path="res://scenes/ui/activity/course_slot.tscn" id="2_slot"]
 [ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="3_cgj2u"]
 
+[sub_resource type="Shader" id="Shader_ExecutionBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ExecutionBlur"]
+shader = SubResource("Shader_ExecutionBlur")
+shader_parameter/lod = 3.2
+shader_parameter/mix_color = Color(0.18, 0.19, 0.22, 0.28)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoPanel"]
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.18, 0.28, 0.33, 0.14)
+shadow_size = 24
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="Shader" id="Shader_RoundedTexture"]
+code = "shader_type canvas_item;
+uniform float radius = 22.0;
+
+void fragment() {
+	vec2 size = 1.0 / TEXTURE_PIXEL_SIZE;
+	vec2 p = UV * size;
+	vec2 edge = min(p, size - p);
+	float mask = step(radius, min(edge.x, edge.y));
+	vec4 tex = texture(TEXTURE, UV) * COLOR;
+	COLOR = vec4(tex.rgb, tex.a * mask);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_PreviewRounded"]
+shader = SubResource("Shader_RoundedTexture")
+shader_parameter/radius = 22.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PreviewFrame"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.93, 0.96, 1, 0.72)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.08, 0.13, 0.19, 0.2)
+shadow_size = 18
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleCapsule"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ControlToolbar"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondary"]
 bg_color = Color(1, 1, 1, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.9, 0.92, 0.95, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.1, 0.15, 0.12, 0.08)
-shadow_size = 10
-shadow_offset = Vector2(0, 3)
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultTopBar"]
-bg_color = Color(1, 0.988235, 0.972549, 1)
-border_width_bottom = 1
-border_color = Color(0.95, 0.88, 0.82, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultContent"]
-bg_color = Color(1, 1, 1, 0.98)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CoreStatBg"]
-bg_color = Color(0.985, 0.988, 0.995, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TrackPanel"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.9, 0.92, 0.95, 1)
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultTopBar"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultContent"]
+bg_color = Color(1, 1, 1, 0.96)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CoreStatBg"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -48,10 +160,10 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_HLine"]
-color = Color(0.9, 0.92, 0.95, 1)
+color = Color(0.82, 0.9, 0.88, 0.95)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultFooter"]
-bg_color = Color(0.985, 0.988, 0.995, 1)
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
 
 [node name="ScheduleExecutionPanel" type="Control"]
 layout_mode = 3
@@ -60,18 +172,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_5ofb5")
 script = ExtResource("1_exec")
 slot_scene = ExtResource("2_slot")
 
 [node name="DimBackground" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_ExecutionBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.07, 0.06, 0.16)
+color = Color(0, 0, 0, 0.99607843)
 
 [node name="InfoPanel" type="Panel" parent="."]
 custom_minimum_size = Vector2(700, 450)
@@ -87,8 +199,11 @@ offset_right = 350.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoPanel")
 
 [node name="TopImageRect" type="TextureRect" parent="InfoPanel"]
+material = SubResource("ShaderMaterial_PreviewRounded")
+clip_contents = true
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -111,26 +226,60 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.8039216, 1, 0.9372549, 0.5411765)
 
-[node name="TitleContainer" type="PanelContainer" parent="InfoPanel/TopImageRect"]
+[node name="PreviewTint" type="ColorRect" parent="InfoPanel/TopImageRect"]
+visible = false
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -150.0
-offset_top = -20.0
-offset_right = 150.0
-offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.09, 0.12, 0.16, 0.14)
+
+[node name="BottomShade" type="ColorRect" parent="InfoPanel/TopImageRect"]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -98.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
+color = Color(0.05, 0.09, 0.12, 0.2)
 
-[node name="TitleLabel" type="Label" parent="InfoPanel/TopImageRect/TitleContainer"]
+[node name="PreviewFrame" type="Panel" parent="InfoPanel/TopImageRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PreviewFrame")
+
+[node name="TitleContainer" type="PanelContainer" parent="InfoPanel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -176.0
+offset_top = 286.0
+offset_right = 176.0
+offset_bottom = 338.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_TitleCapsule")
+
+[node name="TitleLabel" type="Label" parent="InfoPanel/TitleContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.15294118, 0.32156864, 0.33333334, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 20
 text = "课程标题"
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="DescLabel" type="Label" parent="InfoPanel"]
 layout_mode = 1
@@ -140,13 +289,17 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -320.0
-offset_top = 134.0
+offset_top = 152.0
 offset_right = 322.0
-offset_bottom = 211.0
+offset_bottom = 222.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_color = Color(0.31, 0.39, 0.42, 1)
+theme_override_font_sizes/font_size = 17
 text = "获取描述中..."
 horizontal_alignment = 1
+autowrap_mode = 3
+clip_text = true
 
 [node name="ClickArea" type="Button" parent="."]
 layout_mode = 1
@@ -159,6 +312,7 @@ focus_mode = 0
 flat = true
 
 [node name="ControlToolbar" type="PanelContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -187,16 +341,22 @@ alignment = 1
 [node name="AutoButton" type="Button" parent="ControlToolbar/Margin/ControlButtons"]
 custom_minimum_size = Vector2(96, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.48235294, 0.50980395, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "自动"
 
 [node name="SkipButton" type="Button" parent="ControlToolbar/Margin/ControlButtons"]
 custom_minimum_size = Vector2(96, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.48235294, 0.50980395, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonSecondary")
 text = "跳过"
 
 [node name="TrackPanel" type="Panel" parent="."]
@@ -207,11 +367,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -350.0
-offset_top = 162.0
+offset_top = 182.0
 offset_right = 350.0
-offset_bottom = 264.0
+offset_bottom = 284.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TrackPanel")
 
 [node name="TrackMargin" type="MarginContainer" parent="TrackPanel"]
 layout_mode = 1
@@ -329,12 +490,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_ResultTopBar")
 custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 size_flags_vertical = 0
-color = Color(1, 0.95, 0.9, 1)
+color = Color(0.57, 0.82, 0.76, 1)
 
 [node name="TitleLabel" type="Label" parent="ResultPopup/VBox/TopBar"]
 layout_mode = 2
 size_flags_vertical = 1
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 18
 text = "一周行程总结"
 horizontal_alignment = 1

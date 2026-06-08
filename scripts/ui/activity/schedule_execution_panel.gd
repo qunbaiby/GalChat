@@ -32,7 +32,7 @@ const EVENT_CHANCE_BY_CATEGORY := {
 const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_schedule_events.json"
 
 @onready var top_image_rect: TextureRect = $InfoPanel/TopImageRect
-@onready var title_label: Label = $InfoPanel/TopImageRect/TitleContainer/TitleLabel
+@onready var title_label: Label = $InfoPanel/TitleContainer/TitleLabel
 @onready var desc_label: Label = $InfoPanel/DescLabel
 @onready var track_container: HBoxContainer = $TrackPanel/TrackMargin/TrackContainer
 @onready var character_icon: Node2D = $TrackPanel/TrackMargin/TrackContainer/CharacterIcon
@@ -231,16 +231,32 @@ func _init_slots() -> void:
 		track_container.add_child(slot)
 		# 让所有槽位都在小人节点之前
 		track_container.move_child(slot, i)
-		slot.setup(str(i + 1))
-		slot.set_completed(false)
+		var course_data: Dictionary = {}
+		if i < _courses_data.size():
+			course_data = _courses_data[i]
+		slot.setup(str(i + 1), course_data)
 		_slots.append(slot)
 	
 	_current_slot_index = 0
-	_slots[0].set_completed(false)
+	_refresh_slot_states()
 	
 	# 重置小人的显示状态（修复“两个我”的问题）
 	character_icon.show()
 	character_icon.modulate.a = 1.0
+
+func _refresh_slot_states() -> void:
+	for i in range(_slots.size()):
+		var slot = _slots[i]
+		if slot == null:
+			continue
+		if _current_slot_index == 4 and _last_processed_course_index >= 4:
+			slot.set_state("completed")
+		elif i < _current_slot_index:
+			slot.set_state("completed")
+		elif i == _current_slot_index:
+			slot.set_state("current")
+		else:
+			slot.set_state("pending")
 
 func _reset_character_position() -> void:
 	if _slots.is_empty(): return
@@ -334,16 +350,16 @@ func _render_weekly_event_summary() -> void:
 	for event_info in _weekly_key_events:
 		var card = PanelContainer.new()
 		var card_style = StyleBoxFlat.new()
-		card_style.bg_color = Color(0.985, 0.988, 0.995, 1)
+		card_style.bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
 		card_style.border_width_left = 1
 		card_style.border_width_top = 1
 		card_style.border_width_right = 1
 		card_style.border_width_bottom = 1
-		card_style.border_color = Color(0.9, 0.92, 0.95, 1)
-		card_style.corner_radius_top_left = 10
-		card_style.corner_radius_top_right = 10
-		card_style.corner_radius_bottom_right = 10
-		card_style.corner_radius_bottom_left = 10
+		card_style.border_color = Color(0.82, 0.9, 0.88, 0.95)
+		card_style.corner_radius_top_left = 12
+		card_style.corner_radius_top_right = 12
+		card_style.corner_radius_bottom_right = 12
+		card_style.corner_radius_bottom_left = 12
 		card.add_theme_stylebox_override("panel", card_style)
 		section.add_child(card)
 
@@ -505,6 +521,8 @@ func _sync_story_time_after_course(course_index: int) -> void:
 func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) -> bool:
 	if course_data.get("is_event", false):
 		return false
+	if str(course_data.get("script_path", "")).strip_edges() != "":
+		return false
 	var category_id = str(course_data.get("category_id", "rest"))
 	var chance = float(EVENT_CHANCE_BY_CATEGORY.get(category_id, 0.2))
 	var mood_value = float(_end_attrs.get("心情", 50))
@@ -514,8 +532,32 @@ func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) 
 		course_repeat_penalty = 0.03
 	return randf() < clamp(chance + low_mood_bonus - course_repeat_penalty, 0.05, 0.45)
 
+func _has_pending_story_event_at(course_index: int) -> bool:
+	if course_index < 0 or course_index >= _courses_data.size():
+		return false
+	if course_index <= _last_processed_course_index:
+		return false
+	var course_data = _courses_data[course_index]
+	return bool(course_data.get("is_event", false))
+
+func _try_trigger_immediate_story_event_for_current_slot() -> bool:
+	if _is_moving or result_popup.visible:
+		return false
+	if loading_overlay and loading_overlay.visible:
+		return false
+	if _current_event_panel != null:
+		return false
+	if not _has_pending_story_event_at(_current_slot_index):
+		return false
+	var course_data = _courses_data[_current_slot_index]
+	_trigger_story_script(course_data, _current_slot_index)
+	return true
+
 func _process_course_at_index(course_index: int) -> void:
 	if course_index < 0 or course_index >= _courses_data.size():
+		_finish_slot_move()
+		return
+	if course_index <= _last_processed_course_index:
 		_finish_slot_move()
 		return
 	var course_data = _courses_data[course_index]
@@ -562,10 +604,13 @@ func _on_click_area_pressed() -> void:
 
 func _finish_slot_move(skip_ui_update: bool = false) -> void:
 	_is_moving = false
+	_refresh_slot_states()
 	
 	# 走到下一个槽位时，立刻刷新顶部的当前课程图文信息
 	if not skip_ui_update:
 		_update_course_info(_current_slot_index)
+		if _try_trigger_immediate_story_event_for_current_slot():
+			return
 	
 	# 每完成一节课后，精确同步到下一天上午；最后一节课结束后同步到周五夜晚
 	if _last_processed_course_index >= 0 and _last_processed_course_index != _last_time_synced_course_index:
@@ -895,7 +940,7 @@ func _show_event_result_toast(msg: String) -> void:
 
 func set_slot_status(index: int, completed: bool) -> void:
 	if index >= 0 and index < _slots.size():
-		_slots[index].set_completed(completed)
+		_slots[index].set_state("completed" if completed else "pending")
 
 func _show_result_popup() -> void:
 	_rebuild_final_end_attrs()
