@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://jgctkyqyl1py"
-path="res://.godot/imported/diary_book.svg-b2ffb8cb37f906ce20c6a603619bcb1d.ctex"
+uid="uid://bw0q8i4c6n5pt"
+path="res://.godot/imported/book-open-cover.png-6883e5582dcf29bd8444e39cc14bfe6f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/diary_book.svg"
-dest_files=["res://.godot/imported/diary_book.svg-b2ffb8cb37f906ce20c6a603619bcb1d.ctex"]
+source_file="res://assets/images/icons/ui/main/book-open-cover.png"
+dest_files=["res://.godot/imported/book-open-cover.png-6883e5582dcf29bd8444e39cc14bfe6f.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

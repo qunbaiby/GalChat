@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://j1ivb0wivpai"
-path="res://.godot/imported/skill_talent.svg-caa8f631091c3b38e3a9614c863a7cdf.ctex"
+uid="uid://dkyoexaqqxn8e"
+path="res://.godot/imported/clothing-rack.png-170f5e6182c5f01e394687419f6bfd2f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/skill_talent.svg"
-dest_files=["res://.godot/imported/skill_talent.svg-caa8f631091c3b38e3a9614c863a7cdf.ctex"]
+source_file="res://assets/images/icons/ui/main/clothing-rack.png"
+dest_files=["res://.godot/imported/clothing-rack.png-170f5e6182c5f01e394687419f6bfd2f.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

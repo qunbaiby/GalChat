@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://buugnyuxisx0o"]
 
-[ext_resource type="Script" uid="uid://ctc5vleqkl1ui" path="res://scripts/ui/main/background_setting_item.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/main/background_setting_item.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://bbhabllvch0x5" path="res://assets/images/backgrounds/main/luna_piano_closeup_bg.png" id="2_s3fq3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_Button"]
@@ -26,6 +26,18 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SelectedFrame"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoBubble"]
 bg_color = Color(0.96, 0.96, 0.97, 1)
 corner_radius_top_right = 24
@@ -39,18 +51,6 @@ shadow_offset = Vector2(0, 1)
 bg_color = Color(0.43, 0.78, 0.73, 1)
 corner_radius_top_left = 20
 corner_radius_bottom_left = 20
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SelectedFrame"]
-draw_center = false
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.95)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_UnlockCondition"]
 bg_color = Color(0.09, 0.1, 0.13, 0.82)
@@ -104,6 +104,13 @@ texture = ExtResource("2_s3fq3")
 expand_mode = 1
 stretch_mode = 6
 
+[node name="SelectionFrame" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 369.0
+offset_bottom = 228.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SelectedFrame")
+
 [node name="InfoBubble" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 0
@@ -153,13 +160,6 @@ theme_override_font_sizes/font_size = 13
 text = "使用中"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="SelectionFrame" type="PanelContainer" parent="."]
-layout_mode = 0
-offset_right = 369.0
-offset_bottom = 228.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_SelectedFrame")
 
 [node name="UnlockConditionBar" type="PanelContainer" parent="."]
 visible = false

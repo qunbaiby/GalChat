@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cm847nh4wsv5k"]
+[gd_scene load_steps=14 format=3 uid="uid://cm847nh4wsv5k"]
 
 [ext_resource type="Script" uid="uid://dpx3wd2dqowqk" path="res://scripts/ui/main/background_setting_panel.gd" id="1_script"]
 
@@ -21,20 +21,11 @@ shader_parameter/mix_color = Color(0.03, 0.03, 0.05, 0.46)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.96, 0.97, 0.98, 0.72)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
 shadow_color = Color(0, 0, 0, 0.12)
 shadow_size = 8
 shadow_offset = Vector2(0, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Arrow"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4frro"]
 bg_color = Color(1, 1, 1, 0.96)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
@@ -55,6 +46,16 @@ corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h7f3h"]
+bg_color = Color(1, 1, 1, 0.96)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Desc"]
 bg_color = Color(1, 1, 1, 0.52)
@@ -86,6 +87,34 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32c5d"]
+bg_color = Color(1, 1, 1, 0.96)
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+shadow_color = Color(0, 0, 0, 0.08)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ni37u"]
+bg_color = Color(0.98, 0.98, 0.99, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.86, 0.92, 1)
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t53hb"]
+bg_color = Color(0.98, 0.98, 0.99, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.86, 0.92, 1)
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
 
 [node name="BackgroundSettingPanel" type="Control"]
 layout_mode = 3
@@ -120,34 +149,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 [node name="MainMargin" type="MarginContainer" parent="PanelRoot"]
 layout_mode = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 18
+theme_override_constants/margin_top = 60
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 18
 
 [node name="MainVBox" type="VBoxContainer" parent="PanelRoot/MainMargin"]
 layout_mode = 2
 theme_override_constants/separation = 22
-
-[node name="HeaderHBox" type="HBoxContainer" parent="PanelRoot/MainMargin/MainVBox"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="BackButton" type="Button" parent="PanelRoot/MainMargin/MainVBox/HeaderHBox"]
-custom_minimum_size = Vector2(74, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.22, 0.24, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_Arrow")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ArrowHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ArrowHover")
-text = "<"
-
-[node name="TitleLabel" type="Label" parent="PanelRoot/MainMargin/MainVBox/HeaderHBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.22, 1)
-theme_override_font_sizes/font_size = 25
-text = "主页背景设定"
-vertical_alignment = 1
 
 [node name="CarouselHBox" type="HBoxContainer" parent="PanelRoot/MainMargin/MainVBox"]
 custom_minimum_size = Vector2(0, 450)
@@ -161,7 +169,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.24, 0.24, 0.26, 1)
 theme_override_font_sizes/font_size = 34
-theme_override_styles/normal = SubResource("StyleBoxFlat_Arrow")
+theme_override_styles/normal = SubResource("StyleBoxFlat_4frro")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ArrowHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ArrowHover")
 text = "<"
@@ -194,12 +202,13 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.24, 0.24, 0.26, 1)
 theme_override_font_sizes/font_size = 34
-theme_override_styles/normal = SubResource("StyleBoxFlat_Arrow")
+theme_override_styles/normal = SubResource("StyleBoxFlat_h7f3h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ArrowHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ArrowHover")
 text = ">"
 
 [node name="DescriptionPanel" type="PanelContainer" parent="PanelRoot/MainMargin/MainVBox"]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Desc")
@@ -239,3 +248,27 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_k741i")
 theme_override_styles/focus = SubResource("StyleBoxFlat_k741i")
 text = "应用到大厅"
+
+[node name="HeaderHBox" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_top = 17.0
+offset_right = 1256.0
+offset_bottom = 62.0
+theme_override_constants/separation = 14
+
+[node name="BackButton" type="Button" parent="HeaderHBox"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.22, 0.24, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_32c5d")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ni37u")
+theme_override_styles/hover = SubResource("StyleBoxFlat_t53hb")
+text = "<"
+
+[node name="TitleLabel" type="Label" parent="HeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.22, 1)
+theme_override_font_sizes/font_size = 25
+text = "主页背景设定"
+vertical_alignment = 1

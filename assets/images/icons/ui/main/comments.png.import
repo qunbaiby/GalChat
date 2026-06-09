@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgh7vobvipdda"
-path="res://.godot/imported/wardrobe_hanger.svg-ccbfe4859d6f7ce3d0bf2b5ae80ec88f.ctex"
+uid="uid://b6jh3sac5vxj2"
+path="res://.godot/imported/comments.png-07460e22c59aeb018677647bd4ede97e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/wardrobe_hanger.svg"
-dest_files=["res://.godot/imported/wardrobe_hanger.svg-ccbfe4859d6f7ce3d0bf2b5ae80ec88f.ctex"]
+source_file="res://assets/images/icons/ui/main/comments.png"
+dest_files=["res://.godot/imported/comments.png-07460e22c59aeb018677647bd4ede97e.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

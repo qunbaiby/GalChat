@@ -3,8 +3,12 @@
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://dxe3r2b5g7na" path="res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn" id="2_fvueq"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
+[ext_resource type="Texture2D" uid="uid://cixfrbv5lapgk" path="res://assets/images/icons/ui/main/skill-alt.png" id="5_rl784"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
+[ext_resource type="Texture2D" uid="uid://bw0q8i4c6n5pt" path="res://assets/images/icons/ui/main/book-open-cover.png" id="6_p33vi"]
+[ext_resource type="Texture2D" uid="uid://b6jh3sac5vxj2" path="res://assets/images/icons/ui/main/comments.png" id="7_fbdjj"]
+[ext_resource type="Texture2D" uid="uid://dkyoexaqqxn8e" path="res://assets/images/icons/ui/main/clothing-rack.png" id="8_spmh8"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
@@ -15,19 +19,15 @@
 [ext_resource type="Shader" uid="uid://bvr4ey2nio3wm" path="res://assets/shaders/left_trapezoid.gdshader" id="15_trapezoid_shader"]
 [ext_resource type="Texture2D" uid="uid://bu8ct32d0p3mc" path="res://assets/images/icons/ui/main/apps.png" id="16_fbdjj"]
 [ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
-[ext_resource type="Texture2D" uid="uid://j1ivb0wivpai" path="res://assets/images/icons/ui/main/skill_talent.svg" id="19_skill_icon"]
-[ext_resource type="Texture2D" uid="uid://jgctkyqyl1py" path="res://assets/images/icons/ui/main/diary_book.svg" id="20_diary_icon"]
-[ext_resource type="Texture2D" uid="uid://d0mj76s6tvbsv" path="res://assets/images/icons/ui/main/wechat_bubble.svg" id="21_wechat_icon"]
-[ext_resource type="Texture2D" uid="uid://bgh7vobvipdda" path="res://assets/images/icons/ui/main/wardrobe_hanger.svg" id="22_wardrobe_icon"]
 [ext_resource type="Texture2D" uid="uid://cv303mddfg2o" path="res://assets/images/icons/ui/main/background_switch.svg" id="23_bg_switch_icon"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="24_love_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AppCardNormal"]
 bg_color = Color(0.5803922, 0.63529414, 0.6784314, 0.6)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
 border_color = Color(0.5, 0.53, 0.6, 0.95)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -39,10 +39,10 @@ shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AppCardPressed"]
 bg_color = Color(0.3, 0.34, 0.42, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
 border_color = Color(0.46, 0.5, 0.58, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -51,10 +51,10 @@ corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AppCardHover"]
 bg_color = Color(0.41, 0.45, 0.55, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
 border_color = Color(0.6, 0.64, 0.72, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -371,7 +371,7 @@ size_flags_vertical = 8
 theme_override_constants/separation = 6
 
 [node name="SkillButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
 tooltip_text = "天赋"
@@ -391,29 +391,29 @@ offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = -1
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton/ContentVBox"]
 self_modulate = Color(0.94, 0.92, 0.87, 1)
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2
-texture = ExtResource("19_skill_icon")
+texture = ExtResource("5_rl784")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton/ContentVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "天赋"
 horizontal_alignment = 1
 
 [node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
 tooltip_text = "日记"
@@ -433,28 +433,28 @@ offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = -1
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox"]
 self_modulate = Color(0.94, 0.92, 0.87, 1)
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("20_diary_icon")
+texture = ExtResource("6_p33vi")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "日记"
 horizontal_alignment = 1
 
 [node name="WeChatButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
 tooltip_text = "微聊"
@@ -502,28 +502,28 @@ offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = -1
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox"]
 self_modulate = Color(0.94, 0.92, 0.87, 1)
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("21_wechat_icon")
+texture = ExtResource("7_fbdjj")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "微聊"
 horizontal_alignment = 1
 
 [node name="WardrobeButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox"]
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
 tooltip_text = "服装"
@@ -543,23 +543,23 @@ offset_bottom = -2.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = -1
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox"]
 self_modulate = Color(0.94, 0.92, 0.87, 1)
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("22_wardrobe_icon")
+texture = ExtResource("8_spmh8")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "服装"
 horizontal_alignment = 1
 
@@ -847,7 +847,7 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -135.0
-offset_top = 5.0
+offset_top = 7.0
 offset_bottom = 47.0
 grow_horizontal = 0
 mouse_filter = 2
@@ -859,7 +859,7 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -135.0
-offset_top = 7.0
+offset_top = 9.0
 offset_bottom = 49.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_SystemToolbar")
@@ -896,7 +896,7 @@ stretch_mode = 5
 
 [node name="CameraButton" type="Button" parent="UIPanel/SystemButton/ToolBarMargin/HBox"]
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(30, 30)
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 tooltip_text = "相机"
 
@@ -915,7 +915,7 @@ stretch_mode = 5
 
 [node name="PhoneButton" type="Button" parent="UIPanel/SystemButton/ToolBarMargin/HBox"]
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(30, 30)
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 tooltip_text = "手机菜单"
 
