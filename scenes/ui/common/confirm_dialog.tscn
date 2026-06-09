@@ -1,22 +1,70 @@
-[gd_scene load_steps=7 format=3 uid="uid://confirm_dialog"]
+[gd_scene load_steps=12 format=3 uid="uid://confirm_dialog"]
 
 [ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://scripts/ui/common/confirm_dialog.gd" id="2_script"]
 
+[sub_resource type="Shader" id="Shader_ConfirmBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.7;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ConfirmBlur"]
+shader = SubResource("Shader_ConfirmBlur")
+shader_parameter/lod = 2.7
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.985, 0.988, 0.995, 0.98)
+bg_color = Color(0.956, 0.974, 0.982, 0.992)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
+border_color = Color(0.79, 0.88, 0.9, 0.82)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.89, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Input"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 18
-shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
 bg_color = Color(1, 1, 1, 0.96)
@@ -53,6 +101,7 @@ theme = ExtResource("1_theme")
 script = ExtResource("2_script")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_ConfirmBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -68,40 +117,110 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -100.0
-offset_right = 200.0
-offset_bottom = 100.0
+offset_left = -230.0
+offset_top = -144.0
+offset_right = 230.0
+offset_bottom = 144.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="HeaderPanel" type="PanelContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 72.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
+
+[node name="HeaderMargin" type="MarginContainer" parent="Panel/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 16
+
+[node name="HeaderVBox" type="VBoxContainer" parent="Panel/HeaderPanel/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Panel/HeaderPanel/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 22
+text = "确认操作"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Panel/HeaderPanel/HeaderMargin/HeaderVBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "该操作需要额外确认。"
+horizontal_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
+offset_left = 24.0
+offset_top = 92.0
+offset_right = -24.0
+offset_bottom = -22.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
-alignment = 1
+theme_override_constants/separation = 14
 
 [node name="MessageLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 18
 text = "确定要执行此操作吗？"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
+autowrap_mode = 3
+
+[node name="WarningLabel" type="Label" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.31, 0.38, 1)
+theme_override_font_sizes/font_size = 15
+text = "执行后将无法恢复。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="InputGuideLabel" type="Label" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "请输入确认文本。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ConfirmInput" type="LineEdit" parent="Panel/VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
+theme_override_colors/font_placeholder_color = Color(0.55, 0.6, 0.64, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_Input")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
+placeholder_text = "请输入确认文本"
+horizontal_alignment = 1
+
+[node name="InputHintLabel" type="Label" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.31, 0.38, 1)
+theme_override_font_sizes/font_size = 13
+text = "输入内容不正确。"
+horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="CancelButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]

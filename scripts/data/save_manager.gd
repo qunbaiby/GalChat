@@ -97,12 +97,13 @@ func load_game(slot_id: String) -> bool:
 func delete_save(slot_id: String) -> bool:
 	var archive_root := get_archive_root(slot_id)
 	if not DirAccess.dir_exists_absolute(archive_root):
+		GameDataManager.clear_archive_custom_config(slot_id)
 		return false
 	_remove_directory_recursive(archive_root)
+	GameDataManager.clear_archive_custom_config(slot_id)
 	if get_active_archive_id() == slot_id:
 		current_slot_id = ""
 		GameDataManager.set_active_archive_id("", true)
-		GameDataManager.clear_archive_custom_config(slot_id)
 	return true
 
 func save_game(slot_id: String = "", _custom_image: Image = null) -> bool:

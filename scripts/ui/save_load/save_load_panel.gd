@@ -109,7 +109,15 @@ func _on_delete_requested(slot_id: String) -> void:
         return
     var dialog = confirm_scene.instantiate()
     get_tree().root.add_child(dialog)
-    dialog.setup("确定要删除这份档案吗？\n该档案的所有记录都会被清空。", "删除", "取消")
+    dialog.setup_advanced(
+        "清除记忆",
+        "确认要清除这段记忆么？",
+        "清除之后将无法再找回！！",
+        "请输入指定文字后才能继续。",
+        "清除记忆",
+        "取消",
+        "确认清除"
+    )
     dialog.confirmed.connect(func() -> void:
         GameDataManager.save_manager.delete_save(slot_id)
         if is_instance_valid(dialog):

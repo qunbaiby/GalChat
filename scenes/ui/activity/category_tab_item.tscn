@@ -26,15 +26,33 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabActive"]
+bg_color = Color(0.86, 0.95, 0.93, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.77, 0.72, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.16, 0.53, 0.47, 0.12)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
 [node name="CategoryTabItem" type="Button"]
 custom_minimum_size = Vector2(100, 40)
 offset_right = 80.0
 offset_bottom = 35.0
 theme = ExtResource("1_theme")
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_colors/font_hover_color = Color(0.18, 0.23, 0.28, 1)
+theme_override_colors/font_pressed_color = Color(0.15, 0.26, 0.25, 1)
+theme_override_colors/font_focus_color = Color(0.15, 0.26, 0.25, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Tab")
 theme_override_styles/hover = SubResource("StyleBoxFlat_TabHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_TabHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabActive")
+theme_override_styles/focus = SubResource("StyleBoxFlat_TabActive")
 text = "分类名称"
-
 

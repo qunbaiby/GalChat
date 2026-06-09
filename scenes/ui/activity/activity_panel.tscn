@@ -1,7 +1,6 @@
-[gd_scene load_steps=21 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=20 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_aivhu"]
 [ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="6_3k5eb"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
@@ -160,7 +159,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_aivhu")
 script = ExtResource("1_act")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -329,6 +327,9 @@ alignment = 2
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.32172763, 0.3217282, 0.3217277, 1)
+theme_override_colors/font_hover_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
@@ -338,6 +339,9 @@ text = "撤销"
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3106167, 0.31061736, 0.31061688, 1)
+theme_override_colors/font_hover_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
@@ -461,12 +465,19 @@ text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="GoldLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="Sep2" type="ColorRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+custom_minimum_size = Vector2(2, 15)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.77, 0.84, 0.88, 1)
+
+[node name="GoldLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 30)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 15
-text = "金币消耗: 0"
+text = "金钱消耗: 0"
 horizontal_alignment = 1
 
 [node name="BonusLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
@@ -490,6 +501,8 @@ text = "✦ 属性变化预测"
 [node name="ScrollContainer" type="ScrollContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 3
 
 [node name="StatsGrid" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer"]
 layout_mode = 2

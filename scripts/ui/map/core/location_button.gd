@@ -7,6 +7,7 @@ var loc_description: String = ""
 var custom_tooltip: PanelContainer = null
 
 @onready var icon_rect: TextureRect = $IconRect
+@onready var location_icon_rect: TextureRect = get_node_or_null("LocationIconRect") as TextureRect
 @onready var name_label: Label = $NameTag/NameLabel
 
 func _ready():
@@ -35,30 +36,42 @@ func setup(loc_data: Dictionary) -> void:
     
     if name_label:
         name_label.text = loc_name
+
+    var location_icon_path := str(loc_data.get("location_icon_path", "")).strip_edges()
+    if location_icon_path == "":
+        var fallback_path := "res://assets/images/backgrounds/map/icon/location/%s.png" % location_id
+        if ResourceLoader.exists(fallback_path):
+            location_icon_path = fallback_path
+
+    if location_icon_rect:
+        location_icon_rect.texture = null
+        location_icon_rect.hide()
     
     if icon_rect:
-        var icon_name = loc_data.get("icon", "")
-        if icon_name == "":
-            icon_name = "loc_" + location_id
-            
-        var img_path = ""
-        if GameDataManager.has_method("get_image_manager"):
-            pass # ImageManager is a singleton
-        
-        # 尝试获取真实的地标图片
-        img_path = ImageManager.get_image_path(icon_name)
-            
-        if img_path != "" and ResourceLoader.exists(img_path):
-            icon_rect.texture = load(img_path)
+        if location_icon_path != "" and ResourceLoader.exists(location_icon_path):
+            icon_rect.texture = load(location_icon_path) as Texture2D
         else:
-            # 如果没有真实图片，用一个占位符代替
-            var placeholder = GradientTexture2D.new()
-            placeholder.width = 120
-            placeholder.height = 120
-            var gradient = Gradient.new()
-            gradient.add_point(0, Color(0.3, 0.6, 0.8, 0.4))
-            placeholder.gradient = gradient
-            icon_rect.texture = placeholder
+            var icon_name = loc_data.get("icon", "")
+            if icon_name == "":
+                icon_name = "loc_" + location_id
+
+            var img_path = ""
+            if GameDataManager.has_method("get_image_manager"):
+                pass # ImageManager is a singleton
+
+            img_path = ImageManager.get_image_path(icon_name)
+
+            if img_path != "" and ResourceLoader.exists(img_path):
+                icon_rect.texture = load(img_path)
+            else:
+                # 如果没有真实图片，用一个占位符代替
+                var placeholder = GradientTexture2D.new()
+                placeholder.width = 120
+                placeholder.height = 120
+                var gradient = Gradient.new()
+                gradient.add_point(0, Color(0.3, 0.6, 0.8, 0.4))
+                placeholder.gradient = gradient
+                icon_rect.texture = placeholder
 
     var event_hbox = get_node_or_null("EventHBox")
     if event_hbox:
