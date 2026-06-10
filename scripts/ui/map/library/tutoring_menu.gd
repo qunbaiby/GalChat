@@ -4,7 +4,6 @@ signal closing_started
 
 @onready var close_btn: Button = $MenuPanel/CloseBtn
 @onready var course_vbox: VBoxContainer = $MenuPanel/ContentHBox/LeftPanel/CourseListPanel/ListMargin/ScrollContainer/CourseVBox
-@onready var energy_label: Label = $MenuPanel/ContentHBox/RightPanel/EnergyPanel/Margin/VBox/EnergyLabel
 @onready var detail_title: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DetailTitle
 @onready var detail_meta_label: Label = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DetailMetaLabel
 @onready var desc_label: RichTextLabel = $MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox/DescLabel
@@ -153,17 +152,15 @@ func _update_right_panel() -> void:
 	var total_cost = _get_total_planned_cost()
 	var remaining_energy = profile.current_energy - total_cost
 	
-	energy_label.text = "%d / %d" % [remaining_energy, profile.max_energy]
-	
 	var is_empty = _planned_counts.is_empty()
 	start_btn.disabled = is_empty
 	reset_btn.disabled = is_empty
 	
 	if is_empty:
 		detail_title.text = "课业指导安排"
-		detail_meta_label.text = "尚未安排指导内容"
+		detail_meta_label.text = "当前行动力 %d / %d" % [profile.current_energy, profile.max_energy]
 		desc_label.text = "[color=#63708a]点击左侧课程可追加指导次数。[/color]\n[color=#7b8496]支持重复安排或组合多门课程。[/color]"
-		cost_label.text = ""
+		cost_label.text = "安排后将自动结算行动力消耗"
 		preview_label.text = ""
 		return
 		
@@ -194,7 +191,7 @@ func _update_right_panel() -> void:
 	detail_title.text = "指导安排确认"
 	detail_meta_label.text = "已安排 %d 次指导，涉及 %d 门课程" % [total_count, _planned_counts.size()]
 	desc_label.text = courses_summary
-	cost_label.text = "预计消耗行动力：%d" % total_cost
+	cost_label.text = "预计消耗行动力：%d   |   剩余：%d / %d" % [total_cost, remaining_energy, profile.max_energy]
 	
 	var preview_str = "[color=#e08b35][b]属性提升预览[/b][/color]\n"
 	if aggregate_rewards.size() > 0:

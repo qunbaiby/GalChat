@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://cxab3x2xx8x2x"]
+[gd_scene load_steps=3 format=3 uid="uid://cxab3x2xx8x2x"]
 
 [ext_resource type="Script" uid="uid://b4aiqdf50io6w" path="res://scripts/ui/map/npc/npc_interaction_menu.gd" id="1_script"]
 

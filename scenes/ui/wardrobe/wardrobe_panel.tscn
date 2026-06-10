@@ -1,47 +1,116 @@
-[gd_scene load_steps=5 format=3 uid="uid://b0afs3fe0t3uv"]
+[gd_scene load_steps=12 format=3 uid="uid://b0afs3fe0t3uv"]
 
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://i6qyj0aww0lt" path="res://scripts/ui/wardrobe/wardrobe_panel.gd" id="2_script"]
-[ext_resource type="Texture2D" uid="uid://dh6crbw5g8h" path="res://assets/images/backgrounds/main/home/wardrobe_bedroom_morning.png" id="2_sj00c"]
-[ext_resource type="SpriteFrames" uid="uid://bpabn0fanx36g" path="res://assets/images/characters/Luna/clothes/luna_jk.tres" id="3_sj00c"]
+[ext_resource type="Texture2D" uid="uid://dh6crbw5g8h" path="res://assets/images/backgrounds/main/home/wardrobe_bedroom_morning.png" id="3_bg"]
+[ext_resource type="SpriteFrames" uid="uid://bpabn0fanx36g" path="res://assets/images/characters/Luna/clothes/luna_jk.tres" id="4_frames"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_side"]
-bg_color = Color(0.985, 0.988, 0.995, 0.88)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftRail"]
+bg_color = Color(0.07, 0.09, 0.12, 0.7)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 12
-shadow_offset = Vector2(0, 4)
+border_color = Color(1, 1, 1, 0.05)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 18
+shadow_offset = Vector2(0, 8)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_GroundShadow"]
+bg_color = Color(0.02, 0.03, 0.04, 0.34)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FloorLine"]
+bg_color = Color(0.82, 0.9, 0.92, 0.28)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightInfo"]
+bg_color = Color(0.08, 0.1, 0.12, 0.72)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(1, 1, 1, 0.06)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 18
+shadow_offset = Vector2(0, 8)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.97, 0.98, 0.99, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.79, 0.86, 0.9, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
+bg_color = Color(0.56, 0.83, 0.78, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.73, 0.67, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.2, 0.56, 0.52, 0.16)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButtonHover"]
+bg_color = Color(0.64, 0.89, 0.84, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.78, 0.72, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButtonDisabled"]
+bg_color = Color(0.56, 0.6, 0.62, 0.42)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.08)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DetailPreview"]
+bg_color = Color(0.16, 0.18, 0.2, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.05)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [node name="WardrobePanel" type="Control"]
 layout_mode = 3
@@ -50,6 +119,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_theme")
 script = ExtResource("2_script")
 
 [node name="BackGround" type="TextureRect" parent="."]
@@ -59,11 +129,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_sj00c")
+texture = ExtResource("3_bg")
 expand_mode = 1
+stretch_mode = 6
 
-[node name="Panel" type="Panel" parent="."]
-self_modulate = Color(1, 1, 1, 0)
+[node name="Backdrop" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -71,114 +141,311 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel"]
+[node name="Dimmer" type="ColorRect" parent="Backdrop"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = 40.0
-offset_right = -40.0
-offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+color = Color(0.03, 0.04, 0.05, 0.42)
 
-[node name="LeftPanel" type="PanelContainer" parent="Panel/HBoxContainer"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_side")
+[node name="ContentMargin" type="MarginContainer" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/HBoxContainer/LeftPanel"]
+[node name="RootVBox" type="VBoxContainer" parent="Backdrop/ContentMargin"]
 layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TopBar" type="HBoxContainer" parent="Backdrop/ContentMargin/RootVBox"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleGroup" type="VBoxContainer" parent="Backdrop/ContentMargin/RootVBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="OverlineLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/TopBar/TitleGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 0.97, 0.75)
+theme_override_font_sizes/font_size = 13
+text = "Luna Dressing Room"
+
+[node name="TitleLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/TopBar/TitleGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.98)
+theme_override_font_sizes/font_size = 27
+text = "衣橱换装"
+
+[node name="TopHintLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/TopBar/TitleGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.93, 0.95, 0.62)
+theme_override_font_sizes/font_size = 12
+text = "浅玻璃卡片与轻雾舞台结合的试衣视图，选中左侧衣装即可预览。"
+
+[node name="CloseButton" type="Button" parent="Backdrop/ContentMargin/RootVBox/TopBar"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.3, 0.34, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
+text = "×"
+
+[node name="BodyHBox" type="HBoxContainer" parent="Backdrop/ContentMargin/RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="LeftRail" type="PanelContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox"]
+custom_minimum_size = Vector2(224, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_LeftRail")
+
+[node name="LeftMargin" type="MarginContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="LeftVBox" type="VBoxContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ListTitle" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_font_sizes/font_size = 20
+text = "衣装目录"
+
+[node name="CountLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81, 0.89, 0.9, 0.72)
+theme_override_font_sizes/font_size = 13
+text = "已解锁 0 / 0 套衣装"
+
+[node name="ListScroll" type="ScrollContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ItemsGrid" type="GridContainer" parent="Panel/HBoxContainer/LeftPanel/ScrollContainer"]
+[node name="ItemsGrid" type="GridContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox/ListScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 2
 
-[node name="CenterPanel" type="Control" parent="Panel/HBoxContainer"]
+[node name="ListFooter" type="HBoxContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FooterHintLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox/ListFooter"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.84, 0.89, 0.91, 0.56)
+theme_override_font_sizes/font_size = 12
+text = "筛选"
+vertical_alignment = 1
+
+[node name="LockedOnlyButton" type="CheckButton" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/LeftRail/LeftMargin/LeftVBox/ListFooter"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.97, 0.98, 0.82)
+theme_override_colors/font_pressed_color = Color(0.95, 0.97, 0.98, 1)
+theme_override_colors/font_hover_color = Color(0.95, 0.97, 0.98, 1)
+theme_override_font_sizes/font_size = 13
+text = "仅看未拥有"
+
+[node name="CenterStage" type="Control" parent="Backdrop/ContentMargin/RootVBox/BodyHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PortraitPivot" type="Control" parent="Panel/HBoxContainer/CenterPanel"]
+[node name="PreviewMargin" type="MarginContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="PreviewVBox" type="VBoxContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PortraitHolder" type="Control" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin/PreviewVBox"]
+custom_minimum_size = Vector2(0, 438)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GroundShadow" type="Panel" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin/PreviewVBox/PortraitHolder"]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -74.0
+offset_top = 356.0
+offset_right = 74.0
+offset_bottom = 388.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_GroundShadow")
+
+[node name="FloorLine" type="Panel" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin/PreviewVBox/PortraitHolder"]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -128.0
+offset_top = 382.0
+offset_right = 128.0
+offset_bottom = 386.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_FloorLine")
+
+[node name="PortraitPivot" type="Control" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin/PreviewVBox/PortraitHolder"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+offset_top = -6.0
+offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CharPortrait" type="AnimatedSprite2D" parent="Panel/HBoxContainer/CenterPanel/PortraitPivot"]
-position = Vector2(-10.972412, 23.719269)
-scale = Vector2(0.4099513, 0.4099513)
-sprite_frames = ExtResource("3_sj00c")
+[node name="CharPortrait" type="AnimatedSprite2D" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin/PreviewVBox/PortraitHolder/PortraitPivot"]
+position = Vector2(0, 58)
+scale = Vector2(0.49, 0.49)
+sprite_frames = ExtResource("4_frames")
 animation = &"calm"
 
-[node name="RightPanel" type="PanelContainer" parent="Panel/HBoxContainer"]
-custom_minimum_size = Vector2(280, 0)
+[node name="PreviewNameLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/CenterStage/PreviewMargin/PreviewVBox"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_side")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/HBoxContainer/RightPanel"]
-layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 1
-
-[node name="DetailName" type="Label" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 24
-text = "服装名称"
+theme_override_colors/font_color = Color(0.96, 0.98, 0.99, 0.92)
+theme_override_font_sizes/font_size = 18
+text = "当前搭配预览"
 horizontal_alignment = 1
 
-[node name="DetailIcon" type="TextureRect" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
+[node name="RightInfo" type="PanelContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox"]
+custom_minimum_size = Vector2(292, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_RightInfo")
+
+[node name="InfoMargin" type="MarginContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="InfoVBox" type="VBoxContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="InfoOverline" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.91, 0.92, 0.68)
+theme_override_font_sizes/font_size = 13
+text = "Selected Outfit"
+
+[node name="DetailName" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.98)
+theme_override_font_sizes/font_size = 24
+text = "服装名称"
+autowrap_mode = 3
+
+[node name="TagRow" type="HBoxContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TypeTag" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/TagRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.87, 0.82, 1)
+theme_override_font_sizes/font_size = 14
+text = "时装"
+
+[node name="StatusTag" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/TagRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.72, 1)
+theme_override_font_sizes/font_size = 14
+text = "当前穿着"
+
+[node name="DetailCollectionLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.94, 0.96, 0.72)
+theme_override_font_sizes/font_size = 13
+text = "衣橱收集 0 / 0"
+
+[node name="DetailPreviewPanel" type="PanelContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_DetailPreview")
+
+[node name="DetailPreviewMargin" type="MarginContainer" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/DetailPreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="DetailIcon" type="TextureRect" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/DetailPreviewPanel/DetailPreviewMargin"]
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="DetailDesc" type="RichTextLabel" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 150)
+[node name="DescTitle" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
 layout_mode = 2
-theme_override_colors/default_color = Color(0.43, 0.45, 0.5, 1)
-text = "服装的详细描述..."
+theme_override_colors/font_color = Color(0.96, 0.98, 0.99, 0.94)
+theme_override_font_sizes/font_size = 15
+text = "服装简介"
 
-[node name="Spacer" type="Control" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
+[node name="DetailDesc" type="RichTextLabel" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.89, 0.94, 0.96, 0.82)
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = false
+scroll_active = true
+text = "服装的详细描述..."
 
-[node name="WearButton" type="Button" parent="Panel/HBoxContainer/RightPanel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 60)
+[node name="WearButton" type="Button" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
-text = "穿上"
+theme_override_colors/font_color = Color(0.13, 0.22, 0.24, 1)
+theme_override_colors/font_hover_color = Color(0.11, 0.2, 0.22, 1)
+theme_override_colors/font_pressed_color = Color(0.11, 0.2, 0.22, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PrimaryButtonHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_PrimaryButtonDisabled")
+text = "使用搭配"
 
-[node name="CloseButton" type="Button" parent="Panel"]
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -70.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = 70.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(0.4, 0.28, 0.18, 1)
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
-text = "X"
-
+[node name="BottomHintLabel" type="Label" parent="Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.9, 0.92, 0.56)
+theme_override_font_sizes/font_size = 12
+text = "未拥有的服装会保留在目录中，便于后续通过剧情与活动继续收集。"
+autowrap_mode = 3
 

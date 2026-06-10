@@ -2,6 +2,7 @@ extends Button
 
 signal option_pressed(option_id: String)
 
+@onready var card_panel: PanelContainer = $CardPanel
 @onready var icon_label: Label = $CardPanel/Margin/VBox/ArtPanel/IconLabel
 @onready var title_label: Label = $CardPanel/Margin/VBox/TitleWrap/Title
 @onready var subtitle_label: Label = $CardPanel/Margin/VBox/TitleWrap/SubTitle
@@ -23,12 +24,9 @@ signal option_pressed(option_id: String)
 var _option_id: String = ""
 
 func _ready() -> void:
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	pressed.connect(_on_pressed)
-	
-	if normal_style:
-		add_theme_stylebox_override("normal", normal_style)
-		add_theme_stylebox_override("hover", normal_style)
-		add_theme_stylebox_override("pressed", normal_style)
+	_apply_card_style(normal_style)
 
 func setup_option(data: Dictionary) -> void:
 	_option_id = str(data.get("id", "")).strip_edges()
@@ -41,15 +39,25 @@ func setup_option(data: Dictionary) -> void:
 
 func set_selected(is_selected: bool) -> void:
 	if is_selected:
-		if selected_style:
-			add_theme_stylebox_override("normal", selected_style)
-			add_theme_stylebox_override("hover", selected_style)
-			add_theme_stylebox_override("pressed", selected_style)
+		_apply_card_style(selected_style)
+		title_label.add_theme_color_override("font_color", Color(0.16, 0.28, 0.31, 1))
+		subtitle_label.add_theme_color_override("font_color", Color(0.27, 0.62, 0.58, 1))
+		desc_label.add_theme_color_override("font_color", Color(0.33, 0.46, 0.49, 1))
 	else:
-		if normal_style:
-			add_theme_stylebox_override("normal", normal_style)
-			add_theme_stylebox_override("hover", normal_style)
-			add_theme_stylebox_override("pressed", normal_style)
+		_apply_card_style(normal_style)
+		title_label.add_theme_color_override("font_color", Color(0.2, 0.31, 0.34, 1))
+		subtitle_label.add_theme_color_override("font_color", Color(0.47, 0.61, 0.65, 1))
+		desc_label.add_theme_color_override("font_color", Color(0.38, 0.49, 0.53, 1))
+
+func _apply_card_style(style: StyleBox) -> void:
+	if not style:
+		return
+	add_theme_stylebox_override("normal", style)
+	add_theme_stylebox_override("hover", style)
+	add_theme_stylebox_override("pressed", style)
+	add_theme_stylebox_override("focus", style)
+	if card_panel:
+		card_panel.add_theme_stylebox_override("panel", style)
 
 func _build_cost_lines(lines: Array) -> void:
 	var final_lines: Array[Dictionary] = []

@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://cxab3x2x4y5v1"]
+[gd_scene load_steps=12 format=3 uid="uid://cxab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://dtia45vxlbf3v" path="res://scripts/ui/start/start_scene.gd" id="1_ab123"]
 [ext_resource type="Texture2D" uid="uid://qj1pittuuxx6" path="res://assets/images/title/titlebackground.png" id="2_1ighk"]
-[ext_resource type="Texture2D" uid="uid://dfdvtfnlpm64n" path="res://assets/images/icons/ui/system/gear.svg" id="3_gear"]
 [ext_resource type="Texture2D" uid="uid://h30wh56c1e6u" path="res://assets/images/title/title.png" id="3_qukub"]
+[ext_resource type="Texture2D" uid="uid://cbyccnbopt5w0" path="res://assets/images/icons/ui/main/settings.png" id="4_qukub"]
+[ext_resource type="Texture2D" uid="uid://v38ek452wj5y" path="res://assets/images/icons/ui/main/bug-folder.png" id="5_6f613"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopRightButton"]
 bg_color = Color(0.03, 0.05, 0.09, 0.46)
@@ -160,26 +161,61 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TopRightBar" type="HBoxContainer" parent="ContentRoot/ActionGroup"]
+[node name="TopRightBar" type="VBoxContainer" parent="ContentRoot/ActionGroup"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -76.0
+offset_left = -69.0
 offset_top = 24.0
 offset_right = -24.0
-offset_bottom = 76.0
+offset_bottom = 132.0
 grow_horizontal = 0
+theme_override_constants/separation = 10
+alignment = 1
 
 [node name="SettingsButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar"]
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 theme_override_constants/h_separation = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_TopRightButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_TopRightButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_TopRightButtonHover")
-icon = ExtResource("3_gear")
+icon = ExtResource("4_qukub")
+flat = true
 expand_icon = true
+
+[node name="BugFeedbackButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar"]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_TopRightButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TopRightButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TopRightButtonHover")
+icon = ExtResource("5_6f613")
+flat = true
+expand_icon = true
+
+[node name="BuildHintLabel" type="Label" parent="ContentRoot"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -210.0
+offset_top = -46.0
+offset_right = 210.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.22)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 15
+text = "开发中版本，不代表最终品质"
+horizontal_alignment = 1
 
 [node name="MenuGroup" type="Control" parent="ContentRoot"]
 layout_mode = 1

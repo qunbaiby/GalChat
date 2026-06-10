@@ -129,9 +129,14 @@ func _on_option_selected(id: String):
 		var card = _option_cards.get(opt["id"], null)
 		if card:
 			card.set_selected(opt["id"] == id)
+	_update_start_button_text()
+
+func _update_start_button_text() -> void:
 	var selected_opt := _get_selected_option()
-	if selected_opt:
-		pass # cost_label has been removed
+	if selected_opt.is_empty():
+		start_btn.text = " 开始训练 "
+		return
+	start_btn.text = "开始 %s  ·  -%d行动力" % [selected_opt["name"], int(selected_opt.get("energy_cost", 0))]
 
 func _get_selected_option() -> Dictionary:
 	for opt in options:

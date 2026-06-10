@@ -1,0 +1,421 @@
+[gd_scene load_steps=14 format=3 uid="uid://dww6kuayx0n4s"]
+
+[ext_resource type="Script" uid="uid://cmgqdvv0vypwy" path="res://scripts/ui/start/bug_feedback_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://v38ek452wj5y" path="res://assets/images/icons/ui/main/bug-folder.png" id="3_nnild"]
+
+[sub_resource type="Shader" id="Shader_BugFeedbackBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.8;
+uniform vec4 mix_color: source_color = vec4(0.08, 0.1, 0.12, 0.42);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_BugFeedbackBlur"]
+shader = SubResource("Shader_BugFeedbackBlur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.08, 0.1, 0.12, 0.42)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Backdrop"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
+bg_color = Color(0.95, 0.98, 0.975, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.9, 0.88, 0.95)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.05, 0.12, 0.14, 0.16)
+shadow_size = 24
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.17, 0.2, 0.24, 0.92)
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.08)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
+bg_color = Color(1, 1, 1, 0.12)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.12)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButtonHover"]
+bg_color = Color(1, 1, 1, 0.18)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.52, 0.84, 0.81, 0.38)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.92)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.15, 0.24, 0.28, 0.06)
+shadow_size = 10
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputQuiet"]
+content_margin_left = 10.0
+content_margin_top = 7.0
+content_margin_right = 10.0
+content_margin_bottom = 7.0
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TextAreaQuiet"]
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="BugFeedbackPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="Panel" parent="."]
+material = SubResource("ShaderMaterial_BugFeedbackBlur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Backdrop")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(920, 600)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
+
+[node name="MainMargin" type="MarginContainer" parent="CenterContainer/PanelRoot"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin"]
+custom_minimum_size = Vector2(880, 560)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
+
+[node name="TopIcon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/TopBar"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 0
+offset_left = 22.0
+offset_top = 26.0
+offset_right = 64.0
+offset_bottom = 68.0
+texture = ExtResource("3_nnild")
+expand_mode = 1
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/TopBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 72.0
+offset_top = 18.0
+offset_right = -126.0
+offset_bottom = 46.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.96)
+theme_override_font_sizes/font_size = 24
+text = "BUG 反馈"
+
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/TopBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 72.0
+offset_top = 50.0
+offset_right = -126.0
+offset_bottom = 76.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 0.98, 0.7)
+theme_override_font_sizes/font_size = 13
+text = "请尽量描述问题发生位置、复现步骤和期望结果，复制后可直接发送给开发者。"
+
+[node name="CloseButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/TopBar"]
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -62.0
+offset_top = -23.0
+offset_right = -16.0
+offset_bottom = 23.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.92)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButtonHover")
+text = "×"
+
+[node name="BodyScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="BodyVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll"]
+custom_minimum_size = Vector2(880, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="FormCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="FormMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="FormVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BasicGrid" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="CategoryVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/BasicGrid"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CategoryLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/BasicGrid/CategoryVBox"]
+layout_mode = 2
+text = "问题分类"
+
+[node name="CategoryOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/BasicGrid/CategoryVBox"]
+custom_minimum_size = Vector2(180, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_pressed_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_InputQuiet")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_InputQuiet")
+theme_override_styles/hover = SubResource("StyleBoxFlat_InputQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputQuiet")
+
+[node name="TitleVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/BasicGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/BasicGrid/TitleVBox"]
+layout_mode = 2
+text = "问题标题"
+
+[node name="TitleInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/BasicGrid/TitleVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 0.82)
+theme_override_styles/normal = SubResource("StyleBoxFlat_InputQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputQuiet")
+placeholder_text = "例如：开始界面按钮点击后无响应"
+
+[node name="StepsLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
+layout_mode = 2
+text = "复现步骤"
+
+[node name="StepsEdit" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 0.82)
+theme_override_styles/normal = SubResource("StyleBoxFlat_TextAreaQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_TextAreaQuiet")
+placeholder_text = "1. 进入某个界面
+2. 点击某个按钮
+3. 出现异常现象"
+
+[node name="ResultVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ExpectedVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/ResultVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ExpectedLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/ResultVBox/ExpectedVBox"]
+layout_mode = 2
+text = "期望结果"
+
+[node name="ExpectedEdit" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/ResultVBox/ExpectedVBox"]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 0.82)
+theme_override_styles/normal = SubResource("StyleBoxFlat_TextAreaQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_TextAreaQuiet")
+placeholder_text = "你认为这里本应该发生什么"
+
+[node name="ActualVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/ResultVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ActualLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/ResultVBox/ActualVBox"]
+layout_mode = 2
+text = "实际结果"
+
+[node name="ActualEdit" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox/ResultVBox/ActualVBox"]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 0.82)
+theme_override_styles/normal = SubResource("StyleBoxFlat_TextAreaQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_TextAreaQuiet")
+placeholder_text = "实际发生的异常、错位、无响应或报错"
+
+[node name="ContactLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
+layout_mode = 2
+text = "联系方式（可选）"
+
+[node name="ContactInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 0.82)
+theme_override_styles/normal = SubResource("StyleBoxFlat_InputQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputQuiet")
+placeholder_text = "例如：QQ / 邮箱 / 交流群昵称，便于回访"
+
+[node name="InfoCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox"]
+custom_minimum_size = Vector2(0, 132)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="InfoMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/InfoCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="InfoVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/InfoCard/InfoMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InfoTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/InfoCard/InfoMargin/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.22, 0.26, 1)
+theme_override_font_sizes/font_size = 16
+text = "运行信息与填写说明"
+
+[node name="EnvInfoLabel" type="RichTextLabel" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/InfoCard/InfoMargin/InfoVBox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/default_color = Color(0.23, 0.31, 0.34, 1)
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0)
+theme_override_font_sizes/normal_font_size = 13
+bbcode_enabled = true
+selection_enabled = true
+
+[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.34, 0.42, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "复制反馈后即可直接发给开发者。"
+vertical_alignment = 1
+
+[node name="Actions" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CopyEnvButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/BottomBar/Actions"]
+custom_minimum_size = Vector2(136, 42)
+layout_mode = 2
+text = "复制运行信息"
+
+[node name="CopyFeedbackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/BottomBar/Actions"]
+custom_minimum_size = Vector2(160, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "复制完整反馈"

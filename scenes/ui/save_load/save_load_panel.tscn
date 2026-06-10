@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://blvnuh0y6dh3d"]
+[gd_scene load_steps=11 format=3 uid="uid://blvnuh0y6dh3d"]
 
 [ext_resource type="Script" uid="uid://uj14ew22nn5q" path="res://scripts/ui/save_load/save_load_panel.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
@@ -68,23 +68,10 @@ corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ModeBadge"]
-bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.14, 0.17, 0.19, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Scroll"]
 bg_color = Color(1, 1, 1, 0)
 
 [node name="SaveLoadPanel" type="Control"]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -183,61 +170,15 @@ text = "关闭"
 [node name="BodyMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 10
 
 [node name="BodyVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 18
-
-[node name="ModeCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
-
-[node name="ModeMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 16
-
-[node name="ModeHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="ModeBadgePanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox"]
-custom_minimum_size = Vector2(88, 32)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ModeBadge")
-
-[node name="ModeBadgeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox/ModeBadgePanel"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.97, 0.98, 1)
-theme_override_font_sizes/font_size = 14
-text = "ARCHIVE"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ModeTextVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="SectionTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox/ModeTextVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
-theme_override_font_sizes/font_size = 18
-text = "档案模式"
-
-[node name="SectionDesc" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ModeCard/ModeMargin/ModeHBox/ModeTextVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
-theme_override_font_sizes/font_size = 14
-text = "点击已有档案继续陪伴，点击空槽位新建档案。"
-autowrap_mode = 3
+theme_override_constants/separation = 5
 
 [node name="ListCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox"]
 layout_mode = 2
@@ -293,3 +234,11 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Scroll")
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
+
+[node name="SectionDesc" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "点击已有档案继续陪伴，点击空槽位新建档案。"
+horizontal_alignment = 1
+autowrap_mode = 3

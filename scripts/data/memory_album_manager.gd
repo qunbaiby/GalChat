@@ -204,17 +204,19 @@ func _build_stage_milestones() -> Array:
 		var conf = profile.get_stage_config(stage)
 		var stage_title = str(conf.get("stageTitle", "Stage %d" % stage))
 		var stage_desc = str(conf.get("stageDesc", "你们的关系在这一阶段有了新的变化。")).strip_edges()
-		var unlock_dialog = str(conf.get("unlockDialog", "")).strip_edges()
-		var summary = stage_desc if stage_desc != "" else unlock_dialog
+		var important_notes = str(conf.get("important_notes", "")).strip_edges()
+		var summary = stage_desc if stage_desc != "" else important_notes
 		if summary == "":
 			summary = "从这一刻开始，你们之间的距离又近了一些。"
+		var quote_source = important_notes if important_notes != "" else stage_desc
+		var quote = _extract_quote(quote_source) if quote_source != "" else "这是你们关系里的一个关键节点。"
 		results.append({
 			"id": "milestone_stage_%d" % stage,
 			"category": CATEGORY_MILESTONE,
 			"title": "关系进入 %s" % stage_title,
 			"subtitle": "Stage %d" % stage,
 			"summary": summary,
-			"quote": unlock_dialog if unlock_dialog != "" else "这是你们关系里的一个关键节点。",
+			"quote": quote,
 			"time_label": "Stage %d" % stage,
 			"cover_image": "",
 			"tags": ["阶段成长", "纪念节点"],

@@ -68,11 +68,23 @@ static func evaluate_conditions(conditions: Array) -> Dictionary:
                 return result
         elif c_type == "weather":
             var req_weather = cond.get("value", "")
+            var story_weather_raw := ""
+            var story_weather_desc := ""
+            if time_sys:
+                if time_sys.has_method("get_story_weather_id"):
+                    story_weather_raw = str(time_sys.get_story_weather_id())
+                if time_sys.has_method("get_story_weather_desc"):
+                    story_weather_desc = str(time_sys.get_story_weather_desc())
+            var real_weather := ""
             if GameDataManager.weather_manager:
-                var current_weather = GameDataManager.weather_manager.current_weather_desc
-                if req_weather not in current_weather:
-                    result["passed"] = false
-                    result["failed_reason"] = "需要在特定天气触发"
-                    return result
+                real_weather = GameDataManager.weather_manager.current_weather_desc
+            var req_weather_text := str(req_weather)
+            var matched := false
+            if req_weather_text != "":
+                matched = (req_weather_text == story_weather_raw) or (req_weather_text in story_weather_desc) or (req_weather_text in real_weather)
+            if not matched:
+                result["passed"] = false
+                result["failed_reason"] = "需要在特定天气触发"
+                return result
                 
     return result

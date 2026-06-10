@@ -161,10 +161,15 @@ var _lightning_timer := 4.0
 var _camera_2d: Camera2D
 var _camera_3d: Camera3D
 var _biome_provider: Node
+var _overlay_target: Control
 var _overlay_layer_node: CanvasLayer
 var _overlay_control: Control
 var _overlay_script: Script
 var _package_base_path := ""
+var _debug_server_url := "http://127.0.0.1:7777/event"
+var _debug_session_id := "yellow-screen-tint"
+var _debug_env_loaded := false
+var _debug_last_report_ms := {}
 
 
 func _ready() -> void:
@@ -191,7 +196,8 @@ func _process(delta: float) -> void:
 		_update_weather_spawn_system(delta)
 	_update_environment_mix(delta)
 	if _overlay_control != null:
-		_overlay_control.visible = show_screen_overlay
+		_refresh_overlay_parent()
+		_overlay_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
 		_overlay_control.queue_redraw()
 
 
@@ -419,6 +425,30 @@ func get_weather_asset_path(file_name: String) -> String:
 	return "%s/assets/weather/%s" % [get_package_base_dir(), file_name]
 
 
+func set_overlay_target(target: Control) -> void:
+	_overlay_target = target
+	_refresh_overlay_parent()
+	# #region debug-point D:overlay-target
+	_debug_report(
+		"D",
+		"romestead_environment_system.gd:set_overlay_target",
+		"[DEBUG] environment overlay target updated",
+		{
+			"has_target": is_instance_valid(_overlay_target),
+			"target_path": str(_overlay_target.get_path()) if is_instance_valid(_overlay_target) else ""
+		}
+	)
+	# #endregion
+
+
+func get_overlay_target_rect() -> Rect2:
+	if not is_instance_valid(_overlay_target):
+		return Rect2()
+	if not _overlay_target.is_visible_in_tree():
+		return Rect2()
+	return Rect2(Vector2.ZERO, _overlay_target.size)
+
+
 func _setup_overlay() -> void:
 	if _overlay_layer_node != null:
 		return
@@ -439,6 +469,36 @@ func _setup_overlay() -> void:
 	_overlay_control.set_script(_overlay_script)
 	_overlay_control.environment = self
 	_overlay_layer_node.add_child(_overlay_control)
+	_refresh_overlay_parent()
+	# #region debug-point A:overlay-created
+	_debug_report(
+		"A",
+		"romestead_environment_system.gd:_setup_overlay",
+		"[DEBUG] environment overlay created",
+		{
+			"overlay_layer": overlay_layer,
+			"show_screen_overlay": show_screen_overlay,
+			"overlay_control_name": _overlay_control.name,
+			"overlay_script_path": _overlay_script.resource_path if _overlay_script != null else ""
+		}
+	)
+	# #endregion
+
+
+func _refresh_overlay_parent() -> void:
+	if _overlay_control == null:
+		return
+	var target_parent: Node = _overlay_layer_node
+	if is_instance_valid(_overlay_target):
+		target_parent = _overlay_target
+	if _overlay_control.get_parent() != target_parent:
+		if _overlay_control.get_parent() != null:
+			_overlay_control.get_parent().remove_child(_overlay_control)
+		target_parent.add_child(_overlay_control)
+	_overlay_control.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay_control.position = Vector2.ZERO
+	_overlay_control.size = Vector2.ZERO
+	_overlay_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
 
 
 func _spawn_initial_weather() -> void:
@@ -611,6 +671,29 @@ func _update_environment_mix(delta: float) -> void:
 	moon_direction = moon["direction"]
 
 	_update_lightning(delta)
+	# #region debug-point C:environment-mix
+	_debug_report(
+		"C",
+		"romestead_environment_system.gd:_update_environment_mix",
+		"[DEBUG] environment mix updated",
+		{
+			"hour": snapped(hour, 0.001),
+			"ambient_color": {
+				"r": snapped(ambient_color.r, 0.001),
+				"g": snapped(ambient_color.g, 0.001),
+				"b": snapped(ambient_color.b, 0.001)
+			},
+			"time_based_light_curve": snapped(time_based_light_curve, 0.001),
+			"weather_light_curve": snapped(weather_light_curve, 0.001),
+			"dominant_weather_id": current_dominant_weather_id,
+			"dominant_weather_strength": snapped(current_dominant_weather_strength, 0.001),
+			"show_screen_overlay": show_screen_overlay,
+			"overlay_visible": _overlay_control.visible if _overlay_control != null else false,
+			"has_overlay_target": is_instance_valid(_overlay_target)
+		},
+		2000
+	)
+	# #endregion
 
 
 func _update_dominant_weather() -> void:
@@ -1069,6 +1152,55 @@ func _sine_in(t: float) -> float:
 func _sine_in_out(t: float) -> float:
 	t = clamp(t, 0.0, 1.0)
 	return -(cos(PI * t) - 1.0) / 2.0
+
+
+func _debug_ensure_env_loaded() -> void:
+	if _debug_env_loaded:
+		return
+	_debug_env_loaded = true
+	var env_path := ProjectSettings.globalize_path("res://.dbg/yellow-screen-tint.env")
+	if not FileAccess.file_exists(env_path):
+		return
+	var env_file := FileAccess.open(env_path, FileAccess.READ)
+	if env_file == null:
+		return
+	while not env_file.eof_reached():
+		var line := env_file.get_line().strip_edges()
+		if line.begins_with("DEBUG_SERVER_URL="):
+			_debug_server_url = line.trim_prefix("DEBUG_SERVER_URL=")
+		elif line.begins_with("DEBUG_SESSION_ID="):
+			_debug_session_id = line.trim_prefix("DEBUG_SESSION_ID=")
+
+
+func _debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}, min_interval_ms: int = 0) -> void:
+	_debug_ensure_env_loaded()
+	var now := Time.get_ticks_msec()
+	var throttle_key := "%s|%s" % [hypothesis_id, location]
+	var last_sent := int(_debug_last_report_ms.get(throttle_key, 0))
+	if min_interval_ms > 0 and now - last_sent < min_interval_ms:
+		return
+	_debug_last_report_ms[throttle_key] = now
+	var request := HTTPRequest.new()
+	add_child(request)
+	request.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
+		request.queue_free()
+	)
+	var err := request.request(
+		_debug_server_url,
+		PackedStringArray(["Content-Type: application/json"]),
+		HTTPClient.METHOD_POST,
+		JSON.stringify({
+			"sessionId": _debug_session_id,
+			"runId": "pre-fix",
+			"hypothesisId": hypothesis_id,
+			"location": location,
+			"msg": msg,
+			"data": data,
+			"ts": Time.get_unix_time_from_system() * 1000.0
+		})
+	)
+	if err != OK:
+		request.queue_free()
 
 
 func _quart_in(t: float) -> float:

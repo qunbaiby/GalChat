@@ -148,6 +148,16 @@ texture = ExtResource("2_jxfeh")
 expand_mode = 1
 stretch_mode = 6
 
+[node name="WeatherLayer" type="Control" parent="."]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="LunaAni" type="AnimatedSprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0)
 position = Vector2(658.76575, 373.99905)

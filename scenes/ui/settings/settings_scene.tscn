@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://cycb3x2x4y5v1"]
+[gd_scene load_steps=32 format=3 uid="uid://cycb3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://c2letthx3s2k7" path="res://scripts/ui/settings/settings_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cofmgnmdrddu3" path="res://assets/images/icons/ui/mobile/home/settings_gear.svg" id="2_ai_icon"]
@@ -7,6 +7,23 @@
 [ext_resource type="Texture2D" uid="uid://bgm6vn1eos1u3" path="res://assets/images/icons/ui/story/voice_record.svg" id="4_audio_icon"]
 [ext_resource type="Texture2D" uid="uid://qemvb5hcghqq" path="res://assets/images/icons/ui/mobile/home/desktop_pet.svg" id="5_pet_icon"]
 [ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="6_settings_theme"]
+
+[sub_resource type="Shader" id="Shader_SettingsBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_SettingsBlur"]
+shader = SubResource("Shader_SettingsBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.160784, 0.141176, 0.121569, 0.588235)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
 bg_color = Color(1, 1, 1, 1)
@@ -45,48 +62,85 @@ corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_en6pb"]
-bg_color = Color(0.93333334, 0.9137255, 0.84705883, 1)
+bg_color = Color(0.960784, 0.980392, 0.968627, 0.64)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.86, 0.83, 0.76, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
+shadow_size = 12
+shadow_offset = Vector2(0, 3)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.972, 0.962, 0.936, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ContentTopBar"]
+bg_color = Color(0.223529, 0.227451, 0.235294, 0.88)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.86, 0.83, 0.76, 1)
+border_color = Color(1, 1, 1, 0.08)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
+bg_color = Color(1, 1, 1, 0.12)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.12)
+corner_radius_top_left = 21
+corner_radius_top_right = 21
+corner_radius_bottom_right = 21
+corner_radius_bottom_left = 21
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButtonHover"]
+bg_color = Color(1, 1, 1, 0.18)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.52, 0.84, 0.81, 0.4)
+corner_radius_top_left = 21
+corner_radius_top_right = 21
+corner_radius_bottom_right = 21
+corner_radius_bottom_left = 21
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.88)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
+shadow_color = Color(0.18, 0.28, 0.33, 0.06)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputNormal"]
 content_margin_left = 10.0
 content_margin_top = 6.0
 content_margin_right = 10.0
 content_margin_bottom = 6.0
-bg_color = Color(0.985, 0.98, 0.965, 1)
+bg_color = Color(1, 1, 1, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.84, 0.81, 0.75, 1)
+border_color = Color(0.79, 0.86, 0.89, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -97,48 +151,48 @@ content_margin_left = 10.0
 content_margin_top = 6.0
 content_margin_right = 10.0
 content_margin_bottom = 6.0
-bg_color = Color(1, 0.995, 0.985, 1)
+bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 1)
+border_color = Color(0.52, 0.84, 0.81, 0.96)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChoiceNormal"]
-bg_color = Color(0.985, 0.98, 0.965, 1)
+bg_color = Color(1, 1, 1, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.78, 0.72, 1)
+border_color = Color(0.79, 0.86, 0.89, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChoicePressed"]
-bg_color = Color(0.985, 0.98, 0.965, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 1)
+border_color = Color(0.45, 0.72, 0.65, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChoiceHover"]
-bg_color = Color(0.985, 0.98, 0.965, 1)
+bg_color = Color(0.95, 0.992, 0.989, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.72, 0.78, 0.72, 1)
+border_color = Color(0.52, 0.84, 0.81, 0.96)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -149,7 +203,7 @@ content_margin_left = 10.0
 content_margin_top = 4.0
 content_margin_right = 10.0
 content_margin_bottom = 4.0
-bg_color = Color(0.89, 0.86, 0.8, 1)
+bg_color = Color(0.86, 0.9, 0.91, 0.92)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -160,71 +214,59 @@ content_margin_left = 10.0
 content_margin_top = 4.0
 content_margin_right = 10.0
 content_margin_bottom = 4.0
-bg_color = Color(0.45, 0.78, 0.72, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToggleNormal"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
+bg_color = Color(1, 1, 1, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5xkn"]
-bg_color = Color(0.12941177, 0.7607843, 0.7019608, 1)
+bg_color = Color(0.57, 0.82, 0.76, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.78, 0.72, 1)
+border_color = Color(0.45, 0.72, 0.65, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wcs0v"]
-bg_color = Color(0.42192078, 0.9854236, 0.92006475, 1)
+bg_color = Color(0.49, 0.86, 0.8, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 1)
+border_color = Color(0.41, 0.69, 0.63, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k741i"]
-bg_color = Color(0.42192078, 0.9854236, 0.92006475, 1)
+bg_color = Color(0.49, 0.86, 0.8, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 1)
+border_color = Color(0.41, 0.69, 0.63, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-
-[sub_resource type="Shader" id="Shader_SettingsBlur"]
-code = "shader_type canvas_item;
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float lod: hint_range(0.0, 5) = 2.0;
-uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
-
-void fragment() {
-	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
-	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_SettingsBlur"]
-shader = SubResource("Shader_SettingsBlur")
-shader_parameter/lod = 2.5
-shader_parameter/mix_color = Color(0.160784, 0.141176, 0.121569, 0.588235)
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_Settings"]
 
@@ -483,7 +525,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_en6pb")
 [node name="ContentMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 0
+theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
@@ -491,23 +533,24 @@ theme_override_constants/margin_bottom = 18
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 12
 
 [node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
-self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(0, 82)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ContentTopBar")
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 15.0
-offset_top = 16.0
-offset_right = -88.0
-offset_bottom = 50.0
+offset_left = 20.0
+offset_top = 9.0
+offset_right = -116.0
+offset_bottom = 39.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.23, 0.2, 0.17, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 1, 1, 0.96)
+theme_override_font_sizes/font_size = 21
 text = "设置 / AI"
 vertical_alignment = 1
 
@@ -515,32 +558,34 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 17.0
-offset_top = 46.0
-offset_right = -88.0
-offset_bottom = 66.0
+offset_left = 20.0
+offset_top = 39.0
+offset_right = -116.0
+offset_bottom = 67.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.5, 0.45, 0.38, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.92, 0.95, 0.98, 0.62)
+theme_override_font_sizes/font_size = 13
 text = "模型、接口、语音与图像等能力配置"
 vertical_alignment = 1
 
 [node name="BackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar"]
-custom_minimum_size = Vector2(42, 42)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -33.0
-offset_top = 9.0
-offset_right = 9.0
-offset_bottom = 51.0
+offset_left = -62.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = 60.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(0.24, 0.2, 0.17, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.92)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_BackButtonHover")
 text = "×"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
@@ -593,7 +638,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.27, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "API 设置"
 
@@ -778,7 +823,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.27, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "语音设置"
 
@@ -1051,7 +1096,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.27, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "向量记忆设置"
 
@@ -1130,7 +1175,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.27, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "多模态视觉设置"
 
@@ -1226,7 +1271,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.27, 0.22, 1)
+theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "图像生成设置"
 

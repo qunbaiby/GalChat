@@ -203,15 +203,56 @@ func get_day_config(offset: int) -> Dictionary:
 func get_current_day_config() -> Dictionary:
     return get_day_config(current_day_offset)
 
+func normalize_story_weather_id(raw_weather: String) -> String:
+    var key := raw_weather.strip_edges().to_lower()
+    match key:
+        "sunny", "clear", "fine":
+            return "sunny"
+        "cloudy", "partly_cloudy":
+            return "cloudy"
+        "overcast":
+            return "overcast"
+        "foggy", "fog", "mist":
+            return "foggy"
+        "rainy", "rain", "shower":
+            return "rainy"
+        "thunder", "storm", "thunderstorm":
+            return "thunder"
+        "snow", "snowy", "blizzard":
+            return "snow"
+        _:
+            return key
+
+func get_story_weather_id(offset: int = current_day_offset) -> String:
+    var day_cfg := get_day_config(offset)
+    return normalize_story_weather_id(str(day_cfg.get("weather", "sunny")))
+
+func get_story_weather_desc(offset: int = current_day_offset) -> String:
+    match get_story_weather_id(offset):
+        "sunny":
+            return "晴天"
+        "cloudy":
+            return "多云"
+        "overcast":
+            return "阴天"
+        "foggy":
+            return "有雾"
+        "rainy":
+            return "雨天"
+        "thunder":
+            return "雷雨"
+        "snow":
+            return "雪天"
+        _:
+            return "晴天"
+
 # 供大模型提示词使用的格式化剧情时间字符串
 func get_story_time_string() -> String:
     var d = get_current_date_dict()
     var weekday_str = ["日", "一", "二", "三", "四", "五", "六"]
     var w = weekday_str[d.weekday]
     var weather_cfg = get_current_day_config()
-    var weather_text = "晴天"
-    if weather_cfg.get("weather") == "cloudy": weather_text = "多云"
-    elif weather_cfg.get("weather") == "rainy": weather_text = "雨天"
+    var weather_text = get_story_weather_desc()
     
     return "%d年%d月%d日 星期%s，%s，时间：%02d:%02d，天气：%s，气温：%d度" % [
         d.year, d.month, d.day, w, current_period, current_hour, current_minute,

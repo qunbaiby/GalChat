@@ -10,6 +10,12 @@ const SHORT_PRESSURE_SETTLE_SCALE := 0.55
 const SHORT_PRESSURE_RETAIN_SCALE := 0.35
 const LONG_PRESSURE_SETTLE_SCALE := 0.2
 const LONG_PRESSURE_RETAIN_SCALE := 0.88
+const LLM_FEEDBACK_SINGLE_TRAIT_LIMIT := 3.0
+const LLM_FEEDBACK_TOTAL_DELTA_LIMIT := 6.5
+const LLM_RELATION_SINGLE_DELTA_LIMIT := 8.0
+const LLM_RELATION_TOTAL_DELTA_LIMIT := 12.0
+const PRIMARY_ARCHETYPE_SWITCH_MARGIN := 10.0
+const SECONDARY_ARCHETYPE_SWITCH_MARGIN := 8.0
 
 var _event_rules: Dictionary = {}
 
@@ -415,6 +421,12 @@ func get_personality_state_summary(profile: CharacterProfile) -> String:
 		parts.append(profile.get_companion_streak_summary())
 	return "  ·  ".join(parts)
 
+func get_relationship_flavor_label(profile: CharacterProfile) -> String:
+	if profile == null:
+		return _get_flavor_label("Guarded")
+	var state = resolve_archetype_state(profile)
+	return _get_flavor_label(str(state.get("flavor", "Guarded")))
+
 func get_recent_event_summary(profile: CharacterProfile) -> String:
 	if profile == null or not profile.has_method("get_recent_personality_events"):
 		return "最近没有人格事件记录。"
@@ -694,7 +706,8 @@ func get_dynamic_traits(profile: CharacterProfile) -> String:
 	# --- 复合维度专属状态（二次元萌点/特殊人格） ---
 	var composite_traits = _get_composite_traits(profile)
 	if composite_traits.size() > 0:
-		traits.append("\n【特殊人格/复合状态（极度重要，会覆盖基础设定）】")
+		traits.append("\n【特殊人格/复合状态（局部修饰，不可覆盖基础设定与阶段设定）】")
+		traits.append("以下复合状态只用于补充口吻、偏好和应激反应，不能覆盖角色基础底色、阶段描述、scene_setting 与 important_notes。")
 		traits.append_array(composite_traits)
 		traits.append("") # 空行分隔
 		
@@ -736,7 +749,8 @@ func get_dynamic_traits(profile: CharacterProfile) -> String:
 	return "\n".join(traits)
 
 func resolve_archetype_state(profile: CharacterProfile) -> Dictionary:
-	var candidates = _build_composite_candidates(profile)
+	var candidates = _filter_composite_candidates(profile, _build_composite_candidates(profile))
+	var previous_state: Dictionary = profile.personality_state if profile.personality_state is Dictionary else {}
 	var result = {
 		"primary_id": "",
 		"primary_desc": "",
@@ -744,23 +758,255 @@ func resolve_archetype_state(profile: CharacterProfile) -> Dictionary:
 		"secondary_id": "",
 		"secondary_desc": "",
 		"secondary_score": 0.0,
-		"flavor": _resolve_relationship_flavor(profile)
+		"flavor": _resolve_relationship_flavor(profile),
+		"pending_primary_id": str(previous_state.get("pending_primary_id", "")),
+		"pending_primary_streak": int(previous_state.get("pending_primary_streak", 0)),
+		"pending_secondary_id": str(previous_state.get("pending_secondary_id", "")),
+		"pending_secondary_streak": int(previous_state.get("pending_secondary_streak", 0))
 	}
-	if candidates.is_empty():
-		return result
 
-	result["primary_id"] = str(candidates[0].get("id", ""))
-	result["primary_desc"] = str(candidates[0].get("desc", ""))
-	result["primary_score"] = float(candidates[0].get("score", 0.0))
+	var proposed_primary_id := ""
+	var proposed_primary_desc := ""
+	var proposed_primary_score := 0.0
+	if not candidates.is_empty():
+		proposed_primary_score = float(candidates[0].get("score", 0.0))
+		if proposed_primary_score >= _get_primary_archetype_threshold(profile):
+			proposed_primary_id = str(candidates[0].get("id", ""))
+			proposed_primary_desc = str(candidates[0].get("desc", ""))
 
-	if candidates.size() > 1:
-		var primary_score = float(candidates[0].get("score", 0.0))
-		var second_score = float(candidates[1].get("score", 0.0))
-		if second_score >= primary_score * 0.75:
-			result["secondary_id"] = str(candidates[1].get("id", ""))
-			result["secondary_desc"] = str(candidates[1].get("desc", ""))
-			result["secondary_score"] = second_score
+	var primary_slot = _resolve_stable_archetype_slot(
+		str(previous_state.get("primary_id", "")),
+		str(previous_state.get("primary_desc", "")),
+		float(previous_state.get("primary_score", 0.0)),
+		str(previous_state.get("pending_primary_id", "")),
+		int(previous_state.get("pending_primary_streak", 0)),
+		proposed_primary_id,
+		proposed_primary_desc,
+		proposed_primary_score,
+		candidates,
+		_get_primary_archetype_threshold(profile),
+		_get_primary_switch_margin(profile),
+		_get_primary_stability_window(profile)
+	)
+	result["primary_id"] = primary_slot["accepted_id"]
+	result["primary_desc"] = primary_slot["accepted_desc"]
+	result["primary_score"] = primary_slot["accepted_score"]
+	result["pending_primary_id"] = primary_slot["pending_id"]
+	result["pending_primary_streak"] = primary_slot["pending_streak"]
+
+	var proposed_secondary_id := ""
+	var proposed_secondary_desc := ""
+	var proposed_secondary_score := 0.0
+	for candidate in candidates:
+		var candidate_id = str(candidate.get("id", ""))
+		if candidate_id == "" or candidate_id == str(result["primary_id"]):
+			continue
+		var score = float(candidate.get("score", 0.0))
+		if score >= maxf(float(result["primary_score"]) * 0.82, _get_secondary_archetype_threshold(profile)):
+			proposed_secondary_id = candidate_id
+			proposed_secondary_desc = str(candidate.get("desc", ""))
+			proposed_secondary_score = score
+			break
+
+	var secondary_slot = _resolve_stable_archetype_slot(
+		str(previous_state.get("secondary_id", "")),
+		str(previous_state.get("secondary_desc", "")),
+		float(previous_state.get("secondary_score", 0.0)),
+		str(previous_state.get("pending_secondary_id", "")),
+		int(previous_state.get("pending_secondary_streak", 0)),
+		proposed_secondary_id,
+		proposed_secondary_desc,
+		proposed_secondary_score,
+		candidates,
+		_get_secondary_archetype_threshold(profile),
+		_get_secondary_switch_margin(profile),
+		_get_secondary_stability_window(profile)
+	)
+	result["secondary_id"] = secondary_slot["accepted_id"]
+	result["secondary_desc"] = secondary_slot["accepted_desc"]
+	result["secondary_score"] = secondary_slot["accepted_score"]
+	result["pending_secondary_id"] = secondary_slot["pending_id"]
+	result["pending_secondary_streak"] = secondary_slot["pending_streak"]
 	return result
+
+func _get_primary_archetype_threshold(profile: CharacterProfile) -> float:
+	if profile.current_character_id == "luna":
+		return 18.0
+	return 12.0
+
+func _get_secondary_archetype_threshold(profile: CharacterProfile) -> float:
+	if profile.current_character_id == "luna":
+		return 16.0
+	return 10.0
+
+func _get_primary_switch_margin(profile: CharacterProfile) -> float:
+	if profile.current_character_id == "luna":
+		return 14.0
+	return PRIMARY_ARCHETYPE_SWITCH_MARGIN
+
+func _get_secondary_switch_margin(profile: CharacterProfile) -> float:
+	if profile.current_character_id == "luna":
+		return 10.0
+	return SECONDARY_ARCHETYPE_SWITCH_MARGIN
+
+func _get_primary_stability_window(profile: CharacterProfile) -> int:
+	if profile.current_character_id == "luna":
+		return 3
+	return 2
+
+func _get_secondary_stability_window(profile: CharacterProfile) -> int:
+	if profile.current_character_id == "luna":
+		return 2
+	return 2
+
+func _resolve_stable_archetype_slot(previous_id: String, previous_desc: String, previous_score: float, previous_pending_id: String, previous_pending_streak: int, proposed_id: String, proposed_desc: String, proposed_score: float, candidates: Array, threshold: float, switch_margin: float, required_streak: int) -> Dictionary:
+	var current_score = _get_candidate_score(candidates, previous_id)
+	var current_desc = _get_candidate_desc(candidates, previous_id)
+	var current_exists = previous_id != "" and current_desc != ""
+	if current_desc == "":
+		current_desc = previous_desc
+	if previous_id != "" and not current_exists:
+		if proposed_id == "":
+			var missing_pending_id = "__none__"
+			var missing_pending_streak = previous_pending_streak + 1 if previous_pending_id == missing_pending_id else 1
+			if missing_pending_streak < required_streak:
+				return {
+					"accepted_id": previous_id,
+					"accepted_desc": current_desc,
+					"accepted_score": 0.0,
+					"pending_id": missing_pending_id,
+					"pending_streak": missing_pending_streak
+				}
+			return {
+				"accepted_id": "",
+				"accepted_desc": "",
+				"accepted_score": 0.0,
+				"pending_id": "",
+				"pending_streak": 0
+			}
+		var replaced_pending_streak = previous_pending_streak + 1 if previous_pending_id == proposed_id else 1
+		if proposed_score >= threshold and replaced_pending_streak >= required_streak:
+			return {
+				"accepted_id": proposed_id,
+				"accepted_desc": proposed_desc,
+				"accepted_score": proposed_score,
+				"pending_id": "",
+				"pending_streak": 0
+			}
+		return {
+			"accepted_id": previous_id,
+			"accepted_desc": current_desc,
+			"accepted_score": 0.0,
+			"pending_id": proposed_id,
+			"pending_streak": replaced_pending_streak
+		}
+
+	if proposed_id == previous_id:
+		return {
+			"accepted_id": proposed_id,
+			"accepted_desc": proposed_desc,
+			"accepted_score": proposed_score,
+			"pending_id": "",
+			"pending_streak": 0
+		}
+
+	if previous_id == "":
+		if proposed_id == "":
+			return {
+				"accepted_id": "",
+				"accepted_desc": "",
+				"accepted_score": 0.0,
+				"pending_id": "",
+				"pending_streak": 0
+			}
+		var first_pending_streak = previous_pending_streak + 1 if previous_pending_id == proposed_id else 1
+		if first_pending_streak >= required_streak:
+			return {
+				"accepted_id": proposed_id,
+				"accepted_desc": proposed_desc,
+				"accepted_score": proposed_score,
+				"pending_id": "",
+				"pending_streak": 0
+			}
+		return {
+			"accepted_id": "",
+			"accepted_desc": "",
+			"accepted_score": 0.0,
+			"pending_id": proposed_id,
+			"pending_streak": first_pending_streak
+		}
+
+	if proposed_id == "":
+		var missing_pending_id = "__none__"
+		var missing_pending_streak = previous_pending_streak + 1 if previous_pending_id == missing_pending_id else 1
+		if current_score >= threshold - switch_margin * 0.5 or missing_pending_streak < required_streak:
+			return {
+				"accepted_id": previous_id,
+				"accepted_desc": current_desc,
+				"accepted_score": current_score,
+				"pending_id": missing_pending_id,
+				"pending_streak": missing_pending_streak
+			}
+		return {
+			"accepted_id": "",
+			"accepted_desc": "",
+			"accepted_score": 0.0,
+			"pending_id": "",
+			"pending_streak": 0
+		}
+
+	var switch_pending_streak = previous_pending_streak + 1 if previous_pending_id == proposed_id else 1
+	if proposed_score >= current_score + switch_margin and switch_pending_streak >= required_streak:
+		return {
+			"accepted_id": proposed_id,
+			"accepted_desc": proposed_desc,
+			"accepted_score": proposed_score,
+			"pending_id": "",
+			"pending_streak": 0
+		}
+	return {
+		"accepted_id": previous_id,
+		"accepted_desc": current_desc,
+		"accepted_score": current_score,
+		"pending_id": proposed_id,
+		"pending_streak": switch_pending_streak
+	}
+
+func _get_candidate_score(candidates: Array, candidate_id: String) -> float:
+	if candidate_id == "":
+		return 0.0
+	for candidate in candidates:
+		if str(candidate.get("id", "")) == candidate_id:
+			return float(candidate.get("score", 0.0))
+	return 0.0
+
+func _get_candidate_desc(candidates: Array, candidate_id: String) -> String:
+	if candidate_id == "":
+		return ""
+	for candidate in candidates:
+		if str(candidate.get("id", "")) == candidate_id:
+			return str(candidate.get("desc", ""))
+	return ""
+
+func _filter_composite_candidates(profile: CharacterProfile, candidates: Array) -> Array:
+	if candidates.is_empty():
+		return []
+	var blocked_ids := {}
+	if profile.current_stage <= 4:
+		for blocked_id in ["病娇", "地雷系", "毒舌", "小恶魔", "御姐"]:
+			blocked_ids[blocked_id] = true
+	if profile.current_character_id == "luna":
+		for blocked_id in ["病娇", "地雷系", "毒舌", "小恶魔", "御姐", "傲娇"]:
+			blocked_ids[blocked_id] = true
+		if profile.current_stage <= 2:
+			blocked_ids["弱气"] = true
+	var filtered: Array = []
+	for candidate in candidates:
+		var candidate_id := str(candidate.get("id", ""))
+		if blocked_ids.has(candidate_id):
+			continue
+		filtered.append(candidate)
+	return filtered
 
 func _get_composite_traits(profile: CharacterProfile) -> Array:
 	var comp_list = []
@@ -787,6 +1033,7 @@ func _get_composite_traits(profile: CharacterProfile) -> Array:
 		bond_desc += "岁月沉淀，羁绊极深。你们在彼此生命中占据了绝对的重量，情感风味已刻骨铭心。"
 		
 	var stage_desc = bond_desc + "\n"
+	stage_desc += "【演化约束】以下内容只反映当前阶段内的局部风味与应激反应，不能覆盖角色主轴、阶段设定与重要备注。\n"
 	
 	if flavor == "Guarded":
 		# 低亲密/低信任 或 均未达标：防备/疏离/客气
@@ -968,7 +1215,7 @@ func _load_event_rules() -> void:
 
 func _resolve_event_trait_deltas(profile: CharacterProfile, event_type: String, payload: Dictionary) -> Dictionary:
 	if event_type == "llm_feedback" and payload.has("trait_deltas") and payload["trait_deltas"] is Dictionary:
-		return payload["trait_deltas"]
+		return _sanitize_llm_feedback_deltas(payload["trait_deltas"])
 
 	var result: Dictionary = {}
 	var rule = _event_rules.get(event_type, {})
@@ -1000,6 +1247,82 @@ func _resolve_event_trait_deltas(profile: CharacterProfile, event_type: String, 
 	for key in result.keys():
 		result[key] = float(result[key]) * intensity * relationship_scale
 	return result
+
+func _sanitize_llm_feedback_deltas(raw_deltas: Dictionary) -> Dictionary:
+	var sanitized: Dictionary = {}
+	var aggregated: Dictionary = {}
+	var total_abs_delta := 0.0
+	for raw_key in raw_deltas.keys():
+		var normalized_key = _normalize_trait_key(str(raw_key))
+		if normalized_key == "":
+			continue
+		var parsed_delta = float(str(raw_deltas[raw_key]))
+		if is_nan(parsed_delta) or is_inf(parsed_delta):
+			continue
+		var per_entry_delta = clamp(parsed_delta, -LLM_FEEDBACK_SINGLE_TRAIT_LIMIT, LLM_FEEDBACK_SINGLE_TRAIT_LIMIT)
+		if abs(per_entry_delta) <= 0.001:
+			continue
+		aggregated[normalized_key] = float(aggregated.get(normalized_key, 0.0)) + per_entry_delta
+	for trait_key in aggregated.keys():
+		var merged_delta = clamp(float(aggregated[trait_key]), -LLM_FEEDBACK_SINGLE_TRAIT_LIMIT, LLM_FEEDBACK_SINGLE_TRAIT_LIMIT)
+		if abs(merged_delta) <= 0.001:
+			continue
+		sanitized[trait_key] = merged_delta
+		total_abs_delta += abs(merged_delta)
+	if total_abs_delta > LLM_FEEDBACK_TOTAL_DELTA_LIMIT and total_abs_delta > 0.001:
+		var scale = LLM_FEEDBACK_TOTAL_DELTA_LIMIT / total_abs_delta
+		for trait_key in sanitized.keys():
+			sanitized[trait_key] = float(sanitized[trait_key]) * scale
+	return sanitized
+
+func sanitize_llm_relationship_deltas(raw_deltas: Dictionary) -> Dictionary:
+	var sanitized: Dictionary = {}
+	var aggregated: Dictionary = {}
+	var total_abs_delta := 0.0
+	for raw_key in raw_deltas.keys():
+		var normalized_key = _normalize_relationship_key(str(raw_key))
+		if normalized_key == "":
+			continue
+		var parsed_delta = float(str(raw_deltas[raw_key]))
+		if is_nan(parsed_delta) or is_inf(parsed_delta):
+			continue
+		var per_entry_delta = clamp(parsed_delta, -LLM_RELATION_SINGLE_DELTA_LIMIT, LLM_RELATION_SINGLE_DELTA_LIMIT)
+		if abs(per_entry_delta) <= 0.001:
+			continue
+		aggregated[normalized_key] = float(aggregated.get(normalized_key, 0.0)) + per_entry_delta
+	for relation_key in aggregated.keys():
+		var merged_delta = clamp(float(aggregated[relation_key]), -LLM_RELATION_SINGLE_DELTA_LIMIT, LLM_RELATION_SINGLE_DELTA_LIMIT)
+		if abs(merged_delta) <= 0.001:
+			continue
+		sanitized[relation_key] = merged_delta
+		total_abs_delta += abs(merged_delta)
+	if total_abs_delta > LLM_RELATION_TOTAL_DELTA_LIMIT and total_abs_delta > 0.001:
+		var scale = LLM_RELATION_TOTAL_DELTA_LIMIT / total_abs_delta
+		for relation_key in sanitized.keys():
+			sanitized[relation_key] = float(sanitized[relation_key]) * scale
+	return sanitized
+
+func _normalize_trait_key(trait_name: String) -> String:
+	var trait_lower = trait_name.strip_edges().to_lower()
+	if trait_lower == "openness" or trait_lower == "开放性":
+		return "openness"
+	if trait_lower == "conscientiousness" or trait_lower == "尽责性":
+		return "conscientiousness"
+	if trait_lower == "extraversion" or trait_lower == "外倾性":
+		return "extraversion"
+	if trait_lower == "agreeableness" or trait_lower == "宜人性":
+		return "agreeableness"
+	if trait_lower == "neuroticism" or trait_lower == "神经质":
+		return "neuroticism"
+	return ""
+
+func _normalize_relationship_key(relationship_name: String) -> String:
+	var key = relationship_name.strip_edges().to_lower()
+	if key == "intimacy" or key == "亲密度" or key == "亲密变化":
+		return "intimacy"
+	if key == "trust" or key == "信任度" or key == "信任值" or key == "信任变化":
+		return "trust"
+	return ""
 
 func _build_composite_candidates(profile: CharacterProfile) -> Array:
 	var O = profile.openness

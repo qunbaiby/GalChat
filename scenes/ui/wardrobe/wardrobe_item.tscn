@@ -1,101 +1,207 @@
-[gd_scene load_steps=5 format=3 uid="uid://wardrobe_item_uid"]
+[gd_scene load_steps=10 format=3 uid="uid://wardrobe_item_uid"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
+[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://wardrobe_item_script" path="res://scripts/ui/wardrobe/wardrobe_item.gd" id="2_script"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wearing"]
-bg_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonBlank"]
+bg_color = Color(1, 1, 1, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Item"]
-bg_color = Color(1, 1, 1, 0.98)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardNormal"]
+bg_color = Color(0.12, 0.14, 0.18, 0.7)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
-shadow_offset = Vector2(0, 3)
+border_color = Color(1, 1, 1, 0.06)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ItemHover"]
-bg_color = Color(1, 0.98, 0.95, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardSelected"]
+bg_color = Color(0.16, 0.2, 0.24, 0.86)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.52, 0.84, 0.81, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.23, 0.64, 0.6, 0.18)
+shadow_size = 14
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CardLocked"]
+bg_color = Color(0.1, 0.11, 0.13, 0.56)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 0.7)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
-shadow_offset = Vector2(0, 3)
+border_color = Color(1, 1, 1, 0.04)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PreviewNormal"]
+bg_color = Color(0.17, 0.19, 0.22, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.04)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PreviewLocked"]
+bg_color = Color(0.13, 0.14, 0.16, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.03)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BadgeCurrent"]
+bg_color = Color(0.52, 0.84, 0.81, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BadgeLock"]
+bg_color = Color(0.36, 0.27, 0.22, 0.92)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="WardrobeItem" type="Button"]
-custom_minimum_size = Vector2(120, 150)
-offset_right = 120.0
-offset_bottom = 150.0
+custom_minimum_size = Vector2(108, 164)
+offset_right = 108.0
+offset_bottom = 164.0
 theme = ExtResource("1_theme")
-theme_override_styles/normal = SubResource("StyleBoxFlat_Item")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ItemHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ItemHover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonBlank")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonBlank")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonBlank")
+normal_style = SubResource("StyleBoxFlat_CardNormal")
+selected_style = SubResource("StyleBoxFlat_CardSelected")
+locked_style = SubResource("StyleBoxFlat_CardLocked")
+preview_normal_style = SubResource("StyleBoxFlat_PreviewNormal")
+preview_locked_style = SubResource("StyleBoxFlat_PreviewLocked")
 script = ExtResource("2_script")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="CardPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_CardNormal")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="CardMargin" type="MarginContainer" parent="CardPanel"]
 layout_mode = 2
-mouse_filter = 2
-alignment = 1
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(100, 100)
+[node name="CardVBox" type="VBoxContainer" parent="CardPanel/CardMargin"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="PreviewPanel" type="PanelContainer" parent="CardPanel/CardMargin/CardVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PreviewNormal")
+
+[node name="PreviewMargin" type="MarginContainer" parent="CardPanel/CardMargin/CardVBox/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="IconRect" type="TextureRect" parent="CardPanel/CardMargin/CardVBox/PreviewPanel/PreviewMargin"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 mouse_filter = 2
 
-[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-text = "服装名称"
+[node name="BadgeLayer" type="Control" parent="CardPanel/CardMargin/CardVBox/PreviewPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="WearingBadge" type="Label" parent="CardPanel/CardMargin/CardVBox/PreviewPanel/BadgeLayer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 52.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(0.12, 0.2, 0.21, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_BadgeCurrent")
+text = "当前"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="WearingBadge" type="Label" parent="."]
+[node name="LockBadge" type="Label" parent="CardPanel/CardMargin/CardVBox/PreviewPanel/BadgeLayer"]
+unique_name_in_owner = true
 visible = false
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -40.0
-offset_top = 5.0
-offset_right = -5.0
-offset_bottom = 28.0
+offset_left = -58.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 30.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_wearing")
-text = "当前"
+theme_override_colors/font_color = Color(1, 0.95, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_BadgeLock")
+text = "未拥有"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="CardPanel/CardMargin/CardVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.32, 0.36, 1)
+theme_override_font_sizes/font_size = 14
+text = "服装名称"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MetaLabel" type="Label" parent="CardPanel/CardMargin/CardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.56, 0.64, 0.68, 1)
+theme_override_font_sizes/font_size = 11
+text = "已拥有"
+horizontal_alignment = 1

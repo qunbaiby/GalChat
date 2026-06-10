@@ -4,21 +4,35 @@ var environment: Node
 
 var _drop_texture: Texture2D
 var _splash_texture: Texture2D
+var _debug_server_url := "http://127.0.0.1:7777/event"
+var _debug_session_id := "yellow-screen-tint"
+var _debug_env_loaded := false
+var _debug_last_report_ms := {}
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_load_weather_assets()
+	# #region debug-point A:overlay-ready
+	_debug_report(
+		"A",
+		"romestead_environment_overlay.gd:_ready",
+		"[DEBUG] environment overlay ready",
+		{
+			"visible": visible,
+			"has_environment": environment != null
+		}
+	)
+	# #endregion
 
 
 func _draw() -> void:
 	if environment == null:
 		return
-	var viewport_size: Vector2 = get_viewport_rect().size
-	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+	var rect := _target_rect()
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
-	var rect := Rect2(Vector2.ZERO, viewport_size)
 	_draw_time_tint(rect)
 	_draw_snow(rect, _weather_strength("snow"))
 	_draw_rain(rect, _weather_strength("rainy"), _weather_strength("thunder"))
@@ -42,11 +56,39 @@ func _draw_time_tint(rect: Rect2) -> void:
 		draw_rect(rect, Color(0.025, 0.045, 0.105, blue_alpha), true)
 
 	var hour: float = float(environment.get("current_hour"))
-	var dawn: float = 1.0 - _smoothstep(5.0, 6.8, abs(hour - 5.75))
-	var dusk: float = 1.0 - _smoothstep(21.0, 22.6, abs(hour - 21.8))
+	var dawn: float = 1.0 - _smoothstep(0.0, 1.05, abs(hour - 5.75))
+	var dusk: float = 1.0 - _smoothstep(0.0, 0.8, abs(hour - 21.8))
 	var warm: float = max(dawn, dusk)
 	if warm > 0.0:
 		draw_rect(rect, Color(1.0, 0.48, 0.22, warm * 0.08), true)
+	# #region debug-point A:time-tint
+	_debug_report(
+		"A",
+		"romestead_environment_overlay.gd:_draw_time_tint",
+		"[DEBUG] overlay tint drawn",
+		{
+			"hour": snapped(hour, 0.001),
+			"ambient_color": {
+				"r": snapped(ambient.r, 0.001),
+				"g": snapped(ambient.g, 0.001),
+				"b": snapped(ambient.b, 0.001)
+			},
+			"night_curve": snapped(night_curve, 0.001),
+			"weather_curve": snapped(weather_curve, 0.001),
+			"darkness": snapped(darkness, 0.001),
+			"blue_alpha": snapped(blue_alpha, 0.001),
+			"dawn": snapped(dawn, 0.001),
+			"dusk": snapped(dusk, 0.001),
+			"warm": snapped(warm, 0.001),
+			"warm_alpha": snapped(warm * 0.08, 0.001),
+			"target_left": snapped(rect.position.x, 0.001),
+			"target_top": snapped(rect.position.y, 0.001),
+			"viewport_width": snapped(rect.size.x, 0.001),
+			"viewport_height": snapped(rect.size.y, 0.001)
+		},
+		2000
+	)
+	# #endregion
 
 
 func _draw_snow(rect: Rect2, strength: float) -> void:
@@ -109,8 +151,8 @@ func _draw_snow_layer(rect: Rect2, strength: float, base_count: int, time: float
 		var sway_phase: float = time * lerp(0.35, 1.05, local) + seed
 		var sway: float = sin(sway_phase) * drift * drift_factor * lerp(0.25, 1.0, _hash_float(seed + 2.0))
 		var travel: float = time * fall_speed * speed_factor * speed_scale
-		var x: float = fposmod(_hash_float(seed + 4.7) * travel_w + direction.x * travel + sway - scroll_offset.x * parallax, travel_w) - margin
-		var y: float = fposmod(_hash_float(seed + 81.2) * travel_h + direction.y * travel - scroll_offset.y * parallax, travel_h) - margin
+		var x: float = rect.position.x + fposmod(_hash_float(seed + 4.7) * travel_w + direction.x * travel + sway - scroll_offset.x * parallax, travel_w) - margin
+		var y: float = rect.position.y + fposmod(_hash_float(seed + 81.2) * travel_h + direction.y * travel - scroll_offset.y * parallax, travel_h) - margin
 		var radius: float = flake_size * size_factor * lerp(0.62, 1.45, _hash_float(seed + 3.0))
 		var flake_alpha: float = clamp(lerp(0.24, 0.78, strength) * alpha_factor * lerp(0.58, 1.0, local), 0.0, 0.88)
 		var pos := Vector2(x, y)
@@ -149,8 +191,8 @@ func _draw_rain(rect: Rect2, rain_strength: float, thunder_strength: float) -> v
 		var ry: float = _hash_float(seed + 81.2)
 		var speed_scale: float = lerp(0.75, 1.35, _hash_float(seed + 8.1))
 		var travel: float = time * fall_speed * speed_scale
-		var x: float = fposmod(rx * travel_w + direction.x * travel - scroll_offset.x, travel_w) - margin
-		var y: float = fposmod(ry * travel_h + direction.y * travel - scroll_offset.y, travel_h) - margin
+		var x: float = rect.position.x + fposmod(rx * travel_w + direction.x * travel - scroll_offset.x, travel_w) - margin
+		var y: float = rect.position.y + fposmod(ry * travel_h + direction.y * travel - scroll_offset.y, travel_h) - margin
 		var alpha: float = lerp(0.16, 0.45, strength) + heavy * 0.12
 		var pos := Vector2(x, y)
 		draw_line(pos - streak * 0.45, pos + streak * 0.55, Color(0.52, 0.64, 0.86, alpha), 1.0)
@@ -161,7 +203,10 @@ func _draw_rain(rect: Rect2, rain_strength: float, thunder_strength: float) -> v
 		var phase: float = fposmod(time * lerp(4.0, 8.0, _hash_float(seed)) + _hash_float(seed + 5.0), 1.0)
 		if phase > 0.34:
 			continue
-		var pos := Vector2(_hash_float(seed + 2.0) * rect.size.x, lerp(rect.size.y * 0.55, rect.size.y, _hash_float(seed + 3.0)))
+		var pos := Vector2(
+			rect.position.x + _hash_float(seed + 2.0) * rect.size.x,
+			rect.position.y + lerp(rect.size.y * 0.55, rect.size.y, _hash_float(seed + 3.0))
+		)
 		var splash_alpha: float = (1.0 - phase / 0.34) * strength * 0.28
 		if _splash_texture != null:
 			draw_texture_rect(_splash_texture, Rect2(pos, Vector2(10.0, 10.0)), false, Color(0.55, 0.65, 0.85, splash_alpha))
@@ -262,3 +307,65 @@ func _smoothstep(edge0: float, edge1: float, value: float) -> float:
 		return 1.0 if value >= edge1 else 0.0
 	var t: float = clamp((value - edge0) / (edge1 - edge0), 0.0, 1.0)
 	return t * t * (3.0 - 2.0 * t)
+
+
+func _target_rect() -> Rect2:
+	var parent_control := get_parent() as Control
+	if parent_control != null:
+		return Rect2(Vector2.ZERO, parent_control.size)
+	if environment != null and environment.has_method("get_overlay_target_rect"):
+		var rect_value: Variant = environment.call("get_overlay_target_rect")
+		if rect_value is Rect2:
+			var target_rect := rect_value as Rect2
+			if target_rect.size.x > 0.0 and target_rect.size.y > 0.0:
+				return target_rect
+	return Rect2()
+
+
+func _debug_ensure_env_loaded() -> void:
+	if _debug_env_loaded:
+		return
+	_debug_env_loaded = true
+	var env_path := ProjectSettings.globalize_path("res://.dbg/yellow-screen-tint.env")
+	if not FileAccess.file_exists(env_path):
+		return
+	var env_file := FileAccess.open(env_path, FileAccess.READ)
+	if env_file == null:
+		return
+	while not env_file.eof_reached():
+		var line := env_file.get_line().strip_edges()
+		if line.begins_with("DEBUG_SERVER_URL="):
+			_debug_server_url = line.trim_prefix("DEBUG_SERVER_URL=")
+		elif line.begins_with("DEBUG_SESSION_ID="):
+			_debug_session_id = line.trim_prefix("DEBUG_SESSION_ID=")
+
+
+func _debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}, min_interval_ms: int = 0) -> void:
+	_debug_ensure_env_loaded()
+	var now := Time.get_ticks_msec()
+	var throttle_key := "%s|%s" % [hypothesis_id, location]
+	var last_sent := int(_debug_last_report_ms.get(throttle_key, 0))
+	if min_interval_ms > 0 and now - last_sent < min_interval_ms:
+		return
+	_debug_last_report_ms[throttle_key] = now
+	var request := HTTPRequest.new()
+	add_child(request)
+	request.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
+		request.queue_free()
+	)
+	var err := request.request(
+		_debug_server_url,
+		PackedStringArray(["Content-Type: application/json"]),
+		HTTPClient.METHOD_POST,
+		JSON.stringify({
+			"sessionId": _debug_session_id,
+			"runId": "pre-fix",
+			"hypothesisId": hypothesis_id,
+			"location": location,
+			"msg": msg,
+			"data": data,
+			"ts": Time.get_unix_time_from_system() * 1000.0
+		})
+	)
+	if err != OK:
+		request.queue_free()

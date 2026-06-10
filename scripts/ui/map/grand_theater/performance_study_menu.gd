@@ -86,7 +86,6 @@ func _sanitize_review_text(text: String) -> String:
 @onready var close_btn = $MenuPanel/CloseBtn
 @onready var start_btn = $MenuPanel/BottomHBox/StartBtn
 @onready var options_container: HBoxContainer = $MenuPanel/OptionsHBox
-@onready var cost_label: Label = $MenuPanel/BottomHBox/CostLabel
 @onready var study_popup = $StudyPopup
 @onready var popup_title = $StudyPopup/PopupTitle
 @onready var progress_bar = $StudyPopup/ProgressBar
@@ -123,9 +122,14 @@ func _on_option_selected(id: String):
 		var card = _option_cards.get(opt["id"], null)
 		if card:
 			card.set_selected(opt["id"] == id)
+	_update_start_button_text()
+
+func _update_start_button_text() -> void:
 	var selected_opt := _get_selected_option()
-	if selected_opt:
-		cost_label.text = "已选择：%s  |  消耗行动力：%d" % [selected_opt["name"], energy_cost]
+	if selected_opt.is_empty():
+		start_btn.text = " 开始学习 "
+		return
+	start_btn.text = "开始 %s  ·  -%d行动力" % [selected_opt["name"], energy_cost]
 
 func _get_selected_option() -> Dictionary:
 	for opt in options:

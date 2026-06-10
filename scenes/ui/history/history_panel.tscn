@@ -16,6 +16,7 @@ border_width_bottom = 1
 border_color = Color(0.2, 0.2, 0.2, 1)
 
 [node name="HistoryPanel" type="Control"]
+z_index = 220
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -118,5 +119,4 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 15
-
 
