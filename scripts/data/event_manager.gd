@@ -50,6 +50,31 @@ func reload_for_current_character() -> void:
 func is_event_triggered(event_id: String) -> bool:
     return triggered_events.has(event_id)
 
+func mark_event_triggered(event_id: String) -> void:
+    var normalized_event_id := str(event_id).strip_edges()
+    if normalized_event_id == "":
+        return
+    if triggered_events.has(normalized_event_id):
+        return
+    triggered_events.append(normalized_event_id)
+    _save_triggered_events()
+
+func try_mark_event_by_story(script_id: String) -> void:
+    var normalized_script_id := str(script_id).strip_edges()
+    if normalized_script_id == "":
+        return
+
+    for raw_event in event_registry:
+        if not (raw_event is Dictionary):
+            continue
+        var event_data: Dictionary = raw_event
+        var event_id := str(event_data.get("event_id", "")).strip_edges()
+        var script_path := str(event_data.get("trigger_script", "")).strip_edges()
+        var script_basename := script_path.get_file().get_basename() if script_path != "" else ""
+        if event_id == normalized_script_id or script_basename == normalized_script_id:
+            mark_event_triggered(event_id)
+            return
+
 # 广播状态变更，尝试匹配全局事件
 func broadcast_state_change(context: Dictionary = {}) -> void:
     var ConditionManager = preload("res://scripts/data/condition_manager.gd")
@@ -86,11 +111,6 @@ func _trigger_registry_event(event_data: Dictionary) -> void:
     
     var script_path = event_data.get("trigger_script", "")
     if script_path != "" and ResourceLoader.exists(script_path):
-        # 标记为已触发
-        if not event_id in triggered_events:
-            triggered_events.append(event_id)
-            _save_triggered_events()
-            
         GameDataManager.set_meta("play_specific_story", script_path)
         var SceneTransitionManager = get_node_or_null("/root/SceneTransitionManager")
         if SceneTransitionManager:

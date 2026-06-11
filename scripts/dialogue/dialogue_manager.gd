@@ -638,6 +638,9 @@ func _on_script_finished(script_id: String) -> void:
 		character_layer.end_story_mode()
 	var is_first_completion := not GameDataManager.profile.has_finished_story(script_id)
 	GameDataManager.profile.mark_story_finished(script_id)
+	var event_manager = get_node_or_null("/root/EventManager")
+	if event_manager and event_manager.has_method("try_mark_event_by_story"):
+		event_manager.try_mark_event_by_story(script_id)
 	if is_first_completion:
 		_register_story_completion_memory(script_id)
 	if script_id == "intro_story":

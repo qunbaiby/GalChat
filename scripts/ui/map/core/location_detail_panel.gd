@@ -52,6 +52,12 @@ func setup(loc_id: String):
     if not real_path.is_empty() and ResourceLoader.exists(real_path):
         thumbnail_rect.texture = load(real_path)
     
+    var active_story = MapDataManager.get_location_entry_story(location_id)
+    if is_instance_valid(enter_button):
+        enter_button.text = "进入该地点"
+        if not active_story.is_empty():
+            enter_button.text = "进入剧情"
+    
     _load_npcs()
 
 func _load_npcs():
@@ -59,6 +65,7 @@ func _load_npcs():
         child.queue_free()
         
     var npcs = MapDataManager.generate_location_npcs(location_id)
+    var story_badges: Dictionary = MapDataManager.get_location_story_badges(location_id)
     if npcs.is_empty():
         empty_npc_label.show()
         npc_container.hide()
@@ -83,6 +90,8 @@ func _load_npcs():
                 name_lbl.add_theme_font_size_override("font_size", 16)
             
             npc_btn.setup(n_id)
+            if npc_btn.has_method("set_story_badge"):
+                npc_btn.set_story_badge(str(story_badges.get(n_id, "")))
             npc_btn.npc_clicked.connect(_on_npc_selected.bind(npc_btn))
             
             if default_npc == null or MapDataManager.get_npc_data(n_id).get("type") == "resident":

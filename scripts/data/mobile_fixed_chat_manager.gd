@@ -5,6 +5,7 @@ signal message_unlocked(chat_id: String, message_index: int)
 signal character_typing_state_changed(char_id: String, is_typing: bool)
 
 const SCRIPT_DIR = "res://assets/data/mobile/fixed_chats/"
+const DEFAULT_ADDED_CONTACT_IDS: Array[String] = ["luna", "jing", "ya", "luna_father"]
 
 # 存储聊天脚本数据
 # { "script_id": { "id": "...", "character_id": "...", "messages": [...] } }
@@ -17,6 +18,7 @@ var _chat_states: Dictionary = {}
 # 按 character_id 统计未读
 # { "character_id": int }
 var _unread_counts: Dictionary = {}
+var _added_contacts: Array = []
 
 func _ready() -> void:
 	_ensure_save_dir()
@@ -72,7 +74,9 @@ func _load_states() -> void:
 			if typeof(data) == TYPE_DICTIONARY:
 				_chat_states = data.get("states", {})
 				_unread_counts = data.get("unreads", {})
+				_added_contacts = data.get("added_contacts", [])
 		file.close()
+	_ensure_default_added_contacts()
 	
 	# 初始化缺失的状态
 	var state_changed = false
@@ -93,15 +97,48 @@ func _save_states() -> void:
 	if file:
 		var data = {
 			"states": _chat_states,
-			"unreads": _unread_counts
+			"unreads": _unread_counts,
+			"added_contacts": _added_contacts
 		}
 		var json_string = JSON.stringify(data, "\t")
 		file.store_string(json_string)
 		file.close()
 
+func _ensure_default_added_contacts() -> void:
+	var normalized: Array = []
+	for raw_id in _added_contacts:
+		var contact_id = str(raw_id).strip_edges().to_lower()
+		if contact_id != "" and not normalized.has(contact_id):
+			normalized.append(contact_id)
+	for contact_id in DEFAULT_ADDED_CONTACT_IDS:
+		if not normalized.has(contact_id):
+			normalized.append(contact_id)
+	_added_contacts = normalized
+
+func get_added_contact_ids() -> Array:
+	return _added_contacts.duplicate()
+
+func is_contact_added(char_id: String) -> bool:
+	var normalized_id = str(char_id).strip_edges().to_lower()
+	if normalized_id == "":
+		return false
+	return _added_contacts.has(normalized_id)
+
+func add_contact(char_id: String, save_now: bool = true) -> bool:
+	var normalized_id = str(char_id).strip_edges().to_lower()
+	if normalized_id == "":
+		return false
+	if _added_contacts.has(normalized_id):
+		return false
+	_added_contacts.append(normalized_id)
+	if save_now:
+		_save_states()
+	return true
+
 func reload_for_active_archive() -> void:
 	_chat_states.clear()
 	_unread_counts.clear()
+	_added_contacts.clear()
 	_load_states()
 
 var _advancing_scripts: Dictionary = {}
@@ -120,6 +157,7 @@ func trigger_script(script_id: String) -> bool:
 	_save_states()
 	
 	var script = _chat_scripts[script_id]
+	add_contact(str(script.get("character_id", "")))
 	unread_count_changed.emit(script["character_id"], _unread_counts.get(script["character_id"], 0))
 	
 	_advance_script(script_id)
@@ -241,6 +279,7 @@ func submit_player_option(script_id: String, option_id: String, option_text: Str
 	_advance_script(script_id)
 
 func _append_to_history(char_id: String, msg_data: Dictionary) -> void:
+	add_contact(char_id, false)
 	var history_path = _get_mobile_history_path(char_id)
 	var dir_path = history_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(dir_path):

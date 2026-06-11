@@ -1,0 +1,66 @@
+{
+  "script_id": "shuo_library_rain",
+  "story_location_id": "art_gallery",
+  "memory_enabled": true,
+  "memory_records": [
+    {
+      "title": "雨天遇见朔",
+      "layer": "bond",
+      "scope": "player_shared",
+      "visibility": "prompt",
+      "participants": ["player", "shuo"],
+      "player_involved": true,
+      "player_witnessed": true,
+      "is_bond_mark": true,
+      "content": "下雨天的美术馆格外安静，你第一次在这种天气里和朔认真交谈。他虽然话不多，却在评价作品和观察情绪时格外敏锐。"
+    }
+  ],
+  "summary": "雨天走进美术馆时，你和朔有了一次更深入的交谈。潮湿安静的氛围让他少了几分疏离，也让你第一次感受到他真正的观察力。",
+  "chapters": {
+    "start": {
+      "events": [
+        {
+          "type": "background",
+          "bg_id": "bg_art_gallery",
+          "transition_type": "fade",
+          "duration": 0.4
+        },
+        {
+          "type": "dialogue",
+          "speaker": "旁白",
+          "content": "雨丝顺着美术馆外墙缓缓滑下，玻璃后的展厅被天色压得偏冷，连脚步声都被拉得格外清晰。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "shuo",
+          "content": "下雨的时候来这里的人不多。你倒是会挑时候。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "player",
+          "content": "大概是因为雨天会让人更想躲进安静的地方。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "shuo",
+          "content": "也可能只是想找个地方，把心里那些没整理好的东西先挂起来。很多人看画的时候，看的其实是自己。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "player",
+          "content": "你总能把话说得很直接。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "shuo",
+          "content": "直接一点比较省时间。尤其是雨天，人的情绪本来就比平时更容易显形。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "旁白",
+          "content": "他站在窗边，语气仍旧冷静，却不像平时那样有意把人挡在外面。大概正因为雨声不断，反倒让这场对话显得没那么需要防备。"
+        }
+      ]
+    }
+  }
+}

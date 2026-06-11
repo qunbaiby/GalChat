@@ -1,0 +1,66 @@
+{
+  "script_id": "ya_cafe_first_visit",
+  "story_location_id": "qingyu_time_cafe",
+  "memory_enabled": true,
+  "memory_records": [
+    {
+      "title": "初访青屿拾光",
+      "layer": "bond",
+      "scope": "player_shared",
+      "visibility": "prompt",
+      "participants": ["player", "ya"],
+      "player_involved": true,
+      "player_witnessed": true,
+      "is_bond_mark": true,
+      "content": "你第一次正式走进青屿拾光咖啡厅，认识了店主雅。她看似温柔从容，却很快就从你的语气里分辨出了你真正挂念的人和事。"
+    }
+  ],
+  "summary": "第一次走进青屿拾光咖啡厅时，你和雅有了一次正式交谈。她在温和的招待里看出了你的心不在焉，也因此记住了你。",
+  "chapters": {
+    "start": {
+      "events": [
+        {
+          "type": "background",
+          "bg_id": "bg_qingyu_time_cafe",
+          "transition_type": "fade",
+          "duration": 0.4
+        },
+        {
+          "type": "dialogue",
+          "speaker": "旁白",
+          "content": "午后的咖啡厅光线柔和，杯碟碰撞的声音被压得很轻，连空气里漂浮的香气都像是刻意放慢了节奏。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "ya",
+          "content": "欢迎光临。第一次来吧？先坐，我给你拿菜单。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "player",
+          "content": "嗯，第一次来。这里比我想象中安静。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "ya",
+          "content": "很多人来这儿，不是为了热闹，是为了让心先慢下来。你看起来也像这样。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "player",
+          "content": "被你看出来了。最近确实有些事一直挂在心上。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "ya",
+          "content": "那今天就先别急着整理答案了。喝点东西，坐一会儿，等思绪自己沉下来。"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "旁白",
+          "content": "她没有追问太多，只是自然地把空间和分寸都留给了我。那份不动声色的体贴，反而比安慰更让人记得住。"
+        }
+      ]
+    }
+  }
+}

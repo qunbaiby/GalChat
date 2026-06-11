@@ -1,0 +1,217 @@
+{
+    "script_id": "jing_library_guidance",
+    "story_location_id": "library",
+    "day_offset": 5,
+    "story_period": "上午",
+    "memory_enabled": true,
+    "memory_records": [
+        {
+            "title": "图书馆的专项指导",
+            "layer": "bond",
+            "scope": "player_shared",
+            "visibility": "prompt",
+            "participants": ["player", "luna", "jing"],
+            "player_involved": true,
+            "player_witnessed": true,
+            "is_bond_mark": true,
+            "content": "周末上午，你按约带着Luna去了学校图书馆。静单独听完《星空下的祈愿》后，为她拆解了情绪与演奏上的问题，也把继续陪着她这件事郑重托付给了你。"
+        },
+        {
+            "title": "被接住的紧张",
+            "layer": "emotion",
+            "scope": "private_self",
+            "visibility": "hidden",
+            "participants": ["luna"],
+            "player_involved": false,
+            "player_witnessed": false,
+            "content": "她原本担心自己会在静面前弹错，可真正开始后，却因为你陪在身边而慢慢稳住了呼吸。"
+        },
+        {
+            "title": "静的托付",
+            "layer": "bond",
+            "scope": "npc_social",
+            "visibility": "archive_only",
+            "participants": ["jing", "luna", "player"],
+            "player_involved": false,
+            "player_witnessed": false,
+            "content": "静把Luna接下来情绪稳定和节奏打磨的任务，一部分正式交到了你的手里。"
+        }
+    ],
+    "summary": "周末上午，你带着Luna来到学校图书馆赴静的约。静在听完《星空下的祈愿》后，为她做了一次更细致的专项指导，也明确希望你继续作为她最稳定的陪伴者守在她身边。",
+    "chapters": {
+        "start": {
+            "events": [
+                {
+                    "type": "background",
+                    "bg_id": "bg_library",
+                    "transition_type": "fade",
+                    "duration": 0.5
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "周末上午的学校图书馆比平时安静许多。高处的长窗漏下温柔的天光，研讨室外的走廊空荡而宁静，连脚步声都被压得很轻。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "你依约带着Luna赶来。她怀里抱着整理好的谱页，指尖收得很紧，明明已经提前练过许多遍，神情里却还是藏着一点不易察觉的紧张。"
+                },
+                {
+                    "type": "show_character",
+                    "character": "jing",
+                    "position": "left",
+                    "animation": "fade_in",
+                    "focus": false
+                },
+                {
+                    "type": "show_character",
+                    "character": "char",
+                    "position": "right",
+                    "expression": "worried",
+                    "animation": "fade_in",
+                    "focus": false
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "来了。路上还顺利吗？"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "player",
+                    "content": "挺顺利的。我把她带过来了，今天就麻烦你了。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静的目光先在你身上停了一瞬，随即转向Luna。那道一贯清冷的视线这次没有压迫感，更像是在替她把散乱的呼吸一点点按稳。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "calm",
+                    "content": "别紧张，今天不是考核。你就按平时的状态来，把最想留下的那一段弹给我听。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "position": "right",
+                    "expression": "shy",
+                    "content": "……好。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她轻轻应下，目光却还是下意识朝你偏过来。你只是站在她能一眼看到的位置，冲她点了点头。那一瞬，她肩线明显松开了一点。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "短暂的安静之后，研讨室里重新响起琴声。《星空下的祈愿》的旋律依旧温柔，也依旧藏着沉甸甸的思念，只是这一次，那份压抑的情绪不再一味下坠，而是被她努力托住了。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静从头到尾都没有打断。直到最后一个音落下，她才抬手，示意Luna先停下来。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "比上次稳了很多。你现在的问题，不在技巧，而在太容易被情绪拖着走。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "position": "right",
+                    "expression": "worried",
+                    "content": "我知道……一想到姐姐，我就总觉得胸口像被什么压住了一样。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "calm",
+                    "content": "能把心事写进曲子里，是你的天赋。但站上台的时候，你不能只沉进回忆里。你得让别人听见你的思念，也听见你现在还想继续往前走。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "Luna安静地听着，指尖一点点松开了谱页边缘。她没有立刻回答，只是轻轻吸了一口气，像是在努力把那些翻涌的情绪重新收回身体里。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "player",
+                    "content": "我会继续陪着她练，也会盯着她别一个人闷着。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "calm",
+                    "content": "嗯，我就是这个意思。她肯听你的话，这段时间你多看着她一点。练习可以慢一点，状态先稳住。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "说到这里，静的语气依旧克制，却明显带着一种只对熟人才会有的信任与托付。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "serious",
+                    "content": "接下来这一周，你们先按我今天说的方式改。周中如果她状态再往下掉，直接来找我。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "luna",
+                    "position": "right",
+                    "expression": "calm",
+                    "content": "谢谢静老师……我会认真改的。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "静微微点头，目光在她泛红却已经安稳许多的眼尾停了停，最后又落回你身上。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "jing",
+                    "position": "left",
+                    "expression": "calm",
+                    "content": "人我先交还给你了。带她去吃点东西，再慢慢回去。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "player",
+                    "content": "行，那我们先走。后面有进展我再跟你说。"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "离开研讨室时，Luna还抱着那份谱子，却不像来时那样绷得发紧。她安静走在你身侧，脚步轻了许多，像是真的被这场见面稳稳接住了。"
+                },
+                {
+                    "type": "hide_character",
+                    "character": "jing",
+                    "animation": "fade_out"
+                },
+                {
+                    "type": "hide_character",
+                    "character": "char",
+                    "animation": "fade_out"
+                },
+                {
+                    "type": "jump",
+                    "target_chapter": "end"
+                }
+            ]
+        }
+    }
+}

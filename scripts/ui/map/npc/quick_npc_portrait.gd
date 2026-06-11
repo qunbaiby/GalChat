@@ -2,6 +2,8 @@ extends VBoxContainer
 
 signal npc_clicked(npc_id: String)
 
+const STORY_BADGE_ICON: Texture2D = preload("res://assets/images/icons/ui/main/book-open-cover.png")
+
 var npc_id: String = ""
 
 @onready var avatar_mask: Control = $AvatarContainer/AvatarMask
@@ -12,9 +14,12 @@ var npc_id: String = ""
 @onready var interact_button: Button = $AvatarContainer/InteractButton
 
 var ring_time: float = 0.0
+var story_badge_panel: PanelContainer = null
+var story_badge_label: Label = null
 
 func _ready() -> void:
     avatar_mask.draw.connect(_on_mask_draw)
+    _ensure_story_badge()
 
 func setup(id: String) -> void:
     npc_id = id
@@ -81,3 +86,70 @@ func _on_interact_button_pressed():
 func set_selected(is_selected: bool) -> void:
     if state_ring:
         state_ring.visible = is_selected
+
+func set_story_badge(text: String) -> void:
+    _ensure_story_badge()
+    var final_text := text.strip_edges()
+    if story_badge_panel == null or story_badge_label == null:
+        return
+    story_badge_panel.visible = final_text != ""
+    story_badge_label.text = final_text
+
+func _ensure_story_badge() -> void:
+    if story_badge_panel != null and is_instance_valid(story_badge_panel):
+        return
+    
+    story_badge_panel = PanelContainer.new()
+    story_badge_panel.name = "StoryBadge"
+    story_badge_panel.visible = false
+    story_badge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    story_badge_panel.size_flags_horizontal = Control.SIZE_SHRINK_END
+    story_badge_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+    story_badge_panel.offset_left = -86.0
+    story_badge_panel.offset_top = 8.0
+    story_badge_panel.offset_right = -8.0
+    story_badge_panel.offset_bottom = 34.0
+    
+    var badge_style := StyleBoxFlat.new()
+    badge_style.bg_color = Color(1.0, 0.95, 0.86, 0.96)
+    badge_style.border_width_left = 1
+    badge_style.border_width_top = 1
+    badge_style.border_width_right = 1
+    badge_style.border_width_bottom = 1
+    badge_style.border_color = Color(0.93, 0.74, 0.42, 0.95)
+    badge_style.corner_radius_top_left = 12
+    badge_style.corner_radius_top_right = 12
+    badge_style.corner_radius_bottom_right = 12
+    badge_style.corner_radius_bottom_left = 12
+    story_badge_panel.add_theme_stylebox_override("panel", badge_style)
+    
+    var badge_margin := MarginContainer.new()
+    badge_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    badge_margin.add_theme_constant_override("margin_left", 8)
+    badge_margin.add_theme_constant_override("margin_top", 3)
+    badge_margin.add_theme_constant_override("margin_right", 8)
+    badge_margin.add_theme_constant_override("margin_bottom", 3)
+    story_badge_panel.add_child(badge_margin)
+    
+    var badge_row := HBoxContainer.new()
+    badge_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    badge_row.alignment = BoxContainer.ALIGNMENT_CENTER
+    badge_row.add_theme_constant_override("separation", 4)
+    badge_margin.add_child(badge_row)
+    
+    var badge_icon := TextureRect.new()
+    badge_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    badge_icon.custom_minimum_size = Vector2(14, 14)
+    badge_icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+    badge_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    badge_icon.texture = STORY_BADGE_ICON
+    badge_row.add_child(badge_icon)
+    
+    story_badge_label = Label.new()
+    story_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    story_badge_label.text = "主线"
+    story_badge_label.add_theme_color_override("font_color", Color(0.54, 0.34, 0.08, 1))
+    story_badge_label.add_theme_font_size_override("font_size", 13)
+    badge_row.add_child(story_badge_label)
+    
+    $AvatarContainer.add_child(story_badge_panel)

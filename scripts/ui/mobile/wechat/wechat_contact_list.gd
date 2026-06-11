@@ -29,7 +29,8 @@ func _load_contacts() -> void:
         while file_name != "":
             if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
                 var char_id = file_name.replace(".json", "")
-                special_focus.append(_get_char_info(char_id, "res://assets/data/characters/" + file_name))
+                if _is_contact_visible(char_id):
+                    special_focus.append(_get_char_info(char_id, "res://assets/data/characters/" + file_name))
             file_name = dir.get_next()
             
     # Load NPCs (我的好友)
@@ -40,12 +41,18 @@ func _load_contacts() -> void:
         while file_name != "":
             if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
                 var char_id = file_name.replace(".json", "")
-                my_friends.append(_get_char_info(char_id, "res://assets/data/characters/npc/" + file_name))
+                if _is_contact_visible(char_id):
+                    my_friends.append(_get_char_info(char_id, "res://assets/data/characters/npc/" + file_name))
             file_name = npc_dir.get_next()
             
     _create_category("★ 特别关注", special_focus)
     _create_category("👥 我的好友", my_friends)
     _apply_selected_state()
+
+func _is_contact_visible(char_id: String) -> bool:
+    if MobileFixedChatManager and MobileFixedChatManager.has_method("is_contact_added"):
+        return MobileFixedChatManager.is_contact_added(char_id)
+    return char_id in ["luna", "jing", "ya", "luna_father"]
 
 func _get_char_info(char_id: String, file_path: String) -> Dictionary:
     var info = {

@@ -35,7 +35,8 @@
         {
             "day_offset": 5,
             "weather": "sunny",
-            "temperature": 22
+            "temperature": 22,
+            "morning_events": ["jing_library_guidance"]
         }
     ]
 }

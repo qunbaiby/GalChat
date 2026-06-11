@@ -370,13 +370,6 @@ func _on_bubble_line_failed(_error_msg: String, request_serial: int, fallback_li
 	_show_npc_bubble(fallback_line)
 
 func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
-	# 如果 NPC 身上配置了专属的动态剧情脚本，则直接跳转至 AVG 剧情模式
-	var trigger_script = MapDataManager.get_npc_trigger_script(npc_id)
-	if trigger_script != "":
-		GameDataManager.set_meta("play_specific_story", trigger_script)
-		SceneTransitionManager.transition_to_scene("res://scenes/ui/story/story_scene.tscn")
-		return
-		
 	current_interacting_npc_id = npc_id
 	
 	var npc_data = MapDataManager.get_npc_data(npc_id)

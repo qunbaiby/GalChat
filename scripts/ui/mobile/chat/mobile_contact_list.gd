@@ -28,7 +28,8 @@ func _load_contacts() -> void:
 		while file_name != "":
 			if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
 				var char_id = file_name.replace(".json", "")
-				contacts.append(_get_char_info(char_id, "res://assets/data/characters/" + file_name))
+				if _is_contact_visible(char_id):
+					contacts.append(_get_char_info(char_id, "res://assets/data/characters/" + file_name))
 			file_name = dir.get_next()
 			
 	# Load NPCs
@@ -39,7 +40,8 @@ func _load_contacts() -> void:
 		while file_name != "":
 			if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
 				var char_id = file_name.replace(".json", "")
-				contacts.append(_get_char_info(char_id, "res://assets/data/characters/npc/" + file_name))
+				if _is_contact_visible(char_id):
+					contacts.append(_get_char_info(char_id, "res://assets/data/characters/npc/" + file_name))
 			file_name = npc_dir.get_next()
 			
 	# Sort contacts by last message time (newest first)
@@ -51,6 +53,11 @@ func _load_contacts() -> void:
 		_create_contact_item(c)
 
 	_apply_selected_state()
+
+func _is_contact_visible(char_id: String) -> bool:
+	if MobileFixedChatManager and MobileFixedChatManager.has_method("is_contact_added"):
+		return MobileFixedChatManager.is_contact_added(char_id)
+	return char_id in ["luna", "jing", "ya", "luna_father"]
 
 func _get_char_info(char_id: String, file_path: String) -> Dictionary:
 	var info = {

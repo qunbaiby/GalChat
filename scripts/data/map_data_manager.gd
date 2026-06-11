@@ -7,7 +7,6 @@ var area_order: Array = []
 
 var _last_visited_area: String = ""
 var _last_visited_location: String = ""
-var is_quick_mode: bool = false
 
 const MAP_DATA_PATH = "res://assets/data/map/core/map_data.json"
 const NPC_DATA_PATH = "res://assets/data/map/npc/npc_data.json"
@@ -212,13 +211,95 @@ func get_area_locations(area_id: String) -> Array:
 func get_npc_data(npc_id: String) -> Dictionary:
 	return npcs_data.get(npc_id, {})
 
-func get_resolved_dynamic_npcs() -> Dictionary:
+func _get_active_story_events(day_cfg: Dictionary, period: String) -> Array:
+	var active_events: Array = []
+	var base_events = day_cfg.get("events", [])
+	if base_events is Array:
+		for event_id in base_events:
+			var event_key := str(event_id).strip_edges()
+			if event_key != "" and not active_events.has(event_key):
+				active_events.append(event_key)
+	
+	var period_event_key := ""
+	match period:
+		"上午":
+			period_event_key = "morning_events"
+		"下午":
+			period_event_key = "afternoon_events"
+		"傍晚":
+			period_event_key = "evening_events"
+		"夜晚":
+			period_event_key = "night_events"
+	
+	if period_event_key != "":
+		var period_events = day_cfg.get(period_event_key, [])
+		if period_events is Array:
+			for event_id in period_events:
+				var event_key := str(event_id).strip_edges()
+				if event_key != "" and not active_events.has(event_key):
+					active_events.append(event_key)
+	
+	return active_events
+
+func _matches_story_schedule(schedule: Dictionary, day_offset: int, current_period: String, current_weather: String, active_events: Array, current_stage: int) -> bool:
+	if schedule.has("day_offsets"):
+		var offsets = schedule["day_offsets"]
+		if offsets is Array and offsets.size() > 0 and not (day_offset in offsets):
+			return false
+	
+	if schedule.has("events"):
+		var events = schedule["events"]
+		if events is Array and events.size() > 0:
+			var has_event := false
+			for raw_event in events:
+				var event_key := str(raw_event).strip_edges()
+				if event_key != "" and active_events.has(event_key):
+					has_event = true
+					break
+			if not has_event:
+				return false
+	
+	if schedule.has("weather"):
+		var weathers = schedule["weather"]
+		if weathers is Array and weathers.size() > 0 and not (current_weather in weathers):
+			return false
+	
+	if schedule.has("periods"):
+		var periods = schedule["periods"]
+		if periods is Array and periods.size() > 0 and not (current_period in periods):
+			return false
+	
+	if schedule.has("min_stage") and current_stage < int(schedule["min_stage"]):
+		return false
+	if schedule.has("max_stage") and current_stage > int(schedule["max_stage"]):
+		return false
+	
+	return true
+
+func _get_story_schedule_context() -> Dictionary:
 	var time_sys = GameDataManager.story_time_manager
-	var current_day_offset = time_sys.current_day_offset
-	var current_period = time_sys.current_period
-	var current_day_cfg = time_sys.get_current_day_config()
-	var current_weather = current_day_cfg.get("weather", "")
-	var current_events = current_day_cfg.get("events", [])
+	var current_day_offset := 0
+	var current_period := "上午"
+	var current_day_cfg: Dictionary = {}
+	if time_sys:
+		current_day_offset = time_sys.current_day_offset
+		current_period = time_sys.current_period
+		current_day_cfg = time_sys.get_current_day_config()
+	var current_weather := str(current_day_cfg.get("weather", "")).strip_edges()
+	return {
+		"day_offset": current_day_offset,
+		"period": current_period,
+		"weather": current_weather,
+		"day_cfg": current_day_cfg,
+		"active_events": _get_active_story_events(current_day_cfg, current_period)
+	}
+
+func get_resolved_dynamic_npcs() -> Dictionary:
+	var schedule_ctx = _get_story_schedule_context()
+	var current_day_offset: int = int(schedule_ctx.get("day_offset", 0))
+	var current_period: String = str(schedule_ctx.get("period", "上午"))
+	var current_weather: String = str(schedule_ctx.get("weather", ""))
+	var active_events: Array = schedule_ctx.get("active_events", [])
 	
 	var profile = GameDataManager.profile
 	var current_stage = 0
@@ -234,51 +315,12 @@ func get_resolved_dynamic_npcs() -> Dictionary:
 				var npc_id = sched.get("id", "")
 				if npc_id == "": continue
 				
-				var is_match = true
-				
-				if sched.has("day_offsets"):
-					var offsets = sched["day_offsets"]
-					if offsets is Array and offsets.size() > 0:
-						if not (current_day_offset in offsets):
-							is_match = false
-							
-				if is_match and sched.has("events"):
-					var evts = sched["events"]
-					if evts is Array and evts.size() > 0:
-						var has_event = false
-						for e in evts:
-							if e in current_events:
-								has_event = true
-								break
-						if not has_event:
-							is_match = false
-							
-				if is_match and sched.has("weather"):
-					var weathers = sched["weather"]
-					if weathers is Array and weathers.size() > 0:
-						if not (current_weather in weathers):
-							is_match = false
-							
-				if is_match and sched.has("periods"):
-					var periods = sched["periods"]
-					if periods is Array and periods.size() > 0:
-						if not (current_period in periods):
-							is_match = false
-							
-				if is_match and sched.has("min_stage"):
-					if current_stage < sched["min_stage"]:
-						is_match = false
-				if is_match and sched.has("max_stage"):
-					if current_stage > sched["max_stage"]:
-						is_match = false
-						
-				if is_match:
+				if _matches_story_schedule(sched, current_day_offset, current_period, current_weather, active_events, current_stage):
 					if not npc_candidates.has(npc_id):
 						npc_candidates[npc_id] = []
 					npc_candidates[npc_id].append({
 						"location_id": loc_id,
-						"priority": sched.get("priority", 0),
-						"trigger_script": sched.get("trigger_script", "")
+						"priority": sched.get("priority", 0)
 					})
 					
 	var resolved = {}
@@ -307,11 +349,70 @@ func generate_location_npcs(location_id: String) -> Array:
 
 	return current_npcs
 
-func get_npc_trigger_script(npc_id: String) -> String:
-	var resolved = get_resolved_dynamic_npcs()
-	if resolved.has(npc_id):
-		return resolved[npc_id]["trigger_script"]
-	return ""
+func get_location_entry_story(location_id: String) -> Dictionary:
+	var loc = get_location(location_id)
+	if loc.is_empty():
+		return {}
+	if not loc.has("scheduled_entry_stories"):
+		return {}
+	
+	var schedule_ctx = _get_story_schedule_context()
+	var current_day_offset: int = int(schedule_ctx.get("day_offset", 0))
+	var current_period: String = str(schedule_ctx.get("period", "上午"))
+	var current_weather: String = str(schedule_ctx.get("weather", ""))
+	var active_events: Array = schedule_ctx.get("active_events", [])
+	
+	var profile = GameDataManager.profile
+	var current_stage := 0
+	if profile:
+		current_stage = profile.current_stage
+	
+	var candidates: Array = []
+	var stories = loc.get("scheduled_entry_stories", [])
+	if not (stories is Array):
+		return {}
+	
+	for raw_story in stories:
+		if not (raw_story is Dictionary):
+			continue
+		var story: Dictionary = raw_story
+		if not _matches_story_schedule(story, current_day_offset, current_period, current_weather, active_events, current_stage):
+			continue
+		var script_path := str(story.get("trigger_script", "")).strip_edges()
+		if script_path == "":
+			continue
+		if profile and not bool(story.get("allow_replay", false)):
+			var story_id := str(story.get("id", "")).strip_edges()
+			if story_id == "":
+				story_id = script_path.get_file().get_basename()
+			if profile.has_finished_story(story_id):
+				continue
+		var candidate := story.duplicate(true)
+		candidate["trigger_script"] = script_path
+		candidates.append(candidate)
+	
+	if candidates.is_empty():
+		return {}
+	
+	candidates.sort_custom(func(a, b): return int(a.get("priority", 0)) > int(b.get("priority", 0)))
+	return candidates[0]
+
+func get_location_story_badges(location_id: String) -> Dictionary:
+	var story = get_location_entry_story(location_id)
+	if story.is_empty():
+		return {}
+	
+	var badge_text := str(story.get("badge_text", "主线")).strip_edges()
+	if badge_text == "":
+		badge_text = "主线"
+	var badge_map: Dictionary = {}
+	var badge_npcs = story.get("badge_npcs", [])
+	if badge_npcs is Array:
+		for raw_npc in badge_npcs:
+			var npc_id := str(raw_npc).strip_edges()
+			if npc_id != "":
+				badge_map[npc_id] = badge_text
+	return badge_map
 
 func set_last_area(area_id: String) -> void:
 	_last_visited_area = area_id

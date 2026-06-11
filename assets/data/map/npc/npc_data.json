@@ -6,7 +6,6 @@
     "interactions": [
       {"id": "chat", "label": "聊天"},
       {"id": "order", "label": "点单"},
-      {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -17,7 +16,6 @@
     "interactions": [
       {"id": "chat", "label": "聊天"},
       {"id": "study", "label": "课业指导"},
-      {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -28,7 +26,6 @@
     "interactions": [
       {"id": "chat", "label": "聊天"},
       {"id": "study", "label": "作品讲评"},
-      {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -39,7 +36,6 @@
     "interactions": [
       {"id": "chat", "label": "聊天"},
       {"id": "study", "label": "共同练习"},
-      {"id": "gift", "label": "送礼"},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -50,7 +46,15 @@
     "interactions": [
       {"id": "chat", "label": "聊天"},
       {"id": "study", "label": "表演学习"},
-      {"id": "gift", "label": "送礼"},
+      {"id": "leave", "label": "离开"}
+    ]
+  },
+  "luna_father": {
+    "id": "luna_father",
+    "name": "Luna父亲",
+    "type": "special",
+    "interactions": [
+      {"id": "chat", "label": "聊天"},
       {"id": "leave", "label": "离开"}
     ]
   }

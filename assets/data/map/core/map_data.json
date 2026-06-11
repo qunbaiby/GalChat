@@ -90,7 +90,6 @@
       "icon": "loc_library",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/library.png",
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
-      "scene_path": "res://scenes/map/locations/library.tscn",
       "bg_id": "bg_library",
       "map_position": {"x": 420, "y": 28},
       "resident_npcs": ["jing"],
@@ -99,8 +98,24 @@
           "id": "luna",
           "events": ["shelter_from_rain"],
           "periods": ["上午", "下午"],
-          "priority": 100,
-          "trigger_script": "res://assets/data/story/scripts/main/intro_story.json"
+          "priority": 100
+        },
+        {
+          "id": "luna",
+          "events": ["jing_library_guidance"],
+          "periods": ["上午"],
+          "priority": 120
+        }
+      ],
+      "scheduled_entry_stories": [
+        {
+          "id": "jing_library_guidance",
+          "events": ["jing_library_guidance"],
+          "periods": ["上午"],
+          "priority": 200,
+          "trigger_script": "res://assets/data/story/scripts/main/jing_library_guidance.json",
+          "badge_npcs": ["jing", "luna"],
+          "badge_text": "主线"
         }
       ],
       "events": ["main", "bond"]
@@ -110,7 +125,6 @@
       "name": "体育馆",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/gym.png",
       "description": "充满活力的运动场所。",
-      "scene_path": "res://scenes/ui/map/core/quick_location_scene.tscn",
       "bg_id": "bg_gym",
       "map_position": {"x": 380, "y": 220},
       "resident_npcs": [],
@@ -121,7 +135,6 @@
       "name": "音乐馆",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "拥有顶级声学设计的专业音乐排练与合奏空间。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "bg_concert_hall",
       "map_position": {"x": 980, "y": 36},
       "resident_npcs": ["ling"],
@@ -132,7 +145,6 @@
       "name": "美术馆",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/art_gallery.png",
       "description": "充满艺术气息的美术教学与作品展览空间。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "bg_art_gallery",
       "map_position": {"x": 150, "y": 188},
       "resident_npcs": ["shuo"],
@@ -143,7 +155,6 @@
       "name": "大剧院",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "校内用于大型演出、公开排练与舞台实验的专业剧场。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "grand_theater",
       "map_position": {"x": 690, "y": 24},
       "resident_npcs": ["aili"],
@@ -154,7 +165,6 @@
       "name": "艺术广场",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/art_gallery.png",
       "description": "露天的艺术展示与学生交流广场。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 710, "y": 190},
       "conditions": [
         {"type": "stat", "stat_name": "stat_knowledge", "value": 20}
@@ -167,7 +177,6 @@
       "name": "樱花大道",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "春天会开满樱花的浪漫校园小道。夜晚会锁闭。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "bg_id": "bg_sakura_avenue",
       "map_position": {"x": 200, "y": 32},
       "conditions": [
@@ -181,7 +190,6 @@
       "name": "青屿拾光咖啡厅",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "雅经营的优雅咖啡厅，环境安静，咖啡香醇。",
-      "scene_path": "res://scenes/map/locations/qingyu_time_cafe.tscn",
       "bg_id": "bg_qingyu_time_cafe",
       "map_position": {"x": 480, "y": 82},
       "resident_npcs": ["ya"],
@@ -193,7 +201,6 @@
       "icon": "loc_movie_theater",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "设备顶尖的现代影院，适合约会与观影。",
-      "scene_path": "res://scenes/map/locations/movie_theater.tscn",
       "map_position": {"x": 470, "y": 48},
       "resident_npcs": [],
       "events": []
@@ -204,7 +211,6 @@
       "icon": "loc_yuli_alley",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "充满独立品牌与手作小店的文创街区。",
-      "scene_path": "res://scenes/map/locations/yuli_alley.tscn",
       "map_position": {"x": 40, "y": 28},
       "resident_npcs": [],
       "events": []
@@ -215,7 +221,6 @@
       "icon": "loc_yuguang_gallery",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/art_gallery.png",
       "description": "展示沉浸式光影艺术的现代展馆。",
-      "scene_path": "res://scenes/map/locations/yuguang_gallery.tscn",
       "map_position": {"x": 110, "y": 92},
       "resident_npcs": [],
       "events": []
@@ -226,7 +231,6 @@
       "icon": "loc_golden_beach",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "阳光明媚的广阔沙滩。",
-      "scene_path": "res://scenes/map/locations/golden_beach.tscn",
       "map_position": {"x": 820, "y": 188},
       "resident_npcs": [],
       "events": []
@@ -237,7 +241,6 @@
       "icon": "loc_sunset_park",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "观赏海湾日落的最佳地点。",
-      "scene_path": "res://scenes/map/locations/sunset_park.tscn",
       "map_position": {"x": 410, "y": 174},
       "resident_npcs": [],
       "events": []
@@ -248,7 +251,6 @@
       "icon": "loc_music_corner",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "海风伴奏的露天音乐角，常有独立音乐人演出。",
-      "scene_path": "res://scenes/map/locations/music_corner.tscn",
       "map_position": {"x": 130, "y": 34},
       "resident_npcs": [],
       "events": []
@@ -259,7 +261,6 @@
       "icon": "loc_qinglan_cemetery",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "庄严肃穆的墓园，埋葬着过去的记忆。",
-      "scene_path": "res://scenes/map/locations/qinglan_cemetery.tscn",
       "map_position": {"x": 110, "y": 186},
       "resident_npcs": [],
       "events": []
@@ -270,7 +271,6 @@
       "icon": "loc_wangjiang_pavilion",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "青岚山顶的古亭，视野开阔，能听见风穿过树林的声音。",
-      "scene_path": "res://scenes/map/locations/wangjiang_pavilion.tscn",
       "map_position": {"x": 460, "y": 52},
       "resident_npcs": [],
       "events": []
@@ -280,7 +280,6 @@
       "name": "午夜酒馆",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "只在深夜亮起霓虹灯的隐秘小酒馆。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 900, "y": 192},
       "visibility_conditions": [
         {"type": "time", "start_hour": 22, "end_hour": 5}
@@ -293,7 +292,6 @@
       "name": "周末快闪集市",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "充满手作和创意的周末限定集市。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 880, "y": 186},
       "visibility_conditions": [
         {"type": "time", "start_hour": 9, "end_hour": 18}
@@ -309,7 +307,6 @@
       "name": "深山秘汤",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "青岚山深处的天然温泉，据说只有有缘人才能找到。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 900, "y": 22},
       "visibility_conditions": [
         {"type": "npc_stage", "npc_id": "ya", "min_stage": 4}
@@ -322,7 +319,6 @@
       "name": "夏日花火大会",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "海湾举办的盛大花火祭典，夜空中绽放着绚丽的烟花。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 1030, "y": 72},
       "visibility_conditions": [
         {"type": "time", "start_hour": 19, "end_hour": 23}
@@ -338,7 +334,6 @@
       "name": "天台花园",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "艺术大学主楼的天台，种满了花草，是学生们秘密约会的地方。",
-      "scene_path": "res://scenes/map/core/base_location_scene.tscn",
       "map_position": {"x": 30, "y": 18},
       "visibility_conditions": [
         {"type": "npc_stage", "npc_id": "shuo", "min_stage": 3}

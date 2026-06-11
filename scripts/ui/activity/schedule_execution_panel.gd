@@ -200,10 +200,20 @@ func _update_course_info(index: int) -> void:
 	if index < 0 or index >= _courses_data.size(): return
 	
 	var current_course = _courses_data[index]
+	var display_course: Dictionary = current_course
+	if current_course.get("is_event", false):
+		var pending_story_entry = _get_pending_story_entry(current_course)
+		if pending_story_entry.is_empty():
+			pending_story_entry = _get_first_story_entry(current_course)
+		if not pending_story_entry.is_empty():
+			display_course = current_course.duplicate(true)
+			display_course["image_path"] = pending_story_entry.get("image_path", current_course.get("image_path", ""))
+			display_course["desc"] = pending_story_entry.get("summary", current_course.get("desc", "缺少课程描述..."))
+			display_course["period"] = pending_story_entry.get("period", current_course.get("period", ""))
 	
 	# 1. 顶部配图
-	if current_course.has("image_path") and not current_course["image_path"].is_empty():
-		var img_path = current_course["image_path"]
+	if display_course.has("image_path") and not display_course["image_path"].is_empty():
+		var img_path = display_course["image_path"]
 		var bg_path = ImageManager.get_image_path(img_path)
 		if bg_path != "":
 			img_path = bg_path
@@ -215,10 +225,10 @@ func _update_course_info(index: int) -> void:
 		top_image_rect.texture = null
 		
 	# 2. 标题与描述
-	var c_name = current_course.get("name", "未知课程")
+	var c_name = display_course.get("name", "未知课程")
 	title_label.text = tr(c_name)
 	
-	desc_label.text = current_course.get("desc", "缺少课程描述...")
+	desc_label.text = display_course.get("desc", "缺少课程描述...")
 
 func _init_slots() -> void:
 	for child in track_container.get_children():
@@ -538,7 +548,45 @@ func _has_pending_story_event_at(course_index: int) -> bool:
 	if course_index <= _last_processed_course_index:
 		return false
 	var course_data = _courses_data[course_index]
-	return bool(course_data.get("is_event", false))
+	if not bool(course_data.get("is_event", false)):
+		return false
+	return not _get_pending_story_entry(course_data).is_empty()
+
+func _get_story_event_entries(course_data: Dictionary) -> Array:
+	var entries = course_data.get("event_entries", [])
+	if entries is Array and entries.size() > 0:
+		return entries
+	var fallback_script_path := str(course_data.get("script_path", "")).strip_edges()
+	if fallback_script_path == "":
+		return []
+	return [{
+		"event_id": fallback_script_path.get_file().get_basename(),
+		"period": str(course_data.get("period", "")).strip_edges(),
+		"script_path": fallback_script_path,
+		"image_path": str(course_data.get("image_path", "")).strip_edges(),
+		"summary": str(course_data.get("desc", "")).strip_edges()
+	}]
+
+func _get_first_story_entry(course_data: Dictionary) -> Dictionary:
+	var entries = _get_story_event_entries(course_data)
+	if entries.is_empty():
+		return {}
+	var first_entry = entries[0]
+	return first_entry if first_entry is Dictionary else {}
+
+func _get_pending_story_entry(course_data: Dictionary) -> Dictionary:
+	var profile = GameDataManager.profile
+	for raw_entry in _get_story_event_entries(course_data):
+		if not (raw_entry is Dictionary):
+			continue
+		var entry: Dictionary = raw_entry
+		var event_id := str(entry.get("event_id", "")).strip_edges()
+		if event_id == "":
+			event_id = str(entry.get("script_path", "")).get_file().get_basename()
+		if profile and event_id != "" and profile.has_finished_story(event_id):
+			continue
+		return entry
+	return {}
 
 func _try_trigger_immediate_story_event_for_current_slot() -> bool:
 	if _is_moving or result_popup.visible:
@@ -639,7 +687,8 @@ func _get_deepseek_client() -> Node:
 	return null
 
 func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
-	var script_path = course_data.get("script_path", "")
+	var story_entry = _get_pending_story_entry(course_data)
+	var script_path = str(story_entry.get("script_path", course_data.get("script_path", ""))).strip_edges()
 	if script_path == "" or not FileAccess.file_exists(script_path):
 		_last_processed_course_index = max(_last_processed_course_index, course_index)
 		_finish_slot_move()
@@ -730,9 +779,15 @@ func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
 		"type": "story",
 		"day_label": _get_day_label(course_index),
 		"course_name": course_data.get("name", "剧情事件"),
-		"event_title": course_data.get("name", "剧情事件"),
-		"result_desc": course_data.get("desc", "触发了一段关键剧情。")
+		"event_title": str(story_entry.get("event_id", course_data.get("name", "剧情事件"))).strip_edges(),
+		"result_desc": str(story_entry.get("summary", course_data.get("desc", "触发了一段关键剧情。"))).strip_edges()
 	})
+	if _has_pending_story_event_at(course_index):
+		_update_course_info(course_index)
+		await get_tree().process_frame
+		if not is_inside_tree(): return
+		_trigger_story_script(course_data, course_index)
+		return
 	_last_processed_course_index = max(_last_processed_course_index, course_index)
 	_finish_slot_move(true)
 

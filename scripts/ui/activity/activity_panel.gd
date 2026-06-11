@@ -129,15 +129,43 @@ func _init_schedule_slots() -> void:
 	for i in range(MAX_SLOTS):
 		var day_offset = current_day_offset + i
 		var config = GameDataManager.story_time_manager.get_day_config(day_offset)
-		
-		var daily_events = config.get("events", [])
-		if config.has("morning_events"):
-			daily_events.append_array(config.get("morning_events", []))
-		if config.has("afternoon_events"):
-			daily_events.append_array(config.get("afternoon_events", []))
-			
-		if daily_events.size() > 0:
-			scheduled_activities[i] = {"type": "event", "events": daily_events, "period": "全天"}
+		var event_entries = _build_story_event_entries(config)
+		if event_entries.size() > 0:
+			scheduled_activities[i] = {"type": "event", "event_entries": event_entries}
+
+func _append_story_event_entries(event_entries: Array, raw_events: Variant, period: String) -> void:
+	if not (raw_events is Array):
+		return
+	for raw_event_id in raw_events:
+		var event_id := str(raw_event_id).strip_edges()
+		if event_id == "":
+			continue
+		var script_path := "res://assets/data/story/scripts/main/%s.json" % event_id
+		var cover_path := ""
+		var summary := "推进主线剧情..."
+		if FileAccess.file_exists(script_path):
+			var file = FileAccess.open(script_path, FileAccess.READ)
+			var json = JSON.new()
+			if file != null and json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+				var script_data: Dictionary = json.data
+				cover_path = str(script_data.get("cover_image", "")).strip_edges()
+				summary = str(script_data.get("summary", summary)).strip_edges()
+		event_entries.append({
+			"event_id": event_id,
+			"period": period,
+			"script_path": script_path,
+			"image_path": cover_path,
+			"summary": summary
+		})
+
+func _build_story_event_entries(day_config: Dictionary) -> Array:
+	var event_entries: Array = []
+	_append_story_event_entries(event_entries, day_config.get("events", []), "全天")
+	_append_story_event_entries(event_entries, day_config.get("morning_events", []), "上午")
+	_append_story_event_entries(event_entries, day_config.get("afternoon_events", []), "下午")
+	_append_story_event_entries(event_entries, day_config.get("evening_events", []), "傍晚")
+	_append_story_event_entries(event_entries, day_config.get("night_events", []), "夜晚")
+	return event_entries
 
 func _init_category_tabs() -> void:
 	for child in category_tabs.get_children():
@@ -605,20 +633,15 @@ func _on_execute_pressed() -> void:
 	
 	for item in scheduled_activities:
 		if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
-			var event_ids = item.get("events", [])
-			var primary_event = event_ids[0] if event_ids.size() > 0 else ""
-			var cover_path = ""
-			var summary = "推进主线剧情..."
-			var script_path = ""
-			
-			if primary_event != "":
-				script_path = "res://assets/data/story/scripts/main/" + primary_event + ".json"
-				if FileAccess.file_exists(script_path):
-					var file = FileAccess.open(script_path, FileAccess.READ)
-					var json = JSON.new()
-					if json.parse(file.get_as_text()) == OK:
-						cover_path = json.data.get("cover_image", "")
-						summary = json.data.get("summary", summary)
+			var event_entries: Array = item.get("event_entries", [])
+			var primary_entry: Dictionary = event_entries[0] if event_entries.size() > 0 else {}
+			var cover_path := str(primary_entry.get("image_path", "")).strip_edges()
+			var summary := str(primary_entry.get("summary", "推进主线剧情...")).strip_edges()
+			var script_path := str(primary_entry.get("script_path", "")).strip_edges()
+			var period := str(primary_entry.get("period", "")).strip_edges()
+			var event_count := event_entries.size()
+			if event_count > 1:
+				summary = "当日共有 %d 段固定剧情会依次触发。\n%s" % [event_count, summary]
 			
 			courses_data.append({
 				"name": "主线事件",
@@ -627,9 +650,10 @@ func _on_execute_pressed() -> void:
 				"bonus_list": [],
 				"desc": summary,
 				"is_event": true,
-				"events": event_ids,
-				"period": item.get("period", ""),
-				"script_path": script_path
+				"events": item.get("events", []),
+				"period": period,
+				"script_path": script_path,
+				"event_entries": event_entries
 			})
 		elif typeof(item) == TYPE_STRING:
 			var act = GameDataManager.activity_manager.get_activity_by_id(item)

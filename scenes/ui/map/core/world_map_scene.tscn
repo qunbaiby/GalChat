@@ -180,15 +180,5 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.26, 0.29, 1)
 theme_override_font_sizes/font_size = 24
-text = "当前: 场景模式"
-horizontal_alignment = 1
-
-[node name="RightButtons" type="HBoxContainer" parent="TopBar/TopBarMargin/TopBarHBox"]
-custom_minimum_size = Vector2(124, 0)
-layout_mode = 2
-alignment = 2
-
-[node name="ModeToggleButton" type="Button" parent="TopBar/TopBarMargin/TopBarHBox/RightButtons"]
-visible = false
-layout_mode = 2
 text = "江屿市地图"
+horizontal_alignment = 1

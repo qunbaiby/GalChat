@@ -1,8 +1,10 @@
 extends Control
 
+const QUICK_LOCATION_SCENE = preload("res://scenes/ui/map/core/quick_location_scene.tscn")
+const STORY_SCENE = preload("res://scenes/ui/story/story_scene.tscn")
+
 @onready var back_button: Button = $TopBar/TopBarMargin/TopBarHBox/BackButton
 @onready var title_label: Label = $TopBar/TopBarMargin/TopBarHBox/TitleCenter/Title
-@onready var mode_toggle_btn: Button = $TopBar/TopBarMargin/TopBarHBox/RightButtons/ModeToggleButton
 
 # Sub areas container
 @onready var sub_area_container: Control = $SubAreaContainer
@@ -18,6 +20,7 @@ signal location_selected(location_id: String)
 var _bg_tween: Tween
 var _current_area_id: String = ""
 var _debug_label: Label
+var _location_entry_transition_busy: bool = false
 
 func _ready():
 	# --- 调试工具：实时显示鼠标相对 SubAreaContainer 的坐标 ---
@@ -37,11 +40,6 @@ func _ready():
 		$Background.texture = load(world_map_bg)
 		
 	back_button.pressed.connect(_on_back_pressed)
-	mode_toggle_btn.pressed.connect(_on_mode_toggle_pressed)
-	
-	# 进入世界地图时，默认模式改为快捷地图
-	MapDataManager.is_quick_mode = true
-	_update_mode_button_text()
 	
 	_apply_time_filter()
 	
@@ -86,16 +84,6 @@ func _ready():
 
 func _apply_time_filter():
 	pass # 交由全局的天气/环境系统处理
-
-func _update_mode_button_text():
-	if MapDataManager.is_quick_mode:
-		mode_toggle_btn.text = "当前: 快捷模式"
-	else:
-		mode_toggle_btn.text = "当前: 场景模式"
-
-func _on_mode_toggle_pressed():
-	MapDataManager.is_quick_mode = !MapDataManager.is_quick_mode
-	_update_mode_button_text()
 
 func show_map():
 	show()
@@ -305,41 +293,96 @@ func _on_location_pressed(location_id: String):
 	# Transition to exploration map
 	location_selected.emit(location_id)
 	
-	if MapDataManager.is_quick_mode:
-		var existing_panel = get_node_or_null("LocationDetailPanel")
-		if existing_panel:
-			existing_panel.queue_free()
-			
-		var detail_scene = load("res://scenes/ui/map/core/location_detail_panel.tscn")
-		if detail_scene:
-			var panel = detail_scene.instantiate()
-			panel.name = "LocationDetailPanel"
-			add_child(panel)
-			panel.setup(location_id)
-			panel.enter_pressed.connect(_on_location_enter_pressed)
-	else:
-		var loc_data = MapDataManager.get_location(location_id)
-		if loc_data and loc_data.has("scene_path"):
-			var path = loc_data["scene_path"]
-			if ResourceLoader.exists(path):
-				# 如果是通用的 base_location_scene，手动实例化并传递 location_id
-				if path.ends_with("base_location_scene.tscn"):
-					var scene = load(path)
-					var instance = scene.instantiate()
-					instance.location_id = location_id
-					SceneTransitionManager.transition_to_scene_instance(instance)
-				else:
-					SceneTransitionManager.transition_to_scene(path)
-			else:
-				print("[WorldMap] Scene not found: ", path)
+	var existing_panel = get_node_or_null("LocationDetailPanel")
+	if existing_panel:
+		existing_panel.queue_free()
+		
+	var detail_scene = load("res://scenes/ui/map/core/location_detail_panel.tscn")
+	if detail_scene:
+		var panel = detail_scene.instantiate()
+		panel.name = "LocationDetailPanel"
+		add_child(panel)
+		panel.setup(location_id)
+		panel.enter_pressed.connect(_on_location_enter_pressed)
 
 func _on_location_enter_pressed(location_id: String, npc_id: String):
-	var quick_scene = load("res://scenes/ui/map/core/quick_location_scene.tscn")
-	if quick_scene:
-		var instance = quick_scene.instantiate()
-		instance.location_id = location_id
-		instance.initial_npc_id = npc_id
-		SceneTransitionManager.transition_to_scene_instance(instance)
+	if _location_entry_transition_busy:
+		return
+	
+	var entry_story = MapDataManager.get_location_entry_story(location_id)
+	if not entry_story.is_empty():
+		_location_entry_transition_busy = true
+		await _play_location_entry_story(location_id, npc_id, entry_story)
+		_location_entry_transition_busy = false
+		return
+	
+	_open_quick_location_scene(location_id, npc_id)
+
+func _open_quick_location_scene(location_id: String, npc_id: String, duration: float = 1.0) -> void:
+	if QUICK_LOCATION_SCENE == null:
+		return
+	var instance = QUICK_LOCATION_SCENE.instantiate()
+	instance.location_id = location_id
+	instance.initial_npc_id = npc_id
+	SceneTransitionManager.transition_to_scene_instance(instance, duration)
+
+func _play_location_entry_story(location_id: String, npc_id: String, story_config: Dictionary) -> void:
+	var script_path := str(story_config.get("trigger_script", "")).strip_edges()
+	if script_path == "":
+		_open_quick_location_scene(location_id, npc_id)
+		return
+	if not (ResourceLoader.exists(script_path) or FileAccess.file_exists(script_path)):
+		_open_quick_location_scene(location_id, npc_id)
+		return
+	
+	var transition_overlay := ColorRect.new()
+	transition_overlay.color = Color.BLACK
+	transition_overlay.modulate.a = 0.0
+	transition_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	transition_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	transition_overlay.z_index = 300
+	add_child(transition_overlay)
+	
+	var fade_in = create_tween()
+	fade_in.tween_property(transition_overlay, "modulate:a", 1.0, 0.35)
+	await fade_in.finished
+	if not is_inside_tree():
+		return
+	
+	GameDataManager.set_meta("play_specific_story", script_path)
+	var story_scene = STORY_SCENE.instantiate()
+	add_child(story_scene)
+	story_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	story_scene.z_index = 240
+	move_child(transition_overlay, get_child_count() - 1)
+	
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	
+	var fade_out = create_tween()
+	fade_out.tween_property(transition_overlay, "modulate:a", 0.0, 0.35)
+	await fade_out.finished
+	if not is_inside_tree():
+		return
+	
+	await story_scene.chat_closed
+	if not is_inside_tree():
+		return
+	
+	var fade_back = create_tween()
+	fade_back.tween_property(transition_overlay, "modulate:a", 1.0, 0.35)
+	await fade_back.finished
+	if not is_inside_tree():
+		return
+	
+	if is_instance_valid(story_scene):
+		story_scene.queue_free()
+	
+	_open_quick_location_scene(location_id, npc_id, 0.2)
 
 func _process(_delta: float) -> void:
 	if is_instance_valid(_debug_label) and is_instance_valid(sub_area_container):
