@@ -1,0 +1,253 @@
+[gd_scene load_steps=8 format=3 uid="uid://7itqmjnr38fv"]
+
+[ext_resource type="Script" uid="uid://cdqvkb450r1ro" path="res://scripts/ui/activity/activity_loading_overlay.gd" id="1_script"]
+[ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="2_walk"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(0.97, 0.985, 0.985, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.87, 0.9, 0.92)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.1, 0.14, 0.18, 0.18)
+shadow_size = 18
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VisualPanel"]
+bg_color = Color(0.92, 0.97, 0.96, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.89, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SummaryPanel"]
+bg_color = Color(1, 1, 1, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.92, 0.94, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBackground"]
+bg_color = Color(0.89, 0.92, 0.94, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="ActivityLoadingOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.06, 0.08, 0.11, 0.64)
+
+[node name="CenterPanel" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(760, 300)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -150.0
+offset_right = 380.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="Margin" type="MarginContainer" parent="CenterPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 22
+
+[node name="HBox" type="HBoxContainer" parent="CenterPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="VisualPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_VisualPanel")
+
+[node name="VisualContent" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="GlowRect" type="ColorRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -58.0
+offset_top = -58.0
+offset_right = 58.0
+offset_bottom = 58.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.57, 0.82, 0.76, 0.5)
+
+[node name="VisualCaption" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -72.0
+offset_top = -58.0
+offset_right = 72.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.36, 0.48, 0.47, 1)
+theme_override_font_sizes/font_size = 14
+text = "课程执行中"
+horizontal_alignment = 1
+
+[node name="AccentDots" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -52.0
+offset_top = 22.0
+offset_right = 52.0
+offset_bottom = 46.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.36, 0.6, 0.56, 0.78)
+theme_override_font_sizes/font_size = 22
+text = "· · ·"
+horizontal_alignment = 1
+
+[node name="IconPivot" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -56.0
+offset_top = -82.0
+offset_right = 56.0
+offset_bottom = 38.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="WalkerIcon" type="AnimatedSprite2D" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent/IconPivot"]
+position = Vector2(1, 68)
+scale = Vector2(0.11, 0.11)
+sprite_frames = ExtResource("2_walk")
+
+[node name="ContentVBox" type="VBoxContainer" parent="CenterPanel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="KickerLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.63, 0.6, 1)
+theme_override_font_sizes/font_size = 15
+text = "Luna 正在出发"
+
+[node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.22, 0.26, 1)
+theme_override_font_sizes/font_size = 30
+text = "课程安排执行中"
+autowrap_mode = 3
+
+[node name="StatusLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.39, 0.43, 1)
+theme_override_font_sizes/font_size = 21
+text = "Luna 正在整理这周的课程节奏..."
+autowrap_mode = 3
+
+[node name="SummaryPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_SummaryPanel")
+
+[node name="SummaryMargin" type="MarginContainer" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="SummaryLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel/SummaryMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 15
+text = "本周课程摘要"
+autowrap_mode = 3
+
+[node name="HintLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.63, 0.67, 1)
+theme_override_font_sizes/font_size = 14
+text = "课程安排正在稳稳向前推进..."
+autowrap_mode = 3
+
+[node name="ProgressBar" type="ProgressBar" parent="CenterPanel/Margin/HBox/ContentVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBackground")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
+show_percentage = false

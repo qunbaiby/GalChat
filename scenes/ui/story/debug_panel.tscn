@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://br1kcissdv26v"]
+[gd_scene load_steps=5 format=3 uid="uid://br1kcissdv26v"]
 
 [ext_resource type="Script" uid="uid://dgg7k1e8yxnlx" path="res://scripts/ui/story/debug_panel.gd" id="1_debug"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DebugPanel"]
 bg_color = Color(0.985, 0.988, 0.995, 0.98)
@@ -50,7 +49,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 script = ExtResource("1_debug")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -71,11 +69,11 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="CenterContainer"]
-custom_minimum_size = Vector2(600, 600)
+custom_minimum_size = Vector2(1120, 720)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_DebugPanel")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel"]
+[node name="RootVBox" type="VBoxContainer" parent="CenterContainer/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -86,210 +84,147 @@ offset_right = -20.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 18
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="HeaderHBox" type="HBoxContainer" parent="CenterContainer/Panel/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="HeaderText" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/RootVBox/HeaderHBox/HeaderText"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 24
-text = "Debug 面板"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 26
+text = "调试控制台"
 
-[node name="TabContainer" type="TabContainer" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/Panel/RootVBox/HeaderHBox/HeaderText"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.51, 0.58, 1)
+text = "集中管理时间天气、关系属性、剧情进度与常用测试工具"
+autowrap_mode = 3
+
+[node name="HeaderActions" type="HBoxContainer" parent="CenterContainer/Panel/RootVBox/HeaderHBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="RefreshAllButton" type="Button" parent="CenterContainer/Panel/RootVBox/HeaderHBox/HeaderActions"]
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+text = "刷新状态"
+
+[node name="TabContainer" type="TabContainer" parent="CenterContainer/Panel/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
-current_tab = 1
+theme_override_colors/font_selected_color = Color(0.23, 0.22, 0.2, 1)
+theme_override_colors/font_hovered_color = Color(0.23, 0.22, 0.2, 1)
+theme_override_colors/font_unselected_color = Color(0.42, 0.49, 0.56, 1)
+theme_override_colors/font_disabled_color = Color(0.56, 0.62, 0.68, 1)
+current_tab = 0
 
-[node name="情感控制" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
-visible = false
+[node name="总览" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
 metadata/_tab_index = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/情感控制"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/总览"]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/情感控制/HBoxContainer"]
-layout_mode = 2
-text = "强制切换阶段："
-
-[node name="StageOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/情感控制/HBoxContainer"]
+[node name="OverviewContent" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/总览/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
 
-[node name="状态与表情" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
-layout_mode = 2
-theme_override_constants/separation = 20
-metadata/_tab_index = 1
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情/HBoxContainer2"]
-layout_mode = 2
-text = "强制切换宏观心情："
-
-[node name="MacroMoodOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/状态与表情/HBoxContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="工具与测试" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
+[node name="关系属性" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 20
+metadata/_tab_index = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/关系属性"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatsContent" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/关系属性/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="剧情测试" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer"]
+visible = false
+layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/剧情测试"]
 layout_mode = 2
-alignment = 1
+size_flags_vertical = 3
 
-[node name="SwitchCharButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
-custom_minimum_size = Vector2(120, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
-text = "切换角色"
-
-[node name="TestCallButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
-custom_minimum_size = Vector2(120, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
-text = "模拟来电"
-
-[node name="GenerateDiaryButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/HBoxContainer"]
-custom_minimum_size = Vector2(120, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
-text = "生成日记"
-
-[node name="ChatTestLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
-layout_mode = 2
-text = "--- 聊天控制 ---"
-horizontal_alignment = 1
-
-[node name="ChatControlBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
-layout_mode = 2
-alignment = 1
-theme_override_constants/separation = 20
-
-[node name="FreeChatToggle" type="CheckButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/ChatControlBox"]
-layout_mode = 2
-text = "启用自由AI聊天"
-
-[node name="TestFixedChatBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/ChatControlBox"]
-custom_minimum_size = Vector2(120, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
-text = "测试静固定剧本"
-
-[node name="MomentsTestLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
-layout_mode = 2
-text = "--- 朋友圈测试 ---"
-horizontal_alignment = 1
-
-[node name="MomentsAuthorBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
-layout_mode = 2
-text = "发送者:"
-
-[node name="MomentAuthor" type="LineEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="StoryContent" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/剧情测试/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "AI"
+size_flags_vertical = 3
+theme_override_constants/separation = 16
 
-[node name="Label2" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="大五人格" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer"]
+visible = false
 layout_mode = 2
-text = " 模式:"
+theme_override_constants/separation = 14
+metadata/_tab_index = 3
 
-[node name="MomentMode" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsAuthorBox"]
+[node name="PersonalityHeaderHBox" type="HBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格"]
 layout_mode = 2
-item_count = 2
-selected = 0
-popup/item_0/text = "图文并茂"
-popup/item_0/id = 0
-popup/item_1/text = "纯文字"
-popup/item_1/id = 1
+theme_override_constants/separation = 12
 
-[node name="MomentsContentBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsContentBox"]
-layout_mode = 2
-text = "内容:"
-
-[node name="MomentContent" type="TextEdit" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsContentBox"]
-custom_minimum_size = Vector2(0, 60)
+[node name="PersonalityLabel" type="Label" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/PersonalityHeaderHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "这是一条测试朋友圈。"
+theme_override_colors/font_color = Color(0.23, 0.22, 0.2, 1)
+text = "当前人格分值与演化摘要"
 
-[node name="MomentsBtnBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试"]
+[node name="RefreshPersonalityBtn" type="Button" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/PersonalityHeaderHBox"]
+custom_minimum_size = Vector2(88, 40)
 layout_mode = 2
-alignment = 1
-theme_override_constants/separation = 20
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+text = "刷新"
 
-[node name="SendMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox"]
-custom_minimum_size = Vector2(120, 50)
+[node name="SnapshotPersonalityBtn" type="Button" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/PersonalityHeaderHBox"]
+custom_minimum_size = Vector2(104, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
+text = "记录快照"
+
+[node name="SettlePersonalityBtn" type="Button" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/PersonalityHeaderHBox"]
+custom_minimum_size = Vector2(104, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
-text = "手动发送"
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
+text = "执行沉降"
 
-[node name="AIGenerateMomentBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/工具与测试/MomentsBtnBox"]
-custom_minimum_size = Vector2(120, 50)
+[node name="ModifyHBox" type="HBoxContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
-text = "AI生成"
+theme_override_constants/separation = 12
 
-[node name="大五人格" type="VBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 10
-metadata/_tab_index = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/HBoxContainer"]
+[node name="TraitOption" type="OptionButton" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/ModifyHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "当前人格分值（实时动态）："
-
-[node name="RefreshPersonalityBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/HBoxContainer"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButton")
-text = "刷新"
-
-[node name="ModifyHBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="TraitOption" type="OptionButton" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/ModifyHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-item_count = 5
 selected = 0
+item_count = 5
 popup/item_0/text = "经验开放性 (O)"
 popup/item_0/id = 0
 popup/item_1/text = "尽责严谨性 (C)"
@@ -301,40 +236,48 @@ popup/item_3/id = 3
 popup/item_4/text = "神经敏感性 (N)"
 popup/item_4/id = 4
 
-[node name="TraitValueInput" type="SpinBox" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/ModifyHBox"]
+[node name="TraitValueInput" type="SpinBox" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/ModifyHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = -100.0
-max_value = 100.0
 step = 0.1
 value = 50.0
 
-[node name="SetTraitBtn" type="Button" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/ModifyHBox"]
+[node name="SetTraitBtn" type="Button" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/ModifyHBox"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
 text = "强制设置"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="PersonalityText" type="RichTextLabel" parent="CenterContainer/Panel/VBoxContainer/TabContainer/大五人格/ScrollContainer"]
+[node name="PersonalityText" type="RichTextLabel" parent="CenterContainer/Panel/RootVBox/TabContainer/大五人格/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.23, 0.22, 0.2, 1)
 bbcode_enabled = true
 
-[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="FooterVBox" type="VBoxContainer" parent="CenterContainer/Panel/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/Panel/RootVBox/FooterVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.49, 0.56, 1)
+text = "等待调试操作"
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/RootVBox/FooterVBox"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_DebugButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_DebugButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DebugButtonPrimary")
 text = "关闭"
-
-

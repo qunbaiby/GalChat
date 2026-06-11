@@ -105,7 +105,8 @@ func _ready() -> void:
 	
 	if auto_button: auto_button.pressed.connect(_on_auto_pressed)
 	if skip_button: skip_button.pressed.connect(_on_skip_pressed)
-	if loading_overlay: loading_overlay.hide()
+	if loading_overlay:
+		loading_overlay.hide()
 	
 	# 初始状态
 	result_popup.hide()
@@ -193,8 +194,11 @@ func _on_skip_pressed() -> void:
 func _try_auto_next() -> void:
 	if not is_inside_tree(): return
 	var can_continue = _current_slot_index < 4 or (_current_slot_index == 4 and _last_processed_course_index < 4)
-	if _is_auto_playing and not _is_moving and can_continue and not result_popup.visible and (loading_overlay == null or not loading_overlay.visible) and _current_event_panel == null:
+	if _is_auto_playing and not _is_moving and can_continue and not result_popup.visible and not _is_loading_visible() and _current_event_panel == null:
 		_on_click_area_pressed()
+
+func _is_loading_visible() -> bool:
+	return loading_overlay != null and loading_overlay.visible
 
 func _update_course_info(index: int) -> void:
 	if index < 0 or index >= _courses_data.size(): return
@@ -305,6 +309,7 @@ func _build_schedule_event_context(course_index: int) -> Dictionary:
 		"mood_name": str(mood_data.get("name", "平静")),
 		"mood_tag": str(mood_data.get("id", "calm"))
 	}
+
 
 func _build_attr_changes_summary(raw_changes: Dictionary) -> String:
 	var normalized = _normalize_attr_changes(raw_changes)
@@ -591,7 +596,7 @@ func _get_pending_story_entry(course_data: Dictionary) -> Dictionary:
 func _try_trigger_immediate_story_event_for_current_slot() -> bool:
 	if _is_moving or result_popup.visible:
 		return false
-	if loading_overlay and loading_overlay.visible:
+	if _is_loading_visible():
 		return false
 	if _current_event_panel != null:
 		return false
@@ -807,7 +812,11 @@ func _hide_loading() -> void:
 	if loading_overlay and loading_overlay.visible:
 		var t = create_tween()
 		t.tween_property(loading_overlay, "modulate:a", 0.0, 0.2)
-		t.finished.connect(func(): loading_overlay.hide())
+		t.finished.connect(func():
+			loading_overlay.hide()
+			if loading_text:
+				loading_text.visible = false
+		)
 
 func _trigger_schedule_event(course_index: int) -> void:
 	var client = _get_deepseek_client()

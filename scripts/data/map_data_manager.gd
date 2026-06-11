@@ -276,6 +276,46 @@ func _matches_story_schedule(schedule: Dictionary, day_offset: int, current_peri
 	
 	return true
 
+func _analyze_story_schedule(schedule: Dictionary, day_offset: int, current_period: String, current_weather: String, active_events: Array, current_stage: int) -> Dictionary:
+	var failure_reasons: Array[String] = []
+
+	if schedule.has("day_offsets"):
+		var offsets = schedule["day_offsets"]
+		if offsets is Array and offsets.size() > 0 and not (day_offset in offsets):
+			failure_reasons.append("日期不匹配：当前 day_offset=%d，需要 %s" % [day_offset, str(offsets)])
+
+	if schedule.has("events"):
+		var events = schedule["events"]
+		if events is Array and events.size() > 0:
+			var has_event := false
+			for raw_event in events:
+				var event_key := str(raw_event).strip_edges()
+				if event_key != "" and active_events.has(event_key):
+					has_event = true
+					break
+			if not has_event:
+				failure_reasons.append("事件不匹配：当前激活 %s，需要命中 %s" % [str(active_events), str(events)])
+
+	if schedule.has("weather"):
+		var weathers = schedule["weather"]
+		if weathers is Array and weathers.size() > 0 and not (current_weather in weathers):
+			failure_reasons.append("天气不匹配：当前天气=%s，需要 %s" % [current_weather, str(weathers)])
+
+	if schedule.has("periods"):
+		var periods = schedule["periods"]
+		if periods is Array and periods.size() > 0 and not (current_period in periods):
+			failure_reasons.append("时段不匹配：当前时段=%s，需要 %s" % [current_period, str(periods)])
+
+	if schedule.has("min_stage") and current_stage < int(schedule["min_stage"]):
+		failure_reasons.append("阶段不足：当前阶段=%d，最低需要 %d" % [current_stage, int(schedule["min_stage"])])
+	if schedule.has("max_stage") and current_stage > int(schedule["max_stage"]):
+		failure_reasons.append("阶段过高：当前阶段=%d，最高允许 %d" % [current_stage, int(schedule["max_stage"])])
+
+	return {
+		"passed": failure_reasons.is_empty(),
+		"failure_reasons": failure_reasons
+	}
+
 func _get_story_schedule_context() -> Dictionary:
 	var time_sys = GameDataManager.story_time_manager
 	var current_day_offset := 0
@@ -396,6 +436,86 @@ func get_location_entry_story(location_id: String) -> Dictionary:
 	
 	candidates.sort_custom(func(a, b): return int(a.get("priority", 0)) > int(b.get("priority", 0)))
 	return candidates[0]
+
+func analyze_location_entry_stories(location_id: String) -> Dictionary:
+	var loc = get_location(location_id)
+	if loc.is_empty():
+		return {
+			"location_id": location_id,
+			"current_story": {},
+			"entries": [],
+			"context": {}
+		}
+	if not loc.has("scheduled_entry_stories"):
+		return {
+			"location_id": location_id,
+			"current_story": {},
+			"entries": [],
+			"context": _get_story_schedule_context()
+		}
+
+	var schedule_ctx = _get_story_schedule_context()
+	var current_day_offset: int = int(schedule_ctx.get("day_offset", 0))
+	var current_period: String = str(schedule_ctx.get("period", "上午"))
+	var current_weather: String = str(schedule_ctx.get("weather", ""))
+	var active_events: Array = schedule_ctx.get("active_events", [])
+
+	var profile = GameDataManager.profile
+	var current_stage := 0
+	if profile:
+		current_stage = profile.current_stage
+
+	var entries: Array = []
+	var stories = loc.get("scheduled_entry_stories", [])
+	if stories is Array:
+		for raw_story in stories:
+			if not (raw_story is Dictionary):
+				continue
+			var story: Dictionary = raw_story
+			var story_copy: Dictionary = story.duplicate(true)
+			var script_path := str(story_copy.get("trigger_script", "")).strip_edges()
+			var story_id := str(story_copy.get("id", "")).strip_edges()
+			if story_id == "":
+				story_id = script_path.get_file().get_basename() if script_path != "" else ""
+			var schedule_analysis := _analyze_story_schedule(story_copy, current_day_offset, current_period, current_weather, active_events, current_stage)
+			var allow_replay := bool(story_copy.get("allow_replay", false))
+			var blocked_by_replay := false
+			var replay_reason := ""
+			if profile and not allow_replay and story_id != "" and profile.has_finished_story(story_id):
+				blocked_by_replay = true
+				replay_reason = "剧情已完成且不允许重复播放：%s" % story_id
+			var missing_script := script_path == ""
+			var missing_script_reason := "未配置 trigger_script" if missing_script else ""
+			var final_passed := bool(schedule_analysis.get("passed", false)) and not blocked_by_replay and not missing_script
+			var reasons: Array[String] = []
+			for reason in schedule_analysis.get("failure_reasons", []):
+				reasons.append(str(reason))
+			if blocked_by_replay:
+				reasons.append(replay_reason)
+			if missing_script:
+				reasons.append(missing_script_reason)
+			story_copy["resolved_id"] = story_id
+			entries.append({
+				"story": story_copy,
+				"passed": final_passed,
+				"failure_reasons": reasons,
+				"blocked_by_replay": blocked_by_replay,
+				"missing_script": missing_script
+			})
+
+	var current_story := get_location_entry_story(location_id)
+	return {
+		"location_id": location_id,
+		"current_story": current_story,
+		"entries": entries,
+		"context": {
+			"day_offset": current_day_offset,
+			"period": current_period,
+			"weather": current_weather,
+			"active_events": active_events,
+			"stage": current_stage
+		}
+	}
 
 func get_location_story_badges(location_id: String) -> Dictionary:
 	var story = get_location_entry_story(location_id)

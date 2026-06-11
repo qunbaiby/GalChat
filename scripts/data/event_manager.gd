@@ -59,6 +59,21 @@ func mark_event_triggered(event_id: String) -> void:
     triggered_events.append(normalized_event_id)
     _save_triggered_events()
 
+func unmark_event_triggered(event_id: String) -> void:
+    var normalized_event_id := str(event_id).strip_edges()
+    if normalized_event_id == "":
+        return
+    if not triggered_events.has(normalized_event_id):
+        return
+    triggered_events.erase(normalized_event_id)
+    _save_triggered_events()
+
+func clear_triggered_events() -> void:
+    if triggered_events.is_empty():
+        return
+    triggered_events.clear()
+    _save_triggered_events()
+
 func try_mark_event_by_story(script_id: String) -> void:
     var normalized_script_id := str(script_id).strip_edges()
     if normalized_script_id == "":

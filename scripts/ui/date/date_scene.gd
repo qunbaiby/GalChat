@@ -1,5 +1,9 @@
 extends Control
 
+const DateStoryManager = preload("res://scripts/data/date_story_manager.gd")
+const DateLoadingOverlayScene = preload("res://scenes/ui/date/date_loading_overlay.tscn")
+const STORY_SCENE_PATH := "res://scenes/ui/story/story_scene.tscn"
+
 @onready var portrait_texture = %PortraitTexture
 @onready var bubble_panel = %BubblePanel
 @onready var bubble_text = %BubbleText
@@ -31,13 +35,17 @@ var _bubble_current_tts_text: String = ""
 
 var _date_config: Dictionary = {}
 var _slots: Dictionary = {
-	"morning": {"button": null, "thumb": null, "label": null, "location_id": "", "enabled": true, "name": "早上", "custom_texture": null},
-	"afternoon": {"button": null, "thumb": null, "label": null, "location_id": "", "enabled": true, "name": "下午", "custom_texture": null},
-	"evening": {"button": null, "thumb": null, "label": null, "location_id": "", "enabled": true, "name": "晚上", "custom_texture": null}
+	"morning": {"button": null, "thumb": null, "label": null, "location_id": "", "type_id": "", "enabled": true, "name": "早上", "custom_texture": null},
+	"afternoon": {"button": null, "thumb": null, "label": null, "location_id": "", "type_id": "", "enabled": true, "name": "下午", "custom_texture": null},
+	"evening": {"button": null, "thumb": null, "label": null, "location_id": "", "type_id": "", "enabled": true, "name": "晚上", "custom_texture": null}
 }
 
 var _pending_custom_texture: Texture2D = null
 var _pending_custom_slot: String = ""
+var _date_story_manager: DateStoryManager = null
+var _pending_date_request: Dictionary = {}
+var _is_generating_date_story: bool = false
+var _date_loading_overlay: DateLoadingOverlay = null
 
 const BUBBLE_TYPEWRITER_CHAR_TIME := 0.045
 const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
@@ -45,6 +53,7 @@ const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
 func _ready() -> void:
 	cancel_btn.pressed.connect(_on_cancel_pressed)
 	date_btn.pressed.connect(_on_date_pressed)
+	_date_story_manager = DateStoryManager.new()
 	
 	confirm_image_btn.pressed.connect(_on_confirm_image_pressed)
 	cancel_image_btn.pressed.connect(_on_cancel_image_pressed)
@@ -64,6 +73,8 @@ func _ready() -> void:
 			TTSManager.tts_success.connect(_on_bubble_tts_success)
 		if not TTSManager.tts_failed.is_connected(_on_bubble_tts_failed):
 			TTSManager.tts_failed.connect(_on_bubble_tts_failed)
+	
+	_ensure_date_loading_overlay()
 	
 	_load_luna_animated_portrait()
 	
@@ -221,7 +232,7 @@ func _populate_date_types() -> void:
 				loc_item.setup(loc_id, loc_name, type_data["id"])
 				loc_item.add_requested.connect(_on_add_location_pressed)
 
-func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:
+func _on_add_location_pressed(loc_id: String, loc_name: String, type_id: String) -> void:
 	var slot_order = ["morning", "afternoon", "evening"]
 	var found_slot = ""
 	for period in slot_order:
@@ -231,6 +242,7 @@ func _on_add_location_pressed(loc_id: String, loc_name: String) -> void:
 			
 	if found_slot != "":
 		_slots[found_slot]["location_id"] = loc_id
+		_slots[found_slot]["type_id"] = type_id
 		_slots[found_slot]["custom_texture"] = null
 		_slots[found_slot]["label"].text = _slots[found_slot]["name"] + "\n(" + loc_name + ")"
 		
@@ -318,6 +330,7 @@ func _apply_custom_texture_to_pending_slot() -> void:
 		return
 
 	_slots[target_slot]["location_id"] = "custom_location"
+	_slots[target_slot]["type_id"] = "real_photo"
 	_slots[target_slot]["custom_texture"] = _pending_custom_texture
 	_slots[target_slot]["label"].text = _slots[target_slot]["name"] + "\n(现实邀约)"
 	_slots[target_slot]["thumb"].texture = _pending_custom_texture
@@ -334,6 +347,7 @@ func _on_slot_pressed(period_id: String) -> void:
 		return
 	if _slots[period_id]["location_id"] != "":
 		_slots[period_id]["location_id"] = ""
+		_slots[period_id]["type_id"] = ""
 		_slots[period_id]["custom_texture"] = null
 		_slots[period_id]["label"].text = _slots[period_id]["name"] + "\n(空)"
 		_slots[period_id]["thumb"].texture = null
@@ -486,6 +500,7 @@ func _strip_bubble_action_descriptions(text: String) -> String:
 	return cleaned.strip_edges()
 
 func _exit_tree() -> void:
+	_stop_date_loading_animations()
 	if get_window() and get_window().files_dropped.is_connected(_on_files_dropped):
 		get_window().files_dropped.disconnect(_on_files_dropped)
 
@@ -495,12 +510,14 @@ func _on_cancel_pressed() -> void:
 	_is_closing = true
 	
 	_disconnect_ai_signals()
+	_disconnect_date_story_signals()
 	if _bubble_audio_player:
 		_bubble_audio_player.stop()
 	if _bubble_hide_tween:
 		_bubble_hide_tween.kill()
 	if _bubble_typewriter_tween:
 		_bubble_typewriter_tween.kill()
+	_stop_date_loading_animations()
 		
 	if TTSManager:
 		if TTSManager.tts_success.is_connected(_on_bubble_tts_success):
@@ -513,6 +530,8 @@ func _on_cancel_pressed() -> void:
 	tween.tween_callback(queue_free)
 
 func _on_date_pressed() -> void:
+	if _is_generating_date_story:
+		return
 	var plan_list = []
 	var slot_order = ["morning", "afternoon", "evening"]
 	for period in slot_order:
@@ -520,6 +539,7 @@ func _on_date_pressed() -> void:
 			plan_list.append({
 				"period": period,
 				"location_id": _slots[period]["location_id"],
+				"type_id": _slots[period]["type_id"],
 				"custom_texture": _slots[period]["custom_texture"]
 			})
 			
@@ -527,10 +547,129 @@ func _on_date_pressed() -> void:
 		if ToastManager:
 			ToastManager.show_toast("请至少选择一个约会地点！")
 		return
+
+	for item in plan_list:
+		if str(item.get("location_id", "")) == "custom_location":
+			if ToastManager:
+				ToastManager.show_toast("现实邀约暂未接入动态剧情，请先选择地图地点")
+			return
 		
 	_start_date_plan(plan_list)
 
 func _start_date_plan(plan_list: Array) -> void:
 	print("Date Plan: ", plan_list)
+	_pending_date_request.clear()
+	if _date_story_manager == null:
+		_date_story_manager = DateStoryManager.new()
+
+	var prepared_request := _date_story_manager.prepare_date_story_request(plan_list)
+	_pending_date_request = prepared_request
+	var fallback_script: Dictionary = prepared_request.get("fallback_script", {})
+	var context: Dictionary = prepared_request.get("context", {})
+	var client := _find_deepseek_client()
+	_show_date_loading_overlay(context)
+
+	if client == null:
+		if ToastManager:
+			ToastManager.show_toast("未找到 AI 客户端，改用保底约会剧情")
+		_set_date_generation_state(true)
+		_complete_date_loading_and_play(fallback_script)
+		return
+
+	_deepseek_client = client
+	_disconnect_date_story_signals()
+	if not _deepseek_client.is_connected("date_story_generated", _on_date_story_generated):
+		_deepseek_client.date_story_generated.connect(_on_date_story_generated)
+	if not _deepseek_client.is_connected("date_story_error", _on_date_story_error):
+		_deepseek_client.date_story_error.connect(_on_date_story_error)
+
+	_set_date_generation_state(true)
 	if ToastManager:
-		ToastManager.show_toast("约会计划已生成，即将开始约会...")
+		ToastManager.show_toast("正在生成约会剧情...")
+	_deepseek_client.generate_date_story(context)
+
+func _find_deepseek_client() -> Node:
+	if _deepseek_client and is_instance_valid(_deepseek_client):
+		return _deepseek_client
+	var main_scene = get_tree().get_root().get_node_or_null("MainScene")
+	if main_scene and main_scene.has_node("DeepSeekClient"):
+		return main_scene.get_node("DeepSeekClient")
+	return null
+
+func _set_date_generation_state(active: bool) -> void:
+	_is_generating_date_story = active
+	date_btn.disabled = active
+	cancel_btn.disabled = active
+
+func _disconnect_date_story_signals() -> void:
+	if _deepseek_client:
+		if _deepseek_client.is_connected("date_story_generated", _on_date_story_generated):
+			_deepseek_client.date_story_generated.disconnect(_on_date_story_generated)
+		if _deepseek_client.is_connected("date_story_error", _on_date_story_error):
+			_deepseek_client.date_story_error.disconnect(_on_date_story_error)
+
+func _on_date_story_generated(script_data: Dictionary) -> void:
+	_set_date_generation_state(false)
+	_disconnect_date_story_signals()
+	if _is_closing:
+		return
+
+	var fallback_script: Dictionary = _pending_date_request.get("fallback_script", {})
+	var context: Dictionary = _pending_date_request.get("context", {})
+	var final_script := _date_story_manager.sanitize_generated_story(script_data, context, fallback_script)
+	_complete_date_loading_and_play(final_script)
+
+func _on_date_story_error(_error_msg: String) -> void:
+	_set_date_generation_state(false)
+	_disconnect_date_story_signals()
+	if _is_closing:
+		return
+	if ToastManager:
+		ToastManager.show_toast("AI 约会剧情生成失败，已切换为保底剧情")
+	var fallback_script: Dictionary = _pending_date_request.get("fallback_script", {})
+	_complete_date_loading_and_play(fallback_script, true)
+
+func _play_generated_date_story(script_data: Dictionary) -> void:
+	if script_data.is_empty():
+		_hide_date_loading_overlay_immediately()
+		if ToastManager:
+			ToastManager.show_toast("约会剧情生成失败")
+		return
+
+	GameDataManager.set_meta("play_runtime_story_data", script_data)
+	GameDataManager.set_meta("story_scene_return_to_main_on_finish", true)
+
+	if get_tree().root.has_node("SceneTransitionManager"):
+		get_tree().root.get_node("SceneTransitionManager").transition_to_scene(STORY_SCENE_PATH)
+	else:
+		get_tree().change_scene_to_file(STORY_SCENE_PATH)
+
+
+func _ensure_date_loading_overlay() -> void:
+	if _date_loading_overlay and is_instance_valid(_date_loading_overlay):
+		return
+	_date_loading_overlay = DateLoadingOverlayScene.instantiate()
+	add_child(_date_loading_overlay)
+
+
+func _show_date_loading_overlay(context: Dictionary) -> void:
+	_ensure_date_loading_overlay()
+	if _date_loading_overlay:
+		_date_loading_overlay.show_for_context(context)
+
+
+func _complete_date_loading_and_play(script_data: Dictionary, is_fallback: bool = false) -> void:
+	if _date_loading_overlay:
+		await _date_loading_overlay.complete(is_fallback)
+	_set_date_generation_state(false)
+	_play_generated_date_story(script_data)
+
+
+func _hide_date_loading_overlay_immediately() -> void:
+	if _date_loading_overlay:
+		_date_loading_overlay.hide_immediately()
+
+
+func _stop_date_loading_animations() -> void:
+	if _date_loading_overlay:
+		_date_loading_overlay.cancel()

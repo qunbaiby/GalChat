@@ -10,7 +10,7 @@ extends Control
 @onready var detail_status_tag: Label = $Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/TagRow/StatusTag
 @onready var detail_collection_label: Label = $Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/DetailCollectionLabel
 @onready var detail_desc: RichTextLabel = $Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/DetailDesc
-@onready var detail_icon: TextureRect = $Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/DetailPreviewPanel/DetailIcon
+@onready var detail_icon: TextureRect = $Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/DetailPreviewPanel/DetailPreviewMargin/DetailIcon
 @onready var wear_button: Button = $Backdrop/ContentMargin/RootVBox/BodyHBox/RightInfo/InfoMargin/InfoVBox/WearButton
 @onready var close_button: Button = $Backdrop/ContentMargin/RootVBox/TopBar/CloseButton
 

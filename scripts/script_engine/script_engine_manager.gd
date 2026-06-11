@@ -38,40 +38,51 @@ func load_script(script_path: String) -> bool:
     if err != OK:
         printerr("[ScriptEngine] Failed to parse script JSON: ", json.get_error_message())
         return false
-        
-    var data = json.data
-    current_script_id = data.get("script_id", "unknown")
-    current_script_path = script_path
+    return load_script_data(json.data, script_path)
+
+func load_script_data(data: Variant, source_path: String = "") -> bool:
+    if not data is Dictionary:
+        printerr("[ScriptEngine] Invalid runtime script data.")
+        return false
+
+    var script_data: Dictionary = data
+    current_script_id = script_data.get("script_id", "unknown")
+    current_script_path = source_path
     current_script_meta = {
-        "use_portraits": bool(data.get("use_portraits", true)),
-        "summary": str(data.get("summary", "")),
-        "story_location_id": str(data.get("story_location_id", "")),
-        "story_area_id": str(data.get("story_area_id", "")),
-        "day_offset": int(data.get("day_offset", 0)),
-        "story_period": str(data.get("story_period", "")),
-        "memory_enabled": bool(data.get("memory_enabled", true)),
-        "memory_layer": str(data.get("memory_layer", "bond")),
-        "memory_summary": str(data.get("memory_summary", "")),
-        "memory_is_bond_mark": bool(data.get("memory_is_bond_mark", true)),
-        "memory_title": str(data.get("memory_title", "")),
-        "memory_scope": str(data.get("memory_scope", "")),
-        "memory_scope_explicit": bool(data.has("memory_scope")),
-        "memory_visibility": str(data.get("memory_visibility", "")),
-        "memory_visibility_explicit": bool(data.has("memory_visibility")),
-        "memory_participants": data.get("memory_participants", []),
-        "memory_participants_explicit": bool(data.has("memory_participants")),
-        "memory_player_involved": bool(data.get("memory_player_involved", false)),
-        "memory_player_involved_explicit": bool(data.has("memory_player_involved")),
-        "memory_player_witnessed": bool(data.get("memory_player_witnessed", false)),
-        "memory_player_witnessed_explicit": bool(data.has("memory_player_witnessed")),
-        "memory_records": _sanitize_memory_records(data.get("memory_records", []))
+        "use_portraits": bool(script_data.get("use_portraits", true)),
+        "summary": str(script_data.get("summary", "")),
+        "story_location_id": str(script_data.get("story_location_id", "")),
+        "story_area_id": str(script_data.get("story_area_id", "")),
+        "day_offset": int(script_data.get("day_offset", 0)),
+        "story_period": str(script_data.get("story_period", "")),
+        "runtime_generated": bool(script_data.get("runtime_generated", false)),
+        "story_category": str(script_data.get("story_category", "")),
+        "location_names": script_data.get("location_names", []),
+        "date_plan": script_data.get("date_plan", []),
+        "date_settlement": script_data.get("date_settlement", {}),
+        "memory_enabled": bool(script_data.get("memory_enabled", true)),
+        "memory_layer": str(script_data.get("memory_layer", "bond")),
+        "memory_summary": str(script_data.get("memory_summary", "")),
+        "memory_is_bond_mark": bool(script_data.get("memory_is_bond_mark", true)),
+        "memory_title": str(script_data.get("memory_title", "")),
+        "memory_scope": str(script_data.get("memory_scope", "")),
+        "memory_scope_explicit": bool(script_data.has("memory_scope")),
+        "memory_visibility": str(script_data.get("memory_visibility", "")),
+        "memory_visibility_explicit": bool(script_data.has("memory_visibility")),
+        "memory_participants": script_data.get("memory_participants", []),
+        "memory_participants_explicit": bool(script_data.has("memory_participants")),
+        "memory_player_involved": bool(script_data.get("memory_player_involved", false)),
+        "memory_player_involved_explicit": bool(script_data.has("memory_player_involved")),
+        "memory_player_witnessed": bool(script_data.get("memory_player_witnessed", false)),
+        "memory_player_witnessed_explicit": bool(script_data.has("memory_player_witnessed")),
+        "memory_records": _sanitize_memory_records(script_data.get("memory_records", []))
     }
-    var chapters_data = data.get("chapters", {})
-    
+    var chapters_data = script_data.get("chapters", {})
+
     chapters.clear()
     for c_id in chapters_data.keys():
         chapters[c_id] = ScriptChapter.new(c_id, chapters_data[c_id])
-        
+
     print("[ScriptEngine] Loaded script: ", current_script_id, " with ", chapters.size(), " chapters.")
     return true
 

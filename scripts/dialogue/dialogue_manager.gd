@@ -44,6 +44,7 @@ var _intro_playing: bool = false
 var _intro_waiting_for_click: bool = false
 var _waiting_for_chat_click: bool = false
 var _current_story_speaker_id: String = ""
+var _return_to_main_on_story_finish: bool = false
 
 # Free Chat states
 var is_free_chat_mode: bool = false
@@ -249,11 +250,21 @@ func _ready() -> void:
 	script_engine.script_finished.connect(_on_script_finished)
 	
 	_update_ui()
+
+	if GameDataManager.has_meta("story_scene_return_to_main_on_finish"):
+		_return_to_main_on_story_finish = bool(GameDataManager.get_meta("story_scene_return_to_main_on_finish"))
+		GameDataManager.remove_meta("story_scene_return_to_main_on_finish")
 	
 	# Check if we should play the intro story
 	if GameDataManager.has_meta("play_intro_story") and GameDataManager.get_meta("play_intro_story"):
 		GameDataManager.remove_meta("play_intro_story")
 		_play_intro_story()
+		return
+
+	if GameDataManager.has_meta("play_runtime_story_data"):
+		var runtime_story_data = GameDataManager.get_meta("play_runtime_story_data")
+		GameDataManager.remove_meta("play_runtime_story_data")
+		_play_story_data(runtime_story_data)
 		return
 		
 	# Check if we should play a specific story script
@@ -291,6 +302,38 @@ func _play_story(path: String) -> void:
 	fade_tween.tween_property(self, "modulate:a", 1.0, 1.0)
 	
 	if script_engine.load_script(path):
+		if script_engine.use_story_portraits():
+			if character_layer and character_layer.has_method("begin_story_mode"):
+				character_layer.begin_story_mode()
+			elif character_layer and character_layer.has_method("hide_character"):
+				character_layer.hide()
+		elif character_layer and character_layer.has_method("end_story_mode"):
+			character_layer.end_story_mode()
+		elif character_layer:
+			character_layer.hide()
+		script_engine.start_script("start")
+	else:
+		_intro_playing = false
+		send_btn.disabled = false
+		input_field.editable = true
+		input_layer.show()
+
+func _play_story_data(data: Variant) -> void:
+	_intro_playing = true
+	_current_story_speaker_id = ""
+	send_btn.disabled = true
+	input_field.editable = false
+	ui_panel.visible = true
+	dialogue_panel.set_story_mode(true)
+	input_layer.hide()
+	if end_chat_btn:
+		end_chat_btn.hide()
+
+	modulate.a = 0.0
+	var fade_tween = create_tween()
+	fade_tween.tween_property(self, "modulate:a", 1.0, 1.0)
+
+	if script_engine.load_script_data(data):
 		if script_engine.use_story_portraits():
 			if character_layer and character_layer.has_method("begin_story_mode"):
 				character_layer.begin_story_mode()
@@ -636,13 +679,20 @@ func _on_script_finished(script_id: String) -> void:
 	_current_story_speaker_id = ""
 	if character_layer and character_layer.has_method("end_story_mode"):
 		character_layer.end_story_mode()
-	var is_first_completion := not GameDataManager.profile.has_finished_story(script_id)
-	GameDataManager.profile.mark_story_finished(script_id)
-	var event_manager = get_node_or_null("/root/EventManager")
-	if event_manager and event_manager.has_method("try_mark_event_by_story"):
-		event_manager.try_mark_event_by_story(script_id)
-	if is_first_completion:
+	var script_meta = script_engine.get_current_script_meta() if script_engine else {}
+	var is_runtime_generated := bool(script_meta.get("runtime_generated", false))
+	var is_date_story := str(script_meta.get("story_category", "")).strip_edges() == "date_dynamic"
+	var is_first_completion := true
+	if not is_runtime_generated:
+		is_first_completion = not GameDataManager.profile.has_finished_story(script_id)
+		GameDataManager.profile.mark_story_finished(script_id)
+		var event_manager = get_node_or_null("/root/EventManager")
+		if event_manager and event_manager.has_method("try_mark_event_by_story"):
+			event_manager.try_mark_event_by_story(script_id)
+	if is_runtime_generated or is_first_completion:
 		_register_story_completion_memory(script_id)
+	if is_date_story:
+		_apply_date_story_settlement(script_id, script_meta)
 	if script_id == "intro_story":
 		GameDataManager.set_meta("just_finished_intro_story", true)
 		# 如果当前是根场景（例如初次进入的开场剧情），剧情结束应该切换到主场景
@@ -658,12 +708,80 @@ func _on_script_finished(script_id: String) -> void:
 				get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/main/main_scene.tscn")
 			else:
 				get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+	elif _return_to_main_on_story_finish and get_parent() == get_tree().root:
+		_return_to_main_on_story_finish = false
+		if get_tree().root.has_node("SceneTransitionManager"):
+			get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+		else:
+			get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 	else:
 		# 普通剧情剧本结束后，如果不是作为主界面常驻（比如是在日程执行中弹出的），则自动关闭
 		if get_parent() != get_tree().root and not (get_parent().name == "MainScene" or get_parent().name == "UI"):
 			# AI 聊天结束或者故事结束，发出信号，等待外部进行黑屏遮挡后再由外部负责 queue_free，
 			# 从而避免默认的突兀消失效果。
 			chat_closed.emit()
+
+func _apply_date_story_settlement(script_id: String, script_meta: Dictionary) -> void:
+	if GameDataManager.profile == null:
+		return
+
+	var settlement: Dictionary = script_meta.get("date_settlement", {})
+	if settlement.is_empty():
+		return
+
+	var intimacy_delta := float(settlement.get("intimacy_delta", 0.0))
+	var trust_delta := float(settlement.get("trust_delta", 0.0))
+	var has_changes := false
+
+	if absf(intimacy_delta) > 0.001:
+		GameDataManager.profile.update_intimacy(intimacy_delta)
+		has_changes = true
+		if ToastManager:
+			ToastManager.show_stat_toast("intimacy", "亲密 +%.1f" % intimacy_delta)
+
+	if absf(trust_delta) > 0.001:
+		GameDataManager.profile.update_trust(trust_delta)
+		has_changes = true
+		if ToastManager:
+			ToastManager.show_stat_toast("trust", "信任 +%.1f" % trust_delta)
+
+	if has_changes:
+		GameDataManager.profile.save_profile()
+
+	_apply_date_story_memory_boost(script_id, script_meta, settlement)
+
+func _apply_date_story_memory_boost(script_id: String, script_meta: Dictionary, settlement: Dictionary) -> void:
+	if GameDataManager.memory_manager == null:
+		return
+
+	var record: Dictionary = settlement.get("memory_record", {})
+	if record.is_empty():
+		return
+
+	var memory_layer := str(record.get("layer", "bond")).strip_edges()
+	if memory_layer == "":
+		memory_layer = "bond"
+
+	var memory_context := _build_story_completion_memory_context(script_meta, record)
+	var memory_scope := str(record.get("scope", "player_shared")).strip_edges()
+	if memory_scope == "":
+		memory_scope = "player_shared"
+	var memory_visibility := str(record.get("visibility", "prompt")).strip_edges()
+	if memory_visibility == "":
+		memory_visibility = "prompt"
+	var memory_participants := _normalize_story_memory_participants(record.get("participants", []))
+	var memory_options = {
+		"is_bond_mark": bool(record.get("is_bond_mark", false)),
+		"source_type": "date_settlement",
+		"source_id": script_id,
+		"source_title": str(record.get("title", "约会后的关系推进")),
+		"memory_scope": memory_scope,
+		"memory_visibility": memory_visibility,
+		"memory_participants": memory_participants,
+		"memory_player_involved": bool(record.get("player_involved", true)),
+		"memory_player_witnessed": bool(record.get("player_witnessed", true))
+	}
+	GameDataManager.memory_manager.add_memory_quick(memory_layer, str(record.get("content", "")), memory_context, memory_options)
 
 func _register_story_completion_memory(script_id: String) -> void:
 	if GameDataManager.memory_manager == null or script_engine == null:

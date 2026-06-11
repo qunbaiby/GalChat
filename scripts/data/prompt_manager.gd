@@ -601,6 +601,96 @@ func build_schedule_event_prompt(context: Dictionary) -> String:
 	prompt += "}\n"
 	return prompt
 
+func build_date_story_prompt(context: Dictionary) -> String:
+	var character_name := str(context.get("character_name", "Luna"))
+	var character_id := str(context.get("character_id", "luna"))
+	var player_name := str(context.get("player_name", "玩家"))
+	var player_title := str(context.get("player_title", "老师"))
+	var stage_num := int(context.get("relationship_stage", 1))
+	var stage_title := str(context.get("relationship_stage_title", "熟悉阶段"))
+	var intimacy := float(context.get("intimacy", 0.0))
+	var trust := float(context.get("trust", 0.0))
+	var date_label := str(context.get("date_label", "未知日期"))
+	var weather_desc := str(context.get("story_weather_desc", "晴天"))
+	var temperature := int(context.get("temperature", 20))
+	var plan_segments: Array = context.get("date_plan", [])
+
+	var prompt := "你是一个 Galgame 约会剧情编剧，需要根据给定的约会计划，输出一份可以被游戏脚本引擎直接播放的 JSON 剧本。\n"
+	prompt += "【主角信息】\n"
+	prompt += "女主角色ID：%s\n" % character_id
+	prompt += "女主名字：%s\n" % character_name
+	prompt += "玩家名字：%s\n" % player_name
+	prompt += "玩家称呼：%s\n" % player_title
+	prompt += "当前关系阶段：第%d阶段（%s）\n" % [stage_num, stage_title]
+	prompt += "亲密度：%.1f\n" % intimacy
+	prompt += "信任度：%.1f\n" % trust
+	prompt += "【约会环境】\n"
+	prompt += "日期：%s\n" % date_label
+	prompt += "天气：%s，气温：%d度\n" % [weather_desc, temperature]
+	prompt += "【约会计划】\n"
+	for i in range(plan_segments.size()):
+		var segment: Dictionary = plan_segments[i]
+		prompt += "%d. 时段：%s\n" % [i + 1, str(segment.get("period_label", "白天"))]
+		prompt += "   地点：%s（%s）\n" % [
+			str(segment.get("location_name", "未知地点")),
+			str(segment.get("location_id", ""))
+		]
+		prompt += "   地点描述：%s\n" % str(segment.get("location_description", "暂无描述"))
+		prompt += "   背景图ID：%s\n" % str(segment.get("bg_id", ""))
+		prompt += "   约会类型：%s\n" % str(segment.get("type_name", "约会"))
+		prompt += "   模板标题：%s\n" % str(segment.get("template_title", "约会片段"))
+		prompt += "   模板大纲：%s\n" % str(segment.get("template_outline", ""))
+		prompt += "   必须桥段：%s\n" % JSON.stringify(segment.get("must_have_beats", []))
+		prompt += "   情绪标签：%s\n" % JSON.stringify(segment.get("mood_tags", []))
+
+	prompt += "【输出要求】\n"
+	prompt += "1. 输出必须是纯 JSON 对象，不要输出解释、不要输出 Markdown 代码块。\n"
+	prompt += "2. 剧情风格要像 galgame 约会剧情，包含旁白、玩家对白、女主对白，并有明显演出感。\n"
+	prompt += "3. 必须让每个已选时段都在剧情里出现，允许通过旁白完成转场。\n"
+	prompt += "4. 请优先使用以下事件类型：background、audio、dialogue、show_character、move_character、hide_character。\n"
+	prompt += "5. speaker 只能使用：旁白、player、%s。\n" % character_id
+	prompt += "6. show_character / move_character / hide_character 中的 character 必须使用 %s。\n" % character_id
+	prompt += "7. background 事件里的 bg_id 必须从提供的地点背景图ID中选择，不要杜撰不存在的 bg_id。\n"
+	prompt += "8. audio 事件若需要播放 BGM，请使用：{\"type\":\"audio\",\"audio_id\":\"luna_bgm\",\"audio_type\":\"bgm\",\"action\":\"play\"}。\n"
+	prompt += "9. 整体事件数量建议控制在 12 到 28 个之间，既要有内容，也不要拖沓。\n"
+	prompt += "10. 女主台词要符合当前关系阶段，不能突然越界告白，也不能生硬疏离。\n"
+	prompt += "11. memory_records 至少输出 1 条，用于记录这次约会回忆，content 需要是可直接存档的自然语言摘要。\n"
+	prompt += "12. 如果有多个时段，剧情要体现感情递进，而不是把几个地点写成互不关联的独立短篇。\n"
+	prompt += "【JSON 格式】\n"
+	prompt += "{\n"
+	prompt += "  \"script_id\": \"date_dynamic_xxx\",\n"
+	prompt += "  \"story_location_id\": \"第一个地点的location_id\",\n"
+	prompt += "  \"story_period\": \"第一个时段的中文名\",\n"
+	prompt += "  \"use_portraits\": true,\n"
+	prompt += "  \"summary\": \"30到80字的约会摘要\",\n"
+	prompt += "  \"memory_enabled\": true,\n"
+	prompt += "  \"memory_records\": [\n"
+	prompt += "    {\n"
+	prompt += "      \"title\": \"约会回忆标题\",\n"
+	prompt += "      \"layer\": \"bond\",\n"
+	prompt += "      \"scope\": \"player_shared\",\n"
+	prompt += "      \"visibility\": \"prompt\",\n"
+	prompt += "      \"participants\": [\"player\", \"%s\"],\n" % character_id
+	prompt += "      \"player_involved\": true,\n"
+	prompt += "      \"player_witnessed\": true,\n"
+	prompt += "      \"is_bond_mark\": false,\n"
+	prompt += "      \"content\": \"一句自然的回忆摘要\"\n"
+	prompt += "    }\n"
+	prompt += "  ],\n"
+	prompt += "  \"chapters\": {\n"
+	prompt += "    \"start\": {\n"
+	prompt += "      \"events\": [\n"
+	prompt += "        {\"type\": \"background\", \"bg_id\": \"...\", \"transition_type\": \"fade\", \"duration\": 0.4},\n"
+	prompt += "        {\"type\": \"audio\", \"audio_id\": \"luna_bgm\", \"audio_type\": \"bgm\", \"action\": \"play\"},\n"
+	prompt += "        {\"type\": \"show_character\", \"character\": \"%s\", \"display_name\": \"%s\", \"position\": \"center\", \"expression\": \"calm\", \"animation\": \"fade_in\", \"focus\": true},\n" % [character_id, character_name]
+	prompt += "        {\"type\": \"dialogue\", \"speaker\": \"旁白\", \"content\": \"...\"},\n"
+	prompt += "        {\"type\": \"dialogue\", \"speaker\": \"%s\", \"content\": \"...\"}\n" % character_id
+	prompt += "      ]\n"
+	prompt += "    }\n"
+	prompt += "  }\n"
+	prompt += "}\n"
+	return prompt
+
 func _build_option_mood_guidance(mood_id: String, mood_name: String) -> String:
 	match mood_id:
 		"broken":

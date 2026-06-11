@@ -1,6 +1,6 @@
 extends MarginContainer
 
-signal add_requested(loc_id: String, loc_name: String)
+signal add_requested(loc_id: String, loc_name: String, type_id: String)
 
 @onready var add_btn = %AddButton
 @onready var thumb_container: Control = $BgPanel/ContentMargin/HBox/ThumbContainer
@@ -52,7 +52,7 @@ func _ready() -> void:
 	_sync_ui()
 
 func _on_add_pressed() -> void:
-	add_requested.emit(_loc_id, _loc_name)
+	add_requested.emit(_loc_id, _loc_name, _type_id)
 
 func _sync_ui() -> void:
 	if name_lbl:

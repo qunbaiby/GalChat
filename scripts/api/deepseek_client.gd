@@ -39,6 +39,8 @@ signal schedule_event_generated(event_data: Dictionary)
 signal schedule_event_error(error_msg: String)
 signal schedule_event_resolved(result_data: Dictionary)
 signal schedule_event_resolve_error(error_msg: String)
+signal date_story_generated(script_data: Dictionary)
+signal date_story_error(error_msg: String)
 
 signal idle_quote_completed(quote: String)
 signal idle_quote_failed(error_msg: String)
@@ -59,6 +61,7 @@ var moment_http: HTTPRequest
 var moment_reply_http: HTTPRequest
 var schedule_event_http: HTTPRequest
 var schedule_resolve_http: HTTPRequest
+var date_story_http: HTTPRequest
 var idle_quote_http: HTTPRequest
 
 var _chat_stream_client: HTTPClient
@@ -120,6 +123,7 @@ func _reinitialize_http_nodes() -> void:
 	moment_reply_http = reset_node.call("MomentReplyHTTP", 15.0, "request_completed", "_on_moment_reply_request_completed")
 	schedule_event_http = reset_node.call("ScheduleEventHTTP", 20.0, "request_completed", "_on_schedule_event_completed")
 	schedule_resolve_http = reset_node.call("ScheduleResolveHTTP", 20.0, "request_completed", "_on_schedule_resolve_completed")
+	date_story_http = reset_node.call("DateStoryHTTP", 35.0, "request_completed", "_on_date_story_completed")
 	idle_quote_http = reset_node.call("IdleQuoteHTTP", 15.0, "request_completed", "_on_idle_quote_completed")
 
 func _is_api_key_empty() -> bool:
@@ -1470,6 +1474,36 @@ func _on_moment_reply_request_completed(result: int, response_code: int, _header
 			err_msg += " - " + json.data["error"].get("message", "")
 	moment_reply_error.emit(err_msg)
 
+func generate_date_story(context: Dictionary) -> void:
+	_update_script()
+	if _is_api_key_empty():
+		date_story_error.emit("API Key未设置")
+		return
+
+	while not is_inside_tree():
+		await Engine.get_main_loop().process_frame
+
+	var system_prompt = GameDataManager.prompt_manager.build_date_story_prompt(context)
+	var user_prompt = JSON.stringify(context, "\t")
+	var api_messages = [
+		{"role": "system", "content": system_prompt},
+		{"role": "user", "content": user_prompt}
+	]
+
+	var body = {
+		"model": GameDataManager.config.model,
+		"messages": api_messages,
+		"temperature": 0.9,
+		"max_tokens": 1800
+	}
+	if not GameDataManager.config.model.begins_with("doubao"):
+		body["response_format"] = {"type": "json_object"}
+
+	if date_story_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		date_story_http.cancel_request()
+
+	date_story_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+
 func generate_schedule_event(course_name: String, course_desc: String, context: Dictionary = {}) -> void:
 	_update_script()
 	if _is_api_key_empty():
@@ -1539,67 +1573,62 @@ func resolve_schedule_event(course_name: String, event_desc: String, chosen_opti
 		
 	schedule_resolve_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
+func _extract_json_object_from_response(body: PackedByteArray) -> Variant:
+	var json = JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK:
+		return null
+	var data = json.get_data()
+	if not (data is Dictionary and data.has("choices") and data["choices"].size() > 0):
+		return null
+
+	var content := str(data["choices"][0]["message"]["content"]).strip_edges()
+	if content.begins_with("```json"):
+		content = content.replace("```json", "")
+	if content.begins_with("```"):
+		content = content.replace("```", "")
+	if content.ends_with("```"):
+		content = content.substr(0, content.length() - 3)
+	content = content.strip_edges()
+
+	var content_json = JSON.new()
+	if content_json.parse(content) != OK:
+		return null
+	return content_json.get_data()
+
+func _on_date_story_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
+		var script_data = _extract_json_object_from_response(body)
+		if script_data is Dictionary:
+			date_story_generated.emit(script_data)
+			return
+	date_story_error.emit("约会剧情生成失败 (Code: %d)" % response_code)
+
 func _on_schedule_event_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
-			var data = json.get_data()
-			if data is Dictionary and data.has("choices") and data["choices"].size() > 0:
-				var content = data["choices"][0]["message"]["content"]
-				var content_json = JSON.new()
-				var clean_content = content.strip_edges()
-				if clean_content.begins_with("```json"):
-					clean_content = clean_content.replace("```json", "")
-				if clean_content.begins_with("```"):
-					clean_content = clean_content.replace("```", "")
-				if clean_content.ends_with("```"):
-					clean_content = clean_content.substr(0, clean_content.length() - 3)
-				clean_content = clean_content.strip_edges()
-				
-				if content_json.parse(clean_content) == OK:
-					var event_data = content_json.get_data()
-					# 兼容 prompt 里要求输出的 description / option1 / option2 字段
-					if event_data.has("description") and not event_data.has("event_desc"):
-						event_data["event_desc"] = event_data["description"]
-					if not event_data.has("options"):
-						var opts = []
-						if event_data.has("option1"):
-							opts.append({"text": event_data["option1"]})
-						if event_data.has("option2"):
-							opts.append({"text": event_data["option2"]})
-						event_data["options"] = opts
-						
-					schedule_event_generated.emit(event_data)
-					return
-				else:
-					print("[DeepSeekClient] Failed to parse schedule event JSON: ", clean_content)
+		var event_data = _extract_json_object_from_response(body)
+		if event_data is Dictionary:
+			# 兼容 prompt 里要求输出的 description / option1 / option2 字段
+			if event_data.has("description") and not event_data.has("event_desc"):
+				event_data["event_desc"] = event_data["description"]
+			if not event_data.has("options"):
+				var opts = []
+				if event_data.has("option1"):
+					opts.append({"text": event_data["option1"]})
+				if event_data.has("option2"):
+					opts.append({"text": event_data["option2"]})
+				event_data["options"] = opts
+			schedule_event_generated.emit(event_data)
+			return
 	schedule_event_error.emit("事件生成失败 (Code: %d)" % response_code)
 
 func _on_schedule_resolve_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
-			var data = json.get_data()
-			if data is Dictionary and data.has("choices") and data["choices"].size() > 0:
-				var content = data["choices"][0]["message"]["content"]
-				var content_json = JSON.new()
-				var clean_content = content.strip_edges()
-				if clean_content.begins_with("```json"):
-					clean_content = clean_content.replace("```json", "")
-				if clean_content.begins_with("```"):
-					clean_content = clean_content.replace("```", "")
-				if clean_content.ends_with("```"):
-					clean_content = clean_content.substr(0, clean_content.length() - 3)
-				clean_content = clean_content.strip_edges()
-				
-				if content_json.parse(clean_content) == OK:
-					var result_data = content_json.get_data()
-					if result_data.has("rewards") and not result_data.has("attr_changes"):
-						result_data["attr_changes"] = result_data["rewards"]
-					schedule_event_resolved.emit(result_data)
-					return
-				else:
-					print("[DeepSeekClient] Failed to parse schedule resolve JSON: ", clean_content)
+		var result_data = _extract_json_object_from_response(body)
+		if result_data is Dictionary:
+			if result_data.has("rewards") and not result_data.has("attr_changes"):
+				result_data["attr_changes"] = result_data["rewards"]
+			schedule_event_resolved.emit(result_data)
+			return
 	schedule_event_resolve_error.emit("事件结算失败 (Code: %d)" % response_code)
 
 func send_image_to_image_request(base64_image: String, prompt: String) -> void:

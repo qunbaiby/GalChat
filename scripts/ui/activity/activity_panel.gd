@@ -1,6 +1,7 @@
 extends Control
 
 const MAIN_EVENT_SLOT_ICON: Texture2D = preload("res://assets/images/icons/ui/main/book-open-cover.png")
+const ActivityLoadingOverlayScene = preload("res://scenes/ui/activity/activity_loading_overlay.tscn")
 
 @onready var main_panel: HBoxContainer = $BackgroundPanel/Margin/MainHBox
 @onready var back_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox/BackButton
@@ -37,20 +38,14 @@ const MAIN_EVENT_SLOT_ICON: Texture2D = preload("res://assets/images/icons/ui/ma
 
 @onready var execute_button: Button = $BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ExecuteButton
 
-@onready var loading_overlay: Control = $LoadingOverlay
-@onready var loading_progress: ProgressBar = $LoadingOverlay/LoadingPanel/ProgressBar
-@onready var walker_icon: Node2D = $LoadingOverlay/LoadingPanel/TrackControl/WalkerIcon
-@onready var track_control: Control = $LoadingOverlay/LoadingPanel/TrackControl
-
 var scheduled_activities: Array = []
 const MAX_SLOTS = 5
 var current_category_id: String = ""
 
-var _pending_progress_tween: Tween
-var _walker_tween: Tween
 var _pending_exec_data: Dictionary = {}
 var _category_tab_group: ButtonGroup
 var _category_tab_buttons: Dictionary = {}
+var _activity_loading_overlay: ActivityLoadingOverlay = null
 
 var stat_name_map = {
 	"stat_stamina": "体能",
@@ -92,6 +87,7 @@ func _ready() -> void:
 	
 	_init_slots()
 	_init_category_tabs()
+	_ensure_activity_loading_overlay()
 
 func _get_all_slot_buttons() -> Array:
 	var morning_row = schedule_slots.get_node("MorningRow")
@@ -254,8 +250,8 @@ func show_panel() -> void:
 	_populate_activities()
 	_refresh_category_tabs()
 	_update_ui()
-	
-	loading_overlay.hide()
+	if _activity_loading_overlay:
+		_activity_loading_overlay.hide_immediately()
 	main_panel.show()
 	show()
 	
@@ -608,27 +604,6 @@ func _on_execute_pressed() -> void:
 		ToastManager.show_system_toast("金币不足，无法执行计划")
 		return
 		
-	main_panel.hide()
-	loading_overlay.modulate.a = 0.0
-	loading_overlay.show()
-	
-	var tween = create_tween()
-	tween.tween_property(loading_overlay, "modulate:a", 1.0, 0.3)
-	
-	loading_progress.value = 0.0
-	walker_icon.position.x = 0.0
-	walker_icon.position.y = -40.0
-	
-	if _pending_progress_tween: _pending_progress_tween.kill()
-	if _walker_tween: _walker_tween.kill()
-	
-	_pending_progress_tween = create_tween()
-	_pending_progress_tween.tween_method(_update_loading_progress, 0.0, 90.0, 5.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	
-	_walker_tween = create_tween().set_loops()
-	_walker_tween.tween_property(walker_icon, "position:y", -50.0, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_walker_tween.tween_property(walker_icon, "position:y", -40.0, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	
 	var courses_data = []
 	
 	for item in scheduled_activities:
@@ -680,7 +655,11 @@ func _on_execute_pressed() -> void:
 					single_course["bonus_list"].append({"name": zh_name, "value": avg_val})
 			
 			courses_data.append(single_course)
-		
+	
+	main_panel.hide()
+	if _activity_loading_overlay:
+		_activity_loading_overlay.show_for_context(_build_execution_loading_context(courses_data))
+
 	_fetch_all_course_descriptions_from_ai(courses_data)
 	
 	var profile_for_exec = GameDataManager.profile
@@ -780,25 +759,13 @@ func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	if err != OK:
 		_fallback_all_descriptions()
 
-func _update_loading_progress(val: float) -> void:
-	if not is_instance_valid(loading_progress): return
-	loading_progress.value = val
-	var walker_size = Vector2(50, 50)
-	var max_x = track_control.size.x - walker_size.x
-	walker_icon.position.x = max_x * (val / 100.0)
-
 func _finish_loading_and_open() -> void:
-	if _pending_progress_tween: _pending_progress_tween.kill()
-	
-	var finish_tween = create_tween()
-	var start_val = loading_progress.value
-	finish_tween.tween_method(_update_loading_progress, start_val, 100.0, 0.3).set_ease(Tween.EASE_IN_OUT)
-	finish_tween.finished.connect(func():
-		if _walker_tween: _walker_tween.kill()
-		walker_icon.position.y = -40.0
-		await get_tree().create_timer(0.2).timeout
-		_open_execution_panel()
-	)
+	if _activity_loading_overlay:
+		await _activity_loading_overlay.complete(
+			"Luna 已经准备好了，本周安排即将开始...",
+			"本周课程节奏已经整理完成..."
+		)
+	_open_execution_panel()
 
 func _on_all_ai_descriptions_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
@@ -849,6 +816,89 @@ func _fallback_all_descriptions() -> void:
 			course["desc"] = "今天也是按部就班地完成了【%s】的训练，感觉收获颇丰。" % c_name
 			
 	_finish_loading_and_open()
+
+
+func _ensure_activity_loading_overlay() -> void:
+	if _activity_loading_overlay != null:
+		return
+	_activity_loading_overlay = ActivityLoadingOverlayScene.instantiate()
+	add_child(_activity_loading_overlay)
+	_activity_loading_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_activity_loading_overlay.z_index = 120
+
+
+func _build_execution_loading_context(courses_data: Array) -> Dictionary:
+	var summary_lines: Array[String] = []
+	var phase_1_tips: Array[String] = [
+		"Luna 正在整理这周的课程顺序...",
+		"Luna 正在把这一周的安排慢慢排开..."
+	]
+	var phase_2_tips: Array[String] = [
+		"Luna 正在确认每天该如何分配状态...",
+		"Luna 正在衡量这周课程之间的节奏..."
+	]
+	var phase_3_tips: Array[String] = [
+		"Luna 正在给这一周做出门前的准备...",
+		"Luna 已经快把这周安排整理好了..."
+	]
+	var category_names: Array[String] = []
+	var has_main_event: bool = false
+
+	for i in range(courses_data.size()):
+		var course: Dictionary = courses_data[i]
+		var course_name := str(course.get("name", "未知课程")).strip_edges()
+		var category_name := str(course.get("category_name", "")).strip_edges()
+		if bool(course.get("is_event", false)):
+			has_main_event = true
+		if course_name != "":
+			summary_lines.append("%d. %s" % [i + 1, course_name])
+			if i == 0:
+				phase_1_tips.append("Luna 正在想，这周要先从「%s」进入状态..." % course_name)
+			elif i == courses_data.size() - 1:
+				phase_3_tips.append("Luna 正在把最后一项「%s」也记进这周安排里..." % course_name)
+		if category_name != "" and not category_names.has(category_name):
+			category_names.append(category_name)
+
+	if not category_names.is_empty():
+		phase_2_tips.append("Luna 正在想着，这周要在 %s 之间切换节奏..." % " / ".join(category_names))
+	if has_main_event:
+		phase_3_tips.append("Luna 正在把这周的重要事件也一起记在心里...")
+
+	var summary_text := "第 %s 周\n%s" % [
+		round_info.text.strip_edges(),
+		"\n".join(summary_lines)
+	]
+	var hint_text := "这周的课程安排正在慢慢展开..."
+	if not category_names.is_empty():
+		hint_text = "本周会接触：%s" % " / ".join(category_names)
+
+	return {
+		"title": "课程安排执行中",
+		"kicker": "Luna 正在开始本周安排",
+		"status": phase_1_tips[0],
+		"summary": summary_text,
+		"hint": hint_text,
+		"visual_caption": "本周安排",
+		"tips": phase_1_tips + phase_2_tips + phase_3_tips,
+		"phased_tips": [
+			{
+				"until": 35.0,
+				"tips": phase_1_tips
+			},
+			{
+				"until": 70.0,
+				"tips": phase_2_tips
+			},
+			{
+				"until": 90.0,
+				"tips": phase_3_tips
+			}
+		],
+		"progress_duration": 5.0,
+		"min_duration": 1.1,
+		"progress_cap": 90.0,
+		"tip_interval": 1.15
+	}
 
 func _open_execution_panel() -> void:
 	if _pending_exec_data.is_empty():

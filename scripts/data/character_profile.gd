@@ -890,6 +890,27 @@ func mark_story_finished(story_id: String) -> void:
 		if GameDataManager.save_manager:
 			GameDataManager.save_manager.call_deferred("auto_save")
 
+func unmark_story_finished(story_id: String) -> void:
+	var normalized_story_id := story_id.strip_edges()
+	if normalized_story_id == "":
+		return
+	if not finished_stories.has(normalized_story_id):
+		return
+	finished_stories.erase(normalized_story_id)
+	profile_updated.emit()
+	save_profile()
+	if GameDataManager.save_manager:
+		GameDataManager.save_manager.call_deferred("auto_save")
+
+func clear_finished_stories() -> void:
+	if finished_stories.is_empty():
+		return
+	finished_stories.clear()
+	profile_updated.emit()
+	save_profile()
+	if GameDataManager.save_manager:
+		GameDataManager.save_manager.call_deferred("auto_save")
+
 func has_finished_story(story_id: String) -> bool:
 	return finished_stories.has(story_id)
 

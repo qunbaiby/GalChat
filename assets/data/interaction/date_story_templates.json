@@ -1,0 +1,789 @@
+{
+	"type_defaults": {
+		"stroll": {
+			"loading_hint": "Luna 正在慢慢整理心情，像是很在意今天和你的见面...",
+			"loading_hints": [
+				"Luna 正在慢慢整理心情，像是很在意今天和你的见面...",
+				"Luna 正在挑一双适合慢慢走路的鞋子...",
+				"Luna 正在想，等会儿见到你时要不要先装作很从容..."
+			],
+			"weather_loading_hints": {
+				"sunny": ["Luna 正在想，晴天出门是不是该穿得更轻快一点..."],
+				"rainy": ["Luna 正在确认有没有把伞和外套都准备好..."],
+				"foggy": ["Luna 正在挑一件适合微凉天气的外套，动作比平时慢了一点..."]
+			},
+			"period_loading_hints": {
+				"morning": ["Luna 正在想着，上午见面时要不要显得更精神一点..."],
+				"afternoon": ["Luna 正在整理发梢，像是想让午后的见面更自然一些..."],
+				"evening": ["Luna 正在看着窗外的天色，像是在想今晚会不会和你待久一点..."]
+			},
+			"variants": [
+				{
+					"id": "stroll_day_soft",
+					"time_periods": ["morning", "afternoon"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "慢节奏散步",
+					"outline_prompt": "两人在散步中从轻松寒暄聊到更细腻的心事，氛围逐渐柔和。",
+					"must_have_beats": ["见面寒暄", "并肩散步", "共享观察", "柔和收尾"],
+					"mood_tags": ["轻松", "治愈"],
+					"settlement": {"intimacy": 2.0, "trust": 2.4}
+				},
+				{
+					"id": "stroll_rain_shelter",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["rainy", "thunder", "foggy"],
+					"weight": 2,
+					"outline_title": "雨天靠近",
+					"outline_prompt": "天气让两人的距离被迫靠近，在躲雨或放慢脚步之间产生暧昧张力。",
+					"must_have_beats": ["天气变化", "身体距离拉近", "一句在意的话", "余韵停留"],
+					"mood_tags": ["暧昧", "细腻"],
+					"settlement": {"intimacy": 2.8, "trust": 1.8}
+				}
+			]
+		},
+		"shopping": {
+			"loading_hint": "Luna 正在想着，今天会不会和你一起逛到喜欢的小东西...",
+			"loading_hints": [
+				"Luna 正在想着，今天会不会和你一起逛到喜欢的小东西...",
+				"Luna 正在犹豫要不要戴一件带点小心思的配饰...",
+				"Luna 好像在想，等会儿会不会被你笑她挑东西太认真..."
+			],
+			"weather_loading_hints": {
+				"sunny": ["Luna 正在对着镜子看今天的搭配，会不会显得太刻意..."],
+				"rainy": ["Luna 正在想，下雨天和你躲进店里会不会有点太靠近了..."]
+			},
+			"period_loading_hints": {
+				"afternoon": ["Luna 正在想着，下午出门是不是更适合戴那件小配饰..."],
+				"evening": ["Luna 正在对着镜子多看了一眼，像是不想让晚上的见面太随意..."]
+			},
+			"variants": [
+				{
+					"id": "shopping_playful",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "边逛边闹",
+					"outline_prompt": "逛街过程中有互相打趣、挑选小物件和带点害羞的互动。",
+					"must_have_beats": ["随意闲逛", "看到感兴趣的店", "互相打趣", "带着笑意收尾"],
+					"mood_tags": ["活泼", "甜感"],
+					"settlement": {"intimacy": 2.4, "trust": 1.7}
+				},
+				{
+					"id": "shopping_hide_rain",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["rainy", "thunder"],
+					"weight": 2,
+					"outline_title": "商场避雨",
+					"outline_prompt": "原本普通的逛街因为天气转变成短暂避雨，在室内灯光下产生更私密的交流。",
+					"must_have_beats": ["突然下雨", "临时躲雨", "对望停顿", "继续同行"],
+					"mood_tags": ["都市", "暧昧"],
+					"settlement": {"intimacy": 2.9, "trust": 1.6}
+				}
+			]
+		},
+		"exhibition": {
+			"loading_hint": "Luna 正在挑一套适合今天见面的安静搭配...",
+			"loading_hints": [
+				"Luna 正在挑一套适合今天见面的安静搭配...",
+				"Luna 正在想着，等会儿看到喜欢的作品时要不要和你多说一点...",
+				"Luna 正在整理发梢，像是希望今天能显得更从容一点..."
+			],
+			"weather_loading_hints": {
+				"rainy": ["Luna 正在慢慢整理衣角，像是雨天会让她更在意这次见面..."],
+				"overcast": ["Luna 正在想着，阴天的展馆会不会更适合安静地陪你待久一点..."]
+			},
+			"period_loading_hints": {
+				"afternoon": ["Luna 正在想，下午的展馆会不会刚好适合和你慢慢逛一圈..."],
+				"evening": ["Luna 正在整理袖口，像是已经在期待夜场结束后的那段路..."]
+			},
+			"variants": [
+				{
+					"id": "exhibition_reflection",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "作品前的停留",
+					"outline_prompt": "两人在作品或影像前停下，借着欣赏内容谈到彼此真实的感受。",
+					"must_have_beats": ["共同观看", "作品触发话题", "真心回应", "温柔留白"],
+					"mood_tags": ["文艺", "共鸣"],
+					"settlement": {"intimacy": 1.8, "trust": 2.6}
+				},
+				{
+					"id": "exhibition_night_afterglow",
+					"time_periods": ["evening"],
+					"weather_tags": ["rainy", "cloudy", "overcast"],
+					"weight": 2,
+					"outline_title": "散场后的余温",
+					"outline_prompt": "看完展或电影离场后，情绪仍停留在作品里，谈话也变得更真诚。",
+					"must_have_beats": ["散场余韵", "短暂沉默", "分享真实感受", "轻柔收束"],
+					"mood_tags": ["余韵", "真诚"],
+					"settlement": {"intimacy": 2.2, "trust": 2.5}
+				}
+			]
+		},
+		"dining": {
+			"loading_hint": "Luna 正在想着等会儿见面时，要先和你聊什么...",
+			"loading_hints": [
+				"Luna 正在想着等会儿见面时，要先和你聊什么...",
+				"Luna 正在对着镜子看最后一眼，像是不想显得太随便...",
+				"Luna 正在犹豫要不要喷一点很淡的香气..."
+			],
+			"weather_loading_hints": {
+				"rainy": ["Luna 正在想，雨声会不会让今天的见面显得更安静一点..."],
+				"overcast": ["Luna 正在整理袖口，像是在给今天的见面留一点郑重感..."]
+			},
+			"period_loading_hints": {
+				"morning": ["Luna 正在想着，早一点见面时要不要先和你聊些轻松的话题..."],
+				"afternoon": ["Luna 正在想，午后的见面是不是刚好适合慢慢把话题聊开..."],
+				"evening": ["Luna 正在对着镜子看最后一眼，像是不想让晚上的见面太随意..."]
+			},
+			"variants": [
+				{
+					"id": "dining_warm_chat",
+					"time_periods": ["morning", "afternoon", "evening"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "餐桌上的放松",
+					"outline_prompt": "在吃东西和闲聊之间，慢慢聊到让彼此放松的话题。",
+					"must_have_beats": ["坐下点单", "尝到味道后的反应", "自然闲聊", "温暖收尾"],
+					"mood_tags": ["放松", "日常感"],
+					"settlement": {"intimacy": 1.9, "trust": 2.3}
+				},
+				{
+					"id": "dining_night_low_voice",
+					"time_periods": ["evening"],
+					"weather_tags": ["rainy", "thunder", "foggy"],
+					"weight": 2,
+					"outline_title": "夜色低语",
+					"outline_prompt": "夜晚用餐和窗外天气让交谈变得更轻声、更靠近，也更像只属于两个人的时间。",
+					"must_have_beats": ["夜色氛围", "轻声交谈", "一句真心话", "不舍结束"],
+					"mood_tags": ["夜晚", "暧昧"],
+					"settlement": {"intimacy": 2.7, "trust": 1.9}
+				}
+			]
+		}
+	},
+	"locations": {
+		"sakura_avenue": {
+			"type_id": "stroll",
+			"loading_hint": "Luna 正在想，今天见面时要不要比平时更认真一点...",
+			"loading_hints": [
+				"Luna 正在想，今天见面时要不要比平时更认真一点...",
+				"Luna 正在对着镜子确认发梢，像是不想辜负今天的花景...",
+				"Luna 正在想着，见到你时要不要先装作没那么期待..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，晴天里的花枝会不会让今天看起来比平时更像约会..."
+				],
+				"rainy": [
+					"Luna 正在确认有没有把伞带好，像是不想让落下来的花瓣打乱见面的心情..."
+				],
+				"foggy": [
+					"Luna 正在挑一件更柔和的外套，像是想让今天显得安静一点..."
+				]
+			},
+			"period_loading_hints": {
+				"morning": [
+					"Luna 正在想着，晨光里的第一眼会不会把她的小心思都照出来..."
+				],
+				"afternoon": [
+					"Luna 正在整理发梢，像是想让午后的见面显得更自然一点..."
+				],
+				"evening": [
+					"Luna 正在看着窗外的天色，像是在想傍晚的花影会不会太容易让人心软..."
+				]
+			},
+			"variants": [
+				{
+					"id": "sakura_avenue_morning_bloom",
+					"time_periods": ["morning"],
+					"weather_tags": ["sunny", "cloudy"],
+					"weight": 3,
+					"outline_title": "晨光樱色",
+					"outline_prompt": "晨光和花枝让气氛格外温柔，Luna会被一些细小景象打动，也更容易说出柔软的话。",
+					"must_have_beats": ["花景描写", "共同停步", "一句轻声夸赞", "含蓄收尾"],
+					"mood_tags": ["浪漫", "轻柔"],
+					"settlement": {"intimacy": 2.8, "trust": 2.1}
+				},
+				{
+					"id": "sakura_avenue_evening_rain",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["rainy", "foggy"],
+					"weight": 2,
+					"outline_title": "花影与雨意",
+					"outline_prompt": "雨水打落花瓣，让散步带上短暂的慌乱和更近的身体距离，情绪自然升温。",
+					"must_have_beats": ["雨滴变化", "靠近避雨", "心跳停顿", "余韵留白"],
+					"mood_tags": ["暧昧", "细腻"],
+					"settlement": {"intimacy": 3.1, "trust": 1.9}
+				}
+			]
+		},
+		"golden_beach": {
+			"type_id": "stroll",
+			"loading_hint": "Luna 正在想要不要带一件挡海风的外套...",
+			"loading_hints": [
+				"Luna 正在想要不要带一件挡海风的外套...",
+				"Luna 正在犹豫海边见面时要不要把头发扎起来...",
+				"Luna 正在想着，踩到海边时要不要先假装没那么开心..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在挑一件适合海边阳光的轻薄外套...",
+					"Luna 正在想着，海风把头发吹乱时会不会被你看见她慌张的样子..."
+				],
+				"overcast": [
+					"Luna 正在把外套搭在手边，像是担心海边风会比想象里更凉..."
+				]
+			},
+			"period_loading_hints": {
+				"afternoon": [
+					"Luna 正在想着，午后的海边会不会让你们走着走着就忘了时间..."
+				],
+				"evening": [
+					"Luna 正在看着天色发呆，像是在想傍晚的海边会不会太容易心动..."
+				]
+			},
+			"variants": [
+				{
+					"id": "golden_beach_afternoon_breeze",
+					"time_periods": ["afternoon"],
+					"weather_tags": ["sunny", "cloudy"],
+					"weight": 3,
+					"outline_title": "海风午后",
+					"outline_prompt": "海风和浪声让对话变得松弛，像是随口说出口的话也会更真一点。",
+					"must_have_beats": ["海风描写", "肩并肩走", "关于未来的轻聊", "轻松收束"],
+					"mood_tags": ["开阔", "松弛"],
+					"settlement": {"intimacy": 2.1, "trust": 2.2}
+				},
+				{
+					"id": "golden_beach_evening_glow",
+					"time_periods": ["evening"],
+					"weather_tags": ["sunny", "overcast"],
+					"weight": 2,
+					"outline_title": "傍晚潮声",
+					"outline_prompt": "傍晚的海边天然带着告白前的静默感，让两人的对话多出一点不好说破的心意。",
+					"must_have_beats": ["晚霞或暗色海面", "短暂沉默", "一句试探", "温柔收尾"],
+					"mood_tags": ["余韵", "心动"],
+					"settlement": {"intimacy": 3.0, "trust": 1.8}
+				}
+			]
+		},
+		"sunset_park": {
+			"type_id": "stroll",
+			"loading_hint": "Luna 正在挑一双适合慢慢散步的鞋子...",
+			"loading_hints": [
+				"Luna 正在挑一双适合慢慢散步的鞋子...",
+				"Luna 正在想着，公园里的那段路会不会让你们不知不觉走得比预想更久...",
+				"Luna 正在对着镜子看最后一眼，像是不想让今天显得太匆忙..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，晴天的公园会不会让今天看起来更像平静的日常..."
+				],
+				"rainy": [
+					"Luna 正在确认伞收得够不够整齐，像是已经想到你们会并肩躲着雨走..."
+				],
+				"overcast": [
+					"Luna 正在把外套搭在臂弯，像是在准备迎接稍微有点凉的风..."
+				]
+			},
+			"period_loading_hints": {
+				"afternoon": [
+					"Luna 正在想着，午后的长椅会不会让今天的对话更容易慢下来..."
+				],
+				"evening": [
+					"Luna 正在看着天色一点点暗下来，像是在想今晚分别时会不会舍不得..."
+				]
+			},
+			"variants": [
+				{
+					"id": "sunset_park_afternoon_rest",
+					"time_periods": ["afternoon"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "长椅小憩",
+					"outline_prompt": "从散步过渡到在长椅上短暂休息，两人的节奏慢下来，也更像一对习惯彼此的人。",
+					"must_have_beats": ["散步转坐下", "看着周围景色", "提到日常", "温柔收尾"],
+					"mood_tags": ["日常", "安心"],
+					"settlement": {"intimacy": 1.9, "trust": 2.5}
+				},
+				{
+					"id": "sunset_park_evening_lights",
+					"time_periods": ["evening"],
+					"weather_tags": ["cloudy", "rainy", "overcast"],
+					"weight": 2,
+					"outline_title": "灯光初起",
+					"outline_prompt": "夜色刚落时公园的灯光会让对话变得轻声，适合写出一点不舍分别的感觉。",
+					"must_have_beats": ["夜灯描写", "靠近说话", "不舍分别", "留一句期待"],
+					"mood_tags": ["夜色", "留恋"],
+					"settlement": {"intimacy": 2.7, "trust": 1.8}
+				}
+			]
+		},
+		"wangjiang_pavilion": {
+			"type_id": "stroll",
+			"loading_hint": "Luna 正在想着，等会儿站在高处时要不要和你说点心里话...",
+			"loading_hints": [
+				"Luna 正在想着，等会儿站在高处时要不要和你说点心里话...",
+				"Luna 正在慢慢整理衣角，像是不想让迎风的样子显得太狼狈...",
+				"Luna 正在想，今天看到远处风景时会不会更想把心里的话告诉你..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，天色很好时站在高处，会不会更容易把想说的话说出口..."
+				],
+				"rainy": [
+					"Luna 正在确认外套有没有整理好，像是担心山风和雨意会让自己显得太慌张..."
+				],
+				"foggy": [
+					"Luna 正在看着窗外的雾气发呆，像是已经开始想象和你并肩安静待着的样子..."
+				]
+			},
+			"period_loading_hints": {
+				"morning": [
+					"Luna 正在想着，上午的风景会不会让今天的一切都显得更明亮一点..."
+				],
+				"afternoon": [
+					"Luna 正在整理袖口，像是想让午后的见面多一点从容..."
+				],
+				"evening": [
+					"Luna 正在看着慢慢降下来的天色，像是在想夜里说出口的话会不会更认真..."
+				]
+			},
+			"variants": [
+				{
+					"id": "wangjiang_pavilion_morning_view",
+					"time_periods": ["morning", "afternoon"],
+					"weather_tags": ["sunny", "cloudy"],
+					"weight": 3,
+					"outline_title": "高处远望",
+					"outline_prompt": "在亭中远眺时，两人会因为眼前景色而自然聊到梦想、努力和陪伴。",
+					"must_have_beats": ["登高远望", "景色触发心绪", "彼此回应", "留有希望"],
+					"mood_tags": ["治愈", "陪伴"],
+					"settlement": {"intimacy": 1.8, "trust": 2.8}
+				},
+				{
+					"id": "wangjiang_pavilion_foggy_quiet",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["foggy", "rainy", "overcast"],
+					"weight": 2,
+					"outline_title": "雾里低语",
+					"outline_prompt": "天气让远景朦胧，空间也更安静，适合写成更靠近内心的交流。",
+					"must_have_beats": ["雾气描写", "声音放轻", "说出藏着的话", "余韵延长"],
+					"mood_tags": ["安静", "真诚"],
+					"settlement": {"intimacy": 2.2, "trust": 2.9}
+				}
+			]
+		},
+		"music_corner": {
+			"type_id": "stroll",
+			"loading_hint": "Luna 好像在想，听到喜欢的旋律时要不要偷偷看你一眼...",
+			"loading_hints": [
+				"Luna 好像在想，听到喜欢的旋律时要不要偷偷看你一眼...",
+				"Luna 正在轻轻整理头发，像是不想在音乐停下来的时候显得太慌张...",
+				"Luna 正在想着，今天会不会刚好听见一首让她想起你的曲子..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，晴天里的旋律会不会让今天的见面显得更轻快一点..."
+				],
+				"rainy": [
+					"Luna 正在想，雨声和乐声混在一起时，会不会让她更想靠近你一点..."
+				],
+				"overcast": [
+					"Luna 正在慢慢整理袖口，像是担心阴天会把自己的心思衬得太明显..."
+				]
+			},
+			"period_loading_hints": {
+				"morning": [
+					"Luna 正在想着，上午的街角会不会让今天的旋律听起来更明亮一点..."
+				],
+				"afternoon": [
+					"Luna 正在想，午后的音乐会不会刚好适合和你慢慢并肩听完..."
+				],
+				"evening": [
+					"Luna 正在看着天色变暗，像是在想夜里的旋律会不会让她更想说真心话..."
+				]
+			},
+			"variants": [
+				{
+					"id": "music_corner_day_improvise",
+					"time_periods": ["morning", "afternoon"],
+					"weather_tags": ["sunny", "cloudy"],
+					"weight": 3,
+					"outline_title": "街角旋律",
+					"outline_prompt": "街角的音乐让Luna的情绪被轻轻带起来，她会显露出更鲜活的一面。",
+					"must_have_beats": ["听见音乐", "她的反应", "跟着节奏聊", "笑意收尾"],
+					"mood_tags": ["轻快", "鲜活"],
+					"settlement": {"intimacy": 2.4, "trust": 1.9}
+				},
+				{
+					"id": "music_corner_evening_echo",
+					"time_periods": ["evening"],
+					"weather_tags": ["overcast", "rainy", "cloudy"],
+					"weight": 2,
+					"outline_title": "夜里的回声",
+					"outline_prompt": "傍晚的音乐角落带点空旷感，让交谈更像心事被乐声轻轻托住。",
+					"must_have_beats": ["音乐余音", "短暂停顿", "试探表达", "安静收尾"],
+					"mood_tags": ["文艺", "暧昧"],
+					"settlement": {"intimacy": 2.8, "trust": 2.0}
+				}
+			]
+		},
+		"yuli_alley": {
+			"type_id": "shopping",
+			"loading_hint": "Luna 正在犹豫今天要不要挑一件带点小心思的配饰...",
+			"loading_hints": [
+				"Luna 正在犹豫今天要不要挑一件带点小心思的配饰...",
+				"Luna 正在想着，路过橱窗时会不会被你看穿她其实很在意你的眼光...",
+				"Luna 正在整理衣角，像是不想让街巷里的见面显得太刻意..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，晴天逛小巷时会不会刚好被你发现她偷偷挑过很久的搭配..."
+				],
+				"rainy": [
+					"Luna 正在确认包里的纸巾和伞，像是已经想到雨夜的小店会让距离变近..."
+				],
+				"cloudy": [
+					"Luna 正在把发梢别到耳后，像是在想阴天的小巷会不会更适合慢慢走..."
+				]
+			},
+			"period_loading_hints": {
+				"afternoon": [
+					"Luna 正在想着，午后的橱窗会不会让她更容易忍不住停下来等你一起看..."
+				],
+				"evening": [
+					"Luna 正在看着镜子里的自己，像是在想夜里的小店灯光会不会显得太暧昧..."
+				]
+			},
+			"variants": [
+				{
+					"id": "yuli_alley_afternoon_window",
+					"time_periods": ["afternoon"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "橱窗前停步",
+					"outline_prompt": "街巷里的小店与橱窗让两人不断停下脚步，互相询问喜好，带出细碎的甜感。",
+					"must_have_beats": ["看到小店", "评价喜好", "互相观察", "带笑收尾"],
+					"mood_tags": ["轻甜", "都市"],
+					"settlement": {"intimacy": 2.5, "trust": 1.8}
+				},
+				{
+					"id": "yuli_alley_evening_shared_item",
+					"time_periods": ["evening"],
+					"weather_tags": ["rainy", "cloudy"],
+					"weight": 2,
+					"outline_title": "替你挑一个",
+					"outline_prompt": "在雨夜小店里替对方挑小物件，让关系推进得更自然一些。",
+					"must_have_beats": ["临时进店", "挑选小物", "害羞停顿", "带走纪念"],
+					"mood_tags": ["细节控", "暧昧"],
+					"settlement": {"intimacy": 2.9, "trust": 1.7}
+				}
+			]
+		},
+		"pop_up_market": {
+			"type_id": "shopping",
+			"loading_hint": "Luna 正在想，等会儿逛摊位的时候会不会被你拿来打趣...",
+			"loading_hints": [
+				"Luna 正在想，等会儿逛摊位的时候会不会被你拿来打趣...",
+				"Luna 正在整理头发，像是不想在热闹的人群里显得太拘谨...",
+				"Luna 正在想着，今天会不会和你一起被某个摊位绊住脚步..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，晴天的市集会不会让今天看起来更像轻松的约会..."
+				],
+				"rainy": [
+					"Luna 正在确认外套有没有收好，像是已经想到你们可能会一起躲进棚子底下..."
+				],
+				"overcast": [
+					"Luna 正在想着，阴天逛市集会不会反而更适合慢慢陪你看每一个摊位..."
+				]
+			},
+			"period_loading_hints": {
+				"afternoon": [
+					"Luna 正在想，午后的市集会不会刚好热闹到让她有理由靠你近一点..."
+				],
+				"evening": [
+					"Luna 正在看着渐暗的天色，像是在想收摊前的那点余温会不会让人更舍不得走..."
+				]
+			},
+			"variants": [
+				{
+					"id": "pop_up_market_afternoon_heat",
+					"time_periods": ["afternoon"],
+					"weather_tags": ["sunny", "cloudy"],
+					"weight": 3,
+					"outline_title": "热闹市集",
+					"outline_prompt": "快闪市集的热闹感会让两人状态更活泼，适合写些互相起哄和一起试东西的桥段。",
+					"must_have_beats": ["人群热闹", "一起看摊位", "互相打趣", "笑着离开"],
+					"mood_tags": ["热闹", "活泼"],
+					"settlement": {"intimacy": 2.3, "trust": 1.7}
+				},
+				{
+					"id": "pop_up_market_evening_close",
+					"time_periods": ["evening"],
+					"weather_tags": ["overcast", "rainy"],
+					"weight": 2,
+					"outline_title": "收摊前的最后一圈",
+					"outline_prompt": "快收摊的市集有种短暂和珍贵的气氛，适合写一点‘还想再待一会儿’的情绪。",
+					"must_have_beats": ["临近收摊", "最后挑选", "不想结束", "留下约定"],
+					"mood_tags": ["余韵", "不舍"],
+					"settlement": {"intimacy": 2.8, "trust": 1.9}
+				}
+			]
+		},
+		"movie_theater": {
+			"type_id": "exhibition",
+			"loading_hint": "Luna 正在想着电影散场以后，你们会不会再一起走一段路...",
+			"loading_hints": [
+				"Luna 正在想着电影散场以后，你们会不会再一起走一段路...",
+				"Luna 正在想，等会儿坐在你旁边时要不要表现得自然一点...",
+				"Luna 正在整理衣角，像是很在意散场后的那段时间..."
+			],
+			"weather_loading_hints": {
+				"rainy": [
+					"Luna 正在想着，下雨天的散场会不会让你们更晚一点分开..."
+				]
+			},
+			"period_loading_hints": {
+				"afternoon": [
+					"Luna 正在想着，白天场结束以后是不是还能和你再去别的地方走走..."
+				],
+				"evening": [
+					"Luna 正在整理衣角，像是很在意晚场散场后的那段时间..."
+				]
+			},
+			"variants": [
+				{
+					"id": "movie_theater_afternoon_aftertalk",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "散场讨论",
+					"outline_prompt": "观影后的讨论能自然引出彼此的价值观和情绪反应，让对话有层次。",
+					"must_have_beats": ["一起看完", "讨论剧情", "对应到彼此", "柔和收束"],
+					"mood_tags": ["共鸣", "交流"],
+					"settlement": {"intimacy": 1.9, "trust": 2.5}
+				},
+				{
+					"id": "movie_theater_evening_late_show",
+					"time_periods": ["evening"],
+					"weather_tags": ["rainy", "cloudy"],
+					"weight": 2,
+					"outline_title": "晚场散场",
+					"outline_prompt": "晚场电影结束后，场外夜色和天气会把气氛推得更安静、更像只有你们知道的余温。",
+					"must_have_beats": ["晚场结束", "夜色描写", "轻声交流", "恋恋不舍"],
+					"mood_tags": ["夜晚", "余温"],
+					"settlement": {"intimacy": 2.7, "trust": 2.0}
+				}
+			]
+		},
+		"yuguang_gallery": {
+			"type_id": "exhibition",
+			"loading_hint": "Luna 正在挑一套适合安静逛展的搭配...",
+			"loading_hints": [
+				"Luna 正在挑一套适合安静逛展的搭配...",
+				"Luna 正在想着，看到喜欢的作品时要不要和你说得更坦白一点...",
+				"Luna 正在慢慢整理袖口，像是想让今天显得更体面一点..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，明亮的光线会不会让她今天看起来比平时更容易被你读懂..."
+				],
+				"rainy": [
+					"Luna 正在慢慢整理发梢，像是已经想到雨天进展馆后的安静会让心跳更清楚..."
+				],
+				"overcast": [
+					"Luna 正在想着，阴天里的展馆会不会更适合和你并肩站在一幅画前久一点..."
+				]
+			},
+			"period_loading_hints": {
+				"afternoon": [
+					"Luna 正在想着，下午的光线会不会让今天看的作品显得更温柔一点..."
+				],
+				"evening": [
+					"Luna 正在整理发梢，像是夜里的展馆会让她更想靠近你一点..."
+				]
+			},
+			"variants": [
+				{
+					"id": "yuguang_gallery_afternoon_arttalk",
+					"time_periods": ["afternoon"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "画前停留",
+					"outline_prompt": "面对某幅作品时两人停下来谈感受，从表面的审美聊到更个人的经历。",
+					"must_have_beats": ["作品吸引", "分享感受", "回应彼此", "温柔留白"],
+					"mood_tags": ["文艺", "真诚"],
+					"settlement": {"intimacy": 1.8, "trust": 2.7}
+				},
+				{
+					"id": "yuguang_gallery_evening_quietstep",
+					"time_periods": ["evening"],
+					"weather_tags": ["rainy", "foggy", "overcast"],
+					"weight": 2,
+					"outline_title": "静展慢行",
+					"outline_prompt": "安静展厅和室外天气形成对比，适合写成轻声慢行、情绪逐步靠近的片段。",
+					"must_have_beats": ["安静展厅", "并肩慢走", "低声说话", "余韵延长"],
+					"mood_tags": ["安静", "靠近"],
+					"settlement": {"intimacy": 2.4, "trust": 2.3}
+				}
+			]
+		},
+		"art_gallery": {
+			"type_id": "exhibition",
+			"loading_hint": "Luna 正在挑一套适合安静逛展的搭配...",
+			"loading_hints": [
+				"Luna 正在挑一套适合安静逛展的搭配...",
+				"Luna 正在想着，等会儿要不要把自己喜欢的那一类作品告诉你...",
+				"Luna 正在对着镜子确认今天的神情会不会太认真..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，晴天走进画廊时会不会让今天的一切都显得更轻盈一点..."
+				],
+				"rainy": [
+					"Luna 正在整理袖口，像是已经想到雨天的画廊会让人更容易安静下来..."
+				],
+				"cloudy": [
+					"Luna 正在看着镜子里的自己，像是在想这样的天气会不会刚好适合慢慢说真心话..."
+				]
+			},
+			"period_loading_hints": {
+				"morning": [
+					"Luna 正在想着，上午的画廊会不会更适合慢慢把每一幅作品看久一点..."
+				],
+				"evening": [
+					"Luna 正在整理袖口，像是在想夜里的画廊会不会让人更容易说真心话..."
+				]
+			},
+			"variants": [
+				{
+					"id": "art_gallery_afternoon_inspiration",
+					"time_periods": ["morning", "afternoon"],
+					"weather_tags": ["sunny", "cloudy"],
+					"weight": 3,
+					"outline_title": "灵感流动",
+					"outline_prompt": "看到让Luna有感觉的作品后，她会露出更认真也更可爱的那一面。",
+					"must_have_beats": ["被作品吸引", "她表达灵感", "我回应支持", "心情明亮起来"],
+					"mood_tags": ["创作感", "亲近"],
+					"settlement": {"intimacy": 2.1, "trust": 2.4}
+				},
+				{
+					"id": "art_gallery_evening_resonance",
+					"time_periods": ["evening"],
+					"weather_tags": ["overcast", "rainy", "cloudy"],
+					"weight": 2,
+					"outline_title": "静下来的共鸣",
+					"outline_prompt": "在较安静的展馆氛围中，两人更容易说出对作品、对自己、对彼此的真实感受。",
+					"must_have_beats": ["展馆安静", "真心表达", "彼此认真倾听", "轻柔落幕"],
+					"mood_tags": ["共鸣", "细腻"],
+					"settlement": {"intimacy": 2.3, "trust": 2.6}
+				}
+			]
+		},
+		"qingyu_time_cafe": {
+			"type_id": "dining",
+			"loading_hint": "Luna 正在想着等会儿坐到你对面时，要先聊什么...",
+			"loading_hints": [
+				"Luna 正在想着等会儿坐到你对面时，要先聊什么...",
+				"Luna 正在整理衣角，像是希望这次见面能更放松一点...",
+				"Luna 正在想，要不要把今天想说的话留到热咖啡端上来以后..."
+			],
+			"weather_loading_hints": {
+				"rainy": [
+					"Luna 正在想着，窗边的雨声会不会让今天更适合说点心里话...",
+					"Luna 正在慢慢整理发梢，像是已经想到你们会坐在窗边..."
+				]
+			},
+			"period_loading_hints": {
+				"morning": [
+					"Luna 正在想着，早上的咖啡香会不会让今天的第一句话变得更自然..."
+				],
+				"afternoon": [
+					"Luna 正在想，午后的咖啡厅是不是刚好适合和你慢慢把话题聊开..."
+				],
+				"evening": [
+					"Luna 正在整理衣角，像是很在意夜里坐到你对面时的第一眼..."
+				]
+			},
+			"variants": [
+				{
+					"id": "qingyu_time_cafe_afternoon_coffee",
+					"time_periods": ["morning", "afternoon"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "咖啡香里的放松",
+					"outline_prompt": "咖啡厅的安静和香气让两人很快放松下来，适合聊一些平时不会立刻说出口的话。",
+					"must_have_beats": ["入座点单", "饮品反应", "闲聊渐深", "温暖收尾"],
+					"mood_tags": ["治愈", "放松"],
+					"settlement": {"intimacy": 1.9, "trust": 2.6}
+				},
+				{
+					"id": "qingyu_time_cafe_rain_window",
+					"time_periods": ["afternoon", "evening"],
+					"weather_tags": ["rainy", "thunder", "foggy"],
+					"weight": 2,
+					"outline_title": "窗边雨声",
+					"outline_prompt": "窗边雨声会让原本正常的聊天变得更安静，也更适合写一些带暧昧温度的细节。",
+					"must_have_beats": ["雨敲窗面", "目光停顿", "一句更柔软的话", "不想起身离开"],
+					"mood_tags": ["窗边", "暧昧"],
+					"settlement": {"intimacy": 2.9, "trust": 2.0}
+				}
+			]
+		},
+		"midnight_pub": {
+			"type_id": "dining",
+			"loading_hint": "Luna 正在对着镜子看最后一眼，像是不想让夜晚显得太随意...",
+			"loading_hints": [
+				"Luna 正在对着镜子看最后一眼，像是不想让夜晚显得太随意...",
+				"Luna 正在慢慢整理袖口，像是想让今晚多一点只属于你们的气氛...",
+				"Luna 正在想着，昏黄灯光下的第一眼会不会把她的心思照得太明显..."
+			],
+			"weather_loading_hints": {
+				"sunny": [
+					"Luna 正在想着，夜色刚好的时候见面，会不会让今晚显得比平时更难忘..."
+				],
+				"rainy": [
+					"Luna 正在确认外套上的水迹会不会太明显，像是不想让雨夜的狼狈破坏今晚的心情..."
+				],
+				"foggy": [
+					"Luna 正在慢慢理顺发梢，像是在给这场夜里的见面留一点朦胧的余地..."
+				]
+			},
+			"period_loading_hints": {
+				"evening": [
+					"Luna 正在看着镜子里的自己，像是在想今晚坐到你面前时要不要先装作若无其事..."
+				]
+			},
+			"variants": [
+				{
+					"id": "midnight_pub_evening_lowlight",
+					"time_periods": ["evening"],
+					"weather_tags": ["sunny", "cloudy", "overcast"],
+					"weight": 3,
+					"outline_title": "夜色小酌",
+					"outline_prompt": "带点昏暗的灯光和夜晚氛围，让对话自然转向更坦白、更私密的内容。",
+					"must_have_beats": ["灯光与音乐", "轻声交谈", "一句坦白", "留有余韵"],
+					"mood_tags": ["夜色", "坦白"],
+					"settlement": {"intimacy": 2.6, "trust": 2.4}
+				},
+				{
+					"id": "midnight_pub_rainy_refuge",
+					"time_periods": ["evening"],
+					"weather_tags": ["rainy", "thunder", "foggy"],
+					"weight": 2,
+					"outline_title": "深夜避雨",
+					"outline_prompt": "雨夜酒吧像临时避风港，让人容易说出平时藏着的话，也更不想太早离开。",
+					"must_have_beats": ["雨夜入店", "氛围安静下来", "说出真心", "难舍收尾"],
+					"mood_tags": ["避风港", "深夜"],
+					"settlement": {"intimacy": 2.8, "trust": 2.5}
+				}
+			]
+		}
+	}
+}

@@ -16,6 +16,7 @@ var current_day_offset: int = 0
 var current_period: String = PERIOD_MORNING
 var current_hour: int = 8
 var current_minute: int = 0
+var debug_weather_overrides: Dictionary = {}
 
 # 故事设定的基准起始日期（例如 2026年3月7日 星期六）
 var start_year: int = 2026
@@ -57,24 +58,33 @@ func load_data(char_id: String = "") -> void:
     current_period = PERIOD_MORNING
     current_hour = 8
     current_minute = 0
+    debug_weather_overrides = {}
     var path = get_save_path(char_id)
     
     if FileAccess.file_exists(path):
         var file = FileAccess.open(path, FileAccess.READ)
         var json = JSON.new()
         if json.parse(file.get_as_text()) == OK:
-            var data = json.data
+            var data: Dictionary = json.data
             current_day_offset = data.get("current_day_offset", 0)
             current_period = data.get("current_period", PERIOD_MORNING)
             current_hour = data.get("current_hour", 8)
             current_minute = data.get("current_minute", 0)
+            var raw_overrides: Variant = data.get("debug_weather_overrides", {})
+            if raw_overrides is Dictionary:
+                for raw_key in raw_overrides.keys():
+                    var override_key: int = int(str(raw_key))
+                    var override_value: Variant = raw_overrides.get(raw_key, {})
+                    if override_value is Dictionary:
+                        debug_weather_overrides[override_key] = override_value
 
 func save_data() -> void:
     var data = {
         "current_day_offset": current_day_offset,
         "current_period": current_period,
         "current_hour": current_hour,
-        "current_minute": current_minute
+        "current_minute": current_minute,
+        "debug_weather_overrides": debug_weather_overrides
     }
     var char_id = "default"
     if GameDataManager.config and GameDataManager.config.current_character_id != "":
@@ -135,8 +145,8 @@ func advance_period() -> void:
 # 模拟时间流逝（分钟），适用于 UI 面板时钟的自然跳动
 func tick_minutes(mins: int = 1) -> void:
     current_minute += mins
-    var hours_added = 0
-    var days_added = 0
+    var hours_added: int = 0
+    var days_added: int = 0
     if current_minute >= 60:
         hours_added = current_minute / 60
         current_hour += hours_added
@@ -172,6 +182,36 @@ func tick_minutes(mins: int = 1) -> void:
     # 只要时间发生变化，就发出信号，方便外部UI更新（如按钮禁用状态）
     time_advanced.emit(days_added, current_period)
 
+func set_debug_time(day_offset: int, period: String, hour: int, minute: int) -> void:
+    current_day_offset = max(day_offset, 0)
+    current_hour = clamp(hour, 0, 23)
+    current_minute = clamp(minute, 0, 59)
+    var normalized_period: String = period.strip_edges()
+    if normalized_period == "":
+        normalized_period = _resolve_period_from_hour(current_hour)
+    elif not _is_valid_period(normalized_period):
+        normalized_period = _resolve_period_from_hour(current_hour)
+    current_period = normalized_period
+    save_data()
+    time_advanced.emit(0, current_period)
+
+func set_debug_weather(weather_id: String, temperature: int, offset: int = -1) -> void:
+    var target_offset: int = current_day_offset if offset < 0 else max(offset, 0)
+    debug_weather_overrides[target_offset] = {
+        "weather": normalize_story_weather_id(weather_id),
+        "temperature": temperature
+    }
+    save_data()
+    time_advanced.emit(0, current_period)
+
+func clear_debug_weather(offset: int = -1) -> void:
+    if offset < 0:
+        debug_weather_overrides.clear()
+    else:
+        debug_weather_overrides.erase(max(offset, 0))
+    save_data()
+    time_advanced.emit(0, current_period)
+
 # 获取计算后的真实剧情日期（年、月、日、星期）
 func get_current_date_dict() -> Dictionary:
     # Godot 的 Time 没有直接的日期加减，我们需要用 UNIX 时间戳计算
@@ -189,22 +229,31 @@ func get_current_date_dict() -> Dictionary:
 
 # 获取指定偏移天数的配置
 func get_day_config(offset: int) -> Dictionary:
-    if time_config.has("daily_data"):
-        for day_data in time_config["daily_data"]:
-            if int(day_data.get("day_offset", -1)) == offset:
-                return day_data
-    return {
+    var base_config: Dictionary = {
         "weather": "sunny",
         "temperature": 22,
         "events": []
     }
+    if time_config.has("daily_data"):
+        for day_data in time_config["daily_data"]:
+            if int(day_data.get("day_offset", -1)) == offset:
+                base_config = day_data.duplicate(true)
+                break
+    if debug_weather_overrides.has(offset):
+        var override_data: Variant = debug_weather_overrides.get(offset, {})
+        if override_data is Dictionary:
+            var merged_config: Dictionary = base_config.duplicate(true)
+            for key in override_data.keys():
+                merged_config[key] = override_data[key]
+            return merged_config
+    return base_config
 
 # 获取当前日期的天气与事件配置
 func get_current_day_config() -> Dictionary:
     return get_day_config(current_day_offset)
 
 func normalize_story_weather_id(raw_weather: String) -> String:
-    var key := raw_weather.strip_edges().to_lower()
+    var key: String = raw_weather.strip_edges().to_lower()
     match key:
         "sunny", "clear", "fine":
             return "sunny"
@@ -224,7 +273,7 @@ func normalize_story_weather_id(raw_weather: String) -> String:
             return key
 
 func get_story_weather_id(offset: int = current_day_offset) -> String:
-    var day_cfg := get_day_config(offset)
+    var day_cfg: Dictionary = get_day_config(offset)
     return normalize_story_weather_id(str(day_cfg.get("weather", "sunny")))
 
 func get_story_weather_desc(offset: int = current_day_offset) -> String:
@@ -248,13 +297,25 @@ func get_story_weather_desc(offset: int = current_day_offset) -> String:
 
 # 供大模型提示词使用的格式化剧情时间字符串
 func get_story_time_string() -> String:
-    var d = get_current_date_dict()
-    var weekday_str = ["日", "一", "二", "三", "四", "五", "六"]
-    var w = weekday_str[d.weekday]
-    var weather_cfg = get_current_day_config()
-    var weather_text = get_story_weather_desc()
+    var d: Dictionary = get_current_date_dict()
+    var weekday_str: Array[String] = ["日", "一", "二", "三", "四", "五", "六"]
+    var w: String = weekday_str[d.weekday]
+    var weather_cfg: Dictionary = get_current_day_config()
+    var weather_text: String = get_story_weather_desc()
     
     return "%d年%d月%d日 星期%s，%s，时间：%02d:%02d，天气：%s，气温：%d度" % [
         d.year, d.month, d.day, w, current_period, current_hour, current_minute,
         weather_text, weather_cfg.get("temperature", 20)
     ]
+
+func _is_valid_period(period: String) -> bool:
+    return period == PERIOD_MORNING or period == PERIOD_AFTERNOON or period == PERIOD_EVENING or period == PERIOD_NIGHT
+
+func _resolve_period_from_hour(hour: int) -> String:
+    if hour >= 6 and hour < 12:
+        return PERIOD_MORNING
+    if hour >= 12 and hour < 17:
+        return PERIOD_AFTERNOON
+    if hour >= 17 and hour < 20:
+        return PERIOD_EVENING
+    return PERIOD_NIGHT
