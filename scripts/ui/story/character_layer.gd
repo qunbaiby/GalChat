@@ -45,6 +45,7 @@ var _story_actor_state: Dictionary = {}
 var _story_mode_enabled: bool = false
 var _current_story_speaker_id: String = ""
 var _last_story_speaker_id: String = ""
+var _story_force_no_focus: bool = false
 var _character_cache: Dictionary = {}
 var _retiring_actors: Dictionary = {}
 var _retiring_timers: Dictionary = {}
@@ -105,7 +106,9 @@ func focus_story_speaker(raw_speaker_id: String, display_name: String = "", mood
         speaker_key = raw_speaker_id
     var speaker_id = _normalize_story_speaker_id(speaker_key)
     if speaker_id == "":
-        # 经典 AVG 里旁白通常不改变当前舞台构图，只是不再强制切换焦点。
+        # 旁白/玩家台词时保留舞台角色，但进入无焦点态，让立绘自动缩小变暗。
+        _current_story_speaker_id = ""
+        _story_force_no_focus = true
         _sync_story_cast(false)
         return
 
@@ -117,6 +120,7 @@ func focus_story_speaker(raw_speaker_id: String, display_name: String = "", mood
 
     _current_story_speaker_id = speaker_id
     _last_story_speaker_id = speaker_id
+    _story_force_no_focus = false
     _sync_story_cast(false)
 
 func show_story_character(raw_char_id: String, display_name: String = "", presentation: Dictionary = {}) -> void:
@@ -145,6 +149,7 @@ func show_story_character(raw_char_id: String, display_name: String = "", presen
     if presentation.get("focus", null) == true:
         _current_story_speaker_id = char_id
         _last_story_speaker_id = char_id
+        _story_force_no_focus = false
     _sync_story_cast(false)
 
 func move_story_character(raw_char_id: String, display_name: String = "", presentation: Dictionary = {}) -> void:
@@ -165,6 +170,7 @@ func move_story_character(raw_char_id: String, display_name: String = "", presen
     if presentation.get("focus", null) == true:
         _current_story_speaker_id = char_id
         _last_story_speaker_id = char_id
+        _story_force_no_focus = false
     _sync_story_cast(false)
 
 func hide_story_character(raw_char_id: String, animation: String = "fade_out") -> void:
@@ -264,6 +270,7 @@ func _refresh_default_actor(show_now: bool) -> void:
 func _clear_story_runtime() -> void:
     _current_story_speaker_id = ""
     _last_story_speaker_id = ""
+    _story_force_no_focus = false
     _story_cast_order.clear()
     _story_actor_map.clear()
     _story_actor_state.clear()
@@ -432,6 +439,8 @@ func _pick_fallback_focus_id() -> String:
     return ""
 
 func _get_effective_focus_id() -> String:
+    if _story_force_no_focus:
+        return ""
     if _current_story_speaker_id != "" and _story_actor_map.has(_current_story_speaker_id):
         return _current_story_speaker_id
     if _last_story_speaker_id != "" and _story_actor_map.has(_last_story_speaker_id):

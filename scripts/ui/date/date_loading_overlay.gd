@@ -219,11 +219,7 @@ func _finish(token: int, is_fallback: bool) -> void:
 
 func _play_visual_animation() -> void:
 	_reset_visual_state()
-	_icon_tween = create_tween().set_loops()
-	_icon_tween.tween_property(icon_pivot, "position:y", -10.0, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_icon_tween.tween_property(icon_pivot, "position:y", 8.0, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_icon_tween.tween_property(icon_pivot, "position:y", 0.0, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-
+	
 	_glow_tween = create_tween().set_loops()
 	_glow_tween.tween_property(glow_rect, "modulate:a", 0.72, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_glow_tween.tween_property(glow_rect, "modulate:a", 0.38, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)

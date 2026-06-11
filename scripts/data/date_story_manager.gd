@@ -22,6 +22,8 @@ const DATE_TYPE_NAMES := {
 	"exhibition": "观影看展",
 	"dining": "餐饮小聚"
 }
+const DATE_MIN_DIALOGUE_CHARS := 1000
+const DATE_ACTION_COLOR_TAG := "#8fbc8f"
 
 var _rng := RandomNumberGenerator.new()
 var _template_config: Dictionary = {}
@@ -100,7 +102,7 @@ func build_fallback_story(context: Dictionary) -> Dictionary:
 	if plan_segments.is_empty():
 		return _build_empty_fallback_story(context)
 
-	var events: Array = []
+	var raw_events: Array = []
 	var char_id := str(context.get("character_id", "luna"))
 	var char_name := str(context.get("character_name", "Luna"))
 	var player_title := str(context.get("player_title", "老师"))
@@ -116,7 +118,7 @@ func build_fallback_story(context: Dictionary) -> Dictionary:
 		var outline_prompt := str(segment.get("template_outline", "你们在这里度过了一段轻松的相处时光。"))
 
 		if bg_id != "":
-			events.append({
+			raw_events.append({
 				"type": "background",
 				"bg_id": bg_id,
 				"transition_type": "fade" if i == 0 else "dissolve",
@@ -124,60 +126,80 @@ func build_fallback_story(context: Dictionary) -> Dictionary:
 			})
 
 		if i == 0:
-			events.append({
+			raw_events.append({
 				"type": "audio",
 				"audio_id": "luna_bgm",
 				"audio_type": "bgm",
 				"action": "play"
 			})
-			events.append({
-				"type": "show_character",
-				"character": char_id,
-				"display_name": char_name,
-				"position": "center",
-				"expression": "calm",
-				"animation": "fade_in",
-				"focus": true
-			})
-		else:
-			events.append({
-				"type": "move_character",
-				"character": char_id,
-				"display_name": char_name,
-				"position": "center",
-				"expression": "calm",
-				"animation": "slide_left",
-				"focus": true
-			})
 
-		events.append({
+		raw_events.append({
 			"type": "dialogue",
 			"speaker": "旁白",
 			"content": "%s的%s里，我和%s来到了%s。%s的空气让脚步也慢了下来，像是很适合把心事一点点说开的时刻。"
 				% [period_label, weather_desc, char_name, location_name, outline_title]
 		})
-		events.append({
+		raw_events.append({
 			"type": "dialogue",
 			"speaker": char_id,
-			"content": "%s，这里比我想的还要适合%s呢。和你一起过来之后，连心情都跟着安静下来了。"
+			"content": "%s，这里比我想的还要适合%s呢。（悄悄把目光落到你身上）和你一起过来之后，连心情都跟着安静下来了。"
 				% [player_title, type_name]
 		})
-		events.append({
+		raw_events.append({
 			"type": "dialogue",
 			"speaker": "player",
-			"content": "你喜欢就好。今天就慢一点走，按我们的节奏来。"
+			"content": "你喜欢就好。今天就慢一点走，按我们的节奏来，不着急赶路。"
 		})
-		events.append({
+		raw_events.append({
 			"type": "dialogue",
 			"speaker": char_id,
-			"content": "嗯，那你可要陪我久一点。难得有这样的时间，我还想把今天的感觉好好记下来。"
+			"content": "嗯，那你可要陪我久一点。（轻轻弯起眼睛）难得有这样的时间，我还想把今天的感觉好好记下来。"
 		})
-		events.append({
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": "旁白",
+			"content": "你们没有刻意加快脚步，只是顺着%s的气息慢慢往前走。话题从今天的安排聊到最近的小事，再从小事一点点落到彼此真正放在心上的东西。"
+				% location_name
+		})
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "其实我一直觉得，真正让人放松下来的不是地点本身，而是身边的人。（声音轻了一点）如果陪着我的人是你，我就会更想把自己心里的话说出来。"
+		})
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": "player",
+			"content": "那今天就把想说的都说给我听。我会记住，也会认真回应你。"
+		})
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "你每次这样认真地看着我，我都会有种很奇怪的安心感。（抬手拢了拢耳边的发丝）明明只是普通地散步、聊天，可我就是会觉得，今天和别的时候不一样。"
+		})
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": "旁白",
+			"content": "风声、行人的脚步声、远处若有若无的背景音，都在这段相处里慢慢退到很远的地方，只剩下你们彼此的声音留在近处。"
+		})
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": "player",
+			"content": "如果你愿意的话，今天不只是陪你完成一次%s，我还想让你真正开心一点。"
+				% type_name
+		})
+		raw_events.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "你已经做到了啊。（唇角忍不住扬起一点）因为只要你在旁边，我就不会觉得这些时间只是普通地过去了，而是真的被好好地留下来了。"
+		})
+		raw_events.append({
 			"type": "dialogue",
 			"speaker": "旁白",
 			"content": "围绕着%s的轻声交谈在%s里缓缓延展开来，%s也在不知不觉间变成了今天最柔软的一段回忆。"
 				% [outline_prompt, location_name, location_name]
 		})
+
+	var events := _polish_date_story_events(_ensure_minimum_story_length_raw(raw_events, context), context)
 
 	var summary: String = "和%s一起度过了一场%s约会。" % [
 		char_name,
@@ -247,6 +269,7 @@ func sanitize_generated_story(raw_script: Variant, context: Dictionary, fallback
 		return fallback_script.duplicate(true)
 	if not _has_expected_date_coverage(sanitized_events, context):
 		return fallback_script.duplicate(true)
+	sanitized_events = _polish_date_story_events(_ensure_minimum_story_length_raw(sanitized_events, context), context)
 
 	safe_script["chapters"] = {
 		"start": {
@@ -513,7 +536,7 @@ func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_scr
 				if speaker == "":
 					speaker = "旁白"
 				event_data["speaker"] = speaker
-				event_data["content"] = content
+				event_data["content"] = _colorize_action_descriptions(content)
 			"background":
 				var bg_id := str(event_data.get("bg_id", "")).strip_edges()
 				if bg_id != "" and not allowed_bg_ids.has(bg_id):
@@ -534,12 +557,8 @@ func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_scr
 				event_data["audio_type"] = str(event_data.get("audio_type", "bgm"))
 				event_data["action"] = action
 			"show_character", "move_character", "hide_character":
-				var event_char := str(event_data.get("character", "")).strip_edges().to_lower()
-				if event_char == "":
-					event_char = char_id
-				event_data["character"] = event_char
-				if not event_data.has("display_name") or str(event_data.get("display_name", "")).strip_edges() == "":
-					event_data["display_name"] = str(context.get("character_name", "Luna"))
+				# 约会动态剧本统一由后处理重建立绘出现时机，避免一开始就把角色立绘摆上来。
+				continue
 
 		sanitized.append(event_data)
 
@@ -563,22 +582,191 @@ func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_scr
 			"action": "play"
 		})
 
-	if not _has_character_show_event(sanitized):
-		var insert_at: int = min(2, sanitized.size())
-		sanitized.insert(insert_at, {
-			"type": "show_character",
-			"character": char_id,
-			"display_name": str(context.get("character_name", "Luna")),
-			"position": "center",
-			"expression": "calm",
-			"animation": "fade_in",
-			"focus": true
-		})
-
 	if not _has_dialogue_event(sanitized):
 		return _extract_story_events(fallback_script.get("chapters", {}), fallback_script)
 
 	return sanitized
+
+
+func _colorize_action_descriptions(text: String) -> String:
+	var result := text
+	var cn_regex := RegEx.new()
+	if cn_regex.compile("（[^（）]+）") == OK:
+		var matches := cn_regex.search_all(result)
+		for i in range(matches.size() - 1, -1, -1):
+			var original := matches[i].get_string()
+			var colored := "[color=%s]%s[/color]" % [DATE_ACTION_COLOR_TAG, original]
+			result = result.substr(0, matches[i].get_start()) + colored + result.substr(matches[i].get_end())
+
+	var en_regex := RegEx.new()
+	if en_regex.compile("\\([^()]+\\)") == OK:
+		var en_matches := en_regex.search_all(result)
+		for i in range(en_matches.size() - 1, -1, -1):
+			var original := en_matches[i].get_string()
+			if original.find("[/color]") != -1:
+				continue
+			var colored := "[color=%s]%s[/color]" % [DATE_ACTION_COLOR_TAG, original]
+			result = result.substr(0, en_matches[i].get_start()) + colored + result.substr(en_matches[i].get_end())
+	return result
+
+
+func _ensure_minimum_story_length_raw(events: Array, context: Dictionary) -> Array:
+	var result: Array = events.duplicate(true)
+	var char_id := str(context.get("character_id", "luna"))
+	var player_title := str(context.get("player_title", "老师"))
+	var plan_segments: Array = context.get("date_plan", [])
+	var last_segment: Dictionary = plan_segments[plan_segments.size() - 1] if not plan_segments.is_empty() else {}
+	var location_name := str(last_segment.get("location_name", "今天的约会地点"))
+	var type_name := str(last_segment.get("type_name", "约会"))
+
+	while _count_dialogue_characters(result) < DATE_MIN_DIALOGUE_CHARS:
+		result.append({
+			"type": "dialogue",
+			"speaker": "旁白",
+			"content": "时间像是被故意放慢了一点，你们没有谁急着把这段相处推向终点，只是在%s的气氛里，把那些原本藏得很深的话也一点点说了出来。"
+				% location_name
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "%s，你有没有发现，只要像这样和你待久一点，我就会开始舍不得让今天太快结束。（轻轻眨了眨眼）明明只是一次%s，可我已经在偷偷把它当成很重要的回忆了。"
+				% [player_title, type_name]
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": "player",
+			"content": "那就别急着结束。今天剩下的时间，我都愿意继续陪你慢慢走、慢慢聊。"
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "你总是能把很普通的话，说得让人一下子安心下来。（指尖轻轻攥住衣角）所以我才会越来越想依赖这种感觉，想把更多真实的心情交给你。"
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": "旁白",
+			"content": "你们的话题从眼前的景色、今天发生的小事，慢慢延伸到更久以后会不会再一起出门、会不会在下一次见面时继续记得彼此此刻的语气与神情。"
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "如果下次还能和你一起出来，我想我大概会提前很多天就开始期待吧。（唇边带着一点不好意思的笑）因为像今天这样被你认真对待的感觉，真的很容易让人上瘾。"
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": "player",
+			"content": "那就把这份期待留到下次。等你想好了，我们再把想去的地方一个个走完。"
+		})
+		result.append({
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "%s，那你可不准反悔。（目光柔软了下来）因为我已经开始认真地把“和你一起去做很多事”这件事，放进以后的计划里了。"
+				% player_title
+		})
+
+	return result
+
+
+func _count_dialogue_characters(events: Array) -> int:
+	var total := 0
+	for event_data in events:
+		if not event_data is Dictionary:
+			continue
+		if str(event_data.get("type", "")) != "dialogue":
+			continue
+		var text := str(event_data.get("content", ""))
+		var bbcode_regex := RegEx.new()
+		if bbcode_regex.compile("\\[.*?\\]") == OK:
+			text = bbcode_regex.sub(text, "", true)
+		total += text.length()
+	return total
+
+
+func _polish_date_story_events(events: Array, context: Dictionary) -> Array:
+	var polished: Array = []
+	var char_id := str(context.get("character_id", "luna")).to_lower()
+	var char_name := str(context.get("character_name", "Luna"))
+	var plan_segments: Array = context.get("date_plan", [])
+	var segment_cursor := 0
+	var char_visible := false
+	var has_audio := false
+
+	for event_data in events:
+		if not event_data is Dictionary:
+			continue
+		var event_type := str(event_data.get("type", ""))
+		match event_type:
+			"background":
+				if char_visible:
+					polished.append({
+						"type": "hide_character",
+						"character": char_id,
+						"display_name": char_name,
+						"animation": "fade_out"
+					})
+					char_visible = false
+				polished.append(event_data.duplicate(true))
+				var segment_index := _find_segment_index_for_background(str(event_data.get("bg_id", "")), plan_segments, segment_cursor)
+				if segment_index != -1:
+					segment_cursor = segment_index + 1
+					polished.append({
+						"type": "dialogue",
+						"speaker": "旁白",
+						"content": _build_segment_intro(plan_segments[segment_index])
+					})
+				char_visible = false
+			"audio":
+				has_audio = true
+				polished.append(event_data.duplicate(true))
+			"dialogue":
+				var speaker := str(event_data.get("speaker", "")).strip_edges().to_lower()
+				var dialogue_event: Dictionary = event_data.duplicate(true)
+				dialogue_event["content"] = _colorize_action_descriptions(str(dialogue_event.get("content", "")))
+				if speaker == char_id:
+					if not char_visible:
+						polished.append({
+							"type": "show_character",
+							"character": char_id,
+							"display_name": char_name,
+							"position": "center",
+							"expression": "calm",
+							"animation": "fade_in",
+							"focus": true
+						})
+						char_visible = true
+					polished.append(dialogue_event)
+				else:
+					polished.append(dialogue_event)
+
+	if not has_audio:
+		var insert_index := 1 if polished.size() > 0 else 0
+		polished.insert(insert_index, {
+			"type": "audio",
+			"audio_id": "luna_bgm",
+			"audio_type": "bgm",
+			"action": "play"
+		})
+
+	return polished
+
+
+func _find_segment_index_for_background(bg_id: String, plan_segments: Array, start_index: int) -> int:
+	if plan_segments.is_empty():
+		return -1
+	for i in range(start_index, plan_segments.size()):
+		var segment: Dictionary = plan_segments[i]
+		if str(segment.get("bg_id", "")).strip_edges() == bg_id.strip_edges():
+			return i
+	if start_index < plan_segments.size():
+		return start_index
+	return plan_segments.size() - 1
+
+
+func _build_segment_intro(segment: Dictionary) -> String:
+	return "【%s · %s】" % [
+		str(segment.get("period_label", "白天")),
+		str(segment.get("location_name", "未知地点"))
+	]
 
 
 func _sanitize_memory_records(raw_records: Variant, context: Dictionary, summary_text: String) -> Array:
