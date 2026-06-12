@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
 [ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
-[ext_resource type="Texture2D" uid="uid://b5nqn7k2eykxb" path="res://assets/images/icons/ui/dialogue/eye.png" id="3_vt4bd"]
+[ext_resource type="Texture2D" uid="uid://nltc2hcntefl" path="res://assets/images/icons/ui/dialogue/view.png" id="4_06rsy"]
 [ext_resource type="StyleBox" uid="uid://dfsdfsdf" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
-[ext_resource type="Texture2D" uid="uid://b4aaigdk7hte6" path="res://assets/images/icons/ui/dialogue/camera.png" id="4_j786n"]
-[ext_resource type="Texture2D" uid="uid://ywsyminx4cgk" path="res://assets/images/icons/ui/dialogue/document.png" id="5_06rsy"]
+[ext_resource type="Texture2D" uid="uid://c2iapq3qceai2" path="res://assets/images/icons/ui/dialogue/camera.png" id="4_j786n"]
 [ext_resource type="Shader" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
-[ext_resource type="Texture2D" uid="uid://c4e6mk7nc4t5w" path="res://assets/images/icons/ui/dialogue/close.png" id="6_e1eto"]
+[ext_resource type="Texture2D" uid="uid://coagv6nf0bxjb" path="res://assets/images/icons/ui/dialogue/close.png" id="6_e1eto"]
+[ext_resource type="Texture2D" uid="uid://cun1wn1gdjba5" path="res://assets/images/icons/ui/dialogue/writing.png" id="6_nxv13"]
 [ext_resource type="Texture2D" uid="uid://bgm6vn1eos1u3" path="res://assets/images/icons/ui/story/voice_record.svg" id="10_voice_icon"]
 [ext_resource type="Texture2D" uid="uid://dm6oxnmuvephf" path="res://assets/images/icons/ui/story/send_message.svg" id="11_send_icon"]
 
@@ -20,14 +20,9 @@ shader_parameter/edge_color = Color(0, 0, 0, 0.078431375)
 shader_parameter/edge_softness = 1.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Toolbar"]
-bg_color = Color(1, 1, 1, 0.5803922)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.18, 0.18, 0.24, 0.78)
-corner_radius_top_left = 16
-corner_radius_bottom_left = 16
+bg_color = Color(0.09411765, 0.10980392, 0.14901961, 0.47058824)
+corner_radius_top_left = 30
+corner_radius_bottom_left = 30
 shadow_color = Color(0, 0, 0, 0.18)
 shadow_size = 8
 shadow_offset = Vector2(0, 2)
@@ -90,16 +85,18 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -205.0
-offset_bottom = -85.0
+offset_bottom = -75.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_DialogueLayer")
 
 [node name="GradientBg" type="ColorRect" parent="DialogueLayer"]
 material = SubResource("ShaderMaterial_DialogueGradient")
-layout_mode = 0
-offset_right = 1280.0
-offset_bottom = 120.0
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -110,6 +107,7 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -570.0
+offset_top = -10.0
 offset_right = 571.0
 offset_bottom = 120.0
 grow_horizontal = 2
@@ -119,11 +117,12 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
 theme_override_font_sizes/font_size = 18
+text = "name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer/VBox"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 theme_override_colors/default_color = Color(0.96, 0.96, 0.98, 1)
 theme_override_font_sizes/normal_font_size = 22
@@ -136,10 +135,9 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -170.0
-offset_top = 10.0
-offset_right = -14.0
-offset_bottom = 52.0
+offset_left = -188.0
+offset_top = 16.0
+offset_bottom = 60.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Toolbar")
 
@@ -152,7 +150,7 @@ theme_override_constants/margin_bottom = 5
 
 [node name="HBox" type="HBoxContainer" parent="ToolBarContainer/ToolBarMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 15
 alignment = 2
 
 [node name="HideUIButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
@@ -177,7 +175,7 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("3_vt4bd")
+texture = ExtResource("4_06rsy")
 expand_mode = 1
 stretch_mode = 5
 
@@ -229,7 +227,7 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("5_06rsy")
+texture = ExtResource("6_nxv13")
 expand_mode = 1
 stretch_mode = 5
 

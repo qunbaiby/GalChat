@@ -2,7 +2,7 @@
 class_name StoryPortraitActor
 extends Node2D
 
-const DEFAULT_ANIM_SCALE := Vector2(0.8, 0.8)
+const DEFAULT_ANIM_SCALE := Vector2(0.65, 0.65)
 const DEFAULT_STATIC_LIMIT := Vector2(500.0, 750.0)
 const AVATAR_STATIC_LIMIT := Vector2(350.0, 650.0)
 const ACTIVE_SCALE_MULTIPLIER := 1.002

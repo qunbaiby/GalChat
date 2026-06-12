@@ -23,7 +23,7 @@ texture = SubResource("GradientTexture2D_StageShadow")
 
 [node name="CharacterAni" type="AnimatedSprite2D" parent="."]
 visible = false
-scale = Vector2(0.65, 0.65)
+scale = Vector2(0.6, 0.6)
 sprite_frames = ExtResource("2_pyxsq")
 
 [node name="StaticSprite" type="Sprite2D" parent="."]
