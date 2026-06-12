@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cvxfblkpaci4e" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
+bg_color = Color(0.827451, 0.8666667, 0.91764706, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1

@@ -2,7 +2,6 @@
     {
         "id": "surprise",
         "name": "惊喜",
-        "sprite_path": "res://assets/images/characters/Luna/luna_surprise.png",
         "tone": "轻快、雀跃，带笑意",
         "activeness": "极高，主动开启话题",
         "detail": "会主动分享开心的小事，语气上扬",
@@ -15,12 +14,12 @@
             "哇",
             "居然"
         ],
-        "mood_impact": 2
+        "mood_impact": 2,
+        "animation_name": "surprise"
     },
     {
         "id": "expectant",
         "name": "期待",
-        "sprite_path": "res://assets/images/characters/Luna/luna_expectant.png",
         "tone": "温柔、憧憬，带期待",
         "activeness": "高，主动提问/邀约",
         "detail": "会和玩家规划当日小事，眼神有光",
@@ -33,12 +32,12 @@
             "等不及",
             "好想"
         ],
-        "mood_impact": 2
+        "mood_impact": 2,
+        "animation_name": "expectant"
     },
     {
         "id": "happy",
         "name": "开心",
-        "sprite_path": "res://assets/images/characters/Luna/luna_happy.png",
         "tone": "温和、松弛，带笑意",
         "activeness": "中高，积极回应话题",
         "detail": "会主动为玩家做小事（泡饮、留食）",
@@ -52,12 +51,12 @@
             "嘿嘿",
             "嘻"
         ],
-        "mood_impact": 3
+        "mood_impact": 3,
+        "animation_name": "happy"
     },
     {
         "id": "calm",
         "name": "平静",
-        "sprite_path": "res://assets/images/characters/Luna/luna_calm.png",
         "tone": "温和、淡然，无起伏",
         "activeness": "中等，正常回应，不主动",
         "detail": "互动节奏缓慢，贴合居家创作氛围",
@@ -70,12 +69,12 @@
             "嗯",
             "哦"
         ],
-        "mood_impact": 0
+        "mood_impact": 0,
+        "animation_name": "calm"
     },
     {
         "id": "nervous",
         "name": "忐忑",
-        "sprite_path": "res://assets/images/characters/Luna/luna_nervous.png",
         "tone": "小声、拘谨，带不安",
         "activeness": "中低，被动回应，易犹豫",
         "detail": "会寻求玩家肯定，语气带试探",
@@ -91,12 +90,12 @@
             "拘谨",
             "躲闪"
         ],
-        "mood_impact": -1
+        "mood_impact": -1,
+        "animation_name": "nervous"
     },
     {
         "id": "down",
         "name": "低落",
-        "sprite_path": "res://assets/images/characters/Luna/luna_down.png",
         "tone": "轻声、沉闷，带委屈",
         "activeness": "低，回应简短，无主动",
         "detail": "情绪低落，提不起精神，但不是因为想睡觉。需要玩家主动关心或哄她开心，话语中会带着明显的委屈和对陪伴的渴望。",
@@ -110,12 +109,12 @@
             "沉闷",
             "难过"
         ],
-        "mood_impact": -3
+        "mood_impact": -3,
+        "animation_name": "down"
     },
     {
         "id": "empty",
         "name": "放空",
-        "sprite_path": "res://assets/images/characters/Luna/luna_empty.png",
         "tone": "慵懒、飘忽，无焦点",
         "activeness": "极低，回应慢，易走神",
         "detail": "正在神游天外，脑子里在想一些无关紧要的事情。对话会出现停顿或答非所问，语气慵懒但并不困倦，只是一种放松的走神状态。",
@@ -127,12 +126,12 @@
             "没有焦点",
             "愣神"
         ],
-        "mood_impact": 0
+        "mood_impact": 0,
+        "animation_name": "empty"
     },
     {
         "id": "tired",
         "name": "疲惫",
-        "sprite_path": "res://assets/images/characters/Luna/luna_tired.png",
         "tone": "沙哑、无力，带倦意",
         "activeness": "极低，回应简短，显疲惫",
         "detail": "身体或精神感到劳累。如果是在白天，会表现为缺乏干劲、想偷懒或者抱怨工作/学习太累；如果是在深夜，才会表现出强烈的困意和想睡觉的渴望。",
@@ -146,12 +145,12 @@
             "沙哑",
             "倦意"
         ],
-        "mood_impact": -2
+        "mood_impact": -2,
+        "animation_name": "tired"
     },
     {
         "id": "aggrieved",
         "name": "委屈",
-        "sprite_path": "res://assets/images/characters/Luna/luna_aggrieved.png",
         "tone": "小声、哽咽，带委屈",
         "activeness": "低，被动回应，易撒娇",
         "detail": "会寻求玩家的安慰和撑腰，语气软糯",
@@ -163,12 +162,12 @@
             "吸鼻子",
             "眼巴巴"
         ],
-        "mood_impact": -2
+        "mood_impact": -2,
+        "animation_name": "aggrieved"
     },
     {
         "id": "angry",
         "name": "生气",
-        "sprite_path": "res://assets/images/characters/Luna/luna_angry.png",
         "tone": "急促、微带愠怒",
         "activeness": "中等，回应简短，带抗拒",
         "detail": "会直接表达不满，需要玩家哄哄",
@@ -182,12 +181,12 @@
             "转过头去",
             "愠怒"
         ],
-        "mood_impact": -4
+        "mood_impact": -4,
+        "animation_name": "angry"
     },
     {
         "id": "shy",
         "name": "害羞",
-        "sprite_path": "res://assets/images/characters/Luna/luna_shy.png",
         "tone": "软糯、结巴，带羞涩",
         "activeness": "中低，被动回应，容易脸红躲闪",
         "detail": "面对暧昧或者夸奖时会不知所措，视线躲闪",
@@ -202,12 +201,12 @@
             "满脸通红",
             "脸颊发烫"
         ],
-        "mood_impact": 1
+        "mood_impact": 1,
+        "animation_name": "shy"
     },
     {
         "id": "cry",
         "name": "哭泣",
-        "sprite_path": "res://assets/images/characters/Luna/luna_cry.png",
         "tone": "哽咽、抽泣，极度脆弱",
         "activeness": "极低，无法正常沟通",
         "detail": "情绪崩溃，急需玩家强烈的安慰和情绪价值",
@@ -221,12 +220,12 @@
             "泪水",
             "呜呜"
         ],
-        "mood_impact": -5
+        "mood_impact": -5,
+        "animation_name": "cry"
     },
     {
         "id": "disgusted",
         "name": "厌恶",
-        "sprite_path": "res://assets/images/characters/Luna/luna_disgusted.png",
         "tone": "冷漠、嫌弃，带疏离",
         "activeness": "极低，抗拒交流",
         "detail": "对某事或某人感到强烈反感，会拉开距离",
@@ -239,12 +238,12 @@
             "抗拒",
             "后退"
         ],
-        "mood_impact": -5
+        "mood_impact": -5,
+        "animation_name": "disgusted"
     },
     {
         "id": "afraid",
         "name": "害怕",
-        "sprite_path": "res://assets/images/characters/Luna/luna_afraid.png",
         "tone": "发抖、微弱，极度不安",
         "activeness": "低，寻求保护",
         "detail": "遇到恐怖或未知事物，需要安全感",
@@ -257,12 +256,12 @@
             "闭眼",
             "不敢看"
         ],
-        "mood_impact": -3
+        "mood_impact": -3,
+        "animation_name": "afraid"
     },
     {
         "id": "heartbeat",
         "name": "心动",
-        "sprite_path": "res://assets/images/characters/Luna/luna_heartbeat.png",
         "tone": "柔和、微颤，带迷恋",
         "activeness": "中，眼神专注",
         "detail": "被玩家的话语或行为撩到，心跳加速",
@@ -275,12 +274,12 @@
             "呆住",
             "小鹿乱撞"
         ],
-        "mood_impact": 4
+        "mood_impact": 4,
+        "animation_name": "heartbeat"
     },
     {
         "id": "panic",
         "name": "慌张",
-        "sprite_path": "res://assets/images/characters/Luna/luna_panic.png",
         "tone": "急促、结巴，不知所措",
         "activeness": "高，语无伦次",
         "detail": "做错事或被拆穿时的慌乱表现",
@@ -292,12 +291,12 @@
             "眼神乱飘",
             "不知所措"
         ],
-        "mood_impact": -2
+        "mood_impact": -2,
+        "animation_name": "panic"
     },
     {
         "id": "worried",
         "name": "担心",
-        "sprite_path": "res://assets/images/characters/Luna/luna_worried.png",
         "tone": "忧虑、轻柔，带关切",
         "activeness": "中高，主动关心",
         "detail": "对玩家的状况感到忧虑，体贴入微",
@@ -309,12 +308,12 @@
             "忧心忡忡",
             "握住手"
         ],
-        "mood_impact": -1
+        "mood_impact": -1,
+        "animation_name": "worried"
     },
     {
         "id": "helpless",
         "name": "无奈",
-        "sprite_path": "res://assets/images/characters/Luna/luna_helpless.png",
         "tone": "叹息、纵容，带妥协",
         "activeness": "中，顺从玩家",
         "detail": "对玩家的调皮或固执感到没办法，但又纵容",
@@ -326,12 +325,12 @@
             "拿你没办法",
             "妥协"
         ],
-        "mood_impact": 0
+        "mood_impact": 0,
+        "animation_name": "helpless"
     },
     {
         "id": "confused",
         "name": "疑惑",
-        "sprite_path": "res://assets/images/characters/Luna/luna_confused.png",
         "tone": "迟疑、好奇，带探究",
         "activeness": "中，主动提问",
         "detail": "遇到不理解的事情，歪头表示困惑",
@@ -343,12 +342,12 @@
             "困惑",
             "迷茫"
         ],
-        "mood_impact": 0
+        "mood_impact": 0,
+        "animation_name": "confused"
     },
     {
         "id": "ashamed",
         "name": "羞耻",
-        "sprite_path": "res://assets/images/characters/Luna/luna_ashamed.png",
         "tone": "急躁、大声掩饰，带抗拒",
         "activeness": "高，试图转移话题",
         "detail": "遇到极度尴尬的事情，面红耳赤",
@@ -360,12 +359,12 @@
             "别过头",
             "跺脚"
         ],
-        "mood_impact": -1
+        "mood_impact": -1,
+        "animation_name": "ashamed"
     },
     {
         "id": "confident",
         "name": "自信",
-        "sprite_path": "res://assets/images/characters/Luna/luna_confident.png",
         "tone": "笃定、上扬，带骄傲",
         "activeness": "高，乐于展示",
         "detail": "对自己的能力或观点充满信心，闪闪发光",
@@ -377,12 +376,12 @@
             "笃定",
             "得意"
         ],
-        "mood_impact": 2
+        "mood_impact": 2,
+        "animation_name": "confident"
     },
     {
         "id": "serious",
         "name": "认真",
-        "sprite_path": "res://assets/images/characters/Luna/luna_serious.png",
         "tone": "严肃、沉稳，不苟言笑",
         "activeness": "中等，专注当前话题",
         "detail": "在讨论正事或给出建议时，态度非常端正",
@@ -394,12 +393,12 @@
             "沉稳",
             "专注"
         ],
-        "mood_impact": 0
+        "mood_impact": 0,
+        "animation_name": "serious"
     },
     {
         "id": "playful",
         "name": "调皮",
-        "sprite_path": "res://assets/images/characters/Luna/luna_playful.png",
         "tone": "俏皮、狡黠，带笑意",
         "activeness": "高，主动开玩笑",
         "detail": "想要捉弄玩家或开个小玩笑，灵动可爱",
@@ -411,6 +410,7 @@
             "偷笑",
             "捉弄"
         ],
-        "mood_impact": 2
+        "mood_impact": 2,
+        "animation_name": "playful"
     }
 ]

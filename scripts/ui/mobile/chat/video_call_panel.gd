@@ -116,11 +116,33 @@ func _update_character_ani() -> void:
     var expression = "calm"
     if char_profile:
         expression = char_profile.current_expression
-    
-    # 获取图片路径
+
+    # 优先使用 AnimatedSprite2D 的表情动画，静态图只作为兼容回退。
+    var frames = current_ani.sprite_frames
+    var animation_name = GameDataManager.expression_system.get_expression_animation_name(expression)
+    if frames and frames.has_animation(animation_name):
+        _clear_dynamic_sprite()
+        current_ani.show()
+        current_ani.play(animation_name)
+        return
+    if frames and frames.has_animation("calm"):
+        _clear_dynamic_sprite()
+        current_ani.show()
+        current_ani.play("calm")
+        return
+    if frames and frames.has_animation("idle"):
+        _clear_dynamic_sprite()
+        current_ani.show()
+        current_ani.play("idle")
+        return
+    if frames and frames.has_animation("default"):
+        _clear_dynamic_sprite()
+        current_ani.show()
+        current_ani.play("default")
+        return
+
     var sprite_path = GameDataManager.expression_system.get_expression_sprite_path(expression)
     if sprite_path != "":
-        # 如果是外部文件
         if sprite_path.begins_with("user://"):
             var img = Image.new()
             var err = img.load(sprite_path)
@@ -128,25 +150,11 @@ func _update_character_ani() -> void:
                 var tex = ImageTexture.create_from_image(img)
                 _set_sprite_texture(tex)
                 return
-        # 如果是内置文件
         elif ResourceLoader.exists(sprite_path):
             var tex = load(sprite_path)
             if tex is Texture2D:
                 _set_sprite_texture(tex)
                 return
-                
-    # 回退到 AnimatedSprite2D 自身配置
-    var frames = current_ani.sprite_frames
-    if frames and frames.has_animation(expression):
-        current_ani.play(expression)
-    else:
-        # 如果没有对应心情的动画，尝试回退到 "calm" 或 "idle" 等默认动画
-        if frames and frames.has_animation("calm"):
-            current_ani.play("calm")
-        elif frames and frames.has_animation("idle"):
-            current_ani.play("idle")
-        elif frames and frames.has_animation("default"):
-            current_ani.play("default")
 
 func _set_sprite_texture(tex: Texture2D) -> void:
     # 动态创建一个 Sprite2D 来替代 AnimatedSprite2D 的显示
@@ -161,6 +169,11 @@ func _set_sprite_texture(tex: Texture2D) -> void:
     dynamic_sprite.texture = tex
     dynamic_sprite.show()
     current_ani.hide()
+
+func _clear_dynamic_sprite() -> void:
+    var dynamic_sprite = get_node_or_null("Panel/CharacterContainer/DynamicSprite")
+    if dynamic_sprite:
+        dynamic_sprite.hide()
 
 func _on_hangup_pressed() -> void:
     if audio_player.playing:

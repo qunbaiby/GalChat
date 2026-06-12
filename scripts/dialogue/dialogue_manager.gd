@@ -1030,257 +1030,257 @@ func _send_player_message(text: String, is_system_event: bool = false) -> void:
 		
 	if not is_system_event:
 		# Wait for the typewriter effect of the player's message to finish before requesting AI response
-        await _show_message_async(text, "我")
-    
-    _request_ai_response(text, is_system_event)
-    
-    # 检查是否达到最大轮次，在发送请求后关闭模式，这样本次请求还能带上策略
-    if is_free_chat_mode and free_chat_max_rounds > 0 and free_chat_current_round >= free_chat_max_rounds:
-        _reset_free_chat_state()
-        ToastManager.show_system_toast("自由对话阶段结束", Color(0.8, 0.4, 0.1, 0.9))
-        
-        # 如果是作为独立剧情执行的最后一个事件，手动调用恢复以触发 _on_script_finished
-        if script_engine.is_running:
-            script_engine.resume()
+		await _show_message_async(text, "我")
+	
+	_request_ai_response(text, is_system_event)
+	
+	# 检查是否达到最大轮次，在发送请求后关闭模式，这样本次请求还能带上策略
+	if is_free_chat_mode and free_chat_max_rounds > 0 and free_chat_current_round >= free_chat_max_rounds:
+		_reset_free_chat_state()
+		ToastManager.show_system_toast("自由对话阶段结束", Color(0.8, 0.4, 0.1, 0.9))
+		
+		# 如果是作为独立剧情执行的最后一个事件，手动调用恢复以触发 _on_script_finished
+		if script_engine.is_running:
+			script_engine.resume()
 
 func _generate_narrator_and_continue() -> void:
-    send_btn.disabled = true
-    input_field.editable = false
-    print("正在生成场景旁白...")
-    # 清空对话框内容，保持干净
-    if dialogue_text:
-        dialogue_text.text = ""
-    if name_label:
-        name_label.text = ""
-    deepseek_client.send_narrator_generation()
+	send_btn.disabled = true
+	input_field.editable = false
+	print("正在生成场景旁白...")
+	# 清空对话框内容，保持干净
+	if dialogue_text:
+		dialogue_text.text = ""
+	if name_label:
+		name_label.text = ""
+	deepseek_client.send_narrator_generation()
 
 func _on_narrator_response(response: Dictionary) -> void:
-    if response.has("choices") and response["choices"].size() > 0:
-        var narrator_text = response["choices"][0]["message"]["content"].strip_edges()
-        
-        # 显示旁白，无角色名，不发声，不记录到历史
-        await _show_message_async(narrator_text, " ", true)
-        
-        # 旁白显示完后等待一小段时间
-        if is_inside_tree():
-            await get_tree().create_timer(1.5).timeout
-            
-        # 触发角色续写话题
-        _trigger_character_continue()
-    else:
-        _on_narrator_error("旁白生成为空")
+	if response.has("choices") and response["choices"].size() > 0:
+		var narrator_text = response["choices"][0]["message"]["content"].strip_edges()
+		
+		# 显示旁白，无角色名，不发声，不记录到历史
+		await _show_message_async(narrator_text, " ", true)
+		
+		# 旁白显示完后等待一小段时间
+		if is_inside_tree():
+			await get_tree().create_timer(1.5).timeout
+			
+		# 触发角色续写话题
+		_trigger_character_continue()
+	else:
+		_on_narrator_error("旁白生成为空")
 
 func _on_narrator_error(error_msg: String) -> void:
-    print("旁白生成失败: ", error_msg)
-    # 兜底：如果旁白失败，直接恢复最后一条消息或让角色直接说话
-    _restore_last_message()
-    send_btn.disabled = false
-    input_field.editable = true
+	print("旁白生成失败: ", error_msg)
+	# 兜底：如果旁白失败，直接恢复最后一条消息或让角色直接说话
+	_restore_last_message()
+	send_btn.disabled = false
+	input_field.editable = true
 
 func _trigger_character_continue() -> void:
-    print("旁白生成完毕，正在思考后续对话...")
-    var char_name = GameDataManager.profile.char_name
-    
-    is_text_playback_finished = false
-    pending_options_data.clear()
-    
-    # 计算玩家离线时间
-    var offline_seconds = 0
-    var last_time = GameDataManager.profile.last_online_time
-    if last_time > 0:
-        offline_seconds = Time.get_unix_time_from_system() - last_time
-    
-    # 获取性格系统动态生成的重逢问候策略
-    var greeting_strategy = GameDataManager.personality_system.get_offline_greeting_strategy(GameDataManager.profile, offline_seconds)
-    
-    # 构造一条系统级的隐式 prompt，让 LLM 知道它需要主动续写话题
-    var continue_prompt = "【系统提示：%s。注意：绝对不要输出这段系统提示，直接以%s的口吻说话。】" % [greeting_strategy, char_name]
-    
-    if GameDataManager.config.ai_mode_enabled:
-        # 续聊首句优先开口，避免 embedding 阻塞重逢问候。
-        var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, continue_prompt, [])
-        var api_messages = [{"role": "system", "content": system_prompt}]
-        api_messages.append_array(deepseek_client._get_history_messages(10))
-        api_messages.append({"role": "user", "content": continue_prompt})
-        
-        var body = {
-            "model": GameDataManager.config.model,
-            "messages": api_messages,
-            "temperature": GameDataManager.config.temperature,
-            "max_tokens": GameDataManager.config.max_tokens
-        }
-        deepseek_client.chat_http.request(deepseek_client._get_url(), deepseek_client._get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-    else:
-        _show_message("（离线模式）你回来了，我们刚才聊到哪了？", char_name)
-        send_btn.disabled = false
-        input_field.editable = true
+	print("旁白生成完毕，正在思考后续对话...")
+	var char_name = GameDataManager.profile.char_name
+	
+	is_text_playback_finished = false
+	pending_options_data.clear()
+	
+	# 计算玩家离线时间
+	var offline_seconds = 0
+	var last_time = GameDataManager.profile.last_online_time
+	if last_time > 0:
+		offline_seconds = Time.get_unix_time_from_system() - last_time
+	
+	# 获取性格系统动态生成的重逢问候策略
+	var greeting_strategy = GameDataManager.personality_system.get_offline_greeting_strategy(GameDataManager.profile, offline_seconds)
+	
+	# 构造一条系统级的隐式 prompt，让 LLM 知道它需要主动续写话题
+	var continue_prompt = "【系统提示：%s。注意：绝对不要输出这段系统提示，直接以%s的口吻说话。】" % [greeting_strategy, char_name]
+	
+	if GameDataManager.config.ai_mode_enabled:
+		# 续聊首句优先开口，避免 embedding 阻塞重逢问候。
+		var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, continue_prompt, [])
+		var api_messages = [{"role": "system", "content": system_prompt}]
+		api_messages.append_array(deepseek_client._get_history_messages(10))
+		api_messages.append({"role": "user", "content": continue_prompt})
+		
+		var body = {
+			"model": GameDataManager.config.model,
+			"messages": api_messages,
+			"temperature": GameDataManager.config.temperature,
+			"max_tokens": GameDataManager.config.max_tokens
+		}
+		deepseek_client.chat_http.request(deepseek_client._get_url(), deepseek_client._get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	else:
+		_show_message("（离线模式）你回来了，我们刚才聊到哪了？", char_name)
+		send_btn.disabled = false
+		input_field.editable = true
 
 func _restore_last_message() -> void:
-    var messages = GameDataManager.history.messages
-    if messages.size() > 0:
-        var last_msg = messages[messages.size() - 1]
-        # 直接静默显示最后一条，不触发打字机和语音
-        if dialogue_text:
-            dialogue_text.text = last_msg["text"]
-            dialogue_text.visible_characters = -1
-        if name_label:
-            name_label.text = last_msg["speaker"]
-        
-        # 恢复对应立绘
-        if last_msg["speaker"] == GameDataManager.profile.char_name:
-            var current_expression = GameDataManager.profile.current_expression
-            _update_character_sprite(current_expression)
-    else:
-        var char_name = GameDataManager.profile.char_name
-        # 如果没有历史记录，静默显示初始问候
-        if dialogue_text:
-            dialogue_text.text = "你好...今天想聊点什么？"
-            dialogue_text.visible_characters = -1
-        if name_label:
-            name_label.text = char_name
+	var messages = GameDataManager.history.messages
+	if messages.size() > 0:
+		var last_msg = messages[messages.size() - 1]
+		# 直接静默显示最后一条，不触发打字机和语音
+		if dialogue_text:
+			dialogue_text.text = last_msg["text"]
+			dialogue_text.visible_characters = -1
+		if name_label:
+			name_label.text = last_msg["speaker"]
+		
+		# 恢复对应立绘
+		if last_msg["speaker"] == GameDataManager.profile.char_name:
+			var current_expression = GameDataManager.profile.current_expression
+			_update_character_sprite(current_expression)
+	else:
+		var char_name = GameDataManager.profile.char_name
+		# 如果没有历史记录，静默显示初始问候
+		if dialogue_text:
+			dialogue_text.text = "你好...今天想聊点什么？"
+			dialogue_text.visible_characters = -1
+		if name_label:
+			name_label.text = char_name
 
 func _on_input_text_changed() -> void:
-    if input_field and input_field.text.length() > 120:
-        input_field.text = input_field.text.substr(0, 120)
-        input_field.set_caret_column(120)
+	if input_field and input_field.text.length() > 120:
+		input_field.text = input_field.text.substr(0, 120)
+		input_field.set_caret_column(120)
 
 func _update_ui() -> void:
-    pass
+	pass
 
 func _on_character_switched(char_id: String) -> void:
-    ToastManager.show_system_toast("已切换到角色：" + char_id, Color.CYAN)
-    
-    # 清空现有对话UI
-    if dialogue_text:
-        dialogue_text.text = ""
-    if name_label:
-        name_label.text = ""
-    
-    _update_ui()
-    
-    # 初始问候或恢复历史记录
-    var messages = GameDataManager.history.messages
-    if messages.size() == 0:
-        var char_name = GameDataManager.profile.char_name
-        _show_message("你好...今天想聊点什么？", char_name, false)
-    else:
-        _restore_last_message()
+	ToastManager.show_system_toast("已切换到角色：" + char_id, Color.CYAN)
+	
+	# 清空现有对话UI
+	if dialogue_text:
+		dialogue_text.text = ""
+	if name_label:
+		name_label.text = ""
+	
+	_update_ui()
+	
+	# 初始问候或恢复历史记录
+	var messages = GameDataManager.history.messages
+	if messages.size() == 0:
+		var char_name = GameDataManager.profile.char_name
+		_show_message("你好...今天想聊点什么？", char_name, false)
+	else:
+		_restore_last_message()
 
 func _input(event: InputEvent) -> void:
-    if event is InputEventKey and event.pressed:
-        if event.keycode == KEY_F10:
-            GameDataManager.switch_character("luna")
-        elif event.keycode == KEY_F11:
-            GameDataManager.switch_character("ya")
-        elif event.keycode == KEY_F12:
-            if debug_panel == null:
-                if DEBUG_PANEL_SCENE == null:
-                    push_error("[DialogueManager] 无法加载调试面板场景：res://scenes/ui/story/debug_panel.tscn")
-                    return
-                debug_panel = DEBUG_PANEL_SCENE.instantiate()
-                add_child(debug_panel)
-                debug_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-                debug_panel.stage_changed.connect(_on_debug_stage_changed)
-                debug_panel.show_panel() # Instantiate and show directly
-            elif debug_panel.visible:
-                debug_panel.hide()
-            else:
-                debug_panel.show_panel()
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_F10:
+			GameDataManager.switch_character("luna")
+		elif event.keycode == KEY_F11:
+			GameDataManager.switch_character("ya")
+		elif event.keycode == KEY_F12:
+			if debug_panel == null:
+				if DEBUG_PANEL_SCENE == null:
+					push_error("[DialogueManager] 无法加载调试面板场景：res://scenes/ui/story/debug_panel.tscn")
+					return
+				debug_panel = DEBUG_PANEL_SCENE.instantiate()
+				add_child(debug_panel)
+				debug_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				debug_panel.stage_changed.connect(_on_debug_stage_changed)
+				debug_panel.show_panel() # Instantiate and show directly
+			elif debug_panel.visible:
+				debug_panel.hide()
+			else:
+				debug_panel.show_panel()
 
 func show_panel() -> void:
-    show()
-    var target: CanvasItem = ui_panel if ui_panel and ui_panel != self else self
-    target.show()
-    target.modulate.a = 0.0
-    var tween = create_tween()
-    tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-    tween.tween_property(target, "modulate:a", 1.0, 0.3)
-    if target is Control:
-        target.scale = Vector2(0.95, 0.95)
-        target.pivot_offset = get_viewport_rect().size / 2.0
-        var scale_tween = create_tween()
-        scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-        scale_tween.tween_property(target, "scale", Vector2(1.0, 1.0), 0.3)
+	show()
+	var target: CanvasItem = ui_panel if ui_panel and ui_panel != self else self
+	target.show()
+	target.modulate.a = 0.0
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(target, "modulate:a", 1.0, 0.3)
+	if target is Control:
+		target.scale = Vector2(0.95, 0.95)
+		target.pivot_offset = get_viewport_rect().size / 2.0
+		var scale_tween = create_tween()
+		scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		scale_tween.tween_property(target, "scale", Vector2(1.0, 1.0), 0.3)
 
 func _show_accumulated_stats() -> void:
-    var display_keys = {
-        "intimacy": "亲密",
-        "trust": "信任"
-    }
-    
-    for key in _accumulated_stats.keys():
-        var val = _accumulated_stats[key]
-        if abs(val) > 0.01: # Avoid floating point inaccuracies
-            if display_keys.has(key):
-                var sign_str = "+" if val > 0 else ""
-                var formatted_val = sign_str + ("%.1f" % val)
-                ToastManager.show_stat_toast(key, display_keys[key] + " " + formatted_val)
-        _accumulated_stats[key] = 0.0 # reset for next time
+	var display_keys = {
+		"intimacy": "亲密",
+		"trust": "信任"
+	}
+	
+	for key in _accumulated_stats.keys():
+		var val = _accumulated_stats[key]
+		if abs(val) > 0.01: # Avoid floating point inaccuracies
+			if display_keys.has(key):
+				var sign_str = "+" if val > 0 else ""
+				var formatted_val = sign_str + ("%.1f" % val)
+				ToastManager.show_stat_toast(key, display_keys[key] + " " + formatted_val)
+		_accumulated_stats[key] = 0.0 # reset for next time
 
 func hide_panel() -> void:
-    _show_accumulated_stats()
-    var target: CanvasItem = ui_panel if ui_panel and ui_panel != self else self
-    var tween = create_tween()
-    tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
-    tween.tween_property(target, "modulate:a", 0.0, 0.2)
-    if target is Control:
-        var scale_tween = create_tween()
-        scale_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
-        scale_tween.tween_property(target, "scale", Vector2(0.9, 0.9), 0.2)
-    tween.finished.connect(func():
-        if dialogue_panel and dialogue_panel.has_method("set_story_mode"):
-            dialogue_panel.set_story_mode(false)
-        if target != self:
-            target.hide()
-        hide()
-        chat_closed.emit()
-        
-        # 强制检查：如果正在运行剧情且没有因为正常轮次耗尽而结束，玩家手动退出了界面，
-        # 我们也视作当前挂起的剧情结束，防止无法保存剧情状态。
-        if script_engine.is_running:
-            script_engine._end_script()
-        _script_ai_chat_active = false
-        _script_ai_chat_prompt_override = ""
-        _reset_free_chat_state()
-            
-        # 重置等待标志
-        _waiting_for_chat_exit = false
-        
-        # 如果当前是根场景（例如初次进入的开场剧情），返回应该切换到主场景
-        if get_parent() == get_tree().root:
-            if get_tree().root.has_node("SceneTransitionManager"):
-                get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/main/main_scene.tscn")
-            else:
-                get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
-    )
+	_show_accumulated_stats()
+	var target: CanvasItem = ui_panel if ui_panel and ui_panel != self else self
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(target, "modulate:a", 0.0, 0.2)
+	if target is Control:
+		var scale_tween = create_tween()
+		scale_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		scale_tween.tween_property(target, "scale", Vector2(0.9, 0.9), 0.2)
+	tween.finished.connect(func():
+		if dialogue_panel and dialogue_panel.has_method("set_story_mode"):
+			dialogue_panel.set_story_mode(false)
+		if target != self:
+			target.hide()
+		hide()
+		chat_closed.emit()
+		
+		# 强制检查：如果正在运行剧情且没有因为正常轮次耗尽而结束，玩家手动退出了界面，
+		# 我们也视作当前挂起的剧情结束，防止无法保存剧情状态。
+		if script_engine.is_running:
+			script_engine._end_script()
+		_script_ai_chat_active = false
+		_script_ai_chat_prompt_override = ""
+		_reset_free_chat_state()
+			
+		# 重置等待标志
+		_waiting_for_chat_exit = false
+		
+		# 如果当前是根场景（例如初次进入的开场剧情），返回应该切换到主场景
+		if get_parent() == get_tree().root:
+			if get_tree().root.has_node("SceneTransitionManager"):
+				get_tree().root.get_node("SceneTransitionManager").transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+			else:
+				get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
+	)
 
 func _on_hide_ui_pressed() -> void:
-    if _ui_tween:
-        _ui_tween.kill()
-    _ui_tween = create_tween()
-    _ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
-    _ui_tween.tween_callback(func(): ui_panel.visible = false)
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
 
 func _on_click_blocker_input(event: InputEvent) -> void:
-    if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-        if camera_panel_instance and camera_panel_instance.visible:
-            return
-            
-        if not ui_panel.visible or ui_panel.modulate.a < 0.99:
-            get_viewport().set_input_as_handled()
-            if _ui_tween:
-                _ui_tween.kill()
-            ui_panel.visible = true
-            _ui_tween = create_tween()
-            _ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
-        else:
-            if dialogue_text.visible_ratio < 1.0:
-                get_viewport().set_input_as_handled()
-                if _typewriter_tween:
-                    _typewriter_tween.kill()
-                dialogue_text.visible_ratio = 1.0
-                dialogue_text.visible_characters = -1
-                
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if camera_panel_instance and camera_panel_instance.visible:
+			return
+			
+		if not ui_panel.visible or ui_panel.modulate.a < 0.99:
+			get_viewport().set_input_as_handled()
+			if _ui_tween:
+				_ui_tween.kill()
+			ui_panel.visible = true
+			_ui_tween = create_tween()
+			_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
+		else:
+			if dialogue_text.visible_ratio < 1.0:
+				get_viewport().set_input_as_handled()
+				if _typewriter_tween:
+					_typewriter_tween.kill()
+				dialogue_text.visible_ratio = 1.0
+				dialogue_text.visible_characters = -1
+				
 				# Make sure we finish the tween's intended outcome immediately if we killed it
 				# We don't emit finished here, but we can wait briefly and then if it's intro we wait for next click
 				
@@ -1468,8 +1468,12 @@ func _on_debug_mood_changed(expression: String) -> void:
 	_update_ui()
 
 func _update_character_sprite(expression: String) -> void:
+	if character_layer and character_layer.has_method("update_expression"):
+		character_layer.update_expression(expression)
+		return
+
 	var sprite_path = GameDataManager.expression_system.get_expression_sprite_path(expression)
-	if sprite_path != "":
+	if sprite_path != "" and ResourceLoader.exists(sprite_path):
 		var tex = load(sprite_path)
 		if tex:
 			if character_layer and character_layer.has_method("update_sprite"):

@@ -9,7 +9,63 @@ animations = [{
 "texture": ExtResource("1_5bem3")
 }],
 "loop": true,
+"name": &"afraid",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"aggrieved",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"angry",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"ashamed",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
 "name": &"calm",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"confident",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"confused",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"cry",
 "speed": 5.0
 }, {
 "frames": [{
@@ -26,5 +82,125 @@ animations = [{
 }],
 "loop": true,
 "name": &"defult",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"disgusted",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"empty",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"expectant",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"happy",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"heartbeat",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"helpless",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"nervous",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"panic",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"playful",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"serious",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"shy",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"surprise",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"tired",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5bem3")
+}],
+"loop": true,
+"name": &"worried",
 "speed": 5.0
 }]

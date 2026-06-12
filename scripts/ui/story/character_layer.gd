@@ -252,6 +252,23 @@ func update_sprite(new_texture: Texture2D) -> void:
 	if default_actor:
 		default_actor.update_texture(new_texture, false)
 
+func update_expression(expression_id: String) -> void:
+	if expression_id.strip_edges() == "":
+		return
+
+	if _story_mode_enabled:
+		var target_id = _get_effective_focus_id()
+		if target_id == "" and _story_actor_map.has(_get_current_character_id()):
+			target_id = _get_current_character_id()
+		if target_id != "":
+			var state = _ensure_story_actor_state(target_id)
+			state["expression"] = expression_id
+			_configure_actor_from_state(target_id)
+			_sync_story_cast(true)
+			return
+
+	_refresh_default_actor(false)
+
 func play_animation(_anim_name: String, _loop: bool = true) -> void:
 	# 兼容旧调用，现阶段由单个 Actor 自行选择默认动画。
 	pass
@@ -490,9 +507,6 @@ func _build_character_payload(char_id: String, display_name: String = "", expres
 		payload["avatar"] = GameDataManager.profile.avatar
 		payload["base_anim_scale_x"] = 0.8
 		payload["base_anim_scale_y"] = 0.8
-		var expression_texture = _load_current_expression_texture(expression)
-		if expression_texture != null:
-			payload["expression_texture"] = expression_texture
 		return payload
 
 	var char_data = _load_character_data(char_id)
@@ -537,29 +551,6 @@ func _resolve_character_name_from_data(char_id: String, char_data: Dictionary) -
 		if npc_name != "":
 			return npc_name
 	return _beautify_character_name(char_id)
-
-func _load_current_expression_texture(expression_override: String = "") -> Texture2D:
-	if GameDataManager.profile == null or GameDataManager.expression_system == null:
-		return null
-	var expression = expression_override.strip_edges()
-	if expression == "":
-		expression = str(GameDataManager.profile.current_expression).strip_edges()
-	if expression == "":
-		return null
-	var sprite_path = GameDataManager.expression_system.get_expression_sprite_path(expression)
-	if sprite_path == "":
-		return null
-	if sprite_path.begins_with("user://"):
-		var image = Image.new()
-		var err = image.load(sprite_path)
-		if err == OK:
-			return ImageTexture.create_from_image(image)
-		return null
-	if ResourceLoader.exists(sprite_path):
-		var tex = load(sprite_path)
-		if tex is Texture2D:
-			return tex
-	return null
 
 func _get_current_character_id() -> String:
 	if GameDataManager.config == null:

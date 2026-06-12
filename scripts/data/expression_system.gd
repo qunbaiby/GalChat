@@ -67,10 +67,14 @@ func get_expression_sprite_path(expression_id: String) -> String:
 	ext_path = "user://game_data/characters/%s/avatar/%s.png" % [GameDataManager.config.current_character_id, expression_id]
 	if FileAccess.file_exists(ext_path):
 		return ext_path
-		
-	if expression_configs.has(expression_id):
-		return expression_configs[expression_id].get("sprite_path", "")
 	return ""
+
+func get_expression_animation_name(expression_id: String) -> String:
+	if expression_configs.has(expression_id):
+		var animation_name := str(expression_configs[expression_id].get("animation_name", "")).strip_edges()
+		if animation_name != "":
+			return animation_name
+	return expression_id
 
 func get_expression_impact(expression_id: String) -> float:
 	if expression_configs.has(expression_id):

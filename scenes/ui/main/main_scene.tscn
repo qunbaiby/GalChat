@@ -328,6 +328,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="DefaultRoomBg" parent="BackgroundContainer" instance=ExtResource("2_fvueq")]
+visible = false
 layout_mode = 1
 
 [node name="DialoguePanel" parent="." instance=ExtResource("14_dialogue")]
