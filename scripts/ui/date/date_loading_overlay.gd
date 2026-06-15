@@ -81,8 +81,10 @@ func cancel() -> void:
 func _update_header(context: Dictionary) -> void:
 	var date_plan: Array = context.get("date_plan", [])
 	var segment_count: int = date_plan.size()
-	title_label.text = "今日约会准备中" if segment_count >= 2 else "约会准备中"
-	kicker_label.text = "Luna 正在赴约" if segment_count <= 1 else "Luna 正在整理今天的约会安排"
+	var style: Dictionary = _get_loading_style(context)
+	var default_name := str(context.get("character_name", "她"))
+	title_label.text = str(style.get("title_multi", "今日约会准备中")) if segment_count >= 2 else str(style.get("title_single", "约会准备中"))
+	kicker_label.text = str(style.get("kicker_single", "%s 正在赴约" % default_name)) if segment_count <= 1 else str(style.get("kicker_multi", "%s 正在整理今天的约会安排" % default_name))
 
 
 func _update_summary(context: Dictionary) -> void:
@@ -127,27 +129,36 @@ func _build_hint_text(context: Dictionary) -> String:
 	if not hint_candidates.is_empty():
 		var hint_index: int = ((_token - 1) % hint_candidates.size() + hint_candidates.size()) % hint_candidates.size()
 		return hint_candidates[hint_index]
-
+	var style: Dictionary = _get_loading_style(context)
 	if date_plan.size() >= 2:
-		return "Luna 正在慢慢整理心情，像是很在意今天和你的见面..."
-	return "Luna 正在想着，这次见面要不要先对你笑一下..."
+		return str(style.get("default_hint_multi", "她正在慢慢整理心情，像是很在意今天和你的见面..."))
+	return str(style.get("default_hint_single", "她正在想着，这次见面要不要先对你笑一下..."))
 
 
 func _build_tips(context: Dictionary) -> Array[String]:
-	var tips: Array[String] = [
-		"Luna 正在整理今天的心情...",
-		"Luna 正在确认这次约会的安排...",
-		"Luna 正在对着镜子做最后检查..."
-	]
+	var style: Dictionary = _get_loading_style(context)
+	var tips: Array[String] = []
+	var default_statuses: Variant = style.get("default_statuses", [])
+	if default_statuses is Array:
+		for item in default_statuses:
+			var text := str(item).strip_edges()
+			if text != "":
+				tips.append(text)
+	if tips.is_empty():
+		tips = [
+			"她正在整理今天的心情...",
+			"她正在确认这次约会的安排...",
+			"她正在做最后的出门准备..."
+		]
 
 	var weather_id := str(context.get("story_weather_id", "sunny"))
-	match weather_id:
-		"rainy", "thunder":
-			tips.append("Luna 正在确认有没有带伞...")
-		"foggy":
-			tips.append("Luna 正在挑一件适合微凉天气的外套...")
-		_:
-			tips.append("Luna 正在挑选今天适合出门的搭配...")
+	var weather_tips: Dictionary = style.get("weather_tips", {})
+	var weather_candidates: Variant = weather_tips.get(weather_id, weather_tips.get("default", []))
+	if weather_candidates is Array:
+		for item in weather_candidates:
+			var text := str(item).strip_edges()
+			if text != "":
+				tips.append(text)
 
 	var date_plan: Array = context.get("date_plan", [])
 	var type_ids: Array[String] = []
@@ -158,26 +169,37 @@ func _build_tips(context: Dictionary) -> Array[String]:
 		if type_id != "" and not type_ids.has(type_id):
 			type_ids.append(type_id)
 
+	var type_tips: Dictionary = style.get("type_tips", {})
 	for type_id in type_ids:
-		match type_id:
-			"stroll":
-				tips.append("Luna 正在想等会儿要不要和你慢慢走一段路...")
-			"shopping":
-				tips.append("Luna 正在猜今天会不会逛到喜欢的小东西...")
-			"exhibition":
-				tips.append("Luna 正在挑一件安静又好看的搭配...")
-			"dining":
-				tips.append("Luna 正在犹豫要不要喷一点淡淡的香水...")
+		var type_candidates: Variant = type_tips.get(type_id, [])
+		if type_candidates is Array:
+			for item in type_candidates:
+				var text := str(item).strip_edges()
+				if text != "":
+					tips.append(text)
 
 	var stage_num := int(context.get("relationship_stage", 1))
+	var stage_tips: Dictionary = style.get("stage_tips", {})
+	var stage_key := "early"
 	if stage_num >= 4:
-		tips.append("Luna 似乎比平时多花了一点时间准备今天的见面...")
+		stage_key = "late"
 	elif stage_num >= 2:
-		tips.append("Luna 正在想着等会儿该先和你聊什么...")
-	else:
-		tips.append("Luna 正在认真整理仪容，不想让今天显得太随便...")
+		stage_key = "mid"
+	var stage_candidates: Variant = stage_tips.get(stage_key, [])
+	if stage_candidates is Array:
+		for item in stage_candidates:
+			var text := str(item).strip_edges()
+			if text != "":
+				tips.append(text)
 
 	return tips
+
+
+func _get_loading_style(context: Dictionary) -> Dictionary:
+	var style_variant: Variant = context.get("date_loading_style", {})
+	if style_variant is Dictionary:
+		return style_variant
+	return {}
 
 
 func _cycle_tips(token: int) -> void:

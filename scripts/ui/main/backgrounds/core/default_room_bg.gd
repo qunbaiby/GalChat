@@ -91,16 +91,19 @@ func _unhandled_input(event: InputEvent) -> void:
 							get_viewport().set_input_as_handled()
 
 func _on_character_clicked() -> void:
+	request_idle_quote()
+
+func request_idle_quote() -> bool:
 	if _is_idle_speaking or _is_ui_hidden:
-		return
+		return false
 		
 	if not idle_bubble_panel or not idle_bubble_label:
 		push_warning("闲聊气泡未配置: 请在场景中添加 IdleQuoteBubble 节点及其子节点 Label")
-		return
+		return false
 		
 	var deepseek_client = get_tree().root.get_node_or_null("MainScene/DeepSeekClient")
 	if not deepseek_client:
-		return
+		return false
 		
 	_is_idle_speaking = true
 	
@@ -110,6 +113,10 @@ func _on_character_clicked() -> void:
 		deepseek_client.idle_quote_failed.connect(_on_idle_quote_failed)
 		
 	deepseek_client.send_idle_quote_generation(GameDataManager.profile.current_character_id)
+	return true
+
+func is_idle_quote_playing() -> bool:
+	return _is_idle_speaking
 
 func _on_idle_quote_completed(quote: String) -> void:
 	var deepseek_client = get_tree().root.get_node_or_null("MainScene/DeepSeekClient")

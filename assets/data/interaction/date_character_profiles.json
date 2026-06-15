@@ -1,0 +1,129 @@
+{
+  "default": {
+    "portrait_sprite_frames_path": "",
+    "greeting_prompt": "【系统指令】玩家打开了约会面板，准备邀请你去约会。请以角色本人此刻的口吻，说一句简短的约会开场白，带一点期待感。要求：一句话即可，不要带括号动作描述。",
+    "greeting_fallback": "今天天气不错，你想带我去哪里？",
+    "tts": {
+      "doubao_voice_type": "",
+      "qwen_voice_type": ""
+    },
+    "date_preferences": {
+      "favorite_types": [],
+      "disliked_types": [],
+      "slot_comments": {
+        "default": [
+          "{location_name}吗？听起来会是不错的一段时间。",
+          "如果是去{location_name}，我会有点期待。",
+          "把{period_label}留给{location_name}，好像也挺合适的。"
+        ]
+      }
+    },
+    "loading_style": {
+      "title_single": "约会准备中",
+      "title_multi": "今日约会准备中",
+      "kicker_single": "她正在赴约",
+      "kicker_multi": "她正在整理今天的约会安排",
+      "default_statuses": [
+        "她正在整理今天的心情...",
+        "她正在确认这次约会的安排...",
+        "她正在做最后的出门准备..."
+      ],
+      "weather_tips": {
+        "rainy": ["她正在确认有没有带伞..."],
+        "thunder": ["她正在确认有没有带伞..."],
+        "foggy": ["她正在挑一件适合微凉天气的外套..."],
+        "default": ["她正在挑选今天适合出门的搭配..."]
+      },
+      "type_tips": {
+        "stroll": ["她正在想着等会儿要不要和你慢慢走一段路..."],
+        "shopping": ["她正在猜今天会不会逛到喜欢的小东西..."],
+        "exhibition": ["她正在挑一件安静又好看的搭配..."],
+        "dining": ["她正在犹豫要不要喷一点淡淡的香水..."],
+        "real_photo": ["她正在好奇你会带她去一个怎样的现实场景..."]
+      },
+      "stage_tips": {
+        "early": ["她正在认真整理仪容，不想让今天显得太随便..."],
+        "mid": ["她正在想着等会儿该先和你聊什么..."],
+        "late": ["她似乎比平时多花了一点时间准备今天的见面..."]
+      },
+      "default_hint_single": "她正在想着，这次见面要不要先对你笑一下...",
+      "default_hint_multi": "她正在慢慢整理心情，像是很在意今天和你的见面..."
+    }
+  },
+  "luna": {
+    "portrait_sprite_frames_path": "res://assets/images/characters/Luna/luna.tres",
+    "greeting_prompt": "【系统指令】玩家打开了约会面板，准备邀请Luna去约会。请以Luna的口吻，说一句简短的约会开场白，带点期待或者小傲娇。要求：一句话即可，不要带括号动作描述。",
+    "greeting_fallback": "今天天气不错，你想带我去哪里？",
+    "tts": {
+      "doubao_voice_type": "BV001_streaming",
+      "qwen_voice_type": "Cherry"
+    },
+    "date_preferences": {
+      "favorite_types": ["stroll", "dining", "exhibition"],
+      "disliked_types": [],
+      "slot_comments": {
+        "default": [
+          "{location_name}啊……听起来就像会留下回忆的地方。",
+          "把{period_label}留给{location_name}，我会认真期待的。",
+          "如果是去{location_name}，那我得提前想想该穿什么了。"
+        ],
+        "stroll": [
+          "{location_name}很适合慢慢走，说不定还能多和你聊一会儿。",
+          "漫步的话，我更想把脚步放慢一点，和你一起看沿路的风景。",
+          "{period_label}去{location_name}，感觉会很舒服。"
+        ],
+        "shopping": [
+          "{location_name}吗？那我可要稍微认真挑一下今天的搭配。",
+          "逛街的话，我可能会忍不住多看几眼适合你的东西。",
+          "要是去了{location_name}，你可不能嫌我挑太久。"
+        ],
+        "exhibition": [
+          "{location_name}听起来就很安静，我会想和你并肩慢慢看。",
+          "如果是在{location_name}，说不定能遇到让人心动的小瞬间。",
+          "看展或者看电影都不错，尤其是和你一起的时候。"
+        ],
+        "dining": [
+          "{location_name}的话……我会稍微期待一下今天的味道。",
+          "餐饮小聚总会让人放松下来，尤其是和喜欢的人一起。",
+          "要是去{location_name}，我大概会想把时间拖得久一点。"
+        ],
+        "real_photo": [
+          "现实里的地方吗？突然有点想知道你想带我去哪里。",
+          "这种只有你知道的场景，会让我更想看看。",
+          "把现实里的风景留给我，我会认真记住的。"
+        ]
+      }
+    },
+    "loading_style": {
+      "title_single": "约会准备中",
+      "title_multi": "今日约会准备中",
+      "kicker_single": "Luna 正在赴约",
+      "kicker_multi": "Luna 正在整理今天的约会安排",
+      "default_statuses": [
+        "Luna 正在整理今天的心情...",
+        "Luna 正在确认这次约会的安排...",
+        "Luna 正在对着镜子做最后检查..."
+      ],
+      "weather_tips": {
+        "rainy": ["Luna 正在确认有没有带伞..."],
+        "thunder": ["Luna 正在确认有没有带伞..."],
+        "foggy": ["Luna 正在挑一件适合微凉天气的外套..."],
+        "default": ["Luna 正在挑选今天适合出门的搭配..."]
+      },
+      "type_tips": {
+        "stroll": ["Luna 正在想等会儿要不要和你慢慢走一段路..."],
+        "shopping": ["Luna 正在猜今天会不会逛到喜欢的小东西..."],
+        "exhibition": ["Luna 正在挑一件安静又好看的搭配..."],
+        "dining": ["Luna 正在犹豫要不要喷一点淡淡的香水..."],
+        "real_photo": ["Luna 正在偷偷猜测你会上传什么现实照片..."]
+      },
+      "stage_tips": {
+        "early": ["Luna 正在认真整理仪容，不想让今天显得太随便..."],
+        "mid": ["Luna 正在想着等会儿该先和你聊什么..."],
+        "late": ["Luna 似乎比平时多花了一点时间准备今天的见面..."]
+      },
+      "default_hint_single": "Luna 正在想着，这次见面要不要先对你笑一下...",
+      "default_hint_multi": "Luna 正在慢慢整理心情，像是很在意今天和你的见面..."
+    }
+  }
+}

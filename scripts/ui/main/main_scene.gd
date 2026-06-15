@@ -7,6 +7,9 @@ const BackgroundSettingPanelScene = preload("res://scenes/ui/main/background_set
 const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 const MAIN_BACKGROUND_DATA_PATH := "res://assets/data/main_backgrounds.json"
+const MAIN_SCENE_IDLE_CHAT_MIN_SECONDS := 55.0
+const MAIN_SCENE_IDLE_CHAT_MAX_SECONDS := 95.0
+const MAIN_SCENE_IDLE_CHAT_RETRY_SECONDS := 12.0
 
 @onready var ui_panel: Panel = $UIPanel
 @onready var rest_button: Button = $UIPanel/BottomBarHBox/ActionHBox/RestButton
@@ -106,6 +109,8 @@ var _ui_tween: Tween = null
 var _mood_hover_tween: Tween = null
 var audio_player: AudioStreamPlayer = null
 var _proactive_bubble_request_in_flight: bool = false
+var _main_scene_idle_chat_elapsed: float = 0.0
+var _main_scene_idle_chat_interval: float = MAIN_SCENE_IDLE_CHAT_MIN_SECONDS
 
 var map_scene_instance = null
 
@@ -1962,25 +1967,105 @@ func _ready() -> void:
 	_afk_timer.autostart = true
 	_afk_timer.timeout.connect(_check_afk_status)
 	add_child(_afk_timer)
+	_reset_idle_chatter_timer()
 
 	# 先同步主按钮状态，避免下面的延迟逻辑执行期间仍保留旧文案和旧行为。
 	_update_button_states_by_time()
 	
-	# 检查是否刚刚完成开场剧情，如果是则触发主动问候
+	# 进入主场景后仍会先弹一次主动问候气泡；开场剧情标记只用于清理一次性状态。
+	var should_try_memory_revisit: bool = GameDataManager.history and GameDataManager.history.messages.size() > 0
 	if GameDataManager.get_meta("just_finished_intro_story", false):
 		GameDataManager.set_meta("just_finished_intro_story", false)
-		# 延迟 1.5 秒再触发主动问候，使得场景过渡更加平滑
-		await get_tree().create_timer(1.5).timeout
+	await get_tree().create_timer(1.0).timeout
+	if is_inside_tree():
 		_trigger_proactive_greeting()
-	elif GameDataManager.history and GameDataManager.history.messages.size() > 0:
-		await get_tree().create_timer(0.8).timeout
-		_try_trigger_memory_revisit()
+		_reset_idle_chatter_timer()
+	if should_try_memory_revisit:
+		await get_tree().create_timer(2.8).timeout
+		if is_inside_tree() and not _proactive_bubble_request_in_flight:
+			if not (is_instance_valid(current_bg_scene) and current_bg_scene.has_method("is_idle_quote_playing") and current_bg_scene.is_idle_quote_playing()):
+				_try_trigger_memory_revisit()
 
 	if GameDataManager.story_time_manager:
 		GameDataManager.story_time_manager.time_advanced.connect(_on_story_time_advanced)
 
 func _process(delta: float) -> void:
-	pass
+	_update_main_scene_idle_chatter(delta)
+
+func _input(event: InputEvent) -> void:
+	if _is_idle_activity_event(event):
+		_note_main_scene_activity()
+
+func _is_idle_activity_event(event: InputEvent) -> bool:
+	if event is InputEventMouseButton:
+		return event.pressed
+	if event is InputEventKey:
+		return event.pressed and not event.echo
+	if event is InputEventScreenTouch:
+		return event.pressed
+	return false
+
+func _reset_idle_chatter_timer(min_interval: float = MAIN_SCENE_IDLE_CHAT_MIN_SECONDS) -> void:
+	_main_scene_idle_chat_elapsed = 0.0
+	var clamped_min: float = clampf(min_interval, 1.0, MAIN_SCENE_IDLE_CHAT_MAX_SECONDS)
+	_main_scene_idle_chat_interval = randf_range(clamped_min, MAIN_SCENE_IDLE_CHAT_MAX_SECONDS)
+
+func _note_main_scene_activity() -> void:
+	_reset_idle_chatter_timer()
+
+func _can_trigger_idle_chatter() -> bool:
+	if _is_afk or _story_mode_active or _bg_transition_active:
+		return false
+	if _phone_mode_active or (is_instance_valid(mobile_interface_instance) and mobile_interface_instance.visible):
+		return false
+	if is_instance_valid(camera_panel_instance) and camera_panel_instance.visible:
+		return false
+	if is_instance_valid(dialogue_panel) and dialogue_panel.visible:
+		return false
+	if _interaction_ui_locked_by_dialogue:
+		return false
+	if is_instance_valid(chat_scene_instance) and chat_scene_instance.visible:
+		return false
+	if is_instance_valid(schedule_panel_instance) and schedule_panel_instance.visible:
+		return false
+	if is_instance_valid(activity_panel_instance) and activity_panel_instance.visible:
+		return false
+	if is_instance_valid(history_panel_instance) and history_panel_instance.visible:
+		return false
+	if is_instance_valid(archive_panel_instance) and archive_panel_instance.visible:
+		return false
+	if is_instance_valid(wardrobe_panel) and wardrobe_panel.visible:
+		return false
+	if is_instance_valid(diary_panel) and diary_panel.visible:
+		return false
+	if is_instance_valid(affection_popup_frame) and affection_popup_frame.visible:
+		return false
+	if not is_instance_valid(current_bg_scene):
+		return false
+	if not current_bg_scene.has_method("request_idle_quote"):
+		return false
+	if current_bg_scene.has_method("is_idle_quote_playing") and current_bg_scene.is_idle_quote_playing():
+		return false
+	return true
+
+func _trigger_main_scene_idle_chatter() -> bool:
+	if not _can_trigger_idle_chatter():
+		return false
+	if current_bg_scene.has_method("request_idle_quote"):
+		return bool(current_bg_scene.request_idle_quote())
+	return false
+
+func _update_main_scene_idle_chatter(delta: float) -> void:
+	if not _can_trigger_idle_chatter():
+		_main_scene_idle_chat_elapsed = 0.0
+		return
+	_main_scene_idle_chat_elapsed += delta
+	if _main_scene_idle_chat_elapsed < _main_scene_idle_chat_interval:
+		return
+	if _trigger_main_scene_idle_chatter():
+		_reset_idle_chatter_timer()
+	else:
+		_reset_idle_chatter_timer(MAIN_SCENE_IDLE_CHAT_RETRY_SECONDS)
 
 func _get_interact_trigger_button() -> Button:
 	if not is_instance_valid(current_bg_scene):
@@ -2461,6 +2546,7 @@ func _on_exit_afk() -> void:
 	print("[MainScene] 退出后台挂机模式，恢复音乐与进度")
 	if bgm:
 		bgm.stream_paused = false
+	_reset_idle_chatter_timer()
 
 func _on_desktop_pet_pressed() -> void:
 	if _is_ui_blocked(): return

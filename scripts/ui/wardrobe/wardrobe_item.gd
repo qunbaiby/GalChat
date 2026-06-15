@@ -66,13 +66,19 @@ func _apply_visual_state() -> void:
 			card_style = locked_style
 		elif is_selected and selected_style:
 			card_style = selected_style
-		card_panel.add_theme_stylebox_override("panel", card_style)
+		if card_style:
+			card_panel.add_theme_stylebox_override("panel", card_style)
+		else:
+			card_panel.remove_theme_stylebox_override("panel")
 
 	if preview_panel:
 		var preview_style := preview_normal_style
 		if not is_unlocked and preview_locked_style:
 			preview_style = preview_locked_style
-		preview_panel.add_theme_stylebox_override("panel", preview_style)
+		if preview_style:
+			preview_panel.add_theme_stylebox_override("panel", preview_style)
+		else:
+			preview_panel.remove_theme_stylebox_override("panel")
 
 	wearing_badge.visible = is_wearing
 	lock_badge.visible = not is_unlocked

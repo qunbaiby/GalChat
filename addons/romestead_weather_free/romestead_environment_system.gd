@@ -31,6 +31,48 @@ const WEATHER_DATABASE := {
 		"wind": 1.0,
 		"wetness": 0.0
 	},
+	"cloudy": {
+		"name": "Cloudy",
+		"spawn_frequency": 10.0,
+		"compatible_weather_ids": [],
+		"duration": [300.0, 900.0],
+		"radius_scale": [1.0, 1.0],
+		"velocity_scale": 0.0,
+		"ambient_rgb": [0.95, 0.97, 1.0],
+		"sun_multiplier": 0.86,
+		"moon_multiplier": 0.92,
+		"light_curve": 0.06,
+		"wind": 1.15,
+		"wetness": 0.02
+	},
+	"overcast": {
+		"name": "Overcast",
+		"spawn_frequency": 8.0,
+		"compatible_weather_ids": [],
+		"duration": [360.0, 1000.0],
+		"radius_scale": [1.0, 1.0],
+		"velocity_scale": 0.0,
+		"ambient_rgb": [0.84, 0.87, 0.92],
+		"sun_multiplier": 0.68,
+		"moon_multiplier": 0.8,
+		"light_curve": 0.18,
+		"wind": 1.25,
+		"wetness": 0.08
+	},
+	"foggy": {
+		"name": "Foggy",
+		"spawn_frequency": 6.0,
+		"compatible_weather_ids": [],
+		"duration": [260.0, 700.0],
+		"radius_scale": [1.0, 1.0],
+		"velocity_scale": 0.0,
+		"ambient_rgb": [0.9, 0.93, 0.95],
+		"sun_multiplier": 0.74,
+		"moon_multiplier": 0.86,
+		"light_curve": 0.14,
+		"wind": 0.4,
+		"wetness": 0.12
+	},
 	"rainy": {
 		"name": "Rain",
 		"spawn_frequency": 15.0,
@@ -210,34 +252,40 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not key_event.pressed or key_event.echo:
 		return
 	var hotkey_number := _preview_hotkey_number(key_event)
-	if hotkey_number < 1:
+	if hotkey_number == -1:
 		return
 	match hotkey_number:
 		1:
 			clear_weather()
 			get_viewport().set_input_as_handled()
 		2:
-			set_preview_weather("rainy")
+			transition_preview_weather("cloudy")
 			get_viewport().set_input_as_handled()
 		3:
-			set_preview_weather("thunder")
+			transition_preview_weather("overcast")
 			get_viewport().set_input_as_handled()
 		4:
-			set_preview_weather("snow")
+			transition_preview_weather("foggy")
 			get_viewport().set_input_as_handled()
 		5:
-			set_hour(5.5)
+			transition_preview_weather("rainy")
 			get_viewport().set_input_as_handled()
 		6:
-			set_hour(12.0)
+			transition_preview_weather("thunder")
 			get_viewport().set_input_as_handled()
 		7:
-			set_hour(21.5)
+			transition_preview_weather("snow")
 			get_viewport().set_input_as_handled()
 		8:
-			set_hour(23.5)
+			set_hour(5.5)
 			get_viewport().set_input_as_handled()
 		9:
+			set_hour(12.0)
+			get_viewport().set_input_as_handled()
+		0:
+			set_hour(21.5)
+			get_viewport().set_input_as_handled()
+		-10:
 			skip_to_next_day(6.0)
 			get_viewport().set_input_as_handled()
 
@@ -246,13 +294,15 @@ func _preview_hotkey_number(key_event: InputEventKey) -> int:
 	if not key_event.shift_pressed or key_event.ctrl_pressed or key_event.alt_pressed or key_event.meta_pressed:
 		return -1
 	var number := _digit_from_keycode(key_event.keycode)
-	if number >= 1:
+	if number != -1:
 		return number
 	return _digit_from_keycode(key_event.physical_keycode)
 
 
 func _digit_from_keycode(keycode: int) -> int:
 	match keycode:
+		KEY_0:
+			return 0
 		KEY_1:
 			return 1
 		KEY_2:
@@ -271,6 +321,8 @@ func _digit_from_keycode(keycode: int) -> int:
 			return 8
 		KEY_9:
 			return 9
+		KEY_MINUS:
+			return -10
 		_:
 			return -1
 
@@ -333,6 +385,33 @@ func set_preview_weather(weather_id: String, radius: float = 1800.0, duration: f
 	return spawn_weather(weather_id, _focus_position(), radius, radius, duration, Vector2.ZERO, true, true, WEATHER_FADE_SECONDS)
 
 
+func transition_preview_weather(weather_id: String, radius: float = 1800.0, duration: float = 1200.0, transition_seconds: float = WEATHER_FADE_SECONDS) -> Dictionary:
+	var normalized_weather_id: String = weather_id.strip_edges()
+	if normalized_weather_id.is_empty():
+		fade_out_all_weather(transition_seconds)
+		return {}
+	if not WEATHER_DATABASE.has(normalized_weather_id):
+		push_warning("Unknown weather id: %s" % normalized_weather_id)
+		return {}
+	var focus: Vector2 = _focus_position()
+	var target_instance: Dictionary = {}
+	for instance_id in weather_instances.keys():
+		var instance: Dictionary = weather_instances[instance_id]
+		var instance_weather_id: String = str(instance.get("weather_id", ""))
+		if instance_weather_id == normalized_weather_id:
+			instance["position"] = focus
+			instance["size"] = Vector2(max(1.0, radius), max(1.0, radius))
+			instance["life_length"] = max(duration, transition_seconds + 0.01)
+			instance["do_not_auto_remove"] = true
+			weather_instances[instance_id] = instance
+			target_instance = instance
+			continue
+		_fade_out_weather_instance(int(instance_id), transition_seconds)
+	if target_instance.is_empty():
+		target_instance = spawn_weather(normalized_weather_id, focus, radius, radius, duration, Vector2.ZERO, false, true, 0.0)
+	return target_instance
+
+
 func spawn_weather(weather_id: String, position: Vector2, radius_x: float, radius_y: float, duration: float, velocity: Vector2, clear_other_weather := false, do_not_auto_remove := false, timer: float = 0.0) -> Dictionary:
 	if not WEATHER_DATABASE.has(weather_id):
 		push_warning("Unknown weather id: %s" % weather_id)
@@ -362,13 +441,15 @@ func remove_weather(instance_id: int, fade_out := true) -> void:
 	if not weather_instances.has(instance_id):
 		return
 	if fade_out:
-		var instance: Dictionary = weather_instances[instance_id]
-		var fade_time: float = min(WEATHER_FADE_SECONDS, float(instance["timer"]))
-		instance["timer"] = max(float(instance["timer"]), float(instance["life_length"]) - fade_time)
-		weather_instances[instance_id] = instance
+		_fade_out_weather_instance(instance_id, WEATHER_FADE_SECONDS)
 		return
 	weather_instances.erase(instance_id)
 	emit_signal("weather_removed", instance_id)
+
+
+func fade_out_all_weather(transition_seconds: float = WEATHER_FADE_SECONDS) -> void:
+	for instance_id in weather_instances.keys():
+		_fade_out_weather_instance(int(instance_id), transition_seconds)
 
 
 func clear_weather() -> void:
@@ -381,6 +462,16 @@ func clear_weather() -> void:
 
 func get_weather_strength(weather_id: String) -> float:
 	return float(weather_strengths.get(weather_id, 0.0))
+
+
+func _fade_out_weather_instance(instance_id: int, transition_seconds: float) -> void:
+	if not weather_instances.has(instance_id):
+		return
+	var instance: Dictionary = weather_instances[instance_id]
+	var fade_time: float = min(max(0.01, transition_seconds), float(instance["life_length"]))
+	instance["timer"] = max(float(instance["timer"]), float(instance["life_length"]) - fade_time)
+	instance["do_not_auto_remove"] = false
+	weather_instances[instance_id] = instance
 
 
 func get_weather_instance_strength(instance_id: int) -> float:

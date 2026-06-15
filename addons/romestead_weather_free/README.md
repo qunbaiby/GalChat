@@ -28,15 +28,17 @@ romestead_weather_free/
 
 ## 预览热键
 
-- `Shift+1`：清除天气。
-- `Shift+2`：切到雨天。
-- `Shift+3`：切到雷暴。
-- `Shift+4`：切到下雪。
-- `Shift+5`：跳到 `05:30`。
-- `Shift+6`：跳到 `12:00`。
-- `Shift+7`：跳到 `21:30`。
-- `Shift+8`：跳到 `23:30`。
-- `Shift+9`：跳到下一天 `06:00`。
+- `Shift+1`：清除天气 / 晴天。
+- `Shift+2`：切到多云。
+- `Shift+3`：切到阴天。
+- `Shift+4`：切到雾天。
+- `Shift+5`：切到雨天。
+- `Shift+6`：切到雷暴。
+- `Shift+7`：切到下雪。
+- `Shift+8`：跳到 `05:30`。
+- `Shift+9`：跳到 `12:00`。
+- `Shift+0`：跳到 `21:30`。
+- `Shift+-`：跳到下一天 `06:00`。
 
 如需禁用热键，把 `enable_preview_hotkeys` 设为 `false`。
 
@@ -72,6 +74,10 @@ func _on_weather_changed(weather_id: String, strength: float) -> void:
 
 常用天气 id：
 
+- `normal`
+- `cloudy`
+- `overcast`
+- `foggy`
 - `rainy`
 - `thunder`
 - `snow`

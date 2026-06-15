@@ -48,6 +48,8 @@ signal idle_quote_failed(error_msg: String)
 signal image_to_image_completed(image_path: String)
 signal image_to_image_failed(error_message: String)
 
+const IDLE_QUOTE_CONFIG_PATH := "res://assets/data/interaction/idle_quote_config.json"
+
 var chat_http: HTTPRequest
 var emotion_http: HTTPRequest
 var memory_http: HTTPRequest
@@ -75,6 +77,8 @@ var _chat_stream_response_code: int = 0
 var _current_moment_reply_post_id: String = ""
 var _pending_memory_context: Dictionary = {}
 var _active_memory_context: Dictionary = {}
+var _idle_quote_config_cache: Dictionary = {}
+var _idle_quote_config_loaded: bool = false
 
 func _ready() -> void:
 	_update_script()
@@ -1671,6 +1675,314 @@ func send_image_to_image_request(base64_image: String, prompt: String) -> void:
 	# 使用 "i2i" 作为ID标识，底层会复用生成逻辑并返回保存的路径
 	image_client.generate_diary_illustration("i2i", prompt)
 
+func _resolve_idle_quote_time_context() -> Dictionary:
+	var story_time_manager = GameDataManager.story_time_manager
+	var current_hour: int = 8
+	var period_label: String = "上午"
+	if story_time_manager:
+		current_hour = int(story_time_manager.current_hour)
+		period_label = str(story_time_manager.current_period)
+	if current_hour >= 5 and current_hour < 12:
+		return {
+			"bucket": "早",
+			"hour": current_hour,
+			"period": period_label,
+			"guidance": "现在偏早段，适合聊刚醒来、早餐、出门前、打起精神、今天想怎么开始。"
+		}
+	if current_hour >= 12 and current_hour < 18:
+		return {
+			"bucket": "午",
+			"hour": current_hour,
+			"period": period_label,
+			"guidance": "现在偏午段，适合聊午饭、犯困、学习或工作进度、下午的疲惫感、想偷懒一下。"
+		}
+	return {
+		"bucket": "晚",
+		"hour": current_hour,
+		"period": period_label,
+		"guidance": "现在偏晚段，适合聊放松、陪伴、晚饭、夜色、收尾、别太晚睡。"
+	}
+
+func _resolve_idle_quote_weather_context() -> Dictionary:
+	var weather_desc: String = "晴天"
+	if GameDataManager.story_time_manager and GameDataManager.story_time_manager.has_method("get_story_weather_desc"):
+		weather_desc = str(GameDataManager.story_time_manager.get_story_weather_desc())
+	var guidance := "天气明朗，适合轻松、舒展、带一点晒太阳或出门心情的闲聊。"
+	match weather_desc:
+		"多云":
+			guidance = "天气有些发灰但不沉重，适合聊发呆、慢下来、想和你多待一会儿。"
+		"阴天":
+			guidance = "天气偏闷偏压，适合聊赖着、犯懒、需要陪伴、想被哄一哄。"
+		"有雾":
+			guidance = "空气朦胧，适合聊安静、贴近、小声提醒、像悄悄凑近一样的陪伴感。"
+		"雨天":
+			guidance = "下雨时适合聊带伞、潮湿、窝着休息、想被关心，语气可以更柔一点。"
+		"雷雨":
+			guidance = "天气有压迫感，适合聊担心、黏人一点、想确认你在不在身边。"
+		"雪天":
+			guidance = "天气偏冷，适合聊取暖、手冷、围巾、一起窝着或看雪。"
+	return {
+		"desc": weather_desc,
+		"guidance": guidance
+	}
+
+func _resolve_idle_quote_stage_guidance(profile: CharacterProfile, stage_conf: Dictionary) -> String:
+	var stage_index: int = int(profile.current_stage)
+	var stage_title: String = str(stage_conf.get("stageTitle", "陌生人"))
+	if stage_index <= 2:
+		return "当前关系还偏克制，主动但不要过火，更多是试探、自然问候、轻轻关心。"
+	if stage_index <= 4:
+		return "当前关系正在升温，可以更熟稔一点，带点分享欲、依赖感或软软的玩笑。"
+	if stage_index <= 6:
+		return "当前关系已经比较亲近，可以自然撒娇、轻微吃味、示弱或表达想陪着你。"
+	return "当前关系已经非常亲密，可以明显表现占有欲、依恋感、默契感和只有你们懂的小亲昵。"
+
+func _resolve_idle_quote_mood_guidance(mood_id: String, mood_name: String) -> String:
+	match mood_id:
+		"happy", "joy", "excited":
+			return "当前心情偏高，语气可以更轻快、俏皮、亮一点。"
+		"sad", "down", "melancholy":
+			return "当前心情偏低，语气可以更轻、更软，像想找你靠一下。"
+		"angry", "annoyed", "irritated":
+			return "当前心情有点别扭，允许轻微吐槽或闹小脾气，但不要真的尖锐。"
+		"shy", "bashful":
+			return "当前心情偏害羞，语气可以欲言又止、绕一点，但仍然自然。"
+		"tired", "sleepy":
+			return "当前心情偏疲惫，适合聊困、累、想偷懒、想让你陪一下。"
+		_:
+			return "当前心情是%s，语气要贴合这种状态，不要像机械问候。" % mood_name
+
+func _build_default_idle_quote_config() -> Dictionary:
+	return {
+		"categories": {
+			"关心型": {
+				"prompt_lines": [
+					"像下意识关心对方现在状态的一句话。",
+					"可以轻轻提醒吃饭、休息、别太累、别着凉。",
+					"关心要自然，不要像照本宣科。"
+				]
+			},
+			"撒娇型": {
+				"prompt_lines": [
+					"语气可以软一点、绕一点，像想让对方多哄一下。",
+					"允许轻微任性，但不能幼稚做作。",
+					"更像亲近之后不自觉露出来的小脾气。"
+				]
+			},
+			"吐槽型": {
+				"prompt_lines": [
+					"可以带一点轻吐槽、碎碎念、拿现在状态开小玩笑。",
+					"不要阴阳怪气，要像亲近时会有的小抱怨。",
+					"吐槽里最好还是藏一点在意。"
+				]
+			},
+			"陪伴型": {
+				"prompt_lines": [
+					"重点是陪着、在身边、和你一起待着的感觉。",
+					"像安静相处时忽然冒出来的一句。",
+					"不要太强事件性，更像日常陪伴。"
+				]
+			},
+			"黏人型": {
+				"prompt_lines": [
+					"可以更明显表现舍不得你走、想贴近、想确认你在。",
+					"语气要自然亲昵，不要油腻。",
+					"要有一点只有关系足够近才会出现的依恋感。"
+				]
+			},
+			"分享型": {
+				"prompt_lines": [
+					"像突然想把一个小感受、小发现、小念头说给对方听。",
+					"可以更生活化一点，像顺口分享今天此刻的状态。",
+					"重点是想和对方说，而不是汇报。"
+				]
+			}
+		}
+	}
+
+func _ensure_idle_quote_config_loaded() -> void:
+	if _idle_quote_config_loaded:
+		return
+	_idle_quote_config_loaded = true
+	_idle_quote_config_cache = _build_default_idle_quote_config()
+	if not FileAccess.file_exists(IDLE_QUOTE_CONFIG_PATH):
+		return
+	var file: FileAccess = FileAccess.open(IDLE_QUOTE_CONFIG_PATH, FileAccess.READ)
+	if file == null:
+		return
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) != OK:
+		return
+	var data: Variant = json.get_data()
+	if data is Dictionary:
+		_idle_quote_config_cache = data
+
+func _get_idle_quote_config() -> Dictionary:
+	_ensure_idle_quote_config_loaded()
+	return _idle_quote_config_cache
+
+func _build_default_idle_quote_stage_profile(stage_index: int) -> Dictionary:
+	if stage_index <= 2:
+		return {
+			"pick_count": 2,
+			"weights": {
+				"关心型": 4.8,
+				"陪伴型": 4.5,
+				"分享型": 3.2,
+				"吐槽型": 1.3,
+				"撒娇型": 0.8,
+				"黏人型": 0.4
+			}
+		}
+	if stage_index <= 4:
+		return {
+			"pick_count": 2,
+			"weights": {
+				"关心型": 4.4,
+				"陪伴型": 4.0,
+				"分享型": 3.0,
+				"吐槽型": 2.3,
+				"撒娇型": 1.8,
+				"黏人型": 1.1
+			}
+		}
+	if stage_index <= 6:
+		return {
+			"pick_count": 3,
+			"weights": {
+				"关心型": 3.5,
+				"陪伴型": 3.4,
+				"分享型": 2.2,
+				"吐槽型": 2.4,
+				"撒娇型": 3.3,
+				"黏人型": 2.8
+			}
+		}
+	return {
+		"pick_count": 3,
+		"weights": {
+			"关心型": 2.8,
+			"陪伴型": 3.2,
+			"分享型": 1.8,
+			"吐槽型": 2.2,
+			"撒娇型": 4.1,
+			"黏人型": 4.6
+		}
+	}
+
+func _resolve_idle_quote_stage_profile(profile: CharacterProfile, stage_conf: Dictionary) -> Dictionary:
+	var idle_profile_variant: Variant = stage_conf.get("idle_quote_profile", {})
+	if idle_profile_variant is Dictionary and not (idle_profile_variant as Dictionary).is_empty():
+		return idle_profile_variant
+	return _build_default_idle_quote_stage_profile(int(profile.current_stage))
+
+func _build_idle_quote_category_weights(stage_profile: Dictionary) -> Dictionary:
+	var weights_variant: Variant = stage_profile.get("weights", {})
+	return weights_variant if weights_variant is Dictionary else {}
+
+func _pick_weighted_idle_quote_categories(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator) -> Array[String]:
+	var stage_profile: Dictionary = _resolve_idle_quote_stage_profile(profile, stage_conf)
+	var weights: Dictionary = _build_idle_quote_category_weights(stage_profile)
+	var picked: Array[String] = []
+	var target_count: int = int(stage_profile.get("pick_count", 2 if int(profile.current_stage) <= 3 else 3))
+	var working_weights: Dictionary = weights.duplicate(true)
+	for _i in range(target_count):
+		var total_weight: float = 0.0
+		for key in working_weights.keys():
+			total_weight += float(working_weights[key])
+		if total_weight <= 0.0:
+			break
+		var roll: float = rng.randf_range(0.0, total_weight)
+		var cumulative: float = 0.0
+		for key in working_weights.keys():
+			cumulative += float(working_weights[key])
+			if roll <= cumulative:
+				picked.append(str(key))
+				working_weights.erase(key)
+				break
+	if picked.is_empty():
+		picked.append("陪伴型")
+	return picked
+
+func _build_idle_quote_category_prompts(category: String, time_bucket: String, weather_desc: String, mood_id: String) -> Array[String]:
+	var _unused_time_bucket: String = time_bucket
+	var _unused_weather_desc: String = weather_desc
+	var _unused_mood_id: String = mood_id
+	var config: Dictionary = _get_idle_quote_config()
+	var categories_variant: Variant = config.get("categories", {})
+	if categories_variant is Dictionary:
+		var categories: Dictionary = categories_variant
+		if categories.has(category):
+			var category_data_variant: Variant = categories.get(category, {})
+			if category_data_variant is Dictionary:
+				var category_data: Dictionary = category_data_variant
+				var prompt_lines_variant: Variant = category_data.get("prompt_lines", [])
+				if prompt_lines_variant is Array:
+					var result: Array[String] = []
+					for line_variant in prompt_lines_variant:
+						var line_text: String = str(line_variant).strip_edges()
+						if line_text != "":
+							result.append(line_text)
+					if not result.is_empty():
+						return result
+	return ["像生活里自然冒出来的一句闲聊。"]
+
+func _build_idle_quote_random_pool(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator, time_context: Dictionary, weather_context: Dictionary, mood_id: String, mood_name: String, mood_guidance: String, stage_title: String, stage_guidance: String) -> Dictionary:
+	var selected_categories: Array[String] = _pick_weighted_idle_quote_categories(profile, stage_conf, rng)
+	var pool: Array[String] = [
+		"轻轻打个招呼，但不要像客服问候。",
+		"随口提一下现在这个时段最容易出现的小感受。",
+		"像一起生活时突然冒出来的一句碎碎念。",
+		"顺势表达一点想陪着玩家的念头。"
+	]
+	match str(time_context.get("bucket", "早")):
+		"早":
+			pool.append_array([
+				"提一下刚醒、早餐、出门、赖床、清晨状态。",
+				"可以像在催人打起精神，但要温柔自然。",
+				"像早上见面时，下意识想先说的一句。"])
+		"午":
+			pool.append_array([
+				"提一下午饭、午休、犯困、下午还有点长。",
+				"可以像在关心玩家有没有偷偷摸鱼。",
+				"像中段疲惫时，想给对方一点缓冲。"])
+		"晚":
+			pool.append_array([
+				"提一下晚饭、放松、夜色、快收尾了。",
+				"可以自然带一点陪伴感或舍不得你太晚休息。",
+				"像夜里相处时不自觉放软的语气。"])
+	match str(weather_context.get("desc", "晴天")):
+		"晴天":
+			pool.append_array(["带一点舒展、亮堂、想出门或想晒太阳的感觉。"])
+		"多云":
+			pool.append_array(["带一点慵懒、发呆、安静陪着你的感觉。"])
+		"阴天":
+			pool.append_array(["带一点犯懒、想被陪、心情低低的柔软感。"])
+		"有雾":
+			pool.append_array(["语气可以更贴近、更轻声，像在你耳边悄悄说。"])
+		"雨天":
+			pool.append_array(["带一点潮湿天气下的窝着、带伞、别淋到的关心。"])
+		"雷雨":
+			pool.append_array(["可以更黏人一点，像想确认你在。"])
+		"雪天":
+			pool.append_array(["带一点冷、想取暖、想靠近的感觉。"])
+	if mood_name != "":
+		pool.append("要体现当前心情“%s”。" % mood_name)
+	pool.append(mood_guidance)
+	pool.append("当前关系阶段是“%s”，%s" % [stage_title, stage_guidance])
+	for category in selected_categories:
+		pool.append("本次闲聊优先走“%s”。" % category)
+		pool.append_array(_build_idle_quote_category_prompts(category, str(time_context.get("bucket", "早")), str(weather_context.get("desc", "晴天")), mood_id))
+	pool.shuffle()
+	var selected_count: int = mini(6, pool.size())
+	var selected: Array[String] = []
+	for i in range(selected_count):
+		selected.append(pool[i])
+	return {
+		"categories": selected_categories,
+		"prompt_text": "\n- " + "\n- ".join(selected)
+	}
+
 func send_idle_quote_generation(char_id: String) -> void:
 	_update_script()
 	if _is_api_key_empty():
@@ -1685,9 +1997,12 @@ func send_idle_quote_generation(char_id: String) -> void:
 	var char_name = profile.char_name
 	var personality = GameDataManager.personality_system.get_personality_summary(profile)
 	var stage_conf = profile.get_current_stage_config()
-	var stage_title = stage_conf.get("stageTitle", "陌生人")
-	var intimacy = profile.intimacy
-	var mood = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
+	var stage_title = str(stage_conf.get("stageTitle", "陌生人"))
+	var stage_desc = str(stage_conf.get("stageDesc", ""))
+	var intimacy = float(profile.intimacy)
+	var mood_data: Dictionary = GameDataManager.mood_system.get_macro_mood(profile.mood_value)
+	var mood = str(mood_data.get("name", "平静"))
+	var mood_id = str(mood_data.get("id", "calm"))
 	
 	var player_name = profile.player_title
 	if player_name.is_empty():
@@ -1696,19 +2011,38 @@ func send_idle_quote_generation(char_id: String) -> void:
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
 	var random_seed = rng.randi()
+	var time_context: Dictionary = _resolve_idle_quote_time_context()
+	var weather_context: Dictionary = _resolve_idle_quote_weather_context()
+	var mood_guidance: String = _resolve_idle_quote_mood_guidance(mood_id, mood)
+	var stage_guidance: String = _resolve_idle_quote_stage_guidance(profile, stage_conf)
+	var idle_pool: Dictionary = _build_idle_quote_random_pool(profile, stage_conf, rng, time_context, weather_context, mood_id, mood, mood_guidance, stage_title, stage_guidance)
+	var random_pool_text: String = str(idle_pool.get("prompt_text", ""))
+	var selected_categories: Array = idle_pool.get("categories", [])
 		
 	var system_prompt = "【系统设定】\n"
 	system_prompt += "你扮演的角色是：%s。\n" % char_name
 	system_prompt += "你的性格特征是：%s。\n" % personality
 	system_prompt += "你当前与【%s】的情感关系处于【%s】（亲密度：%.1f）。\n" % [player_name, stage_title, intimacy]
+	system_prompt += "当前关系描述：%s。\n" % stage_desc
 	system_prompt += "你当前的心情是：%s。\n" % mood
+	system_prompt += "当前主场景时段：%s（%02d点，%s）。\n" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))]
+	system_prompt += "当前剧情天气：%s。\n" % str(weather_context.get("desc", "晴天"))
+	system_prompt += "【四维语境】\n"
+	system_prompt += "时段引导：%s\n" % str(time_context.get("guidance", ""))
+	system_prompt += "天气引导：%s\n" % str(weather_context.get("guidance", ""))
+	system_prompt += "心情引导：%s\n" % mood_guidance
+	system_prompt += "关系引导：%s\n" % stage_guidance
+	system_prompt += "本次优先子类：%s\n" % " / ".join(PackedStringArray(selected_categories))
+	system_prompt += "【随机灵感池】%s\n" % random_pool_text
 	system_prompt += "【任务要求】\n"
-	system_prompt += "请根据你的性格、情感阶段以及当前心情，对【%s】说一句简短的话，比如倾诉心事、撒娇、吐槽或者打招呼。\n" % player_name
+	system_prompt += "请根据你的性格、情感阶段、当前心情、当前时段和天气，对【%s】主动说一句简短的话，比如倾诉心事、撒娇、吐槽、关心、碎碎念或者打招呼。\n" % player_name
 	system_prompt += "要求：\n"
-	system_prompt += "1. 每次必须提供完全不同的随机对话，禁止重复以前的回答。你可以随机选择问候、撒娇、开玩笑、表达关心或抱怨等不同方向。\n"
+	system_prompt += "1. 每次必须提供完全不同的随机对话，禁止重复以前的回答。优先围绕“本次优先子类”中的1到2种类型来写。\n"
 	system_prompt += "2. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n"
 	system_prompt += "3. 字数限制在25字以内。\n"
 	system_prompt += "4. 语气要自然、生活化。\n"
+	system_prompt += "5. 不要生硬点名“现在是早上/天气是雨天”，而是让这些语境自然渗进话里。\n"
+	system_prompt += "6. 这是常驻陪伴里的闲聊，不要像正式剧情开场，也不要像任务提示。\n"
 	system_prompt += "[随机因子：%d]\n" % random_seed
 	
 	var api_messages = [

@@ -7,6 +7,7 @@ var _debug_server_url := "http://127.0.0.1:7777/event"
 var _debug_session_id := "yellow-screen-tint"
 var _debug_env_loaded := false
 var _debug_last_report_ms := {}
+var _active_weather_id: String = ""
 
 func _ready() -> void:
 	story_time_manager = GameDataManager.story_time_manager
@@ -110,14 +111,23 @@ func _sync_weather(desc: String) -> void:
 		return
 		
 	# 将我们系统的天气描述映射到插件的天气 ID
-	var target_weather_id = _map_weather_desc_to_plugin_id(desc)
+	var target_weather_id: String = _map_weather_desc_to_plugin_id(desc)
+	if target_weather_id == _active_weather_id:
+		return
 	
 	# 设置天气
 	if target_weather_id == "normal":
-		env_system.clear_weather()
+		if env_system.has_method("fade_out_all_weather"):
+			env_system.fade_out_all_weather()
+		else:
+			env_system.clear_weather()
 	else:
-		# 半径设大一点，覆盖全屏
-		env_system.set_preview_weather(target_weather_id, 4000.0, 99999.0)
+		# 半径设大一点，覆盖全屏，并使用平滑过渡而不是直接替换
+		if env_system.has_method("transition_preview_weather"):
+			env_system.transition_preview_weather(target_weather_id, 4000.0, 99999.0)
+		else:
+			env_system.set_preview_weather(target_weather_id, 4000.0, 99999.0)
+	_active_weather_id = target_weather_id
 	# #region debug-point A:bridge-sync-weather
 	_debug_report(
 		"A",
@@ -155,6 +165,12 @@ func _has_story_weather_config() -> bool:
 
 func _map_weather_desc_to_plugin_id(desc: String) -> String:
 	var normalized := desc.strip_edges().to_lower()
+	if normalized in ["多云", "cloudy", "partly_cloudy"]:
+		return "cloudy"
+	if normalized in ["阴天", "overcast"]:
+		return "overcast"
+	if normalized in ["有雾", "雾天", "foggy", "fog", "mist"]:
+		return "foggy"
 	if normalized in ["雨天", "下雨", "rainy", "rain", "shower"]:
 		return "rainy"
 	if normalized in ["雷雨", "雷阵雨", "thunder", "storm", "thunderstorm"]:
