@@ -23,10 +23,24 @@
         {
             "id": "bg_home_bedroom_morning",
             "path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png"
+        }
+    ],
+    "maps": [
+        {
+            "id": "bg_world_map",
+            "path": "res://assets/images/backgrounds/map/background/WorldMap.png"
+        },        
+        {
+            "id": "bg_area_j11_center",
+            "path": "res://assets/images/backgrounds/map/background/j11_center/j11_center.png"
         },
         {
-            "id": "bg_qingyu_time_cafe",
-            "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
+            "id": "bg_area_art_academy",
+            "path": "res://assets/images/backgrounds/map/background/art_academy/art_academy.png"
+        },
+        {
+            "id": "bg_area_qingyu_street",
+            "path": "res://assets/images/backgrounds/map/background/qingyu_street/qingyu_street.png"
         },
         {
             "id": "bg_library",
@@ -71,12 +85,6 @@
         {
             "id": "bg_area_jiangyu_bay",
             "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
-        }
-    ],
-    "maps": [
-        {
-            "id": "bg_world_map",
-            "path": "res://assets/images/backgrounds/map/background/WorldMap.png"
         }
     ],
     "cgs": [

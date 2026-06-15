@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc0v3forupmdx"
-path="res://.godot/imported/qingyu_time_cafe.png-d5569afa1dfde81c606121141fd2740f.ctex"
+uid="uid://d2f63mbtt3pgg"
+path="res://.godot/imported/qingyu_street.png-e76175782844d8fd0d881619ff0f0995.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
-dest_files=["res://.godot/imported/qingyu_time_cafe.png-d5569afa1dfde81c606121141fd2740f.ctex"]
+source_file="res://assets/images/backgrounds/map/background/qingyu_street/qingyu_street.png"
+dest_files=["res://.godot/imported/qingyu_street.png-e76175782844d8fd0d881619ff0f0995.ctex"]
 
 [params]
 
