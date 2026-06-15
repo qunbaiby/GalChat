@@ -198,29 +198,17 @@ func _handle_toggle_interact_button(btn_name: String, is_visible: bool) -> void:
         main_scene.get_node("UIPanel/InteractGroup/" + btn_name).visible = is_visible
 
 func _handle_write_diary() -> void:
-    var main_scene = get_tree().root.get_node_or_null("MainScene")
-    if main_scene and main_scene.has_node("DeepSeekClient"):
-        var client = main_scene.get_node("DeepSeekClient")
-        if client.has_method("send_diary_generation"):
-            client.send_diary_generation()
-            print("[EventManager] 已触发日记生成事件。")
-        else:
-            print("[EventManager] DeepSeekClient 缺少 send_diary_generation 方法。")
+    var client = DeepSeekClientLocator.find(self)
+    if client and client.has_method("send_diary_generation"):
+        client.send_diary_generation()
+        print("[EventManager] 已触发日记生成事件。")
+    elif client:
+        print("[EventManager] DeepSeekClient 缺少 send_diary_generation 方法。")
     else:
-        print("[EventManager] 未找到 MainScene 或 DeepSeekClient，无法触发日记生成。")
+        print("[EventManager] 未找到 DeepSeekClient，无法触发日记生成。")
 
 func _handle_post_moment() -> void:
-    var client = null
-    var llm_manager = get_node_or_null("/root/LLMManager")
-    if llm_manager and llm_manager.has("deepseek_client"):
-        client = llm_manager.deepseek_client
-    elif get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
-        client = get_tree().current_scene.get_node("DeepSeekClient")
-    elif get_node_or_null("/root/DeepSeekClient"):
-        client = get_node("/root/DeepSeekClient")
-    elif get_tree().root.has_node("MainScene/DeepSeekClient"):
-        client = get_node("/root/MainScene/DeepSeekClient")
-
+    var client = DeepSeekClientLocator.find(self)
     if client and client.has_method("send_moment_generation"):
         # 随机抽取一个角色发送朋友圈
         var target_profile = _get_random_character_profile()

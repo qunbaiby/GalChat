@@ -207,8 +207,8 @@ func _on_send_comment_pressed() -> void:
 	# Task 5: Call AI for reply
 	var author = updated_data.get("author", "")
 	if author != player_name:
-		var deepseek_client = get_tree().root.get_node_or_null("MainScene/DeepSeekClient")
+		var deepseek_client = DeepSeekClientLocator.find(self)
 		if deepseek_client and deepseek_client.has_method("send_moment_reply"):
 			deepseek_client.send_moment_reply(_moment_id, text)
 		else:
-			print("DeepSeekClient.send_moment_reply not found on MainScene/DeepSeekClient!")
+			print("DeepSeekClient.send_moment_reply not found!")

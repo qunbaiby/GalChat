@@ -1,7 +1,27 @@
-[gd_scene load_steps=8 format=3 uid="uid://cqdr36w7ndc15"]
+[gd_scene format=3 uid="uid://cqdr36w7ndc15"]
 
 [ext_resource type="Script" uid="uid://cbsyofrygoyuc" path="res://scripts/ui/date/date_loading_overlay.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="2_icon"]
+
+[sub_resource type="Shader" id="Shader_DateLoadingBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5) = 2.0;
+uniform vec4 mix_color: source_color = vec4(0.0, 0.0, 0.0, 0.4);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_DateLoadingBlur"]
+shader = SubResource("Shader_DateLoadingBlur")
+shader_parameter/lod = 2.5
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.97, 0.985, 0.985, 0.96)
@@ -56,7 +76,7 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[node name="DateLoadingOverlay" type="Control"]
+[node name="DateLoadingOverlay" type="Control" unique_id=2128247386]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -66,7 +86,18 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Background" type="Panel" parent="." unique_id=1781348135]
+material = SubResource("ShaderMaterial_DateLoadingBlur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=855076360]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -76,7 +107,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.06, 0.08, 0.11, 0.64)
 
-[node name="CenterPanel" type="PanelContainer" parent="."]
+[node name="CenterPanel" type="PanelContainer" parent="." unique_id=1633468018]
 custom_minimum_size = Vector2(760, 300)
 layout_mode = 1
 anchors_preset = 8
@@ -93,28 +124,28 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
-[node name="Margin" type="MarginContainer" parent="CenterPanel"]
+[node name="Margin" type="MarginContainer" parent="CenterPanel" unique_id=861477272]
 layout_mode = 2
 theme_override_constants/margin_left = 26
 theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 26
 theme_override_constants/margin_bottom = 22
 
-[node name="HBox" type="HBoxContainer" parent="CenterPanel/Margin"]
+[node name="HBox" type="HBoxContainer" parent="CenterPanel/Margin" unique_id=69655631]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="VisualPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox"]
+[node name="VisualPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox" unique_id=550557704]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_VisualPanel")
 
-[node name="VisualContent" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel"]
+[node name="VisualContent" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel" unique_id=851850619]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="GlowRect" type="ColorRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="GlowRect" type="ColorRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=2018524016]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -131,7 +162,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.57, 0.82, 0.76, 0.5)
 
-[node name="VisualCaption" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="VisualCaption" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=1661708348]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -149,7 +180,7 @@ theme_override_font_sizes/font_size = 14
 text = "赴约准备中"
 horizontal_alignment = 1
 
-[node name="AccentDots" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="AccentDots" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=1020171890]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -164,7 +195,7 @@ theme_override_font_sizes/font_size = 22
 text = "· · ·"
 horizontal_alignment = 1
 
-[node name="IconPivot" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="IconPivot" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=912059436]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -180,7 +211,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="IconTexture" type="TextureRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent/IconPivot"]
+[node name="IconTexture" type="TextureRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent/IconPivot" unique_id=909963572]
 modulate = Color(1, 1, 1, 0.95)
 layout_mode = 1
 anchors_preset = 15
@@ -193,21 +224,21 @@ texture = ExtResource("2_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ContentVBox" type="VBoxContainer" parent="CenterPanel/Margin/HBox"]
+[node name="ContentVBox" type="VBoxContainer" parent="CenterPanel/Margin/HBox" unique_id=1942256848]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="KickerLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="KickerLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=500664313]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.63, 0.6, 1)
 theme_override_font_sizes/font_size = 15
 text = "Luna 正在赴约"
 
-[node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1407385524]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.22, 0.26, 1)
@@ -215,7 +246,7 @@ theme_override_font_sizes/font_size = 30
 text = "约会准备中"
 autowrap_mode = 3
 
-[node name="StatusLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="StatusLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1831346059]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.39, 0.43, 1)
@@ -223,19 +254,19 @@ theme_override_font_sizes/font_size = 21
 text = "Luna 正在整理今天的心情..."
 autowrap_mode = 3
 
-[node name="SummaryPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="SummaryPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1814845689]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_SummaryPanel")
 
-[node name="SummaryMargin" type="MarginContainer" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel"]
+[node name="SummaryMargin" type="MarginContainer" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel" unique_id=128924662]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 12
 
-[node name="SummaryLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel/SummaryMargin"]
+[node name="SummaryLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel/SummaryMargin" unique_id=1161551401]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.56, 0.6, 1)
@@ -243,7 +274,7 @@ theme_override_font_sizes/font_size = 15
 text = "天气与地点摘要"
 autowrap_mode = 3
 
-[node name="HintLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="HintLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=537422486]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.63, 0.67, 1)
@@ -251,7 +282,7 @@ theme_override_font_sizes/font_size = 14
 text = "正在整理这次见面的对白、氛围与心情..."
 autowrap_mode = 3
 
-[node name="ProgressBar" type="ProgressBar" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="ProgressBar" type="ProgressBar" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=894955105]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2

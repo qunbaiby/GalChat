@@ -83,30 +83,6 @@ func clear_slot(period_id: String) -> void:
 	_slots[period_id]["enabled"] = enabled
 
 
-func swap_slots(source_period: String, target_period: String) -> bool:
-	if not _slots.has(source_period) or not _slots.has(target_period):
-		return false
-	if source_period == target_period:
-		return false
-	if not bool(_slots[source_period].get("enabled", true)) or not bool(_slots[target_period].get("enabled", true)):
-		return false
-	var source_payload := {
-		"location_id": _slots[source_period]["location_id"],
-		"location_name": _slots[source_period]["location_name"],
-		"type_id": _slots[source_period]["type_id"],
-		"custom_image_path": _slots[source_period]["custom_image_path"]
-	}
-	var target_payload := {
-		"location_id": _slots[target_period]["location_id"],
-		"location_name": _slots[target_period]["location_name"],
-		"type_id": _slots[target_period]["type_id"],
-		"custom_image_path": _slots[target_period]["custom_image_path"]
-	}
-	assign_location(source_period, target_payload["location_id"], target_payload["location_name"], target_payload["type_id"], target_payload["custom_image_path"])
-	assign_location(target_period, source_payload["location_id"], source_payload["location_name"], source_payload["type_id"], source_payload["custom_image_path"])
-	return true
-
-
 func has_any_plan() -> bool:
 	for period_id in SLOT_ORDER:
 		if str(_slots[period_id].get("location_id", "")).strip_edges() != "":

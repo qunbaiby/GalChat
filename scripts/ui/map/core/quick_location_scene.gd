@@ -145,10 +145,7 @@ func _load_npc_bubble_lines() -> void:
 	file.close()
 
 func _get_deepseek_client():
-	var deepseek_client = get_node_or_null("DeepSeekClient")
-	if not deepseek_client:
-		deepseek_client = get_node_or_null("/root/MainScene/DeepSeekClient")
-	return deepseek_client
+	return DeepSeekClientLocator.find(self)
 
 func _get_current_story_period() -> String:
 	if GameDataManager.story_time_manager:

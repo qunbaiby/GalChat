@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
+
 var item_data: Dictionary = {}
 var ai_response_text: String = ""
 var is_generating: bool = false
@@ -12,7 +14,7 @@ var is_progress_done: bool = false
 @onready var dialogue_label = $Panel/DialogueLabel
 @onready var consume_button = $Panel/ConsumeButton
 @onready var close_button = $Panel/CloseButton
-@onready var deepseek_client = DeepSeekClient.new()
+var deepseek_client: Node = null
 
 func setup(item: Dictionary) -> void:
 	item_data = item
@@ -24,9 +26,10 @@ func _ready():
 	$Panel.modulate.a = 0.0
 	create_tween().tween_property($Panel, "modulate:a", 1.0, 0.3)
 	
-	add_child(deepseek_client)
-	deepseek_client.npc_event_dialogue_completed.connect(_on_ai_success)
-	deepseek_client.npc_event_dialogue_failed.connect(_on_ai_failed)
+	deepseek_client = DeepSeekClientLocator.find(self)
+	if deepseek_client:
+		deepseek_client.npc_event_dialogue_completed.connect(_on_ai_success)
+		deepseek_client.npc_event_dialogue_failed.connect(_on_ai_failed)
 	
 	icon_label.text = item_data.get("name", "物品")
 	
@@ -49,6 +52,10 @@ func _on_progress_finished():
 
 func _request_ai_dialogue():
 	if GameDataManager.config.api_key.is_empty():
+		ai_response_text = "你的 " + item_data.get("name", "单品") + " 做好啦，慢用哦。"
+		_on_ai_finished()
+		return
+	if deepseek_client == null:
 		ai_response_text = "你的 " + item_data.get("name", "单品") + " 做好啦，慢用哦。"
 		_on_ai_finished()
 		return

@@ -1178,9 +1178,10 @@ func _on_chat_response(response: Dictionary) -> void:
 		_try_start_stream_worker()
 		
 		# 我们不再在这里直接保存全量内容，因为 _stream_worker_loop 会逐句保存并附带语音缓存
-		# GameDataManager.history.add_message("char", deepseek_client._chat_stream_full_text, "", "main_chat")
-		deepseek_client.send_options_generation(deepseek_client._chat_stream_full_text, "", "main_chat")
-		deepseek_client.send_emotion_generation(deepseek_client._chat_stream_full_text)
+		var stream_reply: String = deepseek_client.get_chat_stream_full_text()
+		# GameDataManager.history.add_message("char", stream_reply, "", "main_chat")
+		deepseek_client.send_options_generation(stream_reply, "", "main_chat")
+		deepseek_client.send_emotion_generation(stream_reply)
 		return
 		
 	if response.has("choices") and response["choices"].size() > 0:
@@ -1972,19 +1973,13 @@ func _ready() -> void:
 	# 先同步主按钮状态，避免下面的延迟逻辑执行期间仍保留旧文案和旧行为。
 	_update_button_states_by_time()
 	
-	# 进入主场景后仍会先弹一次主动问候气泡；开场剧情标记只用于清理一次性状态。
-	var should_try_memory_revisit: bool = GameDataManager.history and GameDataManager.history.messages.size() > 0
+	# 进入主场景后只保留主动问候气泡，不再自动拉起记忆回访对话面板。
 	if GameDataManager.get_meta("just_finished_intro_story", false):
 		GameDataManager.set_meta("just_finished_intro_story", false)
 	await get_tree().create_timer(1.0).timeout
 	if is_inside_tree():
 		_trigger_proactive_greeting()
 		_reset_idle_chatter_timer()
-	if should_try_memory_revisit:
-		await get_tree().create_timer(2.8).timeout
-		if is_inside_tree() and not _proactive_bubble_request_in_flight:
-			if not (is_instance_valid(current_bg_scene) and current_bg_scene.has_method("is_idle_quote_playing") and current_bg_scene.is_idle_quote_playing()):
-				_try_trigger_memory_revisit()
 
 	if GameDataManager.story_time_manager:
 		GameDataManager.story_time_manager.time_advanced.connect(_on_story_time_advanced)
@@ -2315,8 +2310,8 @@ func start_farewell() -> void:
 	if is_ending_chat:
 		return
 		
-	if deepseek_client._chat_stream_active:
-		deepseek_client._stop_chat_stream()
+	if deepseek_client.is_chat_streaming():
+		deepseek_client.stop_chat_stream()
 		
 	stream_live_active = false
 	stream_live_worker_running = false

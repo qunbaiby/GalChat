@@ -2,6 +2,7 @@ extends Node
 
 const LEGACY_SAVE_PATH = "user://data/moments_data.json"
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 
 var moments_data: Array = []
 signal moments_updated
@@ -35,16 +36,7 @@ func _connect_signals() -> void:
 			deepseek_client.moment_generated.connect(_on_ai_moment_generated)
 
 func _get_deepseek_client() -> Node:
-	var llm_manager = get_node_or_null("/root/LLMManager")
-	if llm_manager and llm_manager.has("deepseek_client"):
-		return llm_manager.deepseek_client
-	if get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
-		return get_tree().current_scene.get_node("DeepSeekClient")
-	if get_node_or_null("/root/DeepSeekClient"):
-		return get_node("/root/DeepSeekClient")
-	if get_tree().root.has_node("MainScene/DeepSeekClient"):
-		return get_node("/root/MainScene/DeepSeekClient")
-	return null
+	return DeepSeekClientLocator.find(self)
 
 func _process(delta: float) -> void:
 	# Try connecting periodically if not connected yet

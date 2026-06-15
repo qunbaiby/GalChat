@@ -204,15 +204,7 @@ func _show_studying_popup(opt: Dictionary):
 	var char_name = profile.char_name if profile.char_name != "" else "Luna"
 	var prompt = "【系统指令】\n%s刚刚和艾莉完成了一次【%s】。\n学习内容：%s\n请以艾莉的口吻给出一句简短点评。\n人设要求：艾莉是从江屿走出去的当红演员，台前气场强、专业而从容，私下温柔、护短、会认真照顾后辈，但在表演问题上标准很高。\n输出要求：\n1. 只输出一句点评，不要解释。\n2. 16到24字。\n3. 只保留说话内容，不要括号动作，不要旁白。" % [char_name, opt["name"], opt.get("review_focus", "请结合本次练习内容进行点评。")]
 	
-	var deepseek_client = null
-	for child in get_tree().root.get_children():
-		if child.name == "DeepSeekClient":
-			deepseek_client = child
-			break
-		var c = child.get_node_or_null("DeepSeekClient")
-		if c:
-			deepseek_client = c
-			break
+	var deepseek_client = DeepSeekClientLocator.find(self)
 				
 	if not deepseek_client:
 		_ai_result_text = opt.get("fallback_review", "“今天的状态比我预想的好，再往前一步就更稳了。”")

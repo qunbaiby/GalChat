@@ -5,6 +5,7 @@ const DatePlanState = preload("res://scripts/ui/date/date_plan_state.gd")
 const DateScenePresenter = preload("res://scripts/ui/date/date_scene_presenter.gd")
 const DateBubbleController = preload("res://scripts/ui/date/date_bubble_controller.gd")
 const DateGenerationController = preload("res://scripts/ui/date/date_generation_controller.gd")
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 const STORY_SCENE_PATH := "res://scenes/ui/story/story_scene.tscn"
 const DATE_CHARACTER_PROFILE_PATH := "res://assets/data/interaction/date_character_profiles.json"
 
@@ -68,7 +69,6 @@ func _ready() -> void:
 		}
 	}, _date_character_profile)
 	_presenter.slot_clicked.connect(_on_slot_pressed)
-	_presenter.slots_swapped.connect(_on_slots_swapped)
 	_bubble_controller = DateBubbleController.new()
 	add_child(_bubble_controller)
 	_bubble_controller.setup(bubble_panel, bubble_text, _date_character_profile, _get_current_date_character_id())
@@ -164,7 +164,7 @@ func _on_add_location_pressed(loc_id: String, loc_name: String, type_id: String)
 	_refresh_slots()
 	_plan_state.save_draft()
 	if _bubble_controller:
-		_bubble_controller.show_slot_comment(_build_slot_comment_payload(found_slot))
+		_bubble_controller.request_slot_comment(_find_deepseek_client(), _build_slot_comment_payload(found_slot))
 
 func _on_add_custom_location_pressed(loc_id: String, loc_name: String) -> void:
 	var found_slot := _plan_state.get_first_available_slot()
@@ -231,7 +231,7 @@ func _apply_custom_texture_to_pending_slot() -> void:
 	_refresh_slots()
 	_plan_state.save_draft()
 	if _bubble_controller:
-		_bubble_controller.show_slot_comment(_build_slot_comment_payload(target_slot))
+		_bubble_controller.request_slot_comment(_find_deepseek_client(), _build_slot_comment_payload(target_slot))
 
 	_pending_custom_slot = ""
 	_pending_custom_texture = null
@@ -293,10 +293,7 @@ func _on_date_pressed() -> void:
 		_generation_controller.start_date_plan(plan_list)
 
 func _find_deepseek_client() -> Node:
-	var main_scene = get_tree().get_root().get_node_or_null("MainScene")
-	if main_scene and main_scene.has_node("DeepSeekClient"):
-		return main_scene.get_node("DeepSeekClient")
-	return null
+	return DeepSeekClientLocator.find(self)
 
 func _on_generation_state_changed(active: bool) -> void:
 	date_btn.disabled = active
@@ -320,11 +317,6 @@ func _play_generated_date_story(script_data: Dictionary) -> void:
 		get_tree().root.get_node("SceneTransitionManager").transition_to_scene(STORY_SCENE_PATH)
 	else:
 		get_tree().change_scene_to_file(STORY_SCENE_PATH)
-
-func _on_slots_swapped(source_period: String, target_period: String) -> void:
-	if _plan_state.swap_slots(source_period, target_period):
-		_refresh_slots()
-		_plan_state.save_draft()
 
 func _refresh_slots() -> void:
 	if _presenter and _plan_state:

@@ -549,8 +549,8 @@ func _on_voice_call_ended() -> void:
 			
 	is_voice_call_mode = false
 	
-	if deepseek_client and deepseek_client.chat_http:
-		deepseek_client.chat_http.cancel_request()
+	if deepseek_client and deepseek_client.has_method("cancel_chat_request"):
+		deepseek_client.cancel_chat_request()
 		
 	input_edit.editable = true
 	send_btn.disabled = false
@@ -591,8 +591,8 @@ func _on_video_call_ended() -> void:
 			
 	is_voice_call_mode = false
 	
-	if deepseek_client and deepseek_client.chat_http:
-		deepseek_client.chat_http.cancel_request()
+	if deepseek_client and deepseek_client.has_method("cancel_chat_request"):
+		deepseek_client.cancel_chat_request()
 		
 	input_edit.editable = true
 	send_btn.disabled = false

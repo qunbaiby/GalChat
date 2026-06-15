@@ -623,14 +623,7 @@ func _ensure_profile_ready() -> void:
 		GameDataManager.profile.load_profile()
 
 func _connect_llm_signals() -> void:
-	var llm_manager = get_node_or_null("/root/LLMManager")
-	var client = null
-	if llm_manager and llm_manager.has("deepseek_client"):
-		client = llm_manager.deepseek_client
-	elif get_tree().current_scene and get_tree().current_scene.has_node("DeepseekClient"):
-		client = get_tree().current_scene.get_node("DeepseekClient")
-	elif get_node_or_null("/root/DeepseekClient"):
-		client = get_node("/root/DeepseekClient")
+	var client = DeepSeekClientLocator.find(self)
 
 	if client:
 		if not client.is_connected("diary_generated", _on_diary_generated):
@@ -1456,14 +1449,7 @@ func _on_generate_diary_pressed() -> void:
 	generate_diary_btn.disabled = true
 	generate_diary_btn.text = "生成中..."
 
-	var client = null
-	var llm_manager = get_node_or_null("/root/LLMManager")
-	if llm_manager and llm_manager.has("deepseek_client"):
-		client = llm_manager.deepseek_client
-	elif get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
-		client = get_tree().current_scene.get_node("DeepSeekClient")
-	elif get_node_or_null("/root/DeepSeekClient"):
-		client = get_node("/root/DeepSeekClient")
+	var client = DeepSeekClientLocator.find(self)
 
 	if client and client.has_method("send_diary_generation"):
 		if not client.diary_generated.is_connected(_on_diary_generated):

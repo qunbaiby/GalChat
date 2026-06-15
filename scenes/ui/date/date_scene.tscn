@@ -350,8 +350,8 @@ clip_contents = true
 custom_minimum_size = Vector2(118, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_SlotEmpty")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SlotHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SlotHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SlotEmpty")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SlotEmpty")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_SlotDisabled")
 theme_override_styles/focus = SubResource("StyleBoxFlat_SlotEmpty")
 
@@ -431,8 +431,8 @@ clip_contents = true
 custom_minimum_size = Vector2(118, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_SlotEmpty")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SlotHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SlotHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SlotEmpty")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SlotEmpty")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_SlotDisabled")
 theme_override_styles/focus = SubResource("StyleBoxFlat_SlotEmpty")
 
@@ -511,8 +511,8 @@ clip_contents = true
 custom_minimum_size = Vector2(118, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_SlotEmpty")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SlotHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SlotHover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SlotEmpty")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SlotEmpty")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_SlotDisabled")
 theme_override_styles/focus = SubResource("StyleBoxFlat_SlotEmpty")
 

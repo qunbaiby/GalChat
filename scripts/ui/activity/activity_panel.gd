@@ -749,8 +749,13 @@ func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	prompt += "```json\n[\n  \"(针对第1节课的描述)\",\n  \"(针对第2节课的描述)\",\n  ... (共%d个元素)\n]\n```\n" % MAX_SLOTS
 	prompt += "以下是这周的课程列表：\n" + course_list_str
 	
+	var chat_model_id := "deepseek-chat"
+	if GameDataManager.config and "model" in GameDataManager.config:
+		var configured_model := str(GameDataManager.config.model).strip_edges()
+		if configured_model != "" and not configured_model.begins_with("doubao"):
+			chat_model_id = configured_model
 	var body = {
-		"model": GameDataManager.config.model if "model" in GameDataManager.config else "deepseek-chat",
+		"model": chat_model_id,
 		"messages": [{"role": "user", "content": prompt}],
 		"temperature": 0.7
 	}

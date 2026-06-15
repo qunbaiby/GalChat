@@ -7,6 +7,7 @@ signal schedule_finished
 @export var slot_scene: PackedScene
 
 const ScheduleEventPanelScene = preload("res://scenes/ui/activity/schedule_event_panel.tscn")
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 const STAT_KEY_ALIASES := {
 	"stat_stamina": "体能",
 	"stat_rhythm": "反应",
@@ -683,13 +684,7 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 		_try_auto_next()
 
 func _get_deepseek_client() -> Node:
-	if get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
-		return get_tree().current_scene.get_node("DeepSeekClient")
-	if get_node_or_null("/root/DeepSeekClient"):
-		return get_node("/root/DeepSeekClient")
-	if get_tree().root.has_node("MainScene/DeepSeekClient"):
-		return get_node("/root/MainScene/DeepSeekClient")
-	return null
+	return DeepSeekClientLocator.find(self)
 
 func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
 	var story_entry = _get_pending_story_entry(course_data)

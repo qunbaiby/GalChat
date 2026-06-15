@@ -5,6 +5,8 @@ const DEFAULT_MIN_DURATION := 1.1
 const DEFAULT_PROGRESS_DURATION := 4.8
 const DEFAULT_PROGRESS_CAP := 90.0
 const DEFAULT_TIP_INTERVAL := 1.15
+const ICON_FLOAT_DISTANCE := 6.0
+const ICON_FLOAT_HALF_CYCLE := 1.0
 
 @onready var title_label: Label = %TitleLabel
 @onready var kicker_label: Label = %KickerLabel
@@ -31,12 +33,17 @@ var _min_duration: float = DEFAULT_MIN_DURATION
 var _progress_duration: float = DEFAULT_PROGRESS_DURATION
 var _progress_cap: float = DEFAULT_PROGRESS_CAP
 var _tip_interval: float = DEFAULT_TIP_INTERVAL
+var _icon_base_offset_top: float = 0.0
+var _icon_base_offset_bottom: float = 0.0
 
 
 func _ready() -> void:
 	visible = false
 	modulate.a = 0.0
 	progress_bar.value = 0.0
+	if icon_pivot:
+		_icon_base_offset_top = icon_pivot.offset_top
+		_icon_base_offset_bottom = icon_pivot.offset_bottom
 	_reset_visual_state()
 
 
@@ -228,6 +235,30 @@ func _finish(token: int, final_status: String, final_hint: String) -> void:
 
 func _play_visual_animation() -> void:
 	_reset_visual_state()
+
+	if icon_pivot:
+		_icon_tween = create_tween().set_loops()
+		_tween_icon_vertical_offsets(
+			_icon_base_offset_top - ICON_FLOAT_DISTANCE,
+			_icon_base_offset_bottom - ICON_FLOAT_DISTANCE,
+			ICON_FLOAT_HALF_CYCLE,
+			Tween.TRANS_SINE,
+			Tween.EASE_OUT
+		)
+		_tween_icon_vertical_offsets(
+			_icon_base_offset_top + ICON_FLOAT_DISTANCE,
+			_icon_base_offset_bottom + ICON_FLOAT_DISTANCE,
+			ICON_FLOAT_HALF_CYCLE * 2.0,
+			Tween.TRANS_SINE,
+			Tween.EASE_IN_OUT
+		)
+		_tween_icon_vertical_offsets(
+			_icon_base_offset_top,
+			_icon_base_offset_bottom,
+			ICON_FLOAT_HALF_CYCLE,
+			Tween.TRANS_SINE,
+			Tween.EASE_IN
+		)
 	
 	_glow_tween = create_tween().set_loops()
 	_glow_tween.tween_property(glow_rect, "modulate:a", 0.72, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -236,9 +267,17 @@ func _play_visual_animation() -> void:
 
 func _reset_visual_state() -> void:
 	if icon_pivot:
-		icon_pivot.position = Vector2.ZERO
+		icon_pivot.offset_top = _icon_base_offset_top
+		icon_pivot.offset_bottom = _icon_base_offset_bottom
 	if glow_rect:
 		glow_rect.modulate.a = 0.5
+
+
+func _tween_icon_vertical_offsets(target_top: float, target_bottom: float, duration: float, trans: Tween.TransitionType, ease: Tween.EaseType) -> void:
+	_icon_tween.set_parallel(true)
+	_icon_tween.tween_property(icon_pivot, "offset_top", target_top, duration).set_trans(trans).set_ease(ease)
+	_icon_tween.tween_property(icon_pivot, "offset_bottom", target_bottom, duration).set_trans(trans).set_ease(ease)
+	_icon_tween.set_parallel(false)
 
 
 func _stop_animations(invalidate_token: bool) -> void:

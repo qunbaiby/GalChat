@@ -48,7 +48,12 @@ signal idle_quote_failed(error_msg: String)
 signal image_to_image_completed(image_path: String)
 signal image_to_image_failed(error_message: String)
 
-const IDLE_QUOTE_CONFIG_PATH := "res://assets/data/interaction/idle_quote_config.json"
+const DeepSeekIdleQuoteService = preload("res://scripts/api/services/deepseek/deepseek_idle_quote_service.gd")
+const DeepSeekSceneEventService = preload("res://scripts/api/services/deepseek/deepseek_scene_event_service.gd")
+const DeepSeekSocialContentService = preload("res://scripts/api/services/deepseek/deepseek_social_content_service.gd")
+const DeepSeekMemoryEmotionService = preload("res://scripts/api/services/deepseek/deepseek_memory_emotion_service.gd")
+const DeepSeekNarrativeService = preload("res://scripts/api/services/deepseek/deepseek_narrative_service.gd")
+const DeepSeekChatStreamService = preload("res://scripts/api/services/deepseek/deepseek_chat_stream_service.gd")
 
 var chat_http: HTTPRequest
 var emotion_http: HTTPRequest
@@ -74,25 +79,21 @@ var _chat_stream_headers: Array = []
 var _chat_stream_sse_buffer: String = ""
 var _chat_stream_full_text: String = ""
 var _chat_stream_response_code: int = 0
-var _current_moment_reply_post_id: String = ""
 var _pending_memory_context: Dictionary = {}
 var _active_memory_context: Dictionary = {}
-var _idle_quote_config_cache: Dictionary = {}
-var _idle_quote_config_loaded: bool = false
+var _idle_quote_service = DeepSeekIdleQuoteService.new()
+var _scene_event_service = DeepSeekSceneEventService.new()
+var _social_content_service = DeepSeekSocialContentService.new()
+var _memory_emotion_service = DeepSeekMemoryEmotionService.new()
+var _narrative_service = DeepSeekNarrativeService.new()
+var _chat_stream_service = DeepSeekChatStreamService.new()
 
 func _ready() -> void:
 	_update_script()
 	_reinitialize_http_nodes()
 
 func _update_script() -> void:
-	if GameDataManager.config.model.begins_with("doubao"):
-		if get_script() != preload("res://scripts/api/doubao_chat_client.gd"):
-			set_script(preload("res://scripts/api/doubao_chat_client.gd"))
-			_reinitialize_http_nodes()
-	else:
-		if get_script() != preload("res://scripts/api/deepseek_client.gd"):
-			set_script(preload("res://scripts/api/deepseek_client.gd"))
-			_reinitialize_http_nodes()
+	_migrate_removed_chat_model()
 
 func _reinitialize_http_nodes() -> void:
 	if not is_inside_tree():
@@ -132,6 +133,24 @@ func _reinitialize_http_nodes() -> void:
 
 func _is_api_key_empty() -> bool:
 	return GameDataManager.config.api_key.is_empty()
+
+func _migrate_removed_chat_model() -> void:
+	if GameDataManager.config == null:
+		return
+	var model_id := str(GameDataManager.config.model).strip_edges()
+	if not model_id.begins_with("doubao"):
+		return
+	GameDataManager.config.model = "deepseek-chat"
+	if GameDataManager.config.has_method("save_config"):
+		GameDataManager.config.save_config()
+
+func get_chat_model_id() -> String:
+	if GameDataManager.config == null:
+		return "deepseek-chat"
+	var model_id := str(GameDataManager.config.model).strip_edges()
+	if model_id == "" or model_id.begins_with("doubao"):
+		return "deepseek-chat"
+	return model_id
 
 func _get_headers() -> Array:
 	var api_key = GameDataManager.config.api_key
@@ -174,34 +193,7 @@ func send_chat_message(user_message: String, history_type: String = "all") -> vo
 
 func send_chat_message_stream(user_message: String, history_type: String = "all") -> void:
 	_update_script()
-	if not is_inside_tree() or _is_api_key_empty():
-		chat_request_failed.emit("API Key未设置，请在设置界面配置。")
-		return
-		
-	if _chat_stream_active:
-		_stop_chat_stream()
-	
-	# 聊天首响应优先，避免因 embedding 请求阻塞主回复。
-	# 当没有 query_embedding 时，记忆系统会退化到直接注入长期记忆摘要。
-	var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, [])
-	var api_messages = [{"role": "system", "content": system_prompt}]
-	api_messages.append_array(_get_history_messages(10, true, history_type))
-	
-	# Check if the last message is the exact same user message, to avoid duplication
-	var should_append = true
-	if api_messages.size() > 1:
-		var last_msg = api_messages[api_messages.size() - 1]
-		if last_msg is Dictionary and last_msg.get("role", "") == "user":
-			var cleaned_content = str(last_msg.get("content", "")).replace(" <--- 【系统提示：这是你们上次聊天的最后一句话，请顺着这个话题继续延展，不要生硬地开启新话题】", "").strip_edges()
-			if cleaned_content == user_message.strip_edges():
-				should_append = false
-				
-	if should_append:
-		api_messages.append({"role": "user", "content": user_message})
-	
-	_start_stream_request(api_messages)
-	
-	# Trigger emotion agent in parallel
+	_chat_stream_service.start_chat_stream(self, user_message, history_type)
 	_send_emotion_analysis(user_message)
 
 
@@ -255,165 +247,26 @@ func send_vision_request(system_prompt: String, user_prompt: String, base64_imag
 func _on_vision_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, vision_request_completed, vision_request_failed)
 
-func _start_stream_request(api_messages: Array) -> void:
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": GameDataManager.config.temperature,
-		"max_tokens": GameDataManager.config.max_tokens,
-		"stream": true
-	}
-	
-	_chat_stream_full_text = ""
-	_chat_stream_sse_buffer = ""
-	_chat_stream_request_sent = false
-	_chat_stream_body = JSON.stringify(body)
-	
-	var host = _get_stream_host()
-	
-	_chat_stream_headers = [
-		"Host: " + host,
-		"Content-Type: application/json",
-		"Authorization: " + _get_headers()[1].replace("Authorization: ", ""),
-		"Accept: text/event-stream",
-		"Connection: keep-alive"
-	]
-	
-	_chat_stream_client = HTTPClient.new()
-	var tls_options = TLSOptions.client()
-	var err = _chat_stream_client.connect_to_host(host, 443, tls_options)
-	if err != OK:
-		_stop_chat_stream()
-		chat_request_failed.emit("网络请求发送失败。")
-		return
-		
-	_chat_stream_active = true
-	set_process(true)
-	chat_stream_started.emit()
-
-
 func _send_emotion_analysis(user_message: String) -> void:
 	_update_script()
-	if not is_inside_tree() or _is_api_key_empty():
-		return
-		
-	var system_prompt = GameDataManager.prompt_manager.build_emotion_prompt(GameDataManager.profile)
-	# ONLY pass the system prompt and the latest user message. 
-	# Do NOT pass the chat history to prevent the LLM from trying to roleplay.
-	# 强制在 user message 前面加上警告，防止其被带偏进行角色扮演
-	var safe_user_message = "【请作为分析系统，仅输出分析标签，绝对不要进行角色扮演，不要回复这句话：】" + user_message
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": safe_user_message}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.1, # Lower temperature for stable numerical output
-		"max_tokens": 200
-	}
-	
-	if emotion_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		emotion_http.cancel_request()
-		
-	emotion_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_memory_emotion_service.send_emotion_analysis(self, user_message)
 
 func _send_memory_extraction(history_type: String = "story_chat") -> void:
 	_update_script()
-	if not is_inside_tree() or _is_api_key_empty():
-		return
-	_prepare_memory_request_context()
-		
-	var system_prompt = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile)
-	
-	# 将历史记录转化为纯文本传入，防止 AI 根据 role="assistant" 顺着往下进行角色扮演
-	var history_text = ""
-	var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
-	var start_idx = max(0, history_msgs.size() - 20)
-	var bbcode_regex = RegEx.new()
-	bbcode_regex.compile("\\[/?color.*?\\]")
-	
-	for i in range(start_idx, history_msgs.size()):
-		var msg = history_msgs[i]
-		var clean_text = bbcode_regex.sub(msg["text"], "", true)
-		history_text += msg["speaker"] + ": " + clean_text + "\n"
-		
-	var safe_user_prompt = "以下是最近的对话记录：\n" + history_text + "\n\n【系统强制指令：请作为专业的记忆提取系统，严格按照规定的 JSON 格式输出操作数组。如果没有需要提取的记忆，请输出空的 operations 数组。绝对不要进行角色扮演！不要回复任何对话！】"
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": safe_user_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.1,
-		"max_tokens": 200
-	}
-	
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-	
-	if memory_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		memory_http.cancel_request()
-		
-	var err = memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-	if err != OK:
-		_clear_memory_request_context()
-		memory_request_failed.emit("网络请求发送失败: " + str(err))
+	_memory_emotion_service.send_memory_extraction(self, history_type)
 
 func set_next_memory_context(memory_context: Dictionary = {}) -> void:
-	_pending_memory_context = memory_context.duplicate(true)
+	_memory_emotion_service.set_next_memory_context(self, memory_context)
 
 func _prepare_memory_request_context(memory_context: Dictionary = {}) -> void:
-	if not memory_context.is_empty():
-		_active_memory_context = memory_context.duplicate(true)
-	else:
-		_active_memory_context = _pending_memory_context.duplicate(true)
-	_pending_memory_context = {}
+	_memory_emotion_service.prepare_memory_request_context(self, memory_context)
 
 func _clear_memory_request_context() -> void:
-	_pending_memory_context = {}
-	_active_memory_context = {}
+	_memory_emotion_service.clear_memory_request_context(self)
 
 func extract_memory_from_chat(user_text: String, ai_reply: String, memory_context: Dictionary = {}) -> void:
 	_update_script()
-	if not is_inside_tree() or _is_api_key_empty():
-		return
-		
-	if memory_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		memory_http.cancel_request()
-	_prepare_memory_request_context(memory_context)
-		
-	var system_prompt = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile)
-	
-	var char_name = GameDataManager.profile.char_name
-	if char_name == "":
-		char_name = "AI"
-		
-	var safe_user_prompt = "以下是一次对话交换：\n玩家: " + user_text + "\n" + char_name + ": " + ai_reply + "\n\n【系统强制指令：请作为专业的记忆提取系统，严格按照规定的 JSON 格式输出操作数组。如果没有需要提取的记忆，请输出空的 operations 数组。绝对不要进行角色扮演！不要回复任何对话！】"
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": safe_user_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.1,
-		"max_tokens": 200
-	}
-	
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-	
-	var err = memory_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-	if err != OK:
-		_clear_memory_request_context()
-		memory_request_failed.emit("网络请求发送失败: " + str(err))
+	_memory_emotion_service.extract_memory_from_chat(self, user_text, ai_reply, memory_context)
 
 
 func call_chat_api_non_stream(api_messages: Array) -> void:
@@ -426,7 +279,7 @@ func call_chat_api_non_stream(api_messages: Array) -> void:
 		chat_http.cancel_request()
 		
 	var body = {
-		"model": GameDataManager.config.model,
+		"model": get_chat_model_id(),
 		"messages": api_messages,
 		"temperature": GameDataManager.config.temperature,
 		"max_tokens": GameDataManager.config.max_tokens,
@@ -440,132 +293,35 @@ func call_chat_api_non_stream(api_messages: Array) -> void:
 	if err != OK:
 		chat_request_failed.emit("网络请求发送失败: " + str(err))
 
+func get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
+	return _get_history_messages(limit, is_chat, history_type)
+
+func start_chat_stream_with_messages(api_messages: Array) -> void:
+	_update_script()
+	if not is_inside_tree() or _is_api_key_empty():
+		chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+		return
+	_chat_stream_service.start_chat_stream_with_messages(self, api_messages)
+
 func _process(_delta: float) -> void:
-	if not _chat_stream_active or _chat_stream_client == null:
-		return
-		
-	_chat_stream_client.poll()
-	var status = _chat_stream_client.get_status()
-	
-	var path = _get_stream_path()
-		
-	if status == HTTPClient.STATUS_CONNECTED and not _chat_stream_request_sent:
-		var err = _chat_stream_client.request(HTTPClient.METHOD_POST, path, _chat_stream_headers, _chat_stream_body)
-		if err != OK:
-			_stop_chat_stream()
-			chat_request_failed.emit("网络请求发送失败。")
-			return
-		_chat_stream_request_sent = true
-		return
-		
-	if status == HTTPClient.STATUS_BODY:
-		if _chat_stream_response_code == 0:
-			_chat_stream_response_code = _chat_stream_client.get_response_code()
-			if _chat_stream_response_code != 200:
-				var err_body = _read_all_stream_body()
-				_stop_chat_stream()
-				
-				var err_msg = "API 请求错误，状态码: " + str(_chat_stream_response_code)
-				var json = JSON.new()
-				if json.parse(err_body) == OK and json.get_data() is Dictionary and json.get_data().has("error"):
-					var api_error = json.get_data()["error"]
-					if api_error is Dictionary and api_error.has("message"):
-						err_msg += " - " + api_error["message"]
-				else:
-					err_msg += " Body: " + err_body
-					
-				chat_request_failed.emit(err_msg)
-				return
-				
-		var chunk = _chat_stream_client.read_response_body_chunk()
-		if chunk.size() > 0:
-			_chat_stream_sse_buffer += chunk.get_string_from_utf8()
-			_consume_sse_buffer()
-		return
-		
-	if status == HTTPClient.STATUS_DISCONNECTED:
-		if _chat_stream_full_text.strip_edges() == "":
-			_stop_chat_stream()
-			chat_request_failed.emit("返回数据解析失败")
-		else:
-			_finish_chat_stream()
-
-func _read_all_stream_body() -> String:
-	var out = ""
-	if _chat_stream_client == null:
-		return out
-	while true:
-		var chunk = _chat_stream_client.read_response_body_chunk()
-		if chunk.size() == 0:
-			break
-		out += chunk.get_string_from_utf8()
-	return out
-
-func _consume_sse_buffer() -> void:
-	while true:
-		var idx = _chat_stream_sse_buffer.find("\n\n")
-		if idx == -1:
-			break
-		var event_text = _chat_stream_sse_buffer.substr(0, idx)
-		_chat_stream_sse_buffer = _chat_stream_sse_buffer.substr(idx + 2)
-		_consume_sse_event(event_text)
-
-func _consume_sse_event(event_text: String) -> void:
-	var lines = event_text.split("\n")
-	for line in lines:
-		var trimmed = line.strip_edges()
-		if not trimmed.begins_with("data:"):
-			continue
-		var payload = trimmed.substr(5).strip_edges()
-		if payload == "" or payload == "[DONE]":
-			if payload == "[DONE]":
-				_finish_chat_stream()
-			continue
-			
-		var json = JSON.new()
-		if json.parse(payload) != OK:
-			continue
-		var data = json.get_data()
-		if not (data is Dictionary):
-			continue
-			
-		var delta_text = ""
-		if data.has("choices") and data["choices"] is Array and data["choices"].size() > 0:
-			var c0 = data["choices"][0]
-			if c0 is Dictionary:
-				if c0.has("delta") and c0["delta"] is Dictionary:
-					if c0["delta"].has("content") and c0["delta"]["content"] != null:
-						delta_text = str(c0["delta"]["content"])
-				elif c0.has("message") and c0["message"] is Dictionary:
-					if c0["message"].has("content") and c0["message"]["content"] != null:
-						delta_text = str(c0["message"]["content"])
-					
-		if delta_text != "":
-			_chat_stream_full_text += delta_text
-			chat_stream_delta.emit(delta_text)
-
-func _finish_chat_stream() -> void:
-	if not _chat_stream_active:
-		return
-	var final_text = _chat_stream_full_text
-	_stop_chat_stream()
-	chat_request_completed.emit({
-		"choices": [
-			{"message": {"content": final_text}}
-		]
-	})
+	_chat_stream_service.process_chat_stream(self)
 
 func _stop_chat_stream() -> void:
-	_chat_stream_active = false
-	_chat_stream_request_sent = false
-	_chat_stream_body = ""
-	_chat_stream_headers = []
-	_chat_stream_sse_buffer = ""
-	_chat_stream_response_code = 0
-	if _chat_stream_client != null:
-		_chat_stream_client.close()
-		_chat_stream_client = null
-	set_process(false)
+	_chat_stream_service.stop_chat_stream(self)
+
+func is_chat_streaming() -> bool:
+	return _chat_stream_service.is_chat_streaming(self)
+
+func get_chat_stream_full_text() -> String:
+	return _chat_stream_service.get_chat_stream_full_text(self)
+
+func stop_chat_stream() -> void:
+	_stop_chat_stream()
+
+func cancel_chat_request() -> void:
+	_stop_chat_stream()
+	if chat_http and chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		chat_http.cancel_request()
 
 func send_options_generation(last_ai_reply: String = "", free_chat_strategy: String = "", history_type: String = "all") -> void:
 	_update_script()
@@ -623,14 +379,12 @@ func send_options_generation(last_ai_reply: String = "", free_chat_strategy: Str
 	]
 	
 	var body = {
-		"model": GameDataManager.config.model,
+		"model": get_chat_model_id(),
 		"messages": api_messages,
 		"temperature": 0.7,
 		"max_tokens": 150
 	}
-	
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
+	body["response_format"] = {"type": "json_object"}
 	
 	if options_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		options_http.cancel_request()
@@ -642,204 +396,31 @@ func send_emotion_generation(last_ai_reply: String) -> void:
 	if _is_api_key_empty():
 		emotion_request_failed.emit("API Key未设置")
 		return
-		
-	# 如果调用时不在树上（极小概率，但为了安全起见），等待其重新入树
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	# 防止正在处理上一个请求时产生冲突 (ERR_BUSY)
-	if emotion_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		emotion_http.cancel_request()
-		
-	var system_prompt = GameDataManager.prompt_manager.build_emotion_prompt(GameDataManager.profile)
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": last_ai_reply}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 150
-	}
-	
-	if emotion_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		emotion_http.cancel_request()
-		
-	emotion_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_memory_emotion_service.send_emotion_generation(self, last_ai_reply)
 
 func send_narrator_generation() -> void:
 	_update_script()
 	if _is_api_key_empty():
 		narrator_request_failed.emit("API Key未设置")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-
-	var profile = GameDataManager.profile
-	var history_text = ""
-	var history_msgs = GameDataManager.history.get_messages_by_type("story_chat")
-	var start_idx = max(0, history_msgs.size() - 5)
-	for i in range(start_idx, history_msgs.size()):
-		var msg = history_msgs[i]
-		history_text += msg["speaker"] + ": " + msg["text"] + "\n"
-	var system_prompt = GameDataManager.prompt_manager.build_narrator_prompt(profile, history_text)
-	if system_prompt == "":
-		narrator_request_failed.emit("无法构建旁白提示词")
-		return
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": "请生成进入场景时的旁白"}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 100
-	}
-	
-	if narrator_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		narrator_http.cancel_request()
-		
-	narrator_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_narrative_service.send_narrator_generation(self)
 
 func send_character_mood_analysis(character_message: String) -> void:
 	_update_script()
 	if _is_api_key_empty():
 		character_mood_request_failed.emit("API Key未设置")
 		return
-		
-	# 如果调用时不在树上（极小概率，但为了安全起见），等待其重新入树
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var system_prompt = GameDataManager.prompt_manager.build_character_mood_prompt(character_message)
-	var api_messages = [
-		{"role": "system", "content": system_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.1,
-		"max_tokens": 100
-	}
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-	
-	if character_mood_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		character_mood_http.cancel_request()
-		
-	character_mood_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_narrative_service.send_character_mood_analysis(self, character_message)
 
 func analyze_mood_sync(character_message: String) -> String:
 	_update_script()
 	if _is_api_key_empty():
 		return ""
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var system_prompt = GameDataManager.prompt_manager.build_character_mood_prompt(character_message)
-	var api_messages = [
-		{"role": "system", "content": system_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.1,
-		"max_tokens": 100
-	}
-	
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-	
-	# Create a temporary HTTPRequest node for this sync call
-	var http = HTTPRequest.new()
-	http.timeout = 10.0
-	add_child(http)
-	
-	http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-	
-	# Wait for the request to complete
-	var result_array = await http.request_completed
-	var result = result_array[0]
-	var response_code = result_array[1]
-	var response_body = result_array[3]
-	
-	http.queue_free()
-	
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(response_body.get_string_from_utf8()) == OK:
-			var data = json.get_data()
-			if data is Dictionary and data.has("choices") and data["choices"].size() > 0:
-				var reply = data["choices"][0]["message"]["content"]
-				print("\n========== [Character Mood Sync Output] ==========")
-				print(reply)
-				print("==================================================\n")
-				
-				var clean_reply = reply.strip_edges()
-				if clean_reply.begins_with("```json"):
-					clean_reply = clean_reply.replace("```json", "")
-				if clean_reply.begins_with("```"):
-					clean_reply = clean_reply.replace("```", "")
-				if clean_reply.ends_with("```"):
-					clean_reply = clean_reply.substr(0, clean_reply.length() - 3)
-				
-				clean_reply = clean_reply.strip_edges()
-						
-				var reply_json = JSON.new()
-				var error = reply_json.parse(clean_reply)
-				if error == OK:
-					var reply_data = reply_json.get_data()
-					if reply_data is Dictionary and reply_data.has("mood_id"):
-						return reply_data["mood_id"]
-				else:
-					print("Character Mood Sync Failed: Inner JSON Parse Error (Code: ", error, ") - Text: ", clean_reply)
-		else:
-			print("Character Mood Sync Failed: Outer JSON Parse Error")
-	else:
-		print("Character Mood Sync HTTP Request Failed: Code ", response_code)
-	
-	return ""
+	return await _narrative_service.analyze_mood_sync(self, character_message)
 
 func generate_dynamic_topics(prompt: String, callback: Callable) -> void:
 	_update_script()
-	var request_data = {
-		"model": GameDataManager.config.model,
-		"messages": [{"role": "user", "content": prompt}],
-		"temperature": 0.7,
-		"max_tokens": 150
-	}
-	
-	var url = _get_url()
-	var headers = _get_headers()
-	
-	var http_request = HTTPRequest.new()
-	add_child(http_request)
-	http_request.request_completed.connect(func(result, response_code, headers_arr, body):
-		http_request.queue_free()
-		if response_code == 200:
-			var json = JSON.new()
-			if json.parse(body.get_string_from_utf8()) == OK:
-				var res_data = json.get_data()
-				if res_data.has("choices") and res_data["choices"].size() > 0:
-					var text = res_data["choices"][0]["message"]["content"]
-					callback.call(text)
-					return
-		callback.call("") # 失败时返回空字符串，让调用方走 fallback
-	)
-	var err = http_request.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(request_data))
-	if err != OK:
-		http_request.queue_free()
-		callback.call("")
+	_narrative_service.generate_dynamic_topics(self, prompt, callback)
 
 func generate_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 	_update_script()
@@ -847,143 +428,14 @@ func generate_npc_event_dialogue(npc_id: String, event_desc: String) -> void:
 		print("未配置 API Key")
 		npc_event_dialogue_failed.emit("未配置 API Key")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	if npc_event_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		npc_event_http.cancel_request()
-		
-	var npc_name = "未知NPC"
-	var personality = "普通"
-	var stage = 1
-	var stage_title = "初识"
-	
-	# 获取 NPC 基础设定
-	var npc_file = FileAccess.open("res://assets/data/characters/npc/" + npc_id + ".json", FileAccess.READ)
-	if npc_file:
-		var json = JSON.new()
-		if json.parse(npc_file.get_as_text()) == OK:
-			var data = json.get_data()
-			npc_name = data.get("char_name", npc_id)
-			if data.has("base_personality"):
-				personality = data["base_personality"].get("core_traits", "") + " " + data["base_personality"].get("dialogue_style", "")
-	
-	# 获取好感度阶段
-	if GameDataManager.profile.current_character_id == npc_id:
-		stage = GameDataManager.profile.current_stage
-		stage_title = GameDataManager.profile.get_current_stage_config().get("stageTitle", "未知")
-	else:
-		var stages_file = FileAccess.open("res://assets/data/characters/npc/" + npc_id + "_stages.json", FileAccess.READ)
-		if stages_file:
-			var json = JSON.new()
-			if json.parse(stages_file.get_as_text()) == OK:
-				var data = json.get_data()
-				if data.has("stages") and data["stages"].size() > 0:
-					stage_title = data["stages"][0].get("stageTitle", "未知")
-	
-	var protagonist_name = GameDataManager.profile.char_name # 当前游戏的女主(例如Luna)
-	if protagonist_name.is_empty():
-		protagonist_name = "Luna"
-		
-	var intimacy = 0.0
-	var trust = 0.0
-	if GameDataManager.profile.current_character_id == npc_id:
-		intimacy = GameDataManager.profile.intimacy
-		trust = GameDataManager.profile.trust
-	else:
-		var npc_rel = GameDataManager.npc_relationship_manager
-		if npc_rel:
-			intimacy = npc_rel.get_intimacy(npc_id)
-			trust = npc_rel.get_trust(npc_id)
-		
-	# 解析事件详情，构建当前事件描述
-	var system_prompt = GameDataManager.prompt_manager.build_npc_event_prompt(npc_name, personality, protagonist_name, stage, stage_title, event_desc, intimacy, trust)
-	
-	if system_prompt.is_empty():
-		# Fallback in case file read fails
-		system_prompt = "【系统设定】\n你扮演的角色是：%s。\n你的性格特征和说话风格是：%s。\n注意：在这个世界里，你现在面对的是游戏世界中的少女【%s】。\n你当前与少女【%s】的情感关系处于【阶段%d：%s】（亲密度：%.1f，信任度：%.1f）。请严格根据这个情感状态对她表现出相应的态度。\n\n【当前事件】\n%s\n\n【任务要求】\n请结合你的性格、情感阶段以及当前发生的事件，作出非常符合你人设的回复。注意：\n1. 所有的动作、神态、心理描写，必须且只能使用全角或半角的圆括号 () 包裹。\n2. 绝对禁止使用星号 *、中括号 []、波浪号 ~ 等其他任何符号来表示动作或情绪。\n3. 直接输出台词和圆括号动作，不要包含任何旁白。\n4. 语气必须严格符合当前对【%s】的情感状态，且符合现代日常世界观（不要出现魔幻、修仙、系统、穿越等出戏话题）。\n5. 回复可以是多句话，以表达完整的情感和意思，如果有多句可以自然换行。像游戏里的即时互动反馈一样自然流畅。" % [npc_name, personality, protagonist_name, protagonist_name, stage, stage_title, intimacy, trust, event_desc, protagonist_name]
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 500 # 防止 reasoning 截断
-	}
-	
-	if npc_event_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		npc_event_http.cancel_request()
-		
-	npc_event_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_narrative_service.generate_npc_event_dialogue(self, npc_id, event_desc)
 
 func send_diary_generation() -> void:
 	_update_script()
 	if _is_api_key_empty():
 		diary_error.emit("API Key未设置")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var prompt_template = ""
-	var file = FileAccess.open("res://scripts/templates/prompts/diary_generation.txt", FileAccess.READ)
-	if file:
-		prompt_template = file.get_as_text()
-		file.close()
-	else:
-		diary_error.emit("找不到日记生成提示词模板")
-		return
-		
-	var profile = GameDataManager.profile
-	var char_name = profile.char_name
-	var personality = GameDataManager.personality_system.get_personality_summary(profile)
-	var flavor_label = GameDataManager.personality_system.get_relationship_flavor_label(profile)
-	var emotion_stage = "Stage %d (%s) - 亲密度: %.1f, 信任度: %.1f, 情感风味: %s" % [profile.current_stage, profile.get_current_stage_config().get("stageTitle", ""), profile.intimacy, profile.trust, flavor_label]
-	var mood = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
-	var current_expression = profile.current_expression
-	var expression_db = GameDataManager.expression_system.expression_configs
-	if expression_db and expression_db.has(current_expression):
-		mood += " (表情：" + expression_db[current_expression].get("expression_name", "未知") + ")"
-	
-	# if current_expression != "calm" and current_expression != "":
-	# 	var expression_desc = GameDataManager.expression_system.get_expression_description(current_expression)
-	# 	prompt += "【角色当前表情与行为特征】：\n" + expression_desc + "\n"
-		
-	var player_name = profile.player_title
-	if player_name.is_empty():
-		player_name = "指导人"
-	var chat_history = profile.get_recent_chat_history_text(10)
-	
-	if chat_history.is_empty():
-		chat_history = "今天没有太多的交流..."
-		
-	var system_prompt = prompt_template.replace("{char_name}", char_name)
-	system_prompt = system_prompt.replace("{personality}", personality)
-	system_prompt = system_prompt.replace("{emotion_stage}", emotion_stage)
-	system_prompt = system_prompt.replace("{mood}", mood)
-	system_prompt = system_prompt.replace("{player_name}", player_name)
-	system_prompt = system_prompt.replace("{chat_history}", chat_history)
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": "请写下今天的日记。"}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 800
-	}
-	
-	if diary_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		diary_http.cancel_request()
-		
-	diary_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_social_content_service.send_diary_generation(self)
 
 func _on_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, chat_request_completed, chat_request_failed)
@@ -992,62 +444,7 @@ func _on_emotion_completed(result: int, response_code: int, _headers: PackedStri
 	_handle_response(result, response_code, body, emotion_request_completed, emotion_request_failed)
 
 func _on_memory_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	var request_memory_context = _active_memory_context.duplicate(true)
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
-			var response_data = json.get_data()
-			if response_data is Dictionary and response_data.has("choices") and response_data["choices"].size() > 0:
-				var reply = response_data["choices"][0]["message"]["content"].strip_edges()
-				
-				print("\n========== [Memory Agent Output] ==========")
-				print(reply)
-				print("===========================================\n")
-				
-				var json_str = reply
-				var regex = RegEx.new()
-				regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
-				var match = regex.search(reply)
-				if match:
-					json_str = match.get_string(1).strip_edges()
-				else:
-					var start_idx = reply.find("{")
-					var end_idx = reply.rfind("}")
-					if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-						json_str = reply.substr(start_idx, end_idx - start_idx + 1)
-					
-				if json_str != "" and json_str != "无新增记忆":
-					var parse_json = JSON.new()
-					if parse_json.parse(json_str) == OK:
-						var data = parse_json.get_data()
-						if data is Dictionary and data.has("operations") and data["operations"] is Array:
-							var plain_text_changes = ""
-							for op in data["operations"]:
-								if not op is Dictionary or not op.has("action") or not op.has("layer"):
-									continue
-									
-								var action = op["action"]
-								var layer = op["layer"]
-								var content = op.get("content", "")
-								var id = op.get("id", "")
-								
-								if action == "ADD":
-									await GameDataManager.memory_manager.add_memory(layer, content, request_memory_context)
-									plain_text_changes += "新增记忆: %s\n" % content
-								elif action == "UPDATE":
-									var success = await GameDataManager.memory_manager.update_memory(layer, id, content, request_memory_context)
-									if success:
-										plain_text_changes += "更新记忆: %s\n" % content
-								elif action == "DELETE":
-									if GameDataManager.memory_manager.delete_memory(layer, id):
-										plain_text_changes += "删除记忆 [%s]\n" % id
-										
-							if plain_text_changes != "":
-								print("记忆系统更新: ", plain_text_changes.strip_edges())
-					else:
-						print("Memory Agent 无法解析JSON: ", parse_json.get_error_message())
-	_clear_memory_request_context()
-	_handle_response(result, response_code, body, memory_request_completed, memory_request_failed)
+	_memory_emotion_service.handle_memory_completed(self, result, response_code, body)
 
 func _on_options_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, options_request_completed, options_request_failed)
@@ -1059,181 +456,10 @@ func _on_character_mood_completed(result: int, response_code: int, _headers: Pac
 	_handle_response(result, response_code, body, character_mood_request_completed, character_mood_request_failed)
 
 func _on_npc_event_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if response_code == 200:
-		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
-			var data = json.get_data()
-			if typeof(data) == TYPE_DICTIONARY and data.has("choices") and data["choices"].size() > 0:
-				var choice = data["choices"][0]
-				if choice.has("message") and choice["message"].has("content"):
-					var content = choice["message"]["content"].strip_edges()
-					if content.is_empty() and choice["message"].has("reasoning_content"):
-						npc_event_dialogue_completed.emit("（微笑着，没有说话）")
-					else:
-						npc_event_dialogue_completed.emit(content)
-					return
-	
-	npc_event_dialogue_failed.emit("NPC 事件台词获取失败 (Code: %d)" % response_code)
+	_narrative_service.handle_npc_event_completed(self, response_code, body)
 
 func _on_diary_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var response_str = body.get_string_from_utf8()
-		var json = JSON.new()
-		if json.parse(response_str) == OK:
-			var response_data = json.data
-			if response_data.has("choices") and response_data.choices.size() > 0:
-				var content = response_data.choices[0].message.content
-				var diary_entry = {
-					"id": str(int(Time.get_unix_time_from_system())),
-					"date": Time.get_date_string_from_system(),
-					"weather": "晴",
-					"content": content,
-					"image_url": "",
-					"image_generation_time": 0.0,
-					"image_prompt": "",
-					"image_model_version": ""
-				}
-				
-				var enable_illustration = true
-				if "enable_ai_diary_illustration" in GameDataManager.config:
-					enable_illustration = GameDataManager.config.enable_ai_diary_illustration
-					
-				if enable_illustration:
-					_process_diary_illustration(diary_entry)
-				else:
-					# 自动保存到 profile
-					if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
-						GameDataManager.profile.add_diary(diary_entry)
-						if GameDataManager.profile.has_method("save_profile"):
-							GameDataManager.profile.save_profile()
-					diary_generated.emit(diary_entry)
-			else:
-				diary_error.emit("找不到 choices 字段")
-		else:
-			diary_error.emit("JSON 解析失败: " + json.get_error_message())
-	else:
-		var err_msg = "请求失败 (Code: %d)" % response_code
-		if body.size() > 0:
-			var json = JSON.new()
-			if json.parse(body.get_string_from_utf8()) == OK and json.data is Dictionary and json.data.has("error"):
-				err_msg += " - " + json.data["error"].get("message", "")
-		diary_error.emit(err_msg)
-
-func _process_diary_illustration(diary_entry: Dictionary) -> void:
-	# 1. 使用当前的大模型获取图片的 Prompt
-	var prompt_template = ""
-	var file = FileAccess.open("res://scripts/templates/prompts/diary_illustration.txt", FileAccess.READ)
-	if file:
-		prompt_template = file.get_as_text()
-		file.close()
-	else:
-		print("[DeepSeekClient] 找不到日记插图提示词模板，跳过插图生成")
-		# 自动保存到 profile
-		if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
-			GameDataManager.profile.add_diary(diary_entry)
-			if GameDataManager.profile.has_method("save_profile"):
-				GameDataManager.profile.save_profile()
-		diary_generated.emit(diary_entry)
-		return
-		
-	var system_prompt = prompt_template.replace("{diary_content}", diary_entry.content)
-	var api_messages = [{"role": "system", "content": system_prompt}]
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 300
-	}
-	
-	var http = HTTPRequest.new()
-	add_child(http)
-	
-	var err = http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-	if err != OK:
-		http.queue_free()
-		diary_generated.emit(diary_entry)
-		return
-		
-	var response = await http.request_completed
-	var result = response[0]
-	var response_code = response[1]
-	var res_body = response[3]
-	
-	var image_prompt = ""
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(res_body.get_string_from_utf8()) == OK and json.data.has("choices") and json.data.choices.size() > 0:
-			image_prompt = json.data.choices[0].message.content.strip_edges()
-			
-	http.queue_free()
-	
-	if image_prompt.is_empty():
-		print("[DeepSeekClient] 无法生成插图提示词，跳过插图生成")
-		if GameDataManager.config and "default_image_path" in GameDataManager.config:
-			diary_entry["image_url"] = GameDataManager.config.default_image_path
-			
-		# 自动保存到 profile
-		if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
-			GameDataManager.profile.add_diary(diary_entry)
-			if GameDataManager.profile.has_method("save_profile"):
-				GameDataManager.profile.save_profile()
-				
-		diary_generated.emit(diary_entry)
-		return
-		
-	# 2. 调用 Image Client
-	if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
-		print("[DeepSeekClient] 图像生成已禁用，使用默认占位图")
-		diary_entry["image_url"] = GameDataManager.config.default_image_path
-		diary_generated.emit(diary_entry)
-		return
-		
-	var provider = 0 # 0: OpenAI, 1: Doubao
-	if GameDataManager.config and "image_generation_provider" in GameDataManager.config:
-		provider = GameDataManager.config.image_generation_provider
-		
-	var image_client
-	if provider == 1:
-		image_client = preload("res://scripts/api/doubao_image_client.gd").new()
-	else:
-		image_client = preload("res://scripts/api/openai_image_client.gd").new()
-		
-	add_child(image_client)
-	
-	var on_success = func(_diary_id: String, local_path: String, metadata: Dictionary):
-		diary_entry["image_url"] = local_path
-		diary_entry["image_generation_time"] = metadata.get("duration", 0.0)
-		diary_entry["image_prompt"] = metadata.get("prompt", "")
-		diary_entry["image_model_version"] = metadata.get("model", "")
-		
-		# 自动保存到 profile
-		if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
-			GameDataManager.profile.add_diary(diary_entry)
-			if GameDataManager.profile.has_method("save_profile"):
-				GameDataManager.profile.save_profile()
-		
-		image_client.queue_free()
-		diary_generated.emit(diary_entry)
-		
-	var on_failed = func(_diary_id: String, error_msg: String):
-		print("[DeepSeekClient] 日记插图生成失败: ", error_msg)
-		# 失败时使用默认占位图或留空，依然发送成功信号保证日记正常保存
-		if GameDataManager.config and "default_image_path" in GameDataManager.config:
-			diary_entry["image_url"] = GameDataManager.config.default_image_path
-			
-		# 自动保存到 profile
-		if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
-			GameDataManager.profile.add_diary(diary_entry)
-			if GameDataManager.profile.has_method("save_profile"):
-				GameDataManager.profile.save_profile()
-				
-		image_client.queue_free()
-		diary_generated.emit(diary_entry)
-		
-	image_client.image_generated.connect(on_success)
-	image_client.image_generation_failed.connect(on_failed)
-	
-	image_client.generate_diary_illustration(diary_entry.id, image_prompt)
+	_social_content_service.handle_diary_request_completed(self, result, response_code, _headers, body)
 
 func _handle_response(result: int, response_code: int, body: PackedByteArray, success_signal: Signal, fail_signal: Signal) -> void:
 	var char_name = GameDataManager.profile.char_name
@@ -1274,809 +500,61 @@ func send_moment_generation(custom_profile: CharacterProfile = null) -> void:
 	if _is_api_key_empty():
 		moment_error.emit("API Key未设置")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var profile = custom_profile if custom_profile else GameDataManager.profile
-	
-	# Store the profile name so _on_moment_request_completed can use it
-	var author_name = profile.char_name if profile else "AI"
-	var avatar_path = profile.avatar if profile and profile.avatar != "" else "res://icon.svg"
-	
-	set_meta("current_moment_author", author_name)
-	set_meta("current_moment_avatar", avatar_path)
-	
-	var system_prompt = GameDataManager.prompt_manager.build_moment_generation_prompt(profile)
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": "请写一条朋友圈。"}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 800
-	}
-	
-	if moment_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		moment_http.cancel_request()
-		
-	moment_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_social_content_service.send_moment_generation(self, custom_profile)
 
 func _on_moment_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var response_str = body.get_string_from_utf8()
-		var json = JSON.new()
-		if json.parse(response_str) == OK:
-			var response_data = json.data
-			if response_data.has("choices") and response_data.choices.size() > 0:
-				var content = response_data.choices[0].message.content
-				var moment_data = {
-					"id": str(int(Time.get_unix_time_from_system())),
-					"timestamp": Time.get_unix_time_from_system(),
-					"date": Time.get_date_string_from_system(),
-					"content": content,
-					"image_url": "",
-					"likes": 0,
-					"comments": [],
-					"author": get_meta("current_moment_author", "AI"),
-					"avatar": get_meta("current_moment_avatar", "res://icon.svg")
-				}
-				
-				var enable_illustration = true
-				if "enable_ai_moment_illustration" in GameDataManager.config:
-					enable_illustration = GameDataManager.config.enable_ai_moment_illustration
-				
-				if enable_illustration:
-					_process_moment_illustration(moment_data)
-				else:
-					moment_generated.emit(moment_data)
-			else:
-				moment_error.emit("找不到 choices 字段")
-		else:
-			moment_error.emit("JSON 解析失败: " + json.get_error_message())
-	else:
-		var err_msg = "请求失败 (Code: %d)" % response_code
-		if body.size() > 0:
-			var json = JSON.new()
-			if json.parse(body.get_string_from_utf8()) == OK and json.data is Dictionary and json.data.has("error"):
-				err_msg += " - " + json.data["error"].get("message", "")
-		moment_error.emit(err_msg)
-
-func _process_moment_illustration(moment_data: Dictionary) -> void:
-	var image_prompt = "请根据这段朋友圈内容生成一张配图的提示词（要求为英文）：" + moment_data.content
-	var api_messages = [{"role": "user", "content": image_prompt}]
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 300
-	}
-	
-	var http = HTTPRequest.new()
-	add_child(http)
-	
-	var err = http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-	if err != OK:
-		http.queue_free()
-		moment_generated.emit(moment_data)
-		return
-		
-	var response = await http.request_completed
-	var result = response[0]
-	var response_code = response[1]
-	var res_body = response[3]
-	
-	var en_prompt = ""
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(res_body.get_string_from_utf8()) == OK and json.data.has("choices") and json.data.choices.size() > 0:
-			en_prompt = json.data.choices[0].message.content.strip_edges()
-			
-	http.queue_free()
-	
-	if en_prompt.is_empty():
-		print("[DeepSeekClient] 无法生成朋友圈插图提示词，跳过插图生成")
-		if GameDataManager.config and "default_image_path" in GameDataManager.config:
-			moment_data["image_url"] = GameDataManager.config.default_image_path
-		moment_generated.emit(moment_data)
-		return
-		
-	if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
-		print("[DeepSeekClient] 图像生成已禁用，使用默认占位图")
-		moment_data["image_url"] = GameDataManager.config.default_image_path
-		moment_generated.emit(moment_data)
-		return
-		
-	var provider = 0
-	if GameDataManager.config and "image_generation_provider" in GameDataManager.config:
-		provider = GameDataManager.config.image_generation_provider
-		
-	var image_client
-	if provider == 1:
-		image_client = preload("res://scripts/api/doubao_image_client.gd").new()
-	else:
-		image_client = preload("res://scripts/api/openai_image_client.gd").new()
-		
-	add_child(image_client)
-	
-	var on_success = func(_id: String, local_path: String, _metadata: Dictionary):
-		moment_data["image_url"] = local_path
-		image_client.queue_free()
-		moment_generated.emit(moment_data)
-		
-	var on_failed = func(_id: String, error_msg: String):
-		print("[DeepSeekClient] 朋友圈插图生成失败: ", error_msg)
-		if GameDataManager.config and "default_image_path" in GameDataManager.config:
-			moment_data["image_url"] = GameDataManager.config.default_image_path
-		image_client.queue_free()
-		moment_generated.emit(moment_data)
-		
-	image_client.image_generated.connect(on_success)
-	image_client.image_generation_failed.connect(on_failed)
-	
-	image_client.generate_diary_illustration(moment_data.id, en_prompt)
+	_social_content_service.handle_moment_request_completed(self, result, response_code, _headers, body)
 
 func send_moment_reply(post_id: String, comment: String) -> void:
 	_update_script()
 	if _is_api_key_empty():
 		moment_reply_error.emit("API Key未设置")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var moments_manager = get_node_or_null("/root/MomentsManager")
-	var moment_data = {}
-	if moments_manager:
-		moment_data = moments_manager.get_moment(post_id)
-		
-	if moment_data.is_empty():
-		moment_reply_error.emit("找不到朋友圈内容")
-		return
-		
-	_current_moment_reply_post_id = post_id
-	var profile = GameDataManager.profile
-	var moment_content = moment_data.get("content", "")
-	var system_prompt = GameDataManager.prompt_manager.build_moment_reply_prompt(profile, moment_content, comment)
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 150
-	}
-	
-	if moment_reply_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		moment_reply_http.cancel_request()
-		
-	moment_reply_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_social_content_service.send_moment_reply(self, post_id, comment)
 
 func _on_moment_reply_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
-			var data = json.get_data()
-			if typeof(data) == TYPE_DICTIONARY and data.has("choices") and data["choices"].size() > 0:
-				var choice = data["choices"][0]
-				if choice.has("message") and choice["message"].has("content"):
-					var content = choice["message"]["content"].strip_edges()
-					moment_reply_generated.emit(_current_moment_reply_post_id, content)
-					return
-	
-	var err_msg = "朋友圈回复获取失败 (Code: %d)" % response_code
-	if body.size() > 0:
-		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK and json.data is Dictionary and json.data.has("error"):
-			err_msg += " - " + json.data["error"].get("message", "")
-	moment_reply_error.emit(err_msg)
+	_social_content_service.handle_moment_reply_request_completed(self, result, response_code, _headers, body)
 
 func generate_date_story(context: Dictionary) -> void:
 	_update_script()
 	if _is_api_key_empty():
 		date_story_error.emit("API Key未设置")
 		return
-
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-
-	var system_prompt = GameDataManager.prompt_manager.build_date_story_prompt(context)
-	var user_prompt = JSON.stringify(context, "\t")
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": user_prompt}
-	]
-
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.9,
-		"max_tokens": 1800
-	}
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-
-	if date_story_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		date_story_http.cancel_request()
-
-	date_story_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_scene_event_service.generate_date_story(self, context)
 
 func generate_schedule_event(course_name: String, course_desc: String, context: Dictionary = {}) -> void:
 	_update_script()
 	if _is_api_key_empty():
 		schedule_event_error.emit("API Key未设置")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var full_context = context.duplicate()
-	full_context["course_name"] = course_name
-	full_context["course_desc"] = course_desc
-	var system_prompt = GameDataManager.prompt_manager.build_schedule_event_prompt(full_context)
-	var user_prompt = JSON.stringify(full_context, "\t")
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": user_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 150
-	}
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-	
-	if schedule_event_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		schedule_event_http.cancel_request()
-		
-	schedule_event_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_scene_event_service.generate_schedule_event(self, course_name, course_desc, context)
 
 func resolve_schedule_event(course_name: String, event_desc: String, chosen_option: String, context: Dictionary = {}) -> void:
 	_update_script()
 	if _is_api_key_empty():
 		schedule_event_resolve_error.emit("API Key未设置")
 		return
-		
-	while not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	var full_context = context.duplicate()
-	full_context["course_name"] = course_name
-	full_context["event_desc"] = event_desc
-	full_context["chosen_option"] = chosen_option
-	var system_prompt = GameDataManager.prompt_manager.build_schedule_resolve_prompt(full_context)
-	var user_prompt = JSON.stringify(full_context, "\t")
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": user_prompt}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.7,
-		"max_tokens": 150
-	}
-	if not GameDataManager.config.model.begins_with("doubao"):
-		body["response_format"] = {"type": "json_object"}
-	
-	if schedule_resolve_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		schedule_resolve_http.cancel_request()
-		
-	schedule_resolve_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-
-func _extract_json_object_from_response(body: PackedByteArray) -> Variant:
-	var json = JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK:
-		return null
-	var data = json.get_data()
-	if not (data is Dictionary and data.has("choices") and data["choices"].size() > 0):
-		return null
-
-	var content := str(data["choices"][0]["message"]["content"]).strip_edges()
-	if content.begins_with("```json"):
-		content = content.replace("```json", "")
-	if content.begins_with("```"):
-		content = content.replace("```", "")
-	if content.ends_with("```"):
-		content = content.substr(0, content.length() - 3)
-	content = content.strip_edges()
-
-	var content_json = JSON.new()
-	if content_json.parse(content) != OK:
-		return null
-	return content_json.get_data()
+	_scene_event_service.resolve_schedule_event(self, course_name, event_desc, chosen_option, context)
 
 func _on_date_story_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var script_data = _extract_json_object_from_response(body)
-		if script_data is Dictionary:
-			date_story_generated.emit(script_data)
-			return
-	date_story_error.emit("约会剧情生成失败 (Code: %d)" % response_code)
+	_scene_event_service.handle_date_story_completed(self, result, response_code, _headers, body)
 
 func _on_schedule_event_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var event_data = _extract_json_object_from_response(body)
-		if event_data is Dictionary:
-			# 兼容 prompt 里要求输出的 description / option1 / option2 字段
-			if event_data.has("description") and not event_data.has("event_desc"):
-				event_data["event_desc"] = event_data["description"]
-			if not event_data.has("options"):
-				var opts = []
-				if event_data.has("option1"):
-					opts.append({"text": event_data["option1"]})
-				if event_data.has("option2"):
-					opts.append({"text": event_data["option2"]})
-				event_data["options"] = opts
-			schedule_event_generated.emit(event_data)
-			return
-	schedule_event_error.emit("事件生成失败 (Code: %d)" % response_code)
+	_scene_event_service.handle_schedule_event_completed(self, result, response_code, _headers, body)
 
 func _on_schedule_resolve_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var result_data = _extract_json_object_from_response(body)
-		if result_data is Dictionary:
-			if result_data.has("rewards") and not result_data.has("attr_changes"):
-				result_data["attr_changes"] = result_data["rewards"]
-			schedule_event_resolved.emit(result_data)
-			return
-	schedule_event_resolve_error.emit("事件结算失败 (Code: %d)" % response_code)
+	_scene_event_service.handle_schedule_resolve_completed(self, result, response_code, _headers, body)
 
 func send_image_to_image_request(base64_image: String, prompt: String) -> void:
 	_update_script()
-	if not is_inside_tree():
-		await Engine.get_main_loop().process_frame
-		
-	print("[DeepSeekClient] 收到 Image-to-Image 请求, 提示词: ", prompt)
-	# 如果以后API支持真实的I2I（如ControlNet），可以将 base64_image 作为参考图传入。
-	# 目前我们使用现有的图像生成客户端 (Text-to-Image) 来模拟I2I请求，
-	# 并在后台保存图片，随后返回本地路径。
-	
-	if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
-		image_to_image_failed.emit("图像生成功能已在设置中禁用。")
-		return
-		
-	var provider = 0
-	if GameDataManager.config and "image_generation_provider" in GameDataManager.config:
-		provider = GameDataManager.config.image_generation_provider
-		
-	var image_client
-	if provider == 1:
-		image_client = preload("res://scripts/api/doubao_image_client.gd").new()
-	else:
-		image_client = preload("res://scripts/api/openai_image_client.gd").new()
-		
-	add_child(image_client)
-	
-	var on_success = func(_id: String, local_path: String, _metadata: Dictionary):
-		image_client.queue_free()
-		image_to_image_completed.emit(local_path)
-		
-	var on_failed = func(_id: String, error_msg: String):
-		image_client.queue_free()
-		image_to_image_failed.emit(error_msg)
-		
-	image_client.image_generated.connect(on_success)
-	image_client.image_generation_failed.connect(on_failed)
-	
-	# 使用 "i2i" 作为ID标识，底层会复用生成逻辑并返回保存的路径
-	image_client.generate_diary_illustration("i2i", prompt)
-
-func _resolve_idle_quote_time_context() -> Dictionary:
-	var story_time_manager = GameDataManager.story_time_manager
-	var current_hour: int = 8
-	var period_label: String = "上午"
-	if story_time_manager:
-		current_hour = int(story_time_manager.current_hour)
-		period_label = str(story_time_manager.current_period)
-	if current_hour >= 5 and current_hour < 12:
-		return {
-			"bucket": "早",
-			"hour": current_hour,
-			"period": period_label,
-			"guidance": "现在偏早段，适合聊刚醒来、早餐、出门前、打起精神、今天想怎么开始。"
-		}
-	if current_hour >= 12 and current_hour < 18:
-		return {
-			"bucket": "午",
-			"hour": current_hour,
-			"period": period_label,
-			"guidance": "现在偏午段，适合聊午饭、犯困、学习或工作进度、下午的疲惫感、想偷懒一下。"
-		}
-	return {
-		"bucket": "晚",
-		"hour": current_hour,
-		"period": period_label,
-		"guidance": "现在偏晚段，适合聊放松、陪伴、晚饭、夜色、收尾、别太晚睡。"
-	}
-
-func _resolve_idle_quote_weather_context() -> Dictionary:
-	var weather_desc: String = "晴天"
-	if GameDataManager.story_time_manager and GameDataManager.story_time_manager.has_method("get_story_weather_desc"):
-		weather_desc = str(GameDataManager.story_time_manager.get_story_weather_desc())
-	var guidance := "天气明朗，适合轻松、舒展、带一点晒太阳或出门心情的闲聊。"
-	match weather_desc:
-		"多云":
-			guidance = "天气有些发灰但不沉重，适合聊发呆、慢下来、想和你多待一会儿。"
-		"阴天":
-			guidance = "天气偏闷偏压，适合聊赖着、犯懒、需要陪伴、想被哄一哄。"
-		"有雾":
-			guidance = "空气朦胧，适合聊安静、贴近、小声提醒、像悄悄凑近一样的陪伴感。"
-		"雨天":
-			guidance = "下雨时适合聊带伞、潮湿、窝着休息、想被关心，语气可以更柔一点。"
-		"雷雨":
-			guidance = "天气有压迫感，适合聊担心、黏人一点、想确认你在不在身边。"
-		"雪天":
-			guidance = "天气偏冷，适合聊取暖、手冷、围巾、一起窝着或看雪。"
-	return {
-		"desc": weather_desc,
-		"guidance": guidance
-	}
-
-func _resolve_idle_quote_stage_guidance(profile: CharacterProfile, stage_conf: Dictionary) -> String:
-	var stage_index: int = int(profile.current_stage)
-	var stage_title: String = str(stage_conf.get("stageTitle", "陌生人"))
-	if stage_index <= 2:
-		return "当前关系还偏克制，主动但不要过火，更多是试探、自然问候、轻轻关心。"
-	if stage_index <= 4:
-		return "当前关系正在升温，可以更熟稔一点，带点分享欲、依赖感或软软的玩笑。"
-	if stage_index <= 6:
-		return "当前关系已经比较亲近，可以自然撒娇、轻微吃味、示弱或表达想陪着你。"
-	return "当前关系已经非常亲密，可以明显表现占有欲、依恋感、默契感和只有你们懂的小亲昵。"
-
-func _resolve_idle_quote_mood_guidance(mood_id: String, mood_name: String) -> String:
-	match mood_id:
-		"happy", "joy", "excited":
-			return "当前心情偏高，语气可以更轻快、俏皮、亮一点。"
-		"sad", "down", "melancholy":
-			return "当前心情偏低，语气可以更轻、更软，像想找你靠一下。"
-		"angry", "annoyed", "irritated":
-			return "当前心情有点别扭，允许轻微吐槽或闹小脾气，但不要真的尖锐。"
-		"shy", "bashful":
-			return "当前心情偏害羞，语气可以欲言又止、绕一点，但仍然自然。"
-		"tired", "sleepy":
-			return "当前心情偏疲惫，适合聊困、累、想偷懒、想让你陪一下。"
-		_:
-			return "当前心情是%s，语气要贴合这种状态，不要像机械问候。" % mood_name
-
-func _build_default_idle_quote_config() -> Dictionary:
-	return {
-		"categories": {
-			"关心型": {
-				"prompt_lines": [
-					"像下意识关心对方现在状态的一句话。",
-					"可以轻轻提醒吃饭、休息、别太累、别着凉。",
-					"关心要自然，不要像照本宣科。"
-				]
-			},
-			"撒娇型": {
-				"prompt_lines": [
-					"语气可以软一点、绕一点，像想让对方多哄一下。",
-					"允许轻微任性，但不能幼稚做作。",
-					"更像亲近之后不自觉露出来的小脾气。"
-				]
-			},
-			"吐槽型": {
-				"prompt_lines": [
-					"可以带一点轻吐槽、碎碎念、拿现在状态开小玩笑。",
-					"不要阴阳怪气，要像亲近时会有的小抱怨。",
-					"吐槽里最好还是藏一点在意。"
-				]
-			},
-			"陪伴型": {
-				"prompt_lines": [
-					"重点是陪着、在身边、和你一起待着的感觉。",
-					"像安静相处时忽然冒出来的一句。",
-					"不要太强事件性，更像日常陪伴。"
-				]
-			},
-			"黏人型": {
-				"prompt_lines": [
-					"可以更明显表现舍不得你走、想贴近、想确认你在。",
-					"语气要自然亲昵，不要油腻。",
-					"要有一点只有关系足够近才会出现的依恋感。"
-				]
-			},
-			"分享型": {
-				"prompt_lines": [
-					"像突然想把一个小感受、小发现、小念头说给对方听。",
-					"可以更生活化一点，像顺口分享今天此刻的状态。",
-					"重点是想和对方说，而不是汇报。"
-				]
-			}
-		}
-	}
-
-func _ensure_idle_quote_config_loaded() -> void:
-	if _idle_quote_config_loaded:
-		return
-	_idle_quote_config_loaded = true
-	_idle_quote_config_cache = _build_default_idle_quote_config()
-	if not FileAccess.file_exists(IDLE_QUOTE_CONFIG_PATH):
-		return
-	var file: FileAccess = FileAccess.open(IDLE_QUOTE_CONFIG_PATH, FileAccess.READ)
-	if file == null:
-		return
-	var json := JSON.new()
-	if json.parse(file.get_as_text()) != OK:
-		return
-	var data: Variant = json.get_data()
-	if data is Dictionary:
-		_idle_quote_config_cache = data
-
-func _get_idle_quote_config() -> Dictionary:
-	_ensure_idle_quote_config_loaded()
-	return _idle_quote_config_cache
-
-func _build_default_idle_quote_stage_profile(stage_index: int) -> Dictionary:
-	if stage_index <= 2:
-		return {
-			"pick_count": 2,
-			"weights": {
-				"关心型": 4.8,
-				"陪伴型": 4.5,
-				"分享型": 3.2,
-				"吐槽型": 1.3,
-				"撒娇型": 0.8,
-				"黏人型": 0.4
-			}
-		}
-	if stage_index <= 4:
-		return {
-			"pick_count": 2,
-			"weights": {
-				"关心型": 4.4,
-				"陪伴型": 4.0,
-				"分享型": 3.0,
-				"吐槽型": 2.3,
-				"撒娇型": 1.8,
-				"黏人型": 1.1
-			}
-		}
-	if stage_index <= 6:
-		return {
-			"pick_count": 3,
-			"weights": {
-				"关心型": 3.5,
-				"陪伴型": 3.4,
-				"分享型": 2.2,
-				"吐槽型": 2.4,
-				"撒娇型": 3.3,
-				"黏人型": 2.8
-			}
-		}
-	return {
-		"pick_count": 3,
-		"weights": {
-			"关心型": 2.8,
-			"陪伴型": 3.2,
-			"分享型": 1.8,
-			"吐槽型": 2.2,
-			"撒娇型": 4.1,
-			"黏人型": 4.6
-		}
-	}
-
-func _resolve_idle_quote_stage_profile(profile: CharacterProfile, stage_conf: Dictionary) -> Dictionary:
-	var idle_profile_variant: Variant = stage_conf.get("idle_quote_profile", {})
-	if idle_profile_variant is Dictionary and not (idle_profile_variant as Dictionary).is_empty():
-		return idle_profile_variant
-	return _build_default_idle_quote_stage_profile(int(profile.current_stage))
-
-func _build_idle_quote_category_weights(stage_profile: Dictionary) -> Dictionary:
-	var weights_variant: Variant = stage_profile.get("weights", {})
-	return weights_variant if weights_variant is Dictionary else {}
-
-func _pick_weighted_idle_quote_categories(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator) -> Array[String]:
-	var stage_profile: Dictionary = _resolve_idle_quote_stage_profile(profile, stage_conf)
-	var weights: Dictionary = _build_idle_quote_category_weights(stage_profile)
-	var picked: Array[String] = []
-	var target_count: int = int(stage_profile.get("pick_count", 2 if int(profile.current_stage) <= 3 else 3))
-	var working_weights: Dictionary = weights.duplicate(true)
-	for _i in range(target_count):
-		var total_weight: float = 0.0
-		for key in working_weights.keys():
-			total_weight += float(working_weights[key])
-		if total_weight <= 0.0:
-			break
-		var roll: float = rng.randf_range(0.0, total_weight)
-		var cumulative: float = 0.0
-		for key in working_weights.keys():
-			cumulative += float(working_weights[key])
-			if roll <= cumulative:
-				picked.append(str(key))
-				working_weights.erase(key)
-				break
-	if picked.is_empty():
-		picked.append("陪伴型")
-	return picked
-
-func _build_idle_quote_category_prompts(category: String, time_bucket: String, weather_desc: String, mood_id: String) -> Array[String]:
-	var _unused_time_bucket: String = time_bucket
-	var _unused_weather_desc: String = weather_desc
-	var _unused_mood_id: String = mood_id
-	var config: Dictionary = _get_idle_quote_config()
-	var categories_variant: Variant = config.get("categories", {})
-	if categories_variant is Dictionary:
-		var categories: Dictionary = categories_variant
-		if categories.has(category):
-			var category_data_variant: Variant = categories.get(category, {})
-			if category_data_variant is Dictionary:
-				var category_data: Dictionary = category_data_variant
-				var prompt_lines_variant: Variant = category_data.get("prompt_lines", [])
-				if prompt_lines_variant is Array:
-					var result: Array[String] = []
-					for line_variant in prompt_lines_variant:
-						var line_text: String = str(line_variant).strip_edges()
-						if line_text != "":
-							result.append(line_text)
-					if not result.is_empty():
-						return result
-	return ["像生活里自然冒出来的一句闲聊。"]
-
-func _build_idle_quote_random_pool(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator, time_context: Dictionary, weather_context: Dictionary, mood_id: String, mood_name: String, mood_guidance: String, stage_title: String, stage_guidance: String) -> Dictionary:
-	var selected_categories: Array[String] = _pick_weighted_idle_quote_categories(profile, stage_conf, rng)
-	var pool: Array[String] = [
-		"轻轻打个招呼，但不要像客服问候。",
-		"随口提一下现在这个时段最容易出现的小感受。",
-		"像一起生活时突然冒出来的一句碎碎念。",
-		"顺势表达一点想陪着玩家的念头。"
-	]
-	match str(time_context.get("bucket", "早")):
-		"早":
-			pool.append_array([
-				"提一下刚醒、早餐、出门、赖床、清晨状态。",
-				"可以像在催人打起精神，但要温柔自然。",
-				"像早上见面时，下意识想先说的一句。"])
-		"午":
-			pool.append_array([
-				"提一下午饭、午休、犯困、下午还有点长。",
-				"可以像在关心玩家有没有偷偷摸鱼。",
-				"像中段疲惫时，想给对方一点缓冲。"])
-		"晚":
-			pool.append_array([
-				"提一下晚饭、放松、夜色、快收尾了。",
-				"可以自然带一点陪伴感或舍不得你太晚休息。",
-				"像夜里相处时不自觉放软的语气。"])
-	match str(weather_context.get("desc", "晴天")):
-		"晴天":
-			pool.append_array(["带一点舒展、亮堂、想出门或想晒太阳的感觉。"])
-		"多云":
-			pool.append_array(["带一点慵懒、发呆、安静陪着你的感觉。"])
-		"阴天":
-			pool.append_array(["带一点犯懒、想被陪、心情低低的柔软感。"])
-		"有雾":
-			pool.append_array(["语气可以更贴近、更轻声，像在你耳边悄悄说。"])
-		"雨天":
-			pool.append_array(["带一点潮湿天气下的窝着、带伞、别淋到的关心。"])
-		"雷雨":
-			pool.append_array(["可以更黏人一点，像想确认你在。"])
-		"雪天":
-			pool.append_array(["带一点冷、想取暖、想靠近的感觉。"])
-	if mood_name != "":
-		pool.append("要体现当前心情“%s”。" % mood_name)
-	pool.append(mood_guidance)
-	pool.append("当前关系阶段是“%s”，%s" % [stage_title, stage_guidance])
-	for category in selected_categories:
-		pool.append("本次闲聊优先走“%s”。" % category)
-		pool.append_array(_build_idle_quote_category_prompts(category, str(time_context.get("bucket", "早")), str(weather_context.get("desc", "晴天")), mood_id))
-	pool.shuffle()
-	var selected_count: int = mini(6, pool.size())
-	var selected: Array[String] = []
-	for i in range(selected_count):
-		selected.append(pool[i])
-	return {
-		"categories": selected_categories,
-		"prompt_text": "\n- " + "\n- ".join(selected)
-	}
+	_social_content_service.send_image_to_image_request(self, base64_image, prompt)
 
 func send_idle_quote_generation(char_id: String) -> void:
 	_update_script()
 	if _is_api_key_empty():
 		idle_quote_failed.emit("API Key未设置")
 		return
-		
-	var profile = GameDataManager.profile
-	if not profile or profile.current_character_id != char_id:
-		profile = CharacterProfile.new()
-		profile.load_profile(char_id)
-		
-	var char_name = profile.char_name
-	var personality = GameDataManager.personality_system.get_personality_summary(profile)
-	var stage_conf = profile.get_current_stage_config()
-	var stage_title = str(stage_conf.get("stageTitle", "陌生人"))
-	var stage_desc = str(stage_conf.get("stageDesc", ""))
-	var intimacy = float(profile.intimacy)
-	var mood_data: Dictionary = GameDataManager.mood_system.get_macro_mood(profile.mood_value)
-	var mood = str(mood_data.get("name", "平静"))
-	var mood_id = str(mood_data.get("id", "calm"))
-	
-	var player_name = profile.player_title
-	if player_name.is_empty():
-		player_name = "指导人"
-		
-	var rng = RandomNumberGenerator.new()
-	rng.randomize()
-	var random_seed = rng.randi()
-	var time_context: Dictionary = _resolve_idle_quote_time_context()
-	var weather_context: Dictionary = _resolve_idle_quote_weather_context()
-	var mood_guidance: String = _resolve_idle_quote_mood_guidance(mood_id, mood)
-	var stage_guidance: String = _resolve_idle_quote_stage_guidance(profile, stage_conf)
-	var idle_pool: Dictionary = _build_idle_quote_random_pool(profile, stage_conf, rng, time_context, weather_context, mood_id, mood, mood_guidance, stage_title, stage_guidance)
-	var random_pool_text: String = str(idle_pool.get("prompt_text", ""))
-	var selected_categories: Array = idle_pool.get("categories", [])
-		
-	var system_prompt = "【系统设定】\n"
-	system_prompt += "你扮演的角色是：%s。\n" % char_name
-	system_prompt += "你的性格特征是：%s。\n" % personality
-	system_prompt += "你当前与【%s】的情感关系处于【%s】（亲密度：%.1f）。\n" % [player_name, stage_title, intimacy]
-	system_prompt += "当前关系描述：%s。\n" % stage_desc
-	system_prompt += "你当前的心情是：%s。\n" % mood
-	system_prompt += "当前主场景时段：%s（%02d点，%s）。\n" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))]
-	system_prompt += "当前剧情天气：%s。\n" % str(weather_context.get("desc", "晴天"))
-	system_prompt += "【四维语境】\n"
-	system_prompt += "时段引导：%s\n" % str(time_context.get("guidance", ""))
-	system_prompt += "天气引导：%s\n" % str(weather_context.get("guidance", ""))
-	system_prompt += "心情引导：%s\n" % mood_guidance
-	system_prompt += "关系引导：%s\n" % stage_guidance
-	system_prompt += "本次优先子类：%s\n" % " / ".join(PackedStringArray(selected_categories))
-	system_prompt += "【随机灵感池】%s\n" % random_pool_text
-	system_prompt += "【任务要求】\n"
-	system_prompt += "请根据你的性格、情感阶段、当前心情、当前时段和天气，对【%s】主动说一句简短的话，比如倾诉心事、撒娇、吐槽、关心、碎碎念或者打招呼。\n" % player_name
-	system_prompt += "要求：\n"
-	system_prompt += "1. 每次必须提供完全不同的随机对话，禁止重复以前的回答。优先围绕“本次优先子类”中的1到2种类型来写。\n"
-	system_prompt += "2. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n"
-	system_prompt += "3. 字数限制在25字以内。\n"
-	system_prompt += "4. 语气要自然、生活化。\n"
-	system_prompt += "5. 不要生硬点名“现在是早上/天气是雨天”，而是让这些语境自然渗进话里。\n"
-	system_prompt += "6. 这是常驻陪伴里的闲聊，不要像正式剧情开场，也不要像任务提示。\n"
-	system_prompt += "[随机因子：%d]\n" % random_seed
-	
-	var api_messages = [
-		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": "请随机对我说一句符合你人设的话，务必保证每次都截然不同！"}
-	]
-	
-	var body = {
-		"model": GameDataManager.config.model,
-		"messages": api_messages,
-		"temperature": 0.85,
-		"max_tokens": 100
-	}
-	
-	if idle_quote_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
-		idle_quote_http.cancel_request()
-		
-	idle_quote_http.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	_idle_quote_service.send_idle_quote_generation(self, char_id)
 
 func _on_idle_quote_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
-		idle_quote_failed.emit("网络请求失败 (HTTP " + str(response_code) + ")")
-		return
-		
-	var json = JSON.new()
-	if json.parse(body.get_string_from_utf8()) == OK:
-		var response = json.get_data()
-		if typeof(response) == TYPE_DICTIONARY and response.has("choices") and response["choices"].size() > 0:
-			var quote = response["choices"][0]["message"]["content"].strip_edges()
-			var regex = RegEx.new()
-			regex.compile("（.*?）|\\(.*?\\)|\\[.*?\\]|\\*.*?\\*")
-			quote = regex.sub(quote, "", true).strip_edges()
-			quote = quote.replace("\"", "").replace("“", "").replace("”", "")
-			idle_quote_completed.emit(quote)
-			return
-			
-	idle_quote_failed.emit("返回数据解析失败")
+	_idle_quote_service.handle_idle_quote_completed(self, result, response_code, headers, body)

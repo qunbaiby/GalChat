@@ -95,15 +95,15 @@ func _load_atmosphere_assets() -> void:
 	_detail_noise_texture = _load_weather_texture("sky/cloud_detail_noise.png")
 	_flow_noise_texture = _load_weather_texture("sky/cloud_flow_noise.png")
 	if _detail_noise_texture == null:
-		_detail_noise_texture = _generate_tile_noise_texture(256, 256, 41.0, false)
+		_detail_noise_texture = _generate_fast_noise_texture(64, 64, 41.0, false)
 	if _flow_noise_texture == null:
-		_flow_noise_texture = _generate_tile_noise_texture(256, 256, 83.0, true)
+		_flow_noise_texture = _generate_fast_noise_texture(64, 64, 83.0, true)
 	for i in range(_cloud_mask_textures.size()):
 		if _cloud_mask_textures[i] == null:
-			_cloud_mask_textures[i] = _generate_cloud_mask_texture(512, 256, 101.0 + float(i) * 31.0)
+			_cloud_mask_textures[i] = _generate_fast_mask_texture(128, 64, 101.0 + float(i) * 31.0, false)
 	for i in range(_fog_mask_textures.size()):
 		if _fog_mask_textures[i] == null:
-			_fog_mask_textures[i] = _generate_fog_mask_texture(512, 256, 211.0 + float(i) * 29.0)
+			_fog_mask_textures[i] = _generate_fast_mask_texture(128, 64, 211.0 + float(i) * 29.0, true)
 
 
 func _setup_atmosphere_layers() -> void:
@@ -1061,6 +1061,35 @@ func _generate_tile_noise_texture(width: int, height: int, seed: float, fluid: b
 			var u: float = float(x) / float(max(1, width - 1))
 			var value: float = _tile_noise(u, v, seed, fluid)
 			image.set_pixel(x, y, Color(value, value, value, 1.0))
+	return ImageTexture.create_from_image(image)
+
+
+func _generate_fast_noise_texture(width: int, height: int, seed: float, fluid: bool) -> Texture2D:
+	var image := Image.create(width, height, false, Image.FORMAT_RGBA8)
+	for y in range(height):
+		var v: float = float(y) / float(max(1, height - 1))
+		for x in range(width):
+			var u: float = float(x) / float(max(1, width - 1))
+			var value: float = 0.5 + 0.22 * sin(TAU * (u * 1.7 + v * 1.3 + seed * 0.013))
+			if fluid:
+				value += 0.14 * cos(TAU * (u * 2.6 - v * 1.9 + seed * 0.021))
+			image.set_pixel(x, y, Color(clamp(value, 0.0, 1.0), clamp(value, 0.0, 1.0), clamp(value, 0.0, 1.0), 1.0))
+	return ImageTexture.create_from_image(image)
+
+
+func _generate_fast_mask_texture(width: int, height: int, seed: float, is_fog: bool) -> Texture2D:
+	var image := Image.create(width, height, false, Image.FORMAT_RGBA8)
+	for y in range(height):
+		var v: float = float(y) / float(max(1, height - 1))
+		var vertical_fade: float = 1.0 - _smoothstep(0.32, 0.96, v)
+		if is_fog:
+			vertical_fade = _smoothstep(0.18, 0.82, v)
+		for x in range(width):
+			var u: float = float(x) / float(max(1, width - 1))
+			var wave_a: float = 0.5 + 0.5 * sin(TAU * (u * 1.2 + seed * 0.017))
+			var wave_b: float = 0.5 + 0.5 * cos(TAU * (u * 2.1 - v * 0.8 + seed * 0.011))
+			var alpha: float = clamp((wave_a * 0.55 + wave_b * 0.45) * vertical_fade, 0.0, 1.0)
+			image.set_pixel(x, y, Color(alpha, alpha, alpha, alpha))
 	return ImageTexture.create_from_image(image)
 
 

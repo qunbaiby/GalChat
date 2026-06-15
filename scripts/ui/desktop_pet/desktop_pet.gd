@@ -769,7 +769,7 @@ func _trigger_proactive_chat(prompt_text: String) -> void:
 	for msg in proactive_history:
 		pet_messages.append(msg)
 		
-	deepseek_client._start_stream_request(pet_messages)
+	deepseek_client.start_chat_stream_with_messages(pet_messages)
 
 func _on_send_pressed() -> void:
 	var text = input_edit.text.strip_edges()
@@ -824,7 +824,7 @@ func _on_send_pressed() -> void:
 			msg["content"] = str(msg["content"]) + injection
 		pet_messages.append(msg)
 		
-	deepseek_client._start_stream_request(pet_messages)
+	deepseek_client.start_chat_stream_with_messages(pet_messages)
 
 func _on_chat_started() -> void:
 	current_response = ""

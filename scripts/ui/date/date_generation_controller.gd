@@ -3,6 +3,7 @@ extends Node
 
 const DateStoryManager = preload("res://scripts/data/date_story_manager.gd")
 const DateLoadingOverlayScene = preload("res://scenes/ui/date/date_loading_overlay.tscn")
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 
 signal generation_state_changed(active: bool)
 signal story_ready(script_data: Dictionary)
@@ -55,8 +56,6 @@ func start_date_plan(plan_list: Array) -> void:
 	if not _deepseek_client.is_connected("date_story_error", _on_date_story_error):
 		_deepseek_client.date_story_error.connect(_on_date_story_error)
 	_set_generation_state(true)
-	if ToastManager:
-		ToastManager.show_toast("正在生成约会剧情...")
 	_deepseek_client.generate_date_story(context)
 
 
@@ -73,10 +72,7 @@ func is_generating() -> bool:
 func _find_deepseek_client() -> Node:
 	if _deepseek_client and is_instance_valid(_deepseek_client):
 		return _deepseek_client
-	var main_scene = get_tree().get_root().get_node_or_null("MainScene")
-	if main_scene and main_scene.has_node("DeepSeekClient"):
-		return main_scene.get_node("DeepSeekClient")
-	return null
+	return DeepSeekClientLocator.find(self)
 
 
 func _set_generation_state(active: bool) -> void:

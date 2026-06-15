@@ -34,15 +34,7 @@ func _ready() -> void:
     _find_deepseek_client()
 
 func _find_deepseek_client() -> void:
-    var llm_manager = get_node_or_null("/root/LLMManager")
-    if llm_manager and llm_manager.has("deepseek_client"):
-        deepseek_client = llm_manager.deepseek_client
-    elif get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
-        deepseek_client = get_tree().current_scene.get_node("DeepSeekClient")
-    elif get_node_or_null("/root/DeepSeekClient"):
-        deepseek_client = get_node("/root/DeepSeekClient")
-    elif get_tree().root.has_node("MainScene/DeepSeekClient"):
-        deepseek_client = get_node("/root/MainScene/DeepSeekClient")
+    deepseek_client = DeepSeekClientLocator.find(self)
 
 func _on_drawing_area_gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:

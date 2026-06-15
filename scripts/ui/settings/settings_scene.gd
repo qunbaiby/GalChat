@@ -124,8 +124,6 @@ func _ready() -> void:
 	model_option.set_item_metadata(1, "deepseek-coder")
 	model_option.add_item("deepseek-reasoner (R1/V4)")
 	model_option.set_item_metadata(2, "deepseek-reasoner")
-	model_option.add_item("doubao-seed-character (豆包)")
-	model_option.set_item_metadata(3, "doubao-seed-character-251128")
 	_sidebar_buttons = [ai_tab_button, display_tab_button, audio_tab_button, pet_tab_button]
 	for i in _sidebar_buttons.size():
 		var button: Button = _sidebar_buttons[i]
@@ -219,8 +217,6 @@ func _load_ui_data() -> void:
 		model_option.selected = 1
 	elif config.model == "deepseek-reasoner":
 		model_option.selected = 2
-	elif config.model.begins_with("doubao"):
-		model_option.selected = 3
 	else:
 		model_option.selected = 0
 		
@@ -367,8 +363,6 @@ func _save_ui_data() -> void:
 		config.model = "deepseek-coder"
 	elif model_option.selected == 2:
 		config.model = "deepseek-reasoner"
-	elif model_option.selected == 3:
-		config.model = "doubao-seed-character-251128"
 	else:
 		config.model = "deepseek-chat"
 	config.temperature = temp_slider.value
@@ -503,14 +497,8 @@ func _update_model_ui() -> void:
 		var label = node.get_parent().get_node_or_null(label_name)
 		if label:
 			label.visible = should_visible
-			
-	var provider = model_option.selected
-	if provider == 3: # Doubao
-		set_visibility.call(api_key_input, false)
-		set_visibility.call(doubao_chat_key_input, true)
-	else: # DeepSeek
-		set_visibility.call(api_key_input, true)
-		set_visibility.call(doubao_chat_key_input, false)
+	set_visibility.call(api_key_input, true)
+	set_visibility.call(doubao_chat_key_input, false)
 
 func _on_image_provider_changed(_idx: int) -> void:
 	_update_image_gen_ui()

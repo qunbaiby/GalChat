@@ -5,6 +5,7 @@ signal cover_pick_requested
 signal top_style_progress_changed(progress: float)
 
 const MOMENT_ITEM_SCENE = preload("res://scenes/ui/mobile/moments/moment_item.tscn")
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 
 @onready var back_btn: Button = get_node_or_null("TopBar/BackBtn")
 @onready var title_label: Label = get_node_or_null("TopBar/Title")
@@ -59,16 +60,7 @@ func _connect_signals() -> void:
 		MomentsManager.moments_updated.connect(_on_moments_updated)
 
 func _get_deepseek_client() -> Node:
-	var llm_manager = get_node_or_null("/root/LLMManager")
-	if llm_manager and llm_manager.has("deepseek_client"):
-		return llm_manager.deepseek_client
-	if get_tree().current_scene and get_tree().current_scene.has_node("DeepSeekClient"):
-		return get_tree().current_scene.get_node("DeepSeekClient")
-	if get_node_or_null("/root/DeepSeekClient"):
-		return get_node("/root/DeepSeekClient")
-	if get_tree().root.has_node("MainScene/DeepSeekClient"):
-		return get_node("/root/MainScene/DeepSeekClient")
-	return null
+	return DeepSeekClientLocator.find(self)
 
 func _process(delta: float) -> void:
 	if visible:

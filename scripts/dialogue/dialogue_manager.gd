@@ -1,6 +1,7 @@
 extends Control
 
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 
 signal chat_closed
 
@@ -143,9 +144,9 @@ func _resolve_nodes() -> void:
 	if deepseek_client_path != NodePath(""):
 		deepseek_client = get_node_or_null(deepseek_client_path) as DeepSeekClient
 	if not deepseek_client:
-		deepseek_client = DeepSeekClient.new()
-		deepseek_client.name = "DeepSeekClient"
-		add_child(deepseek_client)
+		deepseek_client = DeepSeekClientLocator.find(self) as DeepSeekClient
+	if not deepseek_client:
+		push_error("[DialogueManager] 未找到 DeepSeekClient，请检查场景中的客户端挂载位置。")
 
 	if audio_player_path != NodePath(""):
 		audio_player = get_node_or_null(audio_player_path) as AudioStreamPlayer
@@ -202,22 +203,23 @@ func _ready() -> void:
 	GameDataManager.profile.stage_upgraded.connect(_on_stage_upgraded)
 	GameDataManager.character_switched.connect(_on_character_switched)
 	
-	deepseek_client.chat_request_completed.connect(_on_chat_response)
-	deepseek_client.chat_request_failed.connect(_on_chat_error)
-	deepseek_client.chat_stream_started.connect(_on_chat_stream_started)
-	deepseek_client.chat_stream_delta.connect(_on_chat_stream_delta)
-	
-	deepseek_client.emotion_request_completed.connect(_on_emotion_response)
-	deepseek_client.emotion_request_failed.connect(_on_emotion_error)
-	
-	deepseek_client.memory_request_completed.connect(_on_memory_response)
-	deepseek_client.memory_request_failed.connect(_on_memory_error)
-	
-	deepseek_client.options_request_completed.connect(_on_options_response)
-	deepseek_client.options_request_failed.connect(_on_options_error)
-	
-	deepseek_client.narrator_request_completed.connect(_on_narrator_response)
-	deepseek_client.narrator_request_failed.connect(_on_narrator_error)
+	if deepseek_client:
+		deepseek_client.chat_request_completed.connect(_on_chat_response)
+		deepseek_client.chat_request_failed.connect(_on_chat_error)
+		deepseek_client.chat_stream_started.connect(_on_chat_stream_started)
+		deepseek_client.chat_stream_delta.connect(_on_chat_stream_delta)
+		
+		deepseek_client.emotion_request_completed.connect(_on_emotion_response)
+		deepseek_client.emotion_request_failed.connect(_on_emotion_error)
+		
+		deepseek_client.memory_request_completed.connect(_on_memory_response)
+		deepseek_client.memory_request_failed.connect(_on_memory_error)
+		
+		deepseek_client.options_request_completed.connect(_on_options_response)
+		deepseek_client.options_request_failed.connect(_on_options_error)
+		
+		deepseek_client.narrator_request_completed.connect(_on_narrator_response)
+		deepseek_client.narrator_request_failed.connect(_on_narrator_error)
 	
 	TTSManager.tts_success.connect(_on_tts_success)
 	TTSManager.tts_failed.connect(_on_tts_failed)
@@ -1100,16 +1102,9 @@ func _trigger_character_continue() -> void:
 		# 续聊首句优先开口，避免 embedding 阻塞重逢问候。
 		var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, continue_prompt, [])
 		var api_messages = [{"role": "system", "content": system_prompt}]
-		api_messages.append_array(deepseek_client._get_history_messages(10))
+		api_messages.append_array(deepseek_client.get_history_messages(10))
 		api_messages.append({"role": "user", "content": continue_prompt})
-		
-		var body = {
-			"model": GameDataManager.config.model,
-			"messages": api_messages,
-			"temperature": GameDataManager.config.temperature,
-			"max_tokens": GameDataManager.config.max_tokens
-		}
-		deepseek_client.chat_http.request(deepseek_client._get_url(), deepseek_client._get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+		deepseek_client.call_chat_api_non_stream(api_messages)
 	else:
 		_show_message("（离线模式）你回来了，我们刚才聊到哪了？", char_name)
 		send_btn.disabled = false
@@ -1590,7 +1585,7 @@ func _on_chat_response(response: Dictionary) -> void:
 		
 		# 当流式接收彻底完毕时，因为此时历史记录中还没有保存AI刚刚说的这句话，我们需要手动将它传给选项生成器
 		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit:
-			var ai_reply = deepseek_client._chat_stream_full_text
+			var ai_reply = deepseek_client.get_chat_stream_full_text()
 			deepseek_client.send_options_generation(ai_reply, free_chat_strategy if is_free_chat_mode else "")
 			
 			# 触发记忆提取

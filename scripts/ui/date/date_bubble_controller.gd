@@ -16,6 +16,7 @@ var _bubble_typewriter_tween: Tween = null
 var _bubble_hide_tween: Tween = null
 var _bubble_sequence_id: int = 0
 var _bubble_current_tts_text: String = ""
+var _bubble_request_fallback_text: String = ""
 
 
 func setup(panel: Control, text_label: Label, profile_data: Dictionary, current_character_id: String) -> void:
@@ -54,22 +55,20 @@ func cleanup() -> void:
 func request_greeting(ai_client: Node) -> void:
 	var prompt: String = str(character_profile.get("greeting_prompt", "")).strip_edges()
 	var fallback: String = str(character_profile.get("greeting_fallback", "今天天气不错，你想带我去哪里？")).strip_edges()
-	if ai_client == null or prompt == "":
-		show_text(fallback)
-		return
-	_disconnect_ai_signals()
-	_deepseek_client = ai_client
-	if not _deepseek_client.is_connected("chat_stream_delta", _on_bubble_chunk_received):
-		_deepseek_client.chat_stream_delta.connect(_on_bubble_chunk_received)
-	if not _deepseek_client.is_connected("chat_request_completed", _on_bubble_completed):
-		_deepseek_client.chat_request_completed.connect(_on_bubble_completed)
-	if not _deepseek_client.is_connected("chat_request_failed", _on_bubble_failed):
-		_deepseek_client.chat_request_failed.connect(_on_bubble_failed)
-	_bubble_stream_buffer = ""
-	_deepseek_client.send_chat_message_stream(prompt, "date_scene_greeting")
+	_request_bubble_stream(ai_client, prompt, fallback, "date_scene_greeting")
+
+
+func request_slot_comment(ai_client: Node, slot_payload: Dictionary) -> void:
+	var fallback: String = _build_slot_comment_fallback(slot_payload)
+	var prompt: String = _build_slot_comment_prompt(slot_payload)
+	_request_bubble_stream(ai_client, prompt, fallback, "date_scene_slot_comment")
 
 
 func show_slot_comment(slot_payload: Dictionary) -> void:
+	show_text(_build_slot_comment_fallback(slot_payload))
+
+
+func _build_slot_comment_fallback(slot_payload: Dictionary) -> String:
 	var type_id: String = str(slot_payload.get("type_id", "")).strip_edges()
 	var location_name: String = str(slot_payload.get("location_name", "")).strip_edges()
 	var period_label: String = str(slot_payload.get("period_label", "")).strip_edges()
@@ -90,7 +89,87 @@ func show_slot_comment(slot_payload: Dictionary) -> void:
 	var line_text: String = str(candidates.pick_random())
 	line_text = line_text.replace("{location_name}", location_name)
 	line_text = line_text.replace("{period_label}", period_label)
-	show_text(line_text)
+	return line_text
+
+
+func _build_slot_comment_prompt(slot_payload: Dictionary) -> String:
+	var location_name: String = str(slot_payload.get("location_name", "")).strip_edges()
+	var period_label: String = str(slot_payload.get("period_label", "")).strip_edges()
+	var type_id: String = str(slot_payload.get("type_id", "")).strip_edges()
+	var type_name: String = _resolve_date_type_name(type_id)
+	if location_name == "":
+		return ""
+	var profile = GameDataManager.profile if GameDataManager else null
+	var stage_title: String = "熟悉阶段"
+	var stage_desc: String = ""
+	var intimacy: float = 0.0
+	var trust: float = 0.0
+	if profile:
+		var stage_conf: Dictionary = profile.get_current_stage_config()
+		stage_title = str(stage_conf.get("stageTitle", "熟悉阶段")).strip_edges()
+		stage_desc = str(stage_conf.get("stageDesc", "")).strip_edges()
+		intimacy = float(profile.intimacy)
+		trust = float(profile.trust)
+	var weather_desc: String = ""
+	if GameDataManager and GameDataManager.story_time_manager:
+		weather_desc = str(GameDataManager.story_time_manager.get_story_weather_desc()).strip_edges()
+	var prompt := "【系统指令】玩家刚刚把约会地点加入了行程。\n"
+	prompt += "请你以%s现在的口吻，对这个安排说一句简短短评。\n" % character_id.capitalize()
+	prompt += "已选地点：%s。\n" % location_name
+	prompt += "时间段：%s。\n" % period_label
+	if type_name != "":
+		prompt += "约会类型：%s。\n" % type_name
+	if weather_desc != "":
+		prompt += "当前天气：%s。\n" % weather_desc
+	prompt += "当前关系阶段：%s。\n" % stage_title
+	if stage_desc != "":
+		prompt += "阶段描述：%s。\n" % stage_desc
+	prompt += "当前亲密度：%.1f，信任度：%.1f。\n" % [intimacy, trust]
+	prompt += "要求：\n"
+	prompt += "1. 只输出一句短评，10到26字。\n"
+	prompt += "2. 必须像她本人自然开口，带一点真实情绪，不要像说明文。\n"
+	prompt += "3. 要围绕这个具体地点和时间段，体现一点期待、在意、害羞、嘴硬或放松感。\n"
+	prompt += "4. 不要输出多个选项，不要解释，不要使用引号。\n"
+	prompt += "5. 不要写成完整长对话，也不要出现旁白口吻。\n"
+	return prompt
+
+
+func _resolve_date_type_name(type_id: String) -> String:
+	match type_id:
+		"stroll":
+			return "漫步散心"
+		"shopping":
+			return "逛街购物"
+		"exhibition":
+			return "观影看展"
+		"dining":
+			return "餐饮小聚"
+		"real_photo":
+			return "现实邀约"
+	return type_id
+
+
+func _request_bubble_stream(ai_client: Node, prompt: String, fallback: String, history_type: String) -> void:
+	_bubble_request_fallback_text = fallback
+	if ai_client == null or prompt == "":
+		show_text(fallback)
+		return
+	_disconnect_ai_signals()
+	_deepseek_client = ai_client
+	if not _deepseek_client.is_connected("chat_stream_delta", _on_bubble_chunk_received):
+		_deepseek_client.chat_stream_delta.connect(_on_bubble_chunk_received)
+	if not _deepseek_client.is_connected("chat_request_completed", _on_bubble_completed):
+		_deepseek_client.chat_request_completed.connect(_on_bubble_completed)
+	if not _deepseek_client.is_connected("chat_request_failed", _on_bubble_failed):
+		_deepseek_client.chat_request_failed.connect(_on_bubble_failed)
+	_bubble_stream_buffer = ""
+	if _deepseek_client.has_method("start_chat_stream_with_messages"):
+		_deepseek_client.start_chat_stream_with_messages([
+			{"role": "system", "content": "你正在扮演约会中的角色本人，请只返回一句自然口语化台词。"},
+			{"role": "user", "content": prompt}
+		])
+	else:
+		_deepseek_client.send_chat_message_stream(prompt, history_type)
 
 
 func show_text(text: String) -> void:
@@ -164,13 +243,13 @@ func _on_bubble_completed(response: Dictionary) -> void:
 		full_text = response["choices"][0]["message"]["content"]
 	var clean_text: String = _strip_bubble_action_descriptions(full_text)
 	if clean_text.is_empty():
-		clean_text = str(character_profile.get("greeting_fallback", "今天天气不错，你想带我去哪里？"))
+		clean_text = _bubble_request_fallback_text
 	show_text(clean_text)
 
 
 func _on_bubble_failed(_error_msg: String) -> void:
 	_disconnect_ai_signals()
-	show_text(str(character_profile.get("greeting_fallback", "今天天气不错，你想带我去哪里？")))
+	show_text(_bubble_request_fallback_text)
 
 
 func _on_bubble_tts_success(audio_stream: AudioStream, text: String) -> void:

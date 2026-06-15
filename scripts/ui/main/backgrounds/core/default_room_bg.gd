@@ -101,7 +101,7 @@ func request_idle_quote() -> bool:
 		push_warning("闲聊气泡未配置: 请在场景中添加 IdleQuoteBubble 节点及其子节点 Label")
 		return false
 		
-	var deepseek_client = get_tree().root.get_node_or_null("MainScene/DeepSeekClient")
+	var deepseek_client = DeepSeekClientLocator.find(self)
 	if not deepseek_client:
 		return false
 		
@@ -119,7 +119,7 @@ func is_idle_quote_playing() -> bool:
 	return _is_idle_speaking
 
 func _on_idle_quote_completed(quote: String) -> void:
-	var deepseek_client = get_tree().root.get_node_or_null("MainScene/DeepSeekClient")
+	var deepseek_client = DeepSeekClientLocator.find(self)
 	if deepseek_client:
 		deepseek_client.idle_quote_completed.disconnect(_on_idle_quote_completed)
 		deepseek_client.idle_quote_failed.disconnect(_on_idle_quote_failed)
@@ -208,7 +208,7 @@ func _sanitize_bubble_text(raw_text: String, strip_actions: bool) -> String:
 	return final_text.strip_edges()
 
 func _on_idle_quote_failed(err: String) -> void:
-	var deepseek_client = get_tree().root.get_node_or_null("MainScene/DeepSeekClient")
+	var deepseek_client = DeepSeekClientLocator.find(self)
 	if deepseek_client:
 		deepseek_client.idle_quote_completed.disconnect(_on_idle_quote_completed)
 		deepseek_client.idle_quote_failed.disconnect(_on_idle_quote_failed)
