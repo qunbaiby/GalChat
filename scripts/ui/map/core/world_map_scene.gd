@@ -129,97 +129,97 @@ func _on_area_pressed(area_id: String, force: bool = false):
 	title_label.text = area_data.get("name", "未知区域")
 	
 	# Clear previous sub areas immediately so they don't linger during pan
-    for child in sub_area_container.get_children():
-        child.queue_free()
-        
-    # --- 计算背景图的镜头移动效果 ---
-    var bg = $Background
-    # 计算背景图比屏幕多出来的部分（即可移动的最大范围）
-    var max_x = max(0, bg.size.x - size.x)
-    var max_y = max(0, bg.size.y - size.y)
-    
-    var target_x = 0.0
-    var target_y = 0.0
-    
-    # 优先读取 JSON 中配置的 camera_offset 比例，让每个区域分散在不同角落
-    if area_data.has("camera_offset"):
-        var offset = area_data["camera_offset"]
-        # Godot JSON 解析后，如果是个对象它通常是个 Dictionary，但如果之前被其他代码强转了，它可能是个 Vector2
-        if typeof(offset) == TYPE_DICTIONARY:
-            target_x = - (max_x * offset.get("x", 0.0))
-            target_y = - (max_y * offset.get("y", 0.0))
-        elif typeof(offset) == TYPE_VECTOR2:
-            target_x = - (max_x * offset.x)
-            target_y = - (max_y * offset.y)
-    else:
-        # 如果 JSON 没配，给个默认的中心位置
-        target_x = - (max_x * 0.5)
-        target_y = - (max_y * 0.5)
-        
-    var target_pos = Vector2(target_x, target_y)
-    
-    if _bg_tween and _bg_tween.is_valid():
-        _bg_tween.kill()
-        
-    # 设置背景居中缩放
-    bg.pivot_offset = bg.size / 2.0
-    
-    # 第一步：缩小（拉远），如果 force 则不需要动画
-    if force:
-        bg.scale = Vector2(1.0, 1.0)
-        bg.position = target_pos
-        self._show_locations_for_area(area_id)
-    else:
-        _bg_tween = create_tween()
-        # 缩小 (拉远) 0~0.45s，幅度稍微收一点，避免镜头跳动感太强
-        _bg_tween.tween_property(bg, "scale", Vector2(0.94, 0.94), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-        
-        # 平移 0~0.9s，时间加长让其更平滑
-        _bg_tween.parallel().tween_property(bg, "position", target_pos, 0.9).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
-        
-        # 放大 (拉近) 0.45~0.9s
-        _bg_tween.parallel().tween_property(bg, "scale", Vector2(1.0, 1.0), 0.45).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD).set_delay(0.45)
-        
-        # 等待镜头就位后，再显示区域内的具体地点按钮
-        _bg_tween.chain().tween_callback(self._show_locations_for_area.bind(area_id))
+	for child in sub_area_container.get_children():
+		child.queue_free()
+		
+	# --- 计算背景图的镜头移动效果 ---
+	var bg = $Background
+	# 计算背景图比屏幕多出来的部分（即可移动的最大范围）
+	var max_x = max(0, bg.size.x - size.x)
+	var max_y = max(0, bg.size.y - size.y)
+	
+	var target_x = 0.0
+	var target_y = 0.0
+	
+	# 优先读取 JSON 中配置的 camera_offset 比例，让每个区域分散在不同角落
+	if area_data.has("camera_offset"):
+		var offset = area_data["camera_offset"]
+		# Godot JSON 解析后，如果是个对象它通常是个 Dictionary，但如果之前被其他代码强转了，它可能是个 Vector2
+		if typeof(offset) == TYPE_DICTIONARY:
+			target_x = - (max_x * offset.get("x", 0.0))
+			target_y = - (max_y * offset.get("y", 0.0))
+		elif typeof(offset) == TYPE_VECTOR2:
+			target_x = - (max_x * offset.x)
+			target_y = - (max_y * offset.y)
+	else:
+		# 如果 JSON 没配，给个默认的中心位置
+		target_x = - (max_x * 0.5)
+		target_y = - (max_y * 0.5)
+		
+	var target_pos = Vector2(target_x, target_y)
+	
+	if _bg_tween and _bg_tween.is_valid():
+		_bg_tween.kill()
+		
+	# 设置背景居中缩放
+	bg.pivot_offset = bg.size / 2.0
+	
+	# 第一步：缩小（拉远），如果 force 则不需要动画
+	if force:
+		bg.scale = Vector2(1.0, 1.0)
+		bg.position = target_pos
+		self._show_locations_for_area(area_id)
+	else:
+		_bg_tween = create_tween()
+		# 缩小 (拉远) 0~0.45s，幅度稍微收一点，避免镜头跳动感太强
+		_bg_tween.tween_property(bg, "scale", Vector2(0.94, 0.94), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		
+		# 平移 0~0.9s，时间加长让其更平滑
+		_bg_tween.parallel().tween_property(bg, "position", target_pos, 0.9).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+		
+		# 放大 (拉近) 0.45~0.9s
+		_bg_tween.parallel().tween_property(bg, "scale", Vector2(1.0, 1.0), 0.45).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD).set_delay(0.45)
+		
+		# 等待镜头就位后，再显示区域内的具体地点按钮
+		_bg_tween.chain().tween_callback(self._show_locations_for_area.bind(area_id))
 
 func _show_locations_for_area(area_id: String):
-    var locs = MapDataManager.get_area_locations(area_id)
-    if typeof(locs) == TYPE_ARRAY:
-        locs = locs.duplicate()
-    
-    # Handle limited_locations, show them even if locked, but mark them
-    var area = MapDataManager.get_area(area_id)
-    if area.has("limited_locations"):
-        for loc_id in area["limited_locations"]:
-            var loc = MapDataManager.get_location(loc_id)
-            if not loc.is_empty():
-                var found = false
-                for l in locs:
-                    if typeof(l) == TYPE_DICTIONARY and l.get("id", "") == loc_id:
-                        found = true
-                        break
-                if not found:
-                    locs.append(loc)
+	var locs = MapDataManager.get_area_locations(area_id)
+	if typeof(locs) == TYPE_ARRAY:
+		locs = locs.duplicate()
+	
+	# Handle limited_locations, show them even if locked, but mark them
+	var area = MapDataManager.get_area(area_id)
+	if area.has("limited_locations"):
+		for loc_id in area["limited_locations"]:
+			var loc = MapDataManager.get_location(loc_id)
+			if not loc.is_empty():
+				var found = false
+				for l in locs:
+					if typeof(l) == TYPE_DICTIONARY and l.get("id", "") == loc_id:
+						found = true
+						break
+				if not found:
+					locs.append(loc)
 
-    # Filter out invisible locations
-    var visible_locs = []
-    for loc in locs:
-        if MapDataManager.is_location_visible(loc.get("id", "")):
-            visible_locs.append(loc)
-    locs = visible_locs
+	# Filter out invisible locations
+	var visible_locs = []
+	for loc in locs:
+		if MapDataManager.is_location_visible(loc.get("id", "")):
+			visible_locs.append(loc)
+	locs = visible_locs
 
-    if locs.size() == 0:
-        var empty_label = Label.new()
-        empty_label.text = "该区域暂无可探索地点"
-        empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-        empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-        empty_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-        empty_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-        sub_area_container.add_child(empty_label)
-    else:
-        var btn_size = Vector2(100, 118) # 与地点按钮缩小后的视觉尺寸保持一致
-        
+	if locs.size() == 0:
+		var empty_label = Label.new()
+		empty_label.text = "该区域暂无可探索地点"
+		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		empty_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		sub_area_container.add_child(empty_label)
+	else:
+		var btn_size = Vector2(100, 118) # 与地点按钮缩小后的视觉尺寸保持一致
+		
 		# Define some fallback positions in case data doesn't have it
 		var fallback_positions = [
 			Vector2(150, 30),

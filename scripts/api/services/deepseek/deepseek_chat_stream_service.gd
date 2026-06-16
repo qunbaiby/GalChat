@@ -21,7 +21,19 @@ func start_chat_stream(client, user_message: String, history_type: String = "all
 	_start_stream_request(client, api_messages)
 
 func start_chat_stream_with_messages(client, api_messages: Array) -> void:
+	# #region debug-point A:chat-stream-entry
+	client._debug_report("A", "deepseek_chat_stream_service.gd:start_chat_stream_with_messages", "start chat stream with messages", {
+		"message_count": api_messages.size(),
+		"first_role": api_messages[0].get("role", "") if api_messages.size() > 0 and api_messages[0] is Dictionary else ""
+	})
+	# #endregion
 	if not client.is_inside_tree() or client._is_api_key_empty():
+		# #region debug-point A:chat-stream-no-key
+		client._debug_report("A", "deepseek_chat_stream_service.gd:start_chat_stream_with_messages", "chat stream aborted before request", {
+			"is_inside_tree": client.is_inside_tree(),
+			"api_key_empty": client._is_api_key_empty()
+		})
+		# #endregion
 		client.chat_request_failed.emit("API Key未设置，请在设置界面配置。")
 		return
 	if client._chat_stream_active:
@@ -51,6 +63,14 @@ func _start_stream_request(client, api_messages: Array) -> void:
 	client._chat_stream_client = HTTPClient.new()
 	var tls_options := TLSOptions.client()
 	var err: int = client._chat_stream_client.connect_to_host(host, 443, tls_options)
+	# #region debug-point B:chat-stream-connect
+	client._debug_report("B", "deepseek_chat_stream_service.gd:_start_stream_request", "chat stream connect_to_host", {
+		"host": host,
+		"connect_error": err,
+		"temperature": body.get("temperature", null),
+		"max_tokens": body.get("max_tokens", null)
+	})
+	# #endregion
 	if err != OK:
 		stop_chat_stream(client)
 		client.chat_request_failed.emit("网络请求发送失败。")
@@ -67,6 +87,12 @@ func process_chat_stream(client) -> void:
 	var path: String = client._get_stream_path()
 	if status == HTTPClient.STATUS_CONNECTED and not client._chat_stream_request_sent:
 		var err: int = client._chat_stream_client.request(HTTPClient.METHOD_POST, path, client._chat_stream_headers, client._chat_stream_body)
+		# #region debug-point B:chat-stream-request
+		client._debug_report("B", "deepseek_chat_stream_service.gd:process_chat_stream", "chat stream request dispatched", {
+			"request_error": err,
+			"path": path
+		})
+		# #endregion
 		if err != OK:
 			stop_chat_stream(client)
 			client.chat_request_failed.emit("网络请求发送失败。")
@@ -76,6 +102,11 @@ func process_chat_stream(client) -> void:
 	if status == HTTPClient.STATUS_BODY:
 		if client._chat_stream_response_code == 0:
 			client._chat_stream_response_code = client._chat_stream_client.get_response_code()
+			# #region debug-point C:chat-stream-response
+			client._debug_report("C", "deepseek_chat_stream_service.gd:process_chat_stream", "chat stream response code", {
+				"http_code": client._chat_stream_response_code
+			})
+			# #endregion
 			if client._chat_stream_response_code != 200:
 				var err_body: String = _read_all_stream_body(client)
 				stop_chat_stream(client)
@@ -87,6 +118,12 @@ func process_chat_stream(client) -> void:
 						err_msg += " - " + api_error["message"]
 				else:
 					err_msg += " Body: " + err_body
+				# #region debug-point C:chat-stream-http-failed
+				client._debug_report("C", "deepseek_chat_stream_service.gd:process_chat_stream", "chat stream http failed", {
+					"http_code": client._chat_stream_response_code,
+					"error_body": err_body.left(240)
+				})
+				# #endregion
 				client.chat_request_failed.emit(err_msg)
 				return
 		var chunk: PackedByteArray = client._chat_stream_client.read_response_body_chunk()
@@ -96,6 +133,11 @@ func process_chat_stream(client) -> void:
 		return
 	if status == HTTPClient.STATUS_DISCONNECTED:
 		if client._chat_stream_full_text.strip_edges() == "":
+			# #region debug-point E:chat-stream-empty
+			client._debug_report("E", "deepseek_chat_stream_service.gd:process_chat_stream", "chat stream disconnected with empty text", {
+				"http_code": client._chat_stream_response_code
+			})
+			# #endregion
 			stop_chat_stream(client)
 			client.chat_request_failed.emit("返回数据解析失败")
 		else:
@@ -156,6 +198,13 @@ func _finish_chat_stream(client) -> void:
 	if not client._chat_stream_active:
 		return
 	var final_text: String = client._chat_stream_full_text
+	# #region debug-point D:chat-stream-finish
+	client._debug_report("D", "deepseek_chat_stream_service.gd:_finish_chat_stream", "chat stream finished", {
+		"http_code": client._chat_stream_response_code,
+		"text_length": final_text.length(),
+		"text_preview": final_text.left(120)
+	})
+	# #endregion
 	stop_chat_stream(client)
 	client.chat_request_completed.emit({
 		"choices": [

@@ -1,83 +1,83 @@
-[gd_scene load_steps=3 format=3 uid="uid://bdtd0mc84eq8r"]
+[gd_scene format=3 uid="uid://bdtd0mc84eq8r"]
 
 [ext_resource type="PackedScene" uid="uid://bw0obwn2do6a7" path="res://scenes/ui/story/story_portrait_actor.tscn" id="1_actor"]
 [ext_resource type="Script" uid="uid://qpxfkorr8q56" path="res://scripts/ui/story/character_layer.gd" id="2_script"]
 
-[node name="CharacterLayer" type="Node2D"]
+[node name="CharacterLayer" type="Node2D" unique_id=870242446]
 script = ExtResource("2_script")
 
-[node name="StoryActor0" parent="." instance=ExtResource("1_actor")]
+[node name="StoryActor0" parent="." unique_id=916795484 instance=ExtResource("1_actor")]
 modulate = Color(0.42, 0.42, 0.48, 1)
 z_index = 5
-position = Vector2(150, 1153)
+position = Vector2(150, 1044)
 scale = Vector2(0.99, 0.99)
 
-[node name="StoryActor1" parent="." instance=ExtResource("1_actor")]
+[node name="StoryActor1" parent="." unique_id=22544019 instance=ExtResource("1_actor")]
 z_index = 20
-position = Vector2(430, 1143)
+position = Vector2(430, 1034)
 scale = Vector2(1.002, 1.002)
 
-[node name="StoryActor2" parent="." instance=ExtResource("1_actor")]
+[node name="StoryActor2" parent="." unique_id=1457523364 instance=ExtResource("1_actor")]
 modulate = Color(0.42, 0.42, 0.48, 1)
 z_index = 5
-position = Vector2(850, 1153)
+position = Vector2(850, 1044)
 scale = Vector2(0.99, 0.99)
 
-[node name="StoryActor3" parent="." instance=ExtResource("1_actor")]
+[node name="StoryActor3" parent="." unique_id=627012983 instance=ExtResource("1_actor")]
 modulate = Color(0.42, 0.42, 0.48, 1)
 z_index = 5
-position = Vector2(1130, 1153)
+position = Vector2(1130, 1044)
 scale = Vector2(0.99, 0.99)
 
-[node name="SlotMarkers" type="Node2D" parent="."]
+[node name="SlotMarkers" type="Node2D" parent="." unique_id=1262670649]
 
-[node name="auto_1_center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(640, 1153)
+[node name="auto_1_center" type="Marker2D" parent="SlotMarkers" unique_id=12309361]
+position = Vector2(640, 1044)
 
-[node name="auto_2_left" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(360, 1153)
+[node name="auto_2_left" type="Marker2D" parent="SlotMarkers" unique_id=284420283]
+position = Vector2(360, 1044)
 
-[node name="auto_2_right" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(920, 1153)
+[node name="auto_2_right" type="Marker2D" parent="SlotMarkers" unique_id=483963830]
+position = Vector2(920, 1044)
 
-[node name="auto_3_left" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(220, 1153)
+[node name="auto_3_left" type="Marker2D" parent="SlotMarkers" unique_id=1188743807]
+position = Vector2(220, 1044)
 
-[node name="auto_3_center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(640, 1153)
+[node name="auto_3_center" type="Marker2D" parent="SlotMarkers" unique_id=137571821]
+position = Vector2(640, 1044)
 
-[node name="auto_3_right" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(1060, 1153)
+[node name="auto_3_right" type="Marker2D" parent="SlotMarkers" unique_id=1194173909]
+position = Vector2(1060, 1044)
 
-[node name="auto_4_far_left" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(150, 1153)
+[node name="auto_4_far_left" type="Marker2D" parent="SlotMarkers" unique_id=239945102]
+position = Vector2(150, 1044)
 
-[node name="auto_4_left_center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(430, 1153)
+[node name="auto_4_left_center" type="Marker2D" parent="SlotMarkers" unique_id=1059309454]
+position = Vector2(430, 1044)
 
-[node name="auto_4_right_center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(850, 1153)
+[node name="auto_4_right_center" type="Marker2D" parent="SlotMarkers" unique_id=1548341379]
+position = Vector2(850, 1044)
 
-[node name="auto_4_far_right" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(1130, 1153)
+[node name="auto_4_far_right" type="Marker2D" parent="SlotMarkers" unique_id=222955807]
+position = Vector2(1130, 1044)
 
-[node name="far_left" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(150, 1153)
+[node name="far_left" type="Marker2D" parent="SlotMarkers" unique_id=1700506299]
+position = Vector2(150, 1044)
 
-[node name="left" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(360, 1153)
+[node name="left" type="Marker2D" parent="SlotMarkers" unique_id=735324437]
+position = Vector2(360, 1044)
 
-[node name="left_center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(430, 1153)
+[node name="left_center" type="Marker2D" parent="SlotMarkers" unique_id=250256137]
+position = Vector2(430, 1044)
 
-[node name="center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(640, 1153)
+[node name="center" type="Marker2D" parent="SlotMarkers" unique_id=576838585]
+position = Vector2(640, 1044)
 
-[node name="right_center" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(850, 1153)
+[node name="right_center" type="Marker2D" parent="SlotMarkers" unique_id=814929415]
+position = Vector2(850, 1044)
 
-[node name="right" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(920, 1153)
+[node name="right" type="Marker2D" parent="SlotMarkers" unique_id=1256514433]
+position = Vector2(920, 1044)
 
-[node name="far_right" type="Marker2D" parent="SlotMarkers"]
-position = Vector2(1130, 1153)
+[node name="far_right" type="Marker2D" parent="SlotMarkers" unique_id=1648816361]
+position = Vector2(1130, 1044)

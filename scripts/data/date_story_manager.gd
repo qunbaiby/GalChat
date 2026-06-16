@@ -22,7 +22,8 @@ const DATE_TYPE_NAMES := {
 	"exhibition": "观影看展",
 	"dining": "餐饮小聚"
 }
-const DATE_MIN_DIALOGUE_CHARS := 1000
+const DATE_MIN_DIALOGUE_CHARS := 1500
+const DATE_MIN_SEGMENT_DIALOGUE_CHARS := 320
 const DATE_ACTION_COLOR_TAG := "#8fbc8f"
 
 var _rng := RandomNumberGenerator.new()
@@ -68,6 +69,27 @@ func prepare_date_story_request(plan_list: Array) -> Dictionary:
 		plan_segments.append(segment)
 		location_names.append(str(segment.get("location_name", "")))
 
+	var relationship_flavor: String = ""
+	var mood_summary: String = ""
+	var expression_name: String = ""
+	var expression_desc: String = ""
+	var base_traits: String = ""
+	var dynamic_traits: String = ""
+	var scene_setting: String = ""
+	var important_notes: String = ""
+	if profile:
+		if GameDataManager.personality_system:
+			relationship_flavor = str(GameDataManager.personality_system.get_relationship_flavor_label(profile)).strip_edges()
+			base_traits = str(GameDataManager.personality_system.get_base_traits(profile)).strip_edges()
+			dynamic_traits = str(GameDataManager.personality_system.get_dynamic_traits(profile)).strip_edges()
+			mood_summary = str(GameDataManager.personality_system.get_mood_summary(profile)).strip_edges()
+		scene_setting = str(stage_conf.get("scene_setting", "")).replace("{char_name}", str(profile.char_name)).strip_edges()
+		important_notes = str(stage_conf.get("important_notes", "")).replace("{char_name}", str(profile.char_name)).strip_edges()
+		var current_expression: String = str(profile.current_expression).strip_edges()
+		if current_expression != "" and GameDataManager.expression_system:
+			expression_name = str(GameDataManager.expression_system.expression_configs.get(current_expression, {}).get("expression_name", "")).strip_edges()
+			expression_desc = str(GameDataManager.expression_system.get_expression_description(current_expression)).strip_edges()
+
 	var script_id: String = _build_script_id()
 	var context: Dictionary = {
 		"script_id": script_id,
@@ -83,9 +105,18 @@ func prepare_date_story_request(plan_list: Array) -> Dictionary:
 		"player_name": profile.player_name if profile else "玩家",
 		"player_title": _get_player_title(),
 		"relationship_stage": int(profile.current_stage) if profile else 1,
-		"relationship_stage_title": str(stage_conf.get("title", "熟悉阶段")),
+		"relationship_stage_title": str(stage_conf.get("stageTitle", "熟悉阶段")),
+		"relationship_stage_desc": str(stage_conf.get("stageDesc", "请保持自然克制的相处边界。")).replace("{char_name}", profile.char_name if profile else "Luna"),
 		"intimacy": float(profile.intimacy) if profile else 0.0,
 		"trust": float(profile.trust) if profile else 0.0,
+		"relationship_flavor": relationship_flavor,
+		"mood_summary": mood_summary,
+		"expression_name": expression_name,
+		"expression_desc": expression_desc,
+		"base_traits": base_traits,
+		"dynamic_traits": dynamic_traits,
+		"scene_setting": scene_setting,
+		"important_notes": important_notes,
 		"date_plan": plan_segments,
 		"location_names": location_names,
 		"summary_hint": "、".join(location_names)
@@ -240,6 +271,7 @@ func build_fallback_story(context: Dictionary) -> Dictionary:
 
 func sanitize_generated_story(raw_script: Variant, context: Dictionary, fallback_script: Dictionary) -> Dictionary:
 	if not raw_script is Dictionary:
+		push_warning("[DateStoryManager] sanitize_generated_story: 原始返回不是 Dictionary，改用保底剧情")
 		return fallback_script.duplicate(true)
 
 	var safe_script: Dictionary = fallback_script.duplicate(true)
@@ -264,10 +296,12 @@ func sanitize_generated_story(raw_script: Variant, context: Dictionary, fallback
 		safe_script["memory_records"] = memory_records
 
 	var chapters_data: Variant = source.get("chapters", {})
-	var sanitized_events: Array = _sanitize_story_events(_extract_story_events(chapters_data, source), context, fallback_script)
+	var sanitized_events: Array = _sanitize_story_events(_extract_story_events(chapters_data, source, context), context, fallback_script)
 	if sanitized_events.is_empty():
+		push_warning("[DateStoryManager] sanitize_generated_story: 清洗后没有有效事件，改用保底剧情")
 		return fallback_script.duplicate(true)
 	if not _has_expected_date_coverage(sanitized_events, context):
+		push_warning("[DateStoryManager] sanitize_generated_story: AI 剧情没有覆盖全部已选地点/时段，改用保底剧情")
 		return fallback_script.duplicate(true)
 	sanitized_events = _polish_date_story_events(_ensure_minimum_story_length_raw(sanitized_events, context), context)
 
@@ -278,6 +312,64 @@ func sanitize_generated_story(raw_script: Variant, context: Dictionary, fallback
 	}
 	safe_script["date_settlement"] = build_date_settlement(context, safe_script)
 	return safe_script
+
+
+func combine_generated_segment_scripts(segment_scripts: Array, context: Dictionary, fallback_script: Dictionary) -> Dictionary:
+	if segment_scripts.is_empty():
+		return fallback_script.duplicate(true)
+	var combined_script: Dictionary = fallback_script.duplicate(true)
+	var combined_events: Array = []
+	var summary_parts: Array[String] = []
+	var audio_added: bool = false
+	for segment_script in segment_scripts:
+		if not segment_script is Dictionary:
+			continue
+		var script_data: Dictionary = segment_script
+		var summary: String = str(script_data.get("summary", "")).strip_edges()
+		if summary != "":
+			summary_parts.append(summary)
+		var chapters: Dictionary = script_data.get("chapters", {})
+		var start_chapter: Dictionary = chapters.get("start", {})
+		var events: Variant = start_chapter.get("events", [])
+		if not events is Array:
+			continue
+		for event_data in events:
+			if not event_data is Dictionary:
+				continue
+			var event_copy: Dictionary = (event_data as Dictionary).duplicate(true)
+			if str(event_copy.get("type", "")).strip_edges() == "audio":
+				if audio_added:
+					continue
+				audio_added = true
+			combined_events.append(event_copy)
+	if combined_events.is_empty():
+		return fallback_script.duplicate(true)
+
+	var summary_text: String = "和%s一起度过了一场%s约会。" % [
+		str(context.get("character_name", "Luna")),
+		str(context.get("summary_hint", "特别"))
+	]
+	if not summary_parts.is_empty():
+		summary_text = "；".join(summary_parts)
+
+	combined_script["script_id"] = str(context.get("script_id", combined_script.get("script_id", _build_script_id())))
+	combined_script["runtime_generated"] = true
+	combined_script["story_category"] = "date_dynamic"
+	combined_script["story_location_id"] = _resolve_story_location_id({}, context, combined_script)
+	combined_script["story_period"] = _resolve_story_period({}, context, combined_script)
+	combined_script["date_plan"] = context.get("date_plan", []).duplicate(true)
+	combined_script["location_names"] = context.get("location_names", []).duplicate(true)
+	combined_script["use_portraits"] = true
+	combined_script["memory_enabled"] = true
+	combined_script["summary"] = summary_text
+	combined_script["memory_records"] = _sanitize_memory_records([], context, summary_text)
+	combined_script["chapters"] = {
+		"start": {
+			"events": combined_events
+		}
+	}
+	combined_script["date_settlement"] = build_date_settlement(context, combined_script)
+	return combined_script
 
 
 func build_date_settlement(context: Dictionary, script_data: Dictionary = {}) -> Dictionary:
@@ -501,7 +593,10 @@ func _pick_weighted_variant(variants: Array) -> Dictionary:
 	return variants[0].duplicate(true)
 
 
-func _extract_story_events(chapters_data: Variant, source: Dictionary) -> Array:
+func _extract_story_events(chapters_data: Variant, source: Dictionary, context: Dictionary) -> Array:
+	var segment_events: Array = _build_events_from_story_segments(source.get("segments", []), context)
+	if not segment_events.is_empty():
+		return segment_events
 	if chapters_data is Dictionary:
 		var start_chapter: Dictionary = chapters_data.get("start", {})
 		var start_events: Variant = start_chapter.get("events", [])
@@ -510,6 +605,145 @@ func _extract_story_events(chapters_data: Variant, source: Dictionary) -> Array:
 	if source.get("events", null) is Array:
 		return source.get("events", [])
 	return []
+
+
+func _build_events_from_story_segments(raw_segments: Variant, context: Dictionary) -> Array:
+	if not raw_segments is Array:
+		return []
+	var plan_segments: Array = context.get("date_plan", [])
+	if plan_segments.is_empty():
+		return []
+	var built_events: Array = []
+	var segments: Array = raw_segments
+	for i in range(plan_segments.size()):
+		var plan_segment: Dictionary = plan_segments[i]
+		var bg_id: String = str(plan_segment.get("bg_id", "")).strip_edges()
+		if bg_id != "":
+			built_events.append({
+				"type": "background",
+				"bg_id": bg_id,
+				"transition_type": "fade" if i == 0 else "dissolve",
+				"duration": 0.45
+			})
+		var dialogue_events: Array = []
+		if i < segments.size() and segments[i] is Dictionary:
+			dialogue_events = _sanitize_segment_lines((segments[i] as Dictionary).get("lines", []), context)
+		if dialogue_events.is_empty():
+			dialogue_events = _build_segment_fallback_lines(plan_segment, context)
+		dialogue_events = _ensure_segment_story_depth(dialogue_events, plan_segment, context)
+		built_events.append_array(dialogue_events)
+	return built_events
+
+
+func _sanitize_segment_lines(raw_lines: Variant, context: Dictionary) -> Array:
+	if not raw_lines is Array:
+		return []
+	var results: Array = []
+	var char_id: String = str(context.get("character_id", "luna")).to_lower()
+	var char_name: String = str(context.get("character_name", "Luna")).strip_edges().to_lower()
+	for item in raw_lines:
+		if not item is Dictionary:
+			continue
+		var line_data: Dictionary = item
+		var speaker: String = _normalize_speaker_id(str(line_data.get("speaker", "")), char_id, char_name)
+		var content: String = str(line_data.get("content", "")).strip_edges()
+		if speaker == "" or content == "":
+			continue
+		results.append({
+			"type": "dialogue",
+			"speaker": speaker,
+			"content": content
+		})
+	return results
+
+
+func _build_segment_fallback_lines(segment: Dictionary, context: Dictionary) -> Array:
+	var char_id: String = str(context.get("character_id", "luna")).to_lower()
+	var player_title: String = str(context.get("player_title", "老师")).strip_edges()
+	var location_name: String = str(segment.get("location_name", "今天的约会地点")).strip_edges()
+	var type_name: String = str(segment.get("type_name", "约会")).strip_edges()
+	var outline_title: String = str(segment.get("template_title", "这段相处")).strip_edges()
+	var outline_prompt: String = str(segment.get("template_outline", "你们慢慢把话题说开了。")).strip_edges()
+	return [
+		{
+			"type": "dialogue",
+			"speaker": "旁白",
+			"content": "%s的气氛慢慢安静下来，你们顺着%s的节奏，把今天的心情一点点说开。"
+				% [location_name, outline_title]
+		},
+		{
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "%s，这里真的比我想的更适合%s。（轻轻看向你）只要和你待在一起，我就会不自觉放松下来。"
+				% [player_title, type_name]
+		},
+		{
+			"type": "dialogue",
+			"speaker": "player",
+			"content": "那就慢一点吧。今天不用急着赶路，我更想把这段时间好好留住。"
+		},
+		{
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "你每次这样认真地回应我，我都会更想把真实的心情告诉你。（指尖轻轻拢住衣角）"
+		},
+		{
+			"type": "dialogue",
+			"speaker": "旁白",
+			"content": outline_prompt if outline_prompt != "" else "你们的对话顺着眼前的景色慢慢延展开来，气氛也一点点变得柔和。"
+		},
+		{
+			"type": "dialogue",
+			"speaker": "player",
+			"content": "和你一起把这些细碎的感受慢慢说出来，其实比我想的还要珍贵。"
+		},
+		{
+			"type": "dialogue",
+			"speaker": char_id,
+			"content": "所以我才会越来越期待这种时候啊。（声音轻了下来）因为只有待在你身边，我才会觉得这些心情真的被认真接住了。"
+		}
+	]
+
+
+func _ensure_segment_story_depth(events: Array, segment: Dictionary, context: Dictionary) -> Array:
+	var result: Array = events.duplicate(true)
+	var char_id: String = str(context.get("character_id", "luna")).to_lower()
+	var player_title: String = str(context.get("player_title", "老师")).strip_edges()
+	var location_name: String = str(segment.get("location_name", "今天的约会地点")).strip_edges()
+	var type_name: String = str(segment.get("type_name", "约会")).strip_edges()
+	var outline_prompt: String = str(segment.get("template_outline", "你们慢慢把今天的心事说开了。")).strip_edges()
+	while _count_dialogue_characters(result) < DATE_MIN_SEGMENT_DIALOGUE_CHARS:
+		result.append_array([
+			{
+				"type": "dialogue",
+				"speaker": "旁白",
+				"content": "围绕着%s的细碎话题被一点点展开，你们没有刻意追赶时间，只是顺着当下的气氛继续往前走。"
+					% location_name
+			},
+			{
+				"type": "dialogue",
+				"speaker": char_id,
+				"content": "%s，其实像这样和你待在%s里，我会很自然地想把平时不会轻易说出口的话告诉你。"
+					% [player_title, location_name]
+			},
+			{
+				"type": "dialogue",
+				"speaker": "player",
+				"content": "那就继续说吧，我在听。只要是和你有关的心情，我都想认真记住。"
+			},
+			{
+				"type": "dialogue",
+				"speaker": char_id,
+				"content": "你总是会把一句很普通的话，说得让人完全放下戒心。（眼神柔和下来）所以这次%s，才会让我越来越舍不得太快结束。"
+					% type_name
+			},
+			{
+				"type": "dialogue",
+				"speaker": "旁白",
+				"content": outline_prompt if outline_prompt != "" else "你们的对话顺着眼前的景色慢慢延展开来，气氛也一点点变得柔和。"
+			}
+		])
+	return result
 
 
 func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_script: Dictionary) -> Array:
@@ -583,7 +817,7 @@ func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_scr
 		})
 
 	if not _has_dialogue_event(sanitized):
-		return _extract_story_events(fallback_script.get("chapters", {}), fallback_script)
+		return _extract_story_events(fallback_script.get("chapters", {}), fallback_script, context)
 
 	return sanitized
 
@@ -690,6 +924,7 @@ func _polish_date_story_events(events: Array, context: Dictionary) -> Array:
 	var segment_cursor := 0
 	var char_visible := false
 	var has_audio := false
+	var period_card_inserted := false
 
 	for event_data in events:
 		if not event_data is Dictionary:
@@ -705,20 +940,47 @@ func _polish_date_story_events(events: Array, context: Dictionary) -> Array:
 						"animation": "fade_out"
 					})
 					char_visible = false
-				polished.append(event_data.duplicate(true))
 				var segment_index := _find_segment_index_for_background(str(event_data.get("bg_id", "")), plan_segments, segment_cursor)
+				var period_label := "白天"
+				var location_name := "未知地点"
 				if segment_index != -1:
+					var segment_data: Dictionary = plan_segments[segment_index]
 					segment_cursor = segment_index + 1
-					polished.append({
-						"type": "dialogue",
-						"speaker": "旁白",
-						"content": _build_segment_intro(plan_segments[segment_index])
-					})
+					period_label = str(segment_data.get("period_label", "白天"))
+					location_name = str(segment_data.get("location_name", "未知地点"))
+				polished.append({
+					"type": "period_card",
+					"bg_id": str(event_data.get("bg_id", "")),
+					"period_label": period_label,
+					"location_name": location_name,
+					"hold_duration": 3.0
+				})
+				period_card_inserted = true
 				char_visible = false
 			"audio":
 				has_audio = true
 				polished.append(event_data.duplicate(true))
 			"dialogue":
+				if not period_card_inserted:
+					var fallback_segment := _resolve_segment_for_period_card(plan_segments, segment_cursor)
+					if not fallback_segment.is_empty():
+						if char_visible:
+							polished.append({
+								"type": "hide_character",
+								"character": char_id,
+								"display_name": char_name,
+								"animation": "fade_out"
+							})
+							char_visible = false
+						polished.append({
+							"type": "period_card",
+							"bg_id": str(fallback_segment.get("bg_id", "")),
+							"period_label": str(fallback_segment.get("period_label", "白天")),
+							"location_name": str(fallback_segment.get("location_name", "未知地点")),
+							"hold_duration": 3.0
+						})
+						period_card_inserted = true
+						segment_cursor = mini(segment_cursor + 1, plan_segments.size())
 				var speaker := str(event_data.get("speaker", "")).strip_edges().to_lower()
 				var dialogue_event: Dictionary = event_data.duplicate(true)
 				dialogue_event["content"] = _colorize_action_descriptions(str(dialogue_event.get("content", "")))
@@ -760,6 +1022,14 @@ func _find_segment_index_for_background(bg_id: String, plan_segments: Array, sta
 	if start_index < plan_segments.size():
 		return start_index
 	return plan_segments.size() - 1
+
+
+func _resolve_segment_for_period_card(plan_segments: Array, segment_cursor: int) -> Dictionary:
+	if plan_segments.is_empty():
+		return {}
+	if segment_cursor >= 0 and segment_cursor < plan_segments.size():
+		return (plan_segments[segment_cursor] as Dictionary).duplicate(true)
+	return (plan_segments[plan_segments.size() - 1] as Dictionary).duplicate(true)
 
 
 func _build_segment_intro(segment: Dictionary) -> String:

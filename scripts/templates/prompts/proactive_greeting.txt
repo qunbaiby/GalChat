@@ -2,6 +2,11 @@
 玩家刚刚打开了游戏主界面。
 {type_desc}
 请基于当前你（{char_name}）与玩家的情感状态（亲密度：{intimacy}，信任度：{trust}，风味：{flavor}）（阶段参考：{stage_title}，说明：{stage_desc}），主动对玩家说话。
+当前整体心情：{mood_name}
+当前心情摘要：{mood_summary}
+当前瞬时表情：{expression_name}
+表情说明：{expression_desc}
+动态人格与边界：{dynamic_traits}
 要求：
 1. 必须符合当前的情感深度和人设，语气要自然。如果情感风味是病态的，问候可以带有强烈的占有欲；如果是防备的，问候应该礼貌且疏离。
 2. 字数在15-40字之间。

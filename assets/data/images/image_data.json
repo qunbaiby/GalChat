@@ -55,6 +55,14 @@
             "path": "res://assets/images/backgrounds/map/background/art_academy/sakura_avenue/sakura_avenue.png"
         },
         {
+            "id": "bg_golden_beach",
+            "path": "res://assets/images/backgrounds/main/story_scene_sunny_door_bg.png"
+        },
+        {
+            "id": "bg_sunset_park",
+            "path": "res://assets/images/backgrounds/main/luna_drawing_sunset_bg.png"
+        },
+        {
             "id": "bg_concert_hall",
             "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
         },
@@ -67,7 +75,7 @@
             "path": "res://assets/images/backgrounds/map/background/art_academy/art_gallery/art_gallery.png"
         },
         {
-            "id": "bg_area_qingyu_street",
+            "id": "bg_qingyu_time_cafe",
             "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
         },
         {

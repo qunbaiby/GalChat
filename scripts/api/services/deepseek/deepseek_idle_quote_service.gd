@@ -209,11 +209,25 @@ func _build_idle_quote_category_weights(stage_profile: Dictionary) -> Dictionary
 	var weights_variant: Variant = stage_profile.get("weights", {})
 	return weights_variant if weights_variant is Dictionary else {}
 
-func _pick_weighted_idle_quote_categories(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator) -> Array[String]:
+func _pick_weighted_idle_quote_categories(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator, category_whitelist: Array[String] = []) -> Array[String]:
 	var stage_profile: Dictionary = _resolve_idle_quote_stage_profile(profile, stage_conf)
 	var weights: Dictionary = _build_idle_quote_category_weights(stage_profile)
+	if not category_whitelist.is_empty():
+		var allow_set: Dictionary = {}
+		for category in category_whitelist:
+			var key := str(category).strip_edges()
+			if key != "":
+				allow_set[key] = true
+		var filtered_weights: Dictionary = {}
+		for key in weights.keys():
+			var final_key := str(key)
+			if allow_set.has(final_key):
+				filtered_weights[final_key] = weights[key]
+		weights = filtered_weights
 	var picked: Array[String] = []
 	var target_count: int = int(stage_profile.get("pick_count", 2 if int(profile.current_stage) <= 3 else 3))
+	if not category_whitelist.is_empty():
+		target_count = mini(target_count, category_whitelist.size())
 	var working_weights: Dictionary = weights.duplicate(true)
 	for _i in range(target_count):
 		var total_weight: float = 0.0
@@ -230,8 +244,15 @@ func _pick_weighted_idle_quote_categories(profile: CharacterProfile, stage_conf:
 				working_weights.erase(key)
 				break
 	if picked.is_empty():
-		picked.append("陪伴型")
+		if not category_whitelist.is_empty():
+			picked.append(str(category_whitelist[0]))
+		else:
+			picked.append("陪伴型")
 	return picked
+
+func pick_main_scene_bubble_categories(profile: CharacterProfile, rng: RandomNumberGenerator, category_whitelist: Array[String] = []) -> Array[String]:
+	var stage_conf: Dictionary = profile.get_current_stage_config()
+	return _pick_weighted_idle_quote_categories(profile, stage_conf, rng, category_whitelist)
 
 func _build_idle_quote_category_prompts(category: String) -> Array[String]:
 	var config: Dictionary = _get_idle_quote_config()
@@ -253,8 +274,8 @@ func _build_idle_quote_category_prompts(category: String) -> Array[String]:
 						return result
 	return ["像生活里自然冒出来的一句闲聊。"]
 
-func _build_idle_quote_random_pool(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator, time_context: Dictionary, weather_context: Dictionary, mood_id: String, mood_name: String, mood_guidance: String, stage_title: String, stage_guidance: String) -> Dictionary:
-	var selected_categories: Array[String] = _pick_weighted_idle_quote_categories(profile, stage_conf, rng)
+func _build_idle_quote_random_pool(profile: CharacterProfile, stage_conf: Dictionary, rng: RandomNumberGenerator, time_context: Dictionary, weather_context: Dictionary, mood_id: String, mood_name: String, mood_guidance: String, stage_title: String, stage_guidance: String, category_whitelist: Array[String] = []) -> Dictionary:
+	var selected_categories: Array[String] = _pick_weighted_idle_quote_categories(profile, stage_conf, rng, category_whitelist)
 	var pool: Array[String] = [
 		"轻轻打个招呼，但不要像客服问候。",
 		"随口提一下现在这个时段最容易出现的小感受。",
@@ -336,28 +357,33 @@ func send_idle_quote_generation(client, char_id: String) -> void:
 	var idle_pool: Dictionary = _build_idle_quote_random_pool(profile, stage_conf, rng, time_context, weather_context, mood_id, mood, mood_guidance, stage_title, stage_guidance)
 	var random_pool_text: String = str(idle_pool.get("prompt_text", ""))
 	var selected_categories: Array = idle_pool.get("categories", [])
+	var shared_strategy: String = GameDataManager.prompt_manager.build_main_scene_bubble_strategy_block(
+		profile,
+		"这是主场景里的挂机闲聊气泡，不是正式剧情开场，而是一句自然飘出来的陪伴式碎碎念。",
+		[
+			"当前主场景时段：%s（%02d点，%s）。" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))],
+			"当前剧情天气：%s。" % str(weather_context.get("desc", "晴天")),
+			"时段引导：%s" % str(time_context.get("guidance", "")),
+			"天气引导：%s" % str(weather_context.get("guidance", "")),
+			"心情引导：%s" % mood_guidance,
+			"关系引导：%s" % stage_guidance,
+			"本次优先子类：%s" % " / ".join(PackedStringArray(selected_categories)),
+			"这次更偏向挂机闲聊，所以要像陪伴中的自然碎碎念，不要像专门打招呼，也不要像剧情推进台词。"
+		]
+	)
 	var system_prompt := "【系统设定】\n"
 	system_prompt += "你扮演的角色是：%s。\n" % char_name
 	system_prompt += "你的性格特征是：%s。\n" % personality
-	system_prompt += "你当前与【%s】的情感关系处于【%s】（亲密度：%.1f）。\n" % [player_name, stage_title, intimacy]
-	system_prompt += "当前关系描述：%s。\n" % stage_desc
-	system_prompt += "你当前的心情是：%s。\n" % mood
-	system_prompt += "当前主场景时段：%s（%02d点，%s）。\n" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))]
-	system_prompt += "当前剧情天气：%s。\n" % str(weather_context.get("desc", "晴天"))
-	system_prompt += "【四维语境】\n"
-	system_prompt += "时段引导：%s\n" % str(time_context.get("guidance", ""))
-	system_prompt += "天气引导：%s\n" % str(weather_context.get("guidance", ""))
-	system_prompt += "心情引导：%s\n" % mood_guidance
-	system_prompt += "关系引导：%s\n" % stage_guidance
-	system_prompt += "本次优先子类：%s\n" % " / ".join(PackedStringArray(selected_categories))
+	system_prompt += "对话对象是【%s】。\n" % player_name
+	system_prompt += shared_strategy + "\n"
 	system_prompt += "【随机灵感池】%s\n" % random_pool_text
 	system_prompt += "【任务要求】\n"
-	system_prompt += "请根据你的性格、情感阶段、当前心情、当前时段和天气，对【%s】主动说一句简短的话，比如倾诉心事、撒娇、吐槽、关心、碎碎念或者打招呼。\n" % player_name
+	system_prompt += "请根据你的性格、情感阶段、当前心情、当前时段和天气，对【%s】说一句简短的话，比如倾诉心事、撒娇、吐槽、关心、碎碎念或者轻声搭话。\n" % player_name
 	system_prompt += "要求：\n"
 	system_prompt += "1. 每次必须提供完全不同的随机对话，禁止重复以前的回答。优先围绕“本次优先子类”中的1到2种类型来写。\n"
 	system_prompt += "2. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n"
-	system_prompt += "3. 字数限制在25字以内。\n"
-	system_prompt += "4. 语气要自然、生活化。\n"
+	system_prompt += "3. 字数优先控制在12到28字。\n"
+	system_prompt += "4. 语气要自然、生活化，和主场景主动问候保持同一口吻体系。\n"
 	system_prompt += "5. 不要生硬点名“现在是早上/天气是雨天”，而是让这些语境自然渗进话里。\n"
 	system_prompt += "6. 这是常驻陪伴里的闲聊，不要像正式剧情开场，也不要像任务提示。\n"
 	system_prompt += "[随机因子：%d]\n" % random_seed

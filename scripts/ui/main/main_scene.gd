@@ -2168,28 +2168,7 @@ func _trigger_proactive_greeting() -> void:
 func _build_proactive_bubble_prompt(prompt_type: String) -> String:
 	if GameDataManager.profile == null:
 		return "只输出一句自然问候，不要括号动作，不要旁白。"
-
-	var profile = GameDataManager.profile
-	var stage_conf = profile.get_current_stage_config()
-	var stage_title := str(stage_conf.get("stageTitle", "陌生人"))
-	var stage_desc := str(stage_conf.get("stageDesc", ""))
-	var player_name := str(profile.player_title).strip_edges()
-	if player_name == "":
-		player_name = "指导人"
-
-	var type_desc := "玩家刚进入主场景，请你自然地主动打个招呼。"
-	if prompt_type == "course":
-		type_desc = "今天是新一周的开始，请你自然地主动聊一句和课程、安排或打起精神有关的话。"
-	elif prompt_type == "daily":
-		type_desc = "今天是周末，请你自然地主动聊一句和放松、休息或一起度过今天有关的话。"
-
-	return "【系统指令】\n你是%s。\n玩家刚进入主场景，你想先主动和%s说一句话。\n%s\n当前关系阶段：%s。\n当前关系描述：%s。\n要求：\n1. 只输出一句成品台词。\n2. 字数控制在12到28字。\n3. 只保留说话内容，不要括号动作，不要旁白，不要解释，不要换行。\n4. 语气必须符合当前关系阶段与角色人设。\n5. 内容要像主场景里飘出的主动问候气泡。" % [
-		profile.char_name,
-		player_name,
-		type_desc,
-		stage_title,
-		stage_desc
-	]
+	return GameDataManager.prompt_manager.build_proactive_greeting_event_desc(GameDataManager.profile, prompt_type)
 
 func _show_proactive_greeting_bubble(raw_text: String) -> void:
 	var final_text := raw_text.strip_edges()

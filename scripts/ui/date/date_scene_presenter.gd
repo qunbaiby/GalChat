@@ -107,6 +107,8 @@ func refresh_slot(period_id: String, slot_data: Dictionary) -> void:
 			label.remove_theme_color_override("font_shadow_color")
 			label.remove_theme_constant_override("shadow_outline_size")
 		if period_label:
+			period_label.show()
+			period_label.text = _get_period_text(period_id)
 			period_label.add_theme_color_override("font_color", Color(0.58, 0.47, 0.54, 0.96) if enabled else Color(0.58, 0.52, 0.56, 0.78))
 			period_label.remove_theme_color_override("font_shadow_color")
 			period_label.remove_theme_constant_override("shadow_outline_size")
@@ -125,11 +127,13 @@ func refresh_slot(period_id: String, slot_data: Dictionary) -> void:
 			label.remove_theme_color_override("font_shadow_color")
 			label.remove_theme_constant_override("shadow_outline_size")
 	if period_label:
-		period_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.94) if texture else Color(0.58, 0.47, 0.54, 0.96))
+		period_label.visible = texture == null
 		if texture:
-			period_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
-			period_label.add_theme_constant_override("shadow_outline_size", 3)
+			period_label.remove_theme_color_override("font_shadow_color")
+			period_label.remove_theme_constant_override("shadow_outline_size")
 		else:
+			period_label.text = _get_period_text(period_id)
+			period_label.add_theme_color_override("font_color", Color(0.58, 0.47, 0.54, 0.96))
 			period_label.remove_theme_color_override("font_shadow_color")
 			period_label.remove_theme_constant_override("shadow_outline_size")
 
@@ -157,3 +161,14 @@ func _resolve_slot_texture(slot_data: Dictionary) -> Texture2D:
 
 func _on_slot_pressed(period_id: String) -> void:
 	slot_clicked.emit(period_id)
+
+
+func _get_period_text(period_id: String) -> String:
+	match period_id:
+		"morning":
+			return "早上"
+		"afternoon":
+			return "下午"
+		"evening":
+			return "晚上"
+	return period_id

@@ -505,8 +505,6 @@ func _build_character_payload(char_id: String, display_name: String = "", expres
 		payload["sprite_frames_path"] = GameDataManager.profile.sprite_frames_path
 		payload["static_portrait"] = _get_current_static_portrait_path()
 		payload["avatar"] = GameDataManager.profile.avatar
-		payload["base_anim_scale_x"] = 0.8
-		payload["base_anim_scale_y"] = 0.8
 		return payload
 
 	var char_data = _load_character_data(char_id)

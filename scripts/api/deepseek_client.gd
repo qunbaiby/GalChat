@@ -87,6 +87,8 @@ var _social_content_service = DeepSeekSocialContentService.new()
 var _memory_emotion_service = DeepSeekMemoryEmotionService.new()
 var _narrative_service = DeepSeekNarrativeService.new()
 var _chat_stream_service = DeepSeekChatStreamService.new()
+var _debug_server_url: String = ""
+var _debug_session_id: String = ""
 
 func _ready() -> void:
 	_update_script()
@@ -167,6 +169,47 @@ func _get_stream_host() -> String:
 
 func _get_stream_path() -> String:
 	return "/v1/chat/completions"
+
+func _debug_ensure_env() -> void:
+	if _debug_server_url != "" and _debug_session_id != "":
+		return
+	_debug_server_url = "http://127.0.0.1:7777/event"
+	_debug_session_id = "date-ai-fallback"
+	var env_path := ProjectSettings.globalize_path("res://.dbg/date-ai-fallback.env")
+	if not FileAccess.file_exists(env_path):
+		return
+	var file := FileAccess.open(env_path, FileAccess.READ)
+	if file == null:
+		return
+	var content := file.get_as_text()
+	file.close()
+	for raw_line in content.split("\n"):
+		var line := raw_line.strip_edges()
+		if line.begins_with("DEBUG_SERVER_URL="):
+			_debug_server_url = line.trim_prefix("DEBUG_SERVER_URL=").strip_edges()
+		elif line.begins_with("DEBUG_SESSION_ID="):
+			_debug_session_id = line.trim_prefix("DEBUG_SESSION_ID=").strip_edges()
+
+func _debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}, run_id: String = "pre") -> void:
+	_debug_ensure_env()
+	if not is_inside_tree():
+		return
+	var req := HTTPRequest.new()
+	req.timeout = 3.0
+	req.request_completed.connect(func(_result: int, _code: int, _headers: PackedStringArray, _body: PackedByteArray): req.queue_free(), CONNECT_ONE_SHOT)
+	add_child(req)
+	var payload := {
+		"sessionId": _debug_session_id,
+		"runId": run_id,
+		"hypothesisId": hypothesis_id,
+		"location": location,
+		"msg": "[DEBUG] " + msg,
+		"data": data,
+		"ts": Time.get_ticks_msec()
+	}
+	var err := req.request(_debug_server_url, ["Content-Type: application/json"], HTTPClient.METHOD_POST, JSON.stringify(payload))
+	if err != OK:
+		req.queue_free()
 
 func _get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
 	var api_messages = []

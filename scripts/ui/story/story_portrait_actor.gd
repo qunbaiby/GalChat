@@ -2,7 +2,6 @@
 class_name StoryPortraitActor
 extends Node2D
 
-const DEFAULT_ANIM_SCALE := Vector2(0.65, 0.65)
 const DEFAULT_STATIC_LIMIT := Vector2(500.0, 750.0)
 const AVATAR_STATIC_LIMIT := Vector2(350.0, 650.0)
 const ACTIVE_SCALE_MULTIPLIER := 1.002
@@ -23,11 +22,13 @@ var is_loaded: bool = false
 var is_focused: bool = false
 var _visibility_tween: Tween = null
 var _layout_tween: Tween = null
+var _default_anim_scale: Vector2 = Vector2.ONE
 
 @onready var character_ani: AnimatedSprite2D = $CharacterAni
 @onready var static_sprite: Sprite2D = $StaticSprite
 
 func _ready() -> void:
+	_default_anim_scale = character_ani.scale
 	if Engine.is_editor_hint():
 		modulate = Color(1, 1, 1, 1)
 		scale = Vector2.ONE
@@ -60,9 +61,10 @@ func configure_from_data(data: Dictionary, mood: String = "") -> bool:
 				character_ani.play(StringName(anim_name))
 			elif frames_res.get_animation_names().size() > 0:
 				character_ani.play(StringName(str(frames_res.get_animation_names()[0])))
+			var default_anim_scale := _default_anim_scale if _default_anim_scale != Vector2.ZERO else character_ani.scale
 			character_ani.scale = Vector2(
-				float(data.get("base_anim_scale_x", DEFAULT_ANIM_SCALE.x)),
-				float(data.get("base_anim_scale_y", DEFAULT_ANIM_SCALE.y))
+				float(data.get("base_anim_scale_x", default_anim_scale.x)),
+				float(data.get("base_anim_scale_y", default_anim_scale.y))
 			)
 			
 			var h = 800.0
@@ -280,7 +282,7 @@ func _load_preview_sprite_frames(sprite_frames_path: String) -> void:
 	if anim_name == "":
 		return
 
-	character_ani.scale = DEFAULT_ANIM_SCALE
+	character_ani.scale = _default_anim_scale if _default_anim_scale != Vector2.ZERO else character_ani.scale
 	var tex = frames_res.get_frame_texture(anim_name, 0)
 	var h = tex.get_size().y if tex else 800.0
 	character_ani.position = Vector2(0, -h / 2.0 * character_ani.scale.y)

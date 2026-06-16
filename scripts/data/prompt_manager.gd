@@ -391,7 +391,122 @@ func build_character_mood_prompt(character_message: String) -> String:
 		"character_message": character_message
 	})
 
-func build_npc_event_prompt(npc_name: String, personality: String, protagonist_name: String, stage: int, stage_title: String, event_desc: String, intimacy: float = 0.0, trust: float = 0.0) -> String:
+func _build_proactive_greeting_type_desc(prompt_type: String) -> String:
+	var type_desc := "请基于当前的情景，主动发出一句简短的问候。"
+	if prompt_type == "course":
+		type_desc = "今天是星期一。请基于当前的日期，主动聊一句关于新的一周、学业或者课程安排的话题。"
+	elif prompt_type == "daily":
+		type_desc = "今天是周末（星期六或星期日）。请基于当前的日期，主动聊一句关于周末放松、休息或者日常活动的话题。"
+	return type_desc
+
+func _pick_shared_main_scene_bubble_categories(profile: CharacterProfile, whitelist: Array[String]) -> Array[String]:
+	var deepseek_client = GameDataManager.get_deepseek_client() if GameDataManager else null
+	var idle_service = null
+	if deepseek_client and deepseek_client.has_method("get"):
+		idle_service = deepseek_client.get("_idle_quote_service")
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	if idle_service and idle_service.has_method("pick_main_scene_bubble_categories"):
+		var picked: Array = idle_service.pick_main_scene_bubble_categories(profile, rng, whitelist)
+		var picked_string: Array[String] = []
+		for category in picked:
+			var final_category := str(category).strip_edges()
+			if final_category != "":
+				picked_string.append(final_category)
+		if not picked_string.is_empty():
+			return picked_string
+	return ["关心型", "陪伴型"]
+
+func _build_shared_category_guidance_lines(selected_categories: Array[String]) -> Array[String]:
+	var guidance: Array[String] = []
+	if selected_categories.is_empty():
+		return guidance
+	guidance.append("本次优先子类：%s" % " / ".join(PackedStringArray(selected_categories)))
+	for category in selected_categories:
+		match category:
+			"关心型":
+				guidance.append("关心型：像下意识确认对方状态的一句，轻轻提醒、轻轻照顾，但别像说教。")
+			"陪伴型":
+				guidance.append("陪伴型：重点是“我在你这边”的陪伴感，安静、贴近、不过度用力。")
+			"吐槽型":
+				guidance.append("吐槽型：可以轻微吐槽或碎碎念，但要带着亲近，不阴阳怪气。")
+			"分享型":
+				guidance.append("分享型：像顺口分享一个小感受、小观察、小念头，生活化且自然。")
+	return guidance
+
+func build_main_scene_bubble_strategy_block(profile: CharacterProfile, intent_desc: String, extra_guidance_lines: Array[String] = []) -> String:
+	if profile == null:
+		return "【主场景气泡策略】\n%s\n1. 只输出一句自然、生活化的短句。\n2. 不要旁白，不要解释，不要系统提示。" % intent_desc
+	var stage_conf: Dictionary = profile.get_current_stage_config()
+	var stage_title := str(stage_conf.get("stageTitle", "陌生人"))
+	var stage_desc := str(stage_conf.get("stageDesc", "")).replace("{char_name}", profile.char_name)
+	var flavor_label := _resolve_flavor_label(profile)
+	var mood_name := ""
+	var mood_summary := ""
+	var expression_name := ""
+	var expression_desc := ""
+	var personality_summary := ""
+	var dynamic_traits := ""
+	if GameDataManager.personality_system:
+		personality_summary = str(GameDataManager.personality_system.get_personality_summary(profile)).replace("{char_name}", profile.char_name).strip_edges()
+		dynamic_traits = str(GameDataManager.personality_system.get_dynamic_traits(profile)).replace("{char_name}", profile.char_name).strip_edges()
+		mood_summary = str(GameDataManager.personality_system.get_mood_summary(profile)).replace("{char_name}", profile.char_name).strip_edges()
+	if GameDataManager.mood_system:
+		mood_name = str(GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)).strip_edges()
+	var current_expression := str(profile.current_expression).strip_edges()
+	if current_expression != "" and current_expression != "calm" and GameDataManager.expression_system:
+		expression_name = str(GameDataManager.expression_system.expression_configs.get(current_expression, {}).get("expression_name", "")).strip_edges()
+		expression_desc = str(GameDataManager.expression_system.get_expression_description(current_expression)).strip_edges()
+
+	var lines: Array[String] = []
+	lines.append("【主场景气泡定位】")
+	lines.append(intent_desc)
+	lines.append("当前关系阶段：%s。" % stage_title)
+	if stage_desc != "":
+		lines.append("阶段关系说明：%s" % stage_desc)
+	if flavor_label != "":
+		lines.append("当前关系风味：%s。" % flavor_label)
+	if mood_name != "":
+		lines.append("当前整体心情：%s。" % mood_name)
+	if mood_summary != "":
+		lines.append("当前心情摘要：%s" % mood_summary)
+	if expression_name != "":
+		lines.append("当前瞬时表情：%s。" % expression_name)
+	if expression_desc != "":
+		lines.append("表情说明：%s" % expression_desc)
+	if personality_summary != "":
+		lines.append("核心人格摘要：%s" % personality_summary)
+	if dynamic_traits != "":
+		lines.append("动态人格与边界：%s" % dynamic_traits)
+	for guidance in extra_guidance_lines:
+		var final_guidance := str(guidance).strip_edges()
+		if final_guidance != "":
+			lines.append(final_guidance)
+	lines.append("【统一口吻规则】")
+	lines.append("1. 口吻必须像主场景里自然飘出的日常短句，有陪伴感，不像剧情开场、任务提示或客服问候。")
+	lines.append("2. 必须严格贴合当前情感阶段、关系风味、心情、表情和动态人格，不能 OOC，不能突然越界，也不能忽冷忽热。")
+	lines.append("3. 内容要生活化、具体，带一点此刻的小情绪、小念头或小观察，不要写成空泛鸡汤、文案句或总结句。")
+	lines.append("4. 时段、天气和场景氛围可以自然渗进语气，但不要生硬点名“现在是早上”或“现在在下雨”。")
+	lines.append("5. 只输出一句成品短句，优先控制在12到28字，不要旁白，不要解释，不要系统提示，不要复述设定。")
+	lines.append("6. 如果当前阶段偏克制，就保持克制；如果当前心情更亮一点，可以稍微更主动，但仍要自然。")
+	return "\n".join(lines)
+
+func build_proactive_greeting_event_desc(profile: CharacterProfile, prompt_type: String = "") -> String:
+	if profile == null:
+		return "玩家刚进入主场景，请自然地主动打个招呼。只输出一句简短问候，不要旁白，不要解释。"
+	var player_name := str(profile.player_title).strip_edges()
+	if player_name == "":
+		player_name = "指导人"
+	var selected_categories := _pick_shared_main_scene_bubble_categories(profile, ["关心型", "陪伴型", "吐槽型", "分享型"])
+	var category_guidance := _build_shared_category_guidance_lines(selected_categories)
+	var extra_guidance: Array[String] = [
+		_build_proactive_greeting_type_desc(prompt_type),
+		"这是玩家刚进入主场景时的主动问候，你要先开口，但仍然要像日常陪伴里的自然开场。"
+	]
+	extra_guidance.append_array(category_guidance)
+	return build_main_scene_bubble_strategy_block(profile, "玩家刚刚进入主场景，你想先主动和%s说一句话。" % player_name, extra_guidance)
+
+func build_npc_event_prompt(npc_name: String, personality: String, protagonist_name: String, stage: int, stage_title: String, event_desc: String, intimacy: float = 0.0, trust: float = 0.0, extra_context: Dictionary = {}) -> String:
 	var template = load_template("npc_event")
 	if template == "":
 		return ""
@@ -413,11 +528,20 @@ func build_npc_event_prompt(npc_name: String, personality: String, protagonist_n
 	return template.format({
 		"npc_name": npc_name,
 		"personality": personality,
+		"personality_summary": str(extra_context.get("personality_summary", personality)),
+		"base_traits": str(extra_context.get("base_traits", personality)),
+		"dynamic_traits": str(extra_context.get("dynamic_traits", "")),
 		"protagonist_name": protagonist_name,
 		"stage": str(stage),
 		"intimacy": str(intimacy),
 		"trust": str(trust),
 		"stage_title": stage_title,
+		"stage_desc": str(extra_context.get("stage_desc", "")),
+		"flavor": str(extra_context.get("flavor", "")),
+		"mood_name": str(extra_context.get("mood_name", "")),
+		"mood_summary": str(extra_context.get("mood_summary", "")),
+		"expression_name": str(extra_context.get("expression_name", "")),
+		"expression_desc": str(extra_context.get("expression_desc", "")),
 		"event_desc": event_desc,
 		"dynamic_style": random_style
 	})
@@ -466,40 +590,20 @@ func build_narrator_prompt(profile: CharacterProfile, recent_history: String, ev
 	})
 
 func build_proactive_greeting_prompt(profile: CharacterProfile, prompt_type: String = "") -> String:
-	var template = load_template("proactive_greeting")
-	var stage_conf = profile.get_current_stage_config()
-	var stage_title = stage_conf.get("stageTitle", "陌生人")
-	var stage_desc = stage_conf.get("stageDesc", "")
-	var flavor_label = _resolve_flavor_label(profile)
-	var char_name = profile.char_name
-	
-	var type_desc = "请基于当前的情景，主动发出一句简短的问候。"
-	if prompt_type == "course":
-		type_desc = "今天是星期一。请基于当前的日期，主动聊一句关于新的一周、学业或者课程安排的话题。"
-	elif prompt_type == "daily":
-		type_desc = "今天是周末（星期六或星期日）。请基于当前的日期，主动聊一句关于周末放松、休息或者日常活动的话题。"
-		
-	if template == "":
-		var prompt = "【系统指令】\n"
-		prompt += "玩家刚刚打开了游戏主界面。\n"
-		prompt += type_desc + "\n"
-		prompt += "请基于当前你（%s）与玩家的情感状态（亲密度：%.1f，信任度：%.1f，风味：%s），主动对玩家说话。\n" % [char_name, profile.intimacy, profile.trust, flavor_label]
-		prompt += "要求：\n"
-		prompt += "1. 必须符合当前的情感深度和人设，语气要自然。\n"
-		prompt += "2. 字数在15-40字之间。\n"
-		prompt += "3. 【强制要求：你的回复中，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完括号后必须全是台词，句尾或句中绝对不准再出现任何括号描写！】\n"
-		prompt += "4. 不要输出任何系统提示，直接以第一人称代入角色进行对话。"
-		return prompt
-		
-	return template.format({
-		"type_desc": type_desc,
-		"char_name": char_name,
-		"intimacy": str(profile.intimacy),
-		"trust": str(profile.trust),
-		"flavor": flavor_label,
-		"stage_title": stage_title,
-		"stage_desc": stage_desc
-	})
+	var player_name := str(profile.player_title).strip_edges()
+	if player_name == "":
+		player_name = "指导人"
+	var selected_categories := _pick_shared_main_scene_bubble_categories(profile, ["关心型", "陪伴型", "吐槽型", "分享型"])
+	var category_guidance := _build_shared_category_guidance_lines(selected_categories)
+	var extra_guidance: Array[String] = [
+		_build_proactive_greeting_type_desc(prompt_type),
+		"这是玩家刚进入主场景时的主动问候，你要先开口，但仍然要像日常陪伴里的自然开场。",
+		"为了兼容旧的事件台词输出格式，如果出现动作描写，也只能极短地放在开头。"
+	]
+	extra_guidance.append_array(category_guidance)
+	var prompt := "【系统指令】\n"
+	prompt += build_main_scene_bubble_strategy_block(profile, "玩家刚刚打开了游戏主界面，你想先主动和%s说一句话。" % player_name, extra_guidance)
+	return prompt
 
 func build_memory_revisit_prompt(profile: CharacterProfile, revisit_data: Dictionary, trigger_context: Dictionary = {}) -> String:
 	var char_name = profile.char_name
@@ -608,8 +712,17 @@ func build_date_story_prompt(context: Dictionary) -> String:
 	var player_title := str(context.get("player_title", "老师"))
 	var stage_num := int(context.get("relationship_stage", 1))
 	var stage_title := str(context.get("relationship_stage_title", "熟悉阶段"))
+	var stage_desc := str(context.get("relationship_stage_desc", "请保持自然克制的相处边界。"))
 	var intimacy := float(context.get("intimacy", 0.0))
 	var trust := float(context.get("trust", 0.0))
+	var flavor_label := str(context.get("relationship_flavor", ""))
+	var mood_summary := str(context.get("mood_summary", ""))
+	var expression_name := str(context.get("expression_name", ""))
+	var expression_desc := str(context.get("expression_desc", ""))
+	var base_traits := str(context.get("base_traits", ""))
+	var dynamic_traits := str(context.get("dynamic_traits", ""))
+	var scene_setting := str(context.get("scene_setting", ""))
+	var important_notes := str(context.get("important_notes", ""))
 	var date_label := str(context.get("date_label", "未知日期"))
 	var weather_desc := str(context.get("story_weather_desc", "晴天"))
 	var temperature := int(context.get("temperature", 20))
@@ -622,8 +735,25 @@ func build_date_story_prompt(context: Dictionary) -> String:
 	prompt += "玩家名字：%s\n" % player_name
 	prompt += "玩家称呼：%s\n" % player_title
 	prompt += "当前关系阶段：第%d阶段（%s）\n" % [stage_num, stage_title]
+	prompt += "阶段描述：%s\n" % stage_desc
 	prompt += "亲密度：%.1f\n" % intimacy
 	prompt += "信任度：%.1f\n" % trust
+	if flavor_label != "":
+		prompt += "当前关系风味：%s\n" % flavor_label
+	if mood_summary != "":
+		prompt += "当前心情摘要：%s\n" % mood_summary
+	if expression_name != "":
+		prompt += "当前瞬时表情：%s\n" % expression_name
+	if expression_desc != "":
+		prompt += "表情说明：%s\n" % expression_desc
+	if base_traits != "":
+		prompt += "角色核心底色：%s\n" % base_traits
+	if dynamic_traits != "":
+		prompt += "动态人格与边界：%s\n" % dynamic_traits
+	if scene_setting != "":
+		prompt += "当前阶段相处氛围：%s\n" % scene_setting
+	if important_notes != "":
+		prompt += "当前阶段重要约束：%s\n" % important_notes
 	prompt += "【约会环境】\n"
 	prompt += "日期：%s\n" % date_label
 	prompt += "天气：%s，气温：%d度\n" % [weather_desc, temperature]
@@ -643,58 +773,52 @@ func build_date_story_prompt(context: Dictionary) -> String:
 		prompt += "   必须桥段：%s\n" % JSON.stringify(segment.get("must_have_beats", []))
 		prompt += "   情绪标签：%s\n" % JSON.stringify(segment.get("mood_tags", []))
 
+	var retry_count: int = int(context.get("date_story_retry_count", 0))
+	var segment_index: int = int(context.get("date_story_segment_index", -1))
+	var segment_total: int = int(context.get("date_story_segment_total", plan_segments.size()))
+	var previous_summaries: Array = context.get("date_story_previous_summaries", [])
+	if segment_index >= 0:
+		prompt += "【当前生成片段】\n"
+		prompt += "这是本次约会的第%d段，共%d段。\n" % [segment_index + 1, segment_total]
+		if previous_summaries.is_empty():
+			prompt += "前情摘要：这是第一段，请自然展开见面后的相处。\n"
+		else:
+			prompt += "前情摘要：%s\n" % "；".join(previous_summaries)
+	prompt += "【剧情质量要求】\n"
+	prompt += "1. 剧本必须严格服从当前情感阶段，不得写出超过阶段边界的言行；暧昧推进要循序渐进，克制阶段就保持克制，亲近阶段也不能油腻失真。\n"
+	prompt += "2. 不要写空泛流水账，不要反复出现“气氛很好”“两人聊了很多”“时间慢慢过去”这种没有信息量的水句。\n"
+	prompt += "3. 每个 segment 都必须同时包含：可见的共同动作、地点相关的环境细节、双方情绪变化、一次更靠近彼此的交流推进、一个带余韵的小收束。\n"
+	prompt += "4. 每段都要像真正发生过一小段完整约会，而不是提纲扩写；角色说话要有微妙试探、回应、停顿、转折和在意感。\n"
+	prompt += "5. 地点必须真的参与剧情，不只是挂名。要把地点特色、天气、时段氛围写进互动本身。\n"
 	prompt += "【输出要求】\n"
 	prompt += "1. 输出必须是纯 JSON 对象，不要输出解释、不要输出 Markdown 代码块。\n"
-	prompt += "2. 剧情风格要像 galgame 约会剧情，包含旁白、玩家对白、女主对白，并有明显演出感。\n"
-	prompt += "3. 必须让每个已选时段都在剧情里出现，允许通过旁白完成转场。\n"
-	prompt += "4. 每一段约会剧情（每一个新时段/新地点开始时），必须先用一行旁白展示当前的时间段和地点，例如：【下午 · 咖啡厅】。\n"
-	prompt += "5. 剧情要求极其丰富详实，总字数绝对不能少于1000字，对话内容要多，情感互动要细腻深厚。\n"
-	prompt += "6. 请优先使用以下事件类型：background、audio、dialogue、show_character、move_character、hide_character。\n"
-	prompt += "7. speaker 只能使用：旁白、player、%s。\n" % character_id
-	prompt += "8. 所有的对话文本中，如果包含了人物的动作或表情描写（带有括号的部分，如（微笑）），必须用绿色包裹，例如：[color=#8fbc8f]（微笑着说）[/color]。\n"
-	prompt += "9. show_character / move_character / hide_character 中的 character 必须使用 %s。\n" % character_id
-	prompt += "10. 立绘显示时机非常重要：不能一开始就直接显示立绘。必须等到女主第一次说话时，才使用 show_character 显示她的立绘。在玩家说话或旁白期间，女主如果不说话，应当使用 hide_character 或者暗化/缩小的表现，但在本引擎中请使用 hide_character 来隐藏，等她再说话时再 show_character（如果是本引擎支持 focus:true 则可以直接使用 focus 来控制明暗）。\n"
-	prompt += "11. background 事件里的 bg_id 必须从提供的地点背景图ID中选择，不要杜撰不存在的 bg_id。\n"
-	prompt += "12. audio 事件若需要播放 BGM，请使用：{\"type\":\"audio\",\"audio_id\":\"luna_bgm\",\"audio_type\":\"bgm\",\"action\":\"play\"}。\n"
-	prompt += "13. 整体事件数量必须控制在 30 到 60 个之间，要有充足的剧情长度和对话回合。\n"
-	prompt += "14. 女主台词要符合当前关系阶段，不能突然越界告白，也不能生硬疏离。\n"
-	prompt += "15. memory_records 至少输出 1 条，用于记录这次约会回忆，content 需要是可直接存档的自然语言摘要。\n"
-	prompt += "16. 如果有多个时段，剧情要体现感情递进，而不是把几个地点写成互不关联的独立短篇。\n"
+	prompt += "2. 你只负责产出剧情内容本身，不要生成 script_id、story_location_id、story_period、memory_records、chapters、events、bg_id 这些外壳字段，这些会由本地系统补全。\n"
+	prompt += "3. 剧情风格要像 galgame 约会剧情，包含旁白、玩家对白、女主对白，并有明显演出感。\n"
+	prompt += "4. 必须让每个已选时段都在剧情里出现，segments 数组长度必须严格等于约会计划条目数，顺序也必须与约会计划完全一致，不能合并、不能遗漏、不能打乱。\n"
+	if retry_count > 0:
+		prompt += "5. 当前是重试稳定模式：每个 segment 写 7 到 9 行，每行尽量保持 22 到 48 个汉字，优先保证 JSON 严格合法，同时仍要让这一段具备完整起承转合。\n"
+	else:
+		prompt += "5. 每个 segment 写 10 到 12 行；每行都要有有效信息量，建议单行 24 到 60 个汉字，必须形成完整的起承转合，包含见面、共同体验、情绪靠近和余韵收束，优先保证 JSON 严格合法且完整。\n"
+	prompt += "6. 每个 segment 至少包含 3 行女主对白、2 行玩家对白、2 行旁白；不能全部都是抒情旁白，也不能全靠对白硬聊。\n"
+	prompt += "7. 每一行只允许出现 speaker 和 content 两个字段。\n"
+	prompt += "8. speaker 只能使用：旁白、player、%s。\n" % character_id
+	prompt += "9. 不要输出任何 BBCode、RichText 或 Markdown 标记，动作和表情请直接写在自然语言括号里。\n"
+	prompt += "10. 不要输出像“【上午 · 咖啡厅】”这样的时段地点标题，本地系统会自动插入。\n"
+	prompt += "11. 女主台词要符合当前关系阶段、人设和心情，不能突然越界告白，也不能生硬疏离，更不能像模板台词复读机。\n"
+	prompt += "12. 如果这是中段或末段，要承接前情，让感情递进明显，但这一段本身也必须足够完整，不能只写成几句提要。\n"
+	prompt += "13. 所有字符串都必须是合法 JSON 字符串，内部双引号要正确转义，绝对不要输出未闭合的字符串或未写完的对象。\n"
 	prompt += "【JSON 格式】\n"
 	prompt += "{\n"
-	prompt += "  \"script_id\": \"date_dynamic_xxx\",\n"
-	prompt += "  \"story_location_id\": \"第一个地点的location_id\",\n"
-	prompt += "  \"story_period\": \"第一个时段的中文名\",\n"
-	prompt += "  \"use_portraits\": true,\n"
-	prompt += "  \"summary\": \"30到80字的约会摘要\",\n"
-	prompt += "  \"memory_enabled\": true,\n"
-	prompt += "  \"memory_records\": [\n"
+	prompt += "  \"summary\": \"40到90字的约会摘要，点出这一段真正发生了什么和情感推进\",\n"
+	prompt += "  \"segments\": [\n"
 	prompt += "    {\n"
-	prompt += "      \"title\": \"约会回忆标题\",\n"
-	prompt += "      \"layer\": \"bond\",\n"
-	prompt += "      \"scope\": \"player_shared\",\n"
-	prompt += "      \"visibility\": \"prompt\",\n"
-	prompt += "      \"participants\": [\"player\", \"%s\"],\n" % character_id
-	prompt += "      \"player_involved\": true,\n"
-	prompt += "      \"player_witnessed\": true,\n"
-	prompt += "      \"is_bond_mark\": false,\n"
-	prompt += "      \"content\": \"一句自然的回忆摘要\"\n"
-	prompt += "    }\n"
-	prompt += "  ],\n"
-	prompt += "  \"chapters\": {\n"
-	prompt += "    \"start\": {\n"
-	prompt += "      \"events\": [\n"
-	prompt += "        {\"type\": \"background\", \"bg_id\": \"...\", \"transition_type\": \"fade\", \"duration\": 0.4},\n"
-	prompt += "        {\"type\": \"dialogue\", \"speaker\": \"旁白\", \"content\": \"【上午 · 咖啡厅】\"},\n"
-	prompt += "        {\"type\": \"audio\", \"audio_id\": \"luna_bgm\", \"audio_type\": \"bgm\", \"action\": \"play\"},\n"
-	prompt += "        {\"type\": \"dialogue\", \"speaker\": \"旁白\", \"content\": \"...\"},\n"
-	prompt += "        {\"type\": \"show_character\", \"character\": \"%s\", \"display_name\": \"%s\", \"position\": \"center\", \"expression\": \"calm\", \"animation\": \"fade_in\", \"focus\": true},\n" % [character_id, character_name]
-	prompt += "        {\"type\": \"dialogue\", \"speaker\": \"%s\", \"content\": \"...\"},\n" % character_id
-	prompt += "        {\"type\": \"hide_character\", \"character\": \"%s\", \"animation\": \"fade_out\"},\n" % character_id
-	prompt += "        {\"type\": \"dialogue\", \"speaker\": \"player\", \"content\": \"...\"}\n"
+	prompt += "      \"lines\": [\n"
+	prompt += "        {\"speaker\": \"旁白\", \"content\": \"...\"},\n"
+	prompt += "        {\"speaker\": \"%s\", \"content\": \"...\"},\n" % character_id
+	prompt += "        {\"speaker\": \"player\", \"content\": \"...\"}\n"
 	prompt += "      ]\n"
 	prompt += "    }\n"
-	prompt += "  }\n"
+	prompt += "  ]\n"
 	prompt += "}\n"
 	return prompt
 

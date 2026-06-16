@@ -231,6 +231,7 @@
       "icon": "loc_golden_beach",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "阳光明媚的广阔沙滩。",
+      "bg_id": "bg_golden_beach",
       "map_position": {"x": 820, "y": 188},
       "resident_npcs": [],
       "events": []
@@ -241,6 +242,7 @@
       "icon": "loc_sunset_park",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "观赏海湾日落的最佳地点。",
+      "bg_id": "bg_sunset_park",
       "map_position": {"x": 410, "y": 174},
       "resident_npcs": [],
       "events": []

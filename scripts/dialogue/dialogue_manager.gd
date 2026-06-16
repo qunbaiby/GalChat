@@ -2,6 +2,7 @@ extends Control
 
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
+const STORY_PERIOD_CARD_SCENE = preload("res://scenes/ui/story/story_period_card.tscn")
 
 signal chat_closed
 
@@ -36,6 +37,7 @@ var mic_capture: AudioStreamPlayer = null
 var qwen_asr_client = null
 
 var click_blocker: Control = null
+var story_period_card: Control = null
 
 var _ui_tween: Tween = null
 var _typewriter_tween: Tween = null
@@ -245,6 +247,7 @@ func _ready() -> void:
 	script_engine.on_voice_call_requested.connect(_on_script_voice_call)
 	script_engine.on_start_free_chat_requested.connect(_on_script_start_free_chat)
 	script_engine.on_background_requested.connect(_on_script_background_requested)
+	script_engine.on_period_card_requested.connect(_on_script_period_card_requested)
 	script_engine.on_bgm_requested.connect(_on_script_bgm_requested)
 	script_engine.on_audio_requested.connect(_on_script_audio_requested)
 	script_engine.on_variable_set.connect(_on_script_variable_set)
@@ -252,6 +255,7 @@ func _ready() -> void:
 	script_engine.script_finished.connect(_on_script_finished)
 	
 	_update_ui()
+	_ensure_story_period_card()
 
 	if GameDataManager.has_meta("story_scene_return_to_main_on_finish"):
 		_return_to_main_on_story_finish = bool(GameDataManager.get_meta("story_scene_return_to_main_on_finish"))
@@ -617,6 +621,62 @@ func _on_script_background_requested(bg_path: String, duration: float, transitio
 		print("[ScriptEngine] 警告：无法加载背景图片 -> ", bg_path)
 		script_engine.resume()
 
+func _on_script_period_card_requested(period_label: String, location_name: String, bg_path: String, hold_duration: float) -> void:
+	_ensure_story_period_card()
+	var tex: Texture2D = null
+	var ui_was_visible := ui_panel != null and ui_panel.visible
+	# #region debug-point B:period-card-entry
+	if deepseek_client and deepseek_client.has_method("_debug_report"):
+		deepseek_client._debug_report("B", "dialogue_manager.gd:_on_script_period_card_requested", "period card requested", {
+			"period_label": period_label,
+			"location_name": location_name,
+			"hold_duration": hold_duration,
+			"ui_was_visible": ui_was_visible,
+			"bg_path": bg_path
+		})
+	# #endregion
+	if bg_path != "" and ResourceLoader.exists(bg_path):
+		tex = load(bg_path)
+		var bg_node = _find_story_background_node()
+		if bg_node and bg_node is TextureRect:
+			bg_node.texture = tex
+	_prepare_for_period_card_transition()
+	if ui_panel:
+		ui_panel.hide()
+	if story_period_card:
+		await story_period_card.play_card(tex, period_label, location_name, hold_duration)
+	# #region debug-point D:period-card-exit
+	if deepseek_client and deepseek_client.has_method("_debug_report"):
+		deepseek_client._debug_report("D", "dialogue_manager.gd:_on_script_period_card_requested", "period card finished", {
+			"period_label": period_label,
+			"location_name": location_name,
+			"ui_restore": ui_was_visible
+		})
+	# #endregion
+	if ui_panel and ui_was_visible:
+		ui_panel.show()
+	script_engine.resume()
+
+func _prepare_for_period_card_transition() -> void:
+	_current_story_speaker_id = ""
+	if _typewriter_tween:
+		_typewriter_tween.kill()
+		_typewriter_tween = null
+	if audio_player and audio_player.playing:
+		audio_player.stop()
+	if dialogue_text:
+		dialogue_text.text = ""
+		dialogue_text.visible_ratio = 1.0
+		dialogue_text.visible_characters = -1
+	if name_label:
+		name_label.text = ""
+	if character_layer and character_layer.has_method("end_story_mode"):
+		character_layer.end_story_mode()
+	elif character_layer and character_layer.has_method("hide_character"):
+		character_layer.hide_character("fade_out")
+	elif character_layer and character_layer is CanvasItem:
+		character_layer.hide()
+
 func _on_script_bgm_requested(audio_path: String, fade_time: float) -> void:
 	# 如果有全局 AudioManager，最好调用它；这里演示使用自带的或全局逻辑
 	# 假设 AudioManager 存在且支持 crossfade
@@ -644,6 +704,26 @@ func _on_script_audio_requested(audio_type: String, action: String, audio_id: St
 		elif audio_type == "se":
 			AudioManager.stop_se(audio_id)
 	script_engine.resume()
+
+func _ensure_story_period_card() -> void:
+	if story_period_card and is_instance_valid(story_period_card):
+		return
+	story_period_card = STORY_PERIOD_CARD_SCENE.instantiate() as Control
+	if story_period_card == null:
+		return
+	add_child(story_period_card)
+	story_period_card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	move_child(story_period_card, get_child_count() - 1)
+
+func _find_story_background_node() -> TextureRect:
+	if get_parent() and get_parent().has_node("BackgroundLayer"):
+		return get_parent().get_node("BackgroundLayer") as TextureRect
+	var local_bg = get_node_or_null("BackgroundLayer") as TextureRect
+	if local_bg:
+		return local_bg
+	if get_parent() and get_parent().has_node("MainBg"):
+		return get_parent().get_node("MainBg") as TextureRect
+	return null
 
 func _on_script_variable_set(var_name: String, var_value: Variant) -> void:
 	GameDataManager.set_meta(var_name, var_value)

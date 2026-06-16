@@ -155,15 +155,49 @@ func generate_npc_event_dialogue(client, npc_id: String, event_desc: String) -> 
 		protagonist_name = "Luna"
 	var intimacy: float = 0.0
 	var trust: float = 0.0
+	var extra_context: Dictionary = {}
 	if GameDataManager.profile.current_character_id == npc_id:
 		intimacy = GameDataManager.profile.intimacy
 		trust = GameDataManager.profile.trust
+		var profile = GameDataManager.profile
+		var stage_conf: Dictionary = profile.get_current_stage_config()
+		var flavor_label: String = ""
+		var personality_summary: String = personality
+		var base_traits: String = personality
+		var dynamic_traits: String = ""
+		var mood_summary: String = ""
+		var mood_name: String = ""
+		var expression_name: String = ""
+		var expression_desc: String = ""
+		if GameDataManager.personality_system:
+			flavor_label = str(GameDataManager.personality_system.get_relationship_flavor_label(profile)).strip_edges()
+			personality_summary = str(GameDataManager.personality_system.get_personality_summary(profile)).replace("{char_name}", profile.char_name).strip_edges()
+			base_traits = str(GameDataManager.personality_system.get_base_traits(profile)).replace("{char_name}", profile.char_name).strip_edges()
+			dynamic_traits = str(GameDataManager.personality_system.get_dynamic_traits(profile)).replace("{char_name}", profile.char_name).strip_edges()
+			mood_summary = str(GameDataManager.personality_system.get_mood_summary(profile)).replace("{char_name}", profile.char_name).strip_edges()
+		if GameDataManager.mood_system:
+			mood_name = str(GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)).strip_edges()
+		var current_expression: String = str(profile.current_expression).strip_edges()
+		if current_expression != "" and current_expression != "calm" and GameDataManager.expression_system:
+			expression_name = str(GameDataManager.expression_system.expression_configs.get(current_expression, {}).get("expression_name", "")).strip_edges()
+			expression_desc = str(GameDataManager.expression_system.get_expression_description(current_expression)).strip_edges()
+		extra_context = {
+			"stage_desc": str(stage_conf.get("stageDesc", "")).replace("{char_name}", profile.char_name),
+			"flavor": flavor_label,
+			"personality_summary": personality_summary,
+			"base_traits": base_traits,
+			"dynamic_traits": dynamic_traits,
+			"mood_name": mood_name,
+			"mood_summary": mood_summary,
+			"expression_name": expression_name,
+			"expression_desc": expression_desc
+		}
 	else:
 		var npc_rel = GameDataManager.npc_relationship_manager
 		if npc_rel:
 			intimacy = npc_rel.get_intimacy(npc_id)
 			trust = npc_rel.get_trust(npc_id)
-	var system_prompt: String = GameDataManager.prompt_manager.build_npc_event_prompt(npc_name, personality, protagonist_name, stage, stage_title, event_desc, intimacy, trust)
+	var system_prompt: String = GameDataManager.prompt_manager.build_npc_event_prompt(npc_name, personality, protagonist_name, stage, stage_title, event_desc, intimacy, trust, extra_context)
 	if system_prompt.is_empty():
 		system_prompt = "【系统设定】\n你扮演的角色是：%s。\n你的性格特征和说话风格是：%s。\n注意：在这个世界里，你现在面对的是游戏世界中的少女【%s】。\n你当前与少女【%s】的情感关系处于【阶段%d：%s】（亲密度：%.1f，信任度：%.1f）。请严格根据这个情感状态对她表现出相应的态度。\n\n【当前事件】\n%s\n\n【任务要求】\n请结合你的性格、情感阶段以及当前发生的事件，作出非常符合你人设的回复。注意：\n1. 所有的动作、神态、心理描写，必须且只能使用全角或半角的圆括号 () 包裹。\n2. 绝对禁止使用星号 *、中括号 []、波浪号 ~ 等其他任何符号来表示动作或情绪。\n3. 直接输出台词和圆括号动作，不要包含任何旁白。\n4. 语气必须严格符合当前对【%s】的情感状态，且符合现代日常世界观（不要出现魔幻、修仙、系统、穿越等出戏话题）。\n5. 回复可以是多句话，以表达完整的情感和意思，如果有多句可以自然换行。像游戏里的即时互动反馈一样自然流畅。" % [npc_name, personality, protagonist_name, protagonist_name, stage, stage_title, intimacy, trust, event_desc, protagonist_name]
 	var api_messages = [{"role": "system", "content": system_prompt}]

@@ -17,6 +17,8 @@ var _bubble_hide_tween: Tween = null
 var _bubble_sequence_id: int = 0
 var _bubble_current_tts_text: String = ""
 var _bubble_request_fallback_text: String = ""
+var _bubble_pending_requests: Array[Dictionary] = []
+var _bubble_request_in_flight: bool = false
 
 
 func setup(panel: Control, text_label: Label, profile_data: Dictionary, current_character_id: String) -> void:
@@ -39,6 +41,8 @@ func setup(panel: Control, text_label: Label, profile_data: Dictionary, current_
 
 func cleanup() -> void:
 	_disconnect_ai_signals()
+	_bubble_pending_requests.clear()
+	_bubble_request_in_flight = false
 	if _bubble_audio_player:
 		_bubble_audio_player.stop()
 	if _bubble_hide_tween:
@@ -100,37 +104,72 @@ func _build_slot_comment_prompt(slot_payload: Dictionary) -> String:
 	if location_name == "":
 		return ""
 	var profile = GameDataManager.profile if GameDataManager else null
+	var char_name: String = str(character_profile.get("char_name", "")).strip_edges()
+	if char_name == "" and profile:
+		char_name = str(profile.char_name).strip_edges()
+	if char_name == "":
+		char_name = character_id.capitalize()
 	var stage_title: String = "熟悉阶段"
 	var stage_desc: String = ""
 	var intimacy: float = 0.0
 	var trust: float = 0.0
+	var flavor_label: String = ""
+	var personality_summary: String = ""
+	var dynamic_traits: String = ""
+	var mood_name: String = "平静"
+	var expression_name: String = ""
+	var expression_desc: String = ""
 	if profile:
 		var stage_conf: Dictionary = profile.get_current_stage_config()
 		stage_title = str(stage_conf.get("stageTitle", "熟悉阶段")).strip_edges()
 		stage_desc = str(stage_conf.get("stageDesc", "")).strip_edges()
 		intimacy = float(profile.intimacy)
 		trust = float(profile.trust)
+		if GameDataManager.personality_system:
+			flavor_label = str(GameDataManager.personality_system.get_relationship_flavor_label(profile)).strip_edges()
+			personality_summary = str(GameDataManager.personality_system.get_personality_summary(profile)).strip_edges()
+			dynamic_traits = str(GameDataManager.personality_system.get_dynamic_traits(profile)).strip_edges()
+		if GameDataManager.mood_system:
+			mood_name = str(GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)).strip_edges()
+		var current_expression: String = str(profile.current_expression).strip_edges()
+		if current_expression != "" and GameDataManager.expression_system:
+			expression_name = str(GameDataManager.expression_system.expression_configs.get(current_expression, {}).get("expression_name", "")).strip_edges()
+			expression_desc = str(GameDataManager.expression_system.get_expression_description(current_expression)).strip_edges()
 	var weather_desc: String = ""
 	if GameDataManager and GameDataManager.story_time_manager:
 		weather_desc = str(GameDataManager.story_time_manager.get_story_weather_desc()).strip_edges()
 	var prompt := "【系统指令】玩家刚刚把约会地点加入了行程。\n"
-	prompt += "请你以%s现在的口吻，对这个安排说一句简短短评。\n" % character_id.capitalize()
+	prompt += "你现在要扮演%s本人，对这个安排立刻说一句短评。\n" % char_name
+	prompt += "这句短评必须严格符合你当前的人设、关系阶段、心情和说话习惯，不能 OOC，不能像旁白或文案。\n"
 	prompt += "已选地点：%s。\n" % location_name
 	prompt += "时间段：%s。\n" % period_label
 	if type_name != "":
 		prompt += "约会类型：%s。\n" % type_name
 	if weather_desc != "":
 		prompt += "当前天气：%s。\n" % weather_desc
+	if flavor_label != "":
+		prompt += "当前关系风味：%s。\n" % flavor_label
 	prompt += "当前关系阶段：%s。\n" % stage_title
 	if stage_desc != "":
 		prompt += "阶段描述：%s。\n" % stage_desc
 	prompt += "当前亲密度：%.1f，信任度：%.1f。\n" % [intimacy, trust]
+	prompt += "当前整体心情：%s。\n" % mood_name
+	if expression_name != "":
+		prompt += "当前瞬时表情：%s。\n" % expression_name
+	if expression_desc != "":
+		prompt += "当前表情说明：%s。\n" % expression_desc
+	if personality_summary != "":
+		prompt += "核心人格摘要：%s。\n" % personality_summary
+	if dynamic_traits != "":
+		prompt += "当前动态人格与边界：%s。\n" % dynamic_traits
 	prompt += "要求：\n"
 	prompt += "1. 只输出一句短评，10到26字。\n"
-	prompt += "2. 必须像她本人自然开口，带一点真实情绪，不要像说明文。\n"
-	prompt += "3. 要围绕这个具体地点和时间段，体现一点期待、在意、害羞、嘴硬或放松感。\n"
+	prompt += "2. 必须像她本人自然开口，带一点真实情绪，不要像说明文，不要像 AI 总结。\n"
+	prompt += "3. 要围绕这个具体地点和时间段，体现一点期待、在意、害羞、嘴硬、试探或放松感，但必须服从当前阶段边界。\n"
 	prompt += "4. 不要输出多个选项，不要解释，不要使用引号。\n"
 	prompt += "5. 不要写成完整长对话，也不要出现旁白口吻。\n"
+	prompt += "6. 禁止突然过度亲密、突然告白、突然冷淡、突然成熟得不像%s本人。\n" % char_name
+	prompt += "7. 如果你当前阶段更克制，就让短评保持克制；如果当前心情更明亮，可以稍微更主动一点，但仍要自然。\n"
 	return prompt
 
 
@@ -150,12 +189,52 @@ func _resolve_date_type_name(type_id: String) -> String:
 
 
 func _request_bubble_stream(ai_client: Node, prompt: String, fallback: String, history_type: String) -> void:
-	_bubble_request_fallback_text = fallback
+	# #region debug-point A:bubble-request-entry
+	if ai_client and ai_client.has_method("_debug_report"):
+		ai_client._debug_report("A", "date_bubble_controller.gd:_request_bubble_stream", "bubble request entry", {
+			"history_type": history_type,
+			"prompt_empty": prompt == "",
+			"fallback_preview": fallback.left(60)
+		})
+	# #endregion
 	if ai_client == null or prompt == "":
+		# #region debug-point A:bubble-request-fallback
+		if ai_client and ai_client.has_method("_debug_report"):
+			ai_client._debug_report("A", "date_bubble_controller.gd:_request_bubble_stream", "bubble request fallback before api call", {
+				"ai_client_null": ai_client == null,
+				"prompt_empty": prompt == ""
+			})
+		# #endregion
 		show_text(fallback)
 		return
+	_bubble_pending_requests.append({
+		"ai_client": ai_client,
+		"prompt": prompt,
+		"fallback": fallback,
+		"history_type": history_type
+	})
+	if ai_client.has_method("_debug_report"):
+		ai_client._debug_report("A", "date_bubble_controller.gd:_request_bubble_stream", "bubble request queued", {
+			"history_type": history_type,
+			"queue_size": _bubble_pending_requests.size(),
+			"in_flight": _bubble_request_in_flight
+		})
+	if _bubble_request_in_flight:
+		return
+	_dispatch_next_bubble_request()
+
+
+func _dispatch_next_bubble_request() -> void:
+	if _bubble_request_in_flight or _bubble_pending_requests.is_empty():
+		return
+	var request_data: Dictionary = _bubble_pending_requests[0]
+	_bubble_pending_requests.remove_at(0)
+	_bubble_request_in_flight = true
+	_bubble_request_fallback_text = str(request_data.get("fallback", "")).strip_edges()
 	_disconnect_ai_signals()
-	_deepseek_client = ai_client
+	_deepseek_client = request_data.get("ai_client", null)
+	var prompt: String = str(request_data.get("prompt", "")).strip_edges()
+	var history_type: String = str(request_data.get("history_type", "date_scene_slot_comment")).strip_edges()
 	if not _deepseek_client.is_connected("chat_stream_delta", _on_bubble_chunk_received):
 		_deepseek_client.chat_stream_delta.connect(_on_bubble_chunk_received)
 	if not _deepseek_client.is_connected("chat_request_completed", _on_bubble_completed):
@@ -165,11 +244,17 @@ func _request_bubble_stream(ai_client: Node, prompt: String, fallback: String, h
 	_bubble_stream_buffer = ""
 	if _deepseek_client.has_method("start_chat_stream_with_messages"):
 		_deepseek_client.start_chat_stream_with_messages([
-			{"role": "system", "content": "你正在扮演约会中的角色本人，请只返回一句自然口语化台词。"},
+			{"role": "system", "content": "你正在扮演约会中的角色本人。请严格贴合当前人设、关系阶段、心情和表情，只返回一句自然口语化短评。禁止旁白、禁止解释、禁止 OOC。"},
 			{"role": "user", "content": prompt}
 		])
 	else:
 		_deepseek_client.send_chat_message_stream(prompt, history_type)
+
+
+func _finish_current_bubble_request() -> void:
+	_disconnect_ai_signals()
+	_bubble_request_in_flight = false
+	call_deferred("_dispatch_next_bubble_request")
 
 
 func show_text(text: String) -> void:
@@ -237,18 +322,33 @@ func _on_bubble_chunk_received(chunk: String) -> void:
 
 
 func _on_bubble_completed(response: Dictionary) -> void:
-	_disconnect_ai_signals()
 	var full_text: String = ""
 	if response.has("choices") and response["choices"].size() > 0:
 		full_text = response["choices"][0]["message"]["content"]
 	var clean_text: String = _strip_bubble_action_descriptions(full_text)
+	# #region debug-point D:bubble-completed
+	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
+		_deepseek_client._debug_report("D", "date_bubble_controller.gd:_on_bubble_completed", "bubble request completed", {
+			"raw_length": full_text.length(),
+			"clean_length": clean_text.length(),
+			"raw_preview": full_text.left(120)
+		})
+	# #endregion
+	_finish_current_bubble_request()
 	if clean_text.is_empty():
 		clean_text = _bubble_request_fallback_text
 	show_text(clean_text)
 
 
-func _on_bubble_failed(_error_msg: String) -> void:
-	_disconnect_ai_signals()
+func _on_bubble_failed(error_msg: String) -> void:
+	# #region debug-point C:bubble-failed
+	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
+		_deepseek_client._debug_report("C", "date_bubble_controller.gd:_on_bubble_failed", "bubble request failed", {
+			"error": error_msg,
+			"fallback_preview": _bubble_request_fallback_text.left(80)
+		})
+	# #endregion
+	_finish_current_bubble_request()
 	show_text(_bubble_request_fallback_text)
 
 
