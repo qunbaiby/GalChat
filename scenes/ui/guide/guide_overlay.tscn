@@ -163,16 +163,3 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_SecondaryButton")
 text = "稍后再看"
-
-[node name="NextButton" type="Button" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer2" unique_id=74352055]
-visible = false
-custom_minimum_size = Vector2(118, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.08, 0.11, 0.14, 0.98)
-theme_override_colors/font_pressed_color = Color(0.08, 0.11, 0.14, 0.98)
-theme_override_colors/font_hover_color = Color(0.08, 0.11, 0.14, 0.98)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PrimaryButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PrimaryButton")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_PrimaryButton")
-text = "下一步"

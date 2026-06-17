@@ -189,22 +189,7 @@ func _resolve_date_type_name(type_id: String) -> String:
 
 
 func _request_bubble_stream(ai_client: Node, prompt: String, fallback: String, history_type: String) -> void:
-	# #region debug-point A:bubble-request-entry
-	if ai_client and ai_client.has_method("_debug_report"):
-		ai_client._debug_report("A", "date_bubble_controller.gd:_request_bubble_stream", "bubble request entry", {
-			"history_type": history_type,
-			"prompt_empty": prompt == "",
-			"fallback_preview": fallback.left(60)
-		})
-	# #endregion
 	if ai_client == null or prompt == "":
-		# #region debug-point A:bubble-request-fallback
-		if ai_client and ai_client.has_method("_debug_report"):
-			ai_client._debug_report("A", "date_bubble_controller.gd:_request_bubble_stream", "bubble request fallback before api call", {
-				"ai_client_null": ai_client == null,
-				"prompt_empty": prompt == ""
-			})
-		# #endregion
 		show_text(fallback)
 		return
 	_bubble_pending_requests.append({
@@ -213,12 +198,6 @@ func _request_bubble_stream(ai_client: Node, prompt: String, fallback: String, h
 		"fallback": fallback,
 		"history_type": history_type
 	})
-	if ai_client.has_method("_debug_report"):
-		ai_client._debug_report("A", "date_bubble_controller.gd:_request_bubble_stream", "bubble request queued", {
-			"history_type": history_type,
-			"queue_size": _bubble_pending_requests.size(),
-			"in_flight": _bubble_request_in_flight
-		})
 	if _bubble_request_in_flight:
 		return
 	_dispatch_next_bubble_request()
@@ -326,14 +305,6 @@ func _on_bubble_completed(response: Dictionary) -> void:
 	if response.has("choices") and response["choices"].size() > 0:
 		full_text = response["choices"][0]["message"]["content"]
 	var clean_text: String = _strip_bubble_action_descriptions(full_text)
-	# #region debug-point D:bubble-completed
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("D", "date_bubble_controller.gd:_on_bubble_completed", "bubble request completed", {
-			"raw_length": full_text.length(),
-			"clean_length": clean_text.length(),
-			"raw_preview": full_text.left(120)
-		})
-	# #endregion
 	_finish_current_bubble_request()
 	if clean_text.is_empty():
 		clean_text = _bubble_request_fallback_text
@@ -341,13 +312,6 @@ func _on_bubble_completed(response: Dictionary) -> void:
 
 
 func _on_bubble_failed(error_msg: String) -> void:
-	# #region debug-point C:bubble-failed
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("C", "date_bubble_controller.gd:_on_bubble_failed", "bubble request failed", {
-			"error": error_msg,
-			"fallback_preview": _bubble_request_fallback_text.left(80)
-		})
-	# #endregion
 	_finish_current_bubble_request()
 	show_text(_bubble_request_fallback_text)
 

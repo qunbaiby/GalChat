@@ -14,10 +14,6 @@ const GUIDE_LOCK_HINT := "当前处于新手引导中，暂未解锁该功能。
 const GuideOverlayScene = preload("res://scenes/ui/guide/guide_overlay.tscn")
 const ConditionManagerScript = preload("res://scripts/data/condition_manager.gd")
 const ConfirmDialogScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
-const GUIDE_DEBUG_ENV_PATH := "user://../.dbg/guide-highlight-overshoot.env"
-const GUIDE_DEBUG_URL := "http://127.0.0.1:7777/event"
-const GUIDE_DEBUG_SESSION := "guide-highlight-overshoot"
-const GUIDE_DEBUG_RUN_ID := "post-fix"
 
 const MAIN_SCENE_FEATURE_PATHS := {
 	"main.affection": "UIPanel/AffectionButton",
@@ -43,59 +39,6 @@ var _location_detail_panel_ref: WeakRef = null
 var _activity_panel_ref: WeakRef = null
 var _schedule_execution_panel_ref: WeakRef = null
 var _opt_in_dialog: Control = null
-
-#region debug-point B:guide-manager-highlight
-func _guide_debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
-	call_deferred("_guide_debug_send", hypothesis_id, location, msg, data.duplicate(true))
-
-func _guide_debug_send(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
-	var config := _guide_debug_read_config()
-	var http := HTTPRequest.new()
-	add_child(http)
-	http.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
-		if is_instance_valid(http):
-			http.queue_free()
-	, CONNECT_ONE_SHOT)
-	var payload := JSON.stringify({
-		"sessionId": str(config.get("session_id", GUIDE_DEBUG_SESSION)),
-		"runId": GUIDE_DEBUG_RUN_ID,
-		"hypothesisId": hypothesis_id,
-		"location": location,
-		"msg": msg,
-		"data": data,
-		"ts": Time.get_ticks_msec()
-	})
-	var err := http.request(
-		str(config.get("url", GUIDE_DEBUG_URL)),
-		PackedStringArray(["Content-Type: application/json"]),
-		HTTPClient.METHOD_POST,
-		payload
-	)
-	if err != OK and is_instance_valid(http):
-		http.queue_free()
-
-func _guide_debug_read_config() -> Dictionary:
-	var url := GUIDE_DEBUG_URL
-	var session_id := GUIDE_DEBUG_SESSION
-	var file := FileAccess.open(GUIDE_DEBUG_ENV_PATH, FileAccess.READ)
-	if file == null:
-		return {"url": url, "session_id": session_id}
-	while not file.eof_reached():
-		var line := file.get_line()
-		if line.begins_with("DEBUG_SERVER_URL="):
-			url = line.trim_prefix("DEBUG_SERVER_URL=").strip_edges()
-		elif line.begins_with("DEBUG_SESSION_ID="):
-			session_id = line.trim_prefix("DEBUG_SESSION_ID=").strip_edges()
-	return {"url": url, "session_id": session_id}
-
-func _guide_debug_rect_to_dict(rect: Rect2) -> Dictionary:
-	return {
-		"x": rect.position.x,
-		"y": rect.position.y,
-		"w": rect.size.x,
-		"h": rect.size.y
-	}
-#endregion
 
 func _ready() -> void:
 	_state = _build_default_state()
@@ -186,8 +129,6 @@ func _ensure_overlay() -> bool:
 			_overlay.hide_overlay()
 		if _overlay.has_signal("skip_pressed") and not _overlay.skip_pressed.is_connected(_on_overlay_skip_pressed):
 			_overlay.skip_pressed.connect(_on_overlay_skip_pressed)
-		if _overlay.has_signal("next_pressed") and not _overlay.next_pressed.is_connected(_on_overlay_next_pressed):
-			_overlay.next_pressed.connect(_on_overlay_next_pressed)
 	var tree := get_tree()
 	if tree == null or tree.root == null:
 		return false
@@ -218,17 +159,6 @@ func _attach_overlay_to_root() -> void:
 
 func _on_overlay_skip_pressed() -> void:
 	skip_active_guide()
-
-func _on_overlay_next_pressed() -> void:
-	var current_step := _get_current_step()
-	if current_step.is_empty():
-		return
-	var step_type := str(current_step.get("type", "message")).strip_edges()
-	if step_type == "explain" or bool(current_step.get("allow_next", false)):
-		_advance_step()
-
-func request_overlay_next_step() -> void:
-	_on_overlay_next_pressed()
 
 func on_main_scene_ready(main_scene: Node, just_finished_intro_story: bool = false) -> void:
 	_main_scene_ref = weakref(main_scene)
@@ -382,6 +312,9 @@ func is_guide_completed(guide_id: String) -> bool:
 
 func get_active_guide_id() -> String:
 	return str(_state.get("active_guide_id", "")).strip_edges()
+
+func get_current_step_id() -> String:
+	return str(_get_current_step().get("id", "")).strip_edges()
 
 func is_feature_unlocked(feature_id: String, default_unlocked: bool = true) -> bool:
 	var unlocks: Dictionary = _state.get("feature_unlocks", {})
@@ -539,23 +472,8 @@ func _show_step_overlay(guide_data: Dictionary, step_data: Dictionary, step_inde
 		if scene_hint != "":
 			step_text += "\n\n[color=#f2c98d]%s[/color]" % scene_hint
 	var focus_rects: Array[Rect2] = _resolve_step_focus_rects(step_data)
-	#region debug-point B:show-step-focus-rects
-	if step_data.get("id", "") == "explain_schedule_tabs" or step_data.get("id", "") == "explain_schedule_list":
-		var focus_rect_dicts: Array[Dictionary] = []
-		for rect in focus_rects:
-			focus_rect_dicts.append(_guide_debug_rect_to_dict(rect))
-		_guide_debug_report("B", "guide_manager.gd:_show_step_overlay", "[DEBUG] GuideManager 下发高亮矩形", {
-			"step_id": str(step_data.get("id", "")),
-			"target_mode": str(step_data.get("target_mode", "")),
-			"highlight_padding": float(step_data.get("highlight_padding", 0.0)),
-			"focus_rects": focus_rect_dicts
-		})
-	#endregion
-	var step_type: String = str(step_data.get("type", "message")).strip_edges()
-	var allow_next: bool = step_type == "explain" or bool(step_data.get("allow_next", false))
-	var next_label: String = str(step_data.get("next_label", "下一步")).strip_edges()
 	var focus_interaction_allowed: bool = _is_step_focus_interaction_allowed(step_data)
-	_overlay.show_step(guide_title, step_title, step_text, step_index + 1, total_steps, focus_rects, allow_next, next_label, focus_interaction_allowed)
+	_overlay.show_step(guide_title, step_title, step_text, step_index + 1, total_steps, focus_rects, focus_interaction_allowed)
 
 func _resolve_step_focus_rects(step_data: Dictionary) -> Array[Rect2]:
 	var focus_rects: Array[Rect2] = []
@@ -728,8 +646,14 @@ func _is_action_already_satisfied(action_id: String) -> bool:
 			var activity_panel := _resolve_activity_panel()
 			if is_instance_valid(activity_panel) and activity_panel.has_method("get_total_scheduled_count"):
 				return int(activity_panel.get_total_scheduled_count()) >= 5
+		"activity_click_main_event_slot":
+			return false
+		"activity_click_preview_panel":
+			return false
 		"activity_execute_schedule":
 			return is_instance_valid(_resolve_schedule_execution_panel())
+		"schedule_execution_click_area":
+			return false
 		"schedule_execution_advance":
 			var execution_panel := _resolve_schedule_execution_panel()
 			if is_instance_valid(execution_panel) and execution_panel.has_method("has_started_execution"):
@@ -833,23 +757,25 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 	match step_id:
 		"try_switch_category":
 			return interaction_id == "activity.category_tabs"
-		"pick_first_course", "fill_schedule_slots":
+		"explain_schedule_list", "explain_schedule_slots":
 			return interaction_id == "activity.category_tabs" or interaction_id == "activity.activity_list"
+		"explain_main_story_slot":
+			return interaction_id == "activity.main_event_slot"
 		"execute_schedule_plan":
 			return interaction_id == "activity.execute_button"
 		"explain_schedule_tabs":
 			return interaction_id == "activity.category_tabs"
-		"explain_schedule_list":
-			return interaction_id == "activity.category_tabs" or interaction_id == "activity.activity_list"
-		"explain_schedule_preview", "explain_schedule_slots", "explain_main_story_slot":
-			return false
+		"explain_schedule_preview":
+			return interaction_id == "activity.preview_panel"
+		"explain_execution_panel", "advance_first_course":
+			return interaction_id == "schedule_execution.click_area"
 		_:
 			return true
 
 func _is_step_focus_interaction_allowed(step_data: Dictionary) -> bool:
 	var step_id := str(step_data.get("id", "")).strip_edges()
 	match step_id:
-		"explain_schedule_tabs", "explain_schedule_list":
+		"explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "explain_execution_panel", "advance_first_course":
 			return true
 		_:
 			return false

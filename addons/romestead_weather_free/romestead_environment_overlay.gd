@@ -17,10 +17,6 @@ var _rain_motion_initialized := false
 var _last_effect_time := 0.0
 var _rain_motion_distance := 0.0
 var _rain_motion_speed := 0.0
-var _debug_server_url := "http://127.0.0.1:7777/event"
-var _debug_session_id := "yellow-screen-tint"
-var _debug_env_loaded := false
-var _debug_last_report_ms := {}
 
 const CLOUD_MASK_FILES := [
 	"sky/cloud_mask_01.png",
@@ -41,17 +37,6 @@ func _ready() -> void:
 	_load_weather_assets()
 	_load_atmosphere_assets()
 	_setup_atmosphere_layers()
-	# #region debug-point A:overlay-ready
-	_debug_report(
-		"A",
-		"romestead_environment_overlay.gd:_ready",
-		"[DEBUG] environment overlay ready",
-		{
-			"visible": visible,
-			"has_environment": environment != null
-		}
-	)
-	# #endregion
 
 
 func _draw() -> void:
@@ -381,34 +366,6 @@ func _draw_time_tint(rect: Rect2) -> void:
 	var warm: float = max(dawn, dusk) * lerp(1.0, 0.35, cloud_cover)
 	if warm > 0.0:
 		draw_rect(rect, Color(1.0, 0.48, 0.22, warm * 0.08), true)
-	# #region debug-point A:time-tint
-	_debug_report(
-		"A",
-		"romestead_environment_overlay.gd:_draw_time_tint",
-		"[DEBUG] overlay tint drawn",
-		{
-			"hour": snapped(hour, 0.001),
-			"ambient_color": {
-				"r": snapped(ambient.r, 0.001),
-				"g": snapped(ambient.g, 0.001),
-				"b": snapped(ambient.b, 0.001)
-			},
-			"night_curve": snapped(night_curve, 0.001),
-			"weather_curve": snapped(weather_curve, 0.001),
-			"darkness": snapped(darkness, 0.001),
-			"blue_alpha": snapped(blue_alpha, 0.001),
-			"dawn": snapped(dawn, 0.001),
-			"dusk": snapped(dusk, 0.001),
-			"warm": snapped(warm, 0.001),
-			"warm_alpha": snapped(warm * 0.08, 0.001),
-			"target_left": snapped(rect.position.x, 0.001),
-			"target_top": snapped(rect.position.y, 0.001),
-			"viewport_width": snapped(rect.size.x, 0.001),
-			"viewport_height": snapped(rect.size.y, 0.001)
-		},
-		2000
-	)
-	# #endregion
 
 
 func _draw_atmosphere_overlay(rect: Rect2, rainy_strength: float, thunder_strength: float, cloudy_strength: float, overcast_strength: float, foggy_strength: float) -> void:
@@ -1155,51 +1112,3 @@ func _target_rect() -> Rect2:
 				return target_rect
 	return Rect2()
 
-
-func _debug_ensure_env_loaded() -> void:
-	if _debug_env_loaded:
-		return
-	_debug_env_loaded = true
-	var env_path := ProjectSettings.globalize_path("res://.dbg/yellow-screen-tint.env")
-	if not FileAccess.file_exists(env_path):
-		return
-	var env_file := FileAccess.open(env_path, FileAccess.READ)
-	if env_file == null:
-		return
-	while not env_file.eof_reached():
-		var line := env_file.get_line().strip_edges()
-		if line.begins_with("DEBUG_SERVER_URL="):
-			_debug_server_url = line.trim_prefix("DEBUG_SERVER_URL=")
-		elif line.begins_with("DEBUG_SESSION_ID="):
-			_debug_session_id = line.trim_prefix("DEBUG_SESSION_ID=")
-
-
-func _debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}, min_interval_ms: int = 0) -> void:
-	_debug_ensure_env_loaded()
-	var now := Time.get_ticks_msec()
-	var throttle_key := "%s|%s" % [hypothesis_id, location]
-	var last_sent := int(_debug_last_report_ms.get(throttle_key, 0))
-	if min_interval_ms > 0 and now - last_sent < min_interval_ms:
-		return
-	_debug_last_report_ms[throttle_key] = now
-	var request := HTTPRequest.new()
-	add_child(request)
-	request.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
-		request.queue_free()
-	)
-	var err := request.request(
-		_debug_server_url,
-		PackedStringArray(["Content-Type: application/json"]),
-		HTTPClient.METHOD_POST,
-		JSON.stringify({
-			"sessionId": _debug_session_id,
-			"runId": "pre-fix",
-			"hypothesisId": hypothesis_id,
-			"location": location,
-			"msg": msg,
-			"data": data,
-			"ts": Time.get_unix_time_from_system() * 1000.0
-		})
-	)
-	if err != OK:
-		request.queue_free()

@@ -1,7 +1,6 @@
 extends Control
 
 signal skip_pressed
-signal next_pressed
 
 const DIM_COLOR := Color(0.02, 0.03, 0.06, 0.72)
 const ACCENT_SOFT_COLOR := Color(0.76, 0.90, 0.96, 1.0)
@@ -13,11 +12,6 @@ const BODY_SIDE_MARGIN := 14.0
 const BODY_VERTICAL_PADDING := 20.0
 const MIN_BODY_HEIGHT := 48.0
 const MAX_BODY_HEIGHT := 180.0
-const GUIDE_DEBUG_ENV_PATH := "user://../.dbg/guide-highlight-overshoot.env"
-const GUIDE_DEBUG_URL := "http://127.0.0.1:7777/event"
-const GUIDE_DEBUG_SESSION := "guide-highlight-overshoot"
-const GUIDE_DEBUG_RUN_ID := "post-fix"
-
 @onready var _panel_root: PanelContainer = $GuidePanel
 @onready var _guide_margin: MarginContainer = $GuidePanel/GuideMargin
 @onready var _guide_container: VBoxContainer = $GuidePanel/GuideMargin/GuideContainer
@@ -30,7 +24,6 @@ const GUIDE_DEBUG_RUN_ID := "post-fix"
 @onready var _footer_container: HBoxContainer = $GuidePanel/GuideMargin/GuideContainer/TitleContainer2
 @onready var _hint_label: Label = $GuidePanel/GuideMargin/GuideContainer/TitleContainer2/HintLabel
 @onready var _skip_button: Button = $GuidePanel/GuideMargin/GuideContainer/TitleContainer2/SkipButton
-@onready var _next_button: Button = $GuidePanel/GuideMargin/GuideContainer/TitleContainer2/NextButton
 
 var _focus_rects: Array[Rect2] = []
 var _focus_bounds: Rect2 = Rect2()
@@ -43,59 +36,6 @@ var _dim_segments: Array[ColorRect] = []
 var _focus_glows: Array[Panel] = []
 var _focus_frames: Array[Panel] = []
 
-#region debug-point C:guide-overlay-highlight
-func _guide_debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
-	call_deferred("_guide_debug_send", hypothesis_id, location, msg, data.duplicate(true))
-
-func _guide_debug_send(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
-	var config := _guide_debug_read_config()
-	var http := HTTPRequest.new()
-	add_child(http)
-	http.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
-		if is_instance_valid(http):
-			http.queue_free()
-	, CONNECT_ONE_SHOT)
-	var payload := JSON.stringify({
-		"sessionId": str(config.get("session_id", GUIDE_DEBUG_SESSION)),
-		"runId": GUIDE_DEBUG_RUN_ID,
-		"hypothesisId": hypothesis_id,
-		"location": location,
-		"msg": msg,
-		"data": data,
-		"ts": Time.get_ticks_msec()
-	})
-	var err := http.request(
-		str(config.get("url", GUIDE_DEBUG_URL)),
-		PackedStringArray(["Content-Type: application/json"]),
-		HTTPClient.METHOD_POST,
-		payload
-	)
-	if err != OK and is_instance_valid(http):
-		http.queue_free()
-
-func _guide_debug_read_config() -> Dictionary:
-	var url := GUIDE_DEBUG_URL
-	var session_id := GUIDE_DEBUG_SESSION
-	var file := FileAccess.open(GUIDE_DEBUG_ENV_PATH, FileAccess.READ)
-	if file == null:
-		return {"url": url, "session_id": session_id}
-	while not file.eof_reached():
-		var line := file.get_line()
-		if line.begins_with("DEBUG_SERVER_URL="):
-			url = line.trim_prefix("DEBUG_SERVER_URL=").strip_edges()
-		elif line.begins_with("DEBUG_SESSION_ID="):
-			session_id = line.trim_prefix("DEBUG_SESSION_ID=").strip_edges()
-	return {"url": url, "session_id": session_id}
-
-func _guide_debug_rect_to_dict(rect: Rect2) -> Dictionary:
-	return {
-		"x": rect.position.x,
-		"y": rect.position.y,
-		"w": rect.size.x,
-		"h": rect.size.y
-	}
-#endregion
-
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -107,8 +47,6 @@ func _ensure_ui() -> void:
 		return
 	if _skip_button != null and not _skip_button.pressed.is_connected(_on_skip_pressed):
 		_skip_button.pressed.connect(_on_skip_pressed)
-	if _next_button != null and not _next_button.pressed.is_connected(_on_next_pressed):
-		_next_button.pressed.connect(_on_next_pressed)
 	if _panel_root != null:
 		_panel_root.mouse_filter = Control.MOUSE_FILTER_STOP
 		_panel_root.z_index = 20
@@ -165,7 +103,7 @@ func _build_focus_frame(node_name: String) -> Panel:
 	panel.add_theme_stylebox_override("panel", frame_style)
 	return panel
 
-func show_step(guide_title: String, step_title: String, step_text: String, current_index: int, total_steps: int, focus_data: Variant = null, allow_next: bool = false, next_label: String = "下一步", focus_interaction_allowed: bool = false) -> void:
+func show_step(guide_title: String, step_title: String, step_text: String, current_index: int, total_steps: int, focus_data: Variant = null, focus_interaction_allowed: bool = false) -> void:
 	_ensure_ui()
 	var final_step_title := step_title.strip_edges()
 	if final_step_title == "":
@@ -174,10 +112,8 @@ func show_step(guide_title: String, step_title: String, step_text: String, curre
 	_title_label.text = final_step_title
 	_body_label.text = step_text.strip_edges()
 	_body_label.scroll_to_line(0)
-	_next_button.visible = allow_next
-	_next_button.text = next_label
 	_apply_focus_rects(_normalize_focus_input(focus_data))
-	_hint_label.text = _build_hint_text(allow_next, focus_interaction_allowed)
+	_hint_label.text = _build_hint_text(focus_interaction_allowed)
 	show()
 	_panel_root.visible = true
 	call_deferred("_refresh_overlay_layout")
@@ -190,23 +126,11 @@ func hide_overlay() -> void:
 func _on_skip_pressed() -> void:
 	skip_pressed.emit()
 
-func _on_next_pressed() -> void:
-	var guide_manager := get_node_or_null("/root/GuideManager")
-	if guide_manager != null and guide_manager.has_method("request_overlay_next_step"):
-		guide_manager.request_overlay_next_step()
-		return
-	if guide_manager != null and guide_manager.has_method("_on_overlay_next_pressed"):
-		guide_manager.call("_on_overlay_next_pressed")
-		return
-	next_pressed.emit()
-
-func _build_hint_text(allow_next: bool, focus_interaction_allowed: bool) -> String:
+func _build_hint_text(focus_interaction_allowed: bool) -> String:
 	if _focus_rects.is_empty():
-		return "阅读提示后继续下一步"
-	if allow_next:
-		if focus_interaction_allowed:
-			return "仅高亮区域可操作，也可以直接点击下一步"
-		return "当前为说明步骤，可直接点击下一步"
+		return "请阅读当前提示"
+	if focus_interaction_allowed:
+		return "请点击当前高亮区域继续"
 	return "请按当前高亮区域完成操作"
 
 func _normalize_focus_input(focus_data: Variant) -> Array[Rect2]:
@@ -239,15 +163,6 @@ func _apply_focus_rects(focus_rects: Array[Rect2]) -> void:
 	_ensure_ui()
 	_focus_rects = focus_rects
 	_focus_bounds = _calculate_focus_bounds(_focus_rects)
-	#region debug-point C:apply-focus-rects
-	var focus_rect_dicts: Array[Dictionary] = []
-	for rect in _focus_rects:
-		focus_rect_dicts.append(_guide_debug_rect_to_dict(rect))
-	_guide_debug_report("C", "guide_overlay.gd:_apply_focus_rects", "[DEBUG] GuideOverlay 应用高亮矩形", {
-		"focus_rects": focus_rect_dicts,
-		"focus_bounds": _guide_debug_rect_to_dict(_focus_bounds)
-	})
-	#endregion
 	_rebuild_dim_segments()
 	_rebuild_focus_frames()
 	queue_redraw()
@@ -342,8 +257,6 @@ func _rebuild_dim_segments() -> void:
 
 func _rebuild_focus_frames() -> void:
 	_ensure_focus_frame_count(_focus_rects.size())
-	var debug_glow_rects: Array[Dictionary] = []
-	var debug_frame_rects: Array[Dictionary] = []
 	for index in range(_focus_glows.size()):
 		var glow_panel := _focus_glows[index]
 		var frame_panel := _focus_frames[index]
@@ -353,19 +266,11 @@ func _rebuild_focus_frames() -> void:
 			glow_panel.size = Vector2(ceilf(rect.size.x), ceilf(rect.size.y))
 			frame_panel.position = rect.position.floor()
 			frame_panel.size = Vector2(ceilf(rect.size.x), ceilf(rect.size.y))
-			debug_glow_rects.append(_guide_debug_rect_to_dict(Rect2(glow_panel.position, glow_panel.size)))
-			debug_frame_rects.append(_guide_debug_rect_to_dict(Rect2(frame_panel.position, frame_panel.size)))
 			glow_panel.visible = true
 			frame_panel.visible = true
 		else:
 			glow_panel.visible = false
 			frame_panel.visible = false
-	#region debug-point C:rebuild-focus-frames
-	_guide_debug_report("C", "guide_overlay.gd:_rebuild_focus_frames", "[DEBUG] GuideOverlay 最终绘制矩形", {
-		"glow_rects": debug_glow_rects,
-		"frame_rects": debug_frame_rects
-	})
-	#endregion
 
 func _layout_panel_relative_to_focus() -> void:
 	_ensure_ui()
@@ -402,8 +307,6 @@ func _prepare_adaptive_panel_metrics(panel_width: float, viewport_height: float)
 	var progress_chip_width := _progress_chip.get_combined_minimum_size().x
 	var title_width := maxf(160.0, content_width - progress_chip_width - PANEL_INNER_SPACING)
 	var footer_buttons_width := _skip_button.custom_minimum_size.x
-	if _next_button.visible:
-		footer_buttons_width += PANEL_INNER_SPACING + _next_button.custom_minimum_size.x
 	var hint_width := maxf(120.0, content_width - footer_buttons_width - PANEL_INNER_SPACING)
 	var body_width := maxf(180.0, content_width - BODY_SIDE_MARGIN * 2.0)
 	var body_max_height := minf(MAX_BODY_HEIGHT, viewport_height * 0.26)

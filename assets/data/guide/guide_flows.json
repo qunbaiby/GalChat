@@ -29,14 +29,14 @@
                     "requires_scene": "activity",
                     "target_mode": "category_tabs",
                     "hide_until_scene_ready": true,
-                    "allow_next": true,
                     "highlight_padding": 0
                 },
                 {
                     "id": "explain_schedule_list",
-                    "type": "explain",
+                    "type": "wait_action",
                     "title": "课程列表区域",
-                    "text": "这里会显示你刚才选中分类下的课程列表。以后切换上方 tab，这里的候选课程也会跟着变化。",
+                    "text": "这里会显示你刚才选中分类下的课程列表。现在可以继续切换上方 tab，然后从这里点击一门课程，把它安排到下方 MorningRow 的槽位里。",
+                    "wait_action": "activity_add_course",
                     "target_scene": "activity",
                     "requires_scene": "activity",
                     "target_mode": "activity_list",
@@ -47,60 +47,38 @@
                         }
                     ],
                     "hide_until_scene_ready": true,
-                    "highlight_padding": 0
-                },
-                {
-                    "id": "pick_first_course",
-                    "type": "wait_action",
-                    "title": "先选一门课程",
-                    "text": "现在 tab 和课程列表都可以操作了。你可以继续切换分类，然后从课程列表里选择一门课程，把它加入下方槽位。",
-                    "wait_action": "activity_add_course",
-                    "target_scene": "activity",
-                    "requires_scene": "activity",
-                    "target_mode": "category_tabs",
-                    "focus_targets": [
-                        {
-                            "target_mode": "activity_list"
-                        }
-                    ],
-                    "hide_until_scene_ready": true,
-                    "skip_if_action_already_done": true,
-                    "highlight_padding": 0
-                },
-                {
-                    "id": "fill_schedule_slots",
-                    "type": "wait_action",
-                    "title": "排满本周槽位",
-                    "text": "继续安排课程，把本周 5 个槽位全部排满。安排过程中你仍然可以切 tab 挑课程，主线剧情占位槽也会占用其中的位置。",
-                    "wait_action": "activity_schedule_full",
-                    "target_scene": "activity",
-                    "requires_scene": "activity",
-                    "target_mode": "category_tabs",
-                    "focus_targets": [
-                        {
-                            "target_mode": "activity_list"
-                        }
-                    ],
-                    "hide_until_scene_ready": true,
                     "skip_if_action_already_done": true,
                     "highlight_padding": 0
                 },
                 {
                     "id": "explain_schedule_slots",
-                    "type": "explain",
-                    "title": "课程槽位",
-                    "text": "现在下方这排就是本周课程槽位。你刚才选择的课程都会依次填进这里，排满后才能执行整周安排。",
+                    "type": "wait_action",
+                    "title": "MorningRow 槽位",
+                    "text": "你刚才选中的课程已经进入下方 MorningRow。接下来继续安排课程，把本周 5 个槽位全部排满。当前你可以一边切 tab 挑课程，一边观察 MorningRow 的排课结果。",
+                    "wait_action": "activity_schedule_full",
                     "target_scene": "activity",
                     "requires_scene": "activity",
                     "target_mode": "schedule_slots",
+                    "focus_targets": [
+                        {
+                            "target_mode": "category_tabs",
+                            "highlight_padding": 0
+                        },
+                        {
+                            "target_mode": "activity_list",
+                            "highlight_padding": 0
+                        }
+                    ],
                     "hide_until_scene_ready": true,
-                    "highlight_padding": 4
+                    "skip_if_action_already_done": true,
+                    "highlight_padding": 0
                 },
                 {
                     "id": "explain_main_story_slot",
-                    "type": "explain",
+                    "type": "wait_action",
                     "title": "主线剧情占位槽",
                     "text": "这个带特殊边框和图标的槽位是主线剧情占位槽。它代表固定剧情事件，会自动保留在本周安排里，不属于玩家自由选课的普通课程槽位。",
+                    "wait_action": "activity_click_main_event_slot",
                     "target_scene": "activity",
                     "requires_scene": "activity",
                     "target_mode": "main_event_slot",
@@ -110,9 +88,10 @@
                 },
                 {
                     "id": "explain_schedule_preview",
-                    "type": "explain",
+                    "type": "wait_action",
                     "title": "属性预览面板",
                     "text": "右侧是本周安排的属性预览面板，会根据当前排课情况实时展示心情、金币消耗和各项属性的预计变化。",
+                    "wait_action": "activity_click_preview_panel",
                     "target_scene": "activity",
                     "requires_scene": "activity",
                     "target_path": "BackgroundPanel/Margin/MainHBox/RightPanel",
@@ -132,9 +111,10 @@
                 },
                 {
                     "id": "explain_execution_panel",
-                    "type": "explain",
+                    "type": "wait_action",
                     "title": "课程执行面板",
                     "text": "这里就是课程执行面板。中间的大区域负责推进课程执行，上方会显示当前课程内容，下方轨道会展示本周课程推进进度。",
+                    "wait_action": "schedule_execution_click_area",
                     "target_scene": "schedule_execution",
                     "requires_scene": "schedule_execution",
                     "target_mode": "click_area",

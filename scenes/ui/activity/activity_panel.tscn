@@ -1,7 +1,6 @@
-[gd_scene load_steps=20 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene load_steps=18 format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
-[ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="6_3k5eb"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
 [ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
@@ -137,21 +136,6 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LoadingPanel"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.18, 0.28, 0.33, 0.14)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
-
 [node name="ActivityPanel" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -233,10 +217,13 @@ text = "第 1 周"
 
 [node name="CategoryTabs" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox"]
 layout_mode = 2
+size_flags_horizontal = 4
 theme_override_constants/separation = 10
 
 [node name="CategoryContentCard" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox"]
+custom_minimum_size = Vector2(770, 0)
 layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 

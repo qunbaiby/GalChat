@@ -629,11 +629,17 @@ func _process_course_at_index(course_index: int) -> void:
 		_finish_slot_move()
 	
 func _on_click_area_pressed() -> void:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		var current_step_id := str(guide_manager.get_current_step_id())
+		if current_step_id == "explain_execution_panel":
+			if guide_manager.has_method("report_action"):
+				guide_manager.report_action("schedule_execution_click_area")
+			return
 	if _is_moving:
 		return
 	if not _has_started_execution:
 		_has_started_execution = true
-		var guide_manager = get_node_or_null("/root/GuideManager")
 		if guide_manager and guide_manager.has_method("report_action"):
 			guide_manager.report_action("schedule_execution_advance")
 		

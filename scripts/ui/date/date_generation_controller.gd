@@ -53,14 +53,6 @@ func start_date_plan(plan_list: Array) -> void:
 	_pending_date_request = prepared_request
 	var fallback_script: Dictionary = prepared_request.get("fallback_script", {})
 	var client := _find_deepseek_client()
-	# #region debug-point A:date-plan-entry
-	if client and client.has_method("_debug_report"):
-		client._debug_report("A", "date_generation_controller.gd:start_date_plan", "start date plan generation", {
-			"plan_count": plan_list.size(),
-			"location_names": context.get("location_names", []),
-			"fallback_summary": str(fallback_script.get("summary", "")).left(80)
-		})
-	# #endregion
 	_show_date_loading_overlay(context)
 	if client == null:
 		if ToastManager:
@@ -110,31 +102,8 @@ func _disconnect_date_story_signals() -> void:
 func _on_date_story_generated(script_data: Dictionary) -> void:
 	var fallback_script: Dictionary = _active_segment_request.get("fallback_script", {})
 	var context: Dictionary = _active_segment_request.get("context", {})
-	# #region debug-point C:date-story-generated
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("C", "date_generation_controller.gd:_on_date_story_generated", "date story signal generated", {
-			"segment_index": _current_segment_request_index,
-			"raw_keys": script_data.keys(),
-			"raw_summary": str(script_data.get("summary", "")).left(80),
-			"raw_segment_summary": _summarize_raw_segments(script_data.get("segments", []))
-		})
-	# #endregion
 	var final_script := _date_story_manager.sanitize_generated_story(script_data, context, fallback_script)
 	var used_fallback := _looks_like_fallback_story(final_script, fallback_script)
-	# #region debug-point D:date-story-sanitize
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("D", "date_generation_controller.gd:_on_date_story_generated", "date story sanitized", {
-			"segment_index": _current_segment_request_index,
-			"used_fallback": used_fallback,
-			"retry_count": _date_story_retry_count,
-			"final_summary": str(final_script.get("summary", "")).left(80),
-			"final_event_count": _extract_story_event_count(final_script),
-			"fallback_event_count": _extract_story_event_count(fallback_script),
-			"final_segment_summary": _summarize_final_segments(final_script),
-			"final_period_card_count": _count_events_by_type(final_script, "period_card"),
-			"final_background_count": _count_events_by_type(final_script, "background")
-		})
-	# #endregion
 	if used_fallback and _date_story_retry_count < MAX_DATE_STORY_RETRIES:
 		_retry_date_story_generation("sanitize_fallback")
 		return
@@ -143,14 +112,6 @@ func _on_date_story_generated(script_data: Dictionary) -> void:
 
 
 func _on_date_story_error(error_msg: String) -> void:
-	# #region debug-point B:date-story-error
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("B", "date_generation_controller.gd:_on_date_story_error", "date story signal error", {
-			"error": error_msg,
-			"segment_index": _current_segment_request_index,
-			"retry_count": _date_story_retry_count
-		})
-	# #endregion
 	if _date_story_retry_count < MAX_DATE_STORY_RETRIES:
 		_retry_date_story_generation("service_error")
 		return
@@ -171,12 +132,6 @@ func _dispatch_date_story_request() -> void:
 
 func _retry_date_story_generation(reason: String) -> void:
 	_date_story_retry_count += 1
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("D", "date_generation_controller.gd:_retry_date_story_generation", "retry date story generation", {
-			"reason": reason,
-			"segment_index": _current_segment_request_index,
-			"retry_count": _date_story_retry_count
-		})
 	_dispatch_date_story_request()
 
 
@@ -240,12 +195,6 @@ func _dispatch_next_segment_request() -> void:
 		return
 	_date_story_retry_count = 0
 	_active_segment_request = _build_segment_request(_current_segment_request_index)
-	if _deepseek_client and _deepseek_client.has_method("_debug_report"):
-		_deepseek_client._debug_report("A", "date_generation_controller.gd:_dispatch_next_segment_request", "dispatch segment request", {
-			"segment_index": _current_segment_request_index,
-			"segment_total": plan_segments.size(),
-			"location_name": str((_active_segment_request.get("context", {}) as Dictionary).get("summary_hint", ""))
-		})
 	_dispatch_date_story_request()
 
 

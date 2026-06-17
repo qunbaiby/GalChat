@@ -19,25 +19,11 @@ func generate_date_story(client, context: Dictionary) -> void:
 		"max_tokens": 1000 if retry_count > 0 else (1400 if single_segment_mode else 1500)
 	}
 	body["response_format"] = {"type": "json_object"}
-	# #region debug-point A:date-story-request
-	client._debug_report("A", "deepseek_scene_event_service.gd:generate_date_story", "prepare date story request", {
-		"model": client.get_chat_model_id(),
-		"temperature": body.get("temperature", null),
-		"max_tokens": body.get("max_tokens", null),
-		"retry_count": retry_count,
-		"plan_count": plan_segments.size(),
-		"location_names": context.get("location_names", [])
-	})
-	# #endregion
 	if client.date_story_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		client.date_story_http.cancel_request()
 	var err: int = client.date_story_http.request(client._get_url(), client._get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
-	# #region debug-point A:date-story-request-dispatch
-	client._debug_report("A", "deepseek_scene_event_service.gd:generate_date_story", "dispatch date story request", {
-		"request_error": err,
-		"url": client._get_url()
-	})
-	# #endregion
+	if err != OK:
+		client.date_story_error.emit("约会剧情请求发送失败")
 
 func generate_schedule_event(client, course_name: String, course_desc: String, context: Dictionary = {}) -> void:
 	while not client.is_inside_tree():
@@ -167,36 +153,12 @@ func _extract_error_message(body: PackedByteArray) -> String:
 	return raw_text.left(180)
 
 func handle_date_story_completed(client, result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	# #region debug-point B:date-story-response
-	client._debug_report("B", "deepseek_scene_event_service.gd:handle_date_story_completed", "date story response received", {
-		"result": result,
-		"http_code": response_code,
-		"body_preview": body.get_string_from_utf8().strip_edges().left(240)
-	})
-	# #endregion
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
 		var script_data: Variant = _extract_json_object_from_response(body)
 		if script_data is Dictionary:
-			# #region debug-point C:date-story-parse-ok
-			client._debug_report("C", "deepseek_scene_event_service.gd:handle_date_story_completed", "date story parsed as dictionary", {
-				"top_level_keys": (script_data as Dictionary).keys(),
-				"has_segments": (script_data as Dictionary).get("segments", null) is Array,
-				"segment_count": ((script_data as Dictionary).get("segments", []) as Array).size(),
-				"segment_line_counts": _summarize_segment_line_counts((script_data as Dictionary).get("segments", [])),
-				"segment_char_counts": _summarize_segment_char_counts((script_data as Dictionary).get("segments", []))
-			})
-			# #endregion
 			client.date_story_generated.emit(script_data)
 			return
 		var raw_preview := body.get_string_from_utf8().strip_edges().left(240)
-		var inspect := _inspect_json_object_from_response(body)
-		# #region debug-point C:date-story-parse-failed
-		client._debug_report("C", "deepseek_scene_event_service.gd:handle_date_story_completed", "date story parse failed", {
-			"http_code": response_code,
-			"raw_preview": raw_preview,
-			"inspect": inspect
-		})
-		# #endregion
 		client.date_story_error.emit("约会剧情响应不是有效 JSON，可能是模型输出被截断或格式不符。响应片段：%s" % raw_preview)
 		return
 	var detail := _extract_error_message(body)
@@ -205,13 +167,6 @@ func handle_date_story_completed(client, result: int, response_code: int, _heade
 		message = "约会剧情请求失败 (Result %d, HTTP %d)" % [result, response_code]
 	if detail != "":
 		message += "：%s" % detail
-	# #region debug-point B:date-story-failed
-	client._debug_report("B", "deepseek_scene_event_service.gd:handle_date_story_completed", "date story request failed", {
-		"result": result,
-		"http_code": response_code,
-		"detail": detail
-	})
-	# #endregion
 	client.date_story_error.emit(message)
 
 
