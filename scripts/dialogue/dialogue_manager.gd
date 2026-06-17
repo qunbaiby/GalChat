@@ -771,6 +771,9 @@ func _on_script_finished(script_id: String) -> void:
 		var event_manager = get_node_or_null("/root/EventManager")
 		if event_manager and event_manager.has_method("try_mark_event_by_story"):
 			event_manager.try_mark_event_by_story(script_id)
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("report_story_finished"):
+		guide_manager.report_story_finished(script_id, script_meta)
 	if is_runtime_generated or is_first_completion:
 		_register_story_completion_memory(script_id)
 	if is_date_story:

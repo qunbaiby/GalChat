@@ -502,6 +502,7 @@ func _is_ui_blocked() -> bool:
 func _on_main_chat_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(chat_button)
+	_report_guide_action("open_main_chat")
 	
 	if _ui_tween:
 		_ui_tween.kill()
@@ -738,6 +739,7 @@ func _on_date_pressed() -> void:
 			var date_scene = date_scene_res.instantiate()
 			ui_panel.add_child(date_scene)
 			date_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			_report_guide_action("open_date")
 
 func _on_gift_pressed() -> void:
 	if _is_ui_blocked(): return
@@ -756,6 +758,7 @@ func _on_gift_pressed() -> void:
 				
 			if popup.has_method("show_panel"):
 				popup.show_panel()
+			_report_guide_action("open_gift")
 
 func _on_gift_sent(gift_data: Dictionary) -> void:
 	var gift_id = gift_data.get("id", "")
@@ -767,6 +770,7 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 	if not res.success:
 		ToastManager.show_system_toast(res.msg, Color.RED)
 		return
+	_report_guide_action("send_gift")
 		
 	# 显示Toast
 	ToastManager.show_toast("送出了 [%s]" % gift_data.get("name", "礼物"), Color(0.6, 0.4, 0.8, 0.9))
@@ -1974,8 +1978,12 @@ func _ready() -> void:
 	_update_button_states_by_time()
 	
 	# 进入主场景后只保留主动问候气泡，不再自动拉起记忆回访对话面板。
-	if GameDataManager.get_meta("just_finished_intro_story", false):
+	var did_just_finish_intro_story := bool(GameDataManager.get_meta("just_finished_intro_story", false))
+	if did_just_finish_intro_story:
 		GameDataManager.set_meta("just_finished_intro_story", false)
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("on_main_scene_ready"):
+		guide_manager.on_main_scene_ready(self, did_just_finish_intro_story)
 	await get_tree().create_timer(1.0).timeout
 	if is_inside_tree():
 		_trigger_proactive_greeting()
@@ -2083,8 +2091,20 @@ func _sync_interaction_entry_mutual_exclusion() -> void:
 		interact_group.visible = false
 		interact_group.modulate.a = 0.0
 
+func _get_guide_manager() -> Node:
+	return get_node_or_null("/root/GuideManager")
+
+func _report_guide_action(action_id: String) -> void:
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action(action_id)
+
 func _update_button_states_by_time() -> void:
-	if not GameDataManager.story_time_manager: return
+	if not GameDataManager.story_time_manager:
+		var guide_manager := _get_guide_manager()
+		if guide_manager and guide_manager.has_method("apply_main_scene_feature_states"):
+			guide_manager.apply_main_scene_feature_states(self)
+		return
 	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
 	var weekday = date_dict.weekday
 	var current_hour = GameDataManager.story_time_manager.current_hour
@@ -2098,6 +2118,9 @@ func _update_button_states_by_time() -> void:
 		if interact_trigger_btn:
 			interact_trigger_btn.visible = false
 			interact_trigger_btn.modulate.a = 0.0
+		var guide_manager := _get_guide_manager()
+		if guide_manager and guide_manager.has_method("apply_main_scene_feature_states"):
+			guide_manager.apply_main_scene_feature_states(self)
 		return
 	
 	# 1. 休息到周六或周日：外出解禁，课程安排禁用，显示互动触发按钮
@@ -2139,6 +2162,9 @@ func _update_button_states_by_time() -> void:
 			if rest_button:
 				rest_button.hide()
 				rest_button.disabled = true
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("apply_main_scene_feature_states"):
+		guide_manager.apply_main_scene_feature_states(self)
 
 func _set_interaction_ui_hidden_for_dialogue(hidden: bool) -> void:
 	_interaction_ui_locked_by_dialogue = hidden
@@ -2562,6 +2588,7 @@ func _on_wechat_pressed() -> void:
 	if mobile_interface_instance and mobile_interface_instance.has_method("open_wechat_directly"):
 		await get_tree().process_frame
 		mobile_interface_instance.open_wechat_directly(true)
+		_report_guide_action("open_wechat")
 
 var _wechat_shake_tween: Tween = null
 
@@ -2615,6 +2642,7 @@ func _ensure_mobile_interface() -> void:
 func _on_phone_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(phone_button)
+	_report_guide_action("open_phone")
 	_ensure_mobile_interface()
 	_phone_mode_active = true
 	if interact_group:
@@ -2662,6 +2690,7 @@ func _on_main_action_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(main_action_button)
 	if _main_action_mode == "map":
+		_report_guide_action("open_map")
 		print("[MainScene] Map button pressed")
 		if GameDataManager.profile:
 			if GameDataManager.profile.neuroticism >= 80.0:
@@ -2680,6 +2709,7 @@ func _on_main_action_pressed() -> void:
 			add_child(activity_panel_instance)
 			activity_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		activity_panel_instance.show_panel()
+		_report_guide_action("open_schedule")
 
 func _sync_background_weather_layer() -> void:
 	var weather_bridge = get_tree().root.get_node_or_null("GameDataManager/WeatherBridge")
@@ -2910,11 +2940,13 @@ func _on_affection_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(affection_button)
 	_show_affection_popup()
+	_report_guide_action("open_affection")
 
 func _on_diary_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(diary_button)
 	diary_panel.show_diary()
+	_report_guide_action("open_diary")
 
 func _on_wardrobe_pressed() -> void:
 	if _is_ui_blocked(): return

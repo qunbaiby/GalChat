@@ -357,19 +357,20 @@ func send_idle_quote_generation(client, char_id: String) -> void:
 	var idle_pool: Dictionary = _build_idle_quote_random_pool(profile, stage_conf, rng, time_context, weather_context, mood_id, mood, mood_guidance, stage_title, stage_guidance)
 	var random_pool_text: String = str(idle_pool.get("prompt_text", ""))
 	var selected_categories: Array = idle_pool.get("categories", [])
+	var bubble_guidance_lines: Array[String] = [
+		"当前主场景时段：%s（%02d点，%s）。" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))],
+		"当前剧情天气：%s。" % str(weather_context.get("desc", "晴天")),
+		"时段引导：%s" % str(time_context.get("guidance", "")),
+		"天气引导：%s" % str(weather_context.get("guidance", "")),
+		"心情引导：%s" % mood_guidance,
+		"关系引导：%s" % stage_guidance,
+		"本次优先子类：%s" % " / ".join(PackedStringArray(selected_categories)),
+		"这次更偏向挂机闲聊，所以要像陪伴中的自然碎碎念，不要像专门打招呼，也不要像剧情推进台词。"
+	]
 	var shared_strategy: String = GameDataManager.prompt_manager.build_main_scene_bubble_strategy_block(
 		profile,
 		"这是主场景里的挂机闲聊气泡，不是正式剧情开场，而是一句自然飘出来的陪伴式碎碎念。",
-		[
-			"当前主场景时段：%s（%02d点，%s）。" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))],
-			"当前剧情天气：%s。" % str(weather_context.get("desc", "晴天")),
-			"时段引导：%s" % str(time_context.get("guidance", "")),
-			"天气引导：%s" % str(weather_context.get("guidance", "")),
-			"心情引导：%s" % mood_guidance,
-			"关系引导：%s" % stage_guidance,
-			"本次优先子类：%s" % " / ".join(PackedStringArray(selected_categories)),
-			"这次更偏向挂机闲聊，所以要像陪伴中的自然碎碎念，不要像专门打招呼，也不要像剧情推进台词。"
-		]
+		bubble_guidance_lines
 	)
 	var system_prompt := "【系统设定】\n"
 	system_prompt += "你扮演的角色是：%s。\n" % char_name

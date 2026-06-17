@@ -1,5 +1,7 @@
 extends Node
 
+const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
+
 const DYNAMIC_STYLES: Array[Dictionary] = [
 	{ "name": "单段回复", "weight": 35, "text": "【分段策略：单段回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 20 到 50 字之间，总字数不超过 65 字。【强制要求：请一次性发送完整内容，绝对不要使用 [SPLIT] 拆分段落】。【极度致命警告：你的整个回复中，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完这个括号后必须全是台词，句尾或句中绝对、绝对不准再出现任何括号描写，否则系统会崩溃！】" },
 	{ "name": "双段连续", "weight": 40, "text": "【分段策略：双段连续】请将你的回答分成 2 段发送。要求：【绝对强制】你必须在两段之间严格插入 [SPLIT] 字符串作为唯一的分隔符（例如：第一段[SPLIT]第二段）！每段包含 40 到 80 字的真实台词对话（总字数不超过 250 字）。【极度致命警告：被 [SPLIT] 隔开的每一个段落，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完括号后必须全是台词，段落中间或结尾绝对不准再出现任何括号描写，否则系统会崩溃！】" },
@@ -400,7 +402,7 @@ func _build_proactive_greeting_type_desc(prompt_type: String) -> String:
 	return type_desc
 
 func _pick_shared_main_scene_bubble_categories(profile: CharacterProfile, whitelist: Array[String]) -> Array[String]:
-	var deepseek_client = GameDataManager.get_deepseek_client() if GameDataManager else null
+	var deepseek_client = DeepSeekClientLocator.find(self)
 	var idle_service = null
 	if deepseek_client and deepseek_client.has_method("get"):
 		idle_service = deepseek_client.get("_idle_quote_service")

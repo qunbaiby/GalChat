@@ -82,6 +82,10 @@ func _ready():
 			if fallback_area_id != "":
 				_on_area_pressed(fallback_area_id, true)
 
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_world_map_scene_ready"):
+		guide_manager.on_world_map_scene_ready(self)
+
 func _apply_time_filter():
 	pass # 交由全局的天气/环境系统处理
 
@@ -256,14 +260,6 @@ func _show_locations_for_area(area_id: String):
 			if target_pos == Vector2.ZERO:
 				target_pos = fallback_positions[i % fallback_positions.size()]
 			
-			# 取消坐标越界限制，允许玩家在 JSON 中自由配置任意坐标
-			# (注意：超出 SubAreaContainer 的部分可能会被 TopBar/BottomBar 遮挡或跑到屏幕外)
-			# var max_x = max(0, sub_area_container.size.x - btn_size.x)
-			# var max_y = max(0, sub_area_container.size.y - btn_size.y)
-			# if target_pos.x > max_x or target_pos.y > max_y:
-			#      print("[WorldMap] 警告：地点 ", loc.get("id"), " 配置的坐标 (", target_pos.x, ", ", target_pos.y, ") 超出了安全显示区域！已被强制限制为边界值。最大允许范围：(0~", max_x, ", 0~", max_y, ")")
-			# target_pos.x = clamp(target_pos.x, 0, max_x)
-			# target_pos.y = clamp(target_pos.y, 0, max_y)
 			
 			btn.position = target_pos
 			
@@ -289,6 +285,11 @@ func _on_location_pressed(location_id: String):
 
 	if MapDataManager.has_method("set_last_location"):
 		MapDataManager.set_last_location(location_id)
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action("select_map_location", {
+			"location_id": location_id
+		})
 		
 	# Transition to exploration map
 	location_selected.emit(location_id)
@@ -304,10 +305,27 @@ func _on_location_pressed(location_id: String):
 		add_child(panel)
 		panel.setup(location_id)
 		panel.enter_pressed.connect(_on_location_enter_pressed)
+		if guide_manager and guide_manager.has_method("on_location_detail_panel_ready"):
+			guide_manager.on_location_detail_panel_ready(panel)
+
+func get_first_unlocked_location_button() -> Control:
+	for child in sub_area_container.get_children():
+		if child is Button:
+			var btn := child as Button
+			if btn.disabled:
+				continue
+			return btn
+	return null
 
 func _on_location_enter_pressed(location_id: String, npc_id: String):
 	if _location_entry_transition_busy:
 		return
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action("enter_location_detail", {
+			"location_id": location_id,
+			"npc_id": npc_id
+		})
 	
 	var entry_story = MapDataManager.get_location_entry_story(location_id)
 	if not entry_story.is_empty():

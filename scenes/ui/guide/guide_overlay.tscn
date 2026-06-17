@@ -1,0 +1,178 @@
+[gd_scene format=3 uid="uid://cebx26v2u7evp"]
+
+[ext_resource type="Script" uid="uid://bl0db5cv2qvjb" path="res://scripts/ui/guide/guide_overlay.gd" id="2_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(0.06, 0.09, 0.14, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.48, 0.73, 0.78, 0.92)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.01, 0.02, 0.04, 0.24)
+shadow_size = 28
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressChip"]
+bg_color = Color(0.15, 0.14, 0.2, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.54, 0.46, 0.68, 0.85)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BodyCard"]
+bg_color = Color(0.11, 0.16, 0.24, 0.74)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.27, 0.37, 0.48, 0.78)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.01, 0.02, 0.04, 0.1)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
+bg_color = Color(0.17, 0.21, 0.29, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.39, 0.5, 0.61, 0.72)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
+bg_color = Color(0.44, 0.72, 0.75, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7, 0.91, 0.93, 0.92)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[node name="GuideOverlay" type="Control" unique_id=1404899017]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("2_script")
+
+[node name="GuidePanel" type="PanelContainer" parent="." unique_id=1619131671]
+layout_mode = 0
+offset_right = 440.0
+offset_bottom = 235.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="GuideMargin" type="MarginContainer" parent="GuidePanel" unique_id=1013887578]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="GuideContainer" type="VBoxContainer" parent="GuidePanel/GuideMargin" unique_id=896534527]
+layout_mode = 2
+
+[node name="TitleContainer" type="HBoxContainer" parent="GuidePanel/GuideMargin/GuideContainer" unique_id=2019161435]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer" unique_id=1227554828]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.98, 0.98, 0.99, 1)
+theme_override_font_sizes/font_size = 22
+text = "当前步骤"
+autowrap_mode = 3
+
+[node name="ProgressChip" type="PanelContainer" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer" unique_id=2079674787]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ProgressChip")
+
+[node name="ProgressChipMargin" type="MarginContainer" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer/ProgressChip" unique_id=1000535821]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="ProgressChipLabel" type="Label" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer/ProgressChip/ProgressChipMargin" unique_id=1112869807]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.8, 0.61, 1)
+theme_override_font_sizes/font_size = 13
+text = "1 / 1"
+
+[node name="BodyCard" type="PanelContainer" parent="GuidePanel/GuideMargin/GuideContainer" unique_id=186216344]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_BodyCard")
+
+[node name="BodyMargin" type="MarginContainer" parent="GuidePanel/GuideMargin/GuideContainer/BodyCard" unique_id=1326511311]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="BodyLabel" type="RichTextLabel" parent="GuidePanel/GuideMargin/GuideContainer/BodyCard/BodyMargin" unique_id=103099883]
+layout_mode = 2
+theme_override_colors/default_color = Color(0.95, 0.97, 1, 0.96)
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = "请根据当前提示继续操作。"
+
+[node name="TitleContainer2" type="HBoxContainer" parent="GuidePanel/GuideMargin/GuideContainer" unique_id=706232656]
+layout_mode = 2
+
+[node name="HintLabel" type="Label" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer2" unique_id=553096114]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.72, 0.82, 0.89, 0.92)
+theme_override_font_sizes/font_size = 12
+text = "请按当前高亮区域完成操作"
+autowrap_mode = 3
+
+[node name="SkipButton" type="Button" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer2" unique_id=1468642917]
+custom_minimum_size = Vector2(110, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.92, 0.96, 0.96)
+theme_override_colors/font_pressed_color = Color(0.88, 0.92, 0.96, 0.96)
+theme_override_colors/font_hover_color = Color(0.88, 0.92, 0.96, 0.96)
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_SecondaryButton")
+text = "稍后再看"
+
+[node name="NextButton" type="Button" parent="GuidePanel/GuideMargin/GuideContainer/TitleContainer2" unique_id=74352055]
+visible = false
+custom_minimum_size = Vector2(118, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.11, 0.14, 0.98)
+theme_override_colors/font_pressed_color = Color(0.08, 0.11, 0.14, 0.98)
+theme_override_colors/font_hover_color = Color(0.08, 0.11, 0.14, 0.98)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_PrimaryButton")
+text = "下一步"

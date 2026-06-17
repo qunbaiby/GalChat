@@ -1,0 +1,370 @@
+{
+    "guides": [
+        {
+            "id": "schedule_onboarding_guide",
+            "title": "行程安排新手引导",
+            "auto_start_after_intro": true,
+            "steps": [
+                {
+                    "id": "open_schedule_panel",
+                    "type": "wait_action",
+                    "title": "打开行程安排",
+                    "text": "欢迎来到主场景。先点击主行动按钮里的“行程安排”，我会带你完成第一次课程安排教学。",
+                    "wait_action": "open_schedule",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.main_action",
+                    "feature_updates": {
+                        "main.main_action": true
+                    },
+                    "scene_hint": "如果当前主按钮不是“行程安排”，请先确认当前是否处于适合安排课程的时段。"
+                },
+                {
+                    "id": "explain_schedule_tabs",
+                    "type": "wait_action",
+                    "title": "课程类型切换",
+                    "text": "这里是课程类型切换区。先点击一次课程类型 tab，看看不同课程分类如何切换。切换后我会继续介绍下方对应的课程列表。",
+                    "wait_action": "activity_switch_category",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_mode": "category_tabs",
+                    "hide_until_scene_ready": true,
+                    "allow_next": true,
+                    "highlight_padding": 0
+                },
+                {
+                    "id": "explain_schedule_list",
+                    "type": "explain",
+                    "title": "课程列表区域",
+                    "text": "这里会显示你刚才选中分类下的课程列表。以后切换上方 tab，这里的候选课程也会跟着变化。",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_mode": "activity_list",
+                    "focus_targets": [
+                        {
+                            "target_mode": "category_tabs",
+                            "highlight_padding": 0
+                        }
+                    ],
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 0
+                },
+                {
+                    "id": "pick_first_course",
+                    "type": "wait_action",
+                    "title": "先选一门课程",
+                    "text": "现在 tab 和课程列表都可以操作了。你可以继续切换分类，然后从课程列表里选择一门课程，把它加入下方槽位。",
+                    "wait_action": "activity_add_course",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_mode": "category_tabs",
+                    "focus_targets": [
+                        {
+                            "target_mode": "activity_list"
+                        }
+                    ],
+                    "hide_until_scene_ready": true,
+                    "skip_if_action_already_done": true,
+                    "highlight_padding": 0
+                },
+                {
+                    "id": "fill_schedule_slots",
+                    "type": "wait_action",
+                    "title": "排满本周槽位",
+                    "text": "继续安排课程，把本周 5 个槽位全部排满。安排过程中你仍然可以切 tab 挑课程，主线剧情占位槽也会占用其中的位置。",
+                    "wait_action": "activity_schedule_full",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_mode": "category_tabs",
+                    "focus_targets": [
+                        {
+                            "target_mode": "activity_list"
+                        }
+                    ],
+                    "hide_until_scene_ready": true,
+                    "skip_if_action_already_done": true,
+                    "highlight_padding": 0
+                },
+                {
+                    "id": "explain_schedule_slots",
+                    "type": "explain",
+                    "title": "课程槽位",
+                    "text": "现在下方这排就是本周课程槽位。你刚才选择的课程都会依次填进这里，排满后才能执行整周安排。",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_mode": "schedule_slots",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 4
+                },
+                {
+                    "id": "explain_main_story_slot",
+                    "type": "explain",
+                    "title": "主线剧情占位槽",
+                    "text": "这个带特殊边框和图标的槽位是主线剧情占位槽。它代表固定剧情事件，会自动保留在本周安排里，不属于玩家自由选课的普通课程槽位。",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_mode": "main_event_slot",
+                    "hide_until_scene_ready": true,
+                    "skip_if_target_missing": true,
+                    "highlight_padding": 4
+                },
+                {
+                    "id": "explain_schedule_preview",
+                    "type": "explain",
+                    "title": "属性预览面板",
+                    "text": "右侧是本周安排的属性预览面板，会根据当前排课情况实时展示心情、金币消耗和各项属性的预计变化。",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_path": "BackgroundPanel/Margin/MainHBox/RightPanel",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 6
+                },
+                {
+                    "id": "execute_schedule_plan",
+                    "type": "wait_action",
+                    "title": "执行课程安排",
+                    "text": "课程已经排满了。点击右下角执行按钮，经过过渡界面后进入课程执行面板。",
+                    "wait_action": "activity_execute_schedule",
+                    "target_scene": "activity",
+                    "requires_scene": "activity",
+                    "target_path": "BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ExecuteButton",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_execution_panel",
+                    "type": "explain",
+                    "title": "课程执行面板",
+                    "text": "这里就是课程执行面板。中间的大区域负责推进课程执行，上方会显示当前课程内容，下方轨道会展示本周课程推进进度。",
+                    "target_scene": "schedule_execution",
+                    "requires_scene": "schedule_execution",
+                    "target_mode": "click_area",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "advance_first_course",
+                    "type": "wait_action",
+                    "title": "点击推进课程",
+                    "text": "现在点击中间区域，推进第一次课程执行。",
+                    "wait_action": "schedule_execution_advance",
+                    "target_scene": "schedule_execution",
+                    "requires_scene": "schedule_execution",
+                    "target_mode": "click_area",
+                    "hide_until_scene_ready": true,
+                    "skip_if_action_already_done": true
+                }
+            ],
+            "completion_feature_updates": {
+                "main.main_action": true
+            }
+        },
+        {
+            "id": "main_intro_guide",
+            "title": "Luna新手引导",
+            "auto_start_after_intro": true,
+            "steps": [
+                {
+                    "id": "open_affection",
+                    "type": "message",
+                    "title": "先看看当前状态",
+                    "text": "先打开好感面板，确认 Luna 当前的情感阶段和心情状态。完成这一步后，我再帮你解锁下一个功能。",
+                    "wait_action": "open_affection",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.affection",
+                    "skip_if_action_already_done": true,
+                    "feature_updates": {
+                        "main.affection": true,
+                        "main.chat": false,
+                        "main.main_action": false,
+                        "main.wechat": false,
+                        "main.diary": false,
+                        "main.wardrobe": false
+                    }
+                },
+                {
+                    "id": "open_main_chat",
+                    "type": "message",
+                    "title": "和 Luna 聊一句",
+                    "text": "接着试试主场景聊天入口。先和 Luna 打个招呼，确认你已经熟悉主互动区的位置。",
+                    "wait_action": "open_main_chat",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.chat",
+                    "feature_updates": {
+                        "main.chat": true
+                    }
+                },
+                {
+                    "id": "open_wechat",
+                    "type": "message",
+                    "title": "试试手机消息",
+                    "text": "接着打开微信，熟悉一下手机里的固定消息和社交入口。",
+                    "wait_action": "open_wechat",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.wechat",
+                    "skip_if_action_already_done": true,
+                    "feature_updates": {
+                        "main.wechat": true
+                    }
+                },
+                {
+                    "id": "open_diary",
+                    "type": "message",
+                    "title": "记录今天的内容",
+                    "text": "最后打开日记功能看一眼，完成后这轮基础功能引导就结束了。",
+                    "wait_action": "open_diary",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.diary",
+                    "skip_if_action_already_done": true,
+                    "feature_updates": {
+                        "main.diary": true,
+                        "main.wardrobe": true
+                    }
+                },
+                {
+                    "id": "finish_main_intro",
+                    "type": "message",
+                    "title": "基础功能已解锁",
+                    "text": "主场景的基础入口你已经熟悉了。接下来你可以继续自由探索，或者稍后再进入地图与剧情演示引导。",
+                    "auto_advance": true
+                }
+            ],
+            "completion_feature_updates": {
+                "main.affection": true,
+                "main.chat": true,
+                "main.main_action": true,
+                "main.wechat": true,
+                "main.diary": true,
+                "main.wardrobe": true
+            }
+        },
+        {
+            "id": "map_story_demo_guide",
+            "title": "地图与剧情演示引导",
+            "auto_start_after_intro": false,
+            "steps": [
+                {
+                    "id": "open_world_map",
+                    "type": "message",
+                    "title": "打开地图",
+                    "text": "点击主行动按钮进入地图。这个演示引导建议在主按钮显示“外出”时体验。",
+                    "wait_action": "open_map",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.main_action",
+                    "scene_hint": "如果当前主按钮不是“外出”，请先推进到可外出的时段后再体验这条演示引导。",
+                    "feature_updates": {
+                        "main.main_action": true
+                    }
+                },
+                {
+                    "id": "select_map_location",
+                    "type": "message",
+                    "title": "选择一个地点",
+                    "text": "地图已经打开了。请选择一个已解锁地点，继续后面的引导剧情演示。",
+                    "wait_action": "select_map_location",
+                    "target_scene": "world_map",
+                    "requires_scene": "world_map",
+                    "target_mode": "first_unlocked_location",
+                    "scene_hint": "请先进入世界地图，进入后会自动把高亮框落到第一个已解锁地点上。",
+                    "highlight_padding": 14.0
+                },
+                {
+                    "id": "play_guide_story_demo",
+                    "type": "play_story",
+                    "title": "引导剧情演示",
+                    "text": "接下来会播放一段指定剧情，演示引导系统如何驱动剧情节点。",
+                    "story_path": "res://assets/data/story/scripts/main/jing_library_guidance.json",
+                    "script_id": "jing_library_guidance",
+                    "return_to_main": true
+                }
+            ],
+            "completion_feature_updates": {
+                "main.main_action": true
+            }
+        },
+        {
+            "id": "interaction_feature_demo_guide",
+            "title": "互动功能演示引导",
+            "auto_start_after_intro": false,
+            "steps": [
+                {
+                    "id": "open_schedule_panel",
+                    "type": "message",
+                    "title": "打开行程安排",
+                    "text": "先点击主行动按钮打开行程安排面板。这个演示引导建议在主按钮显示“行程安排”时体验。",
+                    "wait_action": "open_schedule",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.main_action",
+                    "scene_hint": "如果当前主按钮不是“行程安排”，请先回到工作日白天时段后再体验这条演示引导。"
+                },
+                {
+                    "id": "open_gift_panel",
+                    "type": "message",
+                    "title": "打开送礼面板",
+                    "text": "接着打开送礼面板，确认你已经熟悉礼物入口。",
+                    "wait_action": "open_gift",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.gift",
+                    "skip_if_action_already_done": true
+                },
+                {
+                    "id": "open_date_panel",
+                    "type": "message",
+                    "title": "打开约会面板",
+                    "text": "最后打开约会面板，完成这条互动功能演示引导。",
+                    "wait_action": "open_date",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.date",
+                    "skip_if_action_already_done": true
+                }
+            ]
+        },
+        {
+            "id": "location_entry_demo_guide",
+            "title": "地点进入演示引导",
+            "auto_start_after_intro": false,
+            "steps": [
+                {
+                    "id": "open_world_map_for_entry",
+                    "type": "message",
+                    "title": "打开地图",
+                    "text": "先点击主行动按钮进入地图。",
+                    "wait_action": "open_map",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.main_action",
+                    "scene_hint": "请在主按钮显示“外出”的时段体验这条地点进入演示引导。"
+                },
+                {
+                    "id": "select_location_for_entry",
+                    "type": "message",
+                    "title": "选择地点",
+                    "text": "地图已经打开了。先选择一个已解锁地点，呼出地点详情面板。",
+                    "wait_action": "select_map_location",
+                    "target_scene": "world_map",
+                    "requires_scene": "world_map",
+                    "target_mode": "first_unlocked_location",
+                    "scene_hint": "进入世界地图后，会自动高亮第一个已解锁地点。",
+                    "highlight_padding": 14.0
+                },
+                {
+                    "id": "enter_location_detail",
+                    "type": "message",
+                    "title": "进入地点",
+                    "text": "地点详情已经展开，点击“进入该地点”或“进入剧情”按钮完成这条引导。",
+                    "wait_action": "enter_location_detail",
+                    "target_scene": "location_detail",
+                    "requires_scene": "location_detail",
+                    "target_path": "MainPanel/Margin/VBox/EnterButton",
+                    "scene_hint": "请先在地图上点击一个地点，打开地点详情面板。"
+                }
+            ]
+        }
+    ]
+}

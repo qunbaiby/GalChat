@@ -2,6 +2,7 @@ extends Control
 
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const BUG_FEEDBACK_PANEL_SCENE = preload("res://scenes/ui/start/bug_feedback_panel.tscn")
+const ConfirmDialogScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
 
 @onready var start_button: Button = $ContentRoot/MenuGroup/MenuButtons/StartButton
 @onready var desktop_pet_button: Button = $ContentRoot/MenuGroup/MenuButtons/DesktopPetButton
@@ -128,6 +129,7 @@ func _apply_player_info_from_popup(player_info: Dictionary) -> void:
 func _enter_game_for_current_archive(force_play_intro: bool) -> void:
 	var window = get_window()
 	GameDataManager.set_meta("last_window_pos", window.position)
+	await _ensure_guide_opt_in_choice()
 	var need_play_intro := force_play_intro
 	if not need_play_intro and GameDataManager.profile and not GameDataManager.profile.has_finished_story("intro_story"):
 		need_play_intro = true
@@ -149,6 +151,48 @@ func _enter_game_for_current_archive(force_play_intro: bool) -> void:
 		_transition_to_scene("res://scenes/ui/story/story_scene.tscn")
 		return
 	_transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+
+func _ensure_guide_opt_in_choice() -> void:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager == null:
+		return
+	if guide_manager.has_method("reload_for_current_archive"):
+		guide_manager.reload_for_current_archive()
+	if not guide_manager.has_method("should_prompt_for_guide_opt_in") or not bool(guide_manager.should_prompt_for_guide_opt_in()):
+		return
+	if ConfirmDialogScene == null:
+		return
+	var dialog = ConfirmDialogScene.instantiate()
+	add_child(dialog)
+	dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if dialog.has_method("setup_advanced"):
+		dialog.setup_advanced(
+			"开启新手引导",
+			"是否为这个存档开启新手引导？\n开启后会在开场剧情结束后，继续引导你完成行程安排与课程执行的基础教学。",
+			"",
+			"选择只会影响当前存档，之后也可以再手动开启其他演示引导。",
+			"开启引导",
+			"暂不需要"
+		)
+	var guide_opt_in_choice := {
+		"decided": false,
+		"enabled": false
+	}
+	if dialog.has_signal("confirmed"):
+		dialog.confirmed.connect(func() -> void:
+			guide_opt_in_choice["enabled"] = true
+			guide_opt_in_choice["decided"] = true
+		)
+	if dialog.has_signal("canceled"):
+		dialog.canceled.connect(func() -> void:
+			guide_opt_in_choice["enabled"] = false
+			guide_opt_in_choice["decided"] = true
+		)
+	while not bool(guide_opt_in_choice.get("decided", false)) and is_instance_valid(dialog):
+		await get_tree().process_frame
+	var enabled := bool(guide_opt_in_choice.get("enabled", false))
+	if guide_manager.has_method("set_guide_opt_in"):
+		guide_manager.set_guide_opt_in(enabled)
 
 func _transition_to_scene(scene_path: String) -> void:
 	if get_tree().root.has_node("SceneTransitionManager"):

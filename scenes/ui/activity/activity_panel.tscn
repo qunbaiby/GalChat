@@ -971,4 +971,3 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 text = "开始执行安排"
-

@@ -2,128 +2,168 @@
     "backgrounds": [
         {
             "id": "main_background_image",
+            "name": "主界面雨天门前",
             "path": "res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png"
         },
         {
             "id": "bg_art_studio_sunlight",
+            "name": "阳光画室",
             "path": "res://assets/images/backgrounds/main/art_studio_sunlight_bg.png"
         },
         {
             "id": "bg_luna_drawing_morning",
+            "name": "Luna晨间画室",
             "path": "res://assets/images/backgrounds/main/luna_drawing_morning_bg.png"
         },
         {
             "id": "bg_luna_piano_closeup",
+            "name": "Luna钢琴特写",
             "path": "res://assets/images/backgrounds/main/luna_piano_closeup_bg.png"
         },
         {
             "id": "bg_luna_drawing_sunset",
+            "name": "Luna黄昏画室",
             "path": "res://assets/images/backgrounds/main/luna_drawing_sunset_bg.png"
         },
         {
             "id": "bg_home_bedroom_morning",
+            "name": "卧室清晨",
             "path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png"
         }
     ],
     "maps": [
         {
             "id": "bg_world_map",
+            "name": "世界地图",
             "path": "res://assets/images/backgrounds/map/background/WorldMap.png"
         },        
         {
             "id": "bg_area_j11_center",
+            "name": "J11中心区",
             "path": "res://assets/images/backgrounds/map/background/j11_center/j11_center.png"
         },
         {
             "id": "bg_area_art_academy",
+            "name": "艺术学院",
             "path": "res://assets/images/backgrounds/map/background/art_academy/art_academy.png"
         },
         {
             "id": "bg_area_qingyu_street",
+            "name": "青屿街",
             "path": "res://assets/images/backgrounds/map/background/qingyu_street/qingyu_street.png"
         },
         {
+            "id": "bg_area_jingyu_bay",
+            "name": "江屿湾",
+            "path": "res://assets/images/backgrounds/map/background/jingyu_bay/jingyu_bay.png"
+        },
+        {
             "id": "bg_library",
+            "name": "图书馆",
             "path": "res://assets/images/backgrounds/map/background/art_academy/library/library.png"
         },
         {
             "id": "bg_gym",
+            "name": "体育馆",
             "path": "res://assets/images/backgrounds/map/background/art_academy/gym/gym.png"
         },
         {
             "id": "bg_sakura_avenue",
+            "name": "樱花大道",
             "path": "res://assets/images/backgrounds/map/background/art_academy/sakura_avenue/sakura_avenue.png"
         },
         {
             "id": "bg_golden_beach",
-            "path": "res://assets/images/backgrounds/main/story_scene_sunny_door_bg.png"
+            "name": "金沙滩",
+            "path": "res://assets/images/backgrounds/map/background/jingyu_bay/golden_beach/golden_beach.png"
         },
         {
             "id": "bg_sunset_park",
-            "path": "res://assets/images/backgrounds/main/luna_drawing_sunset_bg.png"
+            "name": "落日公园",
+            "path": "res://assets/images/backgrounds/map/background/jingyu_bay/sunset_park/sunset_park.png"
+        },
+        {
+            "id": "bg_music_corner",
+            "name": "音乐角",
+            "path": "res://assets/images/backgrounds/map/background/jingyu_bay/music_corner/music_corner.png"
         },
         {
             "id": "bg_concert_hall",
+            "name": "音乐厅",
             "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
         },
         {
             "id": "grand_theater",
+            "name": "大剧院",
             "path": "res://assets/images/backgrounds/map/background/art_academy/grand_theater/grand_theater.png"
         },
         {
             "id": "bg_art_gallery",
+            "name": "美术馆",
             "path": "res://assets/images/backgrounds/map/background/art_academy/art_gallery/art_gallery.png"
         },
         {
             "id": "bg_qingyu_time_cafe",
+            "name": "晴雨时光咖啡馆",
             "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
         },
         {
             "id": "bg_area_art_academy",
+            "name": "艺术学院图书馆",
             "path": "res://assets/images/backgrounds/map/background/art_academy/library/library.png"
         },
         {
             "id": "bg_area_qinglan_mt",
+            "name": "青岚山",
             "path": "res://assets/images/backgrounds/map/background/art_academy/sakura_avenue/sakura_avenue.png"
         },
         {
             "id": "bg_area_j11_center",
+            "name": "J11中心区",
             "path": "res://assets/images/backgrounds/map/background/art_academy/grand_theater/grand_theater.png"
         },
         {
             "id": "bg_area_jiangyu_bay",
+            "name": "江屿湾",
             "path": "res://assets/images/backgrounds/map/background/art_academy/concert_hall/concert_hall.png"
         }
     ],
     "cgs": [
         {
             "id": "cg_luna_drawing_side",
+            "name": "Luna侧身作画CG",
             "path": "res://assets/images/story/cg/story_cg_luna_drawing_side.png"
         },
         {
             "id": "cg_luna_door_sunset",
+            "name": "Luna门前黄昏CG",
             "path": "res://assets/images/story/cg/story_cg_luna_door_sunset.jpg"
         },
         {
             "id": "cg_luna_piano_room",
+            "name": "Luna钢琴房CG",
             "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
         },
         {
             "id": "cg_music_room",
+            "name": "音乐教室CG",
             "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
         },
         {
             "id": "story_cg_luna_piano_practice",
+            "name": "Luna钢琴练习CG",
             "path": "res://assets/images/story/cg/story_cg_luna_piano_practice.png"
         }
     ],
     "ui": [
         {
             "id": "mobile_wallpaper",
+            "name": "手机壁纸",
             "path": "res://assets/images/backgrounds/wallpaper/mobile_wallpaper.png"
         },
         {
             "id": "desktop_pet_bg",
+            "name": "桌宠背景",
             "path": "res://assets/images/backgrounds/desktop_pet/desktop_pet_bg.png"
         }
     ]

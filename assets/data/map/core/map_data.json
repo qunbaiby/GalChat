@@ -253,6 +253,7 @@
       "icon": "loc_music_corner",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "海风伴奏的露天音乐角，常有独立音乐人演出。",
+      "bg_id": "bg_music_corner",
       "map_position": {"x": 130, "y": 34},
       "resident_npcs": [],
       "events": []

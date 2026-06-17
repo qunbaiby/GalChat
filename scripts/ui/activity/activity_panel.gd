@@ -2,11 +2,21 @@ extends Control
 
 const MAIN_EVENT_SLOT_ICON: Texture2D = preload("res://assets/images/icons/ui/main/book-open-cover.png")
 const ActivityLoadingOverlayScene = preload("res://scenes/ui/activity/activity_loading_overlay.tscn")
+const GUIDE_DEBUG_ENV_PATH := "user://../.dbg/guide-highlight-overshoot.env"
+const GUIDE_DEBUG_URL := "http://127.0.0.1:7777/event"
+const GUIDE_DEBUG_SESSION := "guide-highlight-overshoot"
+const GUIDE_DEBUG_RUN_ID := "post-fix"
 
 @onready var main_panel: HBoxContainer = $BackgroundPanel/Margin/MainHBox
+@onready var left_panel: Control = $BackgroundPanel/Margin/MainHBox/LeftPanel
+@onready var left_panel_margin: MarginContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin
+@onready var left_panel_vbox: VBoxContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox
 @onready var back_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox/BackButton
 @onready var round_info: Label = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox/RoundInfo
 @onready var category_tabs: HBoxContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTabs
+@onready var category_content_card: PanelContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard
+@onready var category_content_margin: MarginContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin
+@onready var activities_scroll: ScrollContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin/CategoryContentVBox/ScrollContainer
 @onready var activities_grid: GridContainer = %ActivitiesGrid
 @onready var schedule_label: Label = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer/ScheduleLabel
 @onready var schedule_slots: VBoxContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots
@@ -46,6 +56,8 @@ var _pending_exec_data: Dictionary = {}
 var _category_tab_group: ButtonGroup
 var _category_tab_buttons: Dictionary = {}
 var _activity_loading_overlay: ActivityLoadingOverlay = null
+var _guide_reported_schedule_full: bool = false
+var _last_guide_blocked_tip_ms: int = -1000
 
 var stat_name_map = {
 	"stat_stamina": "体能",
@@ -89,10 +101,149 @@ func _ready() -> void:
 	_init_category_tabs()
 	_ensure_activity_loading_overlay()
 
+func _get_guide_manager() -> Node:
+	return get_node_or_null("/root/GuideManager")
+
+func _is_guide_interaction_allowed(interaction_id: String) -> bool:
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("is_guide_interaction_allowed"):
+		return bool(guide_manager.is_guide_interaction_allowed(interaction_id))
+	return true
+
+func _notify_guide_interaction_blocked() -> void:
+	var now_ms := Time.get_ticks_msec()
+	if now_ms - _last_guide_blocked_tip_ms < 900:
+		return
+	_last_guide_blocked_tip_ms = now_ms
+	if typeof(ToastManager) != TYPE_NIL:
+		ToastManager.show_system_toast("请按当前高亮区域完成引导操作")
+
+func _report_guide_action(action_id: String, payload: Dictionary = {}) -> void:
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action(action_id, payload)
+
+func _get_control_focus_rect(control: Control) -> Rect2:
+	if not is_instance_valid(control):
+		return Rect2()
+	if not control.is_visible_in_tree():
+		return Rect2()
+	var rect := Rect2(Vector2.ZERO, control.size)
+	var panel_origin: Vector2 = get_global_transform_with_canvas().origin
+	var current: Node = control
+	while current != null and current != self:
+		if current is Control:
+			rect.position += (current as Control).position
+		current = current.get_parent()
+	rect.position += panel_origin
+	return rect
+
+#region debug-point A:activity-panel-highlight
+func _guide_debug_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
+	call_deferred("_guide_debug_send", hypothesis_id, location, msg, data.duplicate(true))
+
+func _guide_debug_send(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
+	var config := _guide_debug_read_config()
+	var http := HTTPRequest.new()
+	add_child(http)
+	http.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
+		if is_instance_valid(http):
+			http.queue_free()
+	, CONNECT_ONE_SHOT)
+	var payload := JSON.stringify({
+		"sessionId": str(config.get("session_id", GUIDE_DEBUG_SESSION)),
+		"runId": GUIDE_DEBUG_RUN_ID,
+		"hypothesisId": hypothesis_id,
+		"location": location,
+		"msg": msg,
+		"data": data,
+		"ts": Time.get_ticks_msec()
+	})
+	var err := http.request(
+		str(config.get("url", GUIDE_DEBUG_URL)),
+		PackedStringArray(["Content-Type: application/json"]),
+		HTTPClient.METHOD_POST,
+		payload
+	)
+	if err != OK and is_instance_valid(http):
+		http.queue_free()
+
+func _guide_debug_read_config() -> Dictionary:
+	var url := GUIDE_DEBUG_URL
+	var session_id := GUIDE_DEBUG_SESSION
+	var file := FileAccess.open(GUIDE_DEBUG_ENV_PATH, FileAccess.READ)
+	if file == null:
+		return {"url": url, "session_id": session_id}
+	while not file.eof_reached():
+		var line := file.get_line()
+		if line.begins_with("DEBUG_SERVER_URL="):
+			url = line.trim_prefix("DEBUG_SERVER_URL=").strip_edges()
+		elif line.begins_with("DEBUG_SESSION_ID="):
+			session_id = line.trim_prefix("DEBUG_SESSION_ID=").strip_edges()
+	return {"url": url, "session_id": session_id}
+
+func _guide_debug_control_metrics(control: Control) -> Dictionary:
+	if not is_instance_valid(control):
+		return {"exists": false}
+	var rect := control.get_global_rect()
+	var canvas_origin := control.get_global_transform_with_canvas().origin
+	var screen_position := Vector2.ZERO
+	if control.has_method("get_screen_position"):
+		screen_position = control.get_screen_position()
+	return {
+		"exists": true,
+		"name": control.name,
+		"visible": control.visible,
+		"position": {"x": control.position.x, "y": control.position.y},
+		"size": {"x": control.size.x, "y": control.size.y},
+		"global_position": {"x": control.global_position.x, "y": control.global_position.y},
+		"screen_position": {"x": screen_position.x, "y": screen_position.y},
+		"canvas_origin": {"x": canvas_origin.x, "y": canvas_origin.y},
+		"global_rect": {
+			"x": rect.position.x,
+			"y": rect.position.y,
+			"w": rect.size.x,
+			"h": rect.size.y
+		}
+	}
+
+func _guide_debug_rect_metrics(rect: Rect2) -> Dictionary:
+	return {
+		"x": rect.position.x,
+		"y": rect.position.y,
+		"w": rect.size.x,
+		"h": rect.size.y
+	}
+#endregion
+
+func _merge_rects(rects: Array[Rect2]) -> Rect2:
+	var merged := Rect2()
+	var has_rect := false
+	for rect in rects:
+		if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+			continue
+		if not has_rect:
+			merged = rect
+			has_rect = true
+		else:
+			merged = merged.merge(rect)
+	return merged
+
+func _get_container_children_focus_rect(container: Control) -> Rect2:
+	if not is_instance_valid(container) or not container.is_visible_in_tree():
+		return Rect2()
+	var rects: Array[Rect2] = []
+	for child in container.get_children():
+		if child is Control:
+			var child_rect: Rect2 = _get_control_focus_rect(child as Control)
+			if child_rect.size.x > 1.0 and child_rect.size.y > 1.0:
+				rects.append(child_rect)
+	return _merge_rects(rects)
+
 func _get_all_slot_buttons() -> Array:
-	var morning_row = schedule_slots.get_node("MorningRow")
+	var morning_row: Control = schedule_slots.get_node("MorningRow") as Control
 	
-	var buttons = []
+	var buttons: Array = []
 	buttons.resize(5)
 	buttons[0] = morning_row.get_node("Slot1")
 	buttons[1] = morning_row.get_node("Slot2")
@@ -192,9 +343,15 @@ func _init_category_tabs() -> void:
 	_refresh_category_tabs()
 
 func _on_category_pressed(cat_id: String) -> void:
+	if not _is_guide_interaction_allowed("activity.category_tabs"):
+		_notify_guide_interaction_blocked()
+		return
 	current_category_id = cat_id
 	_refresh_category_tabs()
 	_populate_activities()
+	_report_guide_action("activity_switch_category", {
+		"category_id": cat_id
+	})
 
 func _refresh_category_tabs() -> void:
 	for cat_id in _category_tab_buttons.keys():
@@ -249,11 +406,15 @@ func show_panel() -> void:
 	_init_category_tabs()
 	_populate_activities()
 	_refresh_category_tabs()
+	_guide_reported_schedule_full = false
 	_update_ui()
 	if _activity_loading_overlay:
 		_activity_loading_overlay.hide_immediately()
 	main_panel.show()
 	show()
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("on_activity_panel_ready"):
+		guide_manager.on_activity_panel_ready(self)
 	
 	modulate.a = 0.0
 	var tween = create_tween()
@@ -280,6 +441,12 @@ func _update_ui() -> void:
 			scheduled_count += 1
 			
 	schedule_label.text = "%d/%d" % [scheduled_count, MAX_SLOTS]
+	if scheduled_count >= MAX_SLOTS:
+		if not _guide_reported_schedule_full:
+			_guide_reported_schedule_full = true
+			_report_guide_action("activity_schedule_full")
+	else:
+		_guide_reported_schedule_full = false
 	
 	var slots = _get_all_slot_buttons()
 	for i in range(MAX_SLOTS):
@@ -559,16 +726,26 @@ func _get_mood_panel_palette(mood_id: String) -> Dictionary:
 			}
 
 func _on_activity_pressed(activity_id: String) -> void:
+	if not _is_guide_interaction_allowed("activity.activity_list"):
+		_notify_guide_interaction_blocked()
+		return
 	for i in range(MAX_SLOTS):
 		if scheduled_activities[i] == null:
 			scheduled_activities[i] = activity_id
 			_update_ui()
+			_report_guide_action("activity_add_course", {
+				"activity_id": activity_id,
+				"slot_index": i
+			})
 			return
 
 func _on_slot_pressed(_index: int) -> void:
 	pass
 
 func _on_undo_pressed() -> void:
+	if not _is_guide_interaction_allowed("activity.schedule_controls"):
+		_notify_guide_interaction_blocked()
+		return
 	for i in range(MAX_SLOTS - 1, -1, -1):
 		if typeof(scheduled_activities[i]) == TYPE_STRING:
 			scheduled_activities[i] = null
@@ -576,12 +753,18 @@ func _on_undo_pressed() -> void:
 			return
 
 func _on_clear_pressed() -> void:
+	if not _is_guide_interaction_allowed("activity.schedule_controls"):
+		_notify_guide_interaction_blocked()
+		return
 	for i in range(MAX_SLOTS):
 		if typeof(scheduled_activities[i]) == TYPE_STRING:
 			scheduled_activities[i] = null
 	_update_ui()
 
 func _on_execute_pressed() -> void:
+	if not _is_guide_interaction_allowed("activity.execute_button"):
+		_notify_guide_interaction_blocked()
+		return
 	var scheduled_count = 0
 	for item in scheduled_activities:
 		if item != null:
@@ -603,8 +786,9 @@ func _on_execute_pressed() -> void:
 	if profile.gold < total_gold_cost:
 		ToastManager.show_system_toast("金币不足，无法执行计划")
 		return
+	_report_guide_action("activity_execute_schedule")
 		
-	var courses_data = []
+	var courses_data: Array = []
 	
 	for item in scheduled_activities:
 		if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
@@ -914,6 +1098,9 @@ func _open_execution_panel() -> void:
 	var exec_panel = exec_panel_obj.instantiate()
 	main_scene.add_child(exec_panel)
 	exec_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("on_schedule_execution_panel_ready"):
+		guide_manager.on_schedule_execution_panel_ready(exec_panel)
 	
 	exec_panel.setup(
 		_pending_exec_data["courses_data"],
@@ -925,4 +1112,91 @@ func _open_execution_panel() -> void:
 	hide()
 
 func _on_close_pressed() -> void:
+	if not _is_guide_interaction_allowed("activity.close"):
+		_notify_guide_interaction_blocked()
+		return
 	hide_panel()
+
+func get_first_activity_item() -> Control:
+	for child in activities_grid.get_children():
+		if child is Control:
+			return child
+	return null
+
+func get_category_tabs_focus_rect() -> Rect2:
+	var rect: Rect2 = _get_container_children_focus_rect(category_tabs)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		rect = _get_control_focus_rect(category_tabs)
+	#region debug-point A:category-tabs-rect
+	_guide_debug_report("A", "activity_panel.gd:get_category_tabs_focus_rect", "[DEBUG] CategoryTabs 焦点矩形", {
+		"category_tabs": _guide_debug_control_metrics(category_tabs),
+		"category_tabs_children_merged": _guide_debug_rect_metrics(_get_container_children_focus_rect(category_tabs)),
+		"activity_panel_root": _guide_debug_control_metrics(self),
+		"main_panel": _guide_debug_control_metrics(main_panel),
+		"left_panel": _guide_debug_control_metrics(left_panel),
+		"left_panel_margin": _guide_debug_control_metrics(left_panel_margin),
+		"left_panel_vbox": _guide_debug_control_metrics(left_panel_vbox),
+		"background_panel": _guide_debug_control_metrics(get_node_or_null("BackgroundPanel") as Control)
+	})
+	#endregion
+	return rect
+
+func get_activity_list_focus_rect() -> Rect2:
+	var rect: Rect2 = _get_control_focus_rect(category_content_margin)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		rect = _get_control_focus_rect(category_content_card)
+	var item_rects: Array[Rect2] = []
+	for child in activities_grid.get_children():
+		if child is Control:
+			var child_rect: Rect2 = _get_control_focus_rect(child as Control)
+			if child_rect.size.x > 1.0 and child_rect.size.y > 1.0:
+				item_rects.append(child_rect)
+	#region debug-point A:category-content-card-rect
+	_guide_debug_report("A", "activity_panel.gd:get_activity_list_focus_rect", "[DEBUG] CategoryContentCard 焦点矩形", {
+		"category_content_card": _guide_debug_control_metrics(category_content_card),
+		"activities_items_merged": _guide_debug_rect_metrics(_merge_rects(item_rects)),
+		"activities_scroll": _guide_debug_control_metrics(activities_scroll),
+		"activities_grid": _guide_debug_control_metrics(activities_grid),
+		"activity_panel_root": _guide_debug_control_metrics(self),
+		"main_panel": _guide_debug_control_metrics(main_panel),
+		"left_panel": _guide_debug_control_metrics(left_panel),
+		"left_panel_margin": _guide_debug_control_metrics(left_panel_margin),
+		"left_panel_vbox": _guide_debug_control_metrics(left_panel_vbox),
+		"background_panel": _guide_debug_control_metrics(get_node_or_null("BackgroundPanel") as Control)
+	})
+	#endregion
+	return rect
+
+func get_tabs_and_list_focus_rect() -> Rect2:
+	return _merge_rects([
+		get_category_tabs_focus_rect(),
+		get_activity_list_focus_rect()
+	])
+
+func get_schedule_slots_focus_rect() -> Rect2:
+	var slot_rect: Rect2 = _get_control_focus_rect(schedule_slots.get_node_or_null("MorningRow") as Control)
+	if slot_rect.size.x > 1.0 and slot_rect.size.y > 1.0:
+		return slot_rect
+	return _get_control_focus_rect(schedule_slots)
+
+func get_main_event_slot_button() -> Control:
+	var slots := _get_all_slot_buttons()
+	for i in range(mini(slots.size(), scheduled_activities.size())):
+		var item = scheduled_activities[i]
+		if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
+			return slots[i] as Control
+	return null
+
+func get_user_selected_course_count() -> int:
+	var count := 0
+	for item in scheduled_activities:
+		if typeof(item) == TYPE_STRING:
+			count += 1
+	return count
+
+func get_total_scheduled_count() -> int:
+	var count := 0
+	for item in scheduled_activities:
+		if item != null:
+			count += 1
+	return count

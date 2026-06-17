@@ -98,6 +98,7 @@ var _weekly_key_events: Array[Dictionary] = []
 var _pending_event_attr_changes: Dictionary = {}
 var _schedule_start_day_offset: int = 0
 var _local_event_pool: Dictionary = {}
+var _has_started_execution: bool = false
 
 func _ready() -> void:
 	_local_event_pool = _load_local_event_pool()
@@ -112,6 +113,9 @@ func _ready() -> void:
 	# 初始状态
 	result_popup.hide()
 	close_button.hide()
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_schedule_execution_panel_ready"):
+		guide_manager.on_schedule_execution_panel_ready(self)
 
 func _load_local_event_pool() -> Dictionary:
 	if not FileAccess.file_exists(LOCAL_EVENT_POOL_PATH):
@@ -151,6 +155,7 @@ func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) 
 	_current_event_options.clear()
 	_weekly_key_events.clear()
 	_pending_event_attr_changes.clear()
+	_has_started_execution = false
 	if GameDataManager.story_time_manager:
 		_schedule_start_day_offset = GameDataManager.story_time_manager.current_day_offset
 	else:
@@ -626,6 +631,11 @@ func _process_course_at_index(course_index: int) -> void:
 func _on_click_area_pressed() -> void:
 	if _is_moving:
 		return
+	if not _has_started_execution:
+		_has_started_execution = true
+		var guide_manager = get_node_or_null("/root/GuideManager")
+		if guide_manager and guide_manager.has_method("report_action"):
+			guide_manager.report_action("schedule_execution_advance")
 		
 	if _current_slot_index >= 4:
 		if _last_processed_course_index < 4:
@@ -685,6 +695,12 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 
 func _get_deepseek_client() -> Node:
 	return DeepSeekClientLocator.find(self)
+
+func get_click_area_target() -> Control:
+	return click_area
+
+func has_started_execution() -> bool:
+	return _has_started_execution
 
 func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
 	var story_entry = _get_pending_story_entry(course_data)

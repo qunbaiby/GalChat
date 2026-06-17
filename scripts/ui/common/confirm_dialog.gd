@@ -3,6 +3,15 @@ extends Control
 signal confirmed
 signal canceled
 
+const PANEL_WIDTH := 460.0
+const HEADER_BODY_GAP := 20.0
+const PANEL_BOTTOM_PADDING := 22.0
+const PANEL_MIN_HEIGHT := 220.0
+
+@onready var panel_root: Panel = $Panel
+@onready var header_panel: PanelContainer = $Panel/HeaderPanel
+@onready var content_vbox: VBoxContainer = $Panel/VBoxContainer
+@onready var button_hbox: HBoxContainer = $Panel/VBoxContainer/HBoxContainer
 @onready var title_label: Label = $Panel/HeaderPanel/HeaderMargin/HeaderVBox/TitleLabel
 @onready var subtitle_label: Label = $Panel/HeaderPanel/HeaderMargin/HeaderVBox/SubtitleLabel
 @onready var message_label: Label = $Panel/VBoxContainer/MessageLabel
@@ -29,6 +38,7 @@ func _ready() -> void:
                 _on_confirm_pressed()
         )
     _apply_content()
+    call_deferred("_refresh_panel_layout")
 
     modulate.a = 0.0
     var tween = create_tween()
@@ -66,7 +76,7 @@ func _apply_content() -> void:
     var requires_input: bool = _required_text != ""
     input_guide_label.visible = requires_input
     confirm_input.visible = requires_input
-    input_hint_label.visible = false
+    _set_input_hint_state(false, requires_input)
     if requires_input:
         input_guide_label.text = "请输入“%s”后继续操作" % _required_text
         confirm_input.placeholder_text = _required_text
@@ -75,6 +85,7 @@ func _apply_content() -> void:
         call_deferred("_grab_input_focus")
     else:
         confirm_button.disabled = false
+    call_deferred("_refresh_panel_layout")
 
 func _grab_input_focus() -> void:
     if confirm_input and confirm_input.visible:
@@ -87,11 +98,11 @@ func _on_confirm_input_changed(new_text: String) -> void:
         return
     var matched: bool = new_text.strip_edges() == _required_text
     confirm_button.disabled = not matched
-    input_hint_label.visible = new_text != "" and not matched
+    _set_input_hint_state(new_text != "" and not matched, true)
 
 func _on_confirm_pressed() -> void:
     if _required_text != "" and confirm_input.text.strip_edges() != _required_text:
-        input_hint_label.visible = true
+        _set_input_hint_state(true, true)
         confirm_input.grab_focus()
         return
     confirmed.emit()
@@ -105,3 +116,23 @@ func _close() -> void:
     var tween = create_tween()
     tween.tween_property(self, "modulate:a", 0.0, 0.2)
     tween.tween_callback(queue_free)
+
+func _refresh_panel_layout() -> void:
+    var header_height: float = maxf(72.0, header_panel.get_combined_minimum_size().y)
+    var content_top: float = header_height + HEADER_BODY_GAP
+    header_panel.offset_bottom = header_height
+    content_vbox.offset_top = content_top
+
+    # 根据实际内容最小高度动态计算面板高度，但在输入过程中保持占位稳定。
+    var body_height: float = content_vbox.get_combined_minimum_size().y
+    var panel_height: float = maxf(PANEL_MIN_HEIGHT, content_top + body_height + PANEL_BOTTOM_PADDING)
+    panel_root.offset_left = -PANEL_WIDTH * 0.5
+    panel_root.offset_top = -panel_height * 0.5
+    panel_root.offset_right = PANEL_WIDTH * 0.5
+    panel_root.offset_bottom = panel_height * 0.5
+
+func _set_input_hint_state(show_hint: bool, reserve_space: bool) -> void:
+    input_hint_label.visible = reserve_space
+    if not reserve_space:
+        return
+    input_hint_label.modulate = Color(1.0, 1.0, 1.0, 1.0 if show_hint else 0.0)

@@ -1,7 +1,6 @@
-[gd_scene load_steps=12 format=3 uid="uid://confirm_dialog"]
+[gd_scene format=3 uid="uid://cvhmsfvrx1oyh"]
 
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
-[ext_resource type="Script" path="res://scripts/ui/common/confirm_dialog.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://cnk2ti1csk2xx" path="res://scripts/ui/common/confirm_dialog.gd" id="2_script"]
 
 [sub_resource type="Shader" id="Shader_ConfirmBlur"]
 code = "shader_type canvas_item;
@@ -90,17 +89,16 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="ConfirmDialog" type="Control"]
+[node name="ConfirmDialog" type="Control" unique_id=1170086103]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 script = ExtResource("2_script")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1368148146]
 material = SubResource("ShaderMaterial_ConfirmBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -110,7 +108,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=2128846315]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -125,7 +123,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
-[node name="HeaderPanel" type="PanelContainer" parent="Panel"]
+[node name="HeaderPanel" type="PanelContainer" parent="Panel" unique_id=628926583]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -133,25 +131,25 @@ offset_bottom = 72.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="HeaderMargin" type="MarginContainer" parent="Panel/HeaderPanel"]
+[node name="HeaderMargin" type="MarginContainer" parent="Panel/HeaderPanel" unique_id=1788962392]
 layout_mode = 2
 theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 16
 
-[node name="HeaderVBox" type="VBoxContainer" parent="Panel/HeaderPanel/HeaderMargin"]
+[node name="HeaderVBox" type="VBoxContainer" parent="Panel/HeaderPanel/HeaderMargin" unique_id=24145257]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="TitleLabel" type="Label" parent="Panel/HeaderPanel/HeaderMargin/HeaderVBox"]
+[node name="TitleLabel" type="Label" parent="Panel/HeaderPanel/HeaderMargin/HeaderVBox" unique_id=1848770372]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 22
 text = "确认操作"
 horizontal_alignment = 1
 
-[node name="SubtitleLabel" type="Label" parent="Panel/HeaderPanel/HeaderMargin/HeaderVBox"]
+[node name="SubtitleLabel" type="Label" parent="Panel/HeaderPanel/HeaderMargin/HeaderVBox" unique_id=567118236]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
@@ -159,7 +157,7 @@ theme_override_font_sizes/font_size = 13
 text = "该操作需要额外确认。"
 horizontal_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=248798770]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -172,7 +170,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 14
 
-[node name="MessageLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="MessageLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1163969279]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
 theme_override_font_sizes/font_size = 18
@@ -181,7 +179,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="WarningLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="WarningLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1007948334]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.31, 0.38, 1)
@@ -190,7 +188,7 @@ text = "执行后将无法恢复。"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="InputGuideLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="InputGuideLabel" type="Label" parent="Panel/VBoxContainer" unique_id=237162584]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
@@ -199,7 +197,7 @@ text = "请输入确认文本。"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ConfirmInput" type="LineEdit" parent="Panel/VBoxContainer"]
+[node name="ConfirmInput" type="LineEdit" parent="Panel/VBoxContainer" unique_id=2078286328]
 visible = false
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
@@ -208,9 +206,8 @@ theme_override_colors/font_placeholder_color = Color(0.55, 0.6, 0.64, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Input")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "请输入确认文本"
-horizontal_alignment = 1
 
-[node name="InputHintLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="InputHintLabel" type="Label" parent="Panel/VBoxContainer" unique_id=113344487]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.31, 0.38, 1)
@@ -218,24 +215,24 @@ theme_override_font_sizes/font_size = 13
 text = "输入内容不正确。"
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=312292760]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="CancelButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]
+[node name="CancelButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer" unique_id=772073454]
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 text = "取消"
 
-[node name="ConfirmButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]
+[node name="ConfirmButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer" unique_id=1278602123]
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "确定"
