@@ -98,6 +98,10 @@ static func build_topic_option_item(text: String, topic_kind: String) -> Diction
 	var icon_path := ICON_TOPIC_LIFE
 	var final_kind := "life"
 	match topic_kind:
+		"story":
+			title = "主线话题"
+			icon_path = ICON_TOPIC_EMOTION
+			final_kind = "story"
 		"study":
 			title = "学习话题"
 			icon_path = ICON_TOPIC_STUDY

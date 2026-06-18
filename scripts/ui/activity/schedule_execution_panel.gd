@@ -30,11 +30,15 @@ const EVENT_CHANCE_BY_CATEGORY := {
 	"social_etiquette": 0.22,
 	"rest": 0.14
 }
+const MAX_SCHEDULE_RANDOM_EVENTS := 1
 const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_schedule_events.json"
 
+@onready var info_panel: Panel = $InfoPanel
 @onready var top_image_rect: TextureRect = $InfoPanel/TopImageRect
 @onready var title_label: Label = $InfoPanel/TitleContainer/TitleLabel
 @onready var desc_label: Label = $InfoPanel/DescLabel
+@onready var control_toolbar: PanelContainer = $ControlToolbar
+@onready var track_panel: Panel = $TrackPanel
 @onready var track_container: HBoxContainer = $TrackPanel/TrackMargin/TrackContainer
 @onready var character_icon: Node2D = $TrackPanel/TrackMargin/TrackContainer/CharacterIcon
 @onready var click_area: Button = $ClickArea
@@ -43,6 +47,7 @@ const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_sch
 @onready var result_content_vbox: VBoxContainer = $ResultPopup/VBox/Content/Margin/VBox
 @onready var stats_vbox: GridContainer = $ResultPopup/VBox/Content/Margin/VBox/StatsVBox
 @onready var close_button: Button = $ResultPopup/CloseButton
+@onready var result_panel_close_button: Button = $ResultPopup/PanelCloseButton
 
 # Core stat UI nodes
 @onready var core_phys_old: Label = $ResultPopup/VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox/OldVal
@@ -99,11 +104,18 @@ var _pending_event_attr_changes: Dictionary = {}
 var _schedule_start_day_offset: int = 0
 var _local_event_pool: Dictionary = {}
 var _has_started_execution: bool = false
+var _schedule_random_event_count: int = 0
 
 func _ready() -> void:
 	_local_event_pool = _load_local_event_pool()
 	click_area.pressed.connect(_on_click_area_pressed)
+	if info_panel and not info_panel.gui_input.is_connected(_on_info_panel_gui_input):
+		info_panel.gui_input.connect(_on_info_panel_gui_input)
+	if track_panel and not track_panel.gui_input.is_connected(_on_track_panel_gui_input):
+		track_panel.gui_input.connect(_on_track_panel_gui_input)
 	close_button.pressed.connect(_on_end_button_pressed)
+	if result_panel_close_button and not result_panel_close_button.pressed.is_connected(_on_end_button_pressed):
+		result_panel_close_button.pressed.connect(_on_end_button_pressed)
 	
 	if auto_button: auto_button.pressed.connect(_on_auto_pressed)
 	if skip_button: skip_button.pressed.connect(_on_skip_pressed)
@@ -113,6 +125,8 @@ func _ready() -> void:
 	# 初始状态
 	result_popup.hide()
 	close_button.hide()
+	if is_instance_valid(result_panel_close_button):
+		result_panel_close_button.hide()
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("on_schedule_execution_panel_ready"):
 		guide_manager.on_schedule_execution_panel_ready(self)
@@ -156,6 +170,7 @@ func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) 
 	_weekly_key_events.clear()
 	_pending_event_attr_changes.clear()
 	_has_started_execution = false
+	_schedule_random_event_count = 0
 	if GameDataManager.story_time_manager:
 		_schedule_start_day_offset = GameDataManager.story_time_manager.current_day_offset
 	else:
@@ -539,10 +554,18 @@ func _sync_story_time_after_course(course_index: int) -> void:
 	elif course_index == 4:
 		_set_story_time(_schedule_start_day_offset + 4, time_manager.PERIOD_NIGHT, 20, 0)
 
+func _has_remaining_schedule_random_event_quota() -> bool:
+	return _schedule_random_event_count < MAX_SCHEDULE_RANDOM_EVENTS
+
+func _consume_schedule_random_event_quota() -> void:
+	_schedule_random_event_count = mini(MAX_SCHEDULE_RANDOM_EVENTS, _schedule_random_event_count + 1)
+
 func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) -> bool:
 	if course_data.get("is_event", false):
 		return false
 	if str(course_data.get("script_path", "")).strip_edges() != "":
+		return false
+	if not _has_remaining_schedule_random_event_quota():
 		return false
 	var category_id = str(course_data.get("category_id", "rest"))
 	var chance = float(EVENT_CHANCE_BY_CATEGORY.get(category_id, 0.2))
@@ -632,10 +655,24 @@ func _on_click_area_pressed() -> void:
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("get_current_step_id"):
 		var current_step_id := str(guide_manager.get_current_step_id())
-		if current_step_id == "explain_execution_panel":
-			if guide_manager.has_method("report_action"):
-				guide_manager.report_action("schedule_execution_click_area")
-			return
+		match current_step_id:
+			"explain_execution_info_panel":
+				if _is_mouse_inside_control(info_panel) and guide_manager.has_method("report_action"):
+					guide_manager.report_action("schedule_execution_click_info_panel")
+				return
+			"explain_execution_track_panel":
+				if guide_manager.has_method("report_action"):
+					guide_manager.report_action("schedule_execution_finish_intro")
+			"finish_execution_intro":
+				if guide_manager.has_method("report_action"):
+					guide_manager.report_action("schedule_execution_finish_intro")
+			"explain_execution_panel":
+				if guide_manager.has_method("report_action"):
+					guide_manager.report_action("schedule_execution_click_area")
+				return
+	_advance_execution_progress(guide_manager)
+
+func _advance_execution_progress(guide_manager: Node = null) -> void:
 	if _is_moving:
 		return
 	if not _has_started_execution:
@@ -672,6 +709,31 @@ func _on_click_area_pressed() -> void:
 		_process_course_at_index(next_index - 1)
 	)
 
+func _on_info_panel_gui_input(event: InputEvent) -> void:
+	if not _is_left_click_press(event):
+		return
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		if str(guide_manager.get_current_step_id()) == "explain_execution_info_panel" and guide_manager.has_method("report_action"):
+			guide_manager.report_action("schedule_execution_click_info_panel")
+			accept_event()
+
+func _on_track_panel_gui_input(event: InputEvent) -> void:
+	if not _is_left_click_press(event):
+		return
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		if str(guide_manager.get_current_step_id()) == "explain_execution_track_panel" and guide_manager.has_method("report_action"):
+			guide_manager.report_action("schedule_execution_finish_intro")
+			_advance_execution_progress(guide_manager)
+			accept_event()
+
+func _is_left_click_press(event: InputEvent) -> bool:
+	if not (event is InputEventMouseButton):
+		return false
+	var mouse_event := event as InputEventMouseButton
+	return mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT
+
 func _finish_slot_move(skip_ui_update: bool = false) -> void:
 	_is_moving = false
 	_refresh_slot_states()
@@ -702,8 +764,144 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 func _get_deepseek_client() -> Node:
 	return DeepSeekClientLocator.find(self)
 
+func _get_control_focus_rect(control: Control) -> Rect2:
+	if not is_instance_valid(control):
+		return Rect2()
+	if not control.is_visible_in_tree():
+		return Rect2()
+	var rect := Rect2(Vector2.ZERO, control.size)
+	var panel_origin: Vector2 = get_global_transform_with_canvas().origin
+	var current: Node = control
+	while current != null and current != self:
+		if current is Control:
+			rect.position += (current as Control).position
+		current = current.get_parent()
+	rect.position += panel_origin
+	return rect
+
+func _build_rounded_rect_polygon(rect: Rect2, radius: float, segments_per_corner: int = 6) -> PackedVector2Array:
+	var polygon := PackedVector2Array()
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return polygon
+	var final_radius := minf(radius, minf(rect.size.x * 0.5, rect.size.y * 0.5))
+	if final_radius <= 0.5:
+		return PackedVector2Array([
+			rect.position,
+			Vector2(rect.end.x, rect.position.y),
+			rect.end,
+			Vector2(rect.position.x, rect.end.y)
+		])
+	_append_arc_points(
+		polygon,
+		Vector2(rect.end.x - final_radius, rect.position.y + final_radius),
+		final_radius,
+		-PI * 0.5,
+		0.0,
+		segments_per_corner
+	)
+	_append_arc_points(
+		polygon,
+		Vector2(rect.end.x - final_radius, rect.end.y - final_radius),
+		final_radius,
+		0.0,
+		PI * 0.5,
+		segments_per_corner
+	)
+	_append_arc_points(
+		polygon,
+		Vector2(rect.position.x + final_radius, rect.end.y - final_radius),
+		final_radius,
+		PI * 0.5,
+		PI,
+		segments_per_corner
+	)
+	_append_arc_points(
+		polygon,
+		Vector2(rect.position.x + final_radius, rect.position.y + final_radius),
+		final_radius,
+		PI,
+		PI * 1.5,
+		segments_per_corner
+	)
+	return polygon
+
+func _append_arc_points(target: PackedVector2Array, center: Vector2, radius: float, start_angle: float, end_angle: float, segments: int) -> void:
+	for index in range(segments + 1):
+		var t := float(index) / float(maxi(1, segments))
+		var angle := lerpf(start_angle, end_angle, t)
+		var point := center + Vector2(cos(angle), sin(angle)) * radius
+		if target.is_empty() or target[target.size() - 1].distance_to(point) > 0.25:
+			target.append(point)
+
+func _make_focus_entry(rect: Rect2, radius: float) -> Dictionary:
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return {}
+	return {
+		"rect": rect,
+		"shape": "rect",
+		"shape_params": {
+			"corner_radius": radius
+		},
+		"cutout_polygon": _build_rounded_rect_polygon(rect, radius)
+	}
+
+func _is_mouse_inside_control(control: Control) -> bool:
+	if not is_instance_valid(control) or not control.is_visible_in_tree():
+		return false
+	var mouse_position := get_viewport().get_mouse_position()
+	return _get_control_focus_rect(control).has_point(mouse_position)
+
+func get_info_panel_focus_data() -> Variant:
+	return _make_focus_entry(_get_control_focus_rect(info_panel), 22.0)
+
+func get_track_panel_focus_data() -> Variant:
+	return _make_focus_entry(_get_control_focus_rect(track_panel), 18.0)
+
+func get_info_panel_target() -> Control:
+	return info_panel
+
+func get_track_panel_target() -> Control:
+	return track_panel
+
+func get_click_area_focus_data() -> Array:
+	var focus_data: Array = []
+	var info_rect: Rect2 = _get_control_focus_rect(info_panel)
+	if info_rect.size.x > 1.0 and info_rect.size.y > 1.0:
+		focus_data.append(_make_focus_entry(info_rect, 22.0))
+	var track_rect: Rect2 = _get_control_focus_rect(track_panel)
+	if track_rect.size.x > 1.0 and track_rect.size.y > 1.0:
+		focus_data.append(_make_focus_entry(track_rect, 18.0))
+	if is_instance_valid(control_toolbar) and control_toolbar.visible:
+		var toolbar_rect: Rect2 = _get_control_focus_rect(control_toolbar)
+		if toolbar_rect.size.x > 1.0 and toolbar_rect.size.y > 1.0:
+			focus_data.append(_make_focus_entry(toolbar_rect, 14.0))
+	return focus_data
+
 func get_click_area_target() -> Control:
 	return click_area
+
+func get_result_close_button_focus_data() -> Variant:
+	if is_instance_valid(close_button) and close_button.visible:
+		return _make_focus_entry(_get_control_focus_rect(close_button), 14.0)
+	if is_instance_valid(result_panel_close_button) and result_panel_close_button.visible:
+		return _make_focus_entry(_get_control_focus_rect(result_panel_close_button), 8.0)
+	return Rect2()
+
+func get_result_close_button_target() -> Control:
+	if is_instance_valid(close_button) and close_button.visible:
+		return close_button
+	if is_instance_valid(result_panel_close_button) and result_panel_close_button.visible:
+		return result_panel_close_button
+	return null
+
+func is_result_close_button_ready_for_guide() -> bool:
+	if not is_instance_valid(result_popup) or not result_popup.visible:
+		return false
+	if is_instance_valid(close_button) and close_button.is_visible_in_tree():
+		return true
+	if is_instance_valid(result_panel_close_button) and result_panel_close_button.is_visible_in_tree():
+		return true
+	return false
 
 func has_started_execution() -> bool:
 	return _has_started_execution
@@ -875,6 +1073,7 @@ func _on_schedule_event_generated(event_data: Dictionary) -> void:
 		_last_processed_course_index = max(_last_processed_course_index, _current_event_course_index)
 		_finish_slot_move()
 		return
+	_consume_schedule_random_event_quota()
 	
 	_current_event_panel = ScheduleEventPanelScene.instantiate()
 	add_child(_current_event_panel)
@@ -1028,6 +1227,8 @@ func _show_result_popup() -> void:
 	result_popup.modulate.a = 0
 	result_popup.show()
 	click_area.hide()
+	if is_instance_valid(result_panel_close_button):
+		result_panel_close_button.hide()
 	_render_weekly_event_summary()
 	
 	var tween = create_tween()
@@ -1164,8 +1365,23 @@ func _set_result_to_final() -> void:
 			val_lbl.text = "%d (+%d)" % [new_v, new_v - old_v]
 			
 	close_button.show()
+	if is_instance_valid(result_panel_close_button):
+		result_panel_close_button.show()
+
+func _prepare_result_panel_for_scene_exit() -> void:
+	if result_popup:
+		result_popup.hide()
+	if is_instance_valid(result_panel_close_button):
+		result_panel_close_button.hide()
+	if close_button:
+		close_button.hide()
+	if loading_overlay:
+		loading_overlay.hide()
 
 func _on_end_button_pressed() -> void:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action("close_schedule_result_popup")
 	var profile = GameDataManager.profile
 	
 	# Save course progress
@@ -1195,10 +1411,19 @@ func _on_end_button_pressed() -> void:
 		GameDataManager.story_time_manager.save_data()
 	GameDataManager.save_manager.auto_save()
 
-	# 使用现有的全局黑屏过渡管理器过渡回主场景
-	SceneTransitionManager.transition_to_scene("res://scenes/ui/main/main_scene.tscn")
 	schedule_finished.emit()
-	queue_free()
+	if SceneTransitionManager and SceneTransitionManager.has_method("transition_to_scene_with_mid_callback"):
+		await SceneTransitionManager.transition_to_scene_with_mid_callback(
+			"res://scenes/ui/main/main_scene.tscn",
+			Callable(self, "_prepare_result_panel_for_scene_exit"),
+			1.6
+		)
+		return
+	_prepare_result_panel_for_scene_exit()
+	if SceneTransitionManager and SceneTransitionManager.has_method("transition_to_scene"):
+		await SceneTransitionManager.transition_to_scene("res://scenes/ui/main/main_scene.tscn")
+		return
+	get_tree().change_scene_to_file("res://scenes/ui/main/main_scene.tscn")
 
 func _on_close_pressed() -> void:
 	_on_end_button_pressed()

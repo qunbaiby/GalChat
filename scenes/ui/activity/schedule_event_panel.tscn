@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://0cfy2ephvsle"]
+[gd_scene format=3 uid="uid://0cfy2ephvsle"]
 
 [ext_resource type="Script" uid="uid://cvxfblkpaci4e" path="res://scripts/ui/activity/schedule_event_panel.gd" id="1_script"]
 
@@ -65,7 +65,7 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="ScheduleEventPanel" type="Control"]
+[node name="ScheduleEventPanel" type="Control" unique_id=1157136230]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -74,7 +74,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="DimBackground" type="ColorRect" parent="."]
+[node name="DimBackground" type="ColorRect" parent="." unique_id=1786421697]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -83,23 +83,23 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
-[node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(680, 440)
+[node name="Panel" type="Panel" parent="." unique_id=242586184]
+custom_minimum_size = Vector2(630, 400)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -350.0
-offset_top = -310.0
-offset_right = 350.0
-offset_bottom = 140.0
+offset_left = -315.0
+offset_top = -300.0
+offset_right = 315.0
+offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=334767327]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -112,13 +112,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer" unique_id=447836613]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 26
 text = "突发事件！"
 
-[node name="DescLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
+[node name="DescLabel" type="RichTextLabel" parent="Panel/VBoxContainer" unique_id=596106819]
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
@@ -128,11 +128,11 @@ bbcode_enabled = true
 text = "事件描述..."
 scroll_active = false
 
-[node name="OptionsHBox" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="OptionsHBox" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=120465525]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="BtnOpt1" type="Button" parent="Panel/VBoxContainer/OptionsHBox"]
+[node name="BtnOpt1" type="Button" parent="Panel/VBoxContainer/OptionsHBox" unique_id=386575726]
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -143,7 +143,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "选项1"
 
-[node name="BtnOpt2" type="Button" parent="Panel/VBoxContainer/OptionsHBox"]
+[node name="BtnOpt2" type="Button" parent="Panel/VBoxContainer/OptionsHBox" unique_id=334203556]
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -154,29 +154,29 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 text = "选项2"
 
-[node name="ResultBox" type="VBoxContainer" parent="Panel/VBoxContainer"]
+[node name="ResultBox" type="VBoxContainer" parent="Panel/VBoxContainer" unique_id=1495953625]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 14
 
-[node name="ResultPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox"]
+[node name="ResultPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox" unique_id=399101019]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ResultPanel")
 
-[node name="ResultMargin" type="MarginContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel"]
+[node name="ResultMargin" type="MarginContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel" unique_id=949010252]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="ResultInnerVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin"]
+[node name="ResultInnerVBox" type="VBoxContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin" unique_id=1945410999]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="ResultDesc" type="RichTextLabel" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox"]
+[node name="ResultDesc" type="RichTextLabel" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox" unique_id=2110965940]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 size_flags_vertical = 3
@@ -186,18 +186,18 @@ bbcode_enabled = true
 text = "结果描述..."
 scroll_active = false
 
-[node name="EffectsPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox"]
+[node name="EffectsPanel" type="PanelContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox" unique_id=1137585300]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_EffectPanel")
 
-[node name="EffectsMargin" type="MarginContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel"]
+[node name="EffectsMargin" type="MarginContainer" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel" unique_id=1799339944]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 12
 
-[node name="EffectsLabel" type="RichTextLabel" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel/EffectsMargin"]
+[node name="EffectsLabel" type="RichTextLabel" parent="Panel/VBoxContainer/ResultBox/ResultPanel/ResultMargin/ResultInnerVBox/EffectsPanel/EffectsMargin" unique_id=1033424608]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 theme_override_font_sizes/normal_font_size = 16
@@ -205,7 +205,7 @@ bbcode_enabled = true
 text = "[center]属性变化[/center]"
 scroll_active = false
 
-[node name="ContinueButton" type="Button" parent="Panel/VBoxContainer/ResultBox"]
+[node name="ContinueButton" type="Button" parent="Panel/VBoxContainer/ResultBox" unique_id=1487453228]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3

@@ -81,10 +81,10 @@ func _make_embedded_shell_transparent(target: Control) -> void:
 
 func _ready() -> void:
 	hide()
-	btn_chat.pressed.connect(func(): _switch_mode(PanelMode.CHAT))
-	btn_contacts.pressed.connect(func(): _switch_mode(PanelMode.CONTACTS))
-	btn_moments.pressed.connect(_open_moments_popup)
-	btn_close.pressed.connect(func(): back_requested.emit())
+	btn_chat.pressed.connect(_on_chat_tab_pressed)
+	btn_contacts.pressed.connect(_on_contacts_tab_pressed)
+	btn_moments.pressed.connect(_on_moments_tab_pressed)
+	btn_close.pressed.connect(_on_close_button_pressed)
 	btn_send_message.pressed.connect(_on_send_message_pressed)
 	btn_voice_call.pressed.connect(_on_contact_voice_call_pressed)
 	btn_video_call.pressed.connect(_on_contact_video_call_pressed)
@@ -115,6 +115,170 @@ func set_ui_context(context: Node) -> void:
 	ui_context = context
 	if is_instance_valid(chat_session_instance):
 		chat_session_instance.set_ui_context(context)
+
+func _report_guide_action(action_id: String) -> void:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action(action_id)
+
+func _is_guide_interaction_allowed(interaction_id: String) -> bool:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("is_guide_interaction_allowed"):
+		return bool(guide_manager.is_guide_interaction_allowed(interaction_id))
+	return true
+
+func _notify_guide_interaction_blocked() -> void:
+	if typeof(ToastManager) != TYPE_NIL and ToastManager.has_method("show_system_toast"):
+		ToastManager.show_system_toast("请先按当前高亮区域完成引导操作")
+
+func _get_control_focus_rect(control: Control) -> Rect2:
+	if not is_instance_valid(control):
+		return Rect2()
+	if not control.is_visible_in_tree():
+		return Rect2()
+	return control.get_global_rect()
+
+func _build_rounded_focus_entry(control: Control, corner_radius: float = 24.0) -> Dictionary:
+	var rect: Rect2 = _get_control_focus_rect(control)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return {}
+	return {
+		"rect": rect,
+		"shape": "rect",
+		"shape_params": {
+			"corner_radius": corner_radius
+		}
+	}
+
+func get_window_panel_target() -> Control:
+	return window_panel
+
+func get_window_panel_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(window_panel, 28.0)
+
+func get_recent_chats_target() -> Control:
+	_ensure_recent_chats()
+	if is_instance_valid(recent_chats_instance) and recent_chats_instance.has_method("get_guide_focus_target"):
+		var preferred_target: Variant = recent_chats_instance.get_guide_focus_target("jing")
+		if preferred_target is Control and is_instance_valid(preferred_target as Control):
+			return preferred_target as Control
+	return list_container
+
+func get_recent_chats_focus_entry() -> Dictionary:
+	_ensure_recent_chats()
+	var target := get_recent_chats_target()
+	return _build_rounded_focus_entry(target, 18.0)
+
+func get_chat_session_target() -> Control:
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_message_area_target"):
+		var target: Variant = chat_session_instance.get_message_area_target()
+		if target is Control and is_instance_valid(target as Control):
+			return target as Control
+	return chat_container
+
+func get_chat_session_focus_entry() -> Dictionary:
+	var target := get_chat_session_target()
+	return _build_rounded_focus_entry(target, 20.0)
+
+func get_fixed_options_target() -> Control:
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_fixed_options_target"):
+		var target: Variant = chat_session_instance.get_fixed_options_target()
+		if target is Control and is_instance_valid(target as Control):
+			return target as Control
+	return chat_container
+
+func get_fixed_options_focus_entry() -> Dictionary:
+	var target := get_fixed_options_target()
+	return _build_rounded_focus_entry(target, 18.0)
+
+func get_input_edit_target() -> Control:
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("should_highlight_entire_chat_container_for_fixed_conversation"):
+		if bool(chat_session_instance.should_highlight_entire_chat_container_for_fixed_conversation()):
+			return chat_container
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_input_edit_target"):
+		var target: Variant = chat_session_instance.get_input_edit_target()
+		if target is Control and is_instance_valid(target as Control):
+			return target as Control
+	return chat_container
+
+func get_input_edit_focus_entry() -> Dictionary:
+	var target := get_input_edit_target()
+	return _build_rounded_focus_entry(target, 14.0)
+
+func get_send_button_target() -> Control:
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_send_button_target"):
+		var target: Variant = chat_session_instance.get_send_button_target()
+		if target is Control and is_instance_valid(target as Control):
+			return target as Control
+	return chat_container
+
+func get_send_button_focus_entry() -> Dictionary:
+	var target := get_send_button_target()
+	return _build_rounded_focus_entry(target, 14.0)
+
+func get_close_button_target() -> Control:
+	return btn_close
+
+func get_close_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(btn_close, 18.0)
+
+func is_recent_chats_ready_for_guide() -> bool:
+	_ensure_recent_chats()
+	var target := get_recent_chats_target()
+	return is_instance_valid(target) and target.is_visible_in_tree() and target.get_global_rect().size.y > 8.0
+
+func is_chat_session_ready_for_guide() -> bool:
+	var target := get_chat_session_target()
+	return is_instance_valid(target) and target.is_visible_in_tree() and target.get_global_rect().size.y > 8.0
+
+func is_close_button_ready_for_guide() -> bool:
+	return is_instance_valid(btn_close) and btn_close.is_visible_in_tree()
+
+func is_fixed_options_ready_for_guide() -> bool:
+	return is_instance_valid(chat_session_instance) and chat_session_instance.has_method("is_fixed_options_ready_for_guide") and bool(chat_session_instance.is_fixed_options_ready_for_guide())
+
+func is_input_edit_ready_for_guide() -> bool:
+	return is_instance_valid(chat_session_instance) and chat_session_instance.has_method("is_input_edit_ready_for_guide") and bool(chat_session_instance.is_input_edit_ready_for_guide())
+
+func is_send_button_ready_for_guide() -> bool:
+	return is_instance_valid(chat_session_instance) and chat_session_instance.has_method("is_send_button_ready_for_guide") and bool(chat_session_instance.is_send_button_ready_for_guide())
+
+func _request_guide_refresh_after_layout() -> void:
+	call_deferred("_deferred_refresh_guide_overlay")
+
+func _deferred_refresh_guide_overlay() -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var guide_manager := get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("refresh_current_step_display"):
+		guide_manager.refresh_current_step_display()
+
+func _on_chat_tab_pressed() -> void:
+	if not _is_guide_interaction_allowed("wechat.nav_chat"):
+		_notify_guide_interaction_blocked()
+		return
+	_switch_mode(PanelMode.CHAT)
+
+func _on_contacts_tab_pressed() -> void:
+	if not _is_guide_interaction_allowed("wechat.nav_contacts"):
+		_notify_guide_interaction_blocked()
+		return
+	_switch_mode(PanelMode.CONTACTS)
+
+func _on_moments_tab_pressed() -> void:
+	if not _is_guide_interaction_allowed("wechat.nav_moments"):
+		_notify_guide_interaction_blocked()
+		return
+	_open_moments_popup()
+
+func _on_close_button_pressed() -> void:
+	if not _is_guide_interaction_allowed("wechat.close"):
+		_notify_guide_interaction_blocked()
+		return
+	_report_guide_action("close_wechat_panel")
+	back_requested.emit()
 
 func open_default_mode() -> void:
 	_current_chat_char_id = ""
@@ -152,6 +316,7 @@ func _switch_mode(mode: int) -> void:
 			else:
 				recent_chats_instance.clear_selection()
 				_show_chat_empty_state()
+			_request_guide_refresh_after_layout()
 		PanelMode.CONTACTS:
 			list_title.text = "联系人"
 			list_subtitle.text = "查看角色资料与快捷操作"
@@ -166,6 +331,7 @@ func _switch_mode(mode: int) -> void:
 			else:
 				contacts_instance.clear_selection()
 				_show_contact_empty_state()
+			_request_guide_refresh_after_layout()
 
 func _refresh_nav_state() -> void:
 	_apply_nav_button_state(btn_chat, _current_mode == PanelMode.CHAT)
@@ -252,6 +418,7 @@ func _ensure_moments_popup() -> void:
 func _on_chat_list_character_selected(char_id: String) -> void:
 	_current_chat_char_id = char_id
 	character_selected.emit(char_id)
+	_report_guide_action("wechat_select_chat")
 	_open_chat_session(char_id, false)
 
 func _on_contact_selected(char_id: String) -> void:
@@ -271,6 +438,7 @@ func _open_chat_session(char_id: String, emit_signal: bool = true) -> void:
 	chat_container.show()
 	if emit_signal:
 		character_selected.emit(char_id)
+	_request_guide_refresh_after_layout()
 
 func _show_chat_empty_state() -> void:
 	chat_empty_state.show()

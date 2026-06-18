@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b66u3jjc01x4b"]
+[gd_scene format=3 uid="uid://b66u3jjc01x4b"]
 
 [ext_resource type="Script" uid="uid://bdcvogjxdy51q" path="res://scripts/ui/mobile/chat/mobile_chat_panel.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://dj142v0c1m65o" path="res://assets/themes/mobile_chat_theme.tres" id="2_theme"]
@@ -76,7 +76,7 @@ corner_radius_bottom_left = 14
 shadow_color = Color(0, 0, 0, 0.24)
 shadow_size = 16
 
-[node name="MobileChatPanel" type="Control"]
+[node name="MobileChatPanel" type="Control" unique_id=455448210]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -86,7 +86,7 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=715637969]
 material = SubResource("ShaderMaterial_Blur")
 layout_mode = 1
 anchors_preset = 15
@@ -96,7 +96,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
+[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=915467953]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -105,11 +105,11 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
 
-[node name="TopBar" type="HBoxContainer" parent="Panel/VBox"]
+[node name="TopBar" type="HBoxContainer" parent="Panel/VBox" unique_id=2111312378]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="Panel/VBox/TopBar"]
+[node name="Title" type="Label" parent="Panel/VBox/TopBar" unique_id=1804187683]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
@@ -117,7 +117,7 @@ theme_override_font_sizes/font_size = 16
 text = "Character"
 vertical_alignment = 1
 
-[node name="MoreBtn" type="Button" parent="Panel/VBox/TopBar"]
+[node name="MoreBtn" type="Button" parent="Panel/VBox/TopBar" unique_id=472712945]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
@@ -125,12 +125,12 @@ theme_override_font_sizes/font_size = 22
 text = "..."
 flat = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBox" unique_id=738146617]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Margin" type="MarginContainer" parent="Panel/VBox/ScrollContainer"]
+[node name="Margin" type="MarginContainer" parent="Panel/VBox/ScrollContainer" unique_id=1185100719]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -139,30 +139,30 @@ theme_override_constants/margin_top = 13
 theme_override_constants/margin_right = 13
 theme_override_constants/margin_bottom = 13
 
-[node name="MessageList" type="VBoxContainer" parent="Panel/VBox/ScrollContainer/Margin"]
+[node name="MessageList" type="VBoxContainer" parent="Panel/VBox/ScrollContainer/Margin" unique_id=599406847]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 18
 
-[node name="BottomArea" type="VBoxContainer" parent="Panel/VBox"]
+[node name="BottomArea" type="VBoxContainer" parent="Panel/VBox" unique_id=609617605]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="FixedOptionsContainer" type="VBoxContainer" parent="Panel/VBox/BottomArea"]
+[node name="FixedOptionsContainer" type="VBoxContainer" parent="Panel/VBox/BottomArea" unique_id=2005521782]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="InputRow" type="HBoxContainer" parent="Panel/VBox/BottomArea"]
+[node name="InputRow" type="HBoxContainer" parent="Panel/VBox/BottomArea" unique_id=1517099552]
 custom_minimum_size = Vector2(0, 43)
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MarginLeft" type="Control" parent="Panel/VBox/BottomArea/InputRow"]
+[node name="MarginLeft" type="Control" parent="Panel/VBox/BottomArea/InputRow" unique_id=750189808]
 custom_minimum_size = Vector2(5, 0)
 layout_mode = 2
 
-[node name="EmojiBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow"]
+[node name="EmojiBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow" unique_id=1300843255]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
 size_flags_vertical = 4
@@ -171,7 +171,7 @@ theme_override_font_sizes/font_size = 22
 text = "☺"
 flat = true
 
-[node name="InputEdit" type="LineEdit" parent="Panel/VBox/BottomArea/InputRow"]
+[node name="InputEdit" type="LineEdit" parent="Panel/VBox/BottomArea/InputRow" unique_id=1549716208]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
@@ -181,7 +181,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputBg")
 placeholder_text = "输入消息内容..."
 caret_blink = true
 
-[node name="SendBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow"]
+[node name="SendBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow" unique_id=238425437]
 custom_minimum_size = Vector2(60, 35)
 layout_mode = 2
 size_flags_vertical = 4
@@ -192,7 +192,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_SendBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SendBtn")
 text = "发送"
 
-[node name="PlusBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow"]
+[node name="PlusBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow" unique_id=1197365424]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
 size_flags_vertical = 4
@@ -201,32 +201,32 @@ theme_override_font_sizes/font_size = 24
 text = "+"
 flat = true
 
-[node name="MarginRight" type="Control" parent="Panel/VBox/BottomArea/InputRow"]
+[node name="MarginRight" type="Control" parent="Panel/VBox/BottomArea/InputRow" unique_id=177724130]
 custom_minimum_size = Vector2(5, 0)
 layout_mode = 2
 
-[node name="AttachmentPanel" type="PanelContainer" parent="Panel/VBox/BottomArea"]
+[node name="AttachmentPanel" type="PanelContainer" parent="Panel/VBox/BottomArea" unique_id=302619101]
 visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_InputBg")
 
-[node name="AttachmentMargin" type="MarginContainer" parent="Panel/VBox/BottomArea/AttachmentPanel"]
+[node name="AttachmentMargin" type="MarginContainer" parent="Panel/VBox/BottomArea/AttachmentPanel" unique_id=835197663]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 10
 
-[node name="AttachmentRow" type="HBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin"]
+[node name="AttachmentRow" type="HBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin" unique_id=392976050]
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="ImageBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow"]
+[node name="ImageBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow" unique_id=2012135606]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn"]
+[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn" unique_id=2014259048]
 modulate = Color(0.9, 0.84, 0.76, 1)
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
@@ -235,18 +235,18 @@ texture_normal = ExtResource("6_image")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn"]
+[node name="Label" type="Label" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn" unique_id=477616766]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 12
 text = "图片"
 horizontal_alignment = 1
 
-[node name="RedPacketBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow"]
+[node name="RedPacketBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow" unique_id=527238822]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn"]
+[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn" unique_id=154712484]
 modulate = Color(0.9, 0.84, 0.76, 1)
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
@@ -255,18 +255,18 @@ texture_normal = ExtResource("8_red_packet")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn"]
+[node name="Label" type="Label" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn" unique_id=1487385432]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 12
 text = "红包"
 horizontal_alignment = 1
 
-[node name="BottomSpacer" type="Control" parent="Panel/VBox/BottomArea"]
+[node name="BottomSpacer" type="Control" parent="Panel/VBox/BottomArea" unique_id=713406582]
 custom_minimum_size = Vector2(0, 13)
 layout_mode = 2
 
-[node name="MoreMenuPopup" type="PanelContainer" parent="Panel"]
+[node name="MoreMenuPopup" type="PanelContainer" parent="Panel" unique_id=786730537]
 visible = false
 layout_mode = 1
 anchors_preset = 1
@@ -279,65 +279,65 @@ offset_bottom = 156.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_PopupBg")
 
-[node name="PopupMargin" type="MarginContainer" parent="Panel/MoreMenuPopup"]
+[node name="PopupMargin" type="MarginContainer" parent="Panel/MoreMenuPopup" unique_id=1442821706]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="PopupVBox" type="VBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin"]
+[node name="PopupVBox" type="VBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin" unique_id=1137609452]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="VoiceCallOption" type="Button" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox"]
+[node name="VoiceCallOption" type="Button" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox" unique_id=1333476711]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 flat = true
 
-[node name="HBox" type="HBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption"]
+[node name="HBox" type="HBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption" unique_id=2054614235]
 layout_mode = 0
 theme_override_constants/separation = 12
 
-[node name="Icon" type="TextureRect" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox"]
+[node name="Icon" type="TextureRect" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox" unique_id=361341084]
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 texture = ExtResource("7_voice")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox"]
+[node name="Label" type="Label" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox" unique_id=960248948]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 16
 text = "语音通话"
 
-[node name="VideoCallOption" type="Button" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox"]
+[node name="VideoCallOption" type="Button" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox" unique_id=2012658976]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 flat = true
 
-[node name="HBox" type="HBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption"]
+[node name="HBox" type="HBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption" unique_id=1083977017]
 layout_mode = 0
 theme_override_constants/separation = 12
 
-[node name="Icon" type="TextureRect" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox"]
+[node name="Icon" type="TextureRect" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox" unique_id=153733127]
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 texture = ExtResource("4_eye")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox"]
+[node name="Label" type="Label" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox" unique_id=1046437229]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 16
 text = "视频通话"
 
-[node name="DeepSeekClient" type="Node" parent="."]
+[node name="DeepSeekClient" type="Node" parent="." unique_id=1220114699]
 script = ExtResource("3_deepseek")
 
-[node name="ImageOverlay" type="Control" parent="."]
+[node name="ImageOverlay" type="Control" parent="." unique_id=390809914]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -346,7 +346,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Bg" type="ColorRect" parent="ImageOverlay"]
+[node name="Bg" type="ColorRect" parent="ImageOverlay" unique_id=2094171216]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -355,7 +355,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="FullImage" type="TextureRect" parent="ImageOverlay"]
+[node name="FullImage" type="TextureRect" parent="ImageOverlay" unique_id=504215314]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -365,7 +365,7 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CloseViewerBtn" type="Button" parent="ImageOverlay"]
+[node name="CloseViewerBtn" type="Button" parent="ImageOverlay" unique_id=1562074498]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -374,7 +374,7 @@ grow_horizontal = 2
 grow_vertical = 2
 flat = true
 
-[node name="SaveToAlbumBtn" type="Button" parent="ImageOverlay"]
+[node name="SaveToAlbumBtn" type="Button" parent="ImageOverlay" unique_id=1583027949]
 visible = false
 layout_mode = 1
 anchors_preset = 7
@@ -395,7 +395,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_SendBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SendBtn")
 text = "保存到相册"
 
-[node name="RedPacketOverlay" type="Control" parent="."]
+[node name="RedPacketOverlay" type="Control" parent="." unique_id=814697526]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -404,7 +404,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Bg" type="ColorRect" parent="RedPacketOverlay"]
+[node name="Bg" type="ColorRect" parent="RedPacketOverlay" unique_id=155496363]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -413,7 +413,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.08, 0.08, 1)
 
-[node name="VBox" type="VBoxContainer" parent="RedPacketOverlay"]
+[node name="VBox" type="VBoxContainer" parent="RedPacketOverlay" unique_id=1646462558]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -422,11 +422,11 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="TopBar" type="HBoxContainer" parent="RedPacketOverlay/VBox"]
+[node name="TopBar" type="HBoxContainer" parent="RedPacketOverlay/VBox" unique_id=1842020963]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 
-[node name="CloseBtn" type="Button" parent="RedPacketOverlay/VBox/TopBar"]
+[node name="CloseBtn" type="Button" parent="RedPacketOverlay/VBox/TopBar" unique_id=693776765]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
@@ -434,7 +434,7 @@ theme_override_font_sizes/font_size = 28
 text = "<"
 flat = true
 
-[node name="Title" type="Label" parent="RedPacketOverlay/VBox/TopBar"]
+[node name="Title" type="Label" parent="RedPacketOverlay/VBox/TopBar" unique_id=1807583087]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
@@ -443,35 +443,35 @@ text = "发红包"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="RightSpacer" type="Control" parent="RedPacketOverlay/VBox/TopBar"]
+[node name="RightSpacer" type="Control" parent="RedPacketOverlay/VBox/TopBar" unique_id=433799632]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="RedPacketOverlay/VBox"]
+[node name="Margin" type="MarginContainer" parent="RedPacketOverlay/VBox" unique_id=2037958734]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_right = 20
 
-[node name="FormVBox" type="VBoxContainer" parent="RedPacketOverlay/VBox/Margin"]
+[node name="FormVBox" type="VBoxContainer" parent="RedPacketOverlay/VBox/Margin" unique_id=102098239]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="AmountPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="AmountPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=1075152656]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
 
-[node name="HBox" type="HBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel"]
+[node name="HBox" type="HBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel" unique_id=1508158402]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox"]
+[node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox" unique_id=1097862803]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 text = "  单个金额"
 
-[node name="AmountInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox"]
+[node name="AmountInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox" unique_id=770469396]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -480,69 +480,69 @@ placeholder_text = "¥0.00"
 alignment = 2
 flat = true
 
-[node name="TextPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="TextPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=60539431]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
 
-[node name="TextInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/TextPanel"]
+[node name="TextInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/TextPanel" unique_id=245373692]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 placeholder_text = "恭喜发财，大吉大利"
 flat = true
 
-[node name="CoverPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="CoverPanel" type="PanelContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=1851668977]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
 
-[node name="HBox" type="HBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel"]
+[node name="HBox" type="HBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel" unique_id=1315011761]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="VBox" type="VBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox"]
+[node name="VBox" type="VBoxContainer" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox" unique_id=1214861523]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox"]
+[node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox" unique_id=1508035370]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 text = "  红包封面"
 
-[node name="Label2" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox"]
+[node name="Label2" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox" unique_id=133608091]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_font_sizes/font_size = 12
 text = "  默认"
 
-[node name="Icon" type="ColorRect" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox"]
+[node name="Icon" type="ColorRect" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox" unique_id=421969932]
 custom_minimum_size = Vector2(40, 50)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.8, 0.2, 0.2, 1)
 
-[node name="RightArrow" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox"]
+[node name="RightArrow" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox" unique_id=1695377815]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 text = " >  "
 
-[node name="Spacer" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="Spacer" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=63900302]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="DisplayAmount" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="DisplayAmount" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=2062998440]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 36
 text = "¥ 0.00"
 horizontal_alignment = 1
 
-[node name="Spacer2" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="Spacer2" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=2078448173]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="SendRPBtn" type="Button" parent="RedPacketOverlay/VBox/Margin/FormVBox"]
+[node name="SendRPBtn" type="Button" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=1205414097]
 custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 size_flags_horizontal = 4

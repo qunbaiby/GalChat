@@ -3,11 +3,13 @@
         {
             "id": "schedule_onboarding_guide",
             "title": "行程安排新手引导",
+            "guide_category": "schedule_onboarding",
             "auto_start_after_intro": true,
             "steps": [
                 {
                     "id": "open_schedule_panel",
                     "type": "wait_action",
+                    "step_category": "schedule",
                     "title": "打开行程安排",
                     "text": "欢迎来到主场景。先点击主行动按钮里的“行程安排”，我会带你完成第一次课程安排教学。",
                     "wait_action": "open_schedule",
@@ -15,13 +17,15 @@
                     "requires_scene": "main",
                     "highlight_feature": "main.main_action",
                     "feature_updates": {
-                        "main.main_action": true
+                        "main.main_action": true,
+                        "main.affection": false
                     },
                     "scene_hint": "如果当前主按钮不是“行程安排”，请先确认当前是否处于适合安排课程的时段。"
                 },
                 {
                     "id": "explain_schedule_tabs",
                     "type": "wait_action",
+                    "step_category": "schedule",
                     "title": "课程类型切换",
                     "text": "这里是课程类型切换区。先点击一次课程类型 tab，看看不同课程分类如何切换。切换后我会继续介绍下方对应的课程列表。",
                     "wait_action": "activity_switch_category",
@@ -34,6 +38,7 @@
                 {
                     "id": "explain_schedule_list",
                     "type": "wait_action",
+                    "step_category": "schedule",
                     "title": "课程列表区域",
                     "text": "这里会显示你刚才选中分类下的课程列表。现在可以继续切换上方 tab，然后从这里点击一门课程，把它安排到下方 MorningRow 的槽位里。",
                     "wait_action": "activity_add_course",
@@ -53,8 +58,9 @@
                 {
                     "id": "explain_schedule_slots",
                     "type": "wait_action",
-                    "title": "MorningRow 槽位",
-                    "text": "你刚才选中的课程已经进入下方 MorningRow。接下来继续安排课程，把本周 5 个槽位全部排满。当前你可以一边切 tab 挑课程，一边观察 MorningRow 的排课结果。",
+                    "step_category": "schedule",
+                    "title": "行程安排槽位",
+                    "text": "你刚才选中的课程已经进入下方 行程安排槽位。接下来继续安排课程，把本周 5 个槽位全部排满。当前你可以一边切 tab 挑课程，一边观察行程安排 的排课结果。",
                     "wait_action": "activity_schedule_full",
                     "target_scene": "activity",
                     "requires_scene": "activity",
@@ -76,6 +82,7 @@
                 {
                     "id": "explain_main_story_slot",
                     "type": "wait_action",
+                    "step_category": "schedule",
                     "title": "主线剧情占位槽",
                     "text": "这个带特殊边框和图标的槽位是主线剧情占位槽。它代表固定剧情事件，会自动保留在本周安排里，不属于玩家自由选课的普通课程槽位。",
                     "wait_action": "activity_click_main_event_slot",
@@ -89,6 +96,7 @@
                 {
                     "id": "explain_schedule_preview",
                     "type": "wait_action",
+                    "step_category": "schedule",
                     "title": "属性预览面板",
                     "text": "右侧是本周安排的属性预览面板，会根据当前排课情况实时展示心情、金币消耗和各项属性的预计变化。",
                     "wait_action": "activity_click_preview_panel",
@@ -101,6 +109,7 @@
                 {
                     "id": "execute_schedule_plan",
                     "type": "wait_action",
+                    "step_category": "schedule",
                     "title": "执行课程安排",
                     "text": "课程已经排满了。点击右下角执行按钮，经过过渡界面后进入课程执行面板。",
                     "wait_action": "activity_execute_schedule",
@@ -110,36 +119,268 @@
                     "hide_until_scene_ready": true
                 },
                 {
-                    "id": "explain_execution_panel",
+                    "id": "explain_execution_info_panel",
                     "type": "wait_action",
-                    "title": "课程执行面板",
-                    "text": "这里就是课程执行面板。中间的大区域负责推进课程执行，上方会显示当前课程内容，下方轨道会展示本周课程推进进度。",
-                    "wait_action": "schedule_execution_click_area",
+                    "step_category": "schedule_execution",
+                    "title": "当前行程信息",
+                    "text": "这里是 Luna 正在进行的行程信息。先点击上方信息面板，继续下一步说明。",
+                    "wait_action": "schedule_execution_click_info_panel",
                     "target_scene": "schedule_execution",
                     "requires_scene": "schedule_execution",
-                    "target_mode": "click_area",
+                    "target_mode": "info_panel",
                     "hide_until_scene_ready": true
                 },
                 {
-                    "id": "advance_first_course",
+                    "id": "explain_execution_track_panel",
                     "type": "wait_action",
-                    "title": "点击推进课程",
-                    "text": "现在点击中间区域，推进第一次课程执行。",
-                    "wait_action": "schedule_execution_advance",
+                    "step_category": "schedule_execution",
+                    "title": "本周行程轨道",
+                    "text": "这里会展示你之前排好的所有行程安排。现在点击任意区域，结束这部分说明；接下来你就可以自己按节奏推进整周行程了。",
+                    "wait_action": "schedule_execution_finish_intro",
                     "target_scene": "schedule_execution",
                     "requires_scene": "schedule_execution",
-                    "target_mode": "click_area",
+                    "target_mode": "track_panel",
                     "hide_until_scene_ready": true,
-                    "skip_if_action_already_done": true
+                    "overlay_options": {
+                        "background_wait_action": "schedule_execution_finish_intro",
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "schedule_execution_finish_intro"
+                    }
+                },
+                {
+                    "id": "close_schedule_result_popup",
+                    "type": "wait_action",
+                    "step_category": "stats",
+                    "title": "关闭本周结算",
+                    "text": "本周结算已经完成。先点击结算面板下方的关闭按钮，回到主界面后再继续查看属性面板。",
+                    "wait_action": "close_schedule_result_popup",
+                    "target_scene": "schedule_execution",
+                    "requires_scene": "schedule_execution",
+                    "target_mode": "result_close_button",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_post_schedule_stats",
+                    "type": "wait_action",
+                    "step_category": "stats",
+                    "title": "先看看属性变化",
+                    "text": "本周行程结算完成后，Luna 的属性变化都会汇总反映在这里。行程安排、日常互动都会持续影响这些属性，而这些属性也会进一步决定她未来的成长方向。现在点击左上角属性面板，继续下一步。",
+                    "wait_action": "click_main_stats",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.stats",
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "click_main_stats"
+                    }
+                },
+                {
+                    "id": "open_wechat_after_schedule",
+                    "type": "wait_action",
+                    "step_category": "wechat",
+                    "title": "看看新的微聊消息",
+                    "text": "静老师的固定消息已经触发了，现在微聊按钮会带着红点并轻微抖动提醒你。点击微聊按钮，打开消息面板，看看这条新消息。",
+                    "wait_action": "open_wechat",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.wechat",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_wechat_recent_chats",
+                    "type": "wait_action",
+                    "step_category": "wechat",
+                    "title": "微聊聊天列表",
+                    "text": "这里是微聊里的聊天列表区域，最新的固定消息会优先显示在这里。现在点击静老师这条带未读提示的会话，继续查看她刚发来的内容。",
+                    "wait_action": "wechat_select_chat",
+                    "target_scene": "wechat",
+                    "requires_scene": "wechat",
+                    "target_mode": "recent_chats",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_wechat_chat_session",
+                    "type": "wait_action",
+                    "step_category": "wechat",
+                    "title": "先把消息看完",
+                    "text": "静老师的会话已经打开了。这里高亮的是聊天内容滚动区，先点一下这块聊天内容，确认你已经查看了这条新消息；在这一步完成前，先不要关闭微聊。",
+                    "wait_action": "wechat_view_chat_session",
+                    "target_scene": "wechat",
+                    "requires_scene": "wechat",
+                    "target_mode": "chat_session",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_wechat_fixed_options",
+                    "type": "wait_action",
+                    "step_category": "wechat",
+                    "title": "选择你的回复",
+                    "text": "静老师刚发来的内容已经看到了。现在高亮的是下方玩家回复选项区域，请点击一个回复选项，把这句回答填进输入框。",
+                    "wait_action": "wechat_select_player_option",
+                    "target_scene": "wechat",
+                    "requires_scene": "wechat",
+                    "target_mode": "fixed_options",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_wechat_fixed_conversation",
+                    "type": "wait_action",
+                    "step_category": "wechat",
+                    "title": "把整段对话发完",
+                    "text": "选项内容已经放进输入框了。先点击发送，把第一句回复发出去；从这之后到整段固定对话结束前，高亮都会一直保持在整个聊天区域，不再变化。你只要继续按流程点完后续选项并发完全部内容；等系统提示本次对话已结束后，再点击一次高亮区域，我就带你进入关闭微聊的下一步。",
+                    "wait_action": "wechat_acknowledge_fixed_conversation_finished",
+                    "target_scene": "wechat",
+                    "requires_scene": "wechat",
+                    "target_mode": "input_edit",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "close_wechat_after_read",
+                    "type": "wait_action",
+                    "step_category": "wechat",
+                    "title": "关闭微聊",
+                    "text": "这段固定对话已经结束。现在点击右上角关闭按钮，返回主场景，继续查看刚刚解锁的目标与后续主线引导。",
+                    "wait_action": "close_wechat_panel",
+                    "target_scene": "wechat",
+                    "requires_scene": "wechat",
+                    "target_mode": "close_button",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_main_goal_panel",
+                    "type": "wait_action",
+                    "step_category": "goal",
+                    "title": "看看当前目标",
+                    "text": "和角色相关的重要目标、约定与阶段性安排，之后都会汇总显示在这里。现在点击左上角目标面板，先记住这次和静老师约好的专项辅导。",
+                    "wait_action": "click_main_goal",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.goal",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "open_interact_group_after_goal",
+                    "type": "wait_action",
+                    "step_category": "interaction",
+                    "title": "打开互动入口",
+                    "text": "现在跟 Luna 聊聊周六安排的事情吧，先点击互动按钮，把主场景里的互动列表展开。之后你就能直接选择和 Luna 聊天、送礼或约会等互动方式。",
+                    "wait_action": "open_main_interact_group",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.interact_trigger",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "inspect_main_panels_after_interact",
+                    "type": "wait_action",
+                    "step_category": "interaction",
+                    "title": "留意这些常用区域",
+                    "text": "互动列表已经展开了。主场景里的互动列表、天气面板和顶部状态面板，之后都会经常陪你一起观察 Luna 的日常状态。现在点击任意一个高亮区域，我再继续带你往下。",
+                    "wait_action": "inspect_main_panels_after_interact",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.interact_group",
+                    "focus_targets": [
+                        {
+                            "highlight_feature": "main.weather"
+                        },
+                        {
+                            "highlight_feature": "main.top_status"
+                        }
+                    ],
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "inspect_main_panels_after_interact"
+                    }
+                },
+                {
+                    "id": "open_chat_after_goal",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "和 Luna 聊天",
+                    "text": "互动列表已经展开了。现在点击“与 Luna 聊天”，主动和她聊聊静老师周六专项辅导这件事。",
+                    "wait_action": "open_main_chat",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.chat",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "choose_topic_after_goal",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "选择聊天话题",
+                    "text": "现在会出现可以点击的话题选项。点一个话题开始和 Luna 自由聊天吧，接下来你就可以按自己的节奏继续推进这段关系了。",
+                    "wait_action": "select_main_chat_topic",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "target_mode": "topic_options",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "finish_first_chat_after_goal",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "先把这次聊天聊完",
+                    "text": "这次就先顺着话题和 Luna 自由聊聊吧。聊完回到主场景后，我再带你认识更重要的情感入口。",
+                    "wait_action": "finish_first_main_chat_after_goal",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_main_affection_button",
+                    "type": "wait_action",
+                    "step_category": "affection",
+                    "title": "看看情感入口",
+                    "text": "与 Luna 的所有聊天、陪伴和互动，都会持续影响她对你的好感与情感状态。现在点击左上角情感按钮，进入情感面板看看。",
+                    "wait_action": "open_affection",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.affection",
+                    "hide_until_scene_ready": true,
+                    "feature_updates": {
+                        "main.affection": true
+                    }
+                },
+                {
+                    "id": "explain_main_affection_panel",
+                    "type": "wait_action",
+                    "step_category": "affection",
+                    "title": "查看情感状态",
+                    "text": "这里可以随时查看你和 Luna 当前的情感阶段、状态变化与相关信息。看完后把情感面板关掉，我们就正式开始这段陪伴旅程。",
+                    "wait_action": "close_affection_panel",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.affection_panel",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "prompt_start_companion_journey",
+                    "type": "wait_action",
+                    "step_category": "affection",
+                    "title": "陪伴开始了",
+                    "text": "接下来，就按你的节奏开启与 Luna 的陪伴之旅吧。点击任意空白处，结束这段新手引导。",
+                    "wait_action": "start_companion_journey",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "overlay_options": {
+                        "center_panel_when_no_focus": true,
+                        "background_wait_action": "start_companion_journey"
+                    }
                 }
             ],
             "completion_feature_updates": {
-                "main.main_action": true
+                "main.main_action": true,
+                "main.affection": true
             }
         },
         {
             "id": "main_intro_guide",
             "title": "Luna新手引导",
+            "guide_category": "main_intro",
             "auto_start_after_intro": true,
             "steps": [
                 {
@@ -223,6 +464,7 @@
         {
             "id": "map_story_demo_guide",
             "title": "地图与剧情演示引导",
+            "guide_category": "map_story_demo",
             "auto_start_after_intro": false,
             "steps": [
                 {
@@ -268,6 +510,7 @@
         {
             "id": "interaction_feature_demo_guide",
             "title": "互动功能演示引导",
+            "guide_category": "interaction_demo",
             "auto_start_after_intro": false,
             "steps": [
                 {
@@ -308,6 +551,7 @@
         {
             "id": "location_entry_demo_guide",
             "title": "地点进入演示引导",
+            "guide_category": "location_entry_demo",
             "auto_start_after_intro": false,
             "steps": [
                 {

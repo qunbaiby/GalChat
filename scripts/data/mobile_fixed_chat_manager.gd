@@ -19,6 +19,7 @@ var _chat_states: Dictionary = {}
 # { "character_id": int }
 var _unread_counts: Dictionary = {}
 var _added_contacts: Array = []
+var _pending_trigger_queue: Array = []
 
 func _ready() -> void:
 	_ensure_save_dir()
@@ -75,8 +76,10 @@ func _load_states() -> void:
 				_chat_states = data.get("states", {})
 				_unread_counts = data.get("unreads", {})
 				_added_contacts = data.get("added_contacts", [])
+				_pending_trigger_queue = data.get("pending_triggers", [])
 		file.close()
 	_ensure_default_added_contacts()
+	_pending_trigger_queue = _normalize_pending_trigger_queue(_pending_trigger_queue)
 	
 	# 初始化缺失的状态
 	var state_changed = false
@@ -85,8 +88,12 @@ func _load_states() -> void:
 			_chat_states[script_id] = {
 				"current_step": 0,
 				"is_active": false,
-				"is_completed": false
+				"is_completed": false,
+				"completion_notice_sent": false
 			}
+			state_changed = true
+		elif not _chat_states[script_id].has("completion_notice_sent"):
+			_chat_states[script_id]["completion_notice_sent"] = false
 			state_changed = true
 	
 	if state_changed:
@@ -98,7 +105,8 @@ func _save_states() -> void:
 		var data = {
 			"states": _chat_states,
 			"unreads": _unread_counts,
-			"added_contacts": _added_contacts
+			"added_contacts": _added_contacts,
+			"pending_triggers": _pending_trigger_queue
 		}
 		var json_string = JSON.stringify(data, "\t")
 		file.store_string(json_string)
@@ -139,7 +147,28 @@ func reload_for_active_archive() -> void:
 	_chat_states.clear()
 	_unread_counts.clear()
 	_added_contacts.clear()
+	_pending_trigger_queue.clear()
 	_load_states()
+
+func can_trigger_script(script_id: String) -> bool:
+	if not _chat_scripts.has(script_id) or not _chat_states.has(script_id):
+		return false
+	var state: Dictionary = _chat_states.get(script_id, {})
+	if state.is_empty():
+		return false
+	return not bool(state.get("is_completed", false)) and not bool(state.get("is_active", false))
+
+func is_script_active(script_id: String) -> bool:
+	if not _chat_states.has(script_id):
+		return false
+	var state: Dictionary = _chat_states.get(script_id, {})
+	return bool(state.get("is_active", false))
+
+func is_script_completed(script_id: String) -> bool:
+	if not _chat_states.has(script_id):
+		return false
+	var state: Dictionary = _chat_states.get(script_id, {})
+	return bool(state.get("is_completed", false))
 
 var _advancing_scripts: Dictionary = {}
 
@@ -154,6 +183,7 @@ func trigger_script(script_id: String) -> bool:
 		
 	state["is_active"] = true
 	state["current_step"] = 0
+	state["completion_notice_sent"] = false
 	_save_states()
 	
 	var script = _chat_scripts[script_id]
@@ -162,6 +192,41 @@ func trigger_script(script_id: String) -> bool:
 	
 	_advance_script(script_id)
 	return true
+
+func queue_trigger_on_next_main_scene(script_id: String) -> bool:
+	var normalized_id := str(script_id).strip_edges()
+	if normalized_id == "" or not _chat_scripts.has(normalized_id) or not _chat_states.has(normalized_id):
+		return false
+	var state: Dictionary = _chat_states.get(normalized_id, {})
+	if bool(state.get("is_completed", false)) or bool(state.get("is_active", false)):
+		return false
+	if _pending_trigger_queue.has(normalized_id):
+		return false
+	_pending_trigger_queue.append(normalized_id)
+	_save_states()
+	return true
+
+func trigger_pending_for_main_scene() -> Array[String]:
+	var triggered: Array[String] = []
+	if _pending_trigger_queue.is_empty():
+		return triggered
+	var pending_copy: Array = _pending_trigger_queue.duplicate()
+	_pending_trigger_queue.clear()
+	for raw_id in pending_copy:
+		var script_id := str(raw_id).strip_edges()
+		if script_id == "":
+			continue
+		if not _chat_scripts.has(script_id) or not _chat_states.has(script_id):
+			continue
+		var state: Dictionary = _chat_states.get(script_id, {})
+		if bool(state.get("is_completed", false)) or bool(state.get("is_active", false)):
+			continue
+		if trigger_script(script_id):
+			triggered.append(script_id)
+		else:
+			_pending_trigger_queue.append(script_id)
+	_save_states()
+	return triggered
 
 # 推进剧本
 func _advance_script(script_id: String) -> void:
@@ -220,19 +285,103 @@ func _advance_script(script_id: String) -> void:
 		# 再次检查状态，如果在等待的这1秒内被清除了记录，则不再发送结束语
 		if not _chat_states.has(script_id) or not _chat_states[script_id].get("is_completed", false):
 			return
-			
-		_append_to_history(char_id, {
-			"speaker": "system",
-			"text": "本轮对话已结束"
-		})
-		
-		if not _unread_counts.has(char_id):
-			_unread_counts[char_id] = 0
-		_unread_counts[char_id] += 1
+
+		var appended_completion_notice := false
+		if not bool(_chat_states[script_id].get("completion_notice_sent", false)) and _should_append_completion_notice(script, char_id):
+			_append_to_history(char_id, {
+				"speaker": "system",
+				"text": "本轮对话已结束"
+			})
+			_chat_states[script_id]["completion_notice_sent"] = true
+			appended_completion_notice = true
+			if not _unread_counts.has(char_id):
+				_unread_counts[char_id] = 0
+			_unread_counts[char_id] += 1
+		else:
+			_chat_states[script_id]["completion_notice_sent"] = true
 		_save_states()
-		unread_count_changed.emit(char_id, _unread_counts[char_id])
+		if appended_completion_notice:
+			unread_count_changed.emit(char_id, _unread_counts[char_id])
+		_process_script_completion_events(script_id, script)
 		
 	_advancing_scripts[script_id] = false
+
+func _should_append_completion_notice(script_data: Dictionary, char_id: String) -> bool:
+	if _script_has_completion_notice(script_data):
+		return false
+	return not _history_has_completion_notice(char_id)
+
+func _script_has_completion_notice(script_data: Dictionary) -> bool:
+	var messages: Variant = script_data.get("messages", [])
+	if not (messages is Array) or messages.is_empty():
+		return false
+	var last_message: Variant = messages[messages.size() - 1]
+	if not (last_message is Dictionary):
+		return false
+	return _is_completion_notice_text(str((last_message as Dictionary).get("text", "")))
+
+func _history_has_completion_notice(char_id: String) -> bool:
+	var history_path := _get_mobile_history_path(char_id)
+	if not FileAccess.file_exists(history_path):
+		return false
+	var history_file := FileAccess.open(history_path, FileAccess.READ)
+	if history_file == null:
+		return false
+	var json := JSON.new()
+	var parse_result := json.parse(history_file.get_as_text())
+	history_file.close()
+	if parse_result != OK or not (json.data is Array):
+		return false
+	var history: Array = json.data
+	for index in range(history.size() - 1, -1, -1):
+		var raw_msg: Variant = history[index]
+		if not (raw_msg is Dictionary):
+			continue
+		var msg := raw_msg as Dictionary
+		if _is_completion_notice_text(str(msg.get("text", ""))):
+			return true
+		if str(msg.get("speaker", "")).strip_edges() != "system":
+			break
+	return false
+
+func _is_completion_notice_text(text: String) -> bool:
+	var normalized_text := text.strip_edges()
+	return normalized_text.find("对话已结束") != -1
+
+func _process_script_completion_events(script_id: String, script_data: Dictionary) -> void:
+	var raw_events = script_data.get("on_complete_events", [])
+	if not (raw_events is Array):
+		return
+	for raw_event in raw_events:
+		if not (raw_event is Dictionary):
+			continue
+		var event_data := (raw_event as Dictionary).duplicate(true)
+		var event_type := str(event_data.get("type", "")).strip_edges()
+		match event_type:
+			"activate_goal":
+				_activate_goal_from_event(event_data)
+			"activate_main_chat_topic":
+				_activate_main_chat_topic_from_event(script_id, event_data)
+
+func _activate_goal_from_event(event_data: Dictionary) -> void:
+	var manager = get_node_or_null("/root/GoalManager")
+	if manager == null or not manager.has_method("activate_goal"):
+		return
+	var goal_id := str(event_data.get("goal_id", "")).strip_edges()
+	if goal_id == "":
+		return
+	manager.activate_goal(goal_id)
+
+func _activate_main_chat_topic_from_event(script_id: String, event_data: Dictionary) -> void:
+	var manager = get_node_or_null("/root/MainChatTopicManager")
+	if manager == null or not manager.has_method("activate_topic"):
+		return
+	var payload := event_data.duplicate(true)
+	payload["source_type"] = "fixed_chat"
+	payload["source_id"] = script_id
+	if not payload.has("unlock_day_offset") and GameDataManager and GameDataManager.story_time_manager:
+		payload["unlock_day_offset"] = int(GameDataManager.story_time_manager.current_day_offset)
+	manager.activate_topic(payload)
 
 # 玩家提交选项
 func submit_player_option(script_id: String, option_id: String, option_text: String) -> void:
@@ -287,11 +436,11 @@ func _append_to_history(char_id: String, msg_data: Dictionary) -> void:
 		
 	var history = []
 	if FileAccess.file_exists(history_path):
-		var file = FileAccess.open(history_path, FileAccess.READ)
+		var history_file = FileAccess.open(history_path, FileAccess.READ)
 		var json = JSON.new()
-		if json.parse(file.get_as_text()) == OK and json.data is Array:
+		if json.parse(history_file.get_as_text()) == OK and json.data is Array:
 			history = json.data
-		file.close()
+		history_file.close()
 		
 	var new_msg = {
 		"speaker": msg_data.get("speaker", "system"),
@@ -342,6 +491,7 @@ func _append_to_history(char_id: String, msg_data: Dictionary) -> void:
 func clear_all_records() -> void:
 	_chat_states.clear()
 	_unread_counts.clear()
+	_pending_trigger_queue.clear()
 	
 	# 删除状态存档文件
 	var save_path = _get_state_path()
@@ -361,7 +511,8 @@ func clear_all_records() -> void:
 		_chat_states[script_id] = {
 			"current_step": 0,
 			"is_active": false,
-			"is_completed": false
+			"is_completed": false,
+			"completion_notice_sent": false
 		}
 		_advancing_scripts[script_id] = false
 		state_changed = true
@@ -410,3 +561,13 @@ func get_current_options(script_id: String) -> Array:
 		if msg.get("speaker") == "player_options":
 			return msg.get("options", [])
 	return []
+
+func _normalize_pending_trigger_queue(raw_queue: Variant) -> Array:
+	var normalized: Array = []
+	if not (raw_queue is Array):
+		return normalized
+	for raw_id in raw_queue:
+		var script_id := str(raw_id).strip_edges()
+		if script_id != "" and not normalized.has(script_id):
+			normalized.append(script_id)
+	return normalized

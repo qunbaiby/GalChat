@@ -35,6 +35,9 @@ MapDataManager="*res://scripts/data/map_data_manager.gd"
 TTSManager="*res://scripts/api/tts/tts_manager.gd"
 EventManager="*res://scripts/data/event_manager.gd"
 MobileFixedChatManager="*res://scripts/data/mobile_fixed_chat_manager.gd"
+StoryPostEventManager="*res://scripts/data/story_post_event_manager.gd"
+MainChatTopicManager="*res://scripts/data/main_chat_topic_manager.gd"
+GoalManager="*res://scripts/data/goal_manager.gd"
 
 [display]
 

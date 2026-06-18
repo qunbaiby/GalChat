@@ -35,6 +35,7 @@ const KIND_STYLE := {
 @onready var primary_label: Label = $HBox/TextVBox/PrimaryLabel
 
 var _option_text: String = ""
+var _option_kind: String = "default"
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
@@ -56,6 +57,7 @@ func setup(option_data: Variant, min_height: float = -1.0) -> void:
 		final_primary = "..."
 
 	_option_text = final_primary
+	_option_kind = final_kind
 	if primary_label:
 		primary_label.text = final_primary
 	_apply_kind_style(final_kind, final_icon_path)
@@ -88,3 +90,9 @@ func _apply_kind_style(kind: String, icon_path: String) -> void:
 
 func _on_pressed() -> void:
 	option_selected.emit(_option_text)
+
+func get_option_text() -> String:
+	return _option_text
+
+func get_option_kind() -> String:
+	return _option_kind

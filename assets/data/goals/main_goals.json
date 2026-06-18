@@ -1,0 +1,11 @@
+{
+  "goals": [
+    {
+      "id": "jing_special_guidance",
+      "title": "静的专项辅导",
+      "summary": "周六带 Luna 去学校图书馆，接受静老师的专项辅导。",
+      "description": "静老师已经约好周六在学校图书馆给 Luna 做单独辅导。这件事会影响她接下来的状态与安排，记得提前和她聊聊这次约定。",
+      "sort_order": 10
+    }
+  ]
+}

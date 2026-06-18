@@ -21,6 +21,8 @@ func _resolve_type_tag(msg: Dictionary) -> Dictionary:
         match subtype:
             "daily_concern_chat":
                 return {"text": "心事", "color": Color(0.98, 0.78, 0.52, 1)}
+            "daily_story_topic_chat":
+                return {"text": "主线", "color": Color(1.0, 0.72, 0.84, 1)}
             "daily_topic_chat":
                 return {"text": "话题", "color": Color(0.74, 0.87, 1.0, 1)}
             "daily_memory_revisit":

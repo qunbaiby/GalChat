@@ -101,5 +101,19 @@
       "text": "本轮对话已结束",
       "delay": 1
     }
+  ],
+  "on_complete_events": [
+    {
+      "type": "activate_goal",
+      "goal_id": "jing_special_guidance"
+    },
+    {
+      "type": "activate_main_chat_topic",
+      "character_id": "luna",
+      "event_id": "jing_piano_practice_followup",
+      "topic_text": "静约你周六进行专项辅导",
+      "topic_prompt_hint": "静老师今天听了Luna弹《星空下的祈愿》，了解了她现在的状态，也已经约好周六在学校图书馆给她做单独辅导。玩家现在主动来和Luna聊这次周六辅导的约定，请自然承接这件事本身展开对话，包括她现在的心情、顾虑或期待。",
+      "expire_on_next_day": true
+    }
   ]
 }

@@ -4,6 +4,13 @@
     "day_offset": 1,
     "story_period": "上午",
     "memory_enabled": true,
+    "post_story_events": [
+        {
+            "type": "fixed_chat",
+            "script_id": "jing_piano_practice_invite",
+            "timing": "next_main_scene"
+        }
+    ],
     "memory_records": [
         {
             "title": "星空下的祈愿",
