@@ -10,6 +10,7 @@ signal generation_state_changed(active: bool)
 signal story_ready(script_data: Dictionary)
 
 var _character_profile: Dictionary = {}
+var _runtime_profile = null
 var _date_story_manager: DateStoryManager = null
 var _deepseek_client: Node = null
 var _date_loading_overlay: DateLoadingOverlay = null
@@ -21,11 +22,16 @@ var _segment_generation_results: Array = []
 var _segment_used_fallback_flags: Array = []
 var _current_segment_request_index: int = -1
 
-
 func setup(character_profile: Dictionary) -> void:
 	_character_profile = character_profile.duplicate(true)
 	_date_story_manager = DateStoryManager.new()
 	_ensure_date_loading_overlay()
+
+
+func set_runtime_profile(runtime_profile) -> void:
+	_runtime_profile = runtime_profile
+	if _date_story_manager and _date_story_manager.has_method("set_runtime_profile"):
+		_date_story_manager.set_runtime_profile(_runtime_profile)
 
 
 func cleanup() -> void:

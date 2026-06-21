@@ -1,11 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://dbwmyour8af3m"]
+[gd_scene format=3 uid="uid://dbwmyour8af3m"]
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_k2xx7"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
 [ext_resource type="PackedScene" uid="uid://d0vnlpr3gjrac" path="res://scenes/ui/desktop_pet/pet_body.tscn" id="3_yofv2"]
-
-[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PetInput"]
 bg_color = Color(0.985, 0.988, 0.995, 0.96)
@@ -46,11 +43,77 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="DesktopPet" type="Window"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PhoneShell"]
+bg_color = Color(0.17, 0.19, 0.22, 0.96)
+corner_radius_top_left = 36
+corner_radius_top_right = 36
+corner_radius_bottom_right = 36
+corner_radius_bottom_left = 36
+shadow_color = Color(0.08, 0.11, 0.16, 0.24)
+shadow_size = 10
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PhoneScreen"]
+bg_color = Color(0.94, 0.96, 0.98, 0.98)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TimeWidget"]
+bg_color = Color(0.12, 0.14, 0.18, 0.98)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.08, 0.11, 0.16, 0.18)
+shadow_size = 14
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionCardPrimary"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.32, 0.62, 0.58, 0.16)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionCard"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.86, 0.89, 0.94, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.24, 0.32, 0.42, 0.06)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FooterPill"]
+bg_color = Color(0.14, 0.16, 0.2, 0.96)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
+
+[node name="DesktopPet" type="Window" unique_id=800206453]
 transparent_bg = true
 oversampling_override = 1.0
 title = "桌宠"
-size = Vector2i(400, 720)
+size = Vector2i(1280, 720)
 visible = false
 unresizable = true
 borderless = true
@@ -58,89 +121,58 @@ always_on_top = true
 transparent = true
 script = ExtResource("1_script")
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=1700345448]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_k2xx7")
 
-[node name="Background_layer" type="Control" parent="Control"]
+[node name="Background_layer" type="Control" parent="Control" unique_id=449061053]
 custom_minimum_size = Vector2(220, 205)
 layout_mode = 1
-anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.67200005
 anchor_bottom = 1.0
-offset_top = -250.0
-offset_right = -25.0
+offset_left = 954.0
+offset_top = -265.0
+offset_right = 373.83997
+offset_bottom = -15.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_stretch_ratio = 1.5
 
-[node name="PetBody" parent="Control" instance=ExtResource("3_yofv2")]
-position = Vector2(174, 580)
+[node name="PetBody" parent="Control" unique_id=39703576 instance=ExtResource("3_yofv2")]
+position = Vector2(1095, 559)
 
-[node name="UIContainer" type="VBoxContainer" parent="Control"]
-layout_mode = 0
-offset_left = 263.0
-offset_top = 521.0
-offset_right = 344.0
-offset_bottom = 674.0
-theme_override_constants/separation = 10
-
-[node name="MainWindowButton" type="Button" parent="Control/UIContainer"]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
-text = "主界面"
-
-[node name="CloseButton" type="Button" parent="Control/UIContainer"]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
-text = "关闭"
-
-[node name="DialogueButton" type="Button" parent="Control/UIContainer"]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PetButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PetButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButtonPrimary")
-text = "聊天"
-
-[node name="InputLayer" type="PanelContainer" parent="Control"]
+[node name="InputLayer" type="PanelContainer" parent="Control" unique_id=1729692891]
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -46.0
-grow_horizontal = 2
+offset_left = -361.0
+offset_top = -62.0
+offset_right = -9.0
+offset_bottom = -10.0
+grow_horizontal = 0
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_PetInput")
 
-[node name="MarginContainer" type="MarginContainer" parent="Control/InputLayer"]
+[node name="MarginContainer" type="MarginContainer" parent="Control/InputLayer" unique_id=1215559013]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Control/InputLayer/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/InputLayer/MarginContainer" unique_id=1180767553]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="InputField" type="TextEdit" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
+[node name="InputField" type="TextEdit" parent="Control/InputLayer/MarginContainer/HBoxContainer" unique_id=1424556044]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
@@ -148,46 +180,263 @@ placeholder_text = "输入你想说的话..."
 wrap_mode = 1
 scroll_fit_content_height = true
 
-[node name="VoiceRecordButton" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
+[node name="VoiceRecordButton" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer" unique_id=1127166787]
 custom_minimum_size = Vector2(45, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
 text = "🎙"
 
-[node name="SendButton" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
+[node name="SendButton" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer" unique_id=2076291113]
 custom_minimum_size = Vector2(45, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PetButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PetButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButtonPrimary")
 theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButtonPrimary")
 text = "发送"
 
-[node name="Close" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer"]
+[node name="Close" type="Button" parent="Control/InputLayer/MarginContainer/HBoxContainer" unique_id=938851030]
 custom_minimum_size = Vector2(45, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.28, 0.22, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
 text = "关闭"
 
-[node name="DeepSeekClient" type="Node" parent="."]
+[node name="QuickToolsPanel" type="PanelContainer" parent="Control" unique_id=1677745701]
+visible = false
+layout_mode = 0
+offset_left = 499.0
+offset_top = 34.0
+offset_right = 905.0
+offset_bottom = 708.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneShell")
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/QuickToolsPanel" unique_id=674001183]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/QuickToolsPanel/MarginContainer" unique_id=1954815904]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Screen" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer" unique_id=524637763]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneScreen")
+
+[node name="ScreenMargin" type="MarginContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen" unique_id=1757929053]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ScreenStack" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin" unique_id=548492952]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DashboardRoot" type="VBoxContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack" unique_id=1226442082]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TimeWidget" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1582347799]
+custom_minimum_size = Vector2(0, 108)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_TimeWidget")
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget" unique_id=842295748]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="HeaderRow" type="HBoxContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer" unique_id=76267710]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="InfoVBox" type="VBoxContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow" unique_id=1166093348]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=1337676864]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.92)
+theme_override_font_sizes/font_size = 13
+text = "2026年06月21日  周日"
+
+[node name="SubTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=2009480224]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.72)
+theme_override_font_sizes/font_size = 11
+text = "晚上也有我陪着你。"
+
+[node name="ClockLabel" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow" unique_id=1648261941]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 34
+text = "08:08"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="PrimaryTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1142898359]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.22, 0.28, 1)
+theme_override_font_sizes/font_size = 14
+text = "常用入口"
+
+[node name="PrimaryButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=2058719298]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="DialogueButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=1199688975]
+custom_minimum_size = Vector2(150, 76)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCardPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCardPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCardPrimary")
+text = "聊天"
+
+[node name="MainWindowButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=1117274514]
+custom_minimum_size = Vector2(75, 76)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "主界面"
+
+[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=863629392]
+custom_minimum_size = Vector2(150, 76)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "桌宠设置"
+
+[node name="ToolTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=837001411]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.22, 0.28, 1)
+theme_override_font_sizes/font_size = 14
+text = "常用工具"
+
+[node name="ToolButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1638410051]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="MusicToggleButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=542409975]
+custom_minimum_size = Vector2(150, 68)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "音乐"
+
+[node name="PomodoroToggleButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1080831226]
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCardPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCardPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCardPrimary")
+text = "番茄钟"
+
+[node name="MuteButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1703601122]
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "静音30分"
+
+[node name="CloseButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=487945073]
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "关闭桌宠"
+
+[node name="HideToolButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=229844351]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.92)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_FooterPill")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_FooterPill")
+theme_override_styles/hover = SubResource("StyleBoxFlat_FooterPill")
+text = "收起工具面板"
+
+[node name="PomodoroPanelHost" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack" unique_id=1835788532]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MusicPanelHost" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack" unique_id=147034904]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsPanelHost" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack" unique_id=78669111]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DeepSeekClient" type="Node" parent="." unique_id=1977180373]
 script = ExtResource("3_api")
 
-[node name="MicCapture" type="AudioStreamPlayer" parent="."]
+[node name="MicCapture" type="AudioStreamPlayer" parent="." unique_id=1634013920]
 stream = SubResource("AudioStreamMicrophone_1")
 bus = &"Record"
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=488529026]
 
-[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1236145271]
 bus = &"BGM"
-
-

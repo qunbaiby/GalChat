@@ -72,7 +72,11 @@ func _build_effective_options(options: Dictionary = {}) -> Dictionary:
 
 	# 兼容原有逻辑，注入当前的 voice_type 或 voice_seed
 	if GameDataManager.profile and GameDataManager.config:
-		var char_id = GameDataManager.config.current_character_id
+		var char_id := str(final_options.get("character_id", "")).strip_edges().to_lower()
+		if char_id == "" and str(GameDataManager.profile.current_character_id).strip_edges() != "":
+			char_id = str(GameDataManager.profile.current_character_id).strip_edges().to_lower()
+		elif char_id == "" and str(GameDataManager.config.current_character_id).strip_edges() != "":
+			char_id = str(GameDataManager.config.current_character_id).strip_edges().to_lower()
 		if current_adapter_type == "doubao":
 			if not final_options.has("voice_type") and GameDataManager.config.character_voice_types.has(char_id):
 				final_options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
@@ -88,7 +92,8 @@ func synthesize(text: String, options: Dictionary = {}) -> void:
 		tts_failed.emit("No TTS adapter configured", text)
 		return
 
-	current_adapter.synthesize(text, _build_effective_options(options))
+	var final_options := _build_effective_options(options)
+	current_adapter.synthesize(text, final_options)
 
 func get_cache_key(text: String, options: Dictionary = {}) -> String:
 	if not current_adapter:

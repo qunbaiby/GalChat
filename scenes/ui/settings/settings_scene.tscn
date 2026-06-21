@@ -1764,6 +1764,125 @@ custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
 text = "哥哥"
 
+[node name="PolicyPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "低打扰策略中心"
+
+[node name="Hint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.36, 0.36, 0.82)
+theme_override_font_sizes/font_size = 14
+text = "可按模式快速切换桌宠风格，并单独指定允许观察、永不截图和敏感窗口关键词。关键词支持逗号、空格或换行分隔。"
+autowrap_mode = 3
+
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PetDisturbanceModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PetDisturbanceModeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetDisturbanceModeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "当前陪伴模式"
+vertical_alignment = 1
+
+[node name="PetDisturbanceModeOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetDisturbanceModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 38)
+layout_mode = 2
+
+[node name="PetQuietRangesRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PetQuietRangesLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetQuietRangesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "禁止主动说话时段"
+vertical_alignment = 1
+
+[node name="PetQuietRangesInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetQuietRangesRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 38)
+layout_mode = 2
+placeholder_text = "例如 23:30-08:00, 13:00-14:00"
+
+[node name="PetObserveAllowGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PetObserveAllowLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetObserveAllowGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "允许观察的应用关键词"
+
+[node name="PetObserveAllowInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetObserveAllowGroup"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+placeholder_text = "留空表示不限制，例如 trae, cursor, chrome"
+wrap_mode = 1
+
+[node name="PetNeverCaptureGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PetNeverCaptureLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetNeverCaptureGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "永不截图的应用关键词"
+
+[node name="PetNeverCaptureInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetNeverCaptureGroup"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+placeholder_text = "例如 银行, 支付, 后台, 控制台"
+wrap_mode = 1
+
+[node name="PetSensitiveWindowGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PetSensitiveWindowLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetSensitiveWindowGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "敏感窗口关键词"
+
+[node name="PetSensitiveWindowInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetSensitiveWindowGroup"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+placeholder_text = "敏感窗口只读应用名不截图，例如 微信, QQ, 飞书, Outlook"
+wrap_mode = 1
+
+[node name="FooterHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.37, 0.39, 0.4, 0.78)
+theme_override_font_sizes/font_size = 13
+text = "模式建议：安静模式几乎不主动打扰，专注模式保留轻量陪伴，摸鱼模式保持当前活泼反应，深夜模式默认更克制。"
+autowrap_mode = 3
+
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
 [node name="MicCapture" type="AudioStreamPlayer" parent="."]

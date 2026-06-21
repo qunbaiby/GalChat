@@ -12,9 +12,11 @@ signal closed
 @onready var empty_npc_label: Label = $MainPanel/Margin/VBox/EmptyNPCLabel
 @onready var color_rect: ColorRect = $ColorRect
 @onready var close_button: Button = $MainPanel/TopBar/CloseButton
+@onready var content_vbox: VBoxContainer = $MainPanel/Margin/VBox
 
 var location_id: String = ""
 var selected_npc_id: String = ""
+var story_hint_label: Label = null
 
 func _ready():
     color_rect.modulate.a = 0.0
@@ -33,6 +35,22 @@ func _ready():
         enter_button.pressed.connect(_on_enter_pressed)
     else:
         push_error("[LocationDetailPanel] EnterButton 节点不存在")
+    _ensure_story_hint_label()
+
+func _ensure_story_hint_label() -> void:
+    if story_hint_label and is_instance_valid(story_hint_label):
+        return
+    if not is_instance_valid(content_vbox) or not is_instance_valid(enter_button):
+        return
+    story_hint_label = Label.new()
+    story_hint_label.name = "StoryHintLabel"
+    story_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    story_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    story_hint_label.visible = false
+    story_hint_label.theme_override_colors.font_color = Color(0.32, 0.62, 0.58, 1)
+    story_hint_label.theme_override_font_sizes.font_size = 14
+    content_vbox.add_child(story_hint_label)
+    content_vbox.move_child(story_hint_label, enter_button.get_index())
 
 func setup(loc_id: String):
     location_id = loc_id
@@ -51,14 +69,36 @@ func setup(loc_id: String):
             
     if not real_path.is_empty() and ResourceLoader.exists(real_path):
         thumbnail_rect.texture = load(real_path)
-    
-    var active_story = MapDataManager.get_location_entry_story(location_id)
-    if is_instance_valid(enter_button):
-        enter_button.text = "进入该地点"
-        if not active_story.is_empty():
-            enter_button.text = "进入剧情"
+    _refresh_entry_state()
     
     _load_npcs()
+
+func _refresh_entry_state() -> void:
+    var active_story := _resolve_location_story_trigger()
+    if is_instance_valid(enter_button):
+        enter_button.text = "进入该地点"
+        enter_button.tooltip_text = "直接进入地点"
+        if not active_story.is_empty():
+            enter_button.text = "进入剧情"
+            enter_button.tooltip_text = "当前有可触发的地点剧情，完成后今日不再重复触发"
+    if not story_hint_label or not is_instance_valid(story_hint_label):
+        return
+    if active_story.is_empty():
+        story_hint_label.hide()
+        story_hint_label.text = ""
+        return
+    var story_title := str(active_story.get("badge_text", "")).strip_edges()
+    if story_title == "":
+        story_title = str(active_story.get("name", "")).strip_edges()
+    if story_title == "":
+        story_title = "当前时段有可触发剧情"
+    story_hint_label.text = "今日事件：%s。完成后今天再次进入将直接进入地点。" % story_title
+    story_hint_label.show()
+
+func _resolve_location_story_trigger() -> Dictionary:
+    if MapDataManager and MapDataManager.has_method("get_active_location_story_trigger"):
+        return MapDataManager.get_active_location_story_trigger(location_id)
+    return MapDataManager.get_location_entry_story(location_id)
 
 func _load_npcs():
     for child in npc_container.get_children():

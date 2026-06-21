@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://76yi0pm72iec"]
+[gd_scene format=3 uid="uid://76yi0pm72iec"]
 
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://rjndld7ka760" path="res://assets/images/backgrounds/main/art_studio_bg.png" id="2_jxfeh"]
@@ -126,7 +126,7 @@ corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 4
 
-[node name="ArtStudioBg" type="Control"]
+[node name="ArtStudioBg" type="Control" unique_id=1124312191]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -136,7 +136,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_script")
 
-[node name="background" type="TextureRect" parent="."]
+[node name="background" type="TextureRect" parent="." unique_id=1329402427]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -148,7 +148,7 @@ texture = ExtResource("2_jxfeh")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="WeatherLayer" type="Control" parent="."]
+[node name="WeatherLayer" type="Control" parent="." unique_id=205316852]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -158,13 +158,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="LunaAni" type="AnimatedSprite2D" parent="."]
+[node name="LunaAni" type="AnimatedSprite2D" parent="." unique_id=691357304]
 self_modulate = Color(1, 1, 1, 0)
 position = Vector2(658.76575, 373.99905)
 scale = Vector2(0.7736431, 0.7736431)
 sprite_frames = SubResource("SpriteFrames_jxfeh")
 
-[node name="StoryButton" type="Button" parent="."]
+[node name="StoryButton" type="Button" parent="." unique_id=1499845283]
 layout_mode = 0
 offset_left = 1004.0
 offset_top = 121.0
@@ -180,7 +180,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_StoryHover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_StoryFocus")
 text = "心事"
 
-[node name="InteractTriggerButton" type="Button" parent="."]
+[node name="InteractTriggerButton" type="Button" parent="." unique_id=1744170112]
 layout_mode = 0
 offset_left = 621.0
 offset_top = 154.0
@@ -196,7 +196,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_InteractHover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InteractNormal")
 text = "互动"
 
-[node name="IdleQuoteBubble" type="PanelContainer" parent="."]
+[node name="IdleQuoteBubble" type="PanelContainer" parent="." unique_id=695416829]
 visible = false
 layout_mode = 0
 offset_left = 534.0
@@ -206,7 +206,7 @@ offset_bottom = 427.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_jxfeh")
 
-[node name="Label" type="RichTextLabel" parent="IdleQuoteBubble"]
+[node name="Label" type="RichTextLabel" parent="IdleQuoteBubble" unique_id=1910840328]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
@@ -215,4 +215,3 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
-horizontal_alignment = 0

@@ -2,7 +2,7 @@ extends "res://scripts/script_engine/script_event.gd"
 
 var audio_id: String
 var audio_type: String # "bgm", "bgs", "se"
-var action: String # "play", "stop"
+var action: String # "play", "stop", "switch"
 var fade_time: float
 var loop: bool
 

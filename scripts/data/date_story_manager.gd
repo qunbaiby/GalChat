@@ -25,10 +25,13 @@ const DATE_TYPE_NAMES := {
 const DATE_MIN_DIALOGUE_CHARS := 1500
 const DATE_MIN_SEGMENT_DIALOGUE_CHARS := 320
 const DATE_ACTION_COLOR_TAG := "#8fbc8f"
+const DATE_FIXED_CHARACTER_ID := "luna"
+const DATE_FIXED_CHARACTER_NAME := "Luna"
 
 var _rng := RandomNumberGenerator.new()
 var _template_config: Dictionary = {}
 var _date_type_by_location: Dictionary = {}
+var _runtime_profile = null
 
 
 func _init() -> void:
@@ -36,9 +39,12 @@ func _init() -> void:
 	_load_template_config()
 	_build_date_type_index()
 
+func set_runtime_profile(profile_instance) -> void:
+	_runtime_profile = profile_instance
+
 
 func prepare_date_story_request(plan_list: Array) -> Dictionary:
-	var profile = GameDataManager.profile
+	var profile = _runtime_profile if _runtime_profile != null else GameDataManager.profile
 	var stage_conf: Dictionary = profile.get_current_stage_config() if profile else {}
 	var story_time = GameDataManager.story_time_manager
 	var weather_id: String = "sunny"
@@ -83,8 +89,8 @@ func prepare_date_story_request(plan_list: Array) -> Dictionary:
 			base_traits = str(GameDataManager.personality_system.get_base_traits(profile)).strip_edges()
 			dynamic_traits = str(GameDataManager.personality_system.get_dynamic_traits(profile)).strip_edges()
 			mood_summary = str(GameDataManager.personality_system.get_mood_summary(profile)).strip_edges()
-		scene_setting = str(stage_conf.get("scene_setting", "")).replace("{char_name}", str(profile.char_name)).strip_edges()
-		important_notes = str(stage_conf.get("important_notes", "")).replace("{char_name}", str(profile.char_name)).strip_edges()
+		scene_setting = str(stage_conf.get("scene_setting", "")).replace("{char_name}", DATE_FIXED_CHARACTER_NAME).strip_edges()
+		important_notes = str(stage_conf.get("important_notes", "")).replace("{char_name}", DATE_FIXED_CHARACTER_NAME).strip_edges()
 		var current_expression: String = str(profile.current_expression).strip_edges()
 		if current_expression != "" and GameDataManager.expression_system:
 			expression_name = str(GameDataManager.expression_system.expression_configs.get(current_expression, {}).get("expression_name", "")).strip_edges()
@@ -101,12 +107,12 @@ func prepare_date_story_request(plan_list: Array) -> Dictionary:
 		"story_weather_desc": weather_desc,
 		"temperature": temperature,
 		"character_id": _get_character_id(),
-		"character_name": profile.char_name if profile else "Luna",
+		"character_name": DATE_FIXED_CHARACTER_NAME,
 		"player_name": profile.player_name if profile else "玩家",
 		"player_title": _get_player_title(),
 		"relationship_stage": int(profile.current_stage) if profile else 1,
 		"relationship_stage_title": str(stage_conf.get("stageTitle", "熟悉阶段")),
-		"relationship_stage_desc": str(stage_conf.get("stageDesc", "请保持自然克制的相处边界。")).replace("{char_name}", profile.char_name if profile else "Luna"),
+		"relationship_stage_desc": str(stage_conf.get("stageDesc", "请保持自然克制的相处边界。")).replace("{char_name}", DATE_FIXED_CHARACTER_NAME),
 		"intimacy": float(profile.intimacy) if profile else 0.0,
 		"trust": float(profile.trust) if profile else 0.0,
 		"relationship_flavor": relationship_flavor,
@@ -1288,14 +1294,14 @@ func _build_script_id() -> String:
 
 
 func _get_character_id() -> String:
-	if GameDataManager.profile and str(GameDataManager.profile.current_character_id).strip_edges() != "":
-		return str(GameDataManager.profile.current_character_id).strip_edges().to_lower()
-	if GameDataManager.config:
-		return str(GameDataManager.config.current_character_id).strip_edges().to_lower()
-	return "luna"
+	return DATE_FIXED_CHARACTER_ID
 
 
 func _get_player_title() -> String:
+	if _runtime_profile:
+		var runtime_title := str(_runtime_profile.player_title).strip_edges()
+		if runtime_title != "":
+			return runtime_title
 	if GameDataManager.profile:
 		var title := str(GameDataManager.profile.player_title).strip_edges()
 		if title != "":

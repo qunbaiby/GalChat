@@ -291,6 +291,13 @@
                     "animation": "fade_out"
                 },
                 {
+                    "type": "audio",
+                    "audio_id": "starry_wish_bgm",
+                    "audio_type": "bgm",
+                    "action": "stop",
+                    "fade_time": 1.0
+                },
+                {
                     "type": "jump",
                     "target_chapter": "end"
                 }

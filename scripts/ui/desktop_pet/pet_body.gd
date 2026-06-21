@@ -365,3 +365,21 @@ func get_passthrough_rects() -> Array[Rect2]:
                 rects.append(child.get_global_rect().grow(5))
             
     return rects
+
+func get_body_global_rect() -> Rect2:
+    var body_rect := Rect2()
+    var has_rect := false
+    
+    if avatar_mask and avatar_mask.is_visible_in_tree():
+        body_rect = avatar_mask.get_global_rect().grow(5)
+        has_rect = true
+    
+    if state_ring and state_ring.is_visible_in_tree():
+        var ring_rect := state_ring.get_global_rect().grow(5)
+        body_rect = body_rect.merge(ring_rect) if has_rect else ring_rect
+        has_rect = true
+    
+    if has_rect:
+        return body_rect
+    
+    return Rect2(global_position - Vector2(40, 90), Vector2(80, 180))

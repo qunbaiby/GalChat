@@ -137,6 +137,13 @@
                     "content": "{player_title}，这一周的基础课程规划，就再拜托你啦……\n在你的帮助下，我会慢慢找到方向的。"
                 },
                 {
+                    "type": "audio",
+                    "audio_id": "luna_bgm",
+                    "audio_type": "bgm",
+                    "action": "stop",
+                    "fade_time": 1.0
+                },
+                {
                     "type": "jump",
                     "target_chapter": "end"
                 }

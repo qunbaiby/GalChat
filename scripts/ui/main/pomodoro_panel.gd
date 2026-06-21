@@ -166,7 +166,7 @@ func _update_ui() -> void:
         else:
             color1 = Color(0.2, 1.0, 0.4)
             color2 = Color(0.0, 0.8, 0.8)
-            
+    
     ring.material.set_shader_parameter("progress", p)
     ring.material.set_shader_parameter("color1", color1)
     ring.material.set_shader_parameter("color2", color2)

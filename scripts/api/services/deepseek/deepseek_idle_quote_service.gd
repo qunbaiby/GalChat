@@ -4,6 +4,7 @@ const IDLE_QUOTE_CONFIG_PATH := "res://assets/data/interaction/idle_quote_config
 
 var _idle_quote_config_cache: Dictionary = {}
 var _idle_quote_config_loaded: bool = false
+var _request_options: Dictionary = {}
 
 func _resolve_idle_quote_time_context() -> Dictionary:
 	var story_time_manager = GameDataManager.story_time_manager
@@ -330,6 +331,22 @@ func _build_idle_quote_random_pool(profile: CharacterProfile, stage_conf: Dictio
 		"prompt_text": "\n- " + "\n- ".join(selected)
 	}
 
+func _build_scene_mode_category_whitelist(scene_mode: String, prompt_type: String) -> Array[String]:
+	match scene_mode:
+		"proactive_greeting":
+			match prompt_type:
+				"course":
+					return ["关心型", "陪伴型", "分享型"]
+				"daily":
+					return ["陪伴型", "分享型", "吐槽型", "关心型"]
+				_:
+					return ["关心型", "陪伴型", "分享型"]
+		_:
+			return []
+
+func set_request_options(options: Dictionary = {}) -> void:
+	_request_options = options.duplicate(true)
+
 func send_idle_quote_generation(client, char_id: String) -> void:
 	var profile = GameDataManager.profile
 	if not profile or profile.current_character_id != char_id:
@@ -350,13 +367,30 @@ func send_idle_quote_generation(client, char_id: String) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	var random_seed: int = rng.randi()
+	var options := _request_options.duplicate(true)
+	_request_options.clear()
+	var scene_mode := str(options.get("scene_mode", "idle_chat")).strip_edges()
+	if scene_mode == "":
+		scene_mode = "idle_chat"
+	var prompt_type := str(options.get("prompt_type", "")).strip_edges()
+	var category_whitelist := _build_scene_mode_category_whitelist(scene_mode, prompt_type)
 	var time_context: Dictionary = _resolve_idle_quote_time_context()
 	var weather_context: Dictionary = _resolve_idle_quote_weather_context()
 	var mood_guidance: String = _resolve_idle_quote_mood_guidance(mood_id, mood)
 	var stage_guidance: String = _resolve_idle_quote_stage_guidance(profile, stage_conf)
-	var idle_pool: Dictionary = _build_idle_quote_random_pool(profile, stage_conf, rng, time_context, weather_context, mood_id, mood, mood_guidance, stage_title, stage_guidance)
+	var idle_pool: Dictionary = _build_idle_quote_random_pool(profile, stage_conf, rng, time_context, weather_context, mood_id, mood, mood_guidance, stage_title, stage_guidance, category_whitelist)
 	var random_pool_text: String = str(idle_pool.get("prompt_text", ""))
 	var selected_categories: Array = idle_pool.get("categories", [])
+	var is_proactive_greeting := scene_mode == "proactive_greeting"
+	var scene_desc := "这是主场景里的挂机闲聊气泡，不是正式剧情开场，而是一句自然飘出来的陪伴式碎碎念。"
+	var mode_guidance := "这次更偏向挂机闲聊，所以要像陪伴中的自然碎碎念，不要像专门打招呼，也不要像剧情推进台词。"
+	var task_desc := "请根据你的性格、情感阶段、当前心情、当前时段和天气，对【%s】说一句简短的话，比如倾诉心事、撒娇、吐槽、关心、碎碎念或者轻声搭话。\n" % player_name
+	var user_request := "请随机对我说一句符合你人设的话，务必保证每次都截然不同！"
+	if is_proactive_greeting:
+		scene_desc = "这是玩家刚进入主场景时的主动问候气泡，你要先开口，但仍然要像日常陪伴里自然飘出来的一句问候。"
+		mode_guidance = "这次是进入主场景后的主动问候，只要轻轻开个头就够，不要展开成长对话，也不要提历史聊天。"
+		task_desc = "请根据你的性格、情感阶段、当前心情、当前时段和天气，先主动对【%s】说一句自然问候，起到轻量开场和陪伴作用。\n" % player_name
+		user_request = "请先主动和我打一句自然的招呼，只输出一句。"
 	var bubble_guidance_lines: Array[String] = [
 		"当前主场景时段：%s（%02d点，%s）。" % [str(time_context.get("bucket", "早")), int(time_context.get("hour", 8)), str(time_context.get("period", "上午"))],
 		"当前剧情天气：%s。" % str(weather_context.get("desc", "晴天")),
@@ -365,11 +399,11 @@ func send_idle_quote_generation(client, char_id: String) -> void:
 		"心情引导：%s" % mood_guidance,
 		"关系引导：%s" % stage_guidance,
 		"本次优先子类：%s" % " / ".join(PackedStringArray(selected_categories)),
-		"这次更偏向挂机闲聊，所以要像陪伴中的自然碎碎念，不要像专门打招呼，也不要像剧情推进台词。"
+		mode_guidance
 	]
 	var shared_strategy: String = GameDataManager.prompt_manager.build_main_scene_bubble_strategy_block(
 		profile,
-		"这是主场景里的挂机闲聊气泡，不是正式剧情开场，而是一句自然飘出来的陪伴式碎碎念。",
+		scene_desc,
 		bubble_guidance_lines
 	)
 	var system_prompt := "【系统设定】\n"
@@ -379,18 +413,19 @@ func send_idle_quote_generation(client, char_id: String) -> void:
 	system_prompt += shared_strategy + "\n"
 	system_prompt += "【随机灵感池】%s\n" % random_pool_text
 	system_prompt += "【任务要求】\n"
-	system_prompt += "请根据你的性格、情感阶段、当前心情、当前时段和天气，对【%s】说一句简短的话，比如倾诉心事、撒娇、吐槽、关心、碎碎念或者轻声搭话。\n" % player_name
+	system_prompt += task_desc
 	system_prompt += "要求：\n"
 	system_prompt += "1. 每次必须提供完全不同的随机对话，禁止重复以前的回答。优先围绕“本次优先子类”中的1到2种类型来写。\n"
 	system_prompt += "2. 只输出一句纯粹的台词，不要任何动作描写（禁止使用括号），不要任何系统前缀。\n"
 	system_prompt += "3. 字数优先控制在12到28字。\n"
 	system_prompt += "4. 语气要自然、生活化，和主场景主动问候保持同一口吻体系。\n"
 	system_prompt += "5. 不要生硬点名“现在是早上/天气是雨天”，而是让这些语境自然渗进话里。\n"
-	system_prompt += "6. 这是常驻陪伴里的闲聊，不要像正式剧情开场，也不要像任务提示。\n"
+	system_prompt += "6. 不要读取、假设或延续任何历史对话上下文，这次只根据当前配置和随机灵感池开口。\n"
+	system_prompt += "7. %s\n" % ("这是主场景开场问候，不要像正式剧情开场，也不要像任务提示。" if is_proactive_greeting else "这是常驻陪伴里的闲聊，不要像正式剧情开场，也不要像任务提示。")
 	system_prompt += "[随机因子：%d]\n" % random_seed
 	var api_messages = [
 		{"role": "system", "content": system_prompt},
-		{"role": "user", "content": "请随机对我说一句符合你人设的话，务必保证每次都截然不同！"}
+		{"role": "user", "content": user_request}
 	]
 	var body = {
 		"model": client.get_chat_model_id(),

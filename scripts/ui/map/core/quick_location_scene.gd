@@ -13,6 +13,7 @@ const BUBBLE_RECENT_HISTORY_LIMIT := 4
 const SUBMENU_PANEL_CENTER_RATIO := 2.0 / 3.0
 const SUBMENU_PANEL_MIN_RIGHT_MARGIN := 28.0
 const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
+const QUICK_LOCATION_SKIP_EVENT_META := "skip_quick_location_initial_event_broadcast"
 const QUICK_ACTION_BUTTON_SCENE = preload("res://scenes/ui/map/core/quick_action_button.tscn")
 
 @onready var bg_texture: TextureRect = $Background
@@ -93,7 +94,7 @@ func _ready() -> void:
 		
 		# Broadcast state change to EventManager to check for global events
 		var event_manager = get_node_or_null("/root/EventManager")
-		if event_manager and event_manager.has_method("broadcast_state_change"):
+		if not _should_skip_initial_location_event_broadcast() and event_manager and event_manager.has_method("broadcast_state_change"):
 			event_manager.broadcast_state_change({"location_id": location_id})
 			
 	if location_id == "gym" and initial_npc_id == "":
@@ -110,6 +111,17 @@ func _ready() -> void:
 		# 进入场景时先自动展示角色，但不触发“打开菜单”台词
 		call_deferred("_on_npc_clicked", initial_npc_id, false)
 		call_deferred("_schedule_scene_entry_bubble", initial_npc_id)
+
+func _should_skip_initial_location_event_broadcast() -> bool:
+	if not GameDataManager.has_meta(QUICK_LOCATION_SKIP_EVENT_META):
+		return false
+	var raw_meta = GameDataManager.get_meta(QUICK_LOCATION_SKIP_EVENT_META)
+	GameDataManager.remove_meta(QUICK_LOCATION_SKIP_EVENT_META)
+	if raw_meta is Dictionary:
+		var target_location_id := str(raw_meta.get("location_id", "")).strip_edges()
+		if target_location_id != "" and target_location_id == location_id:
+			return true
+	return false
 
 func _load_location_data():
 	var loc_data = MapDataManager.get_location(location_id)

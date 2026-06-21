@@ -6,8 +6,11 @@ const DateScenePresenter = preload("res://scripts/ui/date/date_scene_presenter.g
 const DateBubbleController = preload("res://scripts/ui/date/date_bubble_controller.gd")
 const DateGenerationController = preload("res://scripts/ui/date/date_generation_controller.gd")
 const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
+const DeepSeekClient = preload("res://scripts/api/deepseek_client.gd")
+const CharacterProfile = preload("res://scripts/data/character_profile.gd")
 const STORY_SCENE_PATH := "res://scenes/ui/story/story_scene.tscn"
 const DATE_CHARACTER_PROFILE_PATH := "res://assets/data/interaction/date_character_profiles.json"
+const DATE_FIXED_CHARACTER_ID := "luna"
 
 @onready var portrait_texture = %PortraitTexture
 @onready var bubble_panel = %BubblePanel
@@ -41,6 +44,8 @@ var _presenter: DateScenePresenter = null
 var _bubble_controller: DateBubbleController = null
 var _generation_controller: DateGenerationController = null
 var _date_character_profile: Dictionary = {}
+var _date_runtime_profile: CharacterProfile = null
+var _local_deepseek_client: DeepSeekClient = null
 
 const SLOT_CUSTOM_TEXT := "现实邀约"
 
@@ -52,7 +57,10 @@ func _ready() -> void:
 	
 	get_window().files_dropped.connect(_on_files_dropped)
 	
+	_date_runtime_profile = _load_luna_runtime_profile()
 	_date_character_profile = _load_date_character_profile()
+	_local_deepseek_client = DeepSeekClient.new()
+	add_child(_local_deepseek_client)
 	_plan_state = DatePlanState.new()
 	_plan_state.setup_from_story_time()
 	_presenter = DateScenePresenter.new()
@@ -71,10 +79,12 @@ func _ready() -> void:
 	_presenter.slot_clicked.connect(_on_slot_pressed)
 	_bubble_controller = DateBubbleController.new()
 	add_child(_bubble_controller)
-	_bubble_controller.setup(bubble_panel, bubble_text, _date_character_profile, _get_current_date_character_id())
+	_bubble_controller.setup(bubble_panel, bubble_text, _date_character_profile, DATE_FIXED_CHARACTER_ID)
+	_bubble_controller.set_runtime_profile(_date_runtime_profile)
 	_generation_controller = DateGenerationController.new()
 	add_child(_generation_controller)
 	_generation_controller.setup(_date_character_profile)
+	_generation_controller.set_runtime_profile(_date_runtime_profile)
 	_generation_controller.generation_state_changed.connect(_on_generation_state_changed)
 	_generation_controller.story_ready.connect(_on_generated_story_ready)
 	
@@ -97,8 +107,8 @@ func _load_luna_animated_portrait() -> void:
 		_presenter.load_portrait(_date_character_profile)
 
 func _init_ui() -> void:
-	if _presenter and GameDataManager.profile:
-		_presenter.refresh_profile_summary(GameDataManager.profile)
+	if _presenter and _date_runtime_profile:
+		_presenter.refresh_profile_summary(_date_runtime_profile)
 
 func _init_slots() -> void:
 	if _presenter and _plan_state:
@@ -293,6 +303,8 @@ func _on_date_pressed() -> void:
 		_generation_controller.start_date_plan(plan_list)
 
 func _find_deepseek_client() -> Node:
+	if _local_deepseek_client and is_instance_valid(_local_deepseek_client):
+		return _local_deepseek_client
 	return DeepSeekClientLocator.find(self)
 
 func _on_generation_state_changed(active: bool) -> void:
@@ -323,12 +335,18 @@ func _refresh_slots() -> void:
 		_presenter.refresh_all_slots(_plan_state.get_slots())
 
 func _get_current_date_character_id() -> String:
-	if GameDataManager and GameDataManager.config:
-		return str(GameDataManager.config.current_character_id).strip_edges().to_lower()
-	return "luna"
+	return DATE_FIXED_CHARACTER_ID
+
+func _load_luna_runtime_profile() -> CharacterProfile:
+	if GameDataManager and GameDataManager.profile:
+		var active_char_id := str(GameDataManager.profile.current_character_id).strip_edges().to_lower()
+		if active_char_id == DATE_FIXED_CHARACTER_ID:
+			return GameDataManager.profile
+	var profile := CharacterProfile.new()
+	profile.load_profile(DATE_FIXED_CHARACTER_ID)
+	return profile
 
 func _load_date_character_profile() -> Dictionary:
-	var current_id := _get_current_date_character_id()
 	var profiles: Dictionary = {}
 	if FileAccess.file_exists(DATE_CHARACTER_PROFILE_PATH):
 		var file := FileAccess.open(DATE_CHARACTER_PROFILE_PATH, FileAccess.READ)
@@ -337,7 +355,7 @@ func _load_date_character_profile() -> Dictionary:
 			if json.parse(file.get_as_text()) == OK and json.get_data() is Dictionary:
 				profiles = json.get_data()
 	var default_profile: Dictionary = profiles.get("default", {}).duplicate(true)
-	var specific_profile: Dictionary = profiles.get(current_id, {}).duplicate(true)
+	var specific_profile: Dictionary = profiles.get(DATE_FIXED_CHARACTER_ID, {}).duplicate(true)
 	default_profile.merge(specific_profile, true)
 	return default_profile
 

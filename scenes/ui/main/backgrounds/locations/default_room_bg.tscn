@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dxe3r2b5g7na"]
+[gd_scene format=3 uid="uid://dxe3r2b5g7na"]
 
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dxtsg4qyfukjg" path="res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png" id="2_6tba5"]
@@ -126,7 +126,7 @@ corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 4
 
-[node name="DefaultRoomBg" type="Control"]
+[node name="DefaultRoomBg" type="Control" unique_id=284717935]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -136,7 +136,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_script")
 
-[node name="background" type="TextureRect" parent="."]
+[node name="background" type="TextureRect" parent="." unique_id=981421270]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -148,7 +148,7 @@ texture = ExtResource("2_6tba5")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="WeatherLayer" type="Control" parent="."]
+[node name="WeatherLayer" type="Control" parent="." unique_id=1065248069]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -158,13 +158,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="LunaAni" type="AnimatedSprite2D" parent="."]
+[node name="LunaAni" type="AnimatedSprite2D" parent="." unique_id=1255784415]
 self_modulate = Color(1, 1, 1, 0)
 position = Vector2(658.76575, 373.99905)
 scale = Vector2(0.7736431, 0.7736431)
 sprite_frames = SubResource("SpriteFrames_6tba5")
 
-[node name="StoryButton" type="Button" parent="."]
+[node name="StoryButton" type="Button" parent="." unique_id=1705615307]
 layout_mode = 0
 offset_left = 1002.0
 offset_top = 389.0
@@ -180,7 +180,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_bdjgq")
 theme_override_styles/focus = SubResource("StyleBoxFlat_0uskp")
 text = "心事"
 
-[node name="InteractTriggerButton" type="Button" parent="."]
+[node name="InteractTriggerButton" type="Button" parent="." unique_id=798048173]
 layout_mode = 0
 offset_left = 658.0
 offset_top = 175.0
@@ -196,7 +196,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_bubble_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_bubble_normal")
 text = "互动"
 
-[node name="IdleQuoteBubble" type="PanelContainer" parent="."]
+[node name="IdleQuoteBubble" type="PanelContainer" parent="." unique_id=109773570]
 layout_mode = 0
 offset_left = 534.0
 offset_top = 322.0
@@ -205,7 +205,7 @@ offset_bottom = 427.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_iyr7v")
 
-[node name="Label" type="RichTextLabel" parent="IdleQuoteBubble"]
+[node name="Label" type="RichTextLabel" parent="IdleQuoteBubble" unique_id=258129418]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
@@ -214,4 +214,3 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
-horizontal_alignment = 0

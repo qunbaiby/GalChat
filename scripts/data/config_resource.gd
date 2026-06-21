@@ -59,6 +59,12 @@ var pet_scale_multiplier: float = 1.0    # 桌宠立绘缩放倍率
 var pet_enable_app_observe: bool = true  # 允许应用观察
 var pet_enable_hourly_chime: bool = true # 允许整点报时
 var pet_enable_afk_greeting: bool = true # 允许闲置问候
+var pet_disturbance_mode: String = "摸鱼模式"
+var pet_quiet_time_ranges: String = "23:30-08:00"
+var pet_observe_allow_list: String = ""
+var pet_never_capture_list: String = "银行,支付,密码,验证码,登录,后台,控制台"
+var pet_sensitive_window_list: String = "微信,wechat,qq,discord,telegram,飞书,钉钉,企业微信,outlook,mail,邮箱"
+var pet_muted_until_unix: int = 0
 
 # 图像生成配置 (Image Generation)
 var image_generation_enabled: bool = true
@@ -103,6 +109,23 @@ func get_custom_config(key: String, default_value: Variant = null) -> Variant:
         return custom_configs[key]
     return default_value
 
+func is_main_background_unlocked(bg_id: String) -> bool:
+    var final_id := bg_id.strip_edges()
+    if final_id == "":
+        return false
+    return unlocked_main_bg_ids.has(final_id)
+
+func unlock_main_background(bg_id: String, save_now: bool = true) -> bool:
+    var final_id := bg_id.strip_edges()
+    if final_id == "":
+        return false
+    if unlocked_main_bg_ids.has(final_id):
+        return false
+    unlocked_main_bg_ids.append(final_id)
+    if save_now:
+        save_config()
+    return true
+
 func save_config() -> void:
     var data = {
         "api_key": api_key,
@@ -138,6 +161,12 @@ func save_config() -> void:
         "pet_enable_app_observe": pet_enable_app_observe,
         "pet_enable_hourly_chime": pet_enable_hourly_chime,
         "pet_enable_afk_greeting": pet_enable_afk_greeting,
+        "pet_disturbance_mode": pet_disturbance_mode,
+        "pet_quiet_time_ranges": pet_quiet_time_ranges,
+        "pet_observe_allow_list": pet_observe_allow_list,
+        "pet_never_capture_list": pet_never_capture_list,
+        "pet_sensitive_window_list": pet_sensitive_window_list,
+        "pet_muted_until_unix": pet_muted_until_unix,
         "image_generation_enabled": image_generation_enabled,
         "default_image_path": default_image_path,
         "openai_image_api_key": openai_image_api_key,
@@ -224,6 +253,12 @@ func load_config() -> void:
                 pet_enable_app_observe = data.get("pet_enable_app_observe", pet_enable_app_observe)
                 pet_enable_hourly_chime = data.get("pet_enable_hourly_chime", pet_enable_hourly_chime)
                 pet_enable_afk_greeting = data.get("pet_enable_afk_greeting", pet_enable_afk_greeting)
+                pet_disturbance_mode = str(data.get("pet_disturbance_mode", pet_disturbance_mode))
+                pet_quiet_time_ranges = str(data.get("pet_quiet_time_ranges", pet_quiet_time_ranges))
+                pet_observe_allow_list = str(data.get("pet_observe_allow_list", pet_observe_allow_list))
+                pet_never_capture_list = str(data.get("pet_never_capture_list", pet_never_capture_list))
+                pet_sensitive_window_list = str(data.get("pet_sensitive_window_list", pet_sensitive_window_list))
+                pet_muted_until_unix = int(data.get("pet_muted_until_unix", pet_muted_until_unix))
                 
                 image_generation_enabled = data.get("image_generation_enabled", image_generation_enabled)
                 default_image_path = data.get("default_image_path", default_image_path)

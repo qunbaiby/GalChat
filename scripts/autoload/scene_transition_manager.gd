@@ -26,6 +26,8 @@ func transition_to_scene_with_mid_callback(path: String, mid_callback: Callable 
 		mid_callback.call()
 	
 	get_tree().change_scene_to_file(path)
+	await get_tree().process_frame
+	await get_tree().process_frame
 	
 	tween = create_tween()
 	tween.tween_property(color_rect, "color:a", 0.0, duration / 2.0)
@@ -49,6 +51,8 @@ func transition_to_scene_instance(instance: Node, duration: float = 1.0) -> void
 	
 	get_tree().root.add_child(instance)
 	get_tree().current_scene = instance
+	await get_tree().process_frame
+	await get_tree().process_frame
 	
 	tween = create_tween()
 	tween.tween_property(color_rect, "color:a", 0.0, duration / 2.0)

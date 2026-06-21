@@ -6,6 +6,8 @@ var bgm_player: AudioStreamPlayer
 var bgs_player: AudioStreamPlayer
 var se_players: Array[AudioStreamPlayer] = []
 var max_se_players: int = 5
+var _bgm_tween: Tween = null
+var _bgs_tween: Tween = null
 
 func _ready() -> void:
 	_load_audio_data()
@@ -38,6 +40,14 @@ func _load_audio_data() -> void:
 							if item.has("id") and item.has("path"):
 								audio_data[category][item["id"]] = item["path"]
 
+func _kill_tween_if_valid(tween: Tween) -> void:
+	if tween and tween.is_valid():
+		tween.kill()
+
+func _set_stream_loop(stream: AudioStream, should_loop: bool) -> void:
+	if stream is AudioStreamMP3 or stream is AudioStreamOggVorbis:
+		stream.loop = should_loop
+
 func play_bgm(audio_id: String, fade_time: float = 1.0) -> void:
 	if not audio_data["bgm"].has(audio_id):
 		push_warning("BGM ID not found: " + audio_id)
@@ -46,39 +56,48 @@ func play_bgm(audio_id: String, fade_time: float = 1.0) -> void:
 	var path = audio_data["bgm"][audio_id]
 	var stream = load(path)
 	if stream:
-		# 处理循环播放
-		if stream is AudioStreamMP3 or stream is AudioStreamOggVorbis:
-			stream.loop = true
+		_kill_tween_if_valid(_bgm_tween)
+		_set_stream_loop(stream, true)
 			
 		if bgm_player.playing:
 			if fade_time > 0:
-				var tween = create_tween()
-				tween.tween_property(bgm_player, "volume_db", -80.0, fade_time / 2.0)
-				tween.tween_callback(func():
+				_bgm_tween = create_tween()
+				_bgm_tween.tween_property(bgm_player, "volume_db", -80.0, fade_time / 2.0)
+				_bgm_tween.tween_callback(func():
 					bgm_player.stream = stream
+					bgm_player.volume_db = -80.0
 					bgm_player.play()
 				)
-				tween.tween_property(bgm_player, "volume_db", 0.0, fade_time / 2.0)
+				_bgm_tween.tween_property(bgm_player, "volume_db", 0.0, fade_time / 2.0)
 			else:
 				bgm_player.stream = stream
+				bgm_player.volume_db = 0.0
 				bgm_player.play()
 		else:
 			bgm_player.stream = stream
 			bgm_player.volume_db = -80.0 if fade_time > 0 else 0.0
 			bgm_player.play()
 			if fade_time > 0:
-				var tween = create_tween()
-				tween.tween_property(bgm_player, "volume_db", 0.0, fade_time)
+				_bgm_tween = create_tween()
+				_bgm_tween.tween_property(bgm_player, "volume_db", 0.0, fade_time)
 
 func stop_bgm(fade_time: float = 1.0) -> void:
 	if not bgm_player.playing:
 		return
+	_kill_tween_if_valid(_bgm_tween)
 	if fade_time > 0:
-		var tween = create_tween()
-		tween.tween_property(bgm_player, "volume_db", -80.0, fade_time)
-		tween.tween_callback(func(): bgm_player.stop())
+		_bgm_tween = create_tween()
+		_bgm_tween.tween_property(bgm_player, "volume_db", -80.0, fade_time)
+		_bgm_tween.tween_callback(func():
+			bgm_player.stop()
+			bgm_player.volume_db = 0.0
+		)
 	else:
 		bgm_player.stop()
+		bgm_player.volume_db = 0.0
+
+func switch_bgm(audio_id: String, fade_time: float = 1.0) -> void:
+	play_bgm(audio_id, fade_time)
 
 func play_bgs(audio_id: String, fade_time: float = 1.0) -> void:
 	if not audio_data["bgs"].has(audio_id):
@@ -88,38 +107,45 @@ func play_bgs(audio_id: String, fade_time: float = 1.0) -> void:
 	var path = audio_data["bgs"][audio_id]
 	var stream = load(path)
 	if stream:
-		if stream is AudioStreamMP3 or stream is AudioStreamOggVorbis:
-			stream.loop = true
+		_kill_tween_if_valid(_bgs_tween)
+		_set_stream_loop(stream, true)
 			
 		if bgs_player.playing:
 			if fade_time > 0:
-				var tween = create_tween()
-				tween.tween_property(bgs_player, "volume_db", -80.0, fade_time / 2.0)
-				tween.tween_callback(func():
+				_bgs_tween = create_tween()
+				_bgs_tween.tween_property(bgs_player, "volume_db", -80.0, fade_time / 2.0)
+				_bgs_tween.tween_callback(func():
 					bgs_player.stream = stream
+					bgs_player.volume_db = -80.0
 					bgs_player.play()
 				)
-				tween.tween_property(bgs_player, "volume_db", 0.0, fade_time / 2.0)
+				_bgs_tween.tween_property(bgs_player, "volume_db", 0.0, fade_time / 2.0)
 			else:
 				bgs_player.stream = stream
+				bgs_player.volume_db = 0.0
 				bgs_player.play()
 		else:
 			bgs_player.stream = stream
 			bgs_player.volume_db = -80.0 if fade_time > 0 else 0.0
 			bgs_player.play()
 			if fade_time > 0:
-				var tween = create_tween()
-				tween.tween_property(bgs_player, "volume_db", 0.0, fade_time)
+				_bgs_tween = create_tween()
+				_bgs_tween.tween_property(bgs_player, "volume_db", 0.0, fade_time)
 
 func stop_bgs(fade_time: float = 1.0) -> void:
 	if not bgs_player.playing:
 		return
+	_kill_tween_if_valid(_bgs_tween)
 	if fade_time > 0:
-		var tween = create_tween()
-		tween.tween_property(bgs_player, "volume_db", -80.0, fade_time)
-		tween.tween_callback(func(): bgs_player.stop())
+		_bgs_tween = create_tween()
+		_bgs_tween.tween_property(bgs_player, "volume_db", -80.0, fade_time)
+		_bgs_tween.tween_callback(func():
+			bgs_player.stop()
+			bgs_player.volume_db = 0.0
+		)
 	else:
 		bgs_player.stop()
+		bgs_player.volume_db = 0.0
 
 func play_se(audio_id: String, loop: bool = false) -> void:
 	if not audio_data["se"].has(audio_id):

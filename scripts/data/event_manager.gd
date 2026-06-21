@@ -47,6 +47,24 @@ func _save_triggered_events() -> void:
 func reload_for_current_character() -> void:
 	_load_triggered_events()
 
+func _extract_location_id_from_conditions(conditions: Array) -> String:
+	for raw_condition in conditions:
+		if not (raw_condition is Dictionary):
+			continue
+		var condition: Dictionary = raw_condition
+		if str(condition.get("type", "")).strip_edges() == "location":
+			return str(condition.get("value", "")).strip_edges()
+	return ""
+
+func _resolve_event_trigger_id(event_data: Dictionary) -> String:
+	var event_id := str(event_data.get("event_id", "")).strip_edges()
+	if event_id != "":
+		return event_id
+	var script_path := str(event_data.get("trigger_script", "")).strip_edges()
+	if script_path != "":
+		return script_path.get_file().get_basename()
+	return ""
+
 func is_event_triggered(event_id: String) -> bool:
 	return triggered_events.has(event_id)
 
@@ -87,21 +105,43 @@ func try_mark_event_by_story(script_id: String) -> void:
 		var script_path := str(event_data.get("trigger_script", "")).strip_edges()
 		var script_basename := script_path.get_file().get_basename() if script_path != "" else ""
 		if event_id == normalized_script_id or script_basename == normalized_script_id:
+			var conditions = event_data.get("conditions", [])
+			if str(event_data.get("event_type", "")).strip_edges() == "auto_trigger" and _extract_location_id_from_conditions(conditions) != "":
+				return
 			mark_event_triggered(event_id)
 			return
 
 # 广播状态变更，尝试匹配全局事件
 func broadcast_state_change(context: Dictionary = {}) -> void:
+	var matched_event := find_matching_auto_trigger_event(context)
+	if not matched_event.is_empty():
+		_trigger_registry_event(matched_event, context)
+		return # 一次只触发一个事件，避免冲突
+
+func find_matching_auto_trigger_event(context: Dictionary = {}) -> Dictionary:
 	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
 	
-	for event in event_registry:
-		var event_id = event.get("event_id", "")
-		
-		# 检查是否已触发过且不可重复
-		if not event.get("is_repeatable", false) and event_id in triggered_events:
+	for raw_event in event_registry:
+		if not (raw_event is Dictionary):
 			continue
-			
-		var conditions = event.get("conditions", [])
+		var event_data: Dictionary = raw_event
+		var event_id := str(event_data.get("event_id", "")).strip_edges()
+		var event_type := str(event_data.get("event_type", "")).strip_edges()
+		if event_type != "auto_trigger":
+			continue
+		var conditions = event_data.get("conditions", [])
+		var matched_location_id := _extract_location_id_from_conditions(conditions)
+		var is_location_entry_event := matched_location_id != ""
+		
+		# 地点进入类事件按天判重；其他事件沿用原先的永久判重。
+		if is_location_entry_event and context.has("location_id"):
+			if MapDataManager and MapDataManager.has_method("has_consumed_entry_trigger_today"):
+				var event_trigger_id := _resolve_event_trigger_id(event_data)
+				if event_trigger_id != "" and MapDataManager.has_consumed_entry_trigger_today("location_auto_event", event_trigger_id, matched_location_id):
+					continue
+		elif not bool(event_data.get("is_repeatable", false)) and event_id in triggered_events:
+			continue
+		
 		var eval_result = ConditionManager.evaluate_conditions(conditions)
 		
 		# 如果是 location 条件，我们要确保 context 里传过来的 location 是一致的
@@ -113,19 +153,28 @@ func broadcast_state_change(context: Dictionary = {}) -> void:
 					has_loc_cond = true
 					if c.get("value", "") == context["location_id"]:
 						loc_match = true
-			if has_loc_cond and not loc_match:
+			if not has_loc_cond or not loc_match:
 				continue
 		
-		if eval_result["passed"]:
-			_trigger_registry_event(event)
-			return # 一次只触发一个事件，避免冲突
+		if bool(eval_result.get("passed", false)):
+			return event_data
+	
+	return {}
 
-func _trigger_registry_event(event_data: Dictionary) -> void:
+func _trigger_registry_event(event_data: Dictionary, context: Dictionary = {}) -> void:
 	var event_id = event_data.get("event_id", "")
 	print("[EventManager] 全局事件满足触发条件: ", event_id)
 	
 	var script_path = event_data.get("trigger_script", "")
 	if script_path != "" and ResourceLoader.exists(script_path):
+		var matched_location_id := _extract_location_id_from_conditions(event_data.get("conditions", []))
+		var effective_location_id := str(context.get("location_id", matched_location_id)).strip_edges()
+		if effective_location_id != "":
+			GameDataManager.set_meta("pending_map_entry_trigger_completion", {
+				"source_type": "location_auto_event",
+				"source_id": _resolve_event_trigger_id(event_data),
+				"location_id": effective_location_id
+			})
 		GameDataManager.set_meta("play_specific_story", script_path)
 		var SceneTransitionManager = get_node_or_null("/root/SceneTransitionManager")
 		if SceneTransitionManager:

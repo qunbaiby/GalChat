@@ -7,6 +7,7 @@ var area_order: Array = []
 
 var _last_visited_area: String = ""
 var _last_visited_location: String = ""
+var _entry_trigger_history: Dictionary = {}
 
 const MAP_DATA_PATH = "res://assets/data/map/core/map_data.json"
 const NPC_DATA_PATH = "res://assets/data/map/npc/npc_data.json"
@@ -14,6 +15,64 @@ const NPC_DATA_PATH = "res://assets/data/map/npc/npc_data.json"
 func _ready():
 	_load_map_data()
 	_load_npcs_data()
+	_load_entry_trigger_history()
+
+func get_entry_trigger_state_path() -> String:
+	var char_id := "default"
+	if GameDataManager.config and GameDataManager.config.current_character_id != "":
+		char_id = GameDataManager.config.current_character_id
+	return GameDataManager.get_character_save_path("map_entry_trigger_history.json", char_id)
+
+func _load_entry_trigger_history() -> void:
+	_entry_trigger_history.clear()
+	var save_path := get_entry_trigger_state_path()
+	if not FileAccess.file_exists(save_path):
+		return
+	var file := FileAccess.open(save_path, FileAccess.READ)
+	if file == null:
+		return
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+		_entry_trigger_history = json.data
+	file.close()
+
+func _save_entry_trigger_history() -> void:
+	var SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
+	SafeFileAccess.store_string(get_entry_trigger_state_path(), JSON.stringify(_entry_trigger_history))
+
+func reload_for_current_character() -> void:
+	_load_entry_trigger_history()
+
+func _get_current_story_day_offset() -> int:
+	if GameDataManager.story_time_manager:
+		return int(GameDataManager.story_time_manager.current_day_offset)
+	return 0
+
+func _build_entry_trigger_key(source_type: String, source_id: String, location_id: String = "") -> String:
+	var final_source_type := source_type.strip_edges()
+	var final_source_id := source_id.strip_edges()
+	var final_location_id := location_id.strip_edges()
+	if final_source_type == "" or final_source_id == "":
+		return ""
+	return "%s|%s|%s" % [final_source_type, final_location_id, final_source_id]
+
+func has_consumed_entry_trigger_today(source_type: String, source_id: String, location_id: String = "") -> bool:
+	var trigger_key := _build_entry_trigger_key(source_type, source_id, location_id)
+	if trigger_key == "":
+		return false
+	if not _entry_trigger_history.has(trigger_key):
+		return false
+	return int(_entry_trigger_history.get(trigger_key, -1)) == _get_current_story_day_offset()
+
+func mark_entry_trigger_consumed(source_type: String, source_id: String, location_id: String = "") -> void:
+	var trigger_key := _build_entry_trigger_key(source_type, source_id, location_id)
+	if trigger_key == "":
+		return
+	var current_day_offset := _get_current_story_day_offset()
+	if int(_entry_trigger_history.get(trigger_key, -1)) == current_day_offset:
+		return
+	_entry_trigger_history[trigger_key] = current_day_offset
+	_save_entry_trigger_history()
 
 func _load_npcs_data():
 	if not FileAccess.file_exists(NPC_DATA_PATH):
@@ -421,14 +480,14 @@ func get_location_entry_story(location_id: String) -> Dictionary:
 		var script_path := str(story.get("trigger_script", "")).strip_edges()
 		if script_path == "":
 			continue
-		if profile and not bool(story.get("allow_replay", false)):
-			var story_id := str(story.get("id", "")).strip_edges()
-			if story_id == "":
-				story_id = script_path.get_file().get_basename()
-			if profile.has_finished_story(story_id):
-				continue
+		var story_id := str(story.get("id", "")).strip_edges()
+		if story_id == "":
+			story_id = script_path.get_file().get_basename()
+		if has_consumed_entry_trigger_today("scheduled_entry_story", story_id, location_id):
+			continue
 		var candidate := story.duplicate(true)
 		candidate["trigger_script"] = script_path
+		candidate["resolved_id"] = story_id
 		candidates.append(candidate)
 	
 	if candidates.is_empty():
@@ -436,6 +495,118 @@ func get_location_entry_story(location_id: String) -> Dictionary:
 	
 	candidates.sort_custom(func(a, b): return int(a.get("priority", 0)) > int(b.get("priority", 0)))
 	return candidates[0]
+
+func get_active_location_story_trigger(location_id: String) -> Dictionary:
+	var entry_story := get_location_entry_story(location_id)
+	if not entry_story.is_empty():
+		return entry_story
+	var event_manager = get_node_or_null("/root/EventManager")
+	if event_manager and event_manager.has_method("find_matching_auto_trigger_event"):
+		var matched_event: Dictionary = event_manager.find_matching_auto_trigger_event({
+			"location_id": location_id
+		})
+		if not matched_event.is_empty():
+			return matched_event
+	return {}
+
+func _extract_story_badge_npcs_from_conditions(conditions: Array) -> Array:
+	var result: Array = []
+	for raw_condition in conditions:
+		if not (raw_condition is Dictionary):
+			continue
+		var condition: Dictionary = raw_condition
+		var npc_id := str(condition.get("npc_id", "")).strip_edges()
+		if npc_id != "" and not result.has(npc_id):
+			result.append(npc_id)
+	return result
+
+func _extract_story_badge_npcs_from_script(script_path: String) -> Array:
+	var result: Array = []
+	var final_path := script_path.strip_edges()
+	if final_path == "" or not FileAccess.file_exists(final_path):
+		return result
+	var file := FileAccess.open(final_path, FileAccess.READ)
+	if file == null:
+		return result
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) != OK or not (json.data is Dictionary):
+		file.close()
+		return result
+	var script_data: Dictionary = json.data
+	file.close()
+
+	var memory_records = script_data.get("memory_records", [])
+	if memory_records is Array:
+		for raw_record in memory_records:
+			if not (raw_record is Dictionary):
+				continue
+			var record: Dictionary = raw_record
+			var participants = record.get("participants", [])
+			if not (participants is Array):
+				continue
+			for raw_participant in participants:
+				var participant := str(raw_participant).strip_edges().to_lower()
+				if participant == "" or participant == "player" or participant == "旁白" or participant == "narrator":
+					continue
+				if not result.has(participant):
+					result.append(participant)
+	if not result.is_empty():
+		return result
+
+	var chapters = script_data.get("chapters", {})
+	if chapters is Dictionary:
+		for raw_chapter_key in chapters.keys():
+			var chapter = chapters[raw_chapter_key]
+			if not (chapter is Dictionary):
+				continue
+			var events = chapter.get("events", [])
+			if not (events is Array):
+				continue
+			for raw_event in events:
+				if not (raw_event is Dictionary):
+					continue
+				var event_data: Dictionary = raw_event
+				if str(event_data.get("type", "")).strip_edges() != "dialogue":
+					continue
+				var speaker := str(event_data.get("speaker", "")).strip_edges().to_lower()
+				if speaker == "" or speaker == "player" or speaker == "旁白" or speaker == "narrator":
+					continue
+				if not result.has(speaker):
+					result.append(speaker)
+	return result
+
+func _resolve_story_badge_npcs(story_trigger: Dictionary, location_id: String) -> Array:
+	var explicit_badge_npcs = story_trigger.get("badge_npcs", [])
+	var result: Array = []
+	if explicit_badge_npcs is Array:
+		for raw_npc in explicit_badge_npcs:
+			var npc_id := str(raw_npc).strip_edges()
+			if npc_id != "" and not result.has(npc_id):
+				result.append(npc_id)
+	if not result.is_empty():
+		return result
+
+	var condition_badge_npcs := _extract_story_badge_npcs_from_conditions(story_trigger.get("conditions", []))
+	for npc_id in condition_badge_npcs:
+		if not result.has(npc_id):
+			result.append(npc_id)
+	if not result.is_empty():
+		return result
+
+	var script_path := str(story_trigger.get("trigger_script", "")).strip_edges()
+	var script_badge_npcs := _extract_story_badge_npcs_from_script(script_path)
+	for npc_id in script_badge_npcs:
+		if not result.has(npc_id):
+			result.append(npc_id)
+	if not result.is_empty():
+		return result
+
+	var current_npcs := generate_location_npcs(location_id)
+	if current_npcs.size() == 1:
+		var fallback_npc := str(current_npcs[0]).strip_edges()
+		if fallback_npc != "":
+			result.append(fallback_npc)
+	return result
 
 func analyze_location_entry_stories(location_id: String) -> Dictionary:
 	var loc = get_location(location_id)
@@ -462,7 +633,7 @@ func analyze_location_entry_stories(location_id: String) -> Dictionary:
 
 	var profile = GameDataManager.profile
 	var current_stage := 0
-	if profile:
+	if GameDataManager.profile:
 		current_stage = profile.current_stage
 
 	var entries: Array = []
@@ -478,20 +649,19 @@ func analyze_location_entry_stories(location_id: String) -> Dictionary:
 			if story_id == "":
 				story_id = script_path.get_file().get_basename() if script_path != "" else ""
 			var schedule_analysis := _analyze_story_schedule(story_copy, current_day_offset, current_period, current_weather, active_events, current_stage)
-			var allow_replay := bool(story_copy.get("allow_replay", false))
-			var blocked_by_replay := false
-			var replay_reason := ""
-			if profile and not allow_replay and story_id != "" and profile.has_finished_story(story_id):
-				blocked_by_replay = true
-				replay_reason = "剧情已完成且不允许重复播放：%s" % story_id
+			var blocked_today := false
+			var today_reason := ""
+			if story_id != "" and has_consumed_entry_trigger_today("scheduled_entry_story", story_id, location_id):
+				blocked_today = true
+				today_reason = "该地点入口剧情今天已触发：%s" % story_id
 			var missing_script := script_path == ""
 			var missing_script_reason := "未配置 trigger_script" if missing_script else ""
-			var final_passed := bool(schedule_analysis.get("passed", false)) and not blocked_by_replay and not missing_script
+			var final_passed := bool(schedule_analysis.get("passed", false)) and not blocked_today and not missing_script
 			var reasons: Array[String] = []
 			for reason in schedule_analysis.get("failure_reasons", []):
 				reasons.append(str(reason))
-			if blocked_by_replay:
-				reasons.append(replay_reason)
+			if blocked_today:
+				reasons.append(today_reason)
 			if missing_script:
 				reasons.append(missing_script_reason)
 			story_copy["resolved_id"] = story_id
@@ -499,7 +669,7 @@ func analyze_location_entry_stories(location_id: String) -> Dictionary:
 				"story": story_copy,
 				"passed": final_passed,
 				"failure_reasons": reasons,
-				"blocked_by_replay": blocked_by_replay,
+				"blocked_today": blocked_today,
 				"missing_script": missing_script
 			})
 
@@ -518,20 +688,22 @@ func analyze_location_entry_stories(location_id: String) -> Dictionary:
 	}
 
 func get_location_story_badges(location_id: String) -> Dictionary:
-	var story = get_location_entry_story(location_id)
+	var story = get_active_location_story_trigger(location_id)
 	if story.is_empty():
 		return {}
 	
-	var badge_text := str(story.get("badge_text", "主线")).strip_edges()
+	var badge_text := str(story.get("badge_text", "")).strip_edges()
 	if badge_text == "":
-		badge_text = "主线"
+		if str(story.get("event_type", "")).strip_edges() == "auto_trigger":
+			badge_text = "事件"
+		else:
+			badge_text = "主线"
 	var badge_map: Dictionary = {}
-	var badge_npcs = story.get("badge_npcs", [])
-	if badge_npcs is Array:
-		for raw_npc in badge_npcs:
-			var npc_id := str(raw_npc).strip_edges()
-			if npc_id != "":
-				badge_map[npc_id] = badge_text
+	var badge_npcs := _resolve_story_badge_npcs(story, location_id)
+	for raw_npc in badge_npcs:
+		var npc_id := str(raw_npc).strip_edges()
+		if npc_id != "":
+			badge_map[npc_id] = badge_text
 	return badge_map
 
 func set_last_area(area_id: String) -> void:

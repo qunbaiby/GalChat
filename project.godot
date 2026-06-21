@@ -8,15 +8,20 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="GalChat"
 run/main_scene="res://scenes/ui/start/start_scene.tscn"
-config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
+config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [audio]
 
+buses/default_bus_layout="uid://cx6y837p8y74k"
 driver/enable_input=true
 input/transcribe/max_tokens=500
 

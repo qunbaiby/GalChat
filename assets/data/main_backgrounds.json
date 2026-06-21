@@ -5,7 +5,7 @@
       "name": "卧室日常",
       "subtitle": "熟悉陪伴",
       "path": "res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn",
-      "preview_path": "res://assets/images/backgrounds/main/default_room_bg.png",
+      "preview_path": "res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png",
       "description": "熟悉的卧室日常场景，适合安静陪伴与大多数日常互动。",
       "unlock_condition": "",
       "default_unlocked": true
@@ -25,10 +25,30 @@
       "name": "晨光画室",
       "subtitle": "安静创作",
       "path": "res://scenes/ui/main/backgrounds/locations/art_studio_bg.tscn",
-      "preview_path": "res://assets/images/backgrounds/main/luna_drawing_morning_bg.png",
+      "preview_path": "res://assets/images/backgrounds/main/art_studio_bg.png",
       "description": "画室里铺满暖色晨光，适合记录她专注创作时的安静片刻。",
       "unlock_condition": "Luna角色的好感度达到10级",
       "default_unlocked": false
+    },
+    {
+      "id": "class_break_moments",
+      "name": "Class Break Moments",
+      "subtitle": "课间瞬间",
+      "path": "res://scenes/ui/main/backgrounds/locations/class_break_moments_bg.tscn",
+      "preview_path": "res://assets/images/backgrounds/main/Class Break Moments.png",
+      "description": "记录教室课间的轻松片刻，适合带一点校园氛围的陪伴日常。",
+      "unlock_condition": "",
+      "default_unlocked": true
+    },
+    {
+      "id": "holiday_pool_days",
+      "name": "Holiday Pool Days",
+      "subtitle": "假日池畔",
+      "path": "res://scenes/ui/main/backgrounds/locations/holiday_pool_days_bg.tscn",
+      "preview_path": "res://assets/images/backgrounds/main/Holiday Pool Days.png",
+      "description": "池畔假日的明亮氛围更适合轻松聊天和度假感十足的主页展示。",
+      "unlock_condition": "",
+      "default_unlocked": true
     }
   ]
 }

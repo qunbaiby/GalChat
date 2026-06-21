@@ -26,6 +26,16 @@
             "path": "res://assets/images/backgrounds/main/luna_drawing_sunset_bg.png"
         },
         {
+            "id": "bg_class_break_moments",
+            "name": "Class Break Moments",
+            "path": "res://assets/images/backgrounds/main/Class Break Moments.png"
+        },
+        {
+            "id": "bg_holiday_pool_days",
+            "name": "Holiday Pool Days",
+            "path": "res://assets/images/backgrounds/main/Holiday Pool Days.png"
+        },
+        {
             "id": "bg_home_bedroom_morning",
             "name": "卧室清晨",
             "path": "res://assets/images/backgrounds/home/bedroom/bedroom_Morning.png"
@@ -104,8 +114,8 @@
         },
         {
             "id": "bg_qingyu_time_cafe",
-            "name": "晴雨时光咖啡馆",
-            "path": "res://assets/images/backgrounds/map/background/qingyu_time_cafe/qingyu_time_cafe.png"
+            "name": "青屿时光咖啡馆",
+            "path": "res://assets/images/backgrounds/map/background/qingyu_street/qingyu_time_cafe/qingyu_time_cafe.png"
         },
         {
             "id": "bg_area_art_academy",

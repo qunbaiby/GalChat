@@ -8,6 +8,7 @@ var bubble_panel: Control = null
 var bubble_text: Label = null
 var character_profile: Dictionary = {}
 var character_id: String = "luna"
+var runtime_profile = null
 
 var _deepseek_client: Node = null
 var _bubble_stream_buffer: String = ""
@@ -19,7 +20,6 @@ var _bubble_current_tts_text: String = ""
 var _bubble_request_fallback_text: String = ""
 var _bubble_pending_requests: Array[Dictionary] = []
 var _bubble_request_in_flight: bool = false
-
 
 func setup(panel: Control, text_label: Label, profile_data: Dictionary, current_character_id: String) -> void:
 	bubble_panel = panel
@@ -37,6 +37,10 @@ func setup(panel: Control, text_label: Label, profile_data: Dictionary, current_
 			TTSManager.tts_failed.connect(_on_bubble_tts_failed)
 	if bubble_panel:
 		bubble_panel.hide()
+
+
+func set_runtime_profile(profile_instance) -> void:
+	runtime_profile = profile_instance
 
 
 func cleanup() -> void:
@@ -103,8 +107,10 @@ func _build_slot_comment_prompt(slot_payload: Dictionary) -> String:
 	var type_name: String = _resolve_date_type_name(type_id)
 	if location_name == "":
 		return ""
-	var profile = GameDataManager.profile if GameDataManager else null
-	var char_name: String = str(character_profile.get("char_name", "")).strip_edges()
+	var profile = runtime_profile
+	var char_name: String = str(character_profile.get("display_name", "")).strip_edges()
+	if char_name == "":
+		char_name = "Luna"
 	if char_name == "" and profile:
 		char_name = str(profile.char_name).strip_edges()
 	if char_name == "":
@@ -278,15 +284,26 @@ func _play_bubble_tts(text: String) -> void:
 	if spoken_text == "":
 		return
 	var options: Dictionary = {}
+	options["character_id"] = character_id
 	var backend: String = str(GameDataManager.config.tts_backend)
 	var tts_config: Dictionary = character_profile.get("tts", {})
 	if backend == "qwen_tts":
-		var qwen_voice: String = str(tts_config.get("qwen_voice_type", "")).strip_edges()
-		if qwen_voice != "":
-			options["voice_type"] = qwen_voice
-	elif str(tts_config.get("doubao_voice_type", "")).strip_edges() != "":
-		options["voice_type"] = str(tts_config.get("doubao_voice_type", "")).strip_edges()
-	if options.is_empty():
+		var config_qwen_voice: String = str(GameDataManager.config.qwen_tts_voice_types.get(character_id, "")).strip_edges()
+		if config_qwen_voice != "":
+			options["voice_type"] = config_qwen_voice
+		else:
+			var qwen_voice: String = str(tts_config.get("qwen_voice_type", "")).strip_edges()
+			if qwen_voice != "":
+				options["voice_type"] = qwen_voice
+	else:
+		var config_doubao_voice: String = str(GameDataManager.config.character_voice_types.get(character_id, "")).strip_edges()
+		if config_doubao_voice != "":
+			options["voice_type"] = config_doubao_voice
+		else:
+			var profile_doubao_voice: String = str(tts_config.get("doubao_voice_type", "")).strip_edges()
+			if profile_doubao_voice != "":
+				options["voice_type"] = profile_doubao_voice
+	if not options.has("voice_type"):
 		if backend == "qwen_tts":
 			if GameDataManager.config.qwen_tts_voice_types.has(character_id):
 				options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[character_id]
