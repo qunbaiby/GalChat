@@ -3599,56 +3599,9 @@ func _play_cached_voice(cache_key: String) -> void:
 func _on_close_requested() -> void:
     pass
 
-#region debug-point shared:main-reporter
-func _dbg_main_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
-    var debug_server_url := "http://127.0.0.1:7777/event"
-    var debug_session_id := "desktop-pet-window-restore"
-    var debug_run_id := "post-fix"
-    var env_path := ".dbg/desktop-pet-window-restore.env"
-    if FileAccess.file_exists(env_path):
-        var env_file := FileAccess.open(env_path, FileAccess.READ)
-        if env_file:
-            var env_text := env_file.get_as_text()
-            env_file.close()
-            for raw_line in env_text.split("\n"):
-                var line := raw_line.strip_edges()
-                if line.begins_with("DEBUG_SERVER_URL="):
-                    debug_server_url = line.split("=", false, 1)[1].strip_edges()
-                elif line.begins_with("DEBUG_SESSION_ID="):
-                    debug_session_id = line.split("=", false, 1)[1].strip_edges()
-    var http := HTTPRequest.new()
-    add_child(http)
-    http.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
-        if is_instance_valid(http):
-            http.queue_free()
-    , CONNECT_ONE_SHOT)
-    http.request(
-        debug_server_url,
-        ["Content-Type: application/json"],
-        HTTPClient.METHOD_POST,
-        JSON.stringify({
-            "sessionId": debug_session_id,
-            "runId": debug_run_id,
-            "hypothesisId": hypothesis_id,
-            "location": location,
-            "msg": msg,
-            "data": data,
-            "ts": Time.get_ticks_msec()
-        })
-    )
-#endregion
-
 func _notification(what: int) -> void:
     if what == NOTIFICATION_WM_CLOSE_REQUEST:
         var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
-        #region debug-point E:main-notification
-        _dbg_main_report("E", "main_scene.gd:_notification", "[DEBUG] Main scene WM close request", {
-            "desktop_pet_visible": is_instance_valid(desktop_pet) and desktop_pet.visible,
-            "root_visible": get_tree().root.visible,
-            "root_mode": int(get_tree().root.mode),
-            "root_unfocusable": get_tree().root.unfocusable
-        })
-        #endregion
         if is_instance_valid(desktop_pet) and desktop_pet.visible:
             # Godot 4 中，主场景是 Control 时，我们应该隐藏对应的 Window
             get_tree().root.hide()

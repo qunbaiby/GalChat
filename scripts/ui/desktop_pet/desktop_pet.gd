@@ -69,10 +69,6 @@ var _pomodoro_panel_instance: Control = null
 var _music_panel_instance: Control = null
 var _settings_panel_instance: Control = null
 var _active_tool_key: String = ""
-var _dbg_server_url: String = "http://127.0.0.1:7777/event"
-var _dbg_session_id: String = "desktop-pet-window-restore"
-var _dbg_root_state_signature: String = ""
-var _dbg_run_id: String = "post-fix"
 var _root_window_parked: bool = false
 var _root_window_saved_position: Vector2i = Vector2i.ZERO
 var _root_window_saved_size: Vector2i = Vector2i.ZERO
@@ -126,10 +122,6 @@ func _ready() -> void:
     music_panel_host.hide()
     if settings_panel_host:
         settings_panel_host.hide()
-    #region debug-point C:init-env
-    _dbg_init()
-    _dbg_watch_root_state("ready")
-    #endregion
     quick_tools_panel.gui_input.connect(_on_tool_panel_gui_input)
     pomodoro_panel_host.gui_input.connect(_on_tool_panel_gui_input)
     music_panel_host.gui_input.connect(_on_tool_panel_gui_input)
@@ -372,50 +364,22 @@ func _update_mute_button() -> void:
         mute_button.text = "静音30分"
 
 func _on_pomodoro_toggle_pressed() -> void:
-    #region debug-point A:button-pomodoro
-    _dbg_report("A", "desktop_pet.gd:_on_pomodoro_toggle_pressed", "[DEBUG] Desktop pet button pressed", {
-        "button": "pomodoro",
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     _consume_desktop_pet_ui_input()
     var panel = _get_pomodoro_panel_instance()
     _set_menu_visible(true)
     _show_side_tool_panel("pomodoro", panel)
 
 func _on_music_toggle_pressed() -> void:
-    #region debug-point A:button-music
-    _dbg_report("A", "desktop_pet.gd:_on_music_toggle_pressed", "[DEBUG] Desktop pet button pressed", {
-        "button": "music",
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     _consume_desktop_pet_ui_input()
     _open_music_panel(false)
 
 func _on_pet_settings_pressed() -> void:
-    #region debug-point A:button-settings
-    _dbg_report("A", "desktop_pet.gd:_on_pet_settings_pressed", "[DEBUG] Desktop pet button pressed", {
-        "button": "settings",
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     _consume_desktop_pet_ui_input()
     var panel = _get_settings_panel_instance()
     _set_menu_visible(true)
     _show_side_tool_panel("settings", panel)
 
 func _on_mute_button_pressed() -> void:
-    #region debug-point A:button-mute
-    _dbg_report("A", "desktop_pet.gd:_on_mute_button_pressed", "[DEBUG] Desktop pet button pressed", {
-        "button": "mute",
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     if GameDataManager == null or GameDataManager.config == null:
         return
     if _is_pet_temporarily_muted():
@@ -635,9 +599,6 @@ func _build_safe_app_display_name(process_name: String, window_title: String, ap
     return process_name if process_name != "" else "某个应用"
 
 func _process(delta: float) -> void:
-    #region debug-point C:root-state-watch
-    _dbg_watch_root_state("process")
-    #endregion
     _sync_root_window_focusability()
     if not pet_body:
         return
@@ -684,13 +645,6 @@ func _process(delta: float) -> void:
             pet_body.set_pet_state(0) # Idle
 
 func _on_dialogue_button_pressed() -> void:
-    #region debug-point A:button-dialogue
-    _dbg_report("A", "desktop_pet.gd:_on_dialogue_button_pressed", "[DEBUG] Desktop pet button pressed", {
-        "button": "dialogue",
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     input_layer.show()
     is_dialogue_panel_open = true
     _set_menu_visible(false)
@@ -1549,34 +1503,16 @@ func _on_tts_failed(error_msg: String, _text: String) -> void:
 
 func _on_main_window_pressed() -> void:
     # 请求主窗口焦点
-    #region debug-point D:main-window-pressed
-    _dbg_report("D", "desktop_pet.gd:_on_main_window_pressed:before", "[DEBUG] Main window button pressed", {
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     print("[DesktopPet] 请求打开主界面，保持桌宠运行")
     _restore_main_window_from_pet()
     _set_menu_visible(false)
     _hide_side_tool_panels()
     DisplayServer.window_request_attention()
-    #region debug-point D:main-window-after
-    _dbg_report("D", "desktop_pet.gd:_on_main_window_pressed:after", "[DEBUG] Main window button completed", {
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     
     # 注意：移除了 _on_close_pressed() 以保持桌宠继续运行
 
 func _on_close_pressed() -> void:
     # 先隐藏窗口并切断输入流，防止 _push_unhandled_input_internal 报错
-    #region debug-point D:close-pet
-    _dbg_report("D", "desktop_pet.gd:_on_close_pressed:before", "[DEBUG] Close desktop pet pressed", {
-        "root": _dbg_capture_root_state(),
-        "tool": _active_tool_key
-    })
-    #endregion
     _restore_main_window_from_pet()
     hide()
     
@@ -1594,28 +1530,14 @@ func _sync_root_window_focusability(force_root_focusable: bool = false) -> void:
     var root_window := get_tree().root
     if root_window == null:
         return
-    var before_state := _dbg_capture_root_state()
     if force_root_focusable:
         root_window.unfocusable = false
-        #region debug-point B:root-focus-sync-force
-        _dbg_report("B", "desktop_pet.gd:_sync_root_window_focusability:force", "[DEBUG] Root focusability forced", {
-            "before": before_state,
-            "after": _dbg_capture_root_state()
-        })
-        #endregion
         return
     if visible and root_window.mode == Window.MODE_MINIMIZED:
         _convert_minimized_root_to_hidden(root_window)
     var should_unfocus := visible and (root_window.mode == Window.MODE_MINIMIZED or not root_window.visible)
     if root_window.unfocusable != should_unfocus:
         root_window.unfocusable = should_unfocus
-        #region debug-point B:root-focus-sync
-        _dbg_report("B", "desktop_pet.gd:_sync_root_window_focusability", "[DEBUG] Root focusability synced", {
-            "before": before_state,
-            "after": _dbg_capture_root_state(),
-            "shouldUnfocus": should_unfocus
-        })
-        #endregion
 
 func _restore_main_window_from_pet() -> void:
     var root_window := get_tree().root
@@ -1636,7 +1558,6 @@ func _restore_main_window_from_pet() -> void:
     root_window.show()
 
 func _convert_minimized_root_to_hidden(root_window: Window) -> void:
-    var before_state := _dbg_capture_root_state()
     if not _root_window_parked:
         _root_window_saved_position = root_window.position
         _root_window_saved_size = root_window.size
@@ -1649,12 +1570,6 @@ func _convert_minimized_root_to_hidden(root_window: Window) -> void:
     if current_scene is CanvasItem:
         (current_scene as CanvasItem).hide()
     _root_window_parked = true
-    #region debug-point B:minimized-to-hidden
-    _dbg_report("B", "desktop_pet.gd:_convert_minimized_root_to_hidden", "[DEBUG] Root minimized converted to parked", {
-        "before": before_state,
-        "after": _dbg_capture_root_state()
-    })
-    #endregion
 
 func is_main_window_parked() -> bool:
     return _root_window_parked
@@ -1713,77 +1628,6 @@ func _trigger_pet_touch() -> void:
 - 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
 - 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [h, m]
         _trigger_proactive_chat(prompt, true)
-
-#region debug-point shared:reporter
-func _dbg_init() -> void:
-    var env_path := ".dbg/desktop-pet-window-restore.env"
-    if not FileAccess.file_exists(env_path):
-        return
-    var env_file := FileAccess.open(env_path, FileAccess.READ)
-    if env_file == null:
-        return
-    var env_text := env_file.get_as_text()
-    env_file.close()
-    for raw_line in env_text.split("\n"):
-        var line := raw_line.strip_edges()
-        if line.begins_with("DEBUG_SERVER_URL="):
-            _dbg_server_url = line.split("=", false, 1)[1].strip_edges()
-        elif line.begins_with("DEBUG_SESSION_ID="):
-            _dbg_session_id = line.split("=", false, 1)[1].strip_edges()
-
-func _dbg_capture_root_state() -> Dictionary:
-    var root_window := get_tree().root
-    if root_window == null:
-        return {
-            "root_exists": false,
-            "desktop_visible": visible,
-            "quick_tools_visible": quick_tools_panel.visible
-        }
-    return {
-        "root_exists": true,
-        "root_mode": int(root_window.mode),
-        "root_visible": root_window.visible,
-        "root_unfocusable": root_window.unfocusable,
-        "root_parked": _root_window_parked,
-        "desktop_visible": visible,
-        "quick_tools_visible": quick_tools_panel.visible,
-        "dialogue_open": is_dialogue_panel_open,
-        "active_tool": _active_tool_key
-    }
-
-func _dbg_report(hypothesis_id: String, location: String, msg: String, data: Dictionary = {}) -> void:
-    var http := HTTPRequest.new()
-    add_child(http)
-    http.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
-        if is_instance_valid(http):
-            http.queue_free()
-    , CONNECT_ONE_SHOT)
-    http.request(
-        _dbg_server_url,
-        ["Content-Type: application/json"],
-        HTTPClient.METHOD_POST,
-        JSON.stringify({
-            "sessionId": _dbg_session_id,
-            "runId": _dbg_run_id,
-            "hypothesisId": hypothesis_id,
-            "location": location,
-            "msg": msg,
-            "data": data,
-            "ts": Time.get_ticks_msec()
-        })
-    )
-
-func _dbg_watch_root_state(trigger: String) -> void:
-    var state := _dbg_capture_root_state()
-    var signature := JSON.stringify(state)
-    if signature == _dbg_root_state_signature:
-        return
-    _dbg_root_state_signature = signature
-    _dbg_report("C", "desktop_pet.gd:_dbg_watch_root_state", "[DEBUG] Root window state changed", {
-        "trigger": trigger,
-        "state": state
-    })
-#endregion
 
 func _update_mouse_passthrough() -> void:
     print("[DesktopPet Debug] _update_mouse_passthrough started")
