@@ -1,6 +1,5 @@
 [gd_scene load_steps=12 format=3 uid="uid://b0afs3fe0t3uv"]
 
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://i6qyj0aww0lt" path="res://scripts/ui/wardrobe/wardrobe_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://dh6crbw5g8h" path="res://assets/images/backgrounds/main/home/wardrobe_bedroom_morning.png" id="3_bg"]
 [ext_resource type="SpriteFrames" uid="uid://bpabn0fanx36g" path="res://assets/images/characters/Luna/clothes/luna_jk.tres" id="4_frames"]
@@ -119,7 +118,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_theme")
 script = ExtResource("2_script")
 
 [node name="BackGround" type="TextureRect" parent="."]
@@ -448,4 +446,3 @@ theme_override_colors/font_color = Color(0.84, 0.9, 0.92, 0.56)
 theme_override_font_sizes/font_size = 12
 text = "未拥有的服装会保留在目录中，便于后续通过剧情与活动继续收集。"
 autowrap_mode = 3
-

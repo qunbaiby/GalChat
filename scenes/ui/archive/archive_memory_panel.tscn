@@ -1,7 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://g7e10lyjcwjo"]
 
 [ext_resource type="Script" uid="uid://buwg67llbjnyl" path="res://scripts/ui/archive/archive_memory_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
 bg_color = Color(1, 1, 1, 1)
@@ -64,7 +63,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="."]

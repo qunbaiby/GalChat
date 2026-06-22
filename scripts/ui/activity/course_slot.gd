@@ -1,11 +1,11 @@
 extends PanelContainer
 
-@onready var name_label: Label = $NameLabel
-@onready var check_mark: Label = $CheckMark
-@onready var icon_rect: TextureRect = $IconPlate/IconRect
-@onready var icon_plate: PanelContainer = $IconPlate
-@onready var accent_bar: ColorRect = $AccentBar
-@onready var event_badge: PanelContainer = $EventBadge
+@onready var name_label: Label = $CourseMargin/NameLabel
+@onready var check_mark: Label = $CourseMargin/CheckMark
+@onready var icon_rect: TextureRect = $CourseMargin/IconPlate/IconRect
+@onready var icon_plate: Panel = $CourseMargin/IconPlate
+@onready var accent_bar: ColorRect = $CourseMargin/AccentBar
+@onready var event_badge: PanelContainer = $CourseMargin/EventBadge
 
 const STATE_PENDING := "pending"
 const STATE_CURRENT := "current"
@@ -69,7 +69,7 @@ func setup(slot_name: String, course_data: Dictionary = {}) -> void:
 	_apply_course_visual(course_data)
 
 func _apply_course_visual(course_data: Dictionary) -> void:
-	if icon_rect == null or event_badge == null:
+	if icon_rect == null or icon_plate == null or event_badge == null:
 		return
 
 	var is_story_event: bool = bool(course_data.get("is_event", false)) or str(course_data.get("script_path", "")).strip_edges() != ""
@@ -86,6 +86,7 @@ func _apply_course_visual(course_data: Dictionary) -> void:
 	_has_story_badge = is_story_event
 	icon_rect.texture = icon_texture
 	icon_rect.visible = icon_texture != null
+	icon_plate.visible = icon_texture != null
 	event_badge.visible = is_story_event
 	_apply_state_style()
 

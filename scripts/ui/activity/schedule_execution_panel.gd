@@ -34,13 +34,13 @@ const MAX_SCHEDULE_RANDOM_EVENTS := 1
 const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_schedule_events.json"
 
 @onready var info_panel: Panel = $InfoPanel
-@onready var top_image_rect: TextureRect = $InfoPanel/TopImageRect
-@onready var title_label: Label = $InfoPanel/TitleContainer/TitleLabel
-@onready var desc_label: Label = $InfoPanel/DescLabel
+@onready var top_image_rect: TextureRect = $InfoPanel/InfoPanel/TopImageRect
+@onready var title_label: Label = $InfoPanel/InfoPanel/InfoContainer/TitleContainer/TitleLabel
+@onready var desc_label: Label = $InfoPanel/InfoPanel/InfoContainer/DescLabel
 @onready var control_toolbar: PanelContainer = $ControlToolbar
 @onready var track_panel: Panel = $TrackPanel
-@onready var track_container: HBoxContainer = $TrackPanel/TrackMargin/TrackContainer
-@onready var character_icon: Node2D = $TrackPanel/TrackMargin/TrackContainer/CharacterIcon
+@onready var track_container: HBoxContainer = $TrackPanel/TrackMargin/TrackFrame/TrackContainer
+@onready var character_icon: Node2D = $TrackPanel/TrackMargin/TrackFrame/TrackContainer/CharacterIcon
 @onready var click_area: Button = $ClickArea
 
 @onready var result_popup: Control = $ResultPopup

@@ -1,6 +1,59 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://d3hhf7kh00nws"]
 
-[ext_resource type="Script" path="res://scripts/ui/desktop_pet/desktop_pet_settings_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bk2e3otk0p615" path="res://scripts/ui/desktop_pet/desktop_pet_settings_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Input"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.87, 0.92, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="Theme" id="Theme_Inline"]
+Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
+CheckButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+CheckButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+CheckButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
+Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+LineEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+LineEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
+LineEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
+LineEdit/styles/normal = SubResource("StyleBoxFlat_Input")
+OptionButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+OptionButton/styles/hover = SubResource("StyleBoxFlat_Input")
+OptionButton/styles/normal = SubResource("StyleBoxFlat_Input")
+OptionButton/styles/pressed = SubResource("StyleBoxFlat_Input")
+TextEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+TextEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
+TextEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
+TextEdit/styles/normal = SubResource("StyleBoxFlat_Input")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
 bg_color = Color(0.955, 0.968, 0.985, 0.98)
@@ -8,16 +61,6 @@ corner_radius_top_left = 28
 corner_radius_top_right = 28
 corner_radius_bottom_right = 28
 corner_radius_bottom_left = 28
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.94)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.3, 0.37, 0.48, 0.12)
-shadow_size = 16
-shadow_offset = Vector2(0, 6)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
 bg_color = Color(1, 1, 1, 0.96)
@@ -43,361 +86,318 @@ corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Input"]
-content_margin_left = 10.0
-content_margin_top = 8.0
-content_margin_right = 10.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.87, 0.92, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(1, 1, 1, 0.94)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.3, 0.37, 0.48, 0.12)
+shadow_size = 16
+shadow_offset = Vector2(0, 6)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
-content_margin_left = 10.0
-content_margin_top = 8.0
-content_margin_right = 10.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="Theme" id="Theme_Inline"]
-Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
-CheckButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-CheckButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-CheckButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
-Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-LineEdit/styles/normal = SubResource("StyleBoxFlat_Input")
-LineEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
-LineEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-LineEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
-TextEdit/styles/normal = SubResource("StyleBoxFlat_Input")
-TextEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
-TextEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-TextEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
-OptionButton/styles/normal = SubResource("StyleBoxFlat_Input")
-OptionButton/styles/hover = SubResource("StyleBoxFlat_Input")
-OptionButton/styles/pressed = SubResource("StyleBoxFlat_Input")
-OptionButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-
-[node name="DesktopPetSettingsPanel" type="PanelContainer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="DesktopPetSettingsPanel" type="PanelContainer" unique_id=1076963704]
+custom_minimum_size = Vector2(305, 575)
+anchors_preset = -1
+anchor_right = 0.238
+anchor_bottom = 0.799
+offset_right = 0.35998535
+offset_bottom = -0.2800293
 grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_Inline")
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=558678191]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin" unique_id=169719344]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
-[node name="TopBar" type="HBoxContainer" parent="Margin/VBox"]
+[node name="TopBar" type="HBoxContainer" parent="Margin/VBox" unique_id=1702499505]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="BackButton" type="Button" parent="Margin/VBox/TopBar"]
-custom_minimum_size = Vector2(42, 42)
+[node name="BackButton" type="Button" parent="Margin/VBox/TopBar" unique_id=273148328]
+custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
 text = "<"
 
-[node name="TitleVBox" type="VBoxContainer" parent="Margin/VBox/TopBar"]
+[node name="TitleVBox" type="VBoxContainer" parent="Margin/VBox/TopBar" unique_id=506569148]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="Title" type="Label" parent="Margin/VBox/TopBar/TitleVBox"]
+[node name="Title" type="Label" parent="Margin/VBox/TopBar/TitleVBox" unique_id=1044730605]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.17, 0.2, 0.25, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "桌宠设置"
 
-[node name="SubTitle" type="Label" parent="Margin/VBox/TopBar/TitleVBox"]
+[node name="SubTitle" type="Label" parent="Margin/VBox/TopBar/TitleVBox" unique_id=332151522]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.47, 0.52, 0.59, 1)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 text = "与系统设置中的桌宠配置保持一致"
 
-[node name="SaveButton" type="Button" parent="Margin/VBox/TopBar"]
-custom_minimum_size = Vector2(74, 42)
+[node name="SaveButton" type="Button" parent="Margin/VBox/TopBar" unique_id=1079517133]
+custom_minimum_size = Vector2(62, 34)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.17, 0.2, 0.25, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "保存"
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="Margin/VBox" unique_id=143434002]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ContentVBox" type="VBoxContainer" parent="Margin/VBox/Scroll"]
+[node name="ContentVBox" type="VBoxContainer" parent="Margin/VBox/Scroll" unique_id=486465347]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
-
-[node name="BasicCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
-
-[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin"]
-layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "桌宠设置"
-
-[node name="PlayerNicknameRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="PlayerNicknameLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/PlayerNicknameRow"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "对玩家的称呼"
-
-[node name="PlayerNicknameInput" type="LineEdit" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/PlayerNicknameRow"]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-placeholder_text = "输入桌宠对你的称呼"
-
-[node name="ModeRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="PetDisturbanceModeLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/ModeRow"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "当前陪伴模式"
-
-[node name="PetDisturbanceModeOption" type="OptionButton" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/ModeRow"]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-
-[node name="QuietTimeRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="PetQuietRangesLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/QuietTimeRow"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "禁止主动说话时段"
-
-[node name="PetQuietRangesInput" type="LineEdit" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/QuietTimeRow"]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-placeholder_text = "例如 23:30-08:00, 13:00-14:00"
-
-[node name="BehaviorCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox"]
+[node name="BasicCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox" unique_id=1891535869]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard"]
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard" unique_id=1832269201]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin" unique_id=727348494]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
+[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox" unique_id=707718604]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
+text = "桌宠设置"
+
+[node name="PlayerNicknameRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox" unique_id=1615665653]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PlayerNicknameLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/PlayerNicknameRow" unique_id=86341650]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "对玩家的称呼"
+
+[node name="PlayerNicknameInput" type="LineEdit" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/PlayerNicknameRow" unique_id=1873490492]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+placeholder_text = "输入桌宠对你的称呼"
+
+[node name="ModeRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox" unique_id=677062140]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PetDisturbanceModeLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/ModeRow" unique_id=372759782]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "当前陪伴模式"
+
+[node name="PetDisturbanceModeOption" type="OptionButton" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/ModeRow" unique_id=404597865]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+
+[node name="QuietTimeRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox" unique_id=1097530179]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PetQuietRangesLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/QuietTimeRow" unique_id=1453632948]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "禁止主动说话时段"
+
+[node name="PetQuietRangesInput" type="LineEdit" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/QuietTimeRow" unique_id=2128968954]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+placeholder_text = "例如 23:30-08:00, 13:00-14:00"
+
+[node name="BehaviorCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox" unique_id=2084690879]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard" unique_id=1135803008]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin" unique_id=440081086]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=888879449]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "行为参数"
 
-[node name="PetObserveTimeLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
+[node name="PetObserveTimeLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=288651376]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "新应用观察时间"
 
-[node name="PetObserveTimeSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+[node name="PetObserveTimeSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1180322778]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 min_value = 5.0
 max_value = 60.0
-step = 1.0
 value = 10.0
 
-[node name="PetSameAppCooldownLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
+[node name="PetSameAppCooldownLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1378427657]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "同应用吐槽间隔"
 
-[node name="PetSameAppCooldownSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+[node name="PetSameAppCooldownSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1353770398]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 min_value = 120.0
 max_value = 600.0
-step = 1.0
 value = 180.0
 
-[node name="PetGlobalCooldownLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
+[node name="PetGlobalCooldownLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=2091312676]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "全局最小冷却"
 
-[node name="PetGlobalCooldownSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+[node name="PetGlobalCooldownSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=364166691]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 min_value = 5.0
 max_value = 60.0
-step = 1.0
 value = 10.0
 
-[node name="PetScaleLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
+[node name="PetScaleLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=270194096]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "桌宠缩放倍率"
 
-[node name="PetScaleSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+[node name="PetScaleSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1471197611]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 min_value = 0.5
 max_value = 2.0
 step = 0.05
 value = 1.0
 
-[node name="SwitchCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox"]
+[node name="SwitchCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox" unique_id=527123570]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard"]
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard" unique_id=1358612561]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin" unique_id=129351438]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox"]
+[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox" unique_id=352562943]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "功能开关"
 
-[node name="PetEnableAppObserveCheck" type="CheckButton" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+[node name="PetEnableAppObserveCheck" type="CheckButton" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox" unique_id=1270538333]
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 text = "允许观察应用并吐槽"
 
-[node name="PetEnableHourlyChimeCheck" type="CheckButton" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+[node name="PetEnableHourlyChimeCheck" type="CheckButton" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox" unique_id=602036300]
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 text = "允许整点报时"
 
-[node name="PetEnableAfkGreetingCheck" type="CheckButton" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+[node name="PetEnableAfkGreetingCheck" type="CheckButton" parent="Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox" unique_id=1400518227]
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 text = "允许闲置状态问候"
 
-[node name="PolicyCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox"]
+[node name="PolicyCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox" unique_id=1133866381]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard"]
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard" unique_id=644409692]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin" unique_id=1841381623]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
+[node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1281637725]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "低打扰策略中心"
 
-[node name="Hint" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
+[node name="Hint" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=306700964]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.5, 0.58, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 text = "可按模式快速切换桌宠风格，并单独指定允许观察、永不截图和敏感窗口关键词。关键词支持逗号、空格或换行分隔。"
 autowrap_mode = 3
 
-[node name="ObserveAllowLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
+[node name="ObserveAllowLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1223624962]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "允许观察的应用关键词"
 
-[node name="PetObserveAllowInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 86)
+[node name="PetObserveAllowInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1168559890]
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 placeholder_text = "留空表示不限制，例如 trae, cursor, chrome"
 wrap_mode = 1
 
-[node name="NeverCaptureLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
+[node name="NeverCaptureLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1978388235]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "永不截图的应用关键词"
 
-[node name="PetNeverCaptureInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 86)
+[node name="PetNeverCaptureInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=2137241661]
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 placeholder_text = "例如 银行, 支付, 后台, 控制台"
 wrap_mode = 1
 
-[node name="SensitiveWindowLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
+[node name="SensitiveWindowLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=233868151]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "敏感窗口关键词"
 
-[node name="PetSensitiveWindowInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
-custom_minimum_size = Vector2(0, 86)
+[node name="PetSensitiveWindowInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1585977943]
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 placeholder_text = "敏感窗口只读应用名不截图，例如 微信, QQ, 飞书, Outlook"
 wrap_mode = 1
 
-[node name="FooterHint" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox"]
+[node name="FooterHint" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1897785087]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.37, 0.39, 0.4, 0.78)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 11
 text = "模式建议：安静模式几乎不主动打扰，专注模式保留轻量陪伴，摸鱼模式保持当前活泼反应，深夜模式默认更克制。"
 autowrap_mode = 3

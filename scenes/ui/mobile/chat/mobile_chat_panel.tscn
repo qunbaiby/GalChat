@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://b66u3jjc01x4b"]
 
 [ext_resource type="Script" uid="uid://bdcvogjxdy51q" path="res://scripts/ui/mobile/chat/mobile_chat_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://dj142v0c1m65o" path="res://assets/themes/mobile_chat_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_deepseek"]
 [ext_resource type="Texture2D" uid="uid://d0fgxkkqj17o0" path="res://assets/images/icons/ui/system/eye.svg" id="4_eye"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="6_image"]
@@ -83,7 +82,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Panel" type="Panel" parent="." unique_id=715637969]

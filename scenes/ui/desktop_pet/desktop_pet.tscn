@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
 [ext_resource type="PackedScene" uid="uid://d0vnlpr3gjrac" path="res://scenes/ui/desktop_pet/pet_body.tscn" id="3_yofv2"]
+[ext_resource type="Texture2D" uid="uid://dhdx110iute65" path="res://assets/images/characters/desktop_pet/Q_desktop.png" id="4_q_luna"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PetInput"]
 bg_color = Color(0.985, 0.988, 0.995, 0.96)
@@ -61,14 +62,25 @@ corner_radius_bottom_right = 28
 corner_radius_bottom_left = 28
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TimeWidget"]
-bg_color = Color(0.12, 0.14, 0.18, 0.98)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.08, 0.11, 0.16, 0.18)
-shadow_size = 14
+bg_color = Color(0.03, 0.04, 0.06, 0.985)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.6, 0.61, 0.65, 1)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0, 0, 0, 0.24)
+shadow_size = 16
 shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TimeWidgetDatePill"]
+bg_color = Color(0.95, 0.59, 0.76, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TimeWidgetWeekPill"]
+bg_color = Color(0.93, 0.84, 0.47, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionCardPrimary"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
@@ -212,23 +224,24 @@ text = "关闭"
 
 [node name="QuickToolsPanel" type="PanelContainer" parent="Control" unique_id=1677745701]
 visible = false
+custom_minimum_size = Vector2(305, 575)
 layout_mode = 0
-offset_left = 499.0
-offset_top = 34.0
-offset_right = 905.0
-offset_bottom = 708.0
+offset_left = 596.0
+offset_top = 135.0
+offset_right = 901.0
+offset_bottom = 710.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneShell")
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/QuickToolsPanel" unique_id=674001183]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Control/QuickToolsPanel/MarginContainer" unique_id=1954815904]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Screen" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer" unique_id=524637763]
 layout_mode = 2
@@ -237,10 +250,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneScreen")
 
 [node name="ScreenMargin" type="MarginContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen" unique_id=1757929053]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
 [node name="ScreenStack" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin" unique_id=548492952]
 layout_mode = 2
@@ -257,146 +270,253 @@ grow_vertical = 2
 theme_override_constants/separation = 12
 
 [node name="TimeWidget" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1582347799]
-custom_minimum_size = Vector2(0, 108)
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TimeWidget")
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget" unique_id=842295748]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
 
 [node name="HeaderRow" type="HBoxContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer" unique_id=76267710]
 layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="InfoVBox" type="VBoxContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow" unique_id=1166093348]
-layout_mode = 2
-size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="Title" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=1337676864]
+[node name="VisualPanel" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow" unique_id=578530056]
+custom_minimum_size = Vector2(104, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.92)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DecorTopLeft" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/VisualPanel" unique_id=879366735]
+layout_mode = 1
+offset_left = -4.0
+offset_top = 2.0
+offset_right = 18.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(1, 0.58, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "✚"
+
+[node name="DecorBottomLeft" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/VisualPanel" unique_id=16967997]
+layout_mode = 1
+offset_top = 67.0
+offset_right = 22.0
+offset_bottom = 89.0
+theme_override_colors/font_color = Color(1, 0.58, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "✚"
+
+[node name="DecorRight" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/VisualPanel" unique_id=610093349]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = 42.0
+offset_right = -2.0
+offset_bottom = 62.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.58, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "✚"
+
+[node name="DecorSparkA" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/VisualPanel" unique_id=2122324626]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -16.0
+offset_top = 2.0
+offset_right = 8.0
+offset_bottom = 14.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.72, 0.97, 0.93, 1)
+theme_override_font_sizes/font_size = 10
+text = "· ·"
+
+[node name="DecorSparkB" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/VisualPanel" unique_id=307835696]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -10.0
+offset_top = 12.0
+offset_right = 14.0
+offset_bottom = 24.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.72, 0.97, 0.93, 1)
+theme_override_font_sizes/font_size = 10
+text = "· ·"
+
+[node name="LunaSprite" type="TextureRect" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/VisualPanel" unique_id=824036375]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -40.0
+offset_right = 50.0
+offset_bottom = 42.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_q_luna")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InfoVBox" type="VBoxContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow" unique_id=1166093348]
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="DatePill" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=1241662017]
+custom_minimum_size = Vector2(0, 21)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_TimeWidgetDatePill")
+
+[node name="DateMargin" type="MarginContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/DatePill" unique_id=1705718153]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+
+[node name="Title" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/DatePill/DateMargin" unique_id=1337676864]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 13
-text = "2026年06月21日  周日"
+text = "2026.06.21"
+horizontal_alignment = 1
 
-[node name="SubTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=2009480224]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.72)
-theme_override_font_sizes/font_size = 11
-text = "晚上也有我陪着你。"
-
-[node name="ClockLabel" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow" unique_id=1648261941]
-custom_minimum_size = Vector2(106, 0)
+[node name="ClockLabel" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=1648261941]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 34
-text = "08:08"
-horizontal_alignment = 2
+theme_override_font_sizes/font_size = 30
+text = "17:56"
+horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PrimaryTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1142898359]
+[node name="WeekPill" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox" unique_id=742716905]
+custom_minimum_size = Vector2(0, 21)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.18, 0.22, 0.28, 1)
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_TimeWidgetWeekPill")
+
+[node name="WeekMargin" type="MarginContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/WeekPill" unique_id=526460016]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+
+[node name="SubTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/WeekPill/WeekMargin" unique_id=2009480224]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
-text = "常用入口"
+text = "MONDAY"
+horizontal_alignment = 1
 
 [node name="PrimaryButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=2058719298]
 layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
 
 [node name="DialogueButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=1199688975]
-custom_minimum_size = Vector2(150, 76)
+custom_minimum_size = Vector2(105, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCardPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCardPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCardPrimary")
 text = "聊天"
 
-[node name="MainWindowButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=1117274514]
-custom_minimum_size = Vector2(75, 76)
+[node name="MusicToggleButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=542409975]
+custom_minimum_size = Vector2(50, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "主界面"
-
-[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=863629392]
-custom_minimum_size = Vector2(150, 76)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "桌宠设置"
-
-[node name="ToolTitle" type="Label" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=837001411]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.18, 0.22, 0.28, 1)
-theme_override_font_sizes/font_size = 14
-text = "常用工具"
-
-[node name="ToolButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1638410051]
-layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 2
-
-[node name="MusicToggleButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=542409975]
-custom_minimum_size = Vector2(150, 68)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
 text = "音乐"
 
-[node name="PomodoroToggleButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1080831226]
-custom_minimum_size = Vector2(68, 68)
+[node name="PomodoroToggleButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons" unique_id=1080831226]
+custom_minimum_size = Vector2(50, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCardPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCardPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCardPrimary")
 text = "番茄钟"
 
+[node name="ToolButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1638410051]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
 [node name="MuteButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1703601122]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(105, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
 text = "静音30分"
 
-[node name="CloseButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=487945073]
-custom_minimum_size = Vector2(0, 68)
+[node name="MainWindowButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1117274514]
+custom_minimum_size = Vector2(50, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "主界面"
+
+[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=863629392]
+custom_minimum_size = Vector2(50, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "设置"
+
+[node name="OtherButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1261235340]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="CloseButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons" unique_id=435639214]
+custom_minimum_size = Vector2(105, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
 text = "关闭桌宠"
 
 [node name="HideToolButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=229844351]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.92)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_FooterPill")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_FooterPill")
 theme_override_styles/hover = SubResource("StyleBoxFlat_FooterPill")

@@ -137,7 +137,7 @@ bg_color = Color(1, 0.96, 0.9, 1)
 bg_color = Color(0.94, 0.98, 0.97, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecNormal"]
-bg_color = Color(0, 0, 0, 0.5058824)
+bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
 corner_radius_top_left = 15
 corner_radius_bottom_left = 15
 shadow_offset = Vector2(0, 1)
@@ -163,11 +163,11 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p33vi"]
-bg_color = Color(0, 0, 0, 0.5058824)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
+bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
-shadow_offset = Vector2(0, 1)
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fbdjj"]
 bg_color = Color(0.2509804, 0.2509804, 0.2509804, 1)
@@ -228,15 +228,6 @@ corner_radius_bottom_left = 15
 shadow_color = Color(0.99607843, 0.5058824, 0.6509804, 0.5137255)
 shadow_size = 1
 shadow_offset = Vector2(0, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SystemToolbarShadow"]
-bg_color = Color(0, 0, 0, 0)
-draw_center = false
-corner_radius_top_left = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.28)
-shadow_size = 5
-shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SystemToolbar"]
 bg_color = Color(1, 1, 1, 0.69803923)
@@ -358,9 +349,9 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 414.5
+offset_left = 402.5
 offset_top = -87.0
-offset_right = 2.5
+offset_right = -9.0
 offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -369,9 +360,10 @@ theme_override_constants/separation = 15
 [node name="BtnHBox" type="HBoxContainer" parent="UIPanel/BottomBarHBox" unique_id=1286416985]
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_constants/separation = 6
+theme_override_constants/separation = 3
 
 [node name="SkillButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=593884269]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
@@ -396,7 +388,6 @@ theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton/ContentVBox" unique_id=1941732434]
-self_modulate = Color(0.94, 0.92, 0.87, 1)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -408,12 +399,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton/ContentVBox" unique_id=1996260350]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "天赋"
 horizontal_alignment = 1
 
 [node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=466334356]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
@@ -438,7 +430,6 @@ theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox" unique_id=991246003]
-self_modulate = Color(0.94, 0.92, 0.87, 1)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -449,12 +440,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox" unique_id=707311097]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "日记"
 horizontal_alignment = 1
 
 [node name="WeChatButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=1446868898]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
@@ -507,7 +499,6 @@ theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox" unique_id=1237178796]
-self_modulate = Color(0.94, 0.92, 0.87, 1)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -518,12 +509,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox" unique_id=1417281160]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "微聊"
 horizontal_alignment = 1
 
 [node name="WardrobeButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=2087149745]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
@@ -548,7 +540,6 @@ theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox" unique_id=1889919325]
-self_modulate = Color(0.94, 0.92, 0.87, 1)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -559,13 +550,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox" unique_id=1812687676]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.92, 0.87, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "服装"
 horizontal_alignment = 1
 
 [node name="MusicPlayer" parent="UIPanel/BottomBarHBox" unique_id=1244991283 instance=ExtResource("10_music_player")]
-custom_minimum_size = Vector2(340, 52)
+custom_minimum_size = Vector2(325, 52)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 8
@@ -716,7 +707,7 @@ layout_mode = 0
 offset_top = 113.0
 offset_right = 242.0
 offset_bottom = 168.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_p33vi")
+theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
 
 [node name="GoalMargin" type="MarginContainer" parent="UIPanel/GoalPanel" unique_id=1347994400]
 layout_mode = 2
@@ -842,19 +833,8 @@ offset_top = -211.0
 offset_right = 393.0
 offset_bottom = -11.0
 
-[node name="SystemButtonShadow" type="PanelContainer" parent="UIPanel" unique_id=636831641]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -135.0
-offset_top = 7.0
-offset_bottom = 47.0
-grow_horizontal = 0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_SystemToolbarShadow")
-
 [node name="SystemButton" type="PanelContainer" parent="UIPanel" unique_id=1538806454]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -868,12 +848,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_SystemToolbar")
 [node name="ToolBarMargin" type="MarginContainer" parent="UIPanel/SystemButton" unique_id=70971998]
 layout_mode = 2
 theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
+theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 5
 
 [node name="HBox" type="HBoxContainer" parent="UIPanel/SystemButton/ToolBarMargin" unique_id=1181678996]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 15
 alignment = 2
 
 [node name="HideUIButton" type="Button" parent="UIPanel/SystemButton/ToolBarMargin/HBox" unique_id=363080844]

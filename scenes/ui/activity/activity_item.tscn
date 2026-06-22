@@ -1,37 +1,32 @@
-[gd_scene load_steps=8 format=3 uid="uid://b23xxyy00456"]
+[gd_scene format=3 uid="uid://b23xxyy00456"]
 
 [ext_resource type="Script" uid="uid://dakf4iikoukkf" path="res://scripts/ui/activity/activity_item.gd" id="1_item"]
+[ext_resource type="PackedScene" uid="uid://caw5jhw3f5suo" path="res://scenes/ui/activity/activity_reward_tag.tscn" id="3_sp6cq"]
+[ext_resource type="PackedScene" uid="uid://dqm664lxsdoq1" path="res://scenes/ui/activity/activity_cost_tag.tscn" id="4_pqcyc"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ShadowCard"]
-bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.94)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5kksj"]
+bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
+border_color = Color(0.07132422, 0.828159, 0.84753275, 0.84313726)
 corner_radius_top_left = 14
-corner_radius_top_right = 14
+corner_radius_top_right = 4
 corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.28, 0.33, 0.08)
-shadow_size = 8
-shadow_offset = Vector2(0, 3)
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ClipMask"]
 bg_color = Color(1, 1, 1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8881536, 0.6965656, 0.27720153, 0.84313726)
 corner_radius_top_left = 14
-corner_radius_top_right = 14
+corner_radius_top_right = 4
 corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="Gradient" id="Gradient_FadeOverlay"]
-offsets = PackedFloat32Array(0, 0.25, 0.45, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.2, 1, 1, 1, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_FadeOverlay"]
-gradient = SubResource("Gradient_FadeOverlay")
-fill_from = Vector2(0, 0.5)
-fill_to = Vector2(1, 0.5)
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
 bg_color = Color(0.9, 0.94, 0.93, 1)
@@ -47,108 +42,135 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="ActivityItem" type="PanelContainer"]
-custom_minimum_size = Vector2(190, 76)
+[node name="ActivityItem" type="Button" unique_id=351493499]
+custom_minimum_size = Vector2(190, 90)
 offset_right = 190.0
-offset_bottom = 80.0
+offset_bottom = 85.0
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ShadowCard")
+theme_override_styles/normal = SubResource("StyleBoxFlat_5kksj")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ClipMask")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ClipMask")
 script = ExtResource("1_item")
 
-[node name="ClipMask" type="PanelContainer" parent="."]
+[node name="ClipMask" type="PanelContainer" parent="." unique_id=1053077365]
+self_modulate = Color(1, 1, 1, 0)
 clip_contents = true
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ClipMask")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="GradientOverlay" type="TextureRect" parent="ClipMask"]
-visible = false
+[node name="ActivityContainer" type="VBoxContainer" parent="ClipMask" unique_id=1826746394]
 layout_mode = 2
-texture = SubResource("GradientTexture2D_FadeOverlay")
-expand_mode = 1
+theme_override_constants/separation = -1
 
-[node name="MainHBox" type="HBoxContainer" parent="ClipMask"]
+[node name="MainHBox" type="HBoxContainer" parent="ClipMask/ActivityContainer" unique_id=1570520331]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 10
 
-[node name="Icon" type="TextureRect" parent="ClipMask/MainHBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 3
-expand_mode = 1
-stretch_mode = 6
-
-[node name="ContentMargin" type="MarginContainer" parent="ClipMask/MainHBox"]
+[node name="ContentMargin" type="MarginContainer" parent="ClipMask/ActivityContainer/MainHBox" unique_id=236477067]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 2
 
-[node name="VBox" type="VBoxContainer" parent="ClipMask/MainHBox/ContentMargin"]
+[node name="VBox" type="VBoxContainer" parent="ClipMask/ActivityContainer/MainHBox/ContentMargin" unique_id=946534467]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 1
 alignment = 1
 
-[node name="NameLabel" type="Label" parent="ClipMask/MainHBox/ContentMargin/VBox"]
+[node name="NameLabel" type="Label" parent="ClipMask/ActivityContainer/MainHBox/ContentMargin/VBox" unique_id=1087216336]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 15
 text = "课程名称"
 
-[node name="CostContainer" type="HFlowContainer" parent="ClipMask/MainHBox/ContentMargin/VBox"]
+[node name="CostContainer" type="HFlowContainer" parent="ClipMask/ActivityContainer/MainHBox/ContentMargin/VBox" unique_id=1476163504]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 2
 
-[node name="RewardsContainer" type="HFlowContainer" parent="ClipMask/MainHBox/ContentMargin/VBox"]
+[node name="ActivityRewardTag" parent="ClipMask/ActivityContainer/MainHBox/ContentMargin/VBox/CostContainer" unique_id=406368153 instance=ExtResource("3_sp6cq")]
+layout_mode = 2
+
+[node name="RewardsContainer" type="HFlowContainer" parent="ClipMask/ActivityContainer/MainHBox/ContentMargin/VBox" unique_id=2024386616]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 2
 
-[node name="ProgressContainer" type="VBoxContainer" parent="ClipMask/MainHBox/ContentMargin/VBox"]
+[node name="ActivityCostTag" parent="ClipMask/ActivityContainer/MainHBox/ContentMargin/VBox/RewardsContainer" unique_id=2102187898 instance=ExtResource("4_pqcyc")]
+layout_mode = 2
+
+[node name="IconMargin" type="MarginContainer" parent="ClipMask/ActivityContainer/MainHBox" unique_id=1027607505]
+layout_mode = 2
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 5
+
+[node name="Icon" type="TextureRect" parent="ClipMask/ActivityContainer/MainHBox/IconMargin" unique_id=1613259089]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ProgressContainer" type="PanelContainer" parent="ClipMask/ActivityContainer" unique_id=984197888]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="ProgressMargin" type="MarginContainer" parent="ClipMask/ActivityContainer/ProgressContainer" unique_id=1977243548]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 12
+
+[node name="ProgressContainer" type="VBoxContainer" parent="ClipMask/ActivityContainer/ProgressContainer/ProgressMargin" unique_id=1202546172]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 0
 
-[node name="ProgressHeader" type="HBoxContainer" parent="ClipMask/MainHBox/ContentMargin/VBox/ProgressContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="ProgressLabel" type="Label" parent="ClipMask/MainHBox/ContentMargin/VBox/ProgressContainer/ProgressHeader"]
+[node name="ProgressBar" type="ProgressBar" parent="ClipMask/ActivityContainer/ProgressContainer/ProgressMargin/ProgressContainer" unique_id=585153878]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.42, 0.48, 0.52, 1)
-theme_override_font_sizes/font_size = 11
-text = "进度"
-
-[node name="IncrementLabel" type="Label" parent="ClipMask/MainHBox/ContentMargin/VBox/ProgressContainer/ProgressHeader"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 11
-text = "+10"
-horizontal_alignment = 2
-
-[node name="ProgressBar" type="ProgressBar" parent="ClipMask/MainHBox/ContentMargin/VBox/ProgressContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 6)
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
 show_percentage = false
 
-[node name="Button" type="Button" parent="."]
+[node name="ProgressLabel" type="Label" parent="ClipMask/ActivityContainer/ProgressContainer/ProgressMargin/ProgressContainer/ProgressBar" unique_id=477983574]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.42, 0.48, 0.52, 1)
+theme_override_font_sizes/font_size = 10
+text = "进度"
+horizontal_alignment = 1
+
+[node name="IncrementLabel" type="Label" parent="ClipMask/ActivityContainer/ProgressContainer/ProgressMargin/ProgressContainer" unique_id=1336223676]
 unique_name_in_owner = true
 layout_mode = 2
-flat = true
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 10
+text = "+10"
+horizontal_alignment = 1

@@ -1,6 +1,7 @@
-[gd_scene load_steps=18 format=3 uid="uid://cknui6yktdso2"]
+[gd_scene format=3 uid="uid://cknui6yktdso2"]
 
 [ext_resource type="Script" uid="uid://c7wlw5tn72y68" path="res://scripts/ui/activity/activity_panel.gd" id="1_act"]
+[ext_resource type="PackedScene" uid="uid://dcd4qwe7rx32y" path="res://scenes/ui/activity/category_tab_item.tscn" id="2_3k5eb"]
 [ext_resource type="Texture2D" uid="uid://cmo6qt3kace5w" path="res://assets/images/icons/ui/stats/aesthetics.svg" id="tex_aesthetics"]
 [ext_resource type="Texture2D" uid="uid://6k7iltbwvyhb" path="res://assets/images/icons/ui/stats/core_charm.svg" id="tex_core_charm"]
 [ext_resource type="Texture2D" uid="uid://mf8th0842mvv" path="res://assets/images/icons/ui/stats/core_intelligence.svg" id="tex_core_intelligence"]
@@ -23,38 +24,59 @@ shader = SubResource("Shader_AlbumBlur")
 shader_parameter/lod = 3.2
 shader_parameter/mix_color = Color(0.18, 0.19, 0.22, 0.28)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aivhu"]
-bg_color = Color(0.24, 0.26, 0.3, 0.38)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
+bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gjpgi"]
+bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qi7am"]
+bg_color = Color(1, 1, 1, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.12)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 20
-shadow_offset = Vector2(0, 6)
+border_color = Color(0.7506197, 0.8341726, 0.87056893, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_List"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3k5eb"]
+bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.18, 0.28, 0.33, 0.14)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
-bg_color = Color(1, 1, 1, 0.92)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButtonInnerFrame"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7539839, 0.75398386, 0.75398386, 0.78039217)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3wwei"]
+bg_color = Color(0.1882353, 0.20784314, 0.22745098, 0.91764706)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -80,6 +102,70 @@ shadow_color = Color(0.18, 0.28, 0.33, 0.08)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryCapsuleButton"]
+bg_color = Color(0.61, 0.61, 0.61, 0.98)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.12, 0.12, 0.12, 0.16)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryCapsuleButtonPressed"]
+bg_color = Color(0.52, 0.52, 0.52, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.82, 0.82, 0.58)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.08, 0.08, 0.08, 0.1)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryCapsuleButtonHover"]
+bg_color = Color(0.68, 0.68, 0.68, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.95, 0.95, 0.68)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.12, 0.12, 0.12, 0.18)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryCapsuleButtonDisabled"]
+bg_color = Color(0.72, 0.72, 0.72, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.82, 0.82, 0.42)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryCapsuleInnerFrame"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.72)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
 bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
 border_width_left = 2
@@ -102,20 +188,12 @@ corner_radius_bottom_left = 2
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
 color = Color(0.82, 0.9, 0.88, 0.95)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatBlock"]
-bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.52)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.28, 0.33, 0.08)
-shadow_size = 8
-shadow_offset = Vector2(0, 3)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatCard"]
+bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatIcon"]
 bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
@@ -125,18 +203,75 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.61, 0.61, 0.61, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.88, 0.88, 0.88, 0.58)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.12, 0.12, 0.12, 0.18)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
 
-[node name="ActivityPanel" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButtonPressed"]
+bg_color = Color(0.52, 0.52, 0.52, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.82, 0.82, 0.6)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.08, 0.08, 0.08, 0.12)
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButtonHover"]
+bg_color = Color(0.68, 0.68, 0.68, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.95, 0.95, 0.72)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.12, 0.12, 0.12, 0.2)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aivhu"]
+bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slthw"]
+bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[node name="ActivityPanel" type="Control" unique_id=2025322323]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -145,7 +280,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_act")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1049553405]
 material = SubResource("ShaderMaterial_AlbumBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -155,15 +290,15 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.2509804, 0.23137255, 0.20392157, 0.8901961)
 
-[node name="BackgroundPanel" type="Panel" parent="."]
+[node name="BackgroundPanel" type="Panel" parent="." unique_id=1217892843]
 layout_mode = 0
 offset_left = 40.0
 offset_top = 40.0
 offset_right = 1240.0
 offset_bottom = 680.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel" unique_id=1956385070]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -175,75 +310,106 @@ theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 15
 
-[node name="MainHBox" type="HBoxContainer" parent="BackgroundPanel/Margin"]
+[node name="MainHBox" type="HBoxContainer" parent="BackgroundPanel/Margin" unique_id=2013234993]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="LeftPanel" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox"]
+[node name="LeftPanel" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox" unique_id=1460918959]
 custom_minimum_size = Vector2(800, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 1.8
-theme_override_styles/panel = SubResource("StyleBoxFlat_List")
+theme_override_styles/panel = SubResource("StyleBoxFlat_gjpgi")
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel" unique_id=2073068861]
 layout_mode = 2
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin" unique_id=1643239143]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 3
 
-[node name="TopHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox"]
+[node name="CategoryTitle" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox" unique_id=533451655]
 layout_mode = 2
-theme_override_constants/separation = 20
 
-[node name="BackButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
-custom_minimum_size = Vector2(80, 40)
+[node name="TitleLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle" unique_id=1990332656]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
-text = "< 返回"
+theme_override_font_sizes/font_size = 16
+text = "✦ 行程选择"
 
-[node name="RoundInfo" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/TopHBox"]
+[node name="line" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle" unique_id=830220514]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
-theme_override_font_sizes/font_size = 20
-text = "第 1 周"
+size_flags_horizontal = 3
+text = "-----------------------------------------------------------------------------------------------------------"
 
-[node name="CategoryTabs" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox"]
+[node name="PlaceIntoButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle" unique_id=344484836]
+custom_minimum_size = Vector2(120, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23256236, 0.24076453, 0.26542205, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_qi7am")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_3k5eb")
+theme_override_styles/hover = SubResource("StyleBoxFlat_3k5eb")
+text = "一键安排"
+
+[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle/PlaceIntoButton" unique_id=891365561]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ActionButtonInnerFrame")
+
+[node name="CategoryTabsContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox" unique_id=2131677982]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_3wwei")
+
+[node name="CategoryTabsMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTabsContainer" unique_id=636651525]
+layout_mode = 2
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="CategoryTabs" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTabsContainer/CategoryTabsMargin" unique_id=576475113]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 10
 
-[node name="CategoryContentCard" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox"]
+[node name="CategoryTabItem" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTabsContainer/CategoryTabsMargin/CategoryTabs" unique_id=368433190 instance=ExtResource("2_3k5eb")]
+layout_mode = 2
+
+[node name="CategoryContentCard" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox" unique_id=19922712]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(770, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
-[node name="CategoryContentMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard"]
+[node name="CategoryContentMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard" unique_id=1750782627]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="CategoryContentVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin"]
+[node name="CategoryContentVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin" unique_id=1716939766]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 14
 
-[node name="ScrollContainer" type="ScrollContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin/CategoryContentVBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin/CategoryContentVBox" unique_id=718409869]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ActivitiesGrid" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin/CategoryContentVBox/ScrollContainer"]
+[node name="ActivitiesGrid" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin/CategoryContentVBox/ScrollContainer" unique_id=817952910]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -251,126 +417,161 @@ theme_override_constants/h_separation = 15
 theme_override_constants/v_separation = 15
 columns = 3
 
-[node name="BottomHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox"]
+[node name="ScheduleTitle" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox" unique_id=1449526732]
+layout_mode = 2
+
+[node name="ScheduleTitle" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle" unique_id=29980191]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "✦ 行程安排"
+
+[node name="line" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle" unique_id=1259507180]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "----------------------------------------------------------------------------------------------------------------------------"
+
+[node name="ScheduleLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle" unique_id=1302316492]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "0/5"
+
+[node name="BottomHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox" unique_id=1725318342]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="VBoxContainer" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
-layout_mode = 2
-alignment = 2
-
-[node name="ScheduleTitle" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
-text = "安排进度"
-horizontal_alignment = 1
-
-[node name="ScheduleLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-text = "0/5"
-horizontal_alignment = 1
-
-[node name="ScheduleSlots" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+[node name="ScheduleSlots" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox" unique_id=1908417434]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="MorningRow" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots"]
+[node name="MorningRow" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots" unique_id=10355775]
 layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 1
+theme_override_constants/separation = 30
 
-[node name="Slot1" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
+[node name="Slot1" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1837185738]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot2" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
+[node name="Slot2" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=439568316]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot3" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
+[node name="Slot3" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1918583757]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot4" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
+[node name="Slot4" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1937340476]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
 expand_icon = true
 
-[node name="Slot5" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow"]
+[node name="Slot5" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1926281893]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
 expand_icon = true
 
-[node name="ControlButtoon" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox"]
+[node name="ControlButtoon" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox" unique_id=606160949]
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 alignment = 2
 
-[node name="UndoButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon"]
+[node name="UndoButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon" unique_id=1398351966]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.32172763, 0.3217282, 0.3217277, 1)
-theme_override_colors/font_hover_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
-text = "撤销"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.88, 0.88, 0.88, 0.82)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryCapsuleButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryCapsuleButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryCapsuleButtonHover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_SecondaryCapsuleButtonDisabled")
+text = "撤销安排"
 
-[node name="ClearButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon"]
+[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/UndoButton" unique_id=1600958579]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SecondaryCapsuleInnerFrame")
+
+[node name="ClearButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon" unique_id=694231516]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.3106167, 0.31061736, 0.31061688, 1)
-theme_override_colors/font_hover_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.41930977, 0.5391444, 0.51265377, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
-text = "清空"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.88, 0.88, 0.88, 0.82)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryCapsuleButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryCapsuleButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryCapsuleButtonHover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_SecondaryCapsuleButtonDisabled")
+text = "一键清空"
 
-[node name="RightPanel" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox"]
+[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/ClearButton" unique_id=1709704832]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SecondaryCapsuleInnerFrame")
+
+[node name="RightPanel" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox" unique_id=824230441]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.2
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel" unique_id=1046610949]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin" unique_id=1792664730]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AvatarVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="AvatarVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=779973355]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="AvatarCenter" type="CenterContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox"]
+[node name="AvatarCenter" type="CenterContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox" unique_id=932379734]
 layout_mode = 2
 
-[node name="AvatarPanel" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox/AvatarCenter"]
+[node name="AvatarPanel" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox/AvatarCenter" unique_id=1973847178]
 clip_children = 1
 custom_minimum_size = Vector2(104, 104)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
-[node name="AvatarRect" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox/AvatarCenter/AvatarPanel"]
+[node name="AvatarRect" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox/AvatarCenter/AvatarPanel" unique_id=502829911]
 unique_name_in_owner = true
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="CharNameLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox"]
+[node name="CharNameLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AvatarVBox" unique_id=79206058]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -378,17 +579,17 @@ theme_override_font_sizes/font_size = 22
 text = "Luna"
 horizontal_alignment = 1
 
-[node name="StatusHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="StatusHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=1649243852]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="EnergyControl" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+[node name="EnergyControl" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox" unique_id=56382012]
 visible = false
 custom_minimum_size = Vector2(80, 30)
 layout_mode = 2
 
-[node name="EnergyLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl"]
+[node name="EnergyLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl" unique_id=875505346]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -401,7 +602,7 @@ text = "精力 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EnergyBubble" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl"]
+[node name="EnergyBubble" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/EnergyControl" unique_id=1325659256]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
@@ -415,17 +616,17 @@ text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Sep1" type="ColorRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+[node name="Sep1" type="ColorRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox" unique_id=1426039396]
 custom_minimum_size = Vector2(2, 15)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.77, 0.84, 0.88, 1)
 
-[node name="MoodControl" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+[node name="MoodControl" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox" unique_id=1201510154]
 custom_minimum_size = Vector2(80, 30)
 layout_mode = 2
 
-[node name="MoodLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/MoodControl"]
+[node name="MoodLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/MoodControl" unique_id=2125495006]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -438,7 +639,7 @@ text = "心情 平静"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MoodBubble" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/MoodControl"]
+[node name="MoodBubble" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox/MoodControl" unique_id=1281761490]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
@@ -452,13 +653,13 @@ text = "+0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Sep2" type="ColorRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+[node name="Sep2" type="ColorRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox" unique_id=1534534370]
 custom_minimum_size = Vector2(2, 15)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.77, 0.84, 0.88, 1)
 
-[node name="GoldLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox"]
+[node name="GoldLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox" unique_id=1493348582]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 30)
 layout_mode = 2
@@ -467,7 +668,7 @@ theme_override_font_sizes/font_size = 15
 text = "金钱消耗: 0"
 horizontal_alignment = 1
 
-[node name="BonusLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="BonusLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=659235312]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.91810507, 0.9259566, 0.9406124, 1)
@@ -475,486 +676,556 @@ theme_override_font_sizes/font_size = 14
 text = "无特殊加成"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=342787571]
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="AttributeTitle" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="AttributeTitle" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=318072945]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 18
 text = "✦ 属性变化预测"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=219858730]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 3
 
-[node name="StatsGrid" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer"]
+[node name="StatsGrid" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer" unique_id=1801317670]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="Block_Physical" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+[node name="Block_Physical" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid" unique_id=1766532092]
+custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical" unique_id=1394426787]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin"]
+[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin" unique_id=503835570]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox" unique_id=602773453]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header"]
+[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header" unique_id=1465031851]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_StatIcon")
 
-[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/IconContainer"]
+[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/IconContainer" unique_id=497032170]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/IconContainer/IconMargin"]
+[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/IconContainer/IconMargin" unique_id=1589988484]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_core_physical")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header"]
+[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header" unique_id=1670865292]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox"]
+[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox" unique_id=613710422]
 layout_mode = 2
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1043241542]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 16
 text = "体能"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1917808408]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=615121544]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 > 0"
 
-[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox" unique_id=1474794929]
 layout_mode = 2
 theme_override_constants/separation = 8
 theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox"]
+[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox" unique_id=2055449919]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="Sub_stat_stamina" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
+[node name="Sub_stat_stamina" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats" unique_id=1315674678]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina" unique_id=2097196098]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "体能"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina" unique_id=986547295]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_stamina" unique_id=2052985902]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_rhythm" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats"]
+[node name="Sub_stat_rhythm" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats" unique_id=1658906424]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm" unique_id=1934719706]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "反应"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm" unique_id=910865809]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical/Margin/VBox/SubStats/Sub_stat_rhythm" unique_id=2108838762]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Block_Intelligence" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+[node name="Block_Intelligence" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid" unique_id=1223381077]
+custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence" unique_id=1756367333]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin"]
+[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin" unique_id=1408081063]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox" unique_id=1591046950]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header"]
+[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header" unique_id=727266098]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_StatIcon")
 
-[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/IconContainer"]
+[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/IconContainer" unique_id=508713333]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/IconContainer/IconMargin"]
+[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/IconContainer/IconMargin" unique_id=346831458]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_core_intelligence")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header"]
+[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header" unique_id=1243545504]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox"]
+[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox" unique_id=13617679]
 layout_mode = 2
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=781016768]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 16
 text = "智力"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1653827884]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=2123979673]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 > 0"
 
-[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox" unique_id=2107554979]
 layout_mode = 2
 theme_override_constants/separation = 8
 theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox"]
+[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox" unique_id=2108254934]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="Sub_stat_knowledge" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
+[node name="Sub_stat_knowledge" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats" unique_id=1717325218]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge" unique_id=150122295]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "学识"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge" unique_id=373151342]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_knowledge" unique_id=1029164457]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_expression" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats"]
+[node name="Sub_stat_expression" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats" unique_id=527187356]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression" unique_id=1863836407]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "表达"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression" unique_id=225507521]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence/Margin/VBox/SubStats/Sub_stat_expression" unique_id=457813093]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Block_Charm" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+[node name="Block_Charm" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid" unique_id=1993600376]
+custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm" unique_id=793487329]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin"]
+[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin" unique_id=166353242]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox" unique_id=1790973567]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header"]
+[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header" unique_id=1222328119]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_StatIcon")
 
-[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/IconContainer"]
+[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/IconContainer" unique_id=1054261789]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/IconContainer/IconMargin"]
+[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/IconContainer/IconMargin" unique_id=153376879]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_core_charm")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header"]
+[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header" unique_id=1139948482]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox"]
+[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox" unique_id=441770043]
 layout_mode = 2
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1763352419]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 16
 text = "魅力"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=250231584]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1984122909]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 > 0"
 
-[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox" unique_id=1055824904]
 layout_mode = 2
 theme_override_constants/separation = 8
 theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox"]
+[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox" unique_id=527609082]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="Sub_stat_temperament" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+[node name="Sub_stat_temperament" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats" unique_id=1916265094]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament" unique_id=1206937376]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "气质"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament" unique_id=1549806242]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_temperament" unique_id=1998845205]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_etiquette" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats"]
+[node name="Sub_stat_etiquette" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats" unique_id=1492399630]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette" unique_id=150242764]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "礼仪"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette" unique_id=33492925]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm/Margin/VBox/SubStats/Sub_stat_etiquette" unique_id=1986334238]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Block_Sensibility" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid"]
+[node name="Block_Sensibility" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid" unique_id=1283468]
+custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatBlock")
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
 
-[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility"]
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility" unique_id=1540043789]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin"]
+[node name="VBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin" unique_id=1769229514]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox" unique_id=2131669490]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header"]
+[node name="IconContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header" unique_id=1284586861]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_StatIcon")
 
-[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/IconContainer"]
+[node name="IconMargin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/IconContainer" unique_id=1995052205]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/IconContainer/IconMargin"]
+[node name="Icon" type="TextureRect" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/IconContainer/IconMargin" unique_id=2107987139]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 texture = ExtResource("tex_aesthetics")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header"]
+[node name="TitleVBox" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header" unique_id=551980871]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox"]
+[node name="TitleHBox" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox" unique_id=202501708]
 layout_mode = 2
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=853957254]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 16
 text = "感知"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1006384429]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox"]
+[node name="ValLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/Header/TitleVBox/TitleHBox" unique_id=1472324045]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 14
 text = "0 > 0"
 
-[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox" unique_id=2076699501]
 layout_mode = 2
 theme_override_constants/separation = 8
 theme_override_styles/separator = SubResource("StyleBoxLine_Sep")
 
-[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox"]
+[node name="SubStats" type="GridContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox" unique_id=1603218421]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="Sub_stat_aesthetics" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+[node name="Sub_stat_aesthetics" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats" unique_id=759928455]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics" unique_id=871324015]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "审美"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics" unique_id=310403100]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_aesthetics" unique_id=1854797950]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="Sub_stat_perception" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats"]
+[node name="Sub_stat_perception" type="HBoxContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats" unique_id=932104476]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception"]
+[node name="Name" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception" unique_id=1799144056]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "感知"
 
-[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception"]
+[node name="Spacer" type="Control" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception" unique_id=1956696940]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception"]
+[node name="Val" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility/Margin/VBox/SubStats/Sub_stat_perception" unique_id=2088603072]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 14
 text = "-"
 
-[node name="ExecuteButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox"]
+[node name="ExecuteButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox" unique_id=1870163921]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButtonHover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_ActionButton")
 text = "开始执行安排"
+
+[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ExecuteButton" unique_id=1077249024]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ActionButtonInnerFrame")
+
+[node name="LeftSparkle" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ExecuteButton" unique_id=267746580]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 18.0
+offset_top = -13.0
+offset_right = 42.0
+offset_bottom = 13.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "✦"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightSparkle" type="Label" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ExecuteButton" unique_id=1492087442]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -13.0
+offset_right = -18.0
+offset_bottom = 13.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "✦"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="BackgroundPanel" unique_id=1260368274]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 0
+offset_left = 1156.0
+offset_top = 9.0
+offset_right = 1191.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_3k5eb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slthw")
+text = "X"

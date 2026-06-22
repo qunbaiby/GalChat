@@ -1,7 +1,6 @@
 [gd_scene load_steps=13 format=3 uid="uid://be7dvcytebwjf"]
 
 [ext_resource type="Script" uid="uid://c4d0absbflk6h" path="res://scripts/ui/mobile/luna_profile_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://dqr6j16vpspjn" path="res://assets/images/story/cg/story_cg_luna_piano_practice.png" id="3_1kv3s"]
 [ext_resource type="SpriteFrames" uid="uid://cnoyusupp2phj" path="res://assets/images/characters/Luna/luna.tres" id="3_043g4"]
 
@@ -74,7 +73,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="."]

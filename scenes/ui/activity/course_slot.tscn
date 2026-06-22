@@ -1,7 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bg7h8fad1f"]
+[gd_scene format=3 uid="uid://bg7h8fad1f"]
 
-[ext_resource type="Script" path="res://scripts/ui/activity/course_slot.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://dy5l1klr4agh8" path="res://scripts/ui/activity/course_slot.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c70uugn8ycqic" path="res://assets/icons/activities/art_history.png" id="2_okg3i"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
 bg_color = Color(1, 1, 1, 0.96)
@@ -10,22 +10,16 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.88, 0.9, 0.94, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_left = 12
-corner_radius_bottom_right = 12
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_completed"]
-bg_color = Color(0.94, 0.98, 0.97, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 0.7)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_left = 12
-corner_radius_bottom_right = 12
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_okg3i"]
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [sub_resource type="Shader" id="Shader_RoundedSlotIcon"]
 code = "shader_type canvas_item;
@@ -45,68 +39,60 @@ void fragment() {
 shader = SubResource("Shader_RoundedSlotIcon")
 shader_parameter/radius = 10.0
 
-[node name="CourseSlot" type="PanelContainer"]
+[node name="CourseSlot" type="PanelContainer" unique_id=72284392]
 custom_minimum_size = Vector2(90, 90)
-theme = ExtResource("2_theme")
 theme_override_styles/panel = SubResource("StyleBoxFlat_normal")
 script = ExtResource("1_script")
 
-[node name="AccentBar" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 6.0
-grow_horizontal = 2
-color = Color(0.7, 0.75, 0.82, 0.0)
+[node name="CourseMargin" type="MarginContainer" parent="." unique_id=1466572204]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
 
-[node name="IconPlate" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -25.0
-offset_top = -34.0
-offset_right = 25.0
-offset_bottom = 16.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="AccentBar" type="ColorRect" parent="CourseMargin" unique_id=326192183]
+layout_mode = 2
+color = Color(0.7, 0.75, 0.82, 0)
 
-[node name="IconRect" type="TextureRect" parent="IconPlate"]
+[node name="IconPlate" type="Panel" parent="CourseMargin" unique_id=401612093]
 visible = false
+clip_children = 1
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_okg3i")
+
+[node name="IconRect" type="TextureRect" parent="CourseMargin/IconPlate" unique_id=486350485]
 material = SubResource("ShaderMaterial_RoundedSlotIcon")
 custom_minimum_size = Vector2(34, 34)
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="NameLabel" type="Label" parent="."]
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -24.0
+anchors_preset = -1
+anchor_left = -0.023000002
+anchor_top = -0.023000002
+anchor_right = 1.023
+anchor_bottom = 1.023
+offset_left = -1.0679998
+offset_top = -1.0679998
+offset_right = 1.0680008
+offset_bottom = 1.0680008
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_okg3i")
+expand_mode = 1
+
+[node name="NameLabel" type="Label" parent="CourseMargin" unique_id=905676083]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.42, 0.48, 0.52, 1)
 theme_override_font_sizes/font_size = 14
 text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EventBadge" type="PanelContainer" parent="."]
+[node name="EventBadge" type="PanelContainer" parent="CourseMargin" unique_id=837126809]
 visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -44.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = 28.0
+layout_mode = 2
 
-[node name="BadgeLabel" type="Label" parent="EventBadge"]
+[node name="BadgeLabel" type="Label" parent="CourseMargin/EventBadge" unique_id=735824164]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.96)
 theme_override_font_sizes/font_size = 10
@@ -114,20 +100,9 @@ text = "主线"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CheckMark" type="Label" parent="."]
+[node name="CheckMark" type="Label" parent="CourseMargin" unique_id=1504829935]
 visible = false
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -28.0
-offset_top = -34.0
-offset_right = -4.0
-offset_bottom = -6.0
-grow_horizontal = 0
-grow_vertical = 0
+layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 24
 text = "✔"

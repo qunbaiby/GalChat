@@ -1,36 +1,36 @@
-[gd_scene load_steps=5 format=3 uid="uid://sv4gjnbeh1bx"]
+[gd_scene format=3 uid="uid://sv4gjnbeh1bx"]
 
 [ext_resource type="Script" uid="uid://dsw7vmfenubsa" path="res://scripts/ui/main/top_status_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://bah2jcles2evt" path="res://assets/images/icons/ui/main/usd-circle.png" id="2_ukdjp"]
 [ext_resource type="Texture2D" uid="uid://c6riiul28b4xc" path="res://assets/images/icons/ui/main/bolt.png" id="3_6ej4b"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PillBg"]
-bg_color = Color(0, 0, 0, 0.5882353)
+bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
 corner_radius_top_left = 8
 corner_radius_top_right = 2
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="TopStatusPanel" type="PanelContainer"]
+[node name="TopStatusPanel" type="PanelContainer" unique_id=88247728]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 44)
 offset_right = 266.0
 offset_bottom = 44.0
 script = ExtResource("2_script")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1174778952]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1935387730]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="GoldSlot" type="Control" parent="MarginContainer/HBoxContainer"]
+[node name="GoldSlot" type="Control" parent="MarginContainer/HBoxContainer" unique_id=335791412]
 custom_minimum_size = Vector2(118, 35)
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/GoldSlot"]
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/GoldSlot" unique_id=1256236060]
 custom_minimum_size = Vector2(100, 25)
 layout_mode = 1
 anchors_preset = -1
@@ -45,13 +45,13 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
 
-[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/GoldSlot/BgPanel"]
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/GoldSlot/BgPanel" unique_id=2125009599]
 layout_mode = 2
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 2
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/GoldSlot/BgPanel/Margin"]
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/GoldSlot/BgPanel/Margin" unique_id=617069140]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
@@ -59,7 +59,7 @@ text = "500"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/GoldSlot"]
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/GoldSlot" unique_id=24207770]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 1
 anchors_preset = 4
@@ -71,7 +71,7 @@ offset_right = 26.0
 offset_bottom = 10.0
 grow_vertical = 2
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/GoldSlot/IconControl"]
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/GoldSlot/IconControl" unique_id=130802376]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -82,12 +82,12 @@ texture = ExtResource("2_ukdjp")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="EnergySlot" type="Control" parent="MarginContainer/HBoxContainer"]
+[node name="EnergySlot" type="Control" parent="MarginContainer/HBoxContainer" unique_id=650116844]
 custom_minimum_size = Vector2(138, 35)
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/EnergySlot"]
+[node name="BgPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/EnergySlot" unique_id=965980247]
 custom_minimum_size = Vector2(120, 25)
 layout_mode = 1
 anchors_preset = -1
@@ -102,14 +102,14 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PillBg")
 
-[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/EnergySlot/BgPanel"]
+[node name="Margin" type="MarginContainer" parent="MarginContainer/HBoxContainer/EnergySlot/BgPanel" unique_id=2065911607]
 layout_mode = 2
 theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 2
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergySlot/BgPanel/Margin"]
+[node name="ValueLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergySlot/BgPanel/Margin" unique_id=353558264]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
@@ -117,7 +117,7 @@ text = "100/100"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/EnergySlot"]
+[node name="IconControl" type="Control" parent="MarginContainer/HBoxContainer/EnergySlot" unique_id=1516075561]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 1
 anchors_preset = 4
@@ -129,7 +129,7 @@ offset_right = 27.0
 offset_bottom = 10.0
 grow_vertical = 2
 
-[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/EnergySlot/IconControl"]
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/EnergySlot/IconControl" unique_id=1815338176]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cy8xxa3qqt3k0"]
+[gd_scene format=3 uid="uid://cy8xxa3qqt3k0"]
 
 [ext_resource type="Script" uid="uid://dyyfj2pvhqsgc" path="res://scripts/ui/main/music/music_player.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cjla5swe4uuyl" path="res://assets/images/icons/ui/music/mv-ai-fill.png" id="2_cover_icon"]
@@ -9,20 +9,11 @@
 [ext_resource type="Texture2D" uid="uid://d2o4wqh8uaa46" path="res://assets/images/icons/ui/music/skip-forward-fill.png" id="7_next_icon"]
 [ext_resource type="Texture2D" uid="uid://b2mpo88dgybkg" path="res://assets/images/icons/ui/music/repeat-2-line.png" id="8_repeat_icon"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerBg"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.63529414)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.87058824, 0.8901961, 0.92941177, 0)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 3
-shadow_offset = Vector2(0, 3)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
+bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aprbl"]
 bg_color = Color(0.93, 0.95, 0.97, 1)
@@ -43,31 +34,46 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[node name="MusicPlayer" type="PanelContainer"]
-custom_minimum_size = Vector2(360, 0)
-offset_right = 360.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerBg"]
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.63529414)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87058824, 0.8901961, 0.92941177, 0)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 3
+shadow_offset = Vector2(0, 3)
+
+[node name="MusicPlayer" type="PanelContainer" unique_id=340743195]
+custom_minimum_size = Vector2(350, 0)
+offset_right = 350.0
 offset_bottom = 60.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_PlayerBg")
+theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
 script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=942569454]
 layout_mode = 2
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 8
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin" unique_id=33222698]
 layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="TopHBox" type="HBoxContainer" parent="Margin/VBox"]
+[node name="TopHBox" type="HBoxContainer" parent="Margin/VBox" unique_id=1164548432]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 15
 
-[node name="CoverBtn" type="Button" parent="Margin/VBox/TopHBox"]
+[node name="CoverBtn" type="Button" parent="Margin/VBox/TopHBox" unique_id=766286815]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_vertical = 4
@@ -76,32 +82,32 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="InfoVBox" type="VBoxContainer" parent="Margin/VBox/TopHBox"]
+[node name="InfoVBox" type="VBoxContainer" parent="Margin/VBox/TopHBox" unique_id=729192815]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_constants/separation = -2
 
-[node name="TitleLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox"]
+[node name="TitleLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox" unique_id=1950261156]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "BGM"
 clip_text = true
 
-[node name="ArtistLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox"]
+[node name="ArtistLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox" unique_id=1440067961]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.23865935, 0.2603993, 0.30131692, 1)
 theme_override_font_sizes/font_size = 10
 text = "Local Music"
 clip_text = true
 
-[node name="ControlsHBox" type="HBoxContainer" parent="Margin/VBox/TopHBox"]
+[node name="ControlsHBox" type="HBoxContainer" parent="Margin/VBox/TopHBox" unique_id=1689467035]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 0
 
-[node name="VolumeBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
+[node name="VolumeBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox" unique_id=692930856]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 icon = ExtResource("3_volume_icon")
@@ -109,7 +115,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="ShuffleBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
+[node name="ShuffleBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox" unique_id=254665451]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 icon = ExtResource("4_shuffle_icon")
@@ -117,7 +123,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="PrevBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
+[node name="PrevBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox" unique_id=373883401]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 icon = ExtResource("5_prev_icon")
@@ -125,7 +131,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="PlayPauseBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
+[node name="PlayPauseBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox" unique_id=1436073273]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 icon = ExtResource("6_pause_icon")
@@ -133,7 +139,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="NextBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
+[node name="NextBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox" unique_id=149159622]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 icon = ExtResource("7_next_icon")
@@ -141,7 +147,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="RepeatBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox"]
+[node name="RepeatBtn" type="Button" parent="Margin/VBox/TopHBox/ControlsHBox" unique_id=1680477975]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 icon = ExtResource("8_repeat_icon")
@@ -149,7 +155,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="ProgressBar" type="ProgressBar" parent="Margin/VBox"]
+[node name="ProgressBar" type="ProgressBar" parent="Margin/VBox" unique_id=741654877]
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_aprbl")
@@ -158,7 +164,7 @@ max_value = 1.0
 step = 0.001
 show_percentage = false
 
-[node name="VolumePopup" type="PanelContainer" parent="."]
+[node name="VolumePopup" type="PanelContainer" parent="." unique_id=1260858647]
 visible = false
 top_level = true
 z_index = 20
@@ -166,7 +172,7 @@ custom_minimum_size = Vector2(34, 124)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PlayerBg")
 
-[node name="Margin" type="MarginContainer" parent="VolumePopup"]
+[node name="Margin" type="MarginContainer" parent="VolumePopup" unique_id=1163356655]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 5
@@ -174,7 +180,7 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 10
 
-[node name="VolumeSlider" type="VSlider" parent="VolumePopup/Margin"]
+[node name="VolumeSlider" type="VSlider" parent="VolumePopup/Margin" unique_id=2137254409]
 custom_minimum_size = Vector2(14, 104)
 layout_mode = 2
 size_flags_horizontal = 4

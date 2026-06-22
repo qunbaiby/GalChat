@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="2_deepseek"]
 [ext_resource type="Script" uid="uid://nvyocxywex0l" path="res://scripts/ui/archive/radar_chart.gd" id="3_radar"]
 [ext_resource type="Script" uid="uid://dokh2nm04tnpv" path="res://scripts/ui/archive/line_chart.gd" id="4_line"]
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="5_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Main"]
 bg_color = Color(0.958, 0.976, 0.984, 0.985)
@@ -97,7 +96,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme = ExtResource("5_theme")
 script = ExtResource("1_script")
 
 [node name="DeepSeekClient" type="Node" parent="."]

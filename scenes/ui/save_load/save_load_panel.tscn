@@ -1,7 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://blvnuh0y6dh3d"]
 
 [ext_resource type="Script" uid="uid://uj14ew22nn5q" path="res://scripts/ui/save_load/save_load_panel.gd" id="1_script"]
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="2_theme"]
 
 [sub_resource type="Shader" id="Shader_SaveLoadBlur"]
 code = "shader_type canvas_item;
@@ -79,7 +78,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="."]

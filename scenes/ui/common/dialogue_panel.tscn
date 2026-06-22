@@ -1,9 +1,7 @@
 [gd_scene load_steps=18 format=3 uid="uid://31rttm1jhadv"]
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
-[ext_resource type="StyleBox" uid="uid://dfdfdsg" path="res://assets/themes/input_field_normal.tres" id="3_input_normal"]
 [ext_resource type="Texture2D" uid="uid://nltc2hcntefl" path="res://assets/images/icons/ui/dialogue/view.png" id="4_06rsy"]
-[ext_resource type="StyleBox" uid="uid://dfsdfsdf" path="res://assets/themes/input_field_focus.tres" id="4_input_focus"]
 [ext_resource type="Texture2D" uid="uid://c2iapq3qceai2" path="res://assets/images/icons/ui/dialogue/camera.png" id="4_j786n"]
 [ext_resource type="Shader" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
 [ext_resource type="Texture2D" uid="uid://coagv6nf0bxjb" path="res://assets/images/icons/ui/dialogue/close.png" id="6_e1eto"]
@@ -68,6 +66,38 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputNormal"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 48.0
+content_margin_bottom = 8.0
+bg_color = Color(0.045, 0.045, 0.06, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.18, 0.22, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 48.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.06, 0.08, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.48, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="DialoguePanel" type="Control"]
 layout_mode = 3
@@ -329,8 +359,8 @@ size_flags_horizontal = 3
 theme_override_colors/caret_color = Color(0.92, 0.92, 0.96, 1)
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
 theme_override_colors/font_placeholder_color = Color(0.55, 0.55, 0.6, 1)
-theme_override_styles/normal = ExtResource("3_input_normal")
-theme_override_styles/focus = ExtResource("4_input_focus")
+theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "输入你想说的话..."
 
 [node name="CharCountLabel" type="Label" parent="InputLayer/HBoxContainer/InputField"]

@@ -1,6 +1,5 @@
 [gd_scene load_steps=10 format=3 uid="uid://wardrobe_item_uid"]
 
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://wardrobe_item_script" path="res://scripts/ui/wardrobe/wardrobe_item.gd" id="2_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonBlank"]
@@ -90,7 +89,6 @@ corner_radius_bottom_left = 10
 custom_minimum_size = Vector2(108, 164)
 offset_right = 108.0
 offset_bottom = 164.0
-theme = ExtResource("1_theme")
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonBlank")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonBlank")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonBlank")

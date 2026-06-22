@@ -3,19 +3,19 @@
 [ext_resource type="Script" uid="uid://dq1b5f8e771f7" path="res://scripts/ui/desktop_pet/desktop_pet_music_list_item.gd" id="1_script"]
 
 [node name="DesktopPetMusicListItem" type="PanelContainer" unique_id=2100462650]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 54)
 offset_right = 280.0
-offset_bottom = 68.0
+offset_bottom = 54.0
 script = ExtResource("1_script")
 
 [node name="HBox" type="HBoxContainer" parent="." unique_id=1299012047]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="PlayIcon" type="Label" parent="HBox" unique_id=1938637807]
-custom_minimum_size = Vector2(28, 0)
+custom_minimum_size = Vector2(22, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 text = ">"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -28,20 +28,20 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="HBox/TextVBox" unique_id=1636011483]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 text = "Song Title"
 clip_text = true
 
 [node name="ArtistLabel" type="Label" parent="HBox/TextVBox" unique_id=509876426]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.53, 0.61, 1)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 text = "Artist"
 clip_text = true
 
 [node name="StarBtn" type="Button" parent="HBox" unique_id=1387929389]
-custom_minimum_size = Vector2(36, 36)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 text = "+"
 flat = true

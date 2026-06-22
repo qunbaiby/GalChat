@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dlpi17bc8i4hb" path="res://scripts/ui/archive/archive_relation_panel.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://b6xf3g0ef3eiu" path="res://scenes/ui/archive/relation_graph_content.tscn" id="2_relation_view"]
-[ext_resource type="Theme" uid="uid://cd7dxmoxfbmti" path="res://assets/themes/settings_theme.tres" id="3_theme"]
 
 [sub_resource type="Shader" id="Shader_RelationGraphBlur"]
 code = "shader_type canvas_item;
@@ -62,7 +61,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme = ExtResource("3_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="ColorRect" parent="."]

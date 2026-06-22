@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b38a0dd45yqk4" path="res://scripts/ui/activity/schedule_execution_panel.gd" id="1_exec"]
 [ext_resource type="PackedScene" uid="uid://bg7h8fad1f" path="res://scenes/ui/activity/course_slot.tscn" id="2_slot"]
+[ext_resource type="Texture2D" uid="uid://d2ag1128cxp50" path="res://assets/animation/activities/image.png" id="3_5ofb5"]
 [ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="3_cgj2u"]
 
 [sub_resource type="Shader" id="Shader_ExecutionBlur"]
@@ -21,53 +22,29 @@ shader = SubResource("Shader_ExecutionBlur")
 shader_parameter/lod = 3.2
 shader_parameter/mix_color = Color(0.18, 0.19, 0.22, 0.28)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoPanel"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.18, 0.28, 0.33, 0.14)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_58ixy"]
+bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7764706, 0.6862745, 0.5921569, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
-[sub_resource type="Shader" id="Shader_RoundedTexture"]
-code = "shader_type canvas_item;
-uniform float radius = 22.0;
-
-void fragment() {
-	vec2 size = 1.0 / TEXTURE_PIXEL_SIZE;
-	vec2 p = UV * size;
-	vec2 edge = min(p, size - p);
-	float mask = step(radius, min(edge.x, edge.y));
-	vec4 tex = texture(TEXTURE, UV) * COLOR;
-	COLOR = vec4(tex.rgb, tex.a * mask);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_PreviewRounded"]
-shader = SubResource("Shader_RoundedTexture")
-shader_parameter/radius = 22.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PreviewFrame"]
-bg_color = Color(1, 1, 1, 0)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.93, 0.96, 1, 0.72)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0.08, 0.13, 0.19, 0.2)
-shadow_size = 18
-shadow_offset = Vector2(0, 6)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ofb5"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6745098, 0.84705883, 0.8235294, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TitleCapsule"]
 bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.9)
@@ -120,17 +97,20 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TrackPanel"]
-bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
+bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatCard"]
+bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultTopBar"]
 bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
@@ -185,117 +165,74 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.99607843)
 
-[node name="InfoPanel" type="Panel" parent="." unique_id=1050459319]
-custom_minimum_size = Vector2(630, 400)
+[node name="InfoPanel" type="Panel" parent="." unique_id=163854659]
+custom_minimum_size = Vector2(520, 420)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -315.0
+offset_left = -260.0
 offset_top = -300.0
-offset_right = 315.0
-offset_bottom = 100.0
+offset_right = 260.0
+offset_bottom = 120.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_InfoPanel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_58ixy")
 
-[node name="TopImageRect" type="TextureRect" parent="InfoPanel" unique_id=1714051018]
-material = SubResource("ShaderMaterial_PreviewRounded")
-clip_contents = true
+[node name="InfoPanel" type="Panel" parent="InfoPanel" unique_id=713056975]
 layout_mode = 1
-anchors_preset = 5
+anchors_preset = 8
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
-offset_left = -293.0
-offset_top = 20.0
-offset_right = 293.0
-offset_bottom = 296.62112
+anchor_bottom = 0.5
+offset_left = -247.5
+offset_top = -197.5
+offset_right = 247.5
+offset_bottom = 197.5
 grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5ofb5")
+
+[node name="TopImageRect" type="TextureRect" parent="InfoPanel/InfoPanel" unique_id=173147765]
+layout_mode = 0
+offset_right = 495.0
+offset_bottom = 332.5
+texture = ExtResource("3_5ofb5")
 expand_mode = 1
-stretch_mode = 6
+stretch_mode = 5
 
-[node name="ColorRect" type="ColorRect" parent="InfoPanel/TopImageRect" unique_id=1485318609]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.8039216, 1, 0.9372549, 0.5411765)
+[node name="InfoContainer" type="VBoxContainer" parent="InfoPanel/InfoPanel" unique_id=1074141893]
+layout_mode = 0
+offset_top = 296.0
+offset_right = 495.0
+offset_bottom = 395.0
 
-[node name="PreviewTint" type="ColorRect" parent="InfoPanel/TopImageRect" unique_id=1444902784]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.09, 0.12, 0.16, 0.14)
-
-[node name="BottomShade" type="ColorRect" parent="InfoPanel/TopImageRect" unique_id=452541196]
-visible = false
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -98.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-color = Color(0.05, 0.09, 0.12, 0.2)
-
-[node name="PreviewFrame" type="Panel" parent="InfoPanel/TopImageRect" unique_id=1858389694]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_PreviewFrame")
-
-[node name="TitleContainer" type="PanelContainer" parent="InfoPanel" unique_id=1856624044]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -148.0
-offset_top = -131.0
-offset_right = 148.0
-offset_bottom = -79.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="TitleContainer" type="Panel" parent="InfoPanel/InfoPanel/InfoContainer" unique_id=1545097967]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_TitleCapsule")
 
-[node name="TitleLabel" type="Label" parent="InfoPanel/TitleContainer" unique_id=1293930879]
-layout_mode = 2
+[node name="TitleLabel" type="Label" parent="InfoPanel/InfoPanel/InfoContainer/TitleContainer" unique_id=1293930879]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 20
 text = "课程标题"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DescLabel" type="Label" parent="InfoPanel" unique_id=1215557710]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -294.0
-offset_top = -73.0
-offset_right = 294.0
-offset_bottom = -6.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="DescLabel" type="Label" parent="InfoPanel/InfoPanel/InfoContainer" unique_id=1215557710]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.31, 0.39, 0.42, 1)
 theme_override_font_sizes/font_size = 17
 text = "获取描述中..."
@@ -376,7 +313,7 @@ offset_right = 315.0
 offset_bottom = -121.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_TrackPanel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
 
 [node name="TrackMargin" type="MarginContainer" parent="TrackPanel" unique_id=1982772378]
 layout_mode = 1
@@ -396,13 +333,17 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="TrackContainer" type="HBoxContainer" parent="TrackPanel/TrackMargin" unique_id=406864450]
+[node name="TrackFrame" type="PanelContainer" parent="TrackPanel/TrackMargin" unique_id=1516764482]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
+
+[node name="TrackContainer" type="HBoxContainer" parent="TrackPanel/TrackMargin/TrackFrame" unique_id=406864450]
 custom_minimum_size = Vector2(600, 80)
 layout_mode = 2
 theme_override_constants/separation = 40
 alignment = 1
 
-[node name="CharacterIcon" type="AnimatedSprite2D" parent="TrackPanel/TrackMargin/TrackContainer" unique_id=594067514]
+[node name="CharacterIcon" type="AnimatedSprite2D" parent="TrackPanel/TrackMargin/TrackFrame/TrackContainer" unique_id=594067514]
 position = Vector2(281.25, 35.75)
 scale = Vector2(0.081543, 0.081543)
 sprite_frames = ExtResource("3_cgj2u")
