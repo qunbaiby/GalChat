@@ -94,6 +94,8 @@ var _last_observed_soft_reminder: bool = false
 var _last_observed_analysis_text: String = ""
 
 func _ready() -> void:
+    if get_tree().current_scene == self:
+        is_standalone_mode = true
     _current_character_id = GameDataManager.config.current_character_id
     _ready_tick_msec = Time.get_ticks_msec()
     # 初始化上次交互时间为 0，避免启动后立刻触发被拦截
@@ -236,6 +238,8 @@ func _ready() -> void:
     # 初始化时延迟调用以更新鼠标穿透区域
     call_deferred("_update_mouse_passthrough")
     call_deferred("_sync_root_window_focusability")
+    if get_tree().current_scene == self:
+        call_deferred("park_main_window_for_pet")
     
     # 实例化 WindowDetector (通过字符串路径加载，避免非 C# 版本下报错)
     var window_detector_path = "res://scripts/csharp/WindowDetector.cs"
@@ -1987,19 +1991,9 @@ func _on_main_window_pressed() -> void:
     # 注意：移除了 _on_close_pressed() 以保持桌宠继续运行
 
 func _on_close_pressed() -> void:
-    # 先隐藏窗口并切断输入流，防止 _push_unhandled_input_internal 报错
-    _restore_main_window_from_pet()
-    hide()
-    
     if music_player and music_player.playing:
         music_player.stop()
-    
-    # 取消当前窗口中所有 Control 的焦点
-    var focused_node = get_viewport().gui_get_focus_owner()
-    if focused_node:
-        focused_node.release_focus()
-        
-    queue_free()
+    get_tree().quit()
     
 func _sync_root_window_focusability(force_root_focusable: bool = false) -> void:
     var root_window := get_tree().root

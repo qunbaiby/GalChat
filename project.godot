@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="GalChat"
-run/main_scene="res://scenes/ui/start/start_scene.tscn"
+run/main_scene="res://scenes/ui/desktop_pet/desktop_pet.tscn"
 config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
