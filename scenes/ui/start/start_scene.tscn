@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cxab3x2x4y5v1"]
+[gd_scene format=3 uid="uid://cxab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://dtia45vxlbf3v" path="res://scripts/ui/start/start_scene.gd" id="1_ab123"]
 [ext_resource type="Texture2D" uid="uid://qj1pittuuxx6" path="res://assets/images/title/titlebackground.png" id="2_1ighk"]
@@ -90,7 +90,7 @@ shadow_color = Color(0.16, 0.53, 0.47, 0.18)
 shadow_size = 6
 shadow_offset = Vector2(0, 2)
 
-[node name="StartScene" type="Control"]
+[node name="StartScene" type="Control" unique_id=2004367071]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -99,7 +99,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ab123")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="." unique_id=1777263671]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -110,7 +110,7 @@ texture = ExtResource("2_1ighk")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ContentRoot" type="Control" parent="."]
+[node name="ContentRoot" type="Control" parent="." unique_id=361841299]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -119,7 +119,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="BrandGroup" type="Control" parent="ContentRoot"]
+[node name="BrandGroup" type="Control" parent="ContentRoot" unique_id=973497737]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -128,7 +128,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TitleLogo" type="TextureRect" parent="ContentRoot/BrandGroup"]
+[node name="TitleLogo" type="TextureRect" parent="ContentRoot/BrandGroup" unique_id=407939219]
 custom_minimum_size = Vector2(450, 135)
 layout_mode = 0
 offset_left = 86.0
@@ -138,7 +138,7 @@ offset_bottom = 270.0
 texture = ExtResource("3_qukub")
 expand_mode = 1
 
-[node name="SubTitleLabel" type="Label" parent="ContentRoot/BrandGroup"]
+[node name="SubTitleLabel" type="Label" parent="ContentRoot/BrandGroup" unique_id=1300308223]
 layout_mode = 0
 offset_left = 90.0
 offset_top = 284.0
@@ -152,7 +152,7 @@ theme_override_font_sizes/font_size = 25
 text = "前路有梦，我伴你同行"
 horizontal_alignment = 1
 
-[node name="ActionGroup" type="Control" parent="ContentRoot"]
+[node name="ActionGroup" type="Control" parent="ContentRoot" unique_id=1007822217]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -161,7 +161,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TopRightBar" type="VBoxContainer" parent="ContentRoot/ActionGroup"]
+[node name="TopRightBar" type="VBoxContainer" parent="ContentRoot/ActionGroup" unique_id=1292109679]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -174,7 +174,7 @@ grow_horizontal = 0
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="SettingsButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar"]
+[node name="SettingsButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar" unique_id=368332294]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 theme_override_constants/h_separation = 0
@@ -185,7 +185,7 @@ icon = ExtResource("4_qukub")
 flat = true
 expand_icon = true
 
-[node name="BugFeedbackButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar"]
+[node name="BugFeedbackButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar" unique_id=669917170]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 theme_override_constants/h_separation = 0
@@ -196,7 +196,7 @@ icon = ExtResource("5_6f613")
 flat = true
 expand_icon = true
 
-[node name="BuildHintLabel" type="Label" parent="ContentRoot"]
+[node name="BuildHintLabel" type="Label" parent="ContentRoot" unique_id=1015116064]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -217,7 +217,7 @@ theme_override_font_sizes/font_size = 15
 text = "开发中版本，不代表最终品质"
 horizontal_alignment = 1
 
-[node name="MenuGroup" type="Control" parent="ContentRoot"]
+[node name="MenuGroup" type="Control" parent="ContentRoot" unique_id=77136923]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -226,7 +226,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MenuButtons" type="VBoxContainer" parent="ContentRoot/MenuGroup"]
+[node name="MenuButtons" type="VBoxContainer" parent="ContentRoot/MenuGroup" unique_id=1625342101]
 layout_mode = 0
 offset_left = 128.0
 offset_top = 473.0
@@ -234,7 +234,7 @@ offset_right = 430.0
 offset_bottom = 539.0
 theme_override_constants/separation = 18
 
-[node name="StartButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons"]
+[node name="StartButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons" unique_id=737325087]
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
@@ -249,8 +249,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "开始陪伴"
 
-[node name="DesktopPetButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons"]
-visible = false
+[node name="DesktopPetButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons" unique_id=603154421]
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)

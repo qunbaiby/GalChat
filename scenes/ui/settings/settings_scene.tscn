@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://cycb3x2x4y5v1"]
+[gd_scene format=3 uid="uid://cycb3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://c2letthx3s2k7" path="res://scripts/ui/settings/settings_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cofmgnmdrddu3" path="res://assets/images/icons/ui/mobile/home/settings_gear.svg" id="2_ai_icon"]
@@ -269,7 +269,7 @@ corner_radius_bottom_left = 12
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_Settings"]
 
-[node name="SettingsScene" type="Control"]
+[node name="SettingsScene" type="Control" unique_id=1210947542]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -279,7 +279,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_script")
 
-[node name="Background" type="Panel" parent="."]
+[node name="Background" type="Panel" parent="." unique_id=423376645]
 material = SubResource("ShaderMaterial_SettingsBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -289,7 +289,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=548142845]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -297,53 +297,53 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer" unique_id=670355744]
 custom_minimum_size = Vector2(1120, 660)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
 
-[node name="MainMargin" type="MarginContainer" parent="CenterContainer/PanelRoot"]
+[node name="MainMargin" type="MarginContainer" parent="CenterContainer/PanelRoot" unique_id=951958188]
 layout_mode = 2
 theme_override_constants/margin_left = -1
 theme_override_constants/margin_top = -1
 theme_override_constants/margin_right = -1
 theme_override_constants/margin_bottom = -1
 
-[node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin"]
+[node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin" unique_id=2120957368]
 custom_minimum_size = Vector2(1120, 660)
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="BodyHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox"]
+[node name="BodyHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox" unique_id=225498404]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="SidePanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox"]
+[node name="SidePanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox" unique_id=853475248]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_SidePanel")
 
-[node name="SideMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel"]
+[node name="SideMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel" unique_id=1795300894]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 16
 
-[node name="SideVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin"]
+[node name="SideVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin" unique_id=93128478]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox"]
+[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=1916121491]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 texture = ExtResource("3_wcs0v")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="AiTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox"]
+[node name="AiTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=1130641425]
 custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
@@ -352,7 +352,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_TabPressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_TabPressed")
 toggle_mode = true
 
-[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AiTabButton"]
+[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AiTabButton" unique_id=1074034736]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 1
 anchors_preset = 8
@@ -370,7 +370,7 @@ texture = ExtResource("2_ai_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AiTabButton"]
+[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AiTabButton" unique_id=213763930]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -385,7 +385,7 @@ text = "AI"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DisplayTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox"]
+[node name="DisplayTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=504267850]
 custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
@@ -394,7 +394,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_TabPressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_TabPressed")
 toggle_mode = true
 
-[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/DisplayTabButton"]
+[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/DisplayTabButton" unique_id=1447332699]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -411,7 +411,7 @@ texture = ExtResource("3_display_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/DisplayTabButton"]
+[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/DisplayTabButton" unique_id=257735784]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -426,7 +426,7 @@ text = "图像"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="AudioTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox"]
+[node name="AudioTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=224708727]
 custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
@@ -435,7 +435,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_TabPressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_TabPressed")
 toggle_mode = true
 
-[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AudioTabButton"]
+[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AudioTabButton" unique_id=747545547]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 1
 anchors_preset = 8
@@ -453,7 +453,7 @@ texture = ExtResource("4_audio_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AudioTabButton"]
+[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AudioTabButton" unique_id=195173335]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -468,7 +468,7 @@ text = "声音"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PetTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox"]
+[node name="PetTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=214118104]
 custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
@@ -477,7 +477,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_TabPressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_TabPressed")
 toggle_mode = true
 
-[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/PetTabButton"]
+[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/PetTabButton" unique_id=1359093560]
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 1
 anchors_preset = 8
@@ -495,7 +495,7 @@ texture = ExtResource("5_pet_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/PetTabButton"]
+[node name="Label" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/PetTabButton" unique_id=1617342012]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -510,35 +510,35 @@ text = "桌宠"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SidebarSpacer" type="Control" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox"]
+[node name="SidebarSpacer" type="Control" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=580822528]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ContentPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox"]
+[node name="ContentPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox" unique_id=252937394]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_en6pb")
 
-[node name="ContentMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel"]
+[node name="ContentMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel" unique_id=102122870]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin"]
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin" unique_id=353397358]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
+[node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox" unique_id=1272713928]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ContentTopBar")
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar" unique_id=1269721477]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -552,7 +552,7 @@ theme_override_font_sizes/font_size = 21
 text = "设置 / AI"
 vertical_alignment = 1
 
-[node name="HeaderHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar"]
+[node name="HeaderHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar" unique_id=1298373252]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -566,7 +566,7 @@ theme_override_font_sizes/font_size = 13
 text = "模型、接口、语音与图像等能力配置"
 vertical_alignment = 1
 
-[node name="BackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar"]
+[node name="BackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar" unique_id=462621181]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 1
 anchors_preset = 1
@@ -586,21 +586,22 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BackButtonHover")
 text = "×"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox" unique_id=118630715]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="TabContainer" type="TabContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer"]
+[node name="TabContainer" type="TabContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer" unique_id=1672552958]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-current_tab = 0
+current_tab = 1
 tabs_visible = false
 
-[node name="AI 设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer"]
+[node name="AI 设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer" unique_id=1761581115]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 0
@@ -608,47 +609,47 @@ theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 0
 metadata/_tab_index = 0
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置" unique_id=971105601]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer" unique_id=506698918]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 
-[node name="API 设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
+[node name="API 设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer" unique_id=1854057516]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel" unique_id=1266308546]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin" unique_id=879478154]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox" unique_id=1308215310]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "API 设置"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox" unique_id=615924545]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ApiKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="ApiKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=1473955110]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ApiKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ApiKeyRow"]
+[node name="ApiKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ApiKeyRow" unique_id=1243036234]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -656,7 +657,7 @@ theme_override_font_sizes/font_size = 16
 text = "DeepSeek API Key"
 vertical_alignment = 1
 
-[node name="ApiKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ApiKeyRow"]
+[node name="ApiKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ApiKeyRow" unique_id=842149842]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -667,11 +668,11 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 secret = true
 
-[node name="DoubaoChatKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="DoubaoChatKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=1797197487]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="DoubaoChatKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/DoubaoChatKeyRow"]
+[node name="DoubaoChatKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/DoubaoChatKeyRow" unique_id=75217079]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -679,7 +680,7 @@ theme_override_font_sizes/font_size = 16
 text = "豆包 Chat API Key"
 vertical_alignment = 1
 
-[node name="DoubaoChatKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/DoubaoChatKeyRow"]
+[node name="DoubaoChatKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/DoubaoChatKeyRow" unique_id=1030622137]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -690,11 +691,11 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 secret = true
 
-[node name="ModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="ModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=1401034542]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ModelOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ModelRow"]
+[node name="ModelOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ModelRow" unique_id=409646405]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -702,7 +703,7 @@ theme_override_font_sizes/font_size = 16
 text = "模型选择"
 vertical_alignment = 1
 
-[node name="ModelOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ModelRow"]
+[node name="ModelOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ModelRow" unique_id=610979882]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -713,11 +714,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ChoicePressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ChoiceHover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ChoicePressed")
 
-[node name="TempRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="TempRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=1921674906]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="TempSliderLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TempRow"]
+[node name="TempSliderLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TempRow" unique_id=1211008844]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -725,7 +726,7 @@ theme_override_font_sizes/font_size = 16
 text = "Temperature"
 vertical_alignment = 1
 
-[node name="TempSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TempRow"]
+[node name="TempSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TempRow" unique_id=598119497]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 22)
 layout_mode = 2
@@ -737,11 +738,11 @@ max_value = 1.0
 step = 0.05
 value = 0.2
 
-[node name="TokenRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="TokenRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=30311370]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="TokensSpinBoxLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TokenRow"]
+[node name="TokensSpinBoxLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TokenRow" unique_id=1522023467]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -749,7 +750,7 @@ theme_override_font_sizes/font_size = 16
 text = "最大 Tokens"
 vertical_alignment = 1
 
-[node name="TokensSpinBox" type="SpinBox" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TokenRow"]
+[node name="TokensSpinBox" type="SpinBox" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/TokenRow" unique_id=863398848]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -758,11 +759,11 @@ max_value = 4096.0
 step = 128.0
 value = 2048.0
 
-[node name="AiModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="AiModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=1428857669]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AIModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/AiModeRow"]
+[node name="AIModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/AiModeRow" unique_id=576197397]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -770,7 +771,7 @@ theme_override_font_sizes/font_size = 16
 text = "启用 AI 模式"
 vertical_alignment = 1
 
-[node name="AIModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/AiModeRow"]
+[node name="AIModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/AiModeRow" unique_id=1284357833]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 28)
 layout_mode = 2
@@ -780,11 +781,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="HistoryRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+[node name="HistoryRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=703347050]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="HistoryLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/HistoryRow"]
+[node name="HistoryLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/HistoryRow" unique_id=42196370]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -792,7 +793,7 @@ theme_override_font_sizes/font_size = 16
 text = "聊天记录"
 vertical_alignment = 1
 
-[node name="ClearHistoryBtn" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/HistoryRow"]
+[node name="ClearHistoryBtn" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/HistoryRow" unique_id=733650065]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(126, 34)
 layout_mode = 2
@@ -804,36 +805,36 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
 theme_override_styles/focus = SubResource("StyleBoxFlat_k741i")
 text = "清除聊天记录"
 
-[node name="语音设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
+[node name="语音设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer" unique_id=925154797]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel" unique_id=2024501876]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin" unique_id=239429130]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox" unique_id=211297827]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "语音设置"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox" unique_id=1073579326]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TtsBackendRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="TtsBackendRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=169949639]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="TtsBackendOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TtsBackendRow"]
+[node name="TtsBackendOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TtsBackendRow" unique_id=897314308]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -841,7 +842,7 @@ theme_override_font_sizes/font_size = 16
 text = "语音合成引擎"
 vertical_alignment = 1
 
-[node name="TtsBackendOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TtsBackendRow"]
+[node name="TtsBackendOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TtsBackendRow" unique_id=130745105]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -857,11 +858,11 @@ popup/item_0/id = 0
 popup/item_1/text = "阿里云 (Qwen3-TTS)"
 popup/item_1/id = 1
 
-[node name="VoiceModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="VoiceModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1940920558]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VoiceModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceModeRow"]
+[node name="VoiceModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceModeRow" unique_id=564869822]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -869,7 +870,7 @@ theme_override_font_sizes/font_size = 16
 text = "启用语音合成 (TTS)"
 vertical_alignment = 1
 
-[node name="VoiceModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceModeRow"]
+[node name="VoiceModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceModeRow" unique_id=530517679]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 28)
 layout_mode = 2
@@ -879,11 +880,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="AppIdRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="AppIdRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1198164761]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AppIdInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AppIdRow"]
+[node name="AppIdInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AppIdRow" unique_id=589575655]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -891,7 +892,7 @@ theme_override_font_sizes/font_size = 16
 text = "豆包 App ID"
 vertical_alignment = 1
 
-[node name="AppIdInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AppIdRow"]
+[node name="AppIdInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AppIdRow" unique_id=461885639]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -901,11 +902,11 @@ theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 
-[node name="TokenRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="TokenRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1965170323]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="TokenInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TokenRow"]
+[node name="TokenInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TokenRow" unique_id=1903659491]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -913,7 +914,7 @@ theme_override_font_sizes/font_size = 16
 text = "豆包 Access Token"
 vertical_alignment = 1
 
-[node name="TokenInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TokenRow"]
+[node name="TokenInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/TokenRow" unique_id=1881599864]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -924,11 +925,11 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 secret = true
 
-[node name="ClusterRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="ClusterRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1126382805]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ClusterInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/ClusterRow"]
+[node name="ClusterInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/ClusterRow" unique_id=2067845862]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -936,7 +937,7 @@ theme_override_font_sizes/font_size = 16
 text = "豆包 Cluster"
 vertical_alignment = 1
 
-[node name="ClusterInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/ClusterRow"]
+[node name="ClusterInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/ClusterRow" unique_id=1929400709]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -946,11 +947,11 @@ theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 
-[node name="QwenKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="QwenKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1757252799]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="QwenTtsKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/QwenKeyRow"]
+[node name="QwenTtsKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/QwenKeyRow" unique_id=433178628]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -958,7 +959,7 @@ theme_override_font_sizes/font_size = 16
 text = "Qwen3-TTS API Key"
 vertical_alignment = 1
 
-[node name="QwenTtsKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/QwenKeyRow"]
+[node name="QwenTtsKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/QwenKeyRow" unique_id=537634336]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -970,26 +971,26 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "sk-..."
 secret = true
 
-[node name="VoiceTypeSection" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="VoiceTypeSection" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1542723479]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="VoiceTypeTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceTypeSection"]
+[node name="VoiceTypeTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceTypeSection" unique_id=964882717]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
 theme_override_font_sizes/font_size = 16
 text = "角色音色"
 
-[node name="VoiceTypeContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceTypeSection"]
+[node name="VoiceTypeContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceTypeSection" unique_id=156243389]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="AsrModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="AsrModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=327144234]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AsrModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrModeRow"]
+[node name="AsrModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrModeRow" unique_id=1935805544]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -997,7 +998,7 @@ theme_override_font_sizes/font_size = 16
 text = "启用千问流式语音识别"
 vertical_alignment = 1
 
-[node name="AsrModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrModeRow"]
+[node name="AsrModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrModeRow" unique_id=394352040]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 28)
 layout_mode = 2
@@ -1007,11 +1008,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="AsrKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="AsrKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1823836856]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AsrClusterInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrKeyRow"]
+[node name="AsrClusterInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrKeyRow" unique_id=2078588854]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -1019,7 +1020,7 @@ theme_override_font_sizes/font_size = 16
 text = "千问 ASR API Key"
 vertical_alignment = 1
 
-[node name="AsrClusterInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrKeyRow"]
+[node name="AsrClusterInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrKeyRow" unique_id=1405763597]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -1030,11 +1031,11 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 secret = true
 
-[node name="AsrActionRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="AsrActionRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=159228758]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AsrTestButtonLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrActionRow"]
+[node name="AsrTestButtonLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrActionRow" unique_id=1689220635]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -1042,7 +1043,7 @@ theme_override_font_sizes/font_size = 16
 text = "语音识别测试"
 vertical_alignment = 1
 
-[node name="AsrTestButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrActionRow"]
+[node name="AsrTestButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrActionRow" unique_id=1648181977]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(112, 34)
 layout_mode = 2
@@ -1054,11 +1055,11 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_ChoiceHover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ChoicePressed")
 text = "按住说话"
 
-[node name="AsrOutputRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox"]
+[node name="AsrOutputRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1679647760]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AsrTestOutputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrOutputRow"]
+[node name="AsrTestOutputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrOutputRow" unique_id=1051249945]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
@@ -1066,7 +1067,7 @@ theme_override_font_sizes/font_size = 16
 text = "识别结果"
 vertical_alignment = 1
 
-[node name="AsrTestOutput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrOutputRow"]
+[node name="AsrTestOutput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/AsrOutputRow" unique_id=47717303]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(236, 34)
 layout_mode = 2
@@ -1077,43 +1078,43 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "识别结果将显示在这里..."
 
-[node name="向量记忆设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
+[node name="向量记忆设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer" unique_id=1498911168]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel" unique_id=515735371]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin" unique_id=465119526]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox" unique_id=1980195131]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "向量记忆设置"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox" unique_id=1423485351]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="EmbedModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox"]
+[node name="EmbedModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox" unique_id=1153657129]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="EmbedModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModeRow"]
+[node name="EmbedModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModeRow" unique_id=861671858]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "启用向量记忆"
 vertical_alignment = 1
 
-[node name="EmbedModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModeRow"]
+[node name="EmbedModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModeRow" unique_id=2067858219]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1122,77 +1123,77 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="EmbedKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox"]
+[node name="EmbedKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox" unique_id=678870422]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="EmbedKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedKeyRow"]
+[node name="EmbedKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedKeyRow" unique_id=1826741802]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "豆包 Embedding API Key"
 vertical_alignment = 1
 
-[node name="EmbedKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedKeyRow"]
+[node name="EmbedKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedKeyRow" unique_id=154393668]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 secret = true
 
-[node name="EmbedModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox"]
+[node name="EmbedModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox" unique_id=2037495068]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="EmbedModelInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModelRow"]
+[node name="EmbedModelInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModelRow" unique_id=1203712344]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Embedding 模型名称"
 vertical_alignment = 1
 
-[node name="EmbedModelInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModelRow"]
+[node name="EmbedModelInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox/RowsVBox/EmbedModelRow" unique_id=452694513]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 placeholder_text = "ep-xxxxxx"
 
-[node name="多模态视觉设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
+[node name="多模态视觉设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer" unique_id=428279272]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel" unique_id=626618628]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin" unique_id=1000271269]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox" unique_id=181044597]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "多模态视觉设置"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox" unique_id=617157150]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="VisionModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox"]
+[node name="VisionModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox" unique_id=259313663]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VisionModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModeRow"]
+[node name="VisionModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModeRow" unique_id=1461760849]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "启用多模态视觉"
 vertical_alignment = 1
 
-[node name="VisionModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModeRow"]
+[node name="VisionModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModeRow" unique_id=1928311940]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1201,127 +1202,127 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="VisionKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox"]
+[node name="VisionKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox" unique_id=1100175987]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VisionKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionKeyRow"]
+[node name="VisionKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionKeyRow" unique_id=1937228231]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "视觉模型 API Key"
 vertical_alignment = 1
 
-[node name="VisionKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionKeyRow"]
+[node name="VisionKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionKeyRow" unique_id=1502626031]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 secret = true
 
-[node name="VisionModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox"]
+[node name="VisionModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox" unique_id=1011541979]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VisionModelInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModelRow"]
+[node name="VisionModelInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModelRow" unique_id=1760750434]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "视觉模型名称"
 vertical_alignment = 1
 
-[node name="VisionModelInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModelRow"]
+[node name="VisionModelInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionModelRow" unique_id=1730127158]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 placeholder_text = "ep-xxxxxx"
 
-[node name="VisionBaseUrlRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox"]
+[node name="VisionBaseUrlRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox" unique_id=1889985568]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VisionBaseUrlInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionBaseUrlRow"]
+[node name="VisionBaseUrlInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionBaseUrlRow" unique_id=812534925]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "视觉模型 Base URL"
 vertical_alignment = 1
 
-[node name="VisionBaseUrlInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionBaseUrlRow"]
+[node name="VisionBaseUrlInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox/RowsVBox/VisionBaseUrlRow" unique_id=1854650452]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 text = "https://ark.cn-beijing.volces.com/api/v3"
 
-[node name="图像生成设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer"]
+[node name="图像生成设置Panel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer" unique_id=312885278]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel" unique_id=326820843]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin" unique_id=258004532]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox" unique_id=1140212126]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "图像生成设置"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox" unique_id=969537807]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ImageGenModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="ImageGenModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=203654821]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ImageGenModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageGenModeRow"]
+[node name="ImageGenModeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageGenModeRow" unique_id=589901595]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "启用图像生成"
 vertical_alignment = 1
 
-[node name="ImageGenModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageGenModeRow"]
+[node name="ImageGenModeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageGenModeRow" unique_id=1499612620]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
 
-[node name="DefaultImagePathRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="DefaultImagePathRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=1037397631]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="DefaultImagePathInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DefaultImagePathRow"]
+[node name="DefaultImagePathInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DefaultImagePathRow" unique_id=825896198]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "默认占位图片路径"
 vertical_alignment = 1
 
-[node name="DefaultImagePathInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DefaultImagePathRow"]
+[node name="DefaultImagePathInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DefaultImagePathRow" unique_id=1781970434]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 text = "res://assets/graphics/bg/default_bg.jpg"
 
-[node name="ProviderRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="ProviderRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=1829667694]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ImageProviderOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ProviderRow"]
+[node name="ImageProviderOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ProviderRow" unique_id=1496774055]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "图像生成模型"
 vertical_alignment = 1
 
-[node name="ImageProviderOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ProviderRow"]
+[node name="ImageProviderOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ProviderRow" unique_id=2062076854]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
@@ -1331,69 +1332,69 @@ popup/item_0/id = 0
 popup/item_1/text = "豆包 (Doubao)"
 popup/item_1/id = 1
 
-[node name="ImageKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="ImageKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=1330123121]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ImageKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageKeyRow"]
+[node name="ImageKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageKeyRow" unique_id=1213441760]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "ChatGPT Image2 API Key"
 vertical_alignment = 1
 
-[node name="ImageKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageKeyRow"]
+[node name="ImageKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/ImageKeyRow" unique_id=1467285355]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 secret = true
 
-[node name="DoubaoImageKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="DoubaoImageKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=960634471]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="DoubaoImageKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageKeyRow"]
+[node name="DoubaoImageKeyInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageKeyRow" unique_id=159202502]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "豆包图像生成 API Key"
 vertical_alignment = 1
 
-[node name="DoubaoImageKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageKeyRow"]
+[node name="DoubaoImageKeyInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageKeyRow" unique_id=1404988190]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 secret = true
 
-[node name="DoubaoImageModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="DoubaoImageModelRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=1168705813]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="DoubaoImageModelInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageModelRow"]
+[node name="DoubaoImageModelInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageModelRow" unique_id=1742885198]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "豆包图像生成模型"
 vertical_alignment = 1
 
-[node name="DoubaoImageModelInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageModelRow"]
+[node name="DoubaoImageModelInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/DoubaoImageModelRow" unique_id=700427186]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 text = "doubao-seedream-5-0-250828"
 
-[node name="IllustrationRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox"]
+[node name="IllustrationRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=285673036]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="EnableAiIllustrationCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/IllustrationRow"]
+[node name="EnableAiIllustrationCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/IllustrationRow" unique_id=1980218503]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "启用 AI 日记插画"
 vertical_alignment = 1
 
-[node name="EnableAiIllustrationCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/IllustrationRow"]
+[node name="EnableAiIllustrationCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/IllustrationRow" unique_id=1759496780]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1402,47 +1403,46 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="画面设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer"]
-visible = false
+[node name="画面设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer" unique_id=1426387645]
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="DisplayCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置"]
+[node name="DisplayCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置" unique_id=2125376404]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="DisplayMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard"]
+[node name="DisplayMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard" unique_id=110667552]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin" unique_id=382269696]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer" unique_id=676233533]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "图像"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer" unique_id=829370181]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ResolutionRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox"]
+[node name="ResolutionRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox" unique_id=1262724452]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ResolutionOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/ResolutionRow"]
+[node name="ResolutionOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/ResolutionRow" unique_id=1489760729]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "分辨率"
 vertical_alignment = 1
 
-[node name="ResolutionOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/ResolutionRow"]
+[node name="ResolutionOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/ResolutionRow" unique_id=1709152833]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
@@ -1456,18 +1456,18 @@ popup/item_2/id = 2
 popup/item_3/text = "全屏幕"
 popup/item_3/id = 3
 
-[node name="FPSRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox"]
+[node name="FPSRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox" unique_id=711674503]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="FPSOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/FPSRow"]
+[node name="FPSOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/FPSRow" unique_id=589265401]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "帧率"
 vertical_alignment = 1
 
-[node name="FPSOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/FPSRow"]
+[node name="FPSOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/FPSRow" unique_id=793510756]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
@@ -1479,18 +1479,18 @@ popup/item_1/id = 1
 popup/item_2/text = "120 FPS"
 popup/item_2/id = 2
 
-[node name="VSyncRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox"]
+[node name="VSyncRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox" unique_id=2080443947]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VsyncCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/VSyncRow"]
+[node name="VsyncCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/VSyncRow" unique_id=115725190]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "垂直同步"
 vertical_alignment = 1
 
-[node name="VsyncCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/VSyncRow"]
+[node name="VsyncCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/VSyncRow" unique_id=1715884905]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1499,156 +1499,116 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="声音设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer"]
+[node name="声音设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer" unique_id=9160202]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="AudioCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置"]
+[node name="AudioCard" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置" unique_id=1759007435]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="AudioMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard"]
+[node name="AudioMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard" unique_id=71732836]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin" unique_id=1453329943]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer" unique_id=719055116]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "声音"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer" unique_id=14634718]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="BGMRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox"]
+[node name="BGMRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox" unique_id=656682091]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="BGMSliderLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/BGMRow"]
+[node name="BGMSliderLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/BGMRow" unique_id=1313413414]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "背景音乐"
 vertical_alignment = 1
 
-[node name="BGMSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/BGMRow"]
+[node name="BGMSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/BGMRow" unique_id=314403654]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 28)
 layout_mode = 2
 max_value = 1.0
 step = 0.01
 
-[node name="VoiceRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox"]
+[node name="VoiceRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox" unique_id=2100955292]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VoiceSliderLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/VoiceRow"]
+[node name="VoiceSliderLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/VoiceRow" unique_id=710426048]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "角色语音"
 vertical_alignment = 1
 
-[node name="VoiceSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/VoiceRow"]
+[node name="VoiceSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/VoiceRow" unique_id=795030304]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 28)
 layout_mode = 2
 max_value = 1.0
 step = 0.01
 
-[node name="桌宠设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer"]
+[node name="桌宠设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer" unique_id=297468619]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置" unique_id=928497311]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer" unique_id=322710226]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 
-[node name="ConfigPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer"]
+[node name="ConfigPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer" unique_id=1790725287]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel" unique_id=243583780]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin" unique_id=1151278480]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox" unique_id=510371336]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "桌宠设置"
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox" unique_id=1602625520]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PetObserveTimeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
+[node name="PetGlobalCooldownRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox" unique_id=624575807]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetObserveTimeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetObserveTimeRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 16
-text = "新应用观察时间 (10 秒)"
-vertical_alignment = 1
-
-[node name="PetObserveTimeSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetObserveTimeRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 28)
-layout_mode = 2
-min_value = 5.0
-max_value = 60.0
-value = 10.0
-
-[node name="PetSameAppCooldownRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="PetSameAppCooldownLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetSameAppCooldownRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 16
-text = "同应用吐槽间隔 (180 秒)"
-vertical_alignment = 1
-
-[node name="PetSameAppCooldownSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetSameAppCooldownRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 28)
-layout_mode = 2
-min_value = 120.0
-max_value = 600.0
-value = 180.0
-
-[node name="PetGlobalCooldownRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="PetGlobalCooldownLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetGlobalCooldownRow"]
+[node name="PetGlobalCooldownLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetGlobalCooldownRow" unique_id=512536786]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -1656,7 +1616,7 @@ theme_override_font_sizes/font_size = 16
 text = "全局最小冷却 (10 秒)"
 vertical_alignment = 1
 
-[node name="PetGlobalCooldownSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetGlobalCooldownRow"]
+[node name="PetGlobalCooldownSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetGlobalCooldownRow" unique_id=524940839]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 28)
 layout_mode = 2
@@ -1664,11 +1624,11 @@ min_value = 5.0
 max_value = 60.0
 value = 10.0
 
-[node name="PetScaleRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
+[node name="PetScaleRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox" unique_id=153166249]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetScaleLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetScaleRow"]
+[node name="PetScaleLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetScaleRow" unique_id=416023121]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -1676,7 +1636,7 @@ theme_override_font_sizes/font_size = 16
 text = "桌宠立绘缩放倍率 (1.00x)"
 vertical_alignment = 1
 
-[node name="PetScaleSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetScaleRow"]
+[node name="PetScaleSlider" type="HSlider" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetScaleRow" unique_id=1943832782]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 28)
 layout_mode = 2
@@ -1685,18 +1645,18 @@ max_value = 2.0
 step = 0.05
 value = 1.0
 
-[node name="PetEnableAppObserveRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
+[node name="PetEnableAppObserveRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox" unique_id=1089147720]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetEnableAppObserveCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAppObserveRow"]
+[node name="PetEnableAppObserveCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAppObserveRow" unique_id=1212878664]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "允许观察应用并吐槽"
 vertical_alignment = 1
 
-[node name="PetEnableAppObserveCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAppObserveRow"]
+[node name="PetEnableAppObserveCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAppObserveRow" unique_id=1924220299]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1705,18 +1665,18 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="PetEnableHourlyChimeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
+[node name="PetEnableHourlyChimeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox" unique_id=813842547]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetEnableHourlyChimeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableHourlyChimeRow"]
+[node name="PetEnableHourlyChimeCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableHourlyChimeRow" unique_id=273769456]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "允许整点报时"
 vertical_alignment = 1
 
-[node name="PetEnableHourlyChimeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableHourlyChimeRow"]
+[node name="PetEnableHourlyChimeCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableHourlyChimeRow" unique_id=1104047881]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1725,18 +1685,18 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="PetEnableAfkGreetingRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
+[node name="PetEnableAfkGreetingRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox" unique_id=585593528]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetEnableAfkGreetingCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAfkGreetingRow"]
+[node name="PetEnableAfkGreetingCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAfkGreetingRow" unique_id=1312693015]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "允许闲置状态问候"
 vertical_alignment = 1
 
-[node name="PetEnableAfkGreetingCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAfkGreetingRow"]
+[node name="PetEnableAfkGreetingCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PetEnableAfkGreetingRow" unique_id=378848675]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 32)
 layout_mode = 2
@@ -1745,144 +1705,144 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
 
-[node name="PlayerNicknameRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox"]
+[node name="PlayerNicknameRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox" unique_id=1163134084]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PlayerNicknameInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PlayerNicknameRow"]
+[node name="PlayerNicknameInputLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PlayerNicknameRow" unique_id=1263323854]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "对玩家的称呼"
 vertical_alignment = 1
 
-[node name="PlayerNicknameInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PlayerNicknameRow"]
+[node name="PlayerNicknameInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/ConfigPanel/Margin/VBox/RowsVBox/PlayerNicknameRow" unique_id=549357885]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
 text = "哥哥"
 
-[node name="PolicyPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer"]
+[node name="PolicyPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer" unique_id=1101354200]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel" unique_id=1353729284]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin" unique_id=318662599]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+[node name="Title" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox" unique_id=1481918990]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "低打扰策略中心"
 
-[node name="Hint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+[node name="Hint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox" unique_id=1726931653]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33, 0.36, 0.36, 0.82)
 theme_override_font_sizes/font_size = 14
 text = "可按模式快速切换桌宠风格，并单独指定允许观察、永不截图和敏感窗口关键词。关键词支持逗号、空格或换行分隔。"
 autowrap_mode = 3
 
-[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+[node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox" unique_id=1207686015]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PetDisturbanceModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+[node name="PetDisturbanceModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox" unique_id=45101319]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetDisturbanceModeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetDisturbanceModeRow"]
+[node name="PetDisturbanceModeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetDisturbanceModeRow" unique_id=670043435]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "当前陪伴模式"
 vertical_alignment = 1
 
-[node name="PetDisturbanceModeOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetDisturbanceModeRow"]
+[node name="PetDisturbanceModeOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetDisturbanceModeRow" unique_id=973357577]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
 
-[node name="PetQuietRangesRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+[node name="PetQuietRangesRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox" unique_id=174249635]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PetQuietRangesLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetQuietRangesRow"]
+[node name="PetQuietRangesLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetQuietRangesRow" unique_id=1225226327]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "禁止主动说话时段"
 vertical_alignment = 1
 
-[node name="PetQuietRangesInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetQuietRangesRow"]
+[node name="PetQuietRangesInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetQuietRangesRow" unique_id=810503280]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 38)
 layout_mode = 2
 placeholder_text = "例如 23:30-08:00, 13:00-14:00"
 
-[node name="PetObserveAllowGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+[node name="PetObserveAllowGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox" unique_id=355335285]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PetObserveAllowLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetObserveAllowGroup"]
+[node name="PetObserveAllowLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetObserveAllowGroup" unique_id=1915560566]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "允许观察的应用关键词"
 
-[node name="PetObserveAllowInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetObserveAllowGroup"]
+[node name="PetObserveAllowInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetObserveAllowGroup" unique_id=365425982]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 placeholder_text = "留空表示不限制，例如 trae, cursor, chrome"
 wrap_mode = 1
 
-[node name="PetNeverCaptureGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+[node name="PetNeverCaptureGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox" unique_id=462630649]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PetNeverCaptureLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetNeverCaptureGroup"]
+[node name="PetNeverCaptureLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetNeverCaptureGroup" unique_id=105800572]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "永不截图的应用关键词"
 
-[node name="PetNeverCaptureInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetNeverCaptureGroup"]
+[node name="PetNeverCaptureInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetNeverCaptureGroup" unique_id=232250121]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 placeholder_text = "例如 银行, 支付, 后台, 控制台"
 wrap_mode = 1
 
-[node name="PetSensitiveWindowGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox"]
+[node name="PetSensitiveWindowGroup" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox" unique_id=871947659]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PetSensitiveWindowLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetSensitiveWindowGroup"]
+[node name="PetSensitiveWindowLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetSensitiveWindowGroup" unique_id=1636138536]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "敏感窗口关键词"
 
-[node name="PetSensitiveWindowInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetSensitiveWindowGroup"]
+[node name="PetSensitiveWindowInput" type="TextEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox/RowsVBox/PetSensitiveWindowGroup" unique_id=873468293]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 placeholder_text = "敏感窗口只读应用名不截图，例如 微信, QQ, 飞书, Outlook"
 wrap_mode = 1
 
-[node name="FooterHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox"]
+[node name="FooterHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/桌宠设置/ScrollContainer/VBoxContainer/PolicyPanel/Margin/VBox" unique_id=39594142]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.37, 0.39, 0.4, 0.78)
 theme_override_font_sizes/font_size = 13
 text = "模式建议：安静模式几乎不主动打扰，专注模式保留轻量陪伴，摸鱼模式保持当前活泼反应，深夜模式默认更克制。"
 autowrap_mode = 3
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=430992550]
 
-[node name="MicCapture" type="AudioStreamPlayer" parent="."]
+[node name="MicCapture" type="AudioStreamPlayer" parent="." unique_id=314479209]
 stream = SubResource("AudioStreamMicrophone_Settings")
 bus = &"Record"

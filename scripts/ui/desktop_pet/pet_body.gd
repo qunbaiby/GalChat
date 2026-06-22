@@ -1,19 +1,25 @@
 extends CharacterBody2D
 
 signal pet_clicked()
+signal pet_right_clicked()
 signal bubbles_changed()
 
 @onready var avatar_mask: Control = $AvatarContainer/AvatarMask
 @onready var state_ring: Control = $AvatarContainer/StateRing
 @onready var pet_sprite: AnimatedSprite2D = $AvatarContainer/AvatarMask/AnimatedSprite2D
+@onready var mood_bubble: PanelContainer = $AvatarContainer/MoodBubble
+@onready var mood_emoji_label: Label = $AvatarContainer/MoodBubble/MarginContainer/MoodHBox/MoodEmojiLabel
+@onready var mood_name_label: Label = $AvatarContainer/MoodBubble/MarginContainer/MoodHBox/MoodNameLabel
 @onready var bubble_container: VBoxContainer = $BubbleContainer
 @onready var bubble_template: PanelContainer = $BubbleContainer/SpeechBubble
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 var _click_start_pos: Vector2 = Vector2.ZERO
+var _left_drag_tracking: bool = false
+var _window_drag_offset: Vector2i = Vector2i.ZERO
 
 # 状态环变量
-var current_state: int = 0 # 0: Idle, 1: Thinking, 2: Speaking, 3: Cooldown
+var current_state: int = 0 # 0: Idle, 1: Thinking, 2: Speaking, 3: DayProgress, 4: ProactiveCooldown
 var state_progress: float = 0.0
 var ring_time: float = 0.0
 var ring_volume: float = 0.0
@@ -21,9 +27,12 @@ var ring_volume: float = 0.0
 var neon_material: ShaderMaterial
 var _breath_tween: Tween
 var _current_modulate: Color = Color.WHITE
+var _bound_profile = null
+var _last_mood_display_key: String = ""
 
 func _ready() -> void:
     bubble_template.hide()
+    _refresh_mood_bubble()
     
     avatar_mask.draw.connect(_on_mask_draw)
     state_ring.draw.connect(_on_ring_draw)
@@ -48,7 +57,7 @@ func _ready() -> void:
             click_control.position = pos
             click_control.size = size
             
-    click_control.mouse_filter = Control.MOUSE_FILTER_PASS
+    click_control.mouse_filter = Control.MOUSE_FILTER_STOP
     click_control.gui_input.connect(_on_click_control_gui_input)
     add_child(click_control)
     
@@ -117,6 +126,8 @@ func _update_time_based_lighting() -> void:
         state_ring.modulate = _current_modulate
 
 func _process(delta: float) -> void:
+    _ensure_profile_binding()
+    _ensure_mood_bubble_visible()
     _update_time_based_lighting()
     
     ring_time += delta
@@ -168,17 +179,17 @@ func _process(delta: float) -> void:
                 neon_material.set_shader_parameter("border_width", target_width)
                 neon_material.set_shader_parameter("blur", target_blur)
                 
-            elif current_state == 3: # App Switch Observing (Green)
+            elif current_state == 3: # Day Progress (Green)
                 neon_material.set_shader_parameter("progress", state_progress)
                 state_ring.rotation = 0.0
                 
-                # 【倒计时的脉冲充能感】
-                var pulse = (sin(ring_time * 5.0) + 1.0) * 0.5
-                neon_material.set_shader_parameter("color1", Color(0.1, 1.0, 0.4, 0.8 + pulse * 0.2))
-                neon_material.set_shader_parameter("color2", Color(0.5, 1.0, 0.8, 0.8 + pulse * 0.2))
-                neon_material.set_shader_parameter("speed", 1.5)
+                # 一天进度改成更稳定的时间流动感，不再表现成冷却倒计时
+                var pulse = (sin(ring_time * 2.2) + 1.0) * 0.5
+                neon_material.set_shader_parameter("color1", Color(0.12, 0.86, 0.52, 0.72 + pulse * 0.12))
+                neon_material.set_shader_parameter("color2", Color(0.52, 0.95, 0.88, 0.74 + pulse * 0.12))
+                neon_material.set_shader_parameter("speed", 0.8)
                 neon_material.set_shader_parameter("border_width", BASE_WIDTH)
-                neon_material.set_shader_parameter("blur", BASE_BLUR + pulse * 0.01)
+                neon_material.set_shader_parameter("blur", BASE_BLUR + pulse * 0.006)
                 
             elif current_state == 4: # Proactive Chat Cooldown (Orange)
                 neon_material.set_shader_parameter("progress", state_progress)
@@ -191,6 +202,49 @@ func _process(delta: float) -> void:
                 neon_material.set_shader_parameter("border_width", BASE_WIDTH)
                 neon_material.set_shader_parameter("blur", BASE_BLUR + pulse * 0.01)
         state_ring.queue_redraw()
+
+func _ensure_profile_binding() -> void:
+    var next_profile = GameDataManager.profile if GameDataManager else null
+    if _bound_profile == next_profile:
+        return
+    if _bound_profile != null and _bound_profile.has_signal("profile_updated") and _bound_profile.profile_updated.is_connected(_on_profile_updated):
+        _bound_profile.profile_updated.disconnect(_on_profile_updated)
+    _bound_profile = next_profile
+    if _bound_profile != null and _bound_profile.has_signal("profile_updated") and not _bound_profile.profile_updated.is_connected(_on_profile_updated):
+        _bound_profile.profile_updated.connect(_on_profile_updated)
+    _refresh_mood_bubble()
+
+func _on_profile_updated() -> void:
+    _refresh_mood_bubble()
+
+func _refresh_mood_bubble() -> void:
+    if not is_instance_valid(mood_bubble) or not is_instance_valid(mood_emoji_label) or not is_instance_valid(mood_name_label):
+        return
+    var mood_name: String = "平静"
+    var mood_emoji: String = "🙂"
+    if GameDataManager and GameDataManager.profile and GameDataManager.mood_system:
+        var mood_info: Dictionary = GameDataManager.mood_system.get_macro_mood(GameDataManager.profile.mood_value)
+        mood_name = str(mood_info.get("name", "平静")).strip_edges()
+        mood_emoji = str(mood_info.get("emoji", "🙂")).strip_edges()
+    if mood_name == "":
+        mood_name = "平静"
+    if mood_emoji == "":
+        mood_emoji = "🙂"
+    var display_key: String = "%s|%s" % [mood_emoji, mood_name]
+    if display_key == _last_mood_display_key and mood_bubble.visible:
+        return
+    _last_mood_display_key = display_key
+    mood_emoji_label.text = mood_emoji
+    mood_name_label.text = mood_name
+    _ensure_mood_bubble_visible()
+
+func _ensure_mood_bubble_visible() -> void:
+    if not is_instance_valid(mood_bubble):
+        return
+    if not mood_bubble.visible:
+        mood_bubble.show()
+    if mood_bubble.modulate.a < 1.0:
+        mood_bubble.modulate = Color(mood_bubble.modulate.r, mood_bubble.modulate.g, mood_bubble.modulate.b, 1.0)
 
 func _on_mask_draw() -> void:
     var center = avatar_mask.size / 2.0
@@ -247,16 +301,37 @@ func update_voice_volume(vol: float) -> void:
     ring_volume = lerp(ring_volume, vol, 0.2)
 
 func _on_click_control_gui_input(event: InputEvent) -> void:
+    if event is InputEventMouseMotion:
+        if _left_drag_tracking:
+            _move_window_from_screen_pos(DisplayServer.mouse_get_position())
+        return
     if event is InputEventMouseButton:
+        if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            pet_right_clicked.emit()
         if event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed:
                 _click_start_pos = Vector2(DisplayServer.mouse_get_position())
+                _left_drag_tracking = true
+                _window_drag_offset = DisplayServer.mouse_get_position() - get_window().position
             else:
                 var current_pos = Vector2(DisplayServer.mouse_get_position())
+                _left_drag_tracking = false
                 var dist = current_pos.distance_to(_click_start_pos)
                 if dist < 10.0:
                     pet_clicked.emit()
                     _play_interact_anim()
+
+func _move_window_from_screen_pos(screen_pos: Vector2i) -> void:
+    var pet_window := get_window()
+    if pet_window == null:
+        return
+    var new_pos := screen_pos - _window_drag_offset
+    var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(screen_pos, Vector2i.ONE))
+    var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
+    if pet_window.has_method("_clamp_window_position_to_pet_body"):
+        pet_window.position = pet_window.call("_clamp_window_position_to_pet_body", new_pos, screen_rect)
+    else:
+        pet_window.position = new_pos
 
 func _play_interact_anim() -> void:
     if not pet_sprite: return
@@ -356,6 +431,10 @@ func get_passthrough_rects() -> Array[Rect2]:
     # 获取遮罩和状态环的组合区域
     if avatar_mask and avatar_mask.is_visible_in_tree():
         rects.append(avatar_mask.get_global_rect().grow(5))
+    if state_ring and state_ring.is_visible_in_tree():
+        rects.append(state_ring.get_global_rect().grow(5))
+    if mood_bubble and mood_bubble.is_visible_in_tree() and mood_bubble.modulate.a > 0.01:
+        rects.append(mood_bubble.get_global_rect().grow(5))
         
     # 获取实际显示的对话气泡的区域
     if bubble_container and bubble_container.is_visible_in_tree():
@@ -379,7 +458,11 @@ func get_body_global_rect() -> Rect2:
         body_rect = body_rect.merge(ring_rect) if has_rect else ring_rect
         has_rect = true
     
+    if mood_bubble and mood_bubble.is_visible_in_tree() and mood_bubble.modulate.a > 0.01:
+        var mood_rect := mood_bubble.get_global_rect().grow(5)
+        body_rect = body_rect.merge(mood_rect) if has_rect else mood_rect
+        has_rect = true
+    
     if has_rect:
         return body_rect
-    
     return Rect2(global_position - Vector2(40, 90), Vector2(80, 180))

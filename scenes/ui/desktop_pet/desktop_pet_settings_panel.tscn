@@ -36,9 +36,11 @@ corner_radius_bottom_left = 14
 
 [sub_resource type="Theme" id="Theme_Inline"]
 Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
 Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
 Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
 CheckButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+CheckButton/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
 CheckButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
 CheckButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
 Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
@@ -47,9 +49,15 @@ LineEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
 LineEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
 LineEdit/styles/normal = SubResource("StyleBoxFlat_Input")
 OptionButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+OptionButton/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+OptionButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+OptionButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
 OptionButton/styles/hover = SubResource("StyleBoxFlat_Input")
 OptionButton/styles/normal = SubResource("StyleBoxFlat_Input")
 OptionButton/styles/pressed = SubResource("StyleBoxFlat_Input")
+PopupMenu/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+PopupMenu/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+PopupMenu/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
 TextEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
 TextEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
 TextEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
@@ -88,21 +96,24 @@ corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 0.94)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.90359825, 0.90359825, 0.903598, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 shadow_color = Color(0.3, 0.37, 0.48, 0.12)
-shadow_size = 16
-shadow_offset = Vector2(0, 6)
 
 [node name="DesktopPetSettingsPanel" type="PanelContainer" unique_id=1076963704]
-custom_minimum_size = Vector2(305, 575)
+custom_minimum_size = Vector2(280, 553)
 anchors_preset = -1
-anchor_right = 0.238
-anchor_bottom = 0.799
-offset_right = 0.35998535
-offset_bottom = -0.2800293
+anchor_right = 0.22000001
+anchor_bottom = 0.768
+offset_right = 0.3999939
+offset_bottom = 0.039978027
 grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_Inline")
@@ -164,11 +175,12 @@ text = "保存"
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="ContentVBox" type="VBoxContainer" parent="Margin/VBox/Scroll" unique_id=486465347]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 1
 
 [node name="BasicCard" type="PanelContainer" parent="Margin/VBox/Scroll/ContentVBox" unique_id=1891535869]
 layout_mode = 2
@@ -250,30 +262,6 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "行为参数"
-
-[node name="PetObserveTimeLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=288651376]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "新应用观察时间"
-
-[node name="PetObserveTimeSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1180322778]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-min_value = 5.0
-max_value = 60.0
-value = 10.0
-
-[node name="PetSameAppCooldownLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1378427657]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "同应用吐槽间隔"
-
-[node name="PetSameAppCooldownSlider" type="HSlider" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=1353770398]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-min_value = 120.0
-max_value = 600.0
-value = 180.0
 
 [node name="PetGlobalCooldownLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox" unique_id=2091312676]
 layout_mode = 2

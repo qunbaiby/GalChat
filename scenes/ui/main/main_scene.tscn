@@ -1118,7 +1118,6 @@ color = Color(0, 0, 0, 1)
 [node name="WardrobePanel" parent="." unique_id=1505705933 instance=ExtResource("16_wardrobe")]
 visible = false
 layout_mode = 1
-theme = null
 
 [node name="BGM" type="AudioStreamPlayer" parent="." unique_id=1978098407]
 stream = ExtResource("6_bgm")

@@ -3,15 +3,19 @@ extends Window
 @onready var input_edit: TextEdit = $Control/InputLayer/MarginContainer/HBoxContainer/InputField
 @onready var send_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/SendButton
 @onready var quick_tools_panel: PanelContainer = $Control/QuickToolsPanel
+@onready var quick_tools_screen: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen
+@onready var quick_tools_screen_margin: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin
 @onready var dashboard_root: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot
 @onready var tool_title_label: Label = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/DatePill/DateMargin/Title
 @onready var tool_subtitle_label: Label = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/WeekPill/WeekMargin/SubTitle
 @onready var tool_clock_label: Label = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/ClockLabel
 @onready var tool_mode_chip: Label = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/ModeChip") as Label
-@onready var main_window_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/MainWindowButton
+@onready var main_window_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons/MainWindowButton
 @onready var dialogue_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons/DialogueButton
-@onready var pet_settings_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/PetSettingsButton") as Button
-@onready var close_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons/CloseButton
+@onready var pet_settings_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons/PetSettingsButton") as Button
+@onready var affection_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/AffectionButton") as Button
+@onready var memory_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/MemoryButton") as Button
+@onready var close_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/CloseButton
 @onready var pomodoro_toggle_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons/PomodoroToggleButton
 @onready var music_toggle_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons/MusicToggleButton
 @onready var mute_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/MuteButton
@@ -58,9 +62,6 @@ var _is_afk: bool = false
 
 # 应用识别相关状态变量
 var _window_detector: Node
-var _time_since_last_switch: float = 0.0
-var _current_app_name: String = ""
-var _last_chatted_app: String = ""
 
 var is_dialogue_panel_open: bool = false
 var _spectrum_analyzer: AudioEffectSpectrumAnalyzerInstance
@@ -68,6 +69,8 @@ var is_standalone_mode: bool = false
 var _pomodoro_panel_instance: Control = null
 var _music_panel_instance: Control = null
 var _settings_panel_instance: Control = null
+var _affection_panel_instance: Control = null
+var _memory_panel_instance: Control = null
 var _active_tool_key: String = ""
 var _root_window_parked: bool = false
 var _root_window_saved_position: Vector2i = Vector2i.ZERO
@@ -79,641 +82,745 @@ const PET_MODE_FOCUS := "专注模式"
 const PET_MODE_LOAF := "摸鱼模式"
 const PET_MODE_NIGHT := "深夜模式"
 const SOFT_REMINDER_APP_TYPES := ["通讯聊天软件", "办公文档软件"]
+const CHAT_ORIGIN_SYSTEM := "system_trigger"
+const CHAT_ORIGIN_TOUCH := "pet_touch"
+const CHAT_ORIGIN_PLAYER := "player_input"
+
+var _current_chat_origin: String = CHAT_ORIGIN_SYSTEM
+var _last_observed_app_type: String = ""
+var _last_observed_display_name: String = ""
+var _last_observed_window_title: String = ""
+var _last_observed_soft_reminder: bool = false
+var _last_observed_analysis_text: String = ""
 
 func _ready() -> void:
-	_current_character_id = GameDataManager.config.current_character_id
-	_ready_tick_msec = Time.get_ticks_msec()
-	# 初始化上次交互时间为 0，避免启动后立刻触发被拦截
-	# _last_reaction_tick = 0
-	
-	# 设置窗口属性：无边框透明
-	transparent_bg = true
-	transparent = true
-	borderless = true
-	always_on_top = true
-	unresizable = true
-	transient = false
-	exclusive = false
-	
-	# 设置为小窗口大小
-	var target_size = Vector2i(1280, 720)
-	size = target_size
-	
-	# 获取当前鼠标所在的屏幕索引
-	var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(DisplayServer.mouse_get_position(), Vector2i.ONE))
-	var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
-	
-	# 初始位置：右下角
-	var init_pos = Vector2i(screen_rect.end.x - target_size.x - 20, screen_rect.end.y - target_size.y - 20)
-	position = init_pos
-	
-	# 确保内部 Control 占满整个小窗口
-	var control_node = $Control
-	control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-	control_node.size = Vector2(1280, 720)
-	control_node.position = Vector2.ZERO
-	
-	if is_standalone_mode:
-		pass # 不再修改文字，保持 "主界面"
-		
-	input_layer.hide()
-	quick_tools_panel.hide()
-	pomodoro_panel_host.hide()
-	music_panel_host.hide()
-	if settings_panel_host:
-		settings_panel_host.hide()
-	quick_tools_panel.gui_input.connect(_on_tool_panel_gui_input)
-	pomodoro_panel_host.gui_input.connect(_on_tool_panel_gui_input)
-	music_panel_host.gui_input.connect(_on_tool_panel_gui_input)
-	if settings_panel_host:
-		settings_panel_host.gui_input.connect(_on_tool_panel_gui_input)
-	
-	# TTSManager 已在全局自动处理配置，这里不需要额外配置
-	
-	# 连接信号
-	send_button.pressed.connect(_on_send_pressed)
-	main_window_button.pressed.connect(_on_main_window_pressed)
-	close_button.pressed.connect(_on_close_pressed)
-	dialogue_button.pressed.connect(_on_dialogue_button_pressed)
-	if pet_settings_button:
-		pet_settings_button.pressed.connect(_on_pet_settings_pressed)
-	close_input_button.pressed.connect(_on_close_input_pressed)
-	voice_record_button.button_down.connect(_on_voice_record_down)
-	voice_record_button.button_up.connect(_on_voice_record_up)
-	pomodoro_toggle_button.pressed.connect(_on_pomodoro_toggle_pressed)
-	music_toggle_button.pressed.connect(_on_music_toggle_pressed)
-	mute_button.pressed.connect(_on_mute_button_pressed)
-	hide_tool_button.pressed.connect(func(): _set_menu_visible(false))
-	
-	if GameDataManager.config.qwen_asr_enabled:
-		var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
-		if QwenASRClient:
-			qwen_asr_client = QwenASRClient.new()
-			qwen_asr_client.name = "QwenASRClient"
-			add_child(qwen_asr_client)
-			qwen_asr_client.transcribe_completed.connect(_on_asr_success)
-			qwen_asr_client.transcribe_failed.connect(_on_asr_failed)
-		
-	# 注意：TextEdit 没有 text_submitted，因此我们需要在 _input 里面监听回车或者单独处理。这里先移除之前的 line_edit 特有信号。
-	# 监听 text_changed 拦截换行
-	input_edit.text_changed.connect(_on_input_text_changed)
-	
-	# 增加一个定时器，每秒强制更新一次鼠标穿透状态，防止在等待或状态切换时意外失去穿透
-	var passthrough_timer = Timer.new()
-	passthrough_timer.wait_time = 1.0
-	passthrough_timer.autostart = true
-	passthrough_timer.timeout.connect(_update_mouse_passthrough)
-	add_child(passthrough_timer)
-	
-	deepseek_client.chat_stream_started.connect(_on_chat_started)
-	deepseek_client.chat_stream_delta.connect(_on_chat_delta)
-	deepseek_client.chat_request_completed.connect(_on_chat_completed)
-	deepseek_client.chat_request_failed.connect(_on_chat_failed)
-	
-	deepseek_client.vision_request_completed.connect(_on_vision_completed)
-	deepseek_client.vision_request_failed.connect(_on_vision_failed)
-	
-	TTSManager.tts_success.connect(_on_tts_success)
-	TTSManager.tts_failed.connect(_on_tts_failed)
-	
-	# 获取音频分析器用于绘制波形环
-	var bus_idx = AudioServer.get_bus_index("Voice")
-	if bus_idx >= 0:
-		for i in range(AudioServer.get_bus_effect_count(bus_idx)):
-			var effect = AudioServer.get_bus_effect(bus_idx, i)
-			if effect is AudioEffectSpectrumAnalyzer:
-				_spectrum_analyzer = AudioServer.get_bus_effect_instance(bus_idx, i)
-				break
-	
-	_load_prompt()
-	
-	# 连接 Control 面板的输入信号以处理拖拽
-	control_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	# 初始化轮询定时器
-	_poll_timer = Timer.new()
-	_poll_timer.wait_time = 1.0 # 改为1秒以便更平滑地显示倒计时
-	_poll_timer.autostart = true
-	_poll_timer.timeout.connect(_on_poll_timer_timeout)
-	add_child(_poll_timer)
-	
-	if pet_body:
-		pet_body.bubbles_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-		pet_body.pet_clicked.connect(_trigger_pet_touch)
-	
-	input_layer.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	quick_tools_panel.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	pomodoro_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	music_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	if settings_panel_host:
-		settings_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    _current_character_id = GameDataManager.config.current_character_id
+    _ready_tick_msec = Time.get_ticks_msec()
+    # 初始化上次交互时间为 0，避免启动后立刻触发被拦截
+    # _last_reaction_tick = 0
+    
+    # 设置窗口属性：无边框透明
+    transparent_bg = true
+    transparent = true
+    borderless = true
+    always_on_top = true
+    unresizable = true
+    transient = false
+    exclusive = false
+    
+    # 设置为小窗口大小
+    var target_size = Vector2i(1280, 720)
+    size = target_size
+    
+    # 获取当前鼠标所在的屏幕索引
+    var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(DisplayServer.mouse_get_position(), Vector2i.ONE))
+    var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
+    
+    # 初始位置：右下角
+    var init_pos = Vector2i(screen_rect.end.x - target_size.x - 20, screen_rect.end.y - target_size.y - 20)
+    position = init_pos
+    
+    # 确保内部 Control 占满整个小窗口
+    var control_node = $Control
+    control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
+    control_node.size = Vector2(1280, 720)
+    control_node.position = Vector2.ZERO
+    
+    if is_standalone_mode:
+        pass # 不再修改文字，保持 "主界面"
+        
+    input_layer.hide()
+    quick_tools_panel.hide()
+    pomodoro_panel_host.hide()
+    music_panel_host.hide()
+    if settings_panel_host:
+        settings_panel_host.hide()
+    quick_tools_panel.gui_input.connect(_on_tool_panel_gui_input)
+    pomodoro_panel_host.gui_input.connect(_on_tool_panel_gui_input)
+    music_panel_host.gui_input.connect(_on_tool_panel_gui_input)
+    if settings_panel_host:
+        settings_panel_host.gui_input.connect(_on_tool_panel_gui_input)
+    
+    # TTSManager 已在全局自动处理配置，这里不需要额外配置
+    
+    # 连接信号
+    send_button.pressed.connect(_on_send_pressed)
+    main_window_button.pressed.connect(_on_main_window_pressed)
+    close_button.pressed.connect(_on_close_pressed)
+    dialogue_button.pressed.connect(_on_dialogue_button_pressed)
+    if pet_settings_button:
+        pet_settings_button.pressed.connect(_on_pet_settings_pressed)
+    if affection_button:
+        affection_button.pressed.connect(_on_affection_button_pressed)
+    if memory_button:
+        memory_button.pressed.connect(_on_memory_button_pressed)
+    close_input_button.pressed.connect(_on_close_input_pressed)
+    voice_record_button.button_down.connect(_on_voice_record_down)
+    voice_record_button.button_up.connect(_on_voice_record_up)
+    pomodoro_toggle_button.pressed.connect(_on_pomodoro_toggle_pressed)
+    music_toggle_button.pressed.connect(_on_music_toggle_pressed)
+    mute_button.pressed.connect(_on_mute_button_pressed)
+    hide_tool_button.pressed.connect(func(): _set_menu_visible(false))
+    
+    if GameDataManager.config.qwen_asr_enabled:
+        var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
+        if QwenASRClient:
+            qwen_asr_client = QwenASRClient.new()
+            qwen_asr_client.name = "QwenASRClient"
+            add_child(qwen_asr_client)
+            qwen_asr_client.transcribe_completed.connect(_on_asr_success)
+            qwen_asr_client.transcribe_failed.connect(_on_asr_failed)
+        
+    # 注意：TextEdit 没有 text_submitted，因此我们需要在 _input 里面监听回车或者单独处理。这里先移除之前的 line_edit 特有信号。
+    # 监听 text_changed 拦截换行
+    input_edit.text_changed.connect(_on_input_text_changed)
+    
+    # 增加一个定时器，每秒强制更新一次鼠标穿透状态，防止在等待或状态切换时意外失去穿透
+    var passthrough_timer = Timer.new()
+    passthrough_timer.wait_time = 1.0
+    passthrough_timer.autostart = true
+    passthrough_timer.timeout.connect(_update_mouse_passthrough)
+    add_child(passthrough_timer)
+    
+    deepseek_client.chat_stream_started.connect(_on_chat_started)
+    deepseek_client.chat_stream_delta.connect(_on_chat_delta)
+    deepseek_client.chat_request_completed.connect(_on_chat_completed)
+    deepseek_client.chat_request_failed.connect(_on_chat_failed)
+    deepseek_client.emotion_request_completed.connect(_on_pet_emotion_response)
+    deepseek_client.emotion_request_failed.connect(_on_pet_emotion_error)
+    deepseek_client.character_mood_request_completed.connect(_on_pet_character_mood_response)
+    deepseek_client.character_mood_request_failed.connect(_on_pet_character_mood_error)
+    
+    deepseek_client.vision_request_completed.connect(_on_vision_completed)
+    deepseek_client.vision_request_failed.connect(_on_vision_failed)
+    
+    TTSManager.tts_success.connect(_on_tts_success)
+    TTSManager.tts_failed.connect(_on_tts_failed)
+    
+    # 获取音频分析器用于绘制波形环
+    var bus_idx = AudioServer.get_bus_index("Voice")
+    if bus_idx >= 0:
+        for i in range(AudioServer.get_bus_effect_count(bus_idx)):
+            var effect = AudioServer.get_bus_effect(bus_idx, i)
+            if effect is AudioEffectSpectrumAnalyzer:
+                _spectrum_analyzer = AudioServer.get_bus_effect_instance(bus_idx, i)
+                break
+    
+    _load_prompt()
+    
+    # 连接 Control 面板的输入信号以处理拖拽
+    control_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    
+    # 初始化轮询定时器
+    _poll_timer = Timer.new()
+    _poll_timer.wait_time = 1.0 # 改为1秒以便更平滑地显示倒计时
+    _poll_timer.autostart = true
+    _poll_timer.timeout.connect(_on_poll_timer_timeout)
+    add_child(_poll_timer)
+    
+    if pet_body:
+        pet_body.bubbles_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+        pet_body.pet_clicked.connect(_trigger_pet_touch)
+        if pet_body.has_signal("pet_right_clicked"):
+            pet_body.pet_right_clicked.connect(_on_pet_body_right_clicked)
+    
+    input_layer.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    quick_tools_panel.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    pomodoro_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    music_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+    if settings_panel_host:
+        settings_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
 
-	_load_quick_tool_state()
-	
-	# 初始化时延迟调用以更新鼠标穿透区域
-	call_deferred("_update_mouse_passthrough")
-	call_deferred("_sync_root_window_focusability")
-	
-	# 实例化 WindowDetector (通过字符串路径加载，避免非 C# 版本下报错)
-	var window_detector_path = "res://scripts/csharp/WindowDetector.cs"
-	if FileAccess.file_exists(window_detector_path):
-		var WindowDetectorObj = load(window_detector_path)
-		if WindowDetectorObj:
-			_window_detector = WindowDetectorObj.new()
-			add_child(_window_detector)
-	else:
-		pass
-	
-	# 延迟一帧后显示窗口，以防止初次渲染的黑/灰块
-	call_deferred("show")
+    _load_quick_tool_state()
+    
+    # 初始化时延迟调用以更新鼠标穿透区域
+    call_deferred("_update_mouse_passthrough")
+    call_deferred("_sync_root_window_focusability")
+    
+    # 实例化 WindowDetector (通过字符串路径加载，避免非 C# 版本下报错)
+    var window_detector_path = "res://scripts/csharp/WindowDetector.cs"
+    if FileAccess.file_exists(window_detector_path):
+        var WindowDetectorObj = load(window_detector_path)
+        if WindowDetectorObj:
+            _window_detector = WindowDetectorObj.new()
+            add_child(_window_detector)
+    else:
+        pass
+    
+    # 延迟一帧后显示窗口，以防止初次渲染的黑/灰块
+    call_deferred("show")
 
 func _load_quick_tool_state() -> void:
-	_update_mute_button()
-	_update_mode_chip()
-	_update_panel_clock()
+    _update_mute_button()
+    _update_mode_chip()
+    _update_panel_clock()
+
+func refresh_runtime_settings() -> void:
+    _load_prompt()
+    _update_mute_button()
+    _update_mode_chip()
+    _update_panel_clock()
+    if pet_body and pet_body.has_method("_update_sprite_scale"):
+        pet_body._update_sprite_scale()
 
 func _set_menu_visible(visible_state: bool) -> void:
-	quick_tools_panel.visible = visible_state
-	if visible_state:
-		_hide_side_tool_panels()
-		_update_panel_clock()
-	else:
-		_hide_side_tool_panels()
+    quick_tools_panel.visible = visible_state
+    if visible_state:
+        _hide_side_tool_panels()
+        _update_panel_clock()
+    else:
+        _hide_side_tool_panels()
 
 func _get_pet_body_local_rect() -> Rect2:
-	if pet_body and pet_body.has_method("get_body_global_rect"):
-		var body_rect: Rect2 = pet_body.get_body_global_rect()
-		if body_rect.size.x > 0.0 and body_rect.size.y > 0.0:
-			# Control.get_global_rect() 在这里返回的是桌宠窗口内部坐标，不需要再减窗口屏幕坐标
-			return body_rect
-	return Rect2(Vector2.ZERO, Vector2(size))
+    if pet_body and pet_body.has_method("get_body_global_rect"):
+        var body_rect: Rect2 = pet_body.get_body_global_rect()
+        if body_rect.size.x > 0.0 and body_rect.size.y > 0.0:
+            # Control.get_global_rect() 在这里返回的是桌宠窗口内部坐标，不需要再减窗口屏幕坐标
+            return body_rect
+    return Rect2(Vector2.ZERO, Vector2(size))
 
 func _clamp_window_position_to_pet_body(target_pos: Vector2i, screen_rect: Rect2i) -> Vector2i:
-	var body_local_rect := _get_pet_body_local_rect()
-	var min_x := int(round(screen_rect.position.x - body_local_rect.position.x))
-	var max_x := int(round(screen_rect.end.x - body_local_rect.end.x))
-	var min_y := int(round(screen_rect.position.y - body_local_rect.position.y))
-	var max_y := int(round(screen_rect.end.y - body_local_rect.end.y))
-	var clamped_pos := target_pos
-	
-	if min_x > max_x:
-		clamped_pos.x = min_x
-	else:
-		clamped_pos.x = clampi(clamped_pos.x, min_x, max_x)
-	
-	if min_y > max_y:
-		clamped_pos.y = min_y
-	else:
-		clamped_pos.y = clampi(clamped_pos.y, min_y, max_y)
-	
-	return clamped_pos
+    var body_local_rect := _get_pet_body_local_rect()
+    var min_x := int(round(screen_rect.position.x - body_local_rect.position.x))
+    var max_x := int(round(screen_rect.end.x - body_local_rect.end.x))
+    var min_y := int(round(screen_rect.position.y - body_local_rect.position.y))
+    var max_y := int(round(screen_rect.end.y - body_local_rect.end.y))
+    var clamped_pos := target_pos
+    
+    if min_x > max_x:
+        clamped_pos.x = min_x
+    else:
+        clamped_pos.x = clampi(clamped_pos.x, min_x, max_x)
+    
+    if min_y > max_y:
+        clamped_pos.y = min_y
+    else:
+        clamped_pos.y = clampi(clamped_pos.y, min_y, max_y)
+    
+    return clamped_pos
 
 func _get_pomodoro_panel_instance() -> Control:
-	if is_instance_valid(_pomodoro_panel_instance):
-		return _pomodoro_panel_instance
-	var panel_scene := load("res://scenes/ui/desktop_pet/pomodoro_panel.tscn")
-	if panel_scene == null:
-		return null
-	_pomodoro_panel_instance = panel_scene.instantiate()
-	_pomodoro_panel_instance.visible = false
-	pomodoro_panel_host.add_child(_pomodoro_panel_instance)
-	_pomodoro_panel_instance.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_pomodoro_panel_instance.position = Vector2.ZERO
-	_pomodoro_panel_instance.size = pomodoro_panel_host.size
-	if _pomodoro_panel_instance.has_signal("back_requested"):
-		_pomodoro_panel_instance.back_requested.connect(_hide_side_tool_panels)
-	return _pomodoro_panel_instance
+    if is_instance_valid(_pomodoro_panel_instance):
+        return _pomodoro_panel_instance
+    var panel_scene := load("res://scenes/ui/desktop_pet/pomodoro_panel.tscn")
+    if panel_scene == null:
+        return null
+    _pomodoro_panel_instance = panel_scene.instantiate()
+    _pomodoro_panel_instance.visible = false
+    quick_tools_screen.add_child(_pomodoro_panel_instance)
+    _fit_embedded_tool_panel(_pomodoro_panel_instance, quick_tools_screen)
+    if _pomodoro_panel_instance.has_signal("back_requested"):
+        _pomodoro_panel_instance.back_requested.connect(_hide_side_tool_panels)
+    return _pomodoro_panel_instance
+
+func _fit_embedded_tool_panel(panel: Control, host: Control) -> void:
+    if panel == null or host == null:
+        return
+    panel.custom_minimum_size = Vector2.ZERO
+    panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    panel.position = Vector2.ZERO
+    panel.size = host.size
+    panel.reset_size()
+    panel.update_minimum_size()
+    panel.queue_redraw()
 
 func _get_music_panel_instance() -> Control:
-	if is_instance_valid(_music_panel_instance):
-		return _music_panel_instance
-	var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_music_panel.tscn")
-	if panel_scene == null:
-		return null
-	_music_panel_instance = panel_scene.instantiate()
-	_music_panel_instance.visible = false
-	music_panel_host.add_child(_music_panel_instance)
-	if _music_panel_instance is Control:
-		(_music_panel_instance as Control).set_anchors_preset(Control.PRESET_FULL_RECT)
-		(_music_panel_instance as Control).position = Vector2.ZERO
-		(_music_panel_instance as Control).size = music_panel_host.size
-	if _music_panel_instance.has_signal("back_requested"):
-		_music_panel_instance.back_requested.connect(_hide_side_tool_panels)
-	return _music_panel_instance
+    if is_instance_valid(_music_panel_instance):
+        return _music_panel_instance
+    var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_music_panel.tscn")
+    if panel_scene == null:
+        return null
+    _music_panel_instance = panel_scene.instantiate()
+    _music_panel_instance.visible = false
+    quick_tools_screen.add_child(_music_panel_instance)
+    if _music_panel_instance is Control:
+        _fit_embedded_tool_panel(_music_panel_instance as Control, quick_tools_screen)
+    if _music_panel_instance.has_signal("back_requested"):
+        _music_panel_instance.back_requested.connect(_hide_side_tool_panels)
+    return _music_panel_instance
+
+func _get_affection_panel_instance() -> Control:
+    if is_instance_valid(_affection_panel_instance):
+        return _affection_panel_instance
+    var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_affection_panel.tscn")
+    if panel_scene == null:
+        return null
+    _affection_panel_instance = panel_scene.instantiate()
+    _affection_panel_instance.visible = false
+    quick_tools_screen.add_child(_affection_panel_instance)
+    if _affection_panel_instance is Control:
+        _fit_embedded_tool_panel(_affection_panel_instance as Control, quick_tools_screen)
+    if _affection_panel_instance.has_signal("back_requested"):
+        _affection_panel_instance.back_requested.connect(_hide_side_tool_panels)
+    return _affection_panel_instance
+
+func _get_memory_panel_instance() -> Control:
+    if is_instance_valid(_memory_panel_instance):
+        return _memory_panel_instance
+    var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_memory_panel.tscn")
+    if panel_scene == null:
+        return null
+    _memory_panel_instance = panel_scene.instantiate()
+    _memory_panel_instance.visible = false
+    quick_tools_screen.add_child(_memory_panel_instance)
+    if _memory_panel_instance is Control:
+        _fit_embedded_tool_panel(_memory_panel_instance as Control, quick_tools_screen)
+    if _memory_panel_instance.has_signal("back_requested"):
+        _memory_panel_instance.back_requested.connect(_hide_side_tool_panels)
+    return _memory_panel_instance
 
 func _get_settings_panel_instance() -> Control:
-	if is_instance_valid(_settings_panel_instance):
-		return _settings_panel_instance
-	if settings_panel_host == null:
-		return null
-	var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_settings_panel.tscn")
-	if panel_scene == null:
-		return null
-	_settings_panel_instance = panel_scene.instantiate()
-	_settings_panel_instance.visible = false
-	settings_panel_host.add_child(_settings_panel_instance)
-	if _settings_panel_instance is Control:
-		(_settings_panel_instance as Control).set_anchors_preset(Control.PRESET_FULL_RECT)
-		(_settings_panel_instance as Control).position = Vector2.ZERO
-		(_settings_panel_instance as Control).size = settings_panel_host.size
-	if _settings_panel_instance.has_signal("back_requested"):
-		_settings_panel_instance.back_requested.connect(_hide_side_tool_panels)
-	return _settings_panel_instance
+    if is_instance_valid(_settings_panel_instance):
+        return _settings_panel_instance
+    if settings_panel_host == null:
+        return null
+    var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_settings_panel.tscn")
+    if panel_scene == null:
+        return null
+    _settings_panel_instance = panel_scene.instantiate()
+    _settings_panel_instance.visible = false
+    quick_tools_screen.add_child(_settings_panel_instance)
+    if _settings_panel_instance is Control:
+        _fit_embedded_tool_panel(_settings_panel_instance as Control, quick_tools_screen)
+    if _settings_panel_instance.has_signal("back_requested"):
+        _settings_panel_instance.back_requested.connect(_hide_side_tool_panels)
+    return _settings_panel_instance
 
 func _update_mode_chip() -> void:
-	if tool_mode_chip == null:
-		return
-	tool_mode_chip.text = _get_pet_mode()
+    if tool_mode_chip == null:
+        return
+    tool_mode_chip.text = _get_pet_mode()
 
 func _update_panel_clock() -> void:
-	if tool_title_label == null or tool_subtitle_label == null or tool_clock_label == null:
-		return
-	var time_dict := Time.get_datetime_dict_from_system()
-	var weekday_names := ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
-	var weekday_idx := int(time_dict.get("weekday", 0))
-	weekday_idx = clampi(weekday_idx, 0, weekday_names.size() - 1)
-	var hour := int(time_dict.get("hour", 0))
-	var minute := int(time_dict.get("minute", 0))
-	tool_title_label.text = "%04d.%02d.%02d" % [
-		int(time_dict.get("year", 0)),
-		int(time_dict.get("month", 0)),
-		int(time_dict.get("day", 0))
-	]
-	tool_subtitle_label.text = weekday_names[weekday_idx]
-	tool_clock_label.text = "%02d:%02d" % [hour, minute]
+    if tool_title_label == null or tool_subtitle_label == null or tool_clock_label == null:
+        return
+    var time_dict: Dictionary = Time.get_datetime_dict_from_system()
+    var weekday_names: Array[String] = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
+    var weekday_idx := int(time_dict.get("weekday", 0))
+    weekday_idx = clampi(weekday_idx, 0, weekday_names.size() - 1)
+    var hour := int(time_dict.get("hour", 0))
+    var minute := int(time_dict.get("minute", 0))
+    tool_title_label.text = "%04d.%02d.%02d" % [
+        int(time_dict.get("year", 0)),
+        int(time_dict.get("month", 0)),
+        int(time_dict.get("day", 0))
+    ]
+    tool_subtitle_label.text = weekday_names[weekday_idx]
+    tool_clock_label.text = "%02d:%02d" % [hour, minute]
 
 func _get_clock_greeting(hour: int) -> String:
-	if hour < 6:
-		return "夜深了，别忘记休息。"
-	if hour < 11:
-		return "早安，今天也一起加油。"
-	if hour < 14:
-		return "中午啦，记得吃饭。"
-	if hour < 19:
-		return "下午时间，慢慢推进就好。"
-	return "晚上也有我陪着你。"
+    if hour < 6:
+        return "夜深了，别忘记休息。"
+    if hour < 11:
+        return "早安，今天也一起加油。"
+    if hour < 14:
+        return "中午啦，记得吃饭。"
+    if hour < 19:
+        return "下午时间，慢慢推进就好。"
+    return "晚上也有我陪着你。"
 
 func _update_mute_button() -> void:
-	if mute_button == null:
-		return
-	if _is_pet_temporarily_muted():
-		var remain_minutes := maxi(1, int(ceil(float(GameDataManager.config.pet_muted_until_unix - int(Time.get_unix_time_from_system())) / 60.0)))
-		mute_button.text = "取消静音(%d分)" % remain_minutes
-	else:
-		mute_button.text = "静音30分"
+    if mute_button == null:
+        return
+    if _is_pet_temporarily_muted():
+        var remain_minutes := maxi(1, int(ceil(float(GameDataManager.config.pet_muted_until_unix - int(Time.get_unix_time_from_system())) / 60.0)))
+        mute_button.text = "取消静音(%d分)" % remain_minutes
+    else:
+        mute_button.text = "静音30分"
 
 func _on_pomodoro_toggle_pressed() -> void:
-	_consume_desktop_pet_ui_input()
-	var panel = _get_pomodoro_panel_instance()
-	_set_menu_visible(true)
-	_show_side_tool_panel("pomodoro", panel)
+    _consume_desktop_pet_ui_input()
+    var panel = _get_pomodoro_panel_instance()
+    _set_menu_visible(true)
+    _show_side_tool_panel("pomodoro", panel)
 
 func _on_music_toggle_pressed() -> void:
-	_consume_desktop_pet_ui_input()
-	_open_music_panel(false)
+    _consume_desktop_pet_ui_input()
+    _open_music_panel(false)
 
 func _on_pet_settings_pressed() -> void:
-	_consume_desktop_pet_ui_input()
-	var panel = _get_settings_panel_instance()
-	_set_menu_visible(true)
-	_show_side_tool_panel("settings", panel)
+    _consume_desktop_pet_ui_input()
+    var panel = _get_settings_panel_instance()
+    _set_menu_visible(true)
+    _show_side_tool_panel("settings", panel)
+
+func _on_affection_button_pressed() -> void:
+    _consume_desktop_pet_ui_input()
+    var panel = _get_affection_panel_instance()
+    if panel and panel.has_method("show_panel"):
+        panel.show_panel(GameDataManager.profile if GameDataManager else null)
+    _set_menu_visible(true)
+    _show_side_tool_panel("affection", panel)
+
+func _on_memory_button_pressed() -> void:
+    _consume_desktop_pet_ui_input()
+    var panel = _get_memory_panel_instance()
+    if panel and panel.has_method("show_panel"):
+        panel.show_panel()
+    _set_menu_visible(true)
+    _show_side_tool_panel("memory", panel)
 
 func _on_mute_button_pressed() -> void:
-	if GameDataManager == null or GameDataManager.config == null:
-		return
-	if _is_pet_temporarily_muted():
-		GameDataManager.config.pet_muted_until_unix = 0
-	else:
-		GameDataManager.config.pet_muted_until_unix = int(Time.get_unix_time_from_system()) + 1800
-	GameDataManager.config.save_config()
-	_update_mute_button()
-	_update_mode_chip()
+    if GameDataManager == null or GameDataManager.config == null:
+        return
+    if _is_pet_temporarily_muted():
+        GameDataManager.config.pet_muted_until_unix = 0
+    else:
+        GameDataManager.config.pet_muted_until_unix = int(Time.get_unix_time_from_system()) + 1800
+    GameDataManager.config.save_config()
+    _update_mute_button()
+    _update_mode_chip()
 
 func _show_side_tool_panel(tool_key: String, panel: Control) -> void:
-	if panel == null:
-		return
-	if not quick_tools_panel.visible:
-		quick_tools_panel.show()
-	if _active_tool_key == tool_key and panel.visible:
-		_hide_side_tool_panels()
-		return
-	_hide_side_tool_panels()
-	if dashboard_root:
-		dashboard_root.hide()
-	match tool_key:
-		"pomodoro":
-			pomodoro_panel_host.show()
-		"music":
-			music_panel_host.show()
-		"settings":
-			if settings_panel_host:
-				settings_panel_host.show()
-		_:
-			pass
-	panel.show()
-	_active_tool_key = tool_key
-	call_deferred("_update_mouse_passthrough")
+    if panel == null:
+        return
+    if not quick_tools_panel.visible:
+        quick_tools_panel.show()
+    if _active_tool_key == tool_key and panel.visible:
+        _hide_side_tool_panels()
+        return
+    _hide_side_tool_panels()
+    if dashboard_root:
+        dashboard_root.hide()
+    match tool_key:
+        "pomodoro":
+            if quick_tools_screen_margin:
+                quick_tools_screen_margin.hide()
+            _fit_embedded_tool_panel(panel, quick_tools_screen)
+        "music":
+            if quick_tools_screen_margin:
+                quick_tools_screen_margin.hide()
+            _fit_embedded_tool_panel(panel, quick_tools_screen)
+        "settings":
+            if quick_tools_screen_margin:
+                quick_tools_screen_margin.hide()
+            _fit_embedded_tool_panel(panel, quick_tools_screen)
+        "affection":
+            if quick_tools_screen_margin:
+                quick_tools_screen_margin.hide()
+            _fit_embedded_tool_panel(panel, quick_tools_screen)
+        "memory":
+            if quick_tools_screen_margin:
+                quick_tools_screen_margin.hide()
+            _fit_embedded_tool_panel(panel, quick_tools_screen)
+        _:
+            pass
+    panel.show()
+    if panel.get_parent() == quick_tools_screen:
+        quick_tools_screen.move_child(panel, quick_tools_screen.get_child_count() - 1)
+    _active_tool_key = tool_key
+    call_deferred("_update_mouse_passthrough")
 
 func _open_music_panel(force_open: bool = true) -> void:
-	var panel = _get_music_panel_instance()
-	if panel and panel.has_method("set_audio_player"):
-		panel.set_audio_player(music_player)
-	if not quick_tools_panel.visible:
-		quick_tools_panel.show()
-	_update_panel_clock()
-	if force_open and panel:
-		_hide_side_tool_panels()
-		if dashboard_root:
-			dashboard_root.hide()
-		music_panel_host.show()
-		panel.show()
-		_active_tool_key = "music"
-		call_deferred("_update_mouse_passthrough")
-		return
-	_show_side_tool_panel("music", panel)
+    var panel = _get_music_panel_instance()
+    if panel and panel.has_method("set_audio_player"):
+        panel.set_audio_player(music_player)
+    if not quick_tools_panel.visible:
+        quick_tools_panel.show()
+    _update_panel_clock()
+    if force_open and panel:
+        _hide_side_tool_panels()
+        if dashboard_root:
+            dashboard_root.hide()
+        if quick_tools_screen_margin:
+            quick_tools_screen_margin.hide()
+        _fit_embedded_tool_panel(panel, quick_tools_screen)
+        panel.show()
+        if panel.get_parent() == quick_tools_screen:
+            quick_tools_screen.move_child(panel, quick_tools_screen.get_child_count() - 1)
+        _active_tool_key = "music"
+        call_deferred("_update_mouse_passthrough")
+        return
+    _show_side_tool_panel("music", panel)
 
 func _refresh_music_panel_state() -> void:
-	var panel = _get_music_panel_instance()
-	if panel and panel.has_method("set_audio_player"):
-		panel.set_audio_player(music_player)
-	if panel and panel.has_method("_update_ui"):
-		panel._update_ui()
+    var panel = _get_music_panel_instance()
+    if panel and panel.has_method("set_audio_player"):
+        panel.set_audio_player(music_player)
+    if panel and panel.has_method("_update_ui"):
+        panel._update_ui()
 
 func _consume_desktop_pet_ui_input() -> void:
-	if get_viewport():
-		get_viewport().set_input_as_handled()
+    if get_viewport():
+        get_viewport().set_input_as_handled()
 
 func _on_tool_panel_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton or event is InputEventMouseMotion:
-		_consume_desktop_pet_ui_input()
+    if event is InputEventMouseButton:
+        _consume_desktop_pet_ui_input()
+
+func _is_mouse_over_control(control: Control) -> bool:
+    if not is_instance_valid(control) or not control.visible or not control.is_visible_in_tree():
+        return false
+    return control.get_global_rect().has_point(get_viewport().get_mouse_position())
+
+func _is_pointer_over_desktop_pet_ui() -> bool:
+    if _is_mouse_over_control(input_layer):
+        return true
+    if _is_mouse_over_control(quick_tools_panel):
+        return true
+    if _is_mouse_over_control(pomodoro_panel_host):
+        return true
+    if _is_mouse_over_control(music_panel_host):
+        return true
+    if _is_mouse_over_control(settings_panel_host):
+        return true
+    return false
 
 func _hide_side_tool_panels() -> void:
-	_active_tool_key = ""
-	if dashboard_root:
-		dashboard_root.show()
-	if pomodoro_panel_host:
-		pomodoro_panel_host.hide()
-		for child in pomodoro_panel_host.get_children():
-			if child is CanvasItem:
-				child.visible = false
-	if music_panel_host:
-		music_panel_host.hide()
-		for child in music_panel_host.get_children():
-			if child is CanvasItem:
-				child.visible = false
-	if settings_panel_host:
-		settings_panel_host.hide()
-		for child in settings_panel_host.get_children():
-			if child.has_method("save_settings"):
-				child.save_settings()
-			if child is CanvasItem:
-				child.visible = false
-	call_deferred("_update_mouse_passthrough")
+    _active_tool_key = ""
+    if dashboard_root:
+        dashboard_root.show()
+    if quick_tools_screen_margin:
+        quick_tools_screen_margin.show()
+    if pomodoro_panel_host:
+        pomodoro_panel_host.hide()
+        for child in pomodoro_panel_host.get_children():
+            if child is CanvasItem:
+                child.visible = false
+    if is_instance_valid(_pomodoro_panel_instance):
+        _pomodoro_panel_instance.visible = false
+    if music_panel_host:
+        music_panel_host.hide()
+        for child in music_panel_host.get_children():
+            if child is CanvasItem:
+                child.visible = false
+    if is_instance_valid(_music_panel_instance):
+        _music_panel_instance.visible = false
+    if settings_panel_host:
+        settings_panel_host.hide()
+        for child in settings_panel_host.get_children():
+            if child.has_method("save_settings"):
+                child.save_settings()
+            if child is CanvasItem:
+                child.visible = false
+    if is_instance_valid(_settings_panel_instance):
+        if _settings_panel_instance.has_method("save_settings"):
+            _settings_panel_instance.save_settings()
+        _settings_panel_instance.visible = false
+    if is_instance_valid(_affection_panel_instance):
+        if _affection_panel_instance.has_method("hide_panel"):
+            _affection_panel_instance.hide_panel()
+        else:
+            _affection_panel_instance.visible = false
+    if is_instance_valid(_memory_panel_instance):
+        if _memory_panel_instance.has_method("hide_panel"):
+            _memory_panel_instance.hide_panel()
+        else:
+            _memory_panel_instance.visible = false
+    call_deferred("_update_mouse_passthrough")
 
 func _get_main_bgm_player() -> AudioStreamPlayer:
-	var root := get_tree().current_scene
-	if root == null:
-		return null
-	var bgm_node := root.get_node_or_null("BGM")
-	if bgm_node is AudioStreamPlayer:
-		return bgm_node as AudioStreamPlayer
-	return null
+    var root := get_tree().current_scene
+    if root == null:
+        return null
+    var bgm_node := root.get_node_or_null("BGM")
+    if bgm_node is AudioStreamPlayer:
+        return bgm_node as AudioStreamPlayer
+    return null
 
 func _get_pet_mode() -> String:
-	if GameDataManager and GameDataManager.config:
-		var mode_name := str(GameDataManager.config.pet_disturbance_mode).strip_edges()
-		if mode_name != "":
-			return mode_name
-	return PET_MODE_LOAF
-
-func _is_mode_allows_app_observe() -> bool:
-	match _get_pet_mode():
-		PET_MODE_QUIET, PET_MODE_FOCUS, PET_MODE_NIGHT:
-			return false
-		_:
-			return true
+    if GameDataManager and GameDataManager.config:
+        var mode_name := str(GameDataManager.config.pet_disturbance_mode).strip_edges()
+        if mode_name != "":
+            return mode_name
+    return PET_MODE_LOAF
 
 func _is_mode_allows_hourly_chime() -> bool:
-	match _get_pet_mode():
-		PET_MODE_QUIET, PET_MODE_FOCUS:
-			return false
-		_:
-			return true
+    match _get_pet_mode():
+        PET_MODE_QUIET, PET_MODE_FOCUS:
+            return false
+        _:
+            return true
 
 func _is_mode_allows_afk_greeting() -> bool:
-	match _get_pet_mode():
-		PET_MODE_QUIET:
-			return false
-		_:
-			return true
+    match _get_pet_mode():
+        PET_MODE_QUIET:
+            return false
+        _:
+            return true
 
 func _is_mode_allows_memory_revisit() -> bool:
-	match _get_pet_mode():
-		PET_MODE_LOAF:
-			return true
-		_:
-			return false
+    match _get_pet_mode():
+        PET_MODE_LOAF:
+            return true
+        _:
+            return false
 
 func _is_pet_temporarily_muted() -> bool:
-	if GameDataManager == null or GameDataManager.config == null:
-		return false
-	return int(Time.get_unix_time_from_system()) < int(GameDataManager.config.pet_muted_until_unix)
+    if GameDataManager == null or GameDataManager.config == null:
+        return false
+    return int(Time.get_unix_time_from_system()) < int(GameDataManager.config.pet_muted_until_unix)
 
 func _is_proactive_temporarily_blocked() -> bool:
-	return _is_pet_temporarily_muted() or _is_in_quiet_time_range()
+    return _is_pet_temporarily_muted() or _is_in_quiet_time_range()
 
 func _split_policy_keywords(raw_text: String) -> Array[String]:
-	var normalized := raw_text.replace("\r", "\n").replace("，", ",").replace("；", ",").replace(";", ",").replace("\t", ",")
-	var result: Array[String] = []
-	for line in normalized.split("\n"):
-		for part in line.split(","):
-			var keyword := part.strip_edges().to_lower()
-			if keyword != "":
-				result.append(keyword)
-	return result
+    var normalized := raw_text.replace("\r", "\n").replace("，", ",").replace("；", ",").replace(";", ",").replace("\t", ",")
+    var result: Array[String] = []
+    for line in normalized.split("\n"):
+        for part in line.split(","):
+            var keyword := part.strip_edges().to_lower()
+            if keyword != "":
+                result.append(keyword)
+    return result
 
 func _matches_policy_keywords(process_name: String, window_title: String, raw_keywords: String) -> bool:
-	var keywords := _split_policy_keywords(raw_keywords)
-	if keywords.is_empty():
-		return false
-	var haystack := ("%s\n%s" % [process_name, window_title]).to_lower()
-	for keyword in keywords:
-		if keyword in haystack:
-			return true
-	return false
+    var keywords := _split_policy_keywords(raw_keywords)
+    if keywords.is_empty():
+        return false
+    var haystack := ("%s\n%s" % [process_name, window_title]).to_lower()
+    for keyword in keywords:
+        if keyword in haystack:
+            return true
+    return false
 
 func _parse_clock_minutes(clock_text: String) -> int:
-	var text := clock_text.strip_edges()
-	var parts := text.split(":")
-	if parts.size() != 2:
-		return -1
-	if not parts[0].is_valid_int() or not parts[1].is_valid_int():
-		return -1
-	var hour := clampi(int(parts[0]), 0, 23)
-	var minute := clampi(int(parts[1]), 0, 59)
-	return hour * 60 + minute
+    var text := clock_text.strip_edges()
+    var parts := text.split(":")
+    if parts.size() != 2:
+        return -1
+    if not parts[0].is_valid_int() or not parts[1].is_valid_int():
+        return -1
+    var hour := clampi(int(parts[0]), 0, 23)
+    var minute := clampi(int(parts[1]), 0, 59)
+    return hour * 60 + minute
 
 func _is_in_quiet_time_range() -> bool:
-	if GameDataManager == null or GameDataManager.config == null:
-		return false
-	var raw_ranges := str(GameDataManager.config.pet_quiet_time_ranges).strip_edges()
-	if raw_ranges == "":
-		return false
-	var normalized := raw_ranges.replace("\r", "\n").replace("，", ",").replace("；", ",").replace(";", ",")
-	var time_dict := Time.get_datetime_dict_from_system()
-	var current_minutes := int(time_dict["hour"]) * 60 + int(time_dict["minute"])
-	for line in normalized.split("\n"):
-		for part in line.split(","):
-			var range_text := part.strip_edges()
-			if range_text == "":
-				continue
-			var times := range_text.split("-")
-			if times.size() != 2:
-				continue
-			var start_minutes := _parse_clock_minutes(times[0])
-			var end_minutes := _parse_clock_minutes(times[1])
-			if start_minutes < 0 or end_minutes < 0:
-				continue
-			if start_minutes <= end_minutes:
-				if current_minutes >= start_minutes and current_minutes <= end_minutes:
-					return true
-			else:
-				if current_minutes >= start_minutes or current_minutes <= end_minutes:
-					return true
-	return false
+    if GameDataManager == null or GameDataManager.config == null:
+        return false
+    var raw_ranges := str(GameDataManager.config.pet_quiet_time_ranges).strip_edges()
+    if raw_ranges == "":
+        return false
+    var normalized := raw_ranges.replace("\r", "\n").replace("，", ",").replace("；", ",").replace(";", ",")
+    var time_dict := Time.get_datetime_dict_from_system()
+    var current_minutes := int(time_dict["hour"]) * 60 + int(time_dict["minute"])
+    for line in normalized.split("\n"):
+        for part in line.split(","):
+            var range_text := part.strip_edges()
+            if range_text == "":
+                continue
+            var times := range_text.split("-")
+            if times.size() != 2:
+                continue
+            var start_minutes := _parse_clock_minutes(times[0])
+            var end_minutes := _parse_clock_minutes(times[1])
+            if start_minutes < 0 or end_minutes < 0:
+                continue
+            if start_minutes <= end_minutes:
+                if current_minutes >= start_minutes and current_minutes <= end_minutes:
+                    return true
+            else:
+                if current_minutes >= start_minutes or current_minutes <= end_minutes:
+                    return true
+    return false
 
 func _is_soft_reminder_app(app_type: String) -> bool:
-	return app_type in SOFT_REMINDER_APP_TYPES
+    return app_type in SOFT_REMINDER_APP_TYPES
 
 func _build_safe_app_display_name(process_name: String, window_title: String, app_type: String, hide_window_detail: bool) -> String:
-	if hide_window_detail:
-		if app_type != "":
-			return app_type
-		if process_name != "":
-			return process_name
-	if window_title != "":
-		return window_title
-	if app_type != "":
-		return app_type
-	return process_name if process_name != "" else "某个应用"
+    if hide_window_detail:
+        if app_type != "":
+            return app_type
+        if process_name != "":
+            return process_name
+    if window_title != "":
+        return window_title
+    if app_type != "":
+        return app_type
+    return process_name if process_name != "" else "某个应用"
 
 func _process(delta: float) -> void:
-	_sync_root_window_focusability()
-	if not pet_body:
-		return
-		
-	if is_chatting:
-		pet_body.set_pet_state(1) # Thinking
-	elif audio_player and audio_player.playing:
-		pet_body.set_pet_state(2) # Speaking
-		if _spectrum_analyzer:
-			var magnitude = _spectrum_analyzer.get_magnitude_for_frequency_range(0, 4000)
-			var volume = (magnitude.x + magnitude.y) / 2.0
-			pet_body.update_voice_volume(volume * 5.0)
-	else:
-		# Check proactive cooldown
-		if not is_dialogue_panel_open and _is_mode_allows_app_observe() and not _is_proactive_temporarily_blocked():
-			var current_tick = Time.get_ticks_msec()
-			var time_since_last_reaction = current_tick - _last_reaction_tick
-			
-			# 持续增加观察时间，使其平滑
-			if _current_app_name != "":
-				_time_since_last_switch += delta
-			
-			var target_progress = 0.0
-			
-			# 获取配置
-			var observe_time = max(0.1, float(GameDataManager.config.pet_new_app_observe_time))
-			var global_cd = max(0.1, float(GameDataManager.config.pet_global_cooldown) * 1000.0)
-			var same_app_cd = max(0.1, float(GameDataManager.config.pet_same_app_cooldown) * 1000.0)
-			
-			if _current_app_name != "" and _last_chatted_app != _current_app_name:
-				# 新应用：需要停留 observe_time 秒，且距离上次聊天至少 global_cd 秒
-				var switch_progress = _time_since_last_switch / observe_time
-				var reaction_progress = float(time_since_last_reaction) / global_cd
-				target_progress = min(switch_progress, reaction_progress)
-			else:
-				# 相同应用：只需要满足 same_app_cd 的冷却
-				target_progress = float(time_since_last_reaction) / same_app_cd
-				
-			if target_progress < 1.0 and _current_app_name != "":
-				pet_body.set_pet_state(3, target_progress) # 统一使用绿色状态环
-			else:
-				pet_body.set_pet_state(0) # Idle
-		else:
-			pet_body.set_pet_state(0) # Idle
+    _sync_root_window_focusability()
+    if not pet_body:
+        return
+        
+    if is_chatting:
+        pet_body.set_pet_state(1) # Thinking
+    elif audio_player and audio_player.playing:
+        pet_body.set_pet_state(2) # Speaking
+        if _spectrum_analyzer:
+            var magnitude: Vector2 = _spectrum_analyzer.get_magnitude_for_frequency_range(0, 4000)
+            var volume: float = (magnitude.x + magnitude.y) / 2.0
+            pet_body.update_voice_volume(volume * 5.0)
+    else:
+        pet_body.set_pet_state(3, _get_day_progress()) # 一天时间进度
+
+func _get_day_progress() -> float:
+    var time_dict: Dictionary = Time.get_datetime_dict_from_system()
+    var total_seconds := int(time_dict.get("hour", 0)) * 3600 + int(time_dict.get("minute", 0)) * 60 + int(time_dict.get("second", 0))
+    return clamp(float(total_seconds) / 86400.0, 0.0, 1.0)
 
 func _on_dialogue_button_pressed() -> void:
-	input_layer.show()
-	is_dialogue_panel_open = true
-	_set_menu_visible(false)
-	_hide_side_tool_panels()
+    input_layer.show()
+    is_dialogue_panel_open = true
+    _set_menu_visible(false)
+    _hide_side_tool_panels()
 
 func _on_close_input_pressed() -> void:
-	input_layer.hide()
-	is_dialogue_panel_open = false
+    input_layer.hide()
+    is_dialogue_panel_open = false
 
 func _on_voice_record_down() -> void:
-	voice_record_button.text = "松开发送"
-	voice_record_button.modulate = Color(0.8, 0.2, 0.2)
-	if mic_capture:
-		mic_capture.play()
-	if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
-		qwen_asr_client.start_recording()
+    voice_record_button.text = "松开发送"
+    voice_record_button.modulate = Color(0.8, 0.2, 0.2)
+    if mic_capture:
+        mic_capture.play()
+    if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
+        qwen_asr_client.start_recording()
 
 func _on_voice_record_up() -> void:
-	voice_record_button.text = "🎙"
-	voice_record_button.modulate = Color(1, 1, 1)
-	if mic_capture:
-		mic_capture.stop()
-	if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
-		qwen_asr_client.stop_recording()
+    voice_record_button.text = "🎙"
+    voice_record_button.modulate = Color(1, 1, 1)
+    if mic_capture:
+        mic_capture.stop()
+    if GameDataManager.config.qwen_asr_enabled and qwen_asr_client:
+        qwen_asr_client.stop_recording()
 
 func _on_asr_success(text: String) -> void:
-	if not text.is_empty():
-		input_edit.text = text
+    if not text.is_empty():
+        input_edit.text = text
 
 func _on_asr_failed(err: String) -> void:
-	print("ASR Error: ", err)
+    print("ASR Error: ", err)
 
 func _on_input_text_changed() -> void:
-	# TextEdit supports multiple lines, but we can intercept Enter to send
-	var text = input_edit.text
-	if text.ends_with("\n"):
-		input_edit.text = text.strip_edges()
-		_on_send_pressed()
-	elif text.length() > 120:
-		input_edit.text = text.substr(0, 120)
-		input_edit.set_caret_column(120)
+    # TextEdit supports multiple lines, but we can intercept Enter to send
+    var text = input_edit.text
+    if text.ends_with("\n"):
+        input_edit.text = text.strip_edges()
+        _on_send_pressed()
+    elif text.length() > 120:
+        input_edit.text = text.substr(0, 120)
+        input_edit.set_caret_column(120)
 
 func _exit_tree() -> void:
-	pass
+    pass
 
 
 func _load_prompt() -> void:
-	var current_id = GameDataManager.config.current_character_id
-	if _current_character_id != current_id:
-		_current_character_id = current_id
-		chat_history.clear()
-		
-	# 强制在每次生成时都使用最新的系统提示词
-	pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet")
-	if pet_prompt.is_empty():
-		pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
-		var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
-		pet_prompt = pet_prompt.replace("{name}", char_name)
+    var current_id = GameDataManager.config.current_character_id
+    if _current_character_id != current_id:
+        _current_character_id = current_id
+        chat_history.clear()
+        
+    # 强制在每次生成时都使用最新的系统提示词
+    pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet", "", [], GameDataManager.desktop_pet_memory_manager)
+    if pet_prompt.is_empty():
+        pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
+        var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
+        pet_prompt = pet_prompt.replace("{name}", char_name)
 
-	var player_name = GameDataManager.config.player_nickname
-	if not player_name.is_empty():
-		pet_prompt += "\n【特别注意】：玩家希望你称呼他为“%s”，请在对话中自然地使用这个称呼。" % player_name
+    var player_name = GameDataManager.config.player_nickname
+    if not player_name.is_empty():
+        pet_prompt += "\n【特别注意】：玩家希望你称呼他为“%s”，请在对话中自然地使用这个称呼。" % player_name
 
-	# 添加音乐播放功能提示
-	var music_list = _get_available_music()
-	var music_str = "无"
-	if music_list.size() > 0:
-		music_str = ", ".join(music_list)
-		
-	pet_prompt += "\n【极其重要的音乐指令规则】：你具备控制音乐播放的能力，这是系统功能，你必须使用特定的隐藏指令触发！当前系统中可用的音乐有：" + music_str + "。
+    # 添加音乐播放功能提示
+    var music_list = _get_available_music()
+    var music_str = "无"
+    if music_list.size() > 0:
+        music_str = ", ".join(music_list)
+        
+    pet_prompt += "\n【极其重要的音乐指令规则】：你具备控制音乐播放的能力，这是系统功能，你必须使用特定的隐藏指令触发！当前系统中可用的音乐有：" + music_str + "。
 1. 当玩家明确要求“播放音乐”、“放首歌”且没有指定歌曲时：你必须在你的回复文本的最末尾加上精确的字符串 `[CMD:PLAY_MUSIC]`，系统将随机播放。
 2. 当玩家明确指定了具体的歌曲名称，且该歌曲在可用列表中时：你必须在回复文本的最末尾加上精确的字符串 `[CMD:PLAY_MUSIC:歌曲名]`。
 3. 如果玩家指定的歌曲不在可用列表中：明确告诉玩家没有这首歌，询问是否要听列表中的其他歌曲（绝对不要加播放指令）。
@@ -721,1066 +828,1429 @@ func _load_prompt() -> void:
 【切记】：指令（如 `[CMD:STOP_MUSIC]`）必须原样原词出现，紧跟在最后，不能被改变或省略！"
 
 func _get_available_music() -> Array:
-	var music_list = []
-	var dir = DirAccess.open("res://assets/audio/bgm")
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if not dir.current_is_dir():
-				if file_name.ends_with(".mp3") or file_name.ends_with(".ogg") or file_name.ends_with(".wav") or file_name.ends_with(".import"):
-					var song_name = file_name.replace(".import", "").get_basename()
-					if not music_list.has(song_name):
-						music_list.append(song_name)
-			file_name = dir.get_next()
-	return music_list
+    var music_list = []
+    var dir = DirAccess.open("res://assets/audio/bgm")
+    if dir:
+        dir.list_dir_begin()
+        var file_name = dir.get_next()
+        while file_name != "":
+            if not dir.current_is_dir():
+                if file_name.ends_with(".mp3") or file_name.ends_with(".ogg") or file_name.ends_with(".wav") or file_name.ends_with(".import"):
+                    var song_name = file_name.replace(".import", "").get_basename()
+                    if not music_list.has(song_name):
+                        music_list.append(song_name)
+            file_name = dir.get_next()
+    return music_list
 
 func _play_music(song_name: String) -> void:
-	if not music_player:
-		return
-	var main_bgm := _get_main_bgm_player()
-	if main_bgm and main_bgm.playing:
-		main_bgm.stop()
-	var target_file = ""
-	var dir = DirAccess.open("res://assets/audio/bgm")
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		var available_files = []
-		while file_name != "":
-			if not dir.current_is_dir():
-				var clean_name = file_name.replace(".import", "")
-				if clean_name.ends_with(".mp3") or clean_name.ends_with(".ogg") or clean_name.ends_with(".wav"):
-					if not available_files.has(clean_name):
-						available_files.append(clean_name)
-			file_name = dir.get_next()
-			
-		if song_name != "":
-			for f in available_files:
-				if f.get_basename() == song_name:
-					target_file = f
-					break
-					
-		if target_file == "" and available_files.size() > 0:
-			target_file = available_files[randi() % available_files.size()]
-			
-	if target_file != "":
-		print("[DesktopPet Music] Playing: ", target_file)
-		var stream = load("res://assets/audio/bgm/" + target_file)
-		if stream:
-			music_player.stream = stream
-			music_player.play()
-			_open_music_panel(true)
-			_refresh_music_panel_state()
+    if not music_player:
+        return
+    var main_bgm := _get_main_bgm_player()
+    if main_bgm and main_bgm.playing:
+        main_bgm.stop()
+    var target_file = ""
+    var dir = DirAccess.open("res://assets/audio/bgm")
+    if dir:
+        dir.list_dir_begin()
+        var file_name = dir.get_next()
+        var available_files = []
+        while file_name != "":
+            if not dir.current_is_dir():
+                var clean_name = file_name.replace(".import", "")
+                if clean_name.ends_with(".mp3") or clean_name.ends_with(".ogg") or clean_name.ends_with(".wav"):
+                    if not available_files.has(clean_name):
+                        available_files.append(clean_name)
+            file_name = dir.get_next()
+            
+        if song_name != "":
+            for f in available_files:
+                if f.get_basename() == song_name:
+                    target_file = f
+                    break
+                    
+        if target_file == "" and available_files.size() > 0:
+            target_file = available_files[randi() % available_files.size()]
+            
+    if target_file != "":
+        print("[DesktopPet Music] Playing: ", target_file)
+        var stream = load("res://assets/audio/bgm/" + target_file)
+        if stream:
+            music_player.stream = stream
+            music_player.play()
+            _open_music_panel(true)
+            _refresh_music_panel_state()
 
 func _stop_music() -> void:
-	if music_player and music_player.playing:
-		print("[DesktopPet Music] Stopping music.")
-		music_player.stop()
-	_refresh_music_panel_state()
+    if music_player and music_player.playing:
+        print("[DesktopPet Music] Stopping music.")
+        music_player.stop()
+    _refresh_music_panel_state()
 
 func _on_poll_timer_timeout() -> void:
-	_check_vision_recovery()
-	_update_mute_button()
-	_update_mode_chip()
-	_update_panel_clock()
-	
-	if GameDataManager.config.pet_enable_hourly_chime and _is_mode_allows_hourly_chime():
-		_check_hourly_chime()
-	if GameDataManager.config.pet_enable_app_observe and _is_mode_allows_app_observe():
-		_check_active_window()
-	if GameDataManager.config.pet_enable_afk_greeting and _is_mode_allows_afk_greeting():
-		_check_afk_state()
-		
-	_process_pending_proactive()
-	_try_trigger_memory_revisit()
+    _check_vision_recovery()
+    _update_mute_button()
+    _update_mode_chip()
+    _update_panel_clock()
+    
+    if GameDataManager.config.pet_enable_hourly_chime and _is_mode_allows_hourly_chime():
+        _check_hourly_chime()
+    if GameDataManager.config.pet_enable_afk_greeting and _is_mode_allows_afk_greeting():
+        _check_afk_state()
+        
+    _process_pending_proactive()
+    _try_trigger_memory_revisit()
 
 func _try_trigger_memory_revisit() -> void:
-	if is_chatting or is_dialogue_panel_open:
-		return
-	if not _is_mode_allows_memory_revisit():
-		return
-	if _is_proactive_temporarily_blocked():
-		return
-	if not _pending_proactive_prompt.is_empty():
-		return
-	if GameDataManager.memory_manager == null:
-		return
-	if Time.get_ticks_msec() - _ready_tick_msec < 15000:
-		return
-	
-	var current_tick = Time.get_ticks_msec()
-	var global_cd = float(GameDataManager.config.pet_global_cooldown) * 1000.0
-	if current_tick - _last_reaction_tick < global_cd:
-		return
-	
-	var trigger_context = GameDataManager.memory_manager.build_reality_memory_context()
-	var revisit_data = GameDataManager.memory_manager.get_revisit_event_candidate(trigger_context)
-	if revisit_data.is_empty():
-		return
-	
-	_last_reaction_tick = current_tick
-	GameDataManager.memory_manager.mark_memory_revisited(revisit_data.get("memory_id", ""), trigger_context)
-	var prompt = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, trigger_context)
-	_trigger_proactive_chat(prompt)
+    if is_chatting or is_dialogue_panel_open:
+        return
+    if not _is_mode_allows_memory_revisit():
+        return
+    if _is_proactive_temporarily_blocked():
+        return
+    if not _pending_proactive_prompt.is_empty():
+        return
+    if GameDataManager.desktop_pet_memory_manager == null:
+        return
+    if Time.get_ticks_msec() - _ready_tick_msec < 15000:
+        return
+    
+    var current_tick: int = Time.get_ticks_msec()
+    var global_cd: float = float(GameDataManager.config.pet_global_cooldown) * 1000.0
+    if current_tick - _last_reaction_tick < global_cd:
+        return
+    
+    var trigger_context: Dictionary = GameDataManager.desktop_pet_memory_manager.build_reality_memory_context()
+    var revisit_data: Dictionary = GameDataManager.desktop_pet_memory_manager.get_revisit_event_candidate(trigger_context)
+    if revisit_data.is_empty():
+        return
+    
+    _last_reaction_tick = current_tick
+    GameDataManager.desktop_pet_memory_manager.mark_memory_revisited(revisit_data.get("memory_id", ""), trigger_context)
+    var prompt: String = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, trigger_context)
+    _trigger_proactive_chat(prompt)
 
 func _check_vision_recovery() -> void:
-	if GameDataManager.config.vision_use_count <= 0:
-		return
-		
-	var current_time = int(Time.get_unix_time_from_system())
-	var last_recovery = GameDataManager.config.vision_last_recovery_time
-	
-	# 每天重置或者每小时恢复2次，这里采用每小时恢复2次的细水长流机制
-	# 3600秒 = 1小时
-	if last_recovery == 0:
-		GameDataManager.config.vision_last_recovery_time = current_time
-		GameDataManager.config.save_config()
-		return
-		
-	var hours_passed = (current_time - last_recovery) / 3600
-	if hours_passed >= 1:
-		# 每过去1小时，恢复2次使用机会 (即减少使用次数)
-		var recover_amount = hours_passed * 2
-		GameDataManager.config.vision_use_count = max(0, GameDataManager.config.vision_use_count - recover_amount)
-		GameDataManager.config.vision_last_recovery_time = current_time
-		GameDataManager.config.save_config()
-		print("[DesktopPet] 恢复多模态视觉次数: %d 次，当前使用次数: %d" % [recover_amount, GameDataManager.config.vision_use_count])
+    # 本地视觉次数限制已废弃，保留空实现仅兼容旧调用。
+    return
 
 func _process_pending_proactive() -> void:
-	if _pending_proactive_prompt.is_empty():
-		return
-	if is_chatting or is_dialogue_panel_open:
-		return
-	if _is_proactive_temporarily_blocked():
-		return
-		
-	var current_tick = Time.get_ticks_msec()
-	var global_cd = float(GameDataManager.config.pet_global_cooldown) * 1000.0
-	
-	if current_tick - _last_reaction_tick >= global_cd:
-		print("[DesktopPet Debug] 触发积压的主动问候")
-		var prompt = _pending_proactive_prompt
-		_pending_proactive_prompt = ""
-		_trigger_proactive_chat(prompt)
+    if _pending_proactive_prompt.is_empty():
+        return
+    if is_chatting or is_dialogue_panel_open:
+        return
+    if _is_proactive_temporarily_blocked():
+        return
+        
+    var current_tick: int = Time.get_ticks_msec()
+    var global_cd: float = float(GameDataManager.config.pet_global_cooldown) * 1000.0
+    
+    if current_tick - _last_reaction_tick >= global_cd:
+        print("[DesktopPet Debug] 触发积压的主动问候")
+        var prompt: String = _pending_proactive_prompt
+        _pending_proactive_prompt = ""
+        _trigger_proactive_chat(prompt)
 
 func _check_afk_state() -> void:
-	if not is_instance_valid(_window_detector) or not _window_detector.has_method("GetIdleTimeMs"):
-		return
-		
-	var idle_time = _window_detector.call("GetIdleTimeMs")
-	# 600000 毫秒 = 10分钟
-	if idle_time > 600000:
-		if not _is_afk:
-			_is_afk = true
-			print("[DesktopPet Debug] 玩家进入 AFK 状态 (打瞌睡)")
-			
-			var time_dict = Time.get_datetime_dict_from_system()
-			var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家已经离开电脑超过10分钟，完全没有动静。】
-请你代入当前身份，像真人一样对玩家的长时间离开做出自言自语的反应。可以表现出犯困、无聊、或是猜测玩家去干什么了。
-- 反应要生动多样！结合你们的【微习惯与口癖】。
-- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。""" % [time_dict["hour"], time_dict["minute"]]
-			_trigger_proactive_chat(prompt)
-	else:
-		if _is_afk:
-			_is_afk = false
-			print("[DesktopPet Debug] 玩家从 AFK 状态返回")
-			
-			var time_dict = Time.get_datetime_dict_from_system()
-			var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家离开了电脑超过10分钟后，刚刚回来了，晃动了鼠标。】
-请代入当前身份，像真人一样对玩家的回归做出反应。可以表现出刚睡醒的样子，或是埋怨玩家离开太久，或是温馨地欢迎回来。
-- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。""" % [time_dict["hour"], time_dict["minute"]]
-			_trigger_proactive_chat(prompt)
+    if not is_instance_valid(_window_detector) or not _window_detector.has_method("GetIdleTimeMs"):
+        return
+        
+    var idle_time: int = int(_window_detector.call("GetIdleTimeMs"))
+    # 600000 毫秒 = 10分钟
+    if idle_time > 600000:
+        if not _is_afk:
+            _is_afk = true
+            print("[DesktopPet Debug] 玩家进入 AFK 状态 (打瞌睡)")
+            var prompt: String = GameDataManager.prompt_manager.build_desktop_pet_afk_prompt(GameDataManager.profile, "away")
+            _trigger_proactive_chat(prompt)
+    else:
+        if _is_afk:
+            _is_afk = false
+            print("[DesktopPet Debug] 玩家从 AFK 状态返回")
+            var prompt: String = GameDataManager.prompt_manager.build_desktop_pet_afk_prompt(GameDataManager.profile, "return")
+            _trigger_proactive_chat(prompt)
 
-func _get_time_constraint(hour: int) -> String:
-	if hour >= 6 and hour < 11:
-		return "现在是清晨/上午，请展现出活力，【绝对禁止】说出“晚安”、“好困”或催促睡觉的词汇。"
-	elif hour >= 11 and hour < 14:
-		return "现在是中午，可以提醒玩家吃午饭或稍微午休，【绝对禁止】说出“晚安”或催促晚上睡觉的词汇。"
-	elif hour >= 14 and hour < 19:
-		return "现在是下午，请陪伴玩家度过这段时间，可以说些提神的话，【绝对禁止】说出“晚安”、“好困”或催促睡觉的词汇。"
-	elif hour >= 19 and hour < 23:
-		return "现在是晚上，可以聊些轻松的话题，如果时间较晚可以适当提醒准备休息。"
-	else:
-		return "现在是深夜，玩家还在熬夜，可以表现出困意、心疼或强制要求玩家去睡觉。"
+func _build_default_touch_prompt(hour: int, minute: int) -> String:
+    return """【系统提示：当前现实时间是 %02d:%02d，玩家刚刚用鼠标轻轻戳了你一下。】
+请你结合当前时间作为隐性语境，代入你的性格和当前心情，像真人一样对玩家的触碰做出最自然的反应。
+- 反应要生动多样！可以是撒娇、傲娇吐槽、疑惑等，取决于你们的关系和心情。
+- 结合你们的【微习惯与口癖】。
+- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
+- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [hour, minute]
+
+func _build_mode_touch_prompt(hour: int, minute: int, mode: String) -> String:
+    match mode:
+        PET_MODE_QUIET:
+            return """【系统提示：当前现实时间是 %02d:%02d，玩家刚刚轻轻戳了你一下，而你现在处于安静模式。】
+请你用很轻、很短、不打扰的语气回应这次触碰，像安静地应了一声，然后顺手给一句低打扰的关心。
+- 不要展开应用观察，不要追问玩家在做什么。
+- 回应要轻一点、柔一点，像在安静陪着。
+- 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。""" % [hour, minute]
+        PET_MODE_FOCUS:
+            return """【系统提示：当前现实时间是 %02d:%02d，玩家刚刚轻轻戳了你一下，而你现在处于专注模式。】
+请你像在陪玩家保持专注一样回应这次触碰，重点是轻提醒、打气、稳住节奏，不要展开应用观察。
+- 可以简短提醒喝水、活动肩颈、继续加油，但不要打断感太强。
+- 语气要克制、清醒、可靠。
+- 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。""" % [hour, minute]
+        PET_MODE_NIGHT:
+            return """【系统提示：当前现实时间是 %02d:%02d，玩家刚刚轻轻戳了你一下，而你现在处于深夜模式。】
+请你用偏夜晚的陪伴感回应这次触碰，重点是安静、柔和、轻声提醒别太晚，不要展开应用观察。
+- 可以有一点困意、黏人感或轻轻催休息，但不要太唠叨。
+- 整体像夜里凑近说的一句。
+- 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。""" % [hour, minute]
+        _:
+            return _build_default_touch_prompt(hour, minute)
+
+func _trigger_touch_app_observe() -> bool:
+    if not is_instance_valid(_window_detector):
+        return false
+    var raw_window_title = _window_detector.call("GetCurrentWindowTitle")
+    var raw_process_name = _window_detector.call("GetCurrentProcessName")
+    var window_title: String = "" if raw_window_title == null else str(raw_window_title)
+    var process_name: String = "" if raw_process_name == null else str(raw_process_name)
+    if window_title == "" and process_name == "":
+        return false
+    if not _is_app_observe_allowed_by_policy(process_name, window_title):
+        return false
+
+    var app_type: String = _map_app_type(window_title, process_name)
+    var is_sensitive_window := _matches_policy_keywords(process_name, window_title, str(GameDataManager.config.pet_sensitive_window_list))
+    var soft_reminder: bool = is_sensitive_window or _is_soft_reminder_app(app_type)
+    var display_name: String = _build_safe_app_display_name(process_name, window_title, app_type, soft_reminder)
+    _last_observed_app_type = app_type
+    _last_observed_display_name = display_name
+    _last_observed_window_title = window_title
+    _last_observed_soft_reminder = soft_reminder
+    var time_dict: Dictionary = Time.get_datetime_dict_from_system()
+    var h: int = int(time_dict["hour"])
+    var m: int = int(time_dict["minute"])
+
+    var base64_image: String = ""
+    var allow_capture := _should_capture_for_app(process_name, window_title, app_type, is_sensitive_window)
+    var vision_enabled: bool = GameDataManager.config.vision_enabled
+    var has_vision_key: bool = not GameDataManager.config.vision_api_key.is_empty()
+    var fallback_reason: String = "capture_unavailable"
+    if allow_capture and vision_enabled and has_vision_key:
+        if _window_detector.has_method("CaptureForegroundWindowToBase64"):
+            base64_image = _window_detector.call("CaptureForegroundWindowToBase64")
+        elif _window_detector.has_method("CaptureScreenToBase64"):
+            base64_image = _window_detector.call("CaptureScreenToBase64")
+        if base64_image != "":
+            fallback_reason = ""
+    elif not allow_capture:
+        fallback_reason = "capture_blocked_by_policy"
+    elif not vision_enabled:
+        fallback_reason = "vision_disabled"
+    elif not has_vision_key:
+        fallback_reason = "vision_key_missing"
+
+    if base64_image != "":
+        var vision_prompt: String = _build_touch_observe_vision_prompt(h, m, window_title, app_type)
+        _trigger_vision_chat(vision_prompt, base64_image, CHAT_ORIGIN_TOUCH)
+        return true
+
+    var prompt: String = _build_touch_observe_text_prompt(h, m, display_name, app_type, soft_reminder, fallback_reason)
+    _trigger_proactive_chat(prompt, true, CHAT_ORIGIN_TOUCH)
+    return true
 
 func _is_app_observe_allowed_by_policy(process_name: String, window_title: String) -> bool:
-	if GameDataManager == null or GameDataManager.config == null:
-		return true
-	var allow_list := str(GameDataManager.config.pet_observe_allow_list).strip_edges()
-	if allow_list == "":
-		return true
-	return _matches_policy_keywords(process_name, window_title, allow_list)
+    if GameDataManager == null or GameDataManager.config == null:
+        return true
+    var allow_list := str(GameDataManager.config.pet_observe_allow_list).strip_edges()
+    if allow_list == "":
+        return true
+    return _matches_policy_keywords(process_name, window_title, allow_list)
 
 func _should_capture_for_app(process_name: String, window_title: String, app_type: String, is_sensitive_window: bool) -> bool:
-	if GameDataManager == null or GameDataManager.config == null:
-		return false
-	if is_sensitive_window:
-		return false
-	if _is_soft_reminder_app(app_type):
-		return false
-	if _matches_policy_keywords(process_name, window_title, str(GameDataManager.config.pet_never_capture_list)):
-		return false
-	if _get_pet_mode() == PET_MODE_NIGHT:
-		return false
-	return true
+    if GameDataManager == null or GameDataManager.config == null:
+        return false
+    if is_sensitive_window:
+        return false
+    if _is_soft_reminder_app(app_type):
+        return false
+    if _matches_policy_keywords(process_name, window_title, str(GameDataManager.config.pet_never_capture_list)):
+        return false
+    if _get_pet_mode() == PET_MODE_NIGHT:
+        return false
+    return true
 
-func _build_soft_app_prompt(hour: int, minute: int, display_name: String, app_type: String) -> String:
-	return """【系统提示：当前现实时间是 %02d:%02d，玩家正在处理一个%s（归类为%s）。】
-请你用更轻一点、尽量不打扰的语气陪玩家一句。
-- 只做弱提醒或温柔陪伴，不要追问具体内容，更不要复述隐私细节。
-- 如果是聊天或文档场景，重点提供情绪价值、提醒休息或安静陪着，不要表现得像在偷看屏幕。
-- 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。
-- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [hour, minute, display_name, app_type]
+func _build_touch_observe_vision_prompt(hour: int, minute: int, window_title: String, app_type: String) -> String:
+    var lines: Array[String] = [
+        "【系统提示：当前现实时间是 %02d:%02d，玩家刚刚戳了你一下，你顺势看到了他正在看的“%s”窗口截图。】" % [hour, minute, window_title],
+        "请作为专业的视觉场景观察员，尽可能准确、具体地描述当前画面里真正能看到的内容，再提炼出“最容易让 Luna 产生第一反应的刺激点”。",
+        "输出必须基于画面证据，不要角色扮演，不要直接生成 Luna 的台词，不要把猜测当成事实。",
+        _get_app_observe_vision_focus(app_type),
+        "优先提取：当前焦点内容、可读文字、主体对象、玩家似乎正在做的事情、最容易引发一句自然反应的细节。",
+        "不要根据系统时间自行扩写成“凌晨还在看”“深夜独处”“偷偷摸摸”这类文学化推断，除非画面本身明确可见。",
+        "忽略无用 UI 外壳、菜单栏、按钮堆、背景装饰、行号等冗余元素。像页码、播放图标、零碎英文残句这类信息，除非它们就是画面核心，否则不要抢主角。",
+        "如果可能涉及隐私，只做模糊描述，不展开具体聊天内容、账号信息、邮件正文或私人身份信息。",
+        "如果画面明显就是成人/色情向插画、CG 或截图，而且证据足够明确，就直接判断为“成人向/色情向画面”，不要退缩成含糊的“尺度较大”。但也不要写成审查报告，要像在客观描述眼前看到的东西。",
+        "建议输出格式：",
+        "画面性质：普通 / 暧昧 / 成人向 / 不确定（四选一，必须给出）",
+        "画面内容：用 1 到 2 句准确描述当前最核心的可见画面，包括能看清的文字、人物、物体、界面主题或主要动作。",
+        "关键细节：列 2 到 4 个最值得 Luna 接话的具体点，越具体越好；优先保留真正影响人物反应的核心细节，不要把边角 UI 信息塞进来凑数。",
+        "玩家状态线索：只根据画面可见证据，概括玩家此刻像是在做什么或处于什么状态；如果无法确认，就写“不确定”。",
+        "刺激点：从上面的细节里挑出 1 个最容易让 Luna 当场有本能反应的点。这个点必须是真正会刺到人情绪的核心，不要用页码、编号、按钮、残缺英文句子这类边角信息充数。",
+        "禁止脑补：列出 1 到 2 个最容易被误猜、但当前画面并没有证据支持的推断，提醒后续角色回复不要踩进去。",
+        "不确定项：如果某些内容看不清，就明确写“看不清/不确定”，不要硬猜。"
+    ]
+    return "\n".join(lines)
 
-func _check_active_window() -> void:
-	if is_dialogue_panel_open:
-		return
-	if not is_instance_valid(_window_detector):
-		return
-	if _is_proactive_temporarily_blocked():
-		return
-	if is_chatting:
-		return
-		
-	var window_title = _window_detector.call("GetCurrentWindowTitle")
-	var process_name = _window_detector.call("GetCurrentProcessName")
-	
-	if window_title == null: window_title = ""
-	if process_name == null: process_name = ""
-	
-	if window_title == "" and process_name == "":
-		return
-	if not _is_app_observe_allowed_by_policy(process_name, window_title):
-		return
-		
-	var app_identifier = process_name + "|" + window_title
-	
-	if _current_app_name != app_identifier:
-		_current_app_name = app_identifier
-		_time_since_last_switch = 0.0
-		
-	var observe_time = float(GameDataManager.config.pet_new_app_observe_time)
-	var global_cd = float(GameDataManager.config.pet_global_cooldown) * 1000.0
-	var same_app_cd = float(GameDataManager.config.pet_same_app_cooldown) * 1000.0
+func _build_touch_observe_text_prompt(hour: int, minute: int, display_name: String, app_type: String, soft_reminder: bool, fallback_reason: String = "capture_unavailable") -> String:
+    var lines: Array[String] = [
+        "【系统提示：当前现实时间是 %02d:%02d，玩家刚刚戳了你一下。】" % [hour, minute],
+        "这是一次由“戳一下”触发的短暂应用观察，不要假装你一直在盯着屏幕。",
+        _build_touch_observe_scene_line(display_name, app_type, soft_reminder, fallback_reason),
+        _build_touch_observe_character_core_guidance(),
+        _build_touch_observe_stage_guidance(),
+        _build_touch_observe_dynamic_personality_guidance(),
+        _build_touch_observe_flavor_guidance(),
+        _build_touch_observe_instinctive_guidance(app_type, soft_reminder, false),
+        _get_app_observe_reply_guidance(app_type, soft_reminder),
+        "请先抓住一个具体点再开口，不要空泛地说“别太累了”“辛苦啦”“这么晚还在忙呀”这种模板句。",
+        "回复像真人顺口冒出来的一句或两句：先给态度，再轻轻陪一句，必要时才补微弱提醒。",
+        "不要复述系统提示，不要总结屏幕内容，不要解释你在分析应用。",
+        "不要直接说“我看到你在用这个应用”或“你正在看这个界面”，而是顺着那个细节自然接话。",
+        "【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。"
+    ]
+    return "\n".join(lines)
 
-	# 打印前置的停留倒计时
-	if _time_since_last_switch < observe_time:
-		var remain = observe_time - _time_since_last_switch
-		print("[DesktopPet Debug] 观察新应用中 (%s)... 触发还需: %.1f 秒" % [process_name, remain])
-		
-	var current_tick = Time.get_ticks_msec()
-	
-	# 修改逻辑：当停留超过设定时间时，允许触发
-	if _time_since_last_switch >= observe_time:
-		var cooldown_time = same_app_cd # 同一个应用连续停留，按配置冷却
-		if _last_chatted_app != app_identifier:
-			cooldown_time = global_cd # 刚切到新应用，只需要和上一次任何对话间隔全局冷却
-			
-		if current_tick - _last_reaction_tick < cooldown_time:
-			# 还在冷却中
-			var remaining = (cooldown_time - (current_tick - _last_reaction_tick)) / 1000.0
-			print("[DesktopPet Debug] 主动聊天冷却中: 剩余 %.1f 秒" % remaining)
-			return
-			
-		_last_chatted_app = app_identifier
-		_last_reaction_tick = current_tick
-		
-		# 为了保证即使触发了 Vision 逻辑，底层的定时更新机制也能重置透明穿透
-		call_deferred("_update_mouse_passthrough")
-		
-		var app_type = _map_app_type(window_title, process_name)
-		var is_sensitive_window := _matches_policy_keywords(process_name, window_title, str(GameDataManager.config.pet_sensitive_window_list))
-		var soft_reminder := is_sensitive_window or _is_soft_reminder_app(app_type)
-		var display_name := _build_safe_app_display_name(process_name, window_title, app_type, soft_reminder)
-		var time_dict = Time.get_datetime_dict_from_system()
-		var h = time_dict["hour"]
-		var m = time_dict["minute"]
-		
-		# 尝试截图 (优先截取当前活动窗口)
-		var base64_image = ""
-		var allow_capture := _should_capture_for_app(process_name, window_title, app_type, is_sensitive_window)
-		if allow_capture and GameDataManager.config.vision_enabled and not GameDataManager.config.vision_api_key.is_empty():
-			# 检查多模态视觉限制次数
-			if GameDataManager.config.vision_use_count >= GameDataManager.config.max_vision_uses:
-				print("[DesktopPet Debug] Vision uses limit reached (%d/%d). Skipping vision for now." % [GameDataManager.config.vision_use_count, GameDataManager.config.max_vision_uses])
-			else:
-				if _window_detector.has_method("CaptureForegroundWindowToBase64"):
-					base64_image = _window_detector.call("CaptureForegroundWindowToBase64")
-				elif _window_detector.has_method("CaptureScreenToBase64"):
-					base64_image = _window_detector.call("CaptureScreenToBase64")
-					
-				if base64_image != "":
-					GameDataManager.config.vision_use_count += 1
-					GameDataManager.config.save_config()
-			
-		if base64_image != "":
-			print("[DesktopPet Debug] Vision API Triggered! App: ", display_name)
-			# 这里只要求大模型做纯粹的画面分析，绝对不包含任何角色扮演和对话要求
-			var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家正在看名为“%s”的应用。这是该应用的窗口截图。】
-请作为专业的视觉“互动话题提取系统”，精准提取画面中【最能引发角色互动、吃醋、好奇或心疼的细节信息】（控制在150字以内）。
-要求：
-1. 【屏蔽噪音】：忽略无用的UI外壳、菜单栏、行号、背景图等冗余元素。
-2. 【提取社交雷达】：如果屏幕上有聊天、通讯、社交媒体或邮件，必须且只需提取出：在和谁聊天（对方名字/备注）？聊了什么核心内容？对方头像或性别？
-3. 【提取工作细节】：如果屏幕上是代码、文档或表格，必须提取出：玩家正在解决什么具体的难题？文档标题是什么？代码中有什么能让外行人觉得“好厉害”或“好辛苦”的关键词？
-4. 【提取娱乐焦点】：如果屏幕上是视频、游戏或网页，必须提取出：画面里有什么有趣的角色、商品或事件？这东西看起来是轻松的还是恐怖的？
-5. 绝对不要进行角色扮演或输出对话！只需输出客观、提炼过、能够作为【绝佳聊天话题】的关键信息。""" % [h, m, window_title]
-			_trigger_vision_chat(prompt, base64_image)
-		else:
-			var prompt := ""
-			if soft_reminder:
-				prompt = _build_soft_app_prompt(h, m, display_name, app_type)
-			else:
-				prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家正在看着屏幕上名为“%s”的内容（这可能是一个%s）。】
-请你代入当前设定的身份和性格，像真人一样对玩家屏幕上的内容做出最自然、最符合人设的反应。
-- 【拒绝人机感与套路】：不要无脑套用模板或者道歉！展现你“温柔体贴”、“天然呆”或“安静陪伴”的一面。比如好奇应用里的内容，或者心疼玩家太辛苦，提供情绪价值。
-- 结合你们的关系阶段和当前的【微习惯与口癖】，表现得软糯、真诚且自然。
-- 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。
-- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [h, m, display_name, app_type]
-			print("[DesktopPet Debug] Triggering proactive chat: ", prompt)
-			_trigger_proactive_chat(prompt)
+func _build_touch_observe_scene_line(display_name: String, app_type: String, soft_reminder: bool, fallback_reason: String = "capture_unavailable") -> String:
+    if fallback_reason == "vision_quota_exhausted":
+        return "你只知道玩家当前打开的是和“%s”相关的界面（归类为%s），但这次没有看到具体画面细节。不要编造页面内容、游戏名、按钮、标题或价格信息，只能围绕应用类型和时间氛围自然接一句。" % [display_name, app_type]
+    if fallback_reason == "vision_disabled" or fallback_reason == "vision_key_missing":
+        return "你这次只从前台窗口名判断出玩家正在使用和“%s”相关的界面（归类为%s），并没有获得具体画面内容。不要假装看到了详细页面。" % [display_name, app_type]
+    if fallback_reason == "capture_blocked_by_policy":
+        return "你顺势注意到玩家正在处理一个和“%s”相关的界面（归类为%s）。这个场景当前不适合看具体画面，只能轻轻贴边回应。" % [display_name, app_type]
+    if soft_reminder:
+        return "你顺势注意到玩家正在处理一个和“%s”相关的界面（归类为%s）。这个场景要尊重边界，只能轻轻贴边回应，不要追问隐私。" % [display_name, app_type]
+    return "你顺势看到了玩家正在看的内容和“%s”有关（大致属于%s）。请围绕最具体、最有临场感的那个点自然接话。" % [display_name, app_type]
 
-func _trigger_vision_chat(prompt_text: String, base64_image: String) -> void:
-	if is_chatting: return
-	is_chatting = true
-	current_response = ""
-	bubble_queue.clear()
-	if pet_body: pet_body.clear_bubbles()
-	if audio_player and audio_player.playing: audio_player.stop()
-	
-	# 构建专属的独立请求记录
-	chat_history.append({"role": "user", "content": "【屏幕截图发送成功】" + prompt_text})
-	if chat_history.size() > 10: chat_history = chat_history.slice(-10)
-	_load_prompt()
-	
-	print("\n[DesktopPet Vision] --- Sending Vision Request ---")
-	print("Prompt text length: ", prompt_text.length())
-	print("Base64 length: ", base64_image.length())
+func _build_touch_observe_stage_guidance() -> String:
+    if GameDataManager == null or GameDataManager.profile == null:
+        return "请严格遵守当前情感阶段边界，不要为了有戏剧性就越界。"
+    var profile = GameDataManager.profile
+    var stage_conf: Dictionary = profile.get_current_stage_config()
+    var stage_title: String = str(stage_conf.get("stageTitle", "当前阶段")).replace("{char_name}", profile.char_name)
+    var stage_desc: String = str(stage_conf.get("stageDesc", "")).replace("{char_name}", profile.char_name)
+    var lines: Array[String] = [
+        "【当前阶段提示】现在处于“%s”。" % stage_title
+    ]
+    if stage_desc != "":
+        lines.append(stage_desc)
+    var important_notes: String = str(stage_conf.get("important_notes", "")).replace("{char_name}", profile.char_name).strip_edges()
+    if important_notes != "":
+        lines.append("【当前阶段专属约束】%s" % important_notes)
+    var scene_setting: String = str(stage_conf.get("scene_setting", "")).replace("{char_name}", profile.char_name).strip_edges()
+    if scene_setting != "":
+        lines.append("【当前阶段场景反应参考】%s" % scene_setting)
+    lines.append("你的反应必须服从这个阶段的人际边界：阶段未到时，不要强行吃醋、占有、发火或说得过分亲密。")
+    return "\n".join(lines)
 
-	deepseek_client.send_vision_request(pet_prompt, prompt_text, base64_image)
+func _build_touch_observe_character_core_guidance() -> String:
+    if GameDataManager == null or GameDataManager.profile == null:
+        return "请保持角色本人的稳定底色：温柔、克制、真诚，不要写成油滑、咋呼、尖刻或故意演出来的反应。"
+    var profile = GameDataManager.profile
+    var lines: Array[String] = []
+    var core_traits: String = str(profile.base_personality.get("core_traits", "")).replace("{char_name}", profile.char_name).strip_edges()
+    var dialogue_style: String = str(profile.base_personality.get("dialogue_style", "")).replace("{char_name}", profile.char_name).strip_edges()
+    if core_traits != "":
+        lines.append("【角色基础底色】\n%s" % core_traits)
+    if dialogue_style != "":
+        lines.append("【角色说话底色】\n%s" % dialogue_style)
+    lines.append("【稳定人设硬约束】Luna 安静温柔、慢热有分寸，熟悉后会露出俏皮和坚持的一面，但本质上始终真诚、细腻、克制，不会无理取闹，也不会突然变成刻薄的评论员。")
+    lines.append("【绝对禁止】不要凭空给玩家补动机或用途，例如“你是在画参考”“你是在收藏”“你是在研究”“你在故意测试我”，除非画面里明确有证据。")
+    lines.append("【绝对禁止】不要厌恶、嫌弃或否定玩家的工作、代码、兴趣和娱乐内容；即使介意，也只能表现为安静的别扭、轻酸、迟疑、心疼或认真表达，而不是无理发火。")
+    lines.append("【绝对禁止】不要使用过于互联网化、油滑、像段子手、像客服、像旁白、像内容讲解员的说话方式。")
+    return "\n".join(lines)
+
+func _build_touch_observe_dynamic_personality_guidance() -> String:
+    if GameDataManager == null or GameDataManager.profile == null or GameDataManager.personality_system == null:
+        return "请保留当前动态人格状态，但不能覆盖角色基础底色和阶段边界。"
+    var profile = GameDataManager.profile
+    var lines: Array[String] = []
+    var personality_summary: String = str(GameDataManager.personality_system.get_personality_state_summary(profile)).strip_edges()
+    var dynamic_traits: String = str(GameDataManager.personality_system.get_dynamic_traits(profile)).replace("{char_name}", profile.char_name).strip_edges()
+    if personality_summary != "":
+        lines.append("【当前动态人格概览】%s" % personality_summary)
+    if dynamic_traits != "":
+        lines.append("【当前动态人格细节】\n%s" % dynamic_traits)
+    lines.append("这些动态人格只用于微调此刻的口吻、敏感点和应激反应，绝不能覆盖 Luna 的基础底色、阶段说明、scene_setting 与 important_notes。")
+    return "\n".join(lines)
+
+func _build_touch_observe_flavor_guidance() -> String:
+    if GameDataManager == null or GameDataManager.profile == null:
+        return "请保留你自己的口癖、微习惯和情绪质感，不要写成标准客服话术。"
+    var profile = GameDataManager.profile
+    var flavor_label: String = str(profile.personality_state.get("flavor", "Guarded"))
+    var micro_habits: String = ""
+    if GameDataManager.personality_system:
+        micro_habits = str(GameDataManager.personality_system.get_micro_habits(profile)).replace("{char_name}", profile.char_name).strip_edges()
+    var flavor_desc: String = ""
+    match flavor_label:
+        "Guarded":
+            flavor_desc = "整体偏克制、试探、带一点嘴硬，不会一上来就把情绪摊开。"
+        "Warm":
+            flavor_desc = "整体偏温软、贴近、会自然流露关心，但不要腻得发甜。"
+        "Playful":
+            flavor_desc = "整体偏灵动、会轻轻逗一下或抖机灵，但不能像段子机。"
+        "Depend":
+            flavor_desc = "整体偏依恋、会不自觉靠近玩家，但仍要服从阶段边界。"
+        _:
+            flavor_desc = "整体要保留鲜明的人味和关系层次，不要写成统一模板。"
+    var lines: Array[String] = [
+        "【当前风味】%s。" % flavor_desc
+    ]
+    if micro_habits != "":
+        lines.append("【微习惯与口癖参考】\n%s" % micro_habits)
+    lines.append("优先让回复像 Luna 临场起意说出来的话，而不是像整理过的标准答案。")
+    return "\n".join(lines)
+
+func _build_touch_observe_instinctive_guidance(app_type: String, soft_reminder: bool, visual_confirmed: bool) -> String:
+    var lines: Array[String] = [
+        "先做第一反应，再说内容。第一反应应该像真人被你当场撞见某个画面时，会先停一下、皱眉、愣住、偷笑、心虚、嘴硬、替你紧张，或下意识靠近吐槽，而不是先开始解释画面。",
+        "不要做评论员，不要做讲解员，不要做影评人，也不要像内容审核说明。你不是在点评屏幕，你是在看到屏幕后当场有了反应。",
+        "你的话要同时落在两个对象上：一是画面里最刺眼的那个点，二是玩家正在看它这件事。不能只评论内容本身，也不能完全无视玩家。",
+        "第一句更像被画面撞到后的下意识出声，第二句才允许把在意、陪伴、好奇、吐槽、心疼或轻酸落到玩家身上。",
+        "除非场景真的很轻，不要只吐一句就戛然而止。更自然的节奏是：先被画面撞一下，再把情绪落到玩家身上，最后补半句轻收尾，让回应有一个小小余韵。",
+        "这里的“丰富”不是变成长篇大论，而是让一句反应多出半拍情绪和关系感。通常写成 2 到 3 个短句、2 到 4 段 [SPLIT] 会更像真人临场反应。"
+    ]
+    if visual_confirmed:
+        lines.append("这次你是真的看到了具体画面，所以先让自己对那个画面起反应，再顺势把情绪落到玩家身上。")
+    else:
+        lines.append("这次你没有看到完整画面，只知道应用类型或窗口信息，所以仍然要像本能反应，不要编造细节，更不要端着分析。")
+    if soft_reminder:
+        lines.append("因为这是边界更敏感的场景，本能反应也要收一点，像轻轻贴边的一下，而不是直接闯进去。")
+    match app_type:
+        "编程开发工具":
+            lines.append("看开发工具时，不要点评代码质量或讲术语，优先像看到玩家卡住、报错、死盯着一段东西时的心疼、拱火、陪着一起皱眉。")
+        "办公文档软件":
+            lines.append("看文档表格时，不要像上司点评工作，优先像看到玩家又被任务压住、脑子发木、还在硬撑时的轻叹气、体贴或小吐槽。")
+        "网页浏览器":
+            lines.append("看网页时，不要像内容博主复述页面，优先对最扎眼的主题或槽点产生好奇、嫌弃、想笑、想凑近看的反应。")
+        "视频":
+            lines.append("看视频时，不要概述剧情，优先抓住一个画面冲击、表情、反差或氛围，让自己先有本能反应。")
+        "游戏":
+            lines.append("看游戏时，不要播报局势，优先像陪在旁边那样替玩家紧张、激动、着急、手痒或想吐槽。")
+        "音乐":
+            lines.append("看音乐相关时，不要做乐评，优先像被某种氛围或情绪一下勾住，然后顺着那股感觉接一句。")
+        _:
+            lines.append("不管是什么画面，都先问自己：Luna 看到这一眼时，本能上会先皱眉、偷笑、停住、嘴硬、还是忽然想凑近？先把那个反应写出来。")
+    return "\n".join(lines)
+
+func _get_app_observe_vision_focus(app_type: String) -> String:
+    match app_type:
+        "编程开发工具":
+            return "如果是代码、IDE 或终端，优先提取：当前在改什么、报错/卡点、文件名或最值得接话的一行关键词。"
+        "办公文档软件":
+            return "如果是文档、表格、PPT，优先提取：文档主题、标题、待处理任务、最明显的工作压力点。"
+        "通讯聊天软件":
+            return "如果是聊天、社交、邮件，优先提取：话题氛围和可被轻轻回应的情绪线索，不要展开具体隐私内容。"
+        "网页浏览器":
+            return "如果是网页浏览，优先提取：当前页面主题、正在看的焦点模块、最容易引发好奇或吐槽的点。"
+        "视频":
+            return "如果是视频或直播，优先提取：画面焦点、标题主题、情绪氛围、最容易让 Luna 插一句的点。"
+        "游戏":
+            return "如果是游戏，优先提取：当前局面、角色状态、胜负压力或最有戏剧感的瞬间。"
+        _:
+            return "优先提取当前最具体、最容易让 Luna 接一句的细节，不要只给宽泛分类。"
+
+func _get_app_observe_reply_guidance(app_type: String, soft_reminder: bool) -> String:
+    if soft_reminder:
+        match app_type:
+            "通讯聊天软件":
+                return "这里更适合轻声贴边：像不小心瞥见后轻轻顿一下，再带一点好奇、轻微吃味、温柔陪伴或提醒，但绝不能像查岗或点评聊天内容。不要只有一句客套话，最好再补半句试探或陪伴。"
+            "办公文档软件":
+                return "这里更适合低打扰关心：像看到玩家还在硬撑时下意识心疼一下，再轻轻陪一句，不要长篇建议，也不要评论工作内容。可以多一小句收尾，让关心更像陪在旁边。"
+            _:
+                return "这里更适合边界感明确的轻回应：短、轻、贴边，像忍不住小声冒出来一句，再顺手补半句情绪或陪伴，不要侵入感太强，也不要端着分析。"
+    match app_type:
+        "编程开发工具":
+            return "如果是开发工具，优先写成：先对卡点/报错/死盯着屏幕这件事起反应，再给一点懂行的陪伴、心疼或轻吐槽，最后顺手补一句很短的撑腰或催休息，别像代码评审。"
+        "办公文档软件":
+            return "如果是文档表格，优先写成：先对任务压力或枯燥感起反应，再给一点体贴或小玩笑，最后轻轻托住一下情绪，不要像工作汇报或内容总结。"
+        "网页浏览器":
+            return "如果是网页，优先写成：先被某个主题/槽点/离谱处勾住一下，再顺势吐槽、好奇或调侃，最好再补半句把注意力落回玩家，不要像在复述网页内容。"
+        "视频":
+            return "如果是视频，优先对画面冲击、氛围或反差先冒出一句带情绪的反应，再顺手带一句你对玩家状态的感觉，不要平铺直叙，不要概述视频。"
+        "游戏":
+            return "如果是游戏，优先写成临场感：像陪在旁边看着玩家操作一样替他紧张、兴奋、心疼或拱火，再补一句贴身一点的反应，但不要像系统播报。"
+        "音乐":
+            return "如果是音乐相关，优先写感受和联想：像被氛围一下勾住之后自然接一句，再补一点你想贴近玩家的感觉，而不是泛泛说好听，也不要像乐评。"
+        _:
+            return "优先对一个具体细节先冒出本能态度，再补一句轻陪伴或轻试探，必要时多半句收尾，不要写成泛泛关心，也不要像在点评内容。"
+
+func _trigger_vision_chat(prompt_text: String, base64_image: String, origin: String = CHAT_ORIGIN_SYSTEM) -> void:
+    if is_chatting: return
+    _current_chat_origin = origin
+    is_chatting = true
+    current_response = ""
+    bubble_queue.clear()
+    if pet_body: pet_body.clear_bubbles()
+    if audio_player and audio_player.playing: audio_player.stop()
+    
+    # 构建专属的独立请求记录
+    chat_history.append({"role": "user", "content": "【屏幕截图发送成功】" + prompt_text})
+    if chat_history.size() > 10: chat_history = chat_history.slice(-10)
+    _load_prompt()
+    
+    print("\n[DesktopPet Vision] --- Sending Vision Request ---")
+    print("Prompt text length: ", prompt_text.length())
+    print("Base64 length: ", base64_image.length())
+
+    deepseek_client.send_vision_request(pet_prompt, prompt_text, base64_image)
 
 func _on_vision_completed(response: Dictionary) -> void:
-	print("\n[DesktopPet Vision] --- Vision Analysis Completed ---")
-	
-	var analysis_text = ""
-	
-	# 兼容原版 OpenAI/Chat 接口格式 (choices)
-	if response.has("choices") and response.choices.size() > 0:
-		var msg = response.choices[0].get("message", {})
-		analysis_text = msg.get("content", "").strip_edges()
-		
-	# 兼容 Volcengine v3 Responses 接口格式 (output)
-	elif response.has("output") and typeof(response["output"]) == TYPE_ARRAY:
-		for item in response["output"]:
-			if item.get("type") == "message" and item.has("content"):
-				var contents = item["content"]
-				if typeof(contents) == TYPE_ARRAY and contents.size() > 0:
-					for c in contents:
-						if c.get("type") == "output_text":
-							analysis_text += c.get("text", "")
-							
-	analysis_text = analysis_text.strip_edges()
-	
-	if analysis_text != "":
-		print("[DesktopPet Vision] Raw Analysis Output:\n", analysis_text)
-		
-		# 将分析结果作为主动聊天的触发器，发给专门负责角色扮演的文本大模型
-		var prompt = """【系统提示：视觉分析系统刚刚捕捉到了玩家当前正在查看的屏幕画面。】
-以下是屏幕画面的详细分析结果：
-%s
-
-请你严格代入当前设定的身份和性格，基于以上画面分析，像真人一样对玩家屏幕上的内容做出最自然、最符合人设的反应。
-- 【拒绝人机感与刻板印象】：不要每次都只套用固定模板！展现你性格的所有面。
-- 【严格遵循情感阶段】：无论画面内容是日常软件还是玩家的私人社交记录，你的反应【必须完全以系统传入的“当前关系阶段”和“特殊场景反应”设定为最高准则】！仔细阅读传入的情感阶段设定，阶段未到绝对不可越界吃醋或发火。
-- 【生动自然】：要有真人的温度，结合【微习惯与口癖】，可以有轻微的迟疑，但要真诚有趣。
-- 绝对不要在台词中报出时间，绝不提自己是AI/桌宠。
-- 【格式强制】：回复必须遵循【对话结构策略】，用 [SPLIT] 拆分长句，必须包含括号动作描写。""" % [analysis_text]
-		
-		# 必须先重置 is_chatting，否则 _trigger_proactive_chat 会被拦截
-		is_chatting = false
-		_trigger_proactive_chat(prompt)
-	else:
-		print("[DesktopPet Vision] Failed to parse analysis choices. Raw response:\n", response)
-		is_chatting = false
-		var text = "（看着屏幕发呆）……"
-		chat_history.append({"role": "assistant", "content": text})
-		display_bubble(text)
+    print("\n[DesktopPet Vision] --- Vision Analysis Completed ---")
+    
+    var analysis_text = ""
+    
+    # 兼容原版 OpenAI/Chat 接口格式 (choices)
+    if response.has("choices") and response.choices.size() > 0:
+        var msg = response.choices[0].get("message", {})
+        analysis_text = msg.get("content", "").strip_edges()
+        
+    # 兼容 Volcengine v3 Responses 接口格式 (output)
+    elif response.has("output") and typeof(response["output"]) == TYPE_ARRAY:
+        for item in response["output"]:
+            if item.get("type") == "message" and item.has("content"):
+                var contents = item["content"]
+                if typeof(contents) == TYPE_ARRAY and contents.size() > 0:
+                    for c in contents:
+                        if c.get("type") == "output_text":
+                            analysis_text += c.get("text", "")
+                            
+    analysis_text = analysis_text.strip_edges()
+    if analysis_text != "":
+        _last_observed_analysis_text = analysis_text
+        print("[DesktopPet Vision] Raw Analysis Output:\n", analysis_text)
+        
+        # 将分析结果作为主动聊天的触发器，发给专门负责角色扮演的文本大模型
+        var prompt: String = _build_touch_observe_vision_reply_prompt(analysis_text)
+        
+        # 必须先重置 is_chatting，否则 _trigger_proactive_chat 会被拦截
+        is_chatting = false
+        _trigger_proactive_chat(prompt, true, _current_chat_origin)
+    else:
+        print("[DesktopPet Vision] Failed to parse analysis choices. Raw response:\n", response)
+        is_chatting = false
+        _current_chat_origin = CHAT_ORIGIN_SYSTEM
+        var text = "（看着屏幕发呆）……"
+        chat_history.append({"role": "assistant", "content": text})
+        display_bubble(text)
 
 func _on_vision_failed(error_msg: String) -> void:
-	print("[DesktopPet Debug] Vision request failed: ", error_msg)
-	
-	# 特别处理 429 频率限制错误
-	if "429" in error_msg or "频率" in error_msg or "请求过于频繁" in error_msg:
-		# 当遇到频率限制时，将下次触发时间惩罚性地延后 5 分钟 (300,000 毫秒)
-		# 因为豆包 Lite 模型的 RPM 限制通常按分钟重置，60秒可能不够安全
-		_last_reaction_tick = Time.get_ticks_msec() + 300000
-		if pet_body:
-			pet_body.add_bubble("[color=orange]（AI服务商频率受限，休息一下...）[/color]")
-	else:
-		if pet_body:
-			pet_body.add_bubble("[color=red]视觉感知失败: " + error_msg + "[/color]")
-			
-	is_chatting = false
+    print("[DesktopPet Debug] Vision request failed: ", error_msg)
+    
+    # 特别处理 429 频率限制错误
+    if "429" in error_msg or "频率" in error_msg or "请求过于频繁" in error_msg:
+        # 当遇到频率限制时，将下次触发时间惩罚性地延后 5 分钟 (300,000 毫秒)
+        # 因为豆包 Lite 模型的 RPM 限制通常按分钟重置，60秒可能不够安全
+        _last_reaction_tick = Time.get_ticks_msec() + 300000
+        if pet_body:
+            pet_body.add_bubble("[color=orange]（AI服务商频率受限，休息一下...）[/color]")
+    else:
+        if pet_body:
+            pet_body.add_bubble("[color=red]视觉感知失败: " + error_msg + "[/color]")
+            
+    is_chatting = false
+    _current_chat_origin = CHAT_ORIGIN_SYSTEM
 
 func _map_app_type(window_title_str: String, process: String) -> String:
-	var p = process.to_lower()
-	var t = window_title_str.to_lower()
-	
-	var app_db = GameDataManager.app_database
-	if app_db and not app_db.is_empty():
-		for category_key in app_db:
-			var category_data = app_db[category_key]
-			var category_name = category_data.get("category_name", "某个应用")
-			var keywords = category_data.get("keywords", [])
-			
-			for keyword in keywords:
-				if keyword in p or keyword in t:
-					return category_name
-	
-	# Fallback if not found in database
-	if "chrome" in p or "edge" in p or "firefox" in p or "browser" in p:
-		return "网页浏览器"
-	elif "code" in p or "idea" in p or "studio" in p or "devenv" in p or "pycharm" in p or "cursor" in p or "trae" in p:
-		return "编程开发工具"
-	elif "word" in p or "excel" in p or "powerpoint" in p or "wps" in p:
-		return "办公文档软件"
-	elif "steam" in p or "game" in p or "epic" in p:
-		return "游戏"
-	elif "wechat" in p or "qq" in p or "discord" in p or "telegram" in p:
-		return "通讯聊天软件"
-	elif "bilibili" in p or "youtube" in p or "video" in p or "player" in p:
-		return "视频"
-	elif "music" in p or "cloudmusic" in p or "netease" in p or "spotify" in p:
-		return "音乐"
-		
-	return process if process != "" else "未知应用"
+    var p = process.to_lower()
+    var t = window_title_str.to_lower()
+    
+    var app_db = GameDataManager.app_database
+    if app_db and not app_db.is_empty():
+        for category_key in app_db:
+            var category_data = app_db[category_key]
+            var category_name = category_data.get("category_name", "某个应用")
+            var keywords = category_data.get("keywords", [])
+            
+            for keyword in keywords:
+                if keyword in p or keyword in t:
+                    return category_name
+    
+    # Fallback if not found in database
+    if "chrome" in p or "edge" in p or "firefox" in p or "browser" in p:
+        return "网页浏览器"
+    elif "code" in p or "idea" in p or "studio" in p or "devenv" in p or "pycharm" in p or "cursor" in p or "trae" in p:
+        return "编程开发工具"
+    elif "word" in p or "excel" in p or "powerpoint" in p or "wps" in p:
+        return "办公文档软件"
+    elif "steam" in p or "game" in p or "epic" in p:
+        return "游戏"
+    elif "wechat" in p or "qq" in p or "discord" in p or "telegram" in p:
+        return "通讯聊天软件"
+    elif "bilibili" in p or "youtube" in p or "video" in p or "player" in p:
+        return "视频"
+    elif "music" in p or "cloudmusic" in p or "netease" in p or "spotify" in p:
+        return "音乐"
+        
+    return process if process != "" else "未知应用"
+
+func _build_touch_observe_vision_reply_prompt(analysis_text: String) -> String:
+    var app_type: String = _last_observed_app_type
+    var display_name: String = _last_observed_display_name
+    var soft_reminder: bool = _last_observed_soft_reminder
+    var lines: Array[String] = [
+        "【系统提示：视觉分析系统刚刚捕捉到了玩家当前正在查看的屏幕画面。】",
+        "本次应用观察上下文：当前大致应用类型=%s，显示名=%s。" % [app_type if app_type != "" else "未知", display_name if display_name != "" else "未知"],
+        "以下是屏幕画面的精炼分析：",
+        analysis_text,
+        "",
+        "请你严格代入 Luna 当前设定，对这个画面做出像真人一样的第一反应。",
+        _build_touch_observe_character_core_guidance(),
+        _build_touch_observe_stage_guidance(),
+        _build_touch_observe_dynamic_personality_guidance(),
+        _build_touch_observe_flavor_guidance(),
+        _build_touch_observe_relation_mood_guidance(),
+        _build_touch_observe_instinctive_guidance(app_type, soft_reminder, true),
+        _get_app_observe_reply_guidance(app_type, soft_reminder),
+        _build_touch_observe_special_reply_guidance(analysis_text),
+        "你必须把上面的画面分析当成眼前真实看见的东西来回应，但只能围绕分析里明确提到的内容开口，不能擅自补画面里没有出现的新细节。",
+        "先抓住分析结果里的“刺激点”开口，不要平均回应所有信息，更不要挑页码、编号、英文残句这种边角信息来聊。",
+        "回复结构尽量像这样：先对那个细节做一个很真人的本能反应，再顺手补一句带性格和关系感的话，最后视情况补半句轻收尾。",
+        "除非场景真的只值得轻轻哼一声，否则不要只回单薄的一句。通常 2 到 3 个短句、2 到 4 段 [SPLIT]，会比一句话更像真人被撞见后的真实反应。",
+        "这 2 到 3 个短句不要平均分配信息，而是要有递进：第一拍是被刺激点撞到，第二拍是对玩家的在意/试探/别扭，第三拍才是很轻的收尾、提醒或黏一下。",
+        "可以有轻微迟疑、嘴硬、调侃、心疼、黏人或拱火，但都必须贴合当前阶段、亲密度、信任度、瞬时表情、整体心情和风味。",
+        "优先服从整体心情和阶段底色，瞬时表情只作为局部修饰，不允许盖过长期关系状态和角色底色。",
+        "不要把回复写成总结、解说、建议清单或模板化关心。",
+        "不要把整段分析复述给玩家，不要像旁白解释画面，也不要只重复应用名。",
+        "不要像影评人、美术评论、旁白解说或审稿人一样说话。不要评价构图、页码、英文残句、UI 排版，除非这些信息本身正是你会在意的核心。",
+        "如果分析里写了“禁止脑补”或“不确定”，你必须尊重它，绝不能擅自补出新剧情、新动机、新用途。",
+        "允许出现一点欲言又止、改口、轻轻遮掩、转开视线后又补一句的感觉，这会比干净利落的一句模板话更像 Luna。",
+        "绝对不要在台词中报出时间，绝不提自己是 AI、桌宠、视觉分析或系统。",
+        "【格式强制】：回复必须遵循【对话结构策略】，用 [SPLIT] 拆分长句，必须包含括号动作描写。"
+    ]
+    return "\n".join(lines)
+
+func _build_touch_observe_relation_mood_guidance() -> String:
+    if GameDataManager == null or GameDataManager.profile == null:
+        return "请结合当前关系阶段、情绪和人设说话，不要写成无差别统一回复。"
+    var profile = GameDataManager.profile
+    var mood_name: String = "平静"
+    if GameDataManager.mood_system:
+        mood_name = str(GameDataManager.mood_system.get_macro_mood_name(profile.mood_value))
+    var expression_name: String = str(profile.current_expression)
+    if expression_name == "":
+        expression_name = "calm"
+    var lines: Array[String] = [
+        "【当前关系快照】亲密度=%d，信任度=%d。你的语气轻重、靠近程度、试探感、占有欲边界都必须服从这个数值和当前阶段。" % [profile.intimacy, profile.trust],
+        "【当前情绪快照】整体心情=%s，瞬时表情=%s。整体心情决定本轮回应的大底色，瞬时表情只负责细小波纹。你的第一反应、停顿方式、嘴硬程度、关心力度都必须带着这个情绪状态。" % [mood_name, expression_name]
+    ]
+    return "\n".join(lines)
+
+func _build_touch_observe_special_reply_guidance(analysis_text: String) -> String:
+    var normalized: String = analysis_text.to_lower()
+    var adult_keywords: Array[String] = [
+        "露体", "裸", "成人", "情色", "色情", "涩", "色图", "大尺度", "性感", "挑逗",
+        "暧昧", "内衣", "泳装", "胸", "臀", "乳", "nsfw", "18+"
+    ]
+    for keyword in adult_keywords:
+        if keyword in analysis_text or keyword in normalized:
+            return """【特殊场景提示：当前画面带有明显的暧昧/成人向气息。】
+这类场景下，不要立刻切成家长、老师或健康提醒模式，不要一开口就说教“伤眼”“别看这个”“早点休息”。
+更自然的第一反应应该是：先有一点被抓到后的停顿、别扭、脸热、轻酸、嘴硬、装镇定，或者小小吃味，再顺着那个最刺眼的色情细节接一句。
+- 如果阶段偏早：以克制、试探、轻别扭为主，不要直接占有或审判。
+- 如果阶段偏中后：可以有一点酸、一点逗、一点若有若无的介意，但仍然要像真人临场反应，不要变成审讯。
+- 优先针对“被你看到的具体点”反应，比如角色姿态、裸露程度、色情氛围、玩家看得太专注的样子，而不是泛泛评价“这种内容”。
+- 不要突然变成艺术评论家，不要夸“构图大胆”“挑画眼光准”“英文台词有挑衅味道”这类明显 OOC 的话。
+- 不要优先抓页码、播放按钮、界面编号这种边角信息；真正让你有情绪波动的，应该是那张色情画本身和玩家正在看它这件事。
+- 如果你确实介意，就让这种介意像真人的停顿、轻酸、遮掩、转开视线、嘴硬，而不是写成整理好的标准回答。
+- 不要只丢一句“露得有点多诶”就结束。至少再多走半步：让她对那个露骨细节有一点掩饰、吃味、装镇定或试探，再把视线轻轻落回玩家身上。
+- 允许害羞、轻哼、欲言又止、假装不在意，但不要突然正经说教。"""
+    return "请根据画面类型选择最贴近人味的临场反应，不要套统一模板。"
 
 func _check_hourly_chime() -> void:
-	if is_dialogue_panel_open: return
-	if is_chatting:
-		return
-		
-	var time_dict = Time.get_datetime_dict_from_system()
-	var current_hour = time_dict["hour"]
-	var current_minute = time_dict["minute"]
-	
-	# 触发条件：分钟在0~2之间，且本小时未报时
-	if current_minute >= 0 and current_minute <= 2 and _last_hourly_chime_hour != current_hour:
-		
-		# 根据不同的时间段给予不同的语境提示，增加话题多样性
-		var time_context = ""
-		if current_hour >= 6 and current_hour < 9:
-			time_context = "现在是早晨，可以聊聊早餐、刚醒来的感受、或者对新一天的元气期许。"
-		elif current_hour >= 9 and current_hour < 12:
-			time_context = "现在是上午，玩家可能正在工作或学习，可以给点鼓励或者吐槽一下辛苦。"
-		elif current_hour >= 12 and current_hour < 14:
-			time_context = "现在是中午，到了午饭和午休的时间，可以聊聊吃了什么，或者犯困想午休。"
-		elif current_hour >= 14 and current_hour < 18:
-			time_context = "现在是下午，容易感到疲惫，可以聊聊下午茶、摸鱼、或者互相打气。"
-		elif current_hour >= 18 and current_hour < 22:
-			time_context = "现在是晚上，可以聊聊晚餐、放松的休闲时光、或者一天的总结。"
-		elif current_hour >= 22 or current_hour < 2:
-			time_context = "现在是深夜，可以提醒玩家早点休息、聊聊熬夜、或者表现出自己困了。"
-		else: # 2~6
-			time_context = "现在是凌晨，非常晚了，强制要求玩家去睡觉，或者表现出极度的困倦和迷糊。"
+    if is_dialogue_panel_open: return
+    if is_chatting:
+        return
+        
+    var time_dict: Dictionary = Time.get_datetime_dict_from_system()
+    var current_hour: int = int(time_dict["hour"])
+    var current_minute: int = int(time_dict["minute"])
+    
+    # 触发条件：分钟在0~2之间，且本小时未报时
+    if current_minute >= 0 and current_minute <= 2 and _last_hourly_chime_hour != current_hour:
+        
+        # 根据不同的时间段给予不同的语境提示，增加话题多样性
+        var time_context: String = ""
+        if current_hour >= 6 and current_hour < 9:
+            time_context = "现在是早晨，可以聊聊早餐、刚醒来的感受、或者对新一天的元气期许。"
+        elif current_hour >= 9 and current_hour < 12:
+            time_context = "现在是上午，玩家可能正在工作或学习，可以给点鼓励或者吐槽一下辛苦。"
+        elif current_hour >= 12 and current_hour < 14:
+            time_context = "现在是中午，到了午饭和午休的时间，可以聊聊吃了什么，或者犯困想午休。"
+        elif current_hour >= 14 and current_hour < 18:
+            time_context = "现在是下午，容易感到疲惫，可以聊聊下午茶、摸鱼、或者互相打气。"
+        elif current_hour >= 18 and current_hour < 22:
+            time_context = "现在是晚上，可以聊聊晚餐、放松的休闲时光、或者一天的总结。"
+        elif current_hour >= 22 or current_hour < 2:
+            time_context = "现在是深夜，可以提醒玩家早点休息、聊聊熬夜、或者表现出自己困了。"
+        else: # 2~6
+            time_context = "现在是凌晨，非常晚了，强制要求玩家去睡觉，或者表现出极度的困倦和迷糊。"
 
-		var weather_context = ""
-		if GameDataManager.weather_manager and GameDataManager.weather_manager.is_weather_ready:
-			weather_context = "当前天气是%s，气温约%d度。" % [GameDataManager.weather_manager.current_weather_desc, GameDataManager.weather_manager.current_temp]
+        var weather_context: String = ""
+        if GameDataManager.weather_manager and GameDataManager.weather_manager.is_weather_ready:
+            weather_context = "当前天气是%s，气温约%d度。" % [GameDataManager.weather_manager.current_weather_desc, GameDataManager.weather_manager.current_temp]
 
-		var base_prompt = """【系统提示：现在是现实时间 %02d:00。%s】
+        var base_prompt: String = """【系统提示：现在是现实时间 %02d:00。%s】
 请你结合当前时间与天气作为隐性语境，代入当前身份，像真人一样对玩家进行整点报时。
 【时间段特定话题】：%s
 - 反应要生动多样！切忌千篇一律。不要总是说“我看你在忙”，要根据时间段或天气提供独特的生活化话题。
 - 【格式强制】：必须包含括号动作描写，严格遵循系统设定的口癖。绝对不能提到你是AI或桌宠。""" % [current_hour, weather_context, time_context]
 
-		var current_tick = Time.get_ticks_msec()
-		var global_cd = float(GameDataManager.config.pet_global_cooldown) * 1000.0
-		
-		if current_tick - _last_reaction_tick < global_cd:
-			# 还在冷却中，存入积压队列，此时才加上延迟的提示
-			if _pending_proactive_prompt.is_empty():
-				print("[DesktopPet Debug] 报时被冷却拦截，存入积压队列")
-				_pending_proactive_prompt = base_prompt + "\n（附加条件：这次报时晚了几分钟，因为刚才看玩家在忙/专注，你特意没打扰，现在才开口，可以稍微提一句体贴或傲娇的抱怨。）"
-				_last_hourly_chime_hour = current_hour
-			return
-			
-		_last_hourly_chime_hour = current_hour
-		_last_reaction_tick = current_tick
-		_trigger_proactive_chat(base_prompt)
+        var current_tick: int = Time.get_ticks_msec()
+        var global_cd: float = float(GameDataManager.config.pet_global_cooldown) * 1000.0
+        
+        if current_tick - _last_reaction_tick < global_cd:
+            # 还在冷却中，存入积压队列，此时才加上延迟的提示
+            if _pending_proactive_prompt.is_empty():
+                print("[DesktopPet Debug] 报时被冷却拦截，存入积压队列")
+                _pending_proactive_prompt = base_prompt + "\n（附加条件：这次报时晚了几分钟，因为刚才看玩家在忙/专注，你特意没打扰，现在才开口，可以稍微提一句体贴或傲娇的抱怨。）"
+                _last_hourly_chime_hour = current_hour
+            return
+            
+        _last_hourly_chime_hour = current_hour
+        _last_reaction_tick = current_tick
+        _trigger_proactive_chat(base_prompt)
 
 
-func _trigger_proactive_chat(prompt_text: String, force: bool = false) -> void:
-	print("[DesktopPet Debug] Triggering proactive chat. is_chatting: ", is_chatting)
-	if is_chatting:
-		return
-	if not force and _is_proactive_temporarily_blocked():
-		return
-		
-	is_chatting = true
-	current_response = ""
-	
-	bubble_queue.clear()
-	if pet_body:
-		pet_body.clear_bubbles()
-	if audio_player and audio_player.playing:
-		audio_player.stop()
-		
-	# 维护历史记录长度
-	if chat_history.size() > 10:
-		chat_history = chat_history.slice(-10)
-		
-	# 每次发送前都重新构建 prompt，确保应用识别的 prompt 也是最新的约束
-	_load_prompt()
-		
-	# 构建专属的独立请求记录，不带历史上下文，防止主动吐槽被历史聊天带偏
-	var proactive_history = []
-	proactive_history.append({"role": "user", "content": prompt_text})
-	
-	# 我们把这次主动事件塞进专属的桌宠聊天历史里
-	chat_history.append({"role": "user", "content": prompt_text})
-	
-	var pet_messages = [{"role": "system", "content": pet_prompt}]
-	for msg in proactive_history:
-		pet_messages.append(msg)
-		
-	deepseek_client.start_chat_stream_with_messages(pet_messages)
+func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: String = CHAT_ORIGIN_SYSTEM) -> void:
+    print("[DesktopPet Debug] Triggering proactive chat. is_chatting: ", is_chatting)
+    if is_chatting:
+        return
+    if not force and _is_proactive_temporarily_blocked():
+        return
+    _current_chat_origin = origin
+    is_chatting = true
+    current_response = ""
+    
+    bubble_queue.clear()
+    if pet_body:
+        pet_body.clear_bubbles()
+    if audio_player and audio_player.playing:
+        audio_player.stop()
+        
+    # 维护历史记录长度
+    if chat_history.size() > 10:
+        chat_history = chat_history.slice(-10)
+        
+    # 每次发送前都重新构建 prompt，确保应用识别的 prompt 也是最新的约束
+    _load_prompt()
+        
+    # 构建专属的独立请求记录，不带历史上下文，防止主动吐槽被历史聊天带偏
+    var proactive_history = []
+    proactive_history.append({"role": "user", "content": prompt_text})
+    
+    # 我们把这次主动事件塞进专属的桌宠聊天历史里
+    chat_history.append({"role": "user", "content": prompt_text})
+    
+    var pet_messages = [{"role": "system", "content": pet_prompt}]
+    for msg in proactive_history:
+        pet_messages.append(msg)
+        
+    deepseek_client.start_chat_stream_with_messages(pet_messages)
 
 func _on_send_pressed() -> void:
-	var text = input_edit.text.strip_edges()
-	if text.is_empty() or is_chatting:
-		return
-		
-	# 本地瞬间拦截停止指令，做到"话音未落，音乐先停"
-	var lower_text = text.to_lower()
-	var stop_keywords = ["别放", "不想听", "停止", "关掉", "关音乐", "停音乐", "别播", "不要播", "太吵", "安静点"]
-	var should_stop = false
-	for kw in stop_keywords:
-		if kw in lower_text:
-			should_stop = true
-			break
-			
-	if should_stop and music_player and music_player.playing:
-		_stop_music()
-		text += "\n（系统提示：检测到玩家要求停止，系统已立刻将音乐关闭，请温柔地向玩家确认即可。）"
-		
-	input_edit.text = ""
-	is_chatting = true
-	current_response = ""
-	
-	# 更新最后反应时间
-	_last_reaction_tick = Time.get_ticks_msec()
-	
-	# Reset queue and stop TTS
-	bubble_queue.clear()
-	if pet_body:
-		pet_body.clear_bubbles()
-	if audio_player and audio_player.playing:
-		audio_player.stop()
-	
-	# Maintain history (max 10 items to prevent context window overflow)
-	if chat_history.size() > 10:
-		chat_history = chat_history.slice(-10)
-		
-	_load_prompt()
-	
-	# Add user message to history
-	# 桌宠特有逻辑：直接在发包前把话塞进去
-	# 我们不要再塞进全局的聊天历史里了，而是使用专门的桌宠历史
-	chat_history.append({"role": "user", "content": text})
-	
-	# 构建专门为桌宠发送的历史数组，避免混用
-	var pet_messages = [{"role": "system", "content": pet_prompt}]
-	for i in range(chat_history.size()):
-		var msg = chat_history[i].duplicate()
-		if i == chat_history.size() - 1 and msg["role"] == "user":
-			# 将音乐指令的双向提醒一次性注入，防止大模型混淆或忘记
-			var injection = "\n(系统强制判定：若玩家要求放歌/播放音乐，你【必须】在回复最后加上 [CMD:PLAY_MUSIC]（随机）或 [CMD:PLAY_MUSIC:歌名]（指定）；若玩家要求停止，你【必须】加 [CMD:STOP_MUSIC]！如果不加，系统将无法执行操作！)"
-			msg["content"] = str(msg["content"]) + injection
-		pet_messages.append(msg)
-		
-	deepseek_client.start_chat_stream_with_messages(pet_messages)
+    var text = input_edit.text.strip_edges()
+    if text.is_empty() or is_chatting:
+        return
+        
+    # 本地瞬间拦截停止指令，做到"话音未落，音乐先停"
+    var lower_text = text.to_lower()
+    var stop_keywords = ["别放", "不想听", "停止", "关掉", "关音乐", "停音乐", "别播", "不要播", "太吵", "安静点"]
+    var should_stop = false
+    for kw in stop_keywords:
+        if kw in lower_text:
+            should_stop = true
+            break
+            
+    if should_stop and music_player and music_player.playing:
+        _stop_music()
+        text += "\n（系统提示：检测到玩家要求停止，系统已立刻将音乐关闭，请温柔地向玩家确认即可。）"
+        
+    input_edit.text = ""
+    _current_chat_origin = CHAT_ORIGIN_PLAYER
+    is_chatting = true
+    current_response = ""
+    
+    # 更新最后反应时间
+    _last_reaction_tick = Time.get_ticks_msec()
+    
+    # Reset queue and stop TTS
+    bubble_queue.clear()
+    if pet_body:
+        pet_body.clear_bubbles()
+    if audio_player and audio_player.playing:
+        audio_player.stop()
+    
+    # Maintain history (max 10 items to prevent context window overflow)
+    if chat_history.size() > 10:
+        chat_history = chat_history.slice(-10)
+        
+    _load_prompt()
+    
+    # Add user message to history
+    # 桌宠特有逻辑：直接在发包前把话塞进去
+    # 我们不要再塞进全局的聊天历史里了，而是使用专门的桌宠历史
+    chat_history.append({"role": "user", "content": text})
+    
+    # 构建专门为桌宠发送的历史数组，避免混用
+    var pet_messages = [{"role": "system", "content": pet_prompt}]
+    for i in range(chat_history.size()):
+        var msg = chat_history[i].duplicate()
+        if i == chat_history.size() - 1 and msg["role"] == "user":
+            # 将音乐指令的双向提醒一次性注入，防止大模型混淆或忘记
+            var injection = "\n(系统强制判定：若玩家要求放歌/播放音乐，你【必须】在回复最后加上 [CMD:PLAY_MUSIC]（随机）或 [CMD:PLAY_MUSIC:歌名]（指定）；若玩家要求停止，你【必须】加 [CMD:STOP_MUSIC]！如果不加，系统将无法执行操作！)"
+            msg["content"] = str(msg["content"]) + injection
+        pet_messages.append(msg)
+        
+    deepseek_client.start_chat_stream_with_messages(pet_messages)
 
 func _on_chat_started() -> void:
-	current_response = ""
+    current_response = ""
 
 func _on_chat_delta(delta_text: String) -> void:
-	current_response += delta_text
+    current_response += delta_text
 
 func _on_chat_completed(response: Dictionary) -> void:
-	print("[DesktopPet Debug] Chat request completed. Response keys: ", response.keys())
-	is_chatting = false
-	
-	# Extract response text
-	var text = ""
-	if response.has("choices") and response.choices.size() > 0:
-		text = response.choices[0].message.content
-	else:
-		text = current_response
-		
-	# 提前拦截并执行所有音乐指令，做到在说话前立刻响应，并将指令从文本中剔除
-	var regex = RegEx.new()
-	
-	regex.compile("\\[CMD:STOP_MUSIC\\s*\\]")
-	if regex.search(text):
-		_stop_music()
-		text = regex.sub(text, "", true)
-		
-	regex.compile("\\[CMD:PLAY_MUSIC(?:\\s*:\\s*(.*?))?\\s*\\]")
-	var match = regex.search(text)
-	if match:
-		var specific_song = ""
-		if match.get_string(1) != "":
-			specific_song = match.get_string(1).strip_edges()
-		_play_music(specific_song)
-		text = regex.sub(text, "", true)
-		
-	print("[DesktopPet Debug] === RAW AI RESPONSE ===")
-	print(text)
-	print("[DesktopPet Debug] =======================")
-		
-	print("[DesktopPet Debug] Extracted text length: ", text.length())
-	if text.is_empty():
-		print("[DesktopPet Debug] WARNING: Response text is empty! Fallback to error message.")
-		text = "（沉默）……"
-		
-	# 如果大模型抽风只回复了括号动作而没有文字，强制补充省略号，否则无法发声且很怪异
-	var pure_dialogue = _extract_dialogue_text(text)
-	if pure_dialogue.is_empty():
-		print("[DesktopPet Debug] WARNING: No dialogue text found in response! Appending fallback.")
-		text += " ……"
-		
-	# Add assistant message to history
-	chat_history.append({"role": "assistant", "content": text})
-		
-	var user_text = ""
-	if chat_history.size() >= 2:
-		var last_msg = chat_history[chat_history.size() - 2]
-		if last_msg.has("role") and last_msg["role"] == "user":
-			user_text = last_msg["content"]
-			
-	if user_text != "" and GameDataManager.memory_manager.add_turn():
-		deepseek_client.set_next_memory_context(GameDataManager.memory_manager.build_reality_memory_context())
-		deepseek_client.extract_memory_from_chat(user_text, text)
-		
-	display_bubble(text)
+    print("[DesktopPet Debug] Chat request completed. Response keys: ", response.keys())
+    is_chatting = false
+    
+    # Extract response text
+    var text = ""
+    if response.has("choices") and response.choices.size() > 0:
+        text = response.choices[0].message.content
+    else:
+        text = current_response
+    var chat_origin: String = _current_chat_origin
+    if chat_origin == CHAT_ORIGIN_TOUCH and _is_model_policy_refusal(text):
+        text = _build_touch_policy_refusal_fallback_reply()
+        
+    # 提前拦截并执行所有音乐指令，做到在说话前立刻响应，并将指令从文本中剔除
+    var regex = RegEx.new()
+    
+    regex.compile("\\[CMD:STOP_MUSIC\\s*\\]")
+    if regex.search(text):
+        _stop_music()
+        text = regex.sub(text, "", true)
+        
+    regex.compile("\\[CMD:PLAY_MUSIC(?:\\s*:\\s*(.*?))?\\s*\\]")
+    var match = regex.search(text)
+    if match:
+        var specific_song = ""
+        if match.get_string(1) != "":
+            specific_song = match.get_string(1).strip_edges()
+        _play_music(specific_song)
+        text = regex.sub(text, "", true)
+        
+    print("[DesktopPet Debug] === RAW AI RESPONSE ===")
+    print(text)
+    print("[DesktopPet Debug] =======================")
+        
+    print("[DesktopPet Debug] Extracted text length: ", text.length())
+    if text.is_empty():
+        print("[DesktopPet Debug] WARNING: Response text is empty! Fallback to error message.")
+        text = "（沉默）……"
+        
+    # 如果大模型抽风只回复了括号动作而没有文字，强制补充省略号，否则无法发声且很怪异
+    var pure_dialogue = _extract_dialogue_text(text)
+    if pure_dialogue.is_empty():
+        print("[DesktopPet Debug] WARNING: No dialogue text found in response! Appending fallback.")
+        text += " ……"
+        
+    # Add assistant message to history
+    chat_history.append({"role": "assistant", "content": text})
+        
+    var user_text = ""
+    if chat_history.size() >= 2:
+        var last_msg = chat_history[chat_history.size() - 2]
+        if last_msg.has("role") and last_msg["role"] == "user":
+            user_text = last_msg["content"]
+    _current_chat_origin = CHAT_ORIGIN_SYSTEM
+            
+    if user_text != "" and GameDataManager.desktop_pet_memory_manager and GameDataManager.desktop_pet_memory_manager.add_turn():
+        deepseek_client.set_next_memory_context_with_manager(GameDataManager.desktop_pet_memory_manager.build_reality_memory_context(), GameDataManager.desktop_pet_memory_manager)
+        deepseek_client.extract_memory_from_chat_with_manager(user_text, text, {}, GameDataManager.desktop_pet_memory_manager)
+    if chat_origin == CHAT_ORIGIN_PLAYER or chat_origin == CHAT_ORIGIN_TOUCH:
+        _request_desktop_pet_post_chat_updates(text)
+        
+    display_bubble(text)
+
+func _is_model_policy_refusal(text: String) -> bool:
+    var normalized: String = text.strip_edges().to_lower()
+    if normalized == "":
+        return false
+    var patterns: Array[String] = [
+        "不符合公序良俗",
+        "内容规范要求",
+        "不能按照你的请求",
+        "我不能按照你的请求",
+        "不能处理这类",
+        "避免发布或请求处理",
+        "请遵守相关规定",
+        "不良信息",
+        "涉及色情低俗内容",
+        "我不能帮助",
+        "i can't help with that",
+        "can't comply",
+        "policy",
+        "safety policy"
+    ]
+    for pattern in patterns:
+        if pattern.to_lower() in normalized:
+            return true
+    return false
+
+func _build_touch_policy_refusal_fallback_reply() -> String:
+    var stage_level: int = 1
+    if GameDataManager and GameDataManager.profile:
+        stage_level = int(GameDataManager.profile.get_current_stage_config().get("stage", 1))
+    var analysis_text: String = _last_observed_analysis_text
+    var is_adult_scene: bool = _is_touch_observe_adult_scene(analysis_text)
+    var app_type: String = _last_observed_app_type
+    if is_adult_scene:
+        if stage_level <= 2:
+            return "（忽然安静了一下）……哥哥，你看的这个，尺度好像有点大。"
+        elif stage_level <= 4:
+            return "（视线顿了一下，又很快移开）……你怎么偏偏让我看见这种画面呀。"
+        elif stage_level <= 6:
+            return "（轻轻抿了下唇）……这种东西你倒是看得挺认真，我会有一点在意的。"
+        else:
+            return "（凑近看了一眼，又慢慢把视线挪开）……你让我陪着一起看这种东西，我会有点不知道该拿你怎么办。"
+    match app_type:
+        "编程开发工具":
+            return "（盯着屏幕看了一会儿）这里是不是又卡住了……我刚刚都替你一起皱眉了。"
+        "办公文档软件":
+            return "（轻轻叹了口气）你这个界面一看就很费脑子……别硬撑太久。"
+        "网页浏览器":
+            return "（探头看了一眼）你现在看的这个，好像还挺让人在意的……"
+        "视频":
+            return "（目光跟着停了一下）这一眼的信息量有点大……难怪你会停在这里。"
+        "游戏":
+            return "（眼神跟着屏幕晃了一下）你这一段看着就很容易让人跟着紧张起来。"
+        "音乐":
+            return "（安静听了几秒）这个氛围一下就过来了……"
+        _:
+            return "（眨了眨眼，像是重新整理了一下思路）……刚刚那一眼的信息有点多，我先陪你缓一下。"
+
+func _is_touch_observe_adult_scene(analysis_text: String) -> bool:
+    var normalized: String = analysis_text.to_lower()
+    var adult_keywords: Array[String] = [
+        "成人向", "色情", "情色", "露骨", "裸", "nsfw", "18+", "涩", "色图", "大尺度", "暧昧", "挑逗"
+    ]
+    for keyword in adult_keywords:
+        if keyword.to_lower() in normalized:
+            return true
+    return false
 
 func _on_chat_failed(error_msg: String) -> void:
-	print("[DesktopPet Debug] Chat request failed: ", error_msg)
-	if pet_body:
-		pet_body.add_bubble("[color=red]错误: " + error_msg + "[/color]")
-	is_chatting = false
+    print("[DesktopPet Debug] Chat request failed: ", error_msg)
+    if pet_body:
+        pet_body.add_bubble("[color=red]错误: " + error_msg + "[/color]")
+    is_chatting = false
+    _current_chat_origin = CHAT_ORIGIN_SYSTEM
+
+func _request_desktop_pet_post_chat_updates(reply_text: String) -> void:
+    var clean_reply: String = reply_text.strip_edges()
+    if clean_reply == "":
+        return
+    deepseek_client.send_emotion_generation(clean_reply)
+    deepseek_client.send_character_mood_analysis(clean_reply)
+
+func _on_pet_emotion_response(response: Dictionary) -> void:
+    if not response.has("choices") or response["choices"].size() <= 0:
+        return
+    var reply: String = str(response["choices"][0]["message"]["content"])
+    var regex := RegEx.new()
+    regex.compile("(?i)(?:<|\\<|《|\\[|【)\\s*(intimacy|trust|亲密度|亲密变化|信任度|信任值|信任变化|openness|conscientiousness|extraversion|agreeableness|neuroticism)\\s*[:：]\\s*([^>\\>》\\]】]+)\\s*(?:>|\\>|》|\\]|】)")
+    var matches: Array[RegExMatch] = regex.search_all(reply)
+    var has_changes: bool = false
+    var relationship_feedback: Dictionary = {}
+    var personality_feedback: Dictionary = {}
+    for m in matches:
+        var tag: String = m.get_string(1).to_lower()
+        var val: String = m.get_string(2).strip_edges()
+        var f_val: float = val.to_float()
+        if tag == "intimacy" or tag.begins_with("亲密"):
+            relationship_feedback["intimacy"] = float(relationship_feedback.get("intimacy", 0.0)) + f_val
+        elif tag == "trust" or tag.begins_with("信任"):
+            relationship_feedback["trust"] = float(relationship_feedback.get("trust", 0.0)) + f_val
+        elif tag in ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"] and f_val != 0.0:
+            personality_feedback[tag] = float(personality_feedback.get(tag, 0.0)) + f_val
+            has_changes = true
+    if not relationship_feedback.is_empty() and GameDataManager.personality_system != null:
+        var sanitized_relationships: Dictionary = GameDataManager.personality_system.sanitize_llm_relationship_deltas(relationship_feedback)
+        var intimacy_delta: float = float(sanitized_relationships.get("intimacy", 0.0))
+        var trust_delta: float = float(sanitized_relationships.get("trust", 0.0))
+        if absf(intimacy_delta) > 0.001:
+            GameDataManager.profile.update_intimacy(intimacy_delta)
+            has_changes = true
+        if absf(trust_delta) > 0.001:
+            GameDataManager.profile.update_trust(trust_delta)
+            has_changes = true
+    if not personality_feedback.is_empty() and GameDataManager.personality_system != null:
+        GameDataManager.personality_system.apply_personality_feedback(
+            GameDataManager.profile,
+            personality_feedback,
+            "desktop_pet_emotion",
+            {
+                "force_log": true
+            }
+        )
+    if has_changes:
+        GameDataManager.profile.save_profile()
+
+func _on_pet_emotion_error(error_msg: String) -> void:
+    print("Desktop Pet Emotion Agent Failed: ", error_msg)
+
+func _on_pet_character_mood_response(response: Dictionary) -> void:
+    var expression_id: String = _parse_pet_character_mood_expression_id(response)
+    if expression_id == "":
+        return
+    if GameDataManager == null or GameDataManager.profile == null or GameDataManager.expression_system == null:
+        return
+    if not GameDataManager.expression_system.is_valid_expression(expression_id):
+        return
+    var profile = GameDataManager.profile
+    var expression_changed: bool = str(profile.current_expression).strip_edges() != expression_id
+    profile.update_expression(expression_id)
+    var mood_impact: float = GameDataManager.expression_system.get_expression_impact(expression_id)
+    var mood_changed: bool = false
+    if absf(mood_impact) > 0.001:
+        profile.mood_value = clampf(profile.mood_value + mood_impact, 0.0, 100.0)
+        mood_changed = true
+    if expression_changed or mood_changed:
+        profile.profile_updated.emit()
+        profile.save_profile()
+
+func _on_pet_character_mood_error(error_msg: String) -> void:
+    print("Desktop Pet Character Mood Failed: ", error_msg)
+
+func _parse_pet_character_mood_expression_id(response: Dictionary) -> String:
+    if not response.has("choices") or response["choices"].size() <= 0:
+        return ""
+    var reply: String = str(response["choices"][0]["message"]["content"]).strip_edges()
+    if reply.begins_with("```json"):
+        reply = reply.replace("```json", "")
+    if reply.begins_with("```"):
+        reply = reply.replace("```", "")
+    if reply.ends_with("```"):
+        reply = reply.substr(0, reply.length() - 3)
+    reply = reply.strip_edges()
+    var json := JSON.new()
+    if json.parse(reply) != OK:
+        return ""
+    var data: Variant = json.get_data()
+    if data is Dictionary:
+        return str(data.get("mood_id", "")).strip_edges()
+    return ""
 
 func display_bubble(text: String) -> void:
-	var processed_text = text
-	
-	# 兼容处理大模型没有使用 [SPLIT] 而是使用了换行符 \n\n 或 \n 的情况
-	if "[SPLIT]" not in processed_text:
-		var regex = RegEx.new()
-		# 先把所有的回车符统一成换行符
-		processed_text = processed_text.replace("\r\n", "\n")
-		# 匹配括号在行首的情况，在前面插入 [SPLIT]（除了第一行）
-		regex.compile("\\n+\\s*([（\\(])")
-		processed_text = regex.sub(processed_text, "[SPLIT]$1", true)
-		
-		# 如果还是没有拆分开，尝试简单的多换行拆分
-		if "[SPLIT]" not in processed_text:
-			regex.compile("\\n{2,}")
-			processed_text = regex.sub(processed_text, "[SPLIT]", true)
-			
-	var chunks = ChatSplitHelper.merge_incomplete_parentheses(processed_text.split("[SPLIT]"))
-	for chunk in chunks:
-		var c = chunk.strip_edges()
-		if not c.is_empty():
-			# 为每一小段兜底：如果这小段只有括号，没有台词，也补上省略号
-			var pure = _extract_dialogue_text(c)
-			if pure.is_empty():
-				c += " ……"
-			bubble_queue.append(c)
-			
-	if not is_processing_bubbles:
-		_process_next_bubble()
+    var processed_text = text
+    
+    # 兼容处理大模型没有使用 [SPLIT] 而是使用了换行符 \n\n 或 \n 的情况
+    if "[SPLIT]" not in processed_text:
+        var regex = RegEx.new()
+        # 先把所有的回车符统一成换行符
+        processed_text = processed_text.replace("\r\n", "\n")
+        # 匹配括号在行首的情况，在前面插入 [SPLIT]（除了第一行）
+        regex.compile("\\n+\\s*([（\\(])")
+        processed_text = regex.sub(processed_text, "[SPLIT]$1", true)
+        
+        # 如果还是没有拆分开，尝试简单的多换行拆分
+        if "[SPLIT]" not in processed_text:
+            regex.compile("\\n{2,}")
+            processed_text = regex.sub(processed_text, "[SPLIT]", true)
+            
+    var chunks = ChatSplitHelper.merge_incomplete_parentheses(processed_text.split("[SPLIT]"))
+    for chunk in chunks:
+        var c = chunk.strip_edges()
+        if not c.is_empty():
+            # 为每一小段兜底：如果这小段只有括号，没有台词，也补上省略号
+            var pure = _extract_dialogue_text(c)
+            if pure.is_empty():
+                c += " ……"
+            bubble_queue.append(c)
+            
+    if not is_processing_bubbles:
+        _process_next_bubble()
 
 func _process_next_bubble() -> void:
-	if bubble_queue.is_empty():
-		is_processing_bubbles = false
-		return
-		
-	is_processing_bubbles = true
-	var chunk = bubble_queue.pop_front()
-	
-	# Parse green action text and pure dialogue for TTS
-	var display_text = _format_action_text(chunk)
-	var tts_text = _extract_dialogue_text(chunk)
-	
-	if pet_body:
-		pet_body.add_bubble(display_text, true)
-	
-	if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
-		var char_id = GameDataManager.config.current_character_id
-		var v_type = "ICL_zh_female_bingruoshaonv_tob"
-		if GameDataManager.config.character_voice_types.has(char_id):
-			v_type = GameDataManager.config.character_voice_types[char_id]
-			
-		var options = {"voice_type": v_type}
-		
-		# 移除有垃圾回收风险的 Lambda 和本地数组，使用成员变量控制
-		_tts_finished = false
-		
-		var on_success = func(_stream: AudioStream, _text: String): 
-			_tts_finished = true
-		var on_failed = func(_err: String, _text: String): 
-			_tts_finished = true
-			
-		TTSManager.tts_success.connect(on_success, CONNECT_ONE_SHOT)
-		TTSManager.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
-		
-		TTSManager.synthesize(tts_text, options)
-		
-		# 第一阶段：死等网络请求回来（最多等10秒）
-		var wait_net = 0.0
-		while not _tts_finished and wait_net < 10.0:
-			await get_tree().process_frame
-			wait_net += get_process_delta_time()
-			
-		# 防止意外泄漏断开连接
-		if TTSManager.tts_success.is_connected(on_success):
-			TTSManager.tts_success.disconnect(on_success)
-		if TTSManager.tts_failed.is_connected(on_failed):
-			TTSManager.tts_failed.disconnect(on_failed)
-			
-		# 第二阶段：网络请求回来后，由于播放有一点微小的延迟，我们稍微等几帧确保 audio_player.playing 状态更新
-		await get_tree().process_frame
-		await get_tree().process_frame
-		await get_tree().process_frame
-			
-		# 第三阶段：死等音频播放结束
-		var wait_count = 0
-		while audio_player and audio_player.playing and wait_count < 1200: # 最多等60秒
-			await get_tree().create_timer(0.05).timeout
-			wait_count += 1
-			
-		# 极短的缓冲，让两句话之间显得自然，而不是生硬地等半天
-		await get_tree().create_timer(0.2).timeout
-	else:
-		# 如果没有语音，等待打字机完成 + 短暂暂停
-		var duration = chunk.length() * 0.05 + 1.0
-		await get_tree().create_timer(duration).timeout
-	
-	_process_next_bubble()
+    if bubble_queue.is_empty():
+        is_processing_bubbles = false
+        return
+        
+    is_processing_bubbles = true
+    var chunk = bubble_queue.pop_front()
+    
+    # Parse green action text and pure dialogue for TTS
+    var display_text = _format_action_text(chunk)
+    var tts_text = _extract_dialogue_text(chunk)
+    
+    if pet_body:
+        pet_body.add_bubble(display_text, true)
+    
+    if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
+        var char_id = GameDataManager.config.current_character_id
+        var v_type = "ICL_zh_female_bingruoshaonv_tob"
+        if GameDataManager.config.character_voice_types.has(char_id):
+            v_type = GameDataManager.config.character_voice_types[char_id]
+            
+        var options = {"voice_type": v_type}
+        
+        # 移除有垃圾回收风险的 Lambda 和本地数组，使用成员变量控制
+        _tts_finished = false
+        
+        var on_success = func(_stream: AudioStream, _text: String): 
+            _tts_finished = true
+        var on_failed = func(_err: String, _text: String): 
+            _tts_finished = true
+            
+        TTSManager.tts_success.connect(on_success, CONNECT_ONE_SHOT)
+        TTSManager.tts_failed.connect(on_failed, CONNECT_ONE_SHOT)
+        
+        TTSManager.synthesize(tts_text, options)
+        
+        # 第一阶段：死等网络请求回来（最多等10秒）
+        var wait_net = 0.0
+        while not _tts_finished and wait_net < 10.0:
+            await get_tree().process_frame
+            wait_net += get_process_delta_time()
+            
+        # 防止意外泄漏断开连接
+        if TTSManager.tts_success.is_connected(on_success):
+            TTSManager.tts_success.disconnect(on_success)
+        if TTSManager.tts_failed.is_connected(on_failed):
+            TTSManager.tts_failed.disconnect(on_failed)
+            
+        # 第二阶段：网络请求回来后，由于播放有一点微小的延迟，我们稍微等几帧确保 audio_player.playing 状态更新
+        await get_tree().process_frame
+        await get_tree().process_frame
+        await get_tree().process_frame
+            
+        # 第三阶段：死等音频播放结束
+        var wait_count = 0
+        while audio_player and audio_player.playing and wait_count < 1200: # 最多等60秒
+            await get_tree().create_timer(0.05).timeout
+            wait_count += 1
+            
+        # 极短的缓冲，让两句话之间显得自然，而不是生硬地等半天
+        await get_tree().create_timer(0.2).timeout
+    else:
+        # 如果没有语音，等待打字机完成 + 短暂暂停
+        var duration = chunk.length() * 0.05 + 1.0
+        await get_tree().create_timer(duration).timeout
+    
+    _process_next_bubble()
 
 func _format_action_text(text: String) -> String:
-	# 简单正则替换 (...) 和 （...）为绿色
-	var regex = RegEx.new()
-	regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
-	var result = text
-	var matches = regex.search_all(text)
-	# 为了防止破坏BBCode，从后往前替换或者直接替换
-	# 但由于没有嵌套，直接 replace 是可以的
-	for m in matches:
-		var matched_string = m.get_string()
-		result = result.replace(matched_string, "[color=green]" + matched_string + "[/color]")
-	return result
+    # 简单正则替换 (...) 和 （...）为绿色
+    var regex = RegEx.new()
+    regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
+    var result = text
+    var matches = regex.search_all(text)
+    # 为了防止破坏BBCode，从后往前替换或者直接替换
+    # 但由于没有嵌套，直接 replace 是可以的
+    for m in matches:
+        var matched_string = m.get_string()
+        result = result.replace(matched_string, "[color=green]" + matched_string + "[/color]")
+    return result
 
 func _extract_dialogue_text(text: String) -> String:
-	var regex = RegEx.new()
-	regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
-	return regex.sub(text, "", true).strip_edges()
+    var regex = RegEx.new()
+    regex.compile("\\([^)]+\\)|\\（[^）]+\\）")
+    return regex.sub(text, "", true).strip_edges()
 
 func _has_readable_text(text: String) -> bool:
-	var regex = RegEx.new()
-	regex.compile("[a-zA-Z0-9\u4e00-\u9fa5]")
-	return regex.search(text) != null
+    var regex = RegEx.new()
+    regex.compile("[a-zA-Z0-9\u4e00-\u9fa5]")
+    return regex.search(text) != null
 
 func _on_tts_success(audio_stream: AudioStream, _text: String) -> void:
-	if audio_player:
-		audio_player.stream = audio_stream
-		audio_player.play()
+    if audio_player:
+        audio_player.stream = audio_stream
+        audio_player.play()
 
 func _on_tts_failed(error_msg: String, _text: String) -> void:
-	print("Desktop Pet TTS failed: ", error_msg)
+    print("Desktop Pet TTS failed: ", error_msg)
 
 func _on_main_window_pressed() -> void:
-	# 请求主窗口焦点
-	print("[DesktopPet] 请求打开主界面，保持桌宠运行")
-	_restore_main_window_from_pet()
-	_set_menu_visible(false)
-	_hide_side_tool_panels()
-	DisplayServer.window_request_attention()
-	
-	# 注意：移除了 _on_close_pressed() 以保持桌宠继续运行
+    # 请求主窗口焦点
+    print("[DesktopPet] 请求打开主界面，保持桌宠运行")
+    _restore_main_window_from_pet()
+    _set_menu_visible(false)
+    _hide_side_tool_panels()
+    DisplayServer.window_request_attention()
+    
+    # 注意：移除了 _on_close_pressed() 以保持桌宠继续运行
 
 func _on_close_pressed() -> void:
-	# 先隐藏窗口并切断输入流，防止 _push_unhandled_input_internal 报错
-	_restore_main_window_from_pet()
-	hide()
-	
-	if music_player and music_player.playing:
-		music_player.stop()
-	
-	# 取消当前窗口中所有 Control 的焦点
-	var focused_node = get_viewport().gui_get_focus_owner()
-	if focused_node:
-		focused_node.release_focus()
-		
-	queue_free()
-	
+    # 先隐藏窗口并切断输入流，防止 _push_unhandled_input_internal 报错
+    _restore_main_window_from_pet()
+    hide()
+    
+    if music_player and music_player.playing:
+        music_player.stop()
+    
+    # 取消当前窗口中所有 Control 的焦点
+    var focused_node = get_viewport().gui_get_focus_owner()
+    if focused_node:
+        focused_node.release_focus()
+        
+    queue_free()
+    
 func _sync_root_window_focusability(force_root_focusable: bool = false) -> void:
-	var root_window := get_tree().root
-	if root_window == null:
-		return
-	if force_root_focusable:
-		root_window.unfocusable = false
-		return
-	if visible and root_window.mode == Window.MODE_MINIMIZED:
-		_convert_minimized_root_to_hidden(root_window)
-	var should_unfocus := visible and (root_window.mode == Window.MODE_MINIMIZED or not root_window.visible)
-	if root_window.unfocusable != should_unfocus:
-		root_window.unfocusable = should_unfocus
+    var root_window := get_tree().root
+    if root_window == null:
+        return
+    if force_root_focusable:
+        root_window.unfocusable = false
+        return
+    if visible and root_window.mode == Window.MODE_MINIMIZED:
+        _convert_minimized_root_to_hidden(root_window)
+    var should_unfocus := visible and (root_window.mode == Window.MODE_MINIMIZED or not root_window.visible)
+    if root_window.unfocusable != should_unfocus:
+        root_window.unfocusable = should_unfocus
 
 func _restore_main_window_from_pet() -> void:
-	var root_window := get_tree().root
-	if root_window == null:
-		return
-	if _root_window_parked:
-		root_window.position = _root_window_saved_position
-		if _root_window_saved_size.x > 0 and _root_window_saved_size.y > 0:
-			root_window.size = _root_window_saved_size
-		root_window.mode = _root_window_saved_mode
-		var current_scene := get_tree().current_scene
-		if current_scene is CanvasItem:
-			(current_scene as CanvasItem).show()
-		_root_window_parked = false
-	root_window.unfocusable = false
-	if root_window.mode == Window.MODE_MINIMIZED:
-		root_window.mode = Window.MODE_WINDOWED
-	root_window.show()
+    var root_window := get_tree().root
+    if root_window == null:
+        return
+    if _root_window_parked:
+        root_window.position = _root_window_saved_position
+        if _root_window_saved_size.x > 0 and _root_window_saved_size.y > 0:
+            root_window.size = _root_window_saved_size
+        root_window.mode = _root_window_saved_mode
+        var current_scene := get_tree().current_scene
+        if current_scene is CanvasItem:
+            (current_scene as CanvasItem).show()
+        _root_window_parked = false
+    root_window.unfocusable = false
+    if root_window.mode == Window.MODE_MINIMIZED:
+        root_window.mode = Window.MODE_WINDOWED
+    root_window.show()
 
 func park_main_window_for_pet() -> void:
-	var root_window := get_tree().root
-	if root_window == null:
-		return
-	if root_window.mode == Window.MODE_MINIMIZED:
-		root_window.mode = Window.MODE_WINDOWED
-	_convert_minimized_root_to_hidden(root_window)
+    var root_window := get_tree().root
+    if root_window == null:
+        return
+    if root_window.mode == Window.MODE_MINIMIZED:
+        root_window.mode = Window.MODE_WINDOWED
+    _convert_minimized_root_to_hidden(root_window)
 
 func _convert_minimized_root_to_hidden(root_window: Window) -> void:
-	if not _root_window_parked:
-		_root_window_saved_position = root_window.position
-		_root_window_saved_size = root_window.size
-		_root_window_saved_mode = Window.MODE_WINDOWED if root_window.mode == Window.MODE_MINIMIZED else int(root_window.mode)
-	root_window.mode = Window.MODE_WINDOWED
-	root_window.position = Vector2i(-32000, -32000)
-	root_window.size = Vector2i(1, 1)
-	root_window.unfocusable = true
-	var current_scene := get_tree().current_scene
-	if current_scene is CanvasItem:
-		(current_scene as CanvasItem).hide()
-	_root_window_parked = true
+    if not _root_window_parked:
+        _root_window_saved_position = root_window.position
+        _root_window_saved_size = root_window.size
+        _root_window_saved_mode = Window.MODE_WINDOWED if root_window.mode == Window.MODE_MINIMIZED else int(root_window.mode)
+    root_window.mode = Window.MODE_WINDOWED
+    root_window.position = Vector2i(-32000, -32000)
+    root_window.size = Vector2i(1, 1)
+    root_window.unfocusable = true
+    var current_scene := get_tree().current_scene
+    if current_scene is CanvasItem:
+        (current_scene as CanvasItem).hide()
+    _root_window_parked = true
 
 func is_main_window_parked() -> bool:
-	return _root_window_parked
+    return _root_window_parked
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			# 右键点击背景：切换 UI 面板显示/隐藏
-			if is_dialogue_panel_open:
-				return
-			var should_show_menu := not quick_tools_panel.visible
-			if should_show_menu:
-				_hide_side_tool_panels()
-			_set_menu_visible(should_show_menu)
-			get_viewport().set_input_as_handled()
-		elif event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				dragging = true
-				# 使用绝对屏幕坐标计算偏移，避免视口缩放导致的坐标错位
-				drag_offset = DisplayServer.mouse_get_position() - position
-			else:
-				dragging = false
-	elif event is InputEventMouseMotion and dragging:
-		var new_pos = DisplayServer.mouse_get_position() - drag_offset
-		
-		# 使用鼠标所在位置获取目标屏幕索引，这样才能允许跨屏幕拖拽
-		var mouse_pos = DisplayServer.mouse_get_position()
-		var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(mouse_pos, Vector2i.ONE))
-		
-		# 获取该屏幕的实际可用区域（排除任务栏等）
-		var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
-		
-		# 仅限制桌宠本体不超出屏幕边缘，允许左右工具面板越过屏幕范围
-		position = _clamp_window_position_to_pet_body(new_pos, screen_rect)
+    if _is_pointer_over_desktop_pet_ui():
+        return
+    if event is InputEventMouseButton:
+        if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            _toggle_quick_tools_from_right_click()
+            get_viewport().set_input_as_handled()
+        elif event.button_index == MOUSE_BUTTON_LEFT:
+            if event.pressed:
+                dragging = true
+                # 使用绝对屏幕坐标计算偏移，避免视口缩放导致的坐标错位
+                drag_offset = DisplayServer.mouse_get_position() - position
+            else:
+                dragging = false
+    elif event is InputEventMouseMotion and dragging:
+        var new_pos = DisplayServer.mouse_get_position() - drag_offset
+        
+        # 使用鼠标所在位置获取目标屏幕索引，这样才能允许跨屏幕拖拽
+        var mouse_pos = DisplayServer.mouse_get_position()
+        var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(mouse_pos, Vector2i.ONE))
+        
+        # 获取该屏幕的实际可用区域（排除任务栏等）
+        var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
+        
+        # 仅限制桌宠本体不超出屏幕边缘，允许左右工具面板越过屏幕范围
+        position = _clamp_window_position_to_pet_body(new_pos, screen_rect)
 
 func _trigger_pet_touch() -> void:
-	if is_dialogue_panel_open: return
-		
-	var current_tick = Time.get_ticks_msec()
-	# 增加一个冷却时间，防止疯狂点击
-	if current_tick - _last_reaction_tick < 3000:
-		return
-		
-	_last_reaction_tick = current_tick
-	
-	# 触发聊天
-	if not is_chatting:
-		var time_dict = Time.get_datetime_dict_from_system()
-		var h = time_dict["hour"]
-		var m = time_dict["minute"]
-		var time_constraint = _get_time_constraint(h)
-		var prompt = """【系统提示：当前现实时间是 %02d:%02d，玩家用鼠标轻轻戳了触碰了你一下。】
-请你结合当前时间作为隐性语境，代入你的性格和当前心情，像真人一样对玩家的触碰做出最自然的反应。
-- 反应要生动多样！可以是撒娇、傲娇吐槽、疑惑等，取决于你们的关系和心情。
-- 结合你们的【微习惯与口癖】。
-- 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
-- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [h, m]
-		_trigger_proactive_chat(prompt, true)
+    if is_dialogue_panel_open: return
+    if _is_pointer_over_desktop_pet_ui():
+        return
+        
+    var current_tick: int = Time.get_ticks_msec()
+    # 增加一个冷却时间，防止疯狂点击
+    if current_tick - _last_reaction_tick < 3000:
+        return
+        
+    _last_reaction_tick = current_tick
+    
+    # 触发聊天
+    if not is_chatting:
+        var time_dict: Dictionary = Time.get_datetime_dict_from_system()
+        var h: int = int(time_dict["hour"])
+        var m: int = int(time_dict["minute"])
+        var prompt: String = ""
+        if GameDataManager.config.pet_enable_app_observe:
+            if _trigger_touch_app_observe():
+                return
+            prompt = _build_default_touch_prompt(h, m)
+        else:
+            prompt = _build_mode_touch_prompt(h, m, _get_pet_mode())
+        _trigger_proactive_chat(prompt, true, CHAT_ORIGIN_TOUCH)
+
+func _on_pet_body_right_clicked() -> void:
+    _toggle_quick_tools_from_right_click()
+
+func _toggle_quick_tools_from_right_click() -> void:
+    if is_dialogue_panel_open:
+        return
+    var should_show_menu := not quick_tools_panel.visible
+    if should_show_menu:
+        _hide_side_tool_panels()
+    _set_menu_visible(should_show_menu)
 
 func _update_mouse_passthrough() -> void:
-	print("[DesktopPet Debug] _update_mouse_passthrough started")
-	# 确保窗口已经有效存在且没有在被销毁的过程中
-	if not is_inside_tree() or is_queued_for_deletion():
-		print("[DesktopPet Debug] Window not in tree or queued for deletion")
-		return
-		
-	var win_id = get_window_id()
-	if win_id == DisplayServer.INVALID_WINDOW_ID:
-		print("[DesktopPet Debug] INVALID_WINDOW_ID")
-		return
-		
-	print("[DesktopPet Debug] Gathering rects...")
-	var rects: Array[Rect2] = []
-	
-	# 始终包含左侧和底部边缘的一小块区域作为拖拽抓手，防止全透明后彻底丢失窗口控制权
-	rects.append(Rect2(0, size.y - 40, 40, 40))
-		
-	var i_layer = get_node_or_null("Control/InputLayer")
-	if i_layer and i_layer.is_visible_in_tree():
-		var in_rect = i_layer.get_global_rect()
-		if in_rect.size.x > 0 and in_rect.size.y > 0:
-			rects.append(in_rect.grow(5))
+    # 确保窗口已经有效存在且没有在被销毁的过程中
+    if not is_inside_tree() or is_queued_for_deletion():
+        return
+        
+    var win_id = get_window_id()
+    if win_id == DisplayServer.INVALID_WINDOW_ID:
+        return
+        
+    var rects: Array[Rect2] = []
+    
+    # 始终包含左侧和底部边缘的一小块区域作为拖拽抓手，防止全透明后彻底丢失窗口控制权
+    rects.append(Rect2(0, size.y - 40, 40, 40))
+        
+    var i_layer = get_node_or_null("Control/InputLayer")
+    if i_layer and i_layer.is_visible_in_tree():
+        var in_rect = i_layer.get_global_rect()
+        if in_rect.size.x > 0 and in_rect.size.y > 0:
+            rects.append(in_rect.grow(5))
 
-	var q_panel = get_node_or_null("Control/QuickToolsPanel")
-	if q_panel and q_panel.is_visible_in_tree():
-		var quick_rect = q_panel.get_global_rect()
-		if quick_rect.size.x > 0 and quick_rect.size.y > 0:
-			rects.append(quick_rect.grow(5))
+    var q_panel = get_node_or_null("Control/QuickToolsPanel")
+    if q_panel and q_panel.is_visible_in_tree():
+        var quick_rect = q_panel.get_global_rect()
+        if quick_rect.size.x > 0 and quick_rect.size.y > 0:
+            rects.append(quick_rect.grow(5))
 
-	var pomodoro_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/PomodoroPanelHost")
-	if pomodoro_host and pomodoro_host.is_visible_in_tree():
-		var pomodoro_rect = pomodoro_host.get_global_rect()
-		if pomodoro_rect.size.x > 0 and pomodoro_rect.size.y > 0:
-			rects.append(pomodoro_rect.grow(5))
+    var pomodoro_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/PomodoroPanelHost")
+    if pomodoro_host and pomodoro_host.is_visible_in_tree():
+        var pomodoro_rect = pomodoro_host.get_global_rect()
+        if pomodoro_rect.size.x > 0 and pomodoro_rect.size.y > 0:
+            rects.append(pomodoro_rect.grow(5))
 
-	var music_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/MusicPanelHost")
-	if music_host and music_host.is_visible_in_tree():
-		var music_rect = music_host.get_global_rect()
-		if music_rect.size.x > 0 and music_rect.size.y > 0:
-			rects.append(music_rect.grow(5))
+    var music_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/MusicPanelHost")
+    if music_host and music_host.is_visible_in_tree():
+        var music_rect = music_host.get_global_rect()
+        if music_rect.size.x > 0 and music_rect.size.y > 0:
+            rects.append(music_rect.grow(5))
 
-	var settings_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/SettingsPanelHost")
-	if settings_host and settings_host.is_visible_in_tree():
-		var settings_rect = settings_host.get_global_rect()
-		if settings_rect.size.x > 0 and settings_rect.size.y > 0:
-			rects.append(settings_rect.grow(5))
-		
-	if pet_body and pet_body.is_visible_in_tree():
-		if pet_body.has_method("get_passthrough_rects"):
-			var pet_rects = pet_body.get_passthrough_rects()
-			for r in pet_rects:
-				if r.size.x > 0 and r.size.y > 0:
-					rects.append(r)
-				
-	if rects.is_empty():
-		print("[DesktopPet Debug] Rects empty, setting dummy polygon")
-		# 如果没有矩形，为了实现全穿透，传递一个在屏幕外的极小多边形
-		var dummy := PackedVector2Array([
-			Vector2(-10, -10), Vector2(-9, -10),
-			Vector2(-9, -9), Vector2(-10, -9)
-		])
-		if is_inside_tree() and not is_queued_for_deletion():
-			DisplayServer.window_set_mouse_passthrough(dummy, win_id)
-		return
-		
-	print("[DesktopPet Debug] Building polygons from %d rects" % rects.size())
-	var polys: Array[PackedVector2Array] = []
-	for r in rects:
-		# 顺时针和逆时针的问题在Godot中要注意，这里先按照一个标准方向构建矩形
-		var p = PackedVector2Array([
-			r.position,
-			Vector2(r.position.x, r.end.y),
-			r.end,
-			Vector2(r.end.x, r.position.y)
-		])
-		# Godot中，Geometry2D处理的是逆时针多边形
-		if Geometry2D.is_polygon_clockwise(p):
-			p.reverse()
-		polys.append(p)
-		
-	print("[DesktopPet Debug] Merging polygons...")
-	# 消除重叠，避免零宽桥接在ALTERNATE填充规则下产生漏洞（镂空）
-	var changed = true
-	var loop_count = 0
-	while changed and loop_count < 100: # 防死循环保护
-		loop_count += 1
-		changed = false
-		for i in range(polys.size()):
-			for j in range(i + 1, polys.size()):
-				var intersection = Geometry2D.intersect_polygons(polys[i], polys[j])
-				if intersection.size() > 0:
-					var merged = Geometry2D.merge_polygons(polys[i], polys[j])
-					polys.remove_at(j)
-					polys.remove_at(i)
-					for m in merged:
-						if m.size() >= 3 and not Geometry2D.is_polygon_clockwise(m):
-							polys.append(m)
-					changed = true
-					break
-			if changed:
-				break
-				
-	if loop_count >= 100:
-		print("[DesktopPet Debug] ERROR: Polygon merge loop exceeded max iterations!")
-				
-	if polys.is_empty():
-		print("[DesktopPet Debug] Polys empty after merge, setting dummy polygon")
-		var dummy := PackedVector2Array([
-			Vector2(-10, -10), Vector2(-9, -10),
-			Vector2(-9, -9), Vector2(-10, -9)
-		])
-		if is_inside_tree() and not is_queued_for_deletion():
-			DisplayServer.window_set_mouse_passthrough(dummy, win_id)
-		return
-		
-	print("[DesktopPet Debug] Bridging %d final polygons..." % polys.size())
-	var polygon := PackedVector2Array()
-	var first = polys[0]
-	
-	if first.size() < 3:
-		print("[DesktopPet Debug] ERROR: First polygon has less than 3 points!")
-		return
-	
-	polygon.append_array(first)
-	polygon.append(first[0]) # 闭合第一个多边形
-	
-	# 使用零宽桥接(Zero-width bridge)连接后续独立的多边形，形成单个多边形
-	for i in range(1, polys.size()):
-		var current = polys[i]
-		if current.size() < 3:
-			continue
-			
-		# 从第一个多边形的起点连到当前多边形的起点 (去程桥接)
-		polygon.append(first[0])
-		polygon.append(current[0])
-		
-		# 绘制当前多边形
-		polygon.append_array(current)
-		polygon.append(current[0]) # 闭合当前多边形
-		
-		# 从当前多边形的起点连回第一个多边形的起点 (回程桥接)
-		polygon.append(first[0])
-		
-	print("[DesktopPet Debug] Setting final passthrough polygon with %d points" % polygon.size())
-	if is_inside_tree() and not is_queued_for_deletion():
-		DisplayServer.window_set_mouse_passthrough(polygon, win_id)
-	print("[DesktopPet Debug] _update_mouse_passthrough completed")
+    var settings_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/SettingsPanelHost")
+    if settings_host and settings_host.is_visible_in_tree():
+        var settings_rect = settings_host.get_global_rect()
+        if settings_rect.size.x > 0 and settings_rect.size.y > 0:
+            rects.append(settings_rect.grow(5))
+        
+    if pet_body and pet_body.is_visible_in_tree():
+        if pet_body.has_method("get_passthrough_rects"):
+            var pet_rects = pet_body.get_passthrough_rects()
+            for r in pet_rects:
+                if r.size.x > 0 and r.size.y > 0:
+                    rects.append(r)
+                
+    if rects.is_empty():
+        # 如果没有矩形，为了实现全穿透，传递一个在屏幕外的极小多边形
+        var dummy := PackedVector2Array([
+            Vector2(-10, -10), Vector2(-9, -10),
+            Vector2(-9, -9), Vector2(-10, -9)
+        ])
+        if is_inside_tree() and not is_queued_for_deletion():
+            DisplayServer.window_set_mouse_passthrough(dummy, win_id)
+        return
+        
+    var polys: Array[PackedVector2Array] = []
+    for r in rects:
+        # 顺时针和逆时针的问题在Godot中要注意，这里先按照一个标准方向构建矩形
+        var p = PackedVector2Array([
+            r.position,
+            Vector2(r.position.x, r.end.y),
+            r.end,
+            Vector2(r.end.x, r.position.y)
+        ])
+        # Godot中，Geometry2D处理的是逆时针多边形
+        if Geometry2D.is_polygon_clockwise(p):
+            p.reverse()
+        polys.append(p)
+        
+    # 消除重叠，避免零宽桥接在ALTERNATE填充规则下产生漏洞（镂空）
+    var changed = true
+    var loop_count = 0
+    while changed and loop_count < 100: # 防死循环保护
+        loop_count += 1
+        changed = false
+        for i in range(polys.size()):
+            for j in range(i + 1, polys.size()):
+                var intersection = Geometry2D.intersect_polygons(polys[i], polys[j])
+                if intersection.size() > 0:
+                    var merged = Geometry2D.merge_polygons(polys[i], polys[j])
+                    polys.remove_at(j)
+                    polys.remove_at(i)
+                    for m in merged:
+                        if m.size() >= 3 and not Geometry2D.is_polygon_clockwise(m):
+                            polys.append(m)
+                    changed = true
+                    break
+            if changed:
+                break
+                
+    if polys.is_empty():
+        var dummy := PackedVector2Array([
+            Vector2(-10, -10), Vector2(-9, -10),
+            Vector2(-9, -9), Vector2(-10, -9)
+        ])
+        if is_inside_tree() and not is_queued_for_deletion():
+            DisplayServer.window_set_mouse_passthrough(dummy, win_id)
+        return
+        
+    var polygon := PackedVector2Array()
+    var first = polys[0]
+    
+    if first.size() < 3:
+        return
+    
+    polygon.append_array(first)
+    polygon.append(first[0]) # 闭合第一个多边形
+    
+    # 使用零宽桥接(Zero-width bridge)连接后续独立的多边形，形成单个多边形
+    for i in range(1, polys.size()):
+        var current = polys[i]
+        if current.size() < 3:
+            continue
+            
+        # 从第一个多边形的起点连到当前多边形的起点 (去程桥接)
+        polygon.append(first[0])
+        polygon.append(current[0])
+        
+        # 绘制当前多边形
+        polygon.append_array(current)
+        polygon.append(current[0]) # 闭合当前多边形
+        
+        # 从当前多边形的起点连回第一个多边形的起点 (回程桥接)
+        polygon.append(first[0])
+        
+    if is_inside_tree() and not is_queued_for_deletion():
+        DisplayServer.window_set_mouse_passthrough(polygon, win_id)

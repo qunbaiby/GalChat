@@ -40,15 +40,30 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="Theme" id="Theme_Inline"]
+Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
+Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+OptionButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+OptionButton/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+OptionButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+OptionButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
+PopupMenu/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+PopupMenu/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+PopupMenu/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+
 [node name="DesktopPetMusicPanel" type="PanelContainer" unique_id=601962765]
-custom_minimum_size = Vector2(305, 575)
+custom_minimum_size = Vector2(280, 553)
 anchors_preset = -1
-anchor_right = 0.238
-anchor_bottom = 0.799
-offset_right = 0.35998535
-offset_bottom = -0.2800293
+anchor_right = 0.21900001
+anchor_bottom = 0.768
+offset_right = -0.32000732
+offset_bottom = 0.039978027
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_Inline")
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 script = ExtResource("1_script")
 

@@ -39,25 +39,39 @@ func send_emotion_generation(client, last_ai_reply: String) -> void:
 		client.emotion_http.cancel_request()
 	client.emotion_http.request(client._get_url(), client._get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 
-func set_next_memory_context(client, memory_context: Dictionary = {}) -> void:
-	client._pending_memory_context = memory_context.duplicate(true)
+func _resolve_target_memory_manager(memory_manager_override = null):
+	if memory_manager_override != null:
+		return memory_manager_override
+	return GameDataManager.memory_manager
 
-func prepare_memory_request_context(client, memory_context: Dictionary = {}) -> void:
+func set_next_memory_context(client, memory_context: Dictionary = {}, memory_manager_override = null) -> void:
+	client._pending_memory_context = memory_context.duplicate(true)
+	client._pending_memory_manager_override = memory_manager_override
+
+func prepare_memory_request_context(client, memory_context: Dictionary = {}, memory_manager_override = null) -> void:
 	if not memory_context.is_empty():
 		client._active_memory_context = memory_context.duplicate(true)
 	else:
 		client._active_memory_context = client._pending_memory_context.duplicate(true)
+	if memory_manager_override != null:
+		client._active_memory_manager_override = memory_manager_override
+	else:
+		client._active_memory_manager_override = client._pending_memory_manager_override
 	client._pending_memory_context = {}
+	client._pending_memory_manager_override = null
 
 func clear_memory_request_context(client) -> void:
 	client._pending_memory_context = {}
 	client._active_memory_context = {}
+	client._pending_memory_manager_override = null
+	client._active_memory_manager_override = null
 
-func send_memory_extraction(client, history_type: String = "story_chat") -> void:
+func send_memory_extraction(client, history_type: String = "story_chat", memory_manager_override = null) -> void:
 	if not client.is_inside_tree() or client._is_api_key_empty():
 		return
-	prepare_memory_request_context(client)
-	var system_prompt: String = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile)
+	prepare_memory_request_context(client, {}, memory_manager_override)
+	var target_memory_manager = _resolve_target_memory_manager(client._active_memory_manager_override)
+	var system_prompt: String = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile, target_memory_manager)
 	var history_text: String = ""
 	var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
 	var start_idx: int = max(0, history_msgs.size() - 20)
@@ -86,13 +100,14 @@ func send_memory_extraction(client, history_type: String = "story_chat") -> void
 		clear_memory_request_context(client)
 		client.memory_request_failed.emit("网络请求发送失败: " + str(err))
 
-func extract_memory_from_chat(client, user_text: String, ai_reply: String, memory_context: Dictionary = {}) -> void:
+func extract_memory_from_chat(client, user_text: String, ai_reply: String, memory_context: Dictionary = {}, memory_manager_override = null) -> void:
 	if not client.is_inside_tree() or client._is_api_key_empty():
 		return
 	if client.memory_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		client.memory_http.cancel_request()
-	prepare_memory_request_context(client, memory_context)
-	var system_prompt: String = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile)
+	prepare_memory_request_context(client, memory_context, memory_manager_override)
+	var target_memory_manager = _resolve_target_memory_manager(client._active_memory_manager_override)
+	var system_prompt: String = GameDataManager.prompt_manager.build_memory_prompt(GameDataManager.profile, target_memory_manager)
 	var char_name: String = GameDataManager.profile.char_name
 	if char_name == "":
 		char_name = "AI"
@@ -115,6 +130,7 @@ func extract_memory_from_chat(client, user_text: String, ai_reply: String, memor
 
 func handle_memory_completed(client, result: int, response_code: int, body: PackedByteArray) -> void:
 	var request_memory_context: Dictionary = client._active_memory_context.duplicate(true)
+	var target_memory_manager = _resolve_target_memory_manager(client._active_memory_manager_override)
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
 		var json := JSON.new()
 		if json.parse(body.get_string_from_utf8()) == OK:
@@ -149,14 +165,14 @@ func handle_memory_completed(client, result: int, response_code: int, body: Pack
 								var content = op.get("content", "")
 								var id = op.get("id", "")
 								if action == "ADD":
-									await GameDataManager.memory_manager.add_memory(layer, content, request_memory_context)
+									await target_memory_manager.add_memory(layer, content, request_memory_context)
 									plain_text_changes += "新增记忆: %s\n" % content
 								elif action == "UPDATE":
-									var success = await GameDataManager.memory_manager.update_memory(layer, id, content, request_memory_context)
+									var success = await target_memory_manager.update_memory(layer, id, content, request_memory_context)
 									if success:
 										plain_text_changes += "更新记忆: %s\n" % content
 								elif action == "DELETE":
-									if GameDataManager.memory_manager.delete_memory(layer, id):
+									if target_memory_manager.delete_memory(layer, id):
 										plain_text_changes += "删除记忆 [%s]\n" % id
 							if plain_text_changes != "":
 								print("记忆系统更新: ", plain_text_changes.strip_edges())

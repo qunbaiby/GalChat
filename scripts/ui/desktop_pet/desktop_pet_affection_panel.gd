@@ -5,36 +5,100 @@ signal back_requested
 const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
-@onready var back_btn: Button = $RootMargin/RootVBox/TopBar/BackBtn
-@onready var level_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/LevelLabel
-@onready var stage_title_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StageCard/Margin/StageVBox/StageTitleLabel
-@onready var points_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/PointsLabel
-@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/StageProgressBar
-@onready var breakthrough_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/BreakthroughCard/Margin/BreakthroughVBox/BreakthroughLabel
-@onready var intimacy_value_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/StatsCard/Margin/StatsVBox/IntimacyRow/HBox/Value
-@onready var trust_value_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/StatsCard/Margin/StatsVBox/TrustRow/HBox/Value
-@onready var state_badge_panel: PanelContainer = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StatusCard/Margin/SummaryVBox/TitleRow/StateBadge
-@onready var state_badge_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StatusCard/Margin/SummaryVBox/TitleRow/StateBadge/StateBadgeLabel
-@onready var summary_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StageCard/Margin/StageVBox/SummaryLabel
-@onready var milestone_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StatusCard/Margin/SummaryVBox/MilestoneLabel
+@onready var back_btn: Button = $Margin/VBox/TopBar/BackButton
+@onready var stage_switch_option: OptionButton = $Margin/VBox/TopBar/StageSwitchBox/StageOption
+@onready var level_label: Label = $Margin/VBox/Scroll/ContentVBox/HeroCard/Margin/VBox/HeartRow/HeartCard/Center/VBox/LevelLabel
+@onready var stage_title_label: Label = $Margin/VBox/Scroll/ContentVBox/HeroCard/Margin/VBox/HeartRow/MetaVBox/StageTitleLabel
+@onready var points_label: Label = $Margin/VBox/Scroll/ContentVBox/HeroCard/Margin/VBox/HeartRow/MetaVBox/PointsLabel
+@onready var stage_progress_bar: ProgressBar = $Margin/VBox/Scroll/ContentVBox/HeroCard/Margin/VBox/StageProgressBar
+@onready var breakthrough_label: Label = $Margin/VBox/Scroll/ContentVBox/BreakthroughCard/Margin/VBox/BreakthroughLabel
+@onready var intimacy_value_label: Label = $Margin/VBox/Scroll/ContentVBox/StatsCard/Margin/VBox/IntimacyRow/HBox/Value
+@onready var trust_value_label: Label = $Margin/VBox/Scroll/ContentVBox/StatsCard/Margin/VBox/TrustRow/HBox/Value
+@onready var state_badge_panel: PanelContainer = $Margin/VBox/Scroll/ContentVBox/StatusCard/Margin/VBox/TitleRow/StateBadge
+@onready var state_badge_label: Label = $Margin/VBox/Scroll/ContentVBox/StatusCard/Margin/VBox/TitleRow/StateBadge/StateBadgeLabel
+@onready var summary_label: Label = $Margin/VBox/Scroll/ContentVBox/StageCard/Margin/VBox/SummaryLabel
+@onready var milestone_label: Label = $Margin/VBox/Scroll/ContentVBox/StatusCard/Margin/VBox/MilestoneLabel
 
 var _event_registry_cache: Dictionary = {}
 var _map_name_cache: Dictionary = {}
+var _bound_profile = null
+var _is_refreshing_stage_option := false
 
 func _ready() -> void:
     hide()
     if is_instance_valid(back_btn) and not back_btn.pressed.is_connected(_on_back_pressed):
         back_btn.pressed.connect(_on_back_pressed)
+    if is_instance_valid(stage_switch_option) and not stage_switch_option.item_selected.is_connected(_on_stage_option_selected):
+        stage_switch_option.item_selected.connect(_on_stage_option_selected)
+    _bind_profile(GameDataManager.profile if GameDataManager else null)
+
+func _exit_tree() -> void:
+    _bind_profile(null)
 
 func show_panel(profile) -> void:
+    _bind_profile(profile)
     update_ui(profile)
     show()
 
 func hide_panel() -> void:
     hide()
 
+func _bind_profile(profile) -> void:
+    if _bound_profile == profile:
+        return
+    if _bound_profile != null:
+        if _bound_profile.profile_updated.is_connected(_on_profile_updated):
+            _bound_profile.profile_updated.disconnect(_on_profile_updated)
+        if _bound_profile.stage_upgraded.is_connected(_on_stage_upgraded):
+            _bound_profile.stage_upgraded.disconnect(_on_stage_upgraded)
+    _bound_profile = profile
+    if _bound_profile != null:
+        if not _bound_profile.profile_updated.is_connected(_on_profile_updated):
+            _bound_profile.profile_updated.connect(_on_profile_updated)
+        if not _bound_profile.stage_upgraded.is_connected(_on_stage_upgraded):
+            _bound_profile.stage_upgraded.connect(_on_stage_upgraded)
+
+func _on_profile_updated() -> void:
+    if _bound_profile != null and visible:
+        update_ui(_bound_profile)
+
+func _on_stage_upgraded(_new_stage: int) -> void:
+    if _bound_profile != null and visible:
+        update_ui(_bound_profile)
+
 func _on_back_pressed() -> void:
     back_requested.emit()
+
+func _refresh_stage_options(profile) -> void:
+    if stage_switch_option == null:
+        return
+    _is_refreshing_stage_option = true
+    stage_switch_option.clear()
+    if profile != null:
+        for stage_conf in profile.stages_config:
+            if not (stage_conf is Dictionary):
+                continue
+            var stage_num := int(stage_conf.get("stage", 0))
+            if stage_num <= 0:
+                continue
+            var stage_title := str(stage_conf.get("stageTitle", "阶段 %d" % stage_num)).strip_edges()
+            stage_switch_option.add_item("LV %d %s" % [stage_num, stage_title], stage_num)
+        for index in range(stage_switch_option.item_count):
+            if stage_switch_option.get_item_id(index) == int(profile.current_stage):
+                stage_switch_option.select(index)
+                break
+    _is_refreshing_stage_option = false
+
+func _on_stage_option_selected(index: int) -> void:
+    if _is_refreshing_stage_option or _bound_profile == null:
+        return
+    if index < 0 or index >= stage_switch_option.item_count:
+        return
+    var target_stage := stage_switch_option.get_item_id(index)
+    if target_stage <= 0 or int(_bound_profile.current_stage) == target_stage:
+        return
+    _bound_profile.force_set_stage(target_stage)
+    update_ui(_bound_profile)
 
 func _get_flavor_info(intimacy: float, trust: float) -> Dictionary:
     var flavor_text := "防备疏离"
@@ -144,8 +208,7 @@ func _build_breakthrough_hint(profile, conf: Dictionary, progress_info: Dictiona
 
     return {
         "text": "突破到下一阶段需要满足：\n" + "\n".join(parts),
-        "milestone_done": milestone_done,
-        "has_milestone": milestone_story != ""
+        "milestone_done": milestone_done
     }
 
 func _build_stage_progress(profile, current_stage: int, conf: Dictionary) -> Dictionary:
@@ -153,7 +216,6 @@ func _build_stage_progress(profile, current_stage: int, conf: Dictionary) -> Dic
     var resonance_threshold: float = float(conf.get("resonance_threshold", 0.0))
     var is_max_stage: bool = resonance_threshold >= 9999.0
 
-    # 某些配置的当前阶段阈值可能是 0，此时回退到下一阶段阈值做展示，避免出现 5/1 这种错误观感。
     if resonance_threshold <= 0.0 and not is_max_stage:
         var next_conf: Dictionary = profile.get_stage_config(current_stage + 1)
         if not next_conf.is_empty():
@@ -166,7 +228,6 @@ func _build_stage_progress(profile, current_stage: int, conf: Dictionary) -> Dic
         display_max = max(current_resonance, 100.0)
 
     return {
-        "current_total": current_resonance,
         "display_current": current_resonance,
         "display_max": display_max,
         "bar_value": min(current_resonance, display_max),
@@ -176,6 +237,7 @@ func _build_stage_progress(profile, current_stage: int, conf: Dictionary) -> Dic
 func update_ui(profile) -> void:
     if profile == null:
         return
+    _refresh_stage_options(profile)
 
     var current_stage: int = int(profile.current_stage)
     var conf: Dictionary = profile.get_current_stage_config()
@@ -188,15 +250,15 @@ func update_ui(profile) -> void:
     var progress_info := _build_stage_progress(profile, current_stage, conf)
 
     level_label.text = "LV %d" % current_stage
-    stage_title_label.text = conf.get("stageTitle", "未命名阶段")
-    if progress_info.is_max_stage:
-        points_label.text = "%.0f / MAX" % progress_info.display_current
+    stage_title_label.text = str(conf.get("stageTitle", "未命名阶段"))
+    if bool(progress_info.get("is_max_stage", false)):
+        points_label.text = "%.0f / MAX" % float(progress_info.get("display_current", 0.0))
     else:
-        points_label.text = "%.0f / %.0f" % [progress_info.display_current, progress_info.display_max]
+        points_label.text = "%.0f / %.0f" % [float(progress_info.get("display_current", 0.0)), float(progress_info.get("display_max", 0.0))]
 
     stage_progress_bar.min_value = 0.0
-    stage_progress_bar.max_value = progress_info.display_max
-    stage_progress_bar.value = progress_info.bar_value
+    stage_progress_bar.max_value = float(progress_info.get("display_max", 100.0))
+    stage_progress_bar.value = float(progress_info.get("bar_value", 0.0))
 
     var breakthrough_info := _build_breakthrough_hint(profile, conf, progress_info)
     breakthrough_label.text = str(breakthrough_info.get("text", ""))
@@ -208,20 +270,23 @@ func update_ui(profile) -> void:
     intimacy_value_label.text = "%.0f" % intimacy
     trust_value_label.text = "%.0f" % trust
 
-    state_badge_label.text = str(flavor_info.text)
-    state_badge_label.add_theme_color_override("font_color", flavor_info.color)
+    var flavor_text := str(flavor_info.get("text", ""))
+    var flavor_color: Color = flavor_info.get("color", Color.WHITE)
+    var flavor_desc := str(flavor_info.get("desc", ""))
+    state_badge_label.text = flavor_text
+    state_badge_label.add_theme_color_override("font_color", flavor_color)
     summary_label.text = "阶段【%s】\n%s" % [
-        conf.get("stageTitle", ""),
-        conf.get("stageDesc", "暂无描述")
+        str(conf.get("stageTitle", "")),
+        str(conf.get("stageDesc", "暂无描述"))
     ]
 
     var badge_style := StyleBoxFlat.new()
-    badge_style.bg_color = Color(flavor_info.color, 0.12)
+    badge_style.bg_color = Color(flavor_color, 0.12)
     badge_style.border_width_left = 1
     badge_style.border_width_top = 1
     badge_style.border_width_right = 1
     badge_style.border_width_bottom = 1
-    badge_style.border_color = Color(flavor_info.color, 0.32)
+    badge_style.border_color = Color(flavor_color, 0.32)
     badge_style.corner_radius_top_left = 16
     badge_style.corner_radius_top_right = 16
     badge_style.corner_radius_bottom_left = 16
@@ -230,12 +295,12 @@ func update_ui(profile) -> void:
         state_badge_panel.add_theme_stylebox_override("panel", badge_style)
 
     var fill_style := StyleBoxFlat.new()
-    fill_style.bg_color = flavor_info.color
+    fill_style.bg_color = flavor_color
     fill_style.corner_radius_top_left = 6
     fill_style.corner_radius_top_right = 6
     fill_style.corner_radius_bottom_left = 6
     fill_style.corner_radius_bottom_right = 6
     stage_progress_bar.add_theme_stylebox_override("fill", fill_style)
 
-    milestone_label.text = "状态概览：%s" % str(flavor_info.desc)
+    milestone_label.text = "状态概览：%s" % flavor_desc
     milestone_label.add_theme_color_override("font_color", Color(0.45, 0.48, 0.56, 1))

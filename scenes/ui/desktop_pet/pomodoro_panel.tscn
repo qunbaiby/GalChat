@@ -39,15 +39,25 @@ corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
+[sub_resource type="Theme" id="Theme_Inline"]
+Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
+Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+SpinBox/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+SpinBox/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+
 [node name="PomodoroPanel" type="Control" unique_id=868551656]
-custom_minimum_size = Vector2(305, 575)
+custom_minimum_size = Vector2(280, 553)
 layout_mode = 3
 anchor_right = 0.238
 anchor_bottom = 0.799
-offset_right = 0.35998535
-offset_bottom = -0.2800293
+offset_right = -24.640015
+offset_bottom = -22.28003
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_Inline")
 script = ExtResource("1_0iwa6")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=136170466]
@@ -82,9 +92,7 @@ flat = true
 [node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=1299983536]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=228162608]

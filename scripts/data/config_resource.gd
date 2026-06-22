@@ -52,8 +52,6 @@ var vision_model: String = "doubao-seed-2-0-mini-260428"
 var vision_base_url: String = "https://ark.cn-beijing.volces.com/api/v3"
 
 # 桌宠交互配置
-var pet_new_app_observe_time: int = 10    # 新应用观察停留时间 (秒)
-var pet_same_app_cooldown: int = 180     # 同应用再次吐槽冷却时间 (秒)
 var pet_global_cooldown: int = 10         # 全局主动发言最小冷却时间 (秒)
 var pet_scale_multiplier: float = 1.0    # 桌宠立绘缩放倍率
 var pet_enable_app_observe: bool = true  # 允许应用观察
@@ -154,8 +152,6 @@ func save_config() -> void:
         "vision_api_key": vision_api_key,
         "vision_model": vision_model,
         "vision_base_url": vision_base_url,
-        "pet_new_app_observe_time": pet_new_app_observe_time,
-        "pet_same_app_cooldown": pet_same_app_cooldown,
         "pet_global_cooldown": pet_global_cooldown,
         "pet_scale_multiplier": pet_scale_multiplier,
         "pet_enable_app_observe": pet_enable_app_observe,
@@ -246,8 +242,6 @@ func load_config() -> void:
                 vision_model = data.get("vision_model", vision_model)
                 vision_base_url = data.get("vision_base_url", vision_base_url)
                 
-                pet_new_app_observe_time = data.get("pet_new_app_observe_time", pet_new_app_observe_time)
-                pet_same_app_cooldown = data.get("pet_same_app_cooldown", pet_same_app_cooldown)
                 pet_global_cooldown = data.get("pet_global_cooldown", pet_global_cooldown)
                 pet_scale_multiplier = data.get("pet_scale_multiplier", pet_scale_multiplier)
                 pet_enable_app_observe = data.get("pet_enable_app_observe", pet_enable_app_observe)

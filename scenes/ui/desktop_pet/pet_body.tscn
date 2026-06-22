@@ -1,7 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://d0vnlpr3gjrac"]
+[gd_scene format=3 uid="uid://d0vnlpr3gjrac"]
 
 [ext_resource type="Script" uid="uid://b5ponp1xixff7" path="res://scripts/ui/desktop_pet/pet_body.gd" id="2_script"]
 [ext_resource type="SpriteFrames" uid="uid://d3nrsw7qynsyj" path="res://assets/images/characters/desktop_pet/luna_desktop.tres" id="2_vn3qc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vn3qc"]
+bg_color = Color(0.985, 0.988, 0.995, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.89, 0.91, 0.95, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 2
+shadow_color = Color(0.57, 0.82, 0.76, 0.1)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
 size = Vector2(133.5, 179)
@@ -21,11 +36,11 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 8
 shadow_offset = Vector2(0, 3)
 
-[node name="PetBody" type="CharacterBody2D"]
+[node name="PetBody" type="CharacterBody2D" unique_id=907605141]
 input_pickable = true
 script = ExtResource("2_script")
 
-[node name="AvatarContainer" type="Control" parent="."]
+[node name="AvatarContainer" type="Control" parent="." unique_id=866241448]
 custom_minimum_size = Vector2(160, 160)
 layout_mode = 3
 anchors_preset = 8
@@ -40,7 +55,7 @@ offset_bottom = 80.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="AvatarMask" type="Control" parent="AvatarContainer"]
+[node name="AvatarMask" type="Control" parent="AvatarContainer" unique_id=129223484]
 clip_children = 1
 layout_mode = 1
 anchors_preset = 15
@@ -49,12 +64,12 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AvatarContainer/AvatarMask"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AvatarContainer/AvatarMask" unique_id=1602040081]
 position = Vector2(80.5, 86.499985)
 scale = Vector2(0.12519936, 0.12519936)
 sprite_frames = ExtResource("2_vn3qc")
 
-[node name="StateRing" type="Control" parent="AvatarContainer"]
+[node name="StateRing" type="Control" parent="AvatarContainer" unique_id=296746783]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -62,11 +77,48 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="MoodBubble" type="PanelContainer" parent="AvatarContainer" unique_id=1863439176]
+layout_mode = 1
+offset_left = 174.0
+offset_top = 10.0
+offset_right = 241.0
+offset_bottom = 44.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_vn3qc")
+
+[node name="MarginContainer" type="MarginContainer" parent="AvatarContainer/MoodBubble" unique_id=1835973669]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="MoodHBox" type="HBoxContainer" parent="AvatarContainer/MoodBubble/MarginContainer" unique_id=1935980190]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MoodEmojiLabel" type="Label" parent="AvatarContainer/MoodBubble/MarginContainer/MoodHBox" unique_id=1752599703]
+custom_minimum_size = Vector2(18, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "🙂"
+vertical_alignment = 1
+
+[node name="MoodNameLabel" type="Label" parent="AvatarContainer/MoodBubble/MarginContainer/MoodHBox" unique_id=626013298]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "平静"
+vertical_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1001523764]
 position = Vector2(4.75, 15)
 shape = SubResource("RectangleShape2D_yofv2")
 
-[node name="BubbleContainer" type="VBoxContainer" parent="."]
+[node name="BubbleContainer" type="VBoxContainer" parent="." unique_id=1402705437]
 custom_minimum_size = Vector2(0, 250)
 offset_left = -199.0
 offset_top = -340.0
@@ -76,7 +128,7 @@ size_flags_stretch_ratio = 1.5
 mouse_filter = 2
 alignment = 2
 
-[node name="SpeechBubble" type="PanelContainer" parent="BubbleContainer"]
+[node name="SpeechBubble" type="PanelContainer" parent="BubbleContainer" unique_id=2094166221]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -84,7 +136,7 @@ size_flags_vertical = 8
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 
-[node name="MarginContainer" type="MarginContainer" parent="BubbleContainer/SpeechBubble"]
+[node name="MarginContainer" type="MarginContainer" parent="BubbleContainer/SpeechBubble" unique_id=1697254392]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 15
@@ -92,7 +144,7 @@ theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 12
 
-[node name="RichTextLabel" type="RichTextLabel" parent="BubbleContainer/SpeechBubble/MarginContainer"]
+[node name="RichTextLabel" type="RichTextLabel" parent="BubbleContainer/SpeechBubble/MarginContainer" unique_id=1320313758]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 mouse_filter = 2
