@@ -100,29 +100,14 @@ func _on_stage_option_selected(index: int) -> void:
     _bound_profile.force_set_stage(target_stage)
     update_ui(_bound_profile)
 
-func _get_flavor_info(intimacy: float, trust: float) -> Dictionary:
-    var flavor_text := "防备疏离"
-    var flavor_color := Color("c97a92")
-    var flavor_desc := "仍然保持着安全距离，对彼此的靠近还带着观察与试探。"
-
-    if intimacy >= 60.0 or trust >= 60.0:
-        if intimacy >= trust * 1.5:
-            flavor_text = "偏执迷恋"
-            flavor_color = Color("ff8aa5")
-            flavor_desc = "爱意浓度远高于安全感，渴望靠近，也更容易因为不安而患得患失。"
-        elif trust >= intimacy * 1.5:
-            flavor_text = "灵魂知己"
-            flavor_color = Color("7cc7ff")
-            flavor_desc = "彼此已经建立高度信任，像最默契的同伴，能够安心把心事交给对方。"
-        else:
-            flavor_text = "灵魂伴侣"
-            flavor_color = Color("ff7ba8")
-            flavor_desc = "爱意与安全感都十分充足，关系稳定而亲密，已经是彼此的重要依靠。"
-
+func _get_flavor_info(profile) -> Dictionary:
+    if GameDataManager != null and GameDataManager.personality_system != null:
+        return GameDataManager.personality_system.get_relationship_flavor_display_info(profile)
     return {
-        "text": flavor_text,
-        "color": flavor_color,
-        "desc": flavor_desc
+        "text": "防备观望",
+        "base_text": "防备疏离",
+        "color": Color("c97a92"),
+        "desc": "仍然保持明显距离，更多是在观察和确认这段关系是否值得继续靠近。"
     }
 
 func _ensure_reference_cache() -> void:
@@ -246,7 +231,7 @@ func update_ui(profile) -> void:
 
     var intimacy: float = float(profile.intimacy)
     var trust: float = float(profile.trust)
-    var flavor_info := _get_flavor_info(intimacy, trust)
+    var flavor_info := _get_flavor_info(profile)
     var progress_info := _build_stage_progress(profile, current_stage, conf)
 
     level_label.text = "LV %d" % current_stage

@@ -62,7 +62,6 @@ var pet_quiet_time_ranges: String = "23:30-08:00"
 var pet_observe_allow_list: String = ""
 var pet_never_capture_list: String = "银行,支付,密码,验证码,登录,后台,控制台"
 var pet_sensitive_window_list: String = "微信,wechat,qq,discord,telegram,飞书,钉钉,企业微信,outlook,mail,邮箱"
-var pet_muted_until_unix: int = 0
 
 # 图像生成配置 (Image Generation)
 var image_generation_enabled: bool = true
@@ -162,7 +161,6 @@ func save_config() -> void:
         "pet_observe_allow_list": pet_observe_allow_list,
         "pet_never_capture_list": pet_never_capture_list,
         "pet_sensitive_window_list": pet_sensitive_window_list,
-        "pet_muted_until_unix": pet_muted_until_unix,
         "image_generation_enabled": image_generation_enabled,
         "default_image_path": default_image_path,
         "openai_image_api_key": openai_image_api_key,
@@ -252,7 +250,6 @@ func load_config() -> void:
                 pet_observe_allow_list = str(data.get("pet_observe_allow_list", pet_observe_allow_list))
                 pet_never_capture_list = str(data.get("pet_never_capture_list", pet_never_capture_list))
                 pet_sensitive_window_list = str(data.get("pet_sensitive_window_list", pet_sensitive_window_list))
-                pet_muted_until_unix = int(data.get("pet_muted_until_unix", pet_muted_until_unix))
                 
                 image_generation_enabled = data.get("image_generation_enabled", image_generation_enabled)
                 default_image_path = data.get("default_image_path", default_image_path)

@@ -19,7 +19,7 @@ var _left_drag_tracking: bool = false
 var _window_drag_offset: Vector2i = Vector2i.ZERO
 
 # 状态环变量
-var current_state: int = 0 # 0: Idle, 1: Thinking, 2: Speaking, 3: DayProgress, 4: ProactiveCooldown
+var current_state: int = 0 # 0: Idle, 1: Thinking, 2: Speaking, 3: AfkCountdown, 4: ProactiveCooldown
 var state_progress: float = 0.0
 var ring_time: float = 0.0
 var ring_volume: float = 0.0
@@ -179,11 +179,11 @@ func _process(delta: float) -> void:
                 neon_material.set_shader_parameter("border_width", target_width)
                 neon_material.set_shader_parameter("blur", target_blur)
                 
-            elif current_state == 3: # Day Progress (Green)
+            elif current_state == 3: # AFK Countdown (Green)
                 neon_material.set_shader_parameter("progress", state_progress)
                 state_ring.rotation = 0.0
                 
-                # 一天进度改成更稳定的时间流动感，不再表现成冷却倒计时
+                # 下一次 AFK 主动问候倒计时，保持清晰稳定的呼吸感
                 var pulse = (sin(ring_time * 2.2) + 1.0) * 0.5
                 neon_material.set_shader_parameter("color1", Color(0.12, 0.86, 0.52, 0.72 + pulse * 0.12))
                 neon_material.set_shader_parameter("color2", Color(0.52, 0.95, 0.88, 0.74 + pulse * 0.12))
@@ -284,8 +284,8 @@ func _on_ring_draw() -> void:
         elif current_state == 2: # Speaking
             var glow = radius + ring_volume * 25.0
             state_ring.draw_arc(center, glow, 0, TAU, 128, Color(0.4, 0.8, 1.0, 0.6), 5.0, true)
-        elif current_state == 3: # App Switch Observing (10s)
-            # 绿色圆环，平滑缓慢填满
+        elif current_state == 3: # AFK Countdown
+            # 绿色圆环，表示离下一次 AFK 主动问候还剩多少
             var angle = lerp(0.0, TAU, state_progress)
             state_ring.draw_arc(center, radius, -PI/2, -PI/2 + angle, 128, Color(0.3, 0.8, 0.3, 0.8), 6.0, true)
         elif current_state == 4: # Proactive Chat Cooldown (long timer)
