@@ -11,85 +11,85 @@ var _item_map: Dictionary = {}
 var _selected_char_id: String = ""
 
 func _ready() -> void:
-    _load_contacts()
+	_load_contacts()
 
 func _load_contacts() -> void:
-    # 清空列表
-    for child in contact_list.get_children():
-        child.queue_free()
-    _item_map.clear()
-        
-    var contacts: Array = []
-    
-    # Load main characters
-    var dir: DirAccess = DirAccess.open("res://assets/data/characters")
-    if dir:
-        dir.list_dir_begin()
-        var file_name: String = dir.get_next()
-        while file_name != "":
-            if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
-                var char_id: String = file_name.replace(".json", "")
-                if _is_contact_visible(char_id):
-                    contacts.append(_get_char_info(char_id, "res://assets/data/characters/" + file_name))
-            file_name = dir.get_next()
-            
-    # Load NPCs
-    var npc_dir: DirAccess = DirAccess.open("res://assets/data/characters/npc")
-    if npc_dir:
-        npc_dir.list_dir_begin()
-        var file_name: String = npc_dir.get_next()
-        while file_name != "":
-            if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
-                var char_id: String = file_name.replace(".json", "")
-                if _is_contact_visible(char_id):
-                    contacts.append(_get_char_info(char_id, "res://assets/data/characters/npc/" + file_name))
-            file_name = npc_dir.get_next()
-            
-    # Sort contacts by last message time (newest first)
-    contacts.sort_custom(func(a, b):
-        return a.raw_time > b.raw_time
-    )
-    
-    for c in contacts:
-        _create_contact_item(c)
+	# 清空列表
+	for child in contact_list.get_children():
+		child.queue_free()
+	_item_map.clear()
+		
+	var contacts: Array = []
+	
+	# Load main characters
+	var dir: DirAccess = DirAccess.open("res://assets/data/characters")
+	if dir:
+		dir.list_dir_begin()
+		var file_name: String = dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
+				var char_id: String = file_name.replace(".json", "")
+				if _is_contact_visible(char_id):
+					contacts.append(_get_char_info(char_id, "res://assets/data/characters/" + file_name))
+			file_name = dir.get_next()
+			
+	# Load NPCs
+	var npc_dir: DirAccess = DirAccess.open("res://assets/data/characters/npc")
+	if npc_dir:
+		npc_dir.list_dir_begin()
+		var file_name: String = npc_dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".json") and not file_name.ends_with("_stages.json"):
+				var char_id: String = file_name.replace(".json", "")
+				if _is_contact_visible(char_id):
+					contacts.append(_get_char_info(char_id, "res://assets/data/characters/npc/" + file_name))
+			file_name = npc_dir.get_next()
+			
+	# Sort contacts by last message time (newest first)
+	contacts.sort_custom(func(a, b):
+		return a.raw_time > b.raw_time
+	)
+	
+	for c in contacts:
+		_create_contact_item(c)
 
-    _apply_selected_state()
+	_apply_selected_state()
 
 func _is_contact_visible(char_id: String) -> bool:
-    if MobileFixedChatManager and MobileFixedChatManager.has_method("is_contact_added"):
-        return MobileFixedChatManager.is_contact_added(char_id)
-    return char_id in ["luna", "jing", "ya", "luna_father"]
+	if MobileFixedChatManager and MobileFixedChatManager.has_method("is_contact_added"):
+		return MobileFixedChatManager.is_contact_added(char_id)
+	return char_id in ["luna", "jing", "ya", "luna_father"]
 
 func _get_char_info(char_id: String, file_path: String) -> Dictionary:
-    var info: Dictionary = {
-        "id": char_id,
-        "name": char_id,
-        "avatar": "",
-        "last_msg": "暂无消息",
-        "last_time": "",
-        "raw_time": "",
-        "unread_count": 0
-    }
-    
-    if FileAccess.file_exists(file_path):
-        var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
-        var json: JSON = JSON.new()
-        if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
-            info.name = json.data.get("char_name", char_id)
-            info.avatar = json.data.get("avatar", "")
-            
-    # Get last message from mobile chat history
-    var history_path: String = GameDataManager.get_character_save_path("mobile_chat_history.json", char_id)
-    if FileAccess.file_exists(history_path):
-        var file: FileAccess = FileAccess.open(history_path, FileAccess.READ)
-        var json: JSON = JSON.new()
-        if json.parse(file.get_as_text()) == OK and json.data is Array:
-            var mobile_msgs: Array = json.data
-            if mobile_msgs.size() > 0:
-                var last: Dictionary = mobile_msgs[-1]
-                var raw_text: String = str(last.get("text", "..."))
-                
-                # If it's an image
+	var info: Dictionary = {
+		"id": char_id,
+		"name": char_id,
+		"avatar": "",
+		"last_msg": "暂无消息",
+		"last_time": "",
+		"raw_time": "",
+		"unread_count": 0
+	}
+	
+	if FileAccess.file_exists(file_path):
+		var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
+		var json: JSON = JSON.new()
+		if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+			info.name = json.data.get("char_name", char_id)
+			info.avatar = json.data.get("avatar", "")
+			
+	# Get last message from mobile chat history
+	var history_path: String = GameDataManager.get_character_save_path("mobile_chat_history.json", char_id)
+	if FileAccess.file_exists(history_path):
+		var file: FileAccess = FileAccess.open(history_path, FileAccess.READ)
+		var json: JSON = JSON.new()
+		if json.parse(file.get_as_text()) == OK and json.data is Array:
+			var mobile_msgs: Array = json.data
+			if mobile_msgs.size() > 0:
+				var last: Dictionary = mobile_msgs[-1]
+				var raw_text: String = str(last.get("text", "..."))
+				
+				# If it's an image
                 if raw_text.begins_with("[img]") and raw_text.ends_with("[/img]"):
                     raw_text = "[图片]"
                 

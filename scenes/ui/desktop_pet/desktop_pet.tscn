@@ -267,7 +267,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 10
 
 [node name="TimeWidget" type="PanelContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1582347799]
 custom_minimum_size = Vector2(0, 96)
@@ -466,18 +466,8 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 3
 
-[node name="MuteButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1703601122]
-custom_minimum_size = Vector2(120, 60)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "静音30分"
-
 [node name="AffectionButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=1512348777]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(120, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
 theme_override_font_sizes/font_size = 13
@@ -496,24 +486,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
 text = "记忆"
 
-[node name="OtherButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1261235340]
-visible = false
-layout_mode = 2
-theme_override_constants/h_separation = 3
-theme_override_constants/v_separation = 6
-columns = 3
-
-[node name="MainWindowButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons" unique_id=1117274514]
-custom_minimum_size = Vector2(60, 60)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "主界面"
-
-[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons" unique_id=863629392]
+[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons" unique_id=863629392]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
@@ -522,6 +495,23 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
 text = "设置"
+
+[node name="OtherButtons" type="GridContainer" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=1261235340]
+layout_mode = 2
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 6
+columns = 3
+
+[node name="MainWindowButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons" unique_id=1117274514]
+visible = false
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
+text = "主界面"
 
 [node name="HideToolButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=229844351]
 custom_minimum_size = Vector2(0, 34)
@@ -534,7 +524,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_FooterPill")
 text = "收起工具面板"
 
 [node name="Speace" type="Control" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=141869852]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 
 [node name="CloseButton" type="Button" parent="Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot" unique_id=435639214]

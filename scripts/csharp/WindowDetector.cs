@@ -161,29 +161,39 @@ namespace GalChat.Scripts.CSharp
     }
 
     /// <summary>
-    /// 获取当前最顶层有效的外部应用程序窗口标题
+    /// 获取当前最顶层有效的外部应用程序窗口句柄
     /// </summary>
-    /// <returns>窗口标题，未找到则返回空字符串</returns>
-    public string GetCurrentWindowTitle()
+    /// <returns>窗口句柄，未找到则返回 IntPtr.Zero</returns>
+    private IntPtr GetCurrentExternalWindowHandle()
     {
-        string windowTitle = string.Empty;
-        bool found = false;
+        IntPtr foundHwnd = IntPtr.Zero;
 
         EnumWindows((hWnd, lParam) =>
         {
-            if (!found && IsValidExternalWindow(hWnd))
+            if (IsValidExternalWindow(hWnd))
             {
-                StringBuilder sb = new StringBuilder(256);
-                GetWindowText(hWnd, sb, sb.Capacity);
-                windowTitle = sb.ToString();
-                found = true;
-                // 找到最顶层有效窗口后停止枚举
+                foundHwnd = hWnd;
                 return false;
             }
             return true;
         }, IntPtr.Zero);
 
-        return windowTitle;
+        return foundHwnd;
+    }
+
+    /// <summary>
+    /// 获取当前最顶层有效的外部应用程序窗口标题
+    /// </summary>
+    /// <returns>窗口标题，未找到则返回空字符串</returns>
+    public string GetCurrentWindowTitle()
+    {
+        IntPtr hWnd = GetCurrentExternalWindowHandle();
+        if (hWnd == IntPtr.Zero)
+            return string.Empty;
+
+        StringBuilder sb = new StringBuilder(256);
+        GetWindowText(hWnd, sb, sb.Capacity);
+        return sb.ToString();
     }
 
     /// <summary>
@@ -192,32 +202,21 @@ namespace GalChat.Scripts.CSharp
     /// <returns>进程名，未找到则返回空字符串</returns>
     public string GetCurrentProcessName()
     {
-        string processName = string.Empty;
-        bool found = false;
+        IntPtr hWnd = GetCurrentExternalWindowHandle();
+        if (hWnd == IntPtr.Zero)
+            return string.Empty;
 
-        EnumWindows((hWnd, lParam) =>
+        GetWindowThreadProcessId(hWnd, out uint processId);
+        try
         {
-            if (!found && IsValidExternalWindow(hWnd))
-            {
-                GetWindowThreadProcessId(hWnd, out uint processId);
-                try
-                {
-                    Process proc = Process.GetProcessById((int)processId);
-                    processName = proc.ProcessName;
-                    found = true;
-                }
-                catch (Exception e)
-                {
-                    GD.PrintErr($"获取进程信息失败: {e.Message}");
-                }
-                
-                // 找到最顶层有效窗口后停止枚举
-                return false;
-            }
-            return true;
-        }, IntPtr.Zero);
-
-        return processName;
+            Process proc = Process.GetProcessById((int)processId);
+            return proc.ProcessName;
+        }
+        catch (Exception e)
+        {
+            GD.PrintErr($"获取进程信息失败: {e.Message}");
+            return string.Empty;
+        }
     }
 
     // 过滤掉特定尺寸过小的无效窗口，如托盘、浮窗等
@@ -274,10 +273,19 @@ namespace GalChat.Scripts.CSharp
     {
         try
         {
-            IntPtr hWnd = GetForegroundWindow();
+            IntPtr hWnd = GetCurrentExternalWindowHandle();
             if (hWnd == IntPtr.Zero || hWnd == GetDesktopWindow() || hWnd == GetShellWindow())
             {
-                return CaptureScreenToBase64(); // 回退到全屏
+                return string.Empty;
+            }
+
+            GetWindowThreadProcessId(hWnd, out uint processId);
+            if (_currentGodotProcessId == 0)
+                _currentGodotProcessId = Process.GetCurrentProcess().Id;
+
+            if (processId == 0 || processId == _currentGodotProcessId)
+            {
+                return string.Empty;
             }
 
             if (GetWindowRect(hWnd, out RECT rect))
@@ -285,7 +293,7 @@ namespace GalChat.Scripts.CSharp
                 int width = rect.Right - rect.Left;
                 int height = rect.Bottom - rect.Top;
 
-                if (width <= 0 || height <= 0) return CaptureScreenToBase64();
+                if (width <= 0 || height <= 0) return string.Empty;
 
                 using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(width, height, PixelFormat.Format32bppArgb))
                 {

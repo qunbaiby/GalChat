@@ -427,6 +427,111 @@ func get_relationship_flavor_label(profile: CharacterProfile) -> String:
 	var state = resolve_archetype_state(profile)
 	return _get_flavor_label(str(state.get("flavor", "Guarded")))
 
+func get_relationship_flavor_display_info(profile: CharacterProfile) -> Dictionary:
+	var base_label := get_relationship_flavor_label(profile)
+	var stage_level := 1
+	var intimacy := 0.0
+	var trust := 0.0
+	if profile != null:
+		stage_level = int(profile.current_stage)
+		intimacy = float(profile.intimacy)
+		trust = float(profile.trust)
+	var resonance := intimacy + trust
+	var gap := intimacy - trust
+
+	match base_label:
+		"防备疏离":
+			if resonance < 40.0:
+				return {
+					"text": "防备观望",
+					"base_text": base_label,
+					"color": Color("c97a92"),
+					"desc": "仍然保持明显距离，更多是在观察和确认这段关系是否值得继续靠近。"
+				}
+			return {
+				"text": "谨慎靠近",
+				"base_text": base_label,
+				"color": Color("d88ba1"),
+				"desc": "已经没有最初那么疏离，但真正靠近之前，仍会先确认安全感和边界。"
+			}
+		"偏执迷恋":
+			if trust < 45.0:
+				return {
+					"text": "患失迷恋",
+					"base_text": base_label,
+					"color": Color("ff8aa5"),
+					"desc": "爱意来得很急，但安全感明显不足，只要被忽略一点就容易胡思乱想。"
+				}
+			if gap >= 80.0:
+				return {
+					"text": "失衡独占",
+					"base_text": base_label,
+					"color": Color("ff7c9a"),
+					"desc": "亲密渴望远远冲在前面，比起安心，更想先把这段关系牢牢抓在手里。"
+				}
+			return {
+				"text": "敏感依恋",
+				"base_text": base_label,
+				"color": Color("ff97b0"),
+				"desc": "已经很在意你，也会主动靠近，但心里的不安还没完全消下去。"
+			}
+		"灵魂知己":
+			if stage_level <= 3:
+				return {
+					"text": "安心同伴",
+					"base_text": base_label,
+					"color": Color("83cfff"),
+					"desc": "信任感先一步建立起来，相处时轻松自然，像逐渐默契起来的可靠同伴。"
+				}
+			if trust >= 180.0:
+				return {
+					"text": "默契知己",
+					"base_text": base_label,
+					"color": Color("6fbfff"),
+					"desc": "彼此已经有很深的理解和信任，很多话不用说破也能接得住。"
+				}
+			return {
+				"text": "灵魂知己",
+				"base_text": base_label,
+				"color": Color("7cc7ff"),
+				"desc": "安全感与默契感都很高，像最能互相理解、互相托底的那个人。"
+			}
+		"灵魂伴侣":
+			if stage_level <= 4:
+				return {
+					"text": "心动共鸣",
+					"base_text": base_label,
+					"color": Color("ff92b7"),
+					"desc": "喜欢和安心开始同时抬头，已经不只是靠近，而是会被彼此明显牵动。"
+				}
+			if stage_level <= 6:
+				return {
+					"text": "深度依恋",
+					"base_text": base_label,
+					"color": Color("ff86af"),
+					"desc": "爱意和信任都在持续加深，关系进入会下意识想黏在一起的阶段。"
+				}
+			if stage_level <= 8:
+				return {
+					"text": "稳定伴侣",
+					"base_text": base_label,
+					"color": Color("ff7ba8"),
+					"desc": "关系已经稳定、亲密且自然，彼此都是生活里默认会优先想到的重要存在。"
+				}
+			return {
+				"text": "灵魂伴侣",
+				"base_text": base_label,
+				"color": Color("f06aa1"),
+				"desc": "爱意与安全感都沉淀得很深，已经形成了近乎不可替代的灵魂羁绊。"
+			}
+		_:
+			return {
+				"text": base_label,
+				"base_text": base_label,
+				"color": Color("c97a92"),
+				"desc": "当前关系状态正在缓慢变化中。"
+			}
+
 func get_recent_event_summary(profile: CharacterProfile) -> String:
 	if profile == null or not profile.has_method("get_recent_personality_events"):
 		return "最近没有人格事件记录。"
