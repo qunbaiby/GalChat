@@ -2096,7 +2096,14 @@ func _on_main_window_pressed() -> void:
 func _on_close_pressed() -> void:
 	if music_player and music_player.playing:
 		music_player.stop()
-	get_tree().quit()
+	_set_menu_visible(false)
+	_hide_side_tool_panels()
+	_restore_main_window_from_pet()
+	if get_tree().current_scene == self:
+		get_tree().change_scene_to_file("res://scenes/ui/start/start_scene.tscn")
+		return
+	hide()
+	queue_free()
 	
 func _sync_root_window_focusability(force_root_focusable: bool = false) -> void:
 	var root_window := get_tree().root
