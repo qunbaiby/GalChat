@@ -9,7 +9,6 @@ const ICON_FLOAT_DISTANCE := 6.0
 const ICON_FLOAT_HALF_CYCLE := 1.0
 
 @onready var title_label: Label = %TitleLabel
-@onready var kicker_label: Label = %KickerLabel
 @onready var status_label: Label = %StatusLabel
 @onready var summary_label: Label = %SummaryLabel
 @onready var hint_label: Label = %HintLabel
@@ -94,12 +93,11 @@ func cancel() -> void:
 
 
 func _update_content(context: Dictionary) -> void:
-	title_label.text = str(context.get("title", "课程安排执行中"))
-	kicker_label.text = str(context.get("kicker", "Luna 正在出发"))
+	title_label.text = str(context.get("title", "行程安排执行中"))
 	status_label.text = str(context.get("status", "Luna 正在整理今天的课程节奏..."))
 	summary_label.text = str(context.get("summary", ""))
 	hint_label.text = str(context.get("hint", "本周安排正在缓缓展开..."))
-	visual_caption_label.text = str(context.get("visual_caption", "课程执行中"))
+	visual_caption_label.text = str(context.get("visual_caption", "行程进行中"))
 
 
 func _build_tips(context: Dictionary) -> Array[String]:

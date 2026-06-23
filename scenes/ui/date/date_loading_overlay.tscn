@@ -23,20 +23,12 @@ shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.3)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
 bg_color = Color(1, 1, 1, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.97, 0.985, 0.985, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.8, 0.87, 0.9, 0.92)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.1, 0.14, 0.18, 0.18)
-shadow_size = 18
-shadow_offset = Vector2(0, 5)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mn751"]
+bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+corner_radius_top_left = 8
+corner_radius_top_right = 60
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 60
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VisualPanel"]
 bg_color = Color(0.92, 0.97, 0.96, 0.92)
@@ -46,21 +38,21 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.82, 0.9, 0.89, 1)
 corner_radius_top_left = 20
-corner_radius_top_right = 20
+corner_radius_top_right = 60
 corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+corner_radius_bottom_left = 60
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SummaryPanel"]
-bg_color = Color(1, 1, 1, 0.72)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
+bg_color = Color(0.7372549, 0.8862745, 0.85490197, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 border_color = Color(0.88, 0.92, 0.94, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBackground"]
 bg_color = Color(0.89, 0.92, 0.94, 1)
@@ -77,7 +69,6 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [node name="DateLoadingOverlay" type="Control" unique_id=2128247386]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -122,7 +113,7 @@ offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_mn751")
 
 [node name="Margin" type="MarginContainer" parent="CenterPanel" unique_id=861477272]
 layout_mode = 2
@@ -228,15 +219,8 @@ stretch_mode = 5
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 15
 alignment = 1
-
-[node name="KickerLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=500664313]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.63, 0.6, 1)
-theme_override_font_sizes/font_size = 15
-text = "Luna 正在赴约"
 
 [node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1407385524]
 unique_name_in_owner = true

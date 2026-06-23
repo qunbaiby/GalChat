@@ -9,11 +9,22 @@
 [ext_resource type="Texture2D" uid="uid://d2o4wqh8uaa46" path="res://assets/images/icons/ui/music/skip-forward-fill.png" id="7_next_icon"]
 [ext_resource type="Texture2D" uid="uid://b2mpo88dgybkg" path="res://assets/images/icons/ui/music/repeat-2-line.png" id="8_repeat_icon"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
-bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_japau"]
+bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9607843, 0.9882353, 1, 0.27058825)
+border_blend = true
+corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
-shadow_offset = Vector2(0, 4)
+corner_radius_bottom_left = 30
+shadow_color = Color(0.03, 0.08, 0.12, 0.22)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+anti_aliasing_size = 1.2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aprbl"]
 bg_color = Color(0.93, 0.95, 0.97, 1)
@@ -53,7 +64,7 @@ shadow_offset = Vector2(0, 3)
 custom_minimum_size = Vector2(350, 0)
 offset_right = 350.0
 offset_bottom = 60.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
+theme_override_styles/panel = SubResource("StyleBoxFlat_japau")
 script = ExtResource("1_script")
 
 [node name="Margin" type="MarginContainer" parent="." unique_id=942569454]

@@ -9,7 +9,6 @@ const ICON_FLOAT_DISTANCE := 6.0
 const ICON_FLOAT_HALF_CYCLE := 1.05
 
 @onready var title_label: Label = %TitleLabel
-@onready var kicker_label: Label = %KickerLabel
 @onready var status_label: Label = %StatusLabel
 @onready var summary_label: Label = %SummaryLabel
 @onready var hint_label: Label = %HintLabel
@@ -91,7 +90,6 @@ func _update_header(context: Dictionary) -> void:
 	var style: Dictionary = _get_loading_style(context)
 	var default_name := str(context.get("character_name", "她"))
 	title_label.text = str(style.get("title_multi", "今日约会准备中")) if segment_count >= 2 else str(style.get("title_single", "约会准备中"))
-	kicker_label.text = str(style.get("kicker_single", "%s 正在赴约" % default_name)) if segment_count <= 1 else str(style.get("kicker_multi", "%s 正在整理今天的约会安排" % default_name))
 
 
 func _update_summary(context: Dictionary) -> void:

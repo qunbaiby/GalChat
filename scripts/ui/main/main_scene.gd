@@ -3261,7 +3261,7 @@ func _on_desktop_pet_pressed() -> void:
 	if _is_ui_blocked(): return
 	_toggle_desktop_pet()
 
-func _toggle_desktop_pet() -> void:
+func _toggle_desktop_pet(park_main_window: bool = true) -> void:
 	if is_instance_valid(desktop_pet_instance):
 		# 桌宠已存在，关闭它。先隐藏以防止输入系统报错
 		desktop_pet_instance.hide()
@@ -3272,7 +3272,7 @@ func _toggle_desktop_pet() -> void:
 		var DesktopPetObj = load("res://scenes/ui/desktop_pet/desktop_pet.tscn")
 		desktop_pet_instance = DesktopPetObj.instantiate()
 		get_tree().root.add_child(desktop_pet_instance)
-		if desktop_pet_instance.has_method("park_main_window_for_pet"):
+		if park_main_window and desktop_pet_instance.has_method("park_main_window_for_pet"):
 			desktop_pet_instance.park_main_window_for_pet()
 
 func _minimize_main_window_for_desktop_pet() -> void:
@@ -3430,7 +3430,7 @@ func _on_phone_closing() -> void:
 func _on_mobile_app_opened(app_name: String) -> void:
 	match app_name:
 		"desktop_pet":
-			_toggle_desktop_pet()
+			_toggle_desktop_pet(false)
 
 func _on_main_action_pressed() -> void:
 	if _is_ui_blocked(): return

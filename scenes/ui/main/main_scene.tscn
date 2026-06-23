@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bl0bceh1xgj74"]
 
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
-[ext_resource type="PackedScene" uid="uid://dxe3r2b5g7na" path="res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn" id="2_fvueq"]
+[ext_resource type="PackedScene" uid="uid://chn4805nmasow" path="res://scenes/ui/main/backgrounds/locations/class_break_moments_bg.tscn" id="2_rl784"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
 [ext_resource type="Texture2D" uid="uid://cixfrbv5lapgk" path="res://assets/images/icons/ui/main/skill-alt.png" id="5_rl784"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
@@ -136,11 +136,20 @@ bg_color = Color(1, 0.96, 0.9, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
 bg_color = Color(0.94, 0.98, 0.97, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecNormal"]
-bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
-corner_radius_top_left = 15
-corner_radius_bottom_left = 15
-shadow_offset = Vector2(0, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p33vi"]
+bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9607843, 0.9882353, 1, 0.27058825)
+border_blend = true
+corner_radius_top_left = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.03, 0.08, 0.12, 0.22)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+anti_aliasing_size = 1.2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MoodBarTrack"]
 bg_color = Color(1, 1, 1, 0.08)
@@ -163,11 +172,35 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxpst"]
-bg_color = Color(0.2, 0.24705882, 0.22352941, 0.39215687)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rda46"]
+bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9607843, 0.9882353, 1, 0.27058825)
+border_blend = true
+corner_radius_top_left = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.03, 0.08, 0.12, 0.22)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+anti_aliasing_size = 1.2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rl784"]
+bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9607843, 0.9882353, 1, 0.27058825)
+border_blend = true
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
-shadow_offset = Vector2(0, 4)
+shadow_color = Color(0.03, 0.08, 0.12, 0.22)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+anti_aliasing_size = 1.2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fbdjj"]
 bg_color = Color(0.2509804, 0.2509804, 0.2509804, 1)
@@ -318,7 +351,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="DefaultRoomBg" parent="BackgroundContainer" unique_id=398391763 instance=ExtResource("2_fvueq")]
+[node name="ClassBreakMomentsBg" parent="BackgroundContainer" unique_id=1668479654 instance=ExtResource("2_rl784")]
 visible = false
 layout_mode = 1
 
@@ -597,7 +630,7 @@ offset_left = -259.0
 offset_top = 80.0
 offset_bottom = 167.0
 grow_horizontal = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/panel = SubResource("StyleBoxFlat_p33vi")
 
 [node name="MoodMargin" type="MarginContainer" parent="UIPanel/MoodPanel" unique_id=822301190]
 layout_mode = 0
@@ -677,7 +710,7 @@ offset_left = 1170.0
 offset_top = 80.0
 offset_right = 1280.0
 offset_bottom = 116.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_SecNormal")
+theme_override_styles/panel = SubResource("StyleBoxFlat_rda46")
 
 [node name="MoodNamelMargin" type="MarginContainer" parent="UIPanel/MoodNamelContainer" unique_id=1155877529]
 layout_mode = 2
@@ -707,7 +740,7 @@ layout_mode = 0
 offset_top = 113.0
 offset_right = 242.0
 offset_bottom = 168.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_sxpst")
+theme_override_styles/panel = SubResource("StyleBoxFlat_rl784")
 
 [node name="GoalMargin" type="MarginContainer" parent="UIPanel/GoalPanel" unique_id=1347994400]
 layout_mode = 2
@@ -814,10 +847,10 @@ text = "初遇"
 
 [node name="WeatherPanel" parent="UIPanel" unique_id=901918853 instance=ExtResource("5_weather")]
 layout_mode = 1
-offset_left = 9.0
-offset_top = 22.0
-offset_right = 249.0
-offset_bottom = 90.0
+offset_left = 5.0
+offset_top = 19.0
+offset_right = 283.0
+offset_bottom = 103.0
 
 [node name="StatsPanelAnchor" type="Control" parent="UIPanel" unique_id=2047971825]
 layout_mode = 1

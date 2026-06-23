@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://bxudmxa8cfwjr"]
+[gd_scene format=3 uid="uid://bxudmxa8cfwjr"]
 
 [ext_resource type="Script" uid="uid://dcyc4l41ptbor" path="res://scripts/ui/main/weather_panel.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://by7p87kdfqqdv" path="res://assets/images/icons/ui/weather/sunny.svg" id="3_sunny"]
@@ -18,73 +18,86 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
-[node name="WeatherPanel" type="PanelContainer"]
+[node name="WeatherPanel" type="PanelContainer" unique_id=52342922]
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 0)
-offset_right = 240.0
-offset_bottom = 68.0
+offset_right = 252.0
+offset_bottom = 86.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 script = ExtResource("2_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=1925657812]
 layout_mode = 2
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_right = 15
 
-[node name="HBox" type="HBoxContainer" parent="Margin"]
+[node name="HBox" type="HBoxContainer" parent="Margin" unique_id=535687773]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="LeftVBox" type="VBoxContainer" parent="Margin/HBox"]
+[node name="LeftVBox" type="VBoxContainer" parent="Margin/HBox" unique_id=1024663553]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 2
 alignment = 1
 
-[node name="WeatherIcon" type="TextureRect" parent="Margin/HBox/LeftVBox"]
-custom_minimum_size = Vector2(40, 40)
+[node name="WeatherIcon" type="TextureRect" parent="Margin/HBox/LeftVBox" unique_id=1987328893]
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("3_sunny")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LocLabel" type="Label" parent="Margin/HBox/LeftVBox"]
+[node name="LocLabel" type="Label" parent="Margin/HBox/LeftVBox" unique_id=377324790]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8800483, 0.89144754, 0.9127335, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 16
 text = "星律 22°C"
 horizontal_alignment = 1
 
-[node name="RightVBox" type="VBoxContainer" parent="Margin/HBox"]
+[node name="RightVBox" type="VBoxContainer" parent="Margin/HBox" unique_id=952829108]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = -4
 alignment = 1
 
-[node name="DateLabel" type="Label" parent="Margin/HBox/RightVBox"]
+[node name="DateLabel" type="Label" parent="Margin/HBox/RightVBox" unique_id=1876685503]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.897214, 0.90367264, 0.9201832, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 16
 text = "2026/04/21(周二)"
 
-[node name="TimeHBox" type="HBoxContainer" parent="Margin/HBox/RightVBox"]
+[node name="TimeHBox" type="HBoxContainer" parent="Margin/HBox/RightVBox" unique_id=370047506]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="TimeLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox"]
+[node name="TimeLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox" unique_id=1523052148]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 45
 text = "11:58"
 
-[node name="PeriodMargin" type="MarginContainer" parent="Margin/HBox/RightVBox/TimeHBox"]
+[node name="PeriodMargin" type="MarginContainer" parent="Margin/HBox/RightVBox/TimeHBox" unique_id=333728657]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/margin_bottom = 6
 
-[node name="PeriodLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox/PeriodMargin"]
+[node name="PeriodLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox/PeriodMargin" unique_id=1532911774]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 20
 text = "上午"

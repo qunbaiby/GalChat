@@ -2099,6 +2099,9 @@ func _on_close_pressed() -> void:
 	_set_menu_visible(false)
 	_hide_side_tool_panels()
 	_restore_main_window_from_pet()
+	var current_scene := get_tree().current_scene
+	if current_scene != null and current_scene != self and current_scene is CanvasItem:
+		(current_scene as CanvasItem).show()
 	if get_tree().current_scene == self:
 		get_tree().change_scene_to_file("res://scenes/ui/start/start_scene.tscn")
 		return

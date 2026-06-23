@@ -1,63 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://7itqmjnr38fv"]
+[gd_scene format=3 uid="uid://7itqmjnr38fv"]
 
 [ext_resource type="Script" uid="uid://cdqvkb450r1ro" path="res://scripts/ui/activity/activity_loading_overlay.gd" id="1_script"]
 [ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="2_walk"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.97, 0.985, 0.985, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.8, 0.87, 0.9, 0.92)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.1, 0.14, 0.18, 0.18)
-shadow_size = 18
-shadow_offset = Vector2(0, 5)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VisualPanel"]
-bg_color = Color(0.92, 0.97, 0.96, 0.92)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.89, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SummaryPanel"]
-bg_color = Color(1, 1, 1, 0.72)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.88, 0.92, 0.94, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBackground"]
-bg_color = Color(0.89, 0.92, 0.94, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
-bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Shader" id="Shader_ActivityLoadingBlur"]
 code = "shader_type canvas_item;
@@ -76,7 +20,55 @@ shader = SubResource("Shader_ActivityLoadingBlur")
 shader_parameter/lod = 2.5
 shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.3)
 
-[node name="ActivityLoadingOverlay" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mn751"]
+bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+corner_radius_top_left = 8
+corner_radius_top_right = 60
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 60
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_VisualPanel"]
+bg_color = Color(0.92, 0.97, 0.96, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.89, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 60
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 60
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SummaryPanel"]
+bg_color = Color(0.7372549, 0.8862745, 0.85490197, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.88, 0.92, 0.94, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBackground"]
+bg_color = Color(0.89, 0.92, 0.94, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="ActivityLoadingOverlay" type="Control" unique_id=1247368361]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -85,7 +77,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="Panel" parent="."]
+[node name="Background" type="Panel" parent="." unique_id=1126353416]
 material = SubResource("ShaderMaterial_ActivityLoadingBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -96,7 +88,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Background")
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=264436631]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -106,7 +98,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.06, 0.08, 0.11, 0.64)
 
-[node name="CenterPanel" type="PanelContainer" parent="."]
+[node name="CenterPanel" type="PanelContainer" parent="." unique_id=1565773401]
 custom_minimum_size = Vector2(760, 300)
 layout_mode = 1
 anchors_preset = 8
@@ -121,30 +113,30 @@ offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_mn751")
 
-[node name="Margin" type="MarginContainer" parent="CenterPanel"]
+[node name="Margin" type="MarginContainer" parent="CenterPanel" unique_id=1507905127]
 layout_mode = 2
 theme_override_constants/margin_left = 26
 theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 26
 theme_override_constants/margin_bottom = 22
 
-[node name="HBox" type="HBoxContainer" parent="CenterPanel/Margin"]
+[node name="HBox" type="HBoxContainer" parent="CenterPanel/Margin" unique_id=1242412256]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="VisualPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox"]
+[node name="VisualPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox" unique_id=1989606960]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_VisualPanel")
 
-[node name="VisualContent" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel"]
+[node name="VisualContent" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel" unique_id=1445138048]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="GlowRect" type="ColorRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="GlowRect" type="ColorRect" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=89476712]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -161,7 +153,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.57, 0.82, 0.76, 0.5)
 
-[node name="VisualCaption" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="VisualCaption" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=1065579719]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 7
@@ -177,10 +169,10 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.36, 0.48, 0.47, 1)
 theme_override_font_sizes/font_size = 14
-text = "课程执行中"
+text = "行程进行中"
 horizontal_alignment = 1
 
-[node name="AccentDots" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="AccentDots" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=2012555987]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -195,7 +187,7 @@ theme_override_font_sizes/font_size = 22
 text = "· · ·"
 horizontal_alignment = 1
 
-[node name="IconPivot" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent"]
+[node name="IconPivot" type="Control" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=1059292267]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -211,34 +203,27 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="WalkerIcon" type="AnimatedSprite2D" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent/IconPivot"]
+[node name="WalkerIcon" type="AnimatedSprite2D" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent/IconPivot" unique_id=1985669745]
 position = Vector2(56, 83)
 scale = Vector2(0.11, 0.11)
 sprite_frames = ExtResource("2_walk")
 
-[node name="ContentVBox" type="VBoxContainer" parent="CenterPanel/Margin/HBox"]
+[node name="ContentVBox" type="VBoxContainer" parent="CenterPanel/Margin/HBox" unique_id=1908284268]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 15
 alignment = 1
 
-[node name="KickerLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.63, 0.6, 1)
-theme_override_font_sizes/font_size = 15
-text = "Luna 正在出发"
-
-[node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1395103960]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.22, 0.26, 1)
 theme_override_font_sizes/font_size = 30
-text = "课程安排执行中"
+text = "行程安排执行中"
 autowrap_mode = 3
 
-[node name="StatusLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="StatusLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=292310064]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.39, 0.43, 1)
@@ -246,19 +231,19 @@ theme_override_font_sizes/font_size = 21
 text = "Luna 正在整理这周的课程节奏..."
 autowrap_mode = 3
 
-[node name="SummaryPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="SummaryPanel" type="PanelContainer" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=927852348]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_SummaryPanel")
 
-[node name="SummaryMargin" type="MarginContainer" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel"]
+[node name="SummaryMargin" type="MarginContainer" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel" unique_id=1880169207]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 12
 
-[node name="SummaryLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel/SummaryMargin"]
+[node name="SummaryLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox/SummaryPanel/SummaryMargin" unique_id=251817846]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.56, 0.6, 1)
@@ -266,7 +251,7 @@ theme_override_font_sizes/font_size = 15
 text = "本周课程摘要"
 autowrap_mode = 3
 
-[node name="HintLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="HintLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=65107532]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.63, 0.67, 1)
@@ -274,7 +259,7 @@ theme_override_font_sizes/font_size = 14
 text = "课程安排正在稳稳向前推进..."
 autowrap_mode = 3
 
-[node name="ProgressBar" type="ProgressBar" parent="CenterPanel/Margin/HBox/ContentVBox"]
+[node name="ProgressBar" type="ProgressBar" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1633673217]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2

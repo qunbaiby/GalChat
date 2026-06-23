@@ -1,22 +1,22 @@
-extends PanelContainer
+extends Panel
 
 signal back_requested
 
 const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
-@onready var back_btn: Button = $RootMargin/RootVBox/TopBar/BackBtn
-@onready var level_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/LevelLabel
-@onready var stage_title_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StageCard/Margin/StageVBox/StageTitleLabel
-@onready var points_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/PointsLabel
-@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/HeroSection/StageProgressBar
-@onready var breakthrough_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/BreakthroughCard/Margin/BreakthroughVBox/BreakthroughLabel
-@onready var intimacy_value_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/StatsCard/Margin/StatsVBox/IntimacyRow/HBox/Value
-@onready var trust_value_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/LeftColumn/StatsCard/Margin/StatsVBox/TrustRow/HBox/Value
-@onready var state_badge_panel: PanelContainer = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StatusCard/Margin/SummaryVBox/TitleRow/StateBadge
-@onready var state_badge_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StatusCard/Margin/SummaryVBox/TitleRow/StateBadge/StateBadgeLabel
-@onready var summary_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StageCard/Margin/StageVBox/SummaryLabel
-@onready var milestone_label: Label = $RootMargin/RootVBox/Scroll/Margin/ContentVBox/MainHBox/RightColumn/StatusCard/Margin/SummaryVBox/MilestoneLabel
+@onready var back_btn: Button = $BackBtn
+@onready var level_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/StatsCard/StatsVBox/LevelRow/HBox/LevelLabel
+@onready var stage_title_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/HeartCardMargin/StageTitleLabel
+@onready var points_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/HeroSection/PointsLabel
+@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/HeroSection/StageProgressBar
+@onready var breakthrough_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox/BreakthroughLabel
+@onready var intimacy_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/StatsCard/StatsVBox/IntimacyRow/HBox/Value
+@onready var trust_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/StatsCard/StatsVBox/TrustRow/HBox/Value
+@onready var state_badge_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge
+@onready var state_badge_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge/StateBadgeLabel
+@onready var summary_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox/SummaryLabel
+@onready var milestone_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/MilestoneLabel
 
 var _event_registry_cache: Dictionary = {}
 var _map_name_cache: Dictionary = {}
