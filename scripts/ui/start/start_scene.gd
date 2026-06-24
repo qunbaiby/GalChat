@@ -15,6 +15,8 @@ var archive_select_panel_instance = null
 var debug_panel_instance = null
 var bug_feedback_panel_instance = null
 var desktop_pet_instance: Window = null
+var _pending_new_archive_slot_id: String = ""
+var _pending_previous_archive_slot_id: String = ""
 
 func _ready() -> void:
 	if GameDataManager.config:
@@ -52,10 +54,12 @@ func _ready() -> void:
 	bug_feedback_button.pivot_offset = bug_feedback_button.size / 2
 
 func _on_close_requested() -> void:
-	pass
+	_cleanup_pending_new_archive()
+	get_tree().quit()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_cleanup_pending_new_archive()
 		get_tree().quit()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -86,25 +90,51 @@ func _on_archive_slot_selected(slot_id: String, is_empty: bool) -> void:
 	await _enter_game_for_current_archive(false)
 
 func _create_new_archive(slot_id: String) -> void:
+	var previous_slot_id: String = GameDataManager.get_active_archive_id()
 	if not GameDataManager.save_manager.prepare_empty_archive(slot_id):
 		return
+	_pending_new_archive_slot_id = slot_id
+	_pending_previous_archive_slot_id = previous_slot_id
 	var popup_scene = load("res://scenes/ui/story/player_info_popup.tscn")
 	if popup_scene == null:
+		_cleanup_pending_new_archive()
 		return
 	var popup = popup_scene.instantiate()
 	add_child(popup)
 	popup.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	await popup.info_submitted
+	if not is_instance_valid(popup):
+		_cleanup_pending_new_archive()
+		return
 	_apply_player_info_from_popup(popup.player_info)
 	popup.queue_free()
 	await _ensure_guide_opt_in_choice(true)
 	var saved_ok: bool = GameDataManager.save_manager.auto_save()
 	if not saved_ok:
 		push_error("StartScene 新建档案后自动存档失败。")
+		_cleanup_pending_new_archive()
 		return
+	_clear_pending_new_archive_state()
 	if archive_select_panel_instance:
 		archive_select_panel_instance.hide_panel()
 	await _enter_game_for_current_archive(true, false)
+
+func _cleanup_pending_new_archive() -> void:
+	if _pending_new_archive_slot_id == "":
+		return
+	var pending_slot_id: String = _pending_new_archive_slot_id
+	var previous_slot_id: String = _pending_previous_archive_slot_id
+	_clear_pending_new_archive_state()
+	if GameDataManager.save_manager:
+		GameDataManager.save_manager.delete_save(pending_slot_id)
+	if previous_slot_id != "" and GameDataManager.save_manager:
+		GameDataManager.save_manager.load_archive(previous_slot_id)
+	elif GameDataManager.config:
+		GameDataManager.set_active_archive_id("", true)
+
+func _clear_pending_new_archive_state() -> void:
+	_pending_new_archive_slot_id = ""
+	_pending_previous_archive_slot_id = ""
 
 func _apply_player_info_from_popup(player_info: Dictionary) -> void:
 	if GameDataManager.profile == null:

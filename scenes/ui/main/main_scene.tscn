@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
+[ext_resource type="PackedScene" path="res://scenes/ui/main/creation_panel.tscn" id="12_creation"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="13_api"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="14_dialogue"]
 [ext_resource type="Texture2D" uid="uid://ctdj134k383t1" path="res://assets/images/icons/ui/main/eye.png" id="14_rl784"]
@@ -269,6 +270,13 @@ corner_radius_top_left = 16
 corner_radius_bottom_left = 16
 shadow_offset = Vector2(0, 2)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_clf1o"]
+content_margin_left = 5.0
+content_margin_right = 5.0
+bg_color = Color(0.011764706, 0.15294118, 0.14901961, 0.42745098)
+corner_radius_top_left = 15
+corner_radius_bottom_left = 15
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecHover"]
 bg_color = Color(0.94, 0.98, 0.97, 1)
 border_width_left = 1
@@ -442,7 +450,7 @@ self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
-tooltip_text = "日记"
+tooltip_text = "创作"
 theme_override_styles/normal = SubResource("StyleBoxFlat_AppCardNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_AppCardPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_AppCardHover")
@@ -475,7 +483,7 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
-text = "日记"
+text = "创作"
 horizontal_alignment = 1
 
 [node name="WeChatButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=1446868898]
@@ -996,10 +1004,11 @@ anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = 2.0
 offset_top = -133.0
-offset_right = 268.0
+offset_right = 309.0
 offset_bottom = -73.0
 grow_horizontal = 0
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_clf1o")
 
 [node name="Label" type="Label" parent="UIPanel/DiaryNotification" unique_id=878327636]
 layout_mode = 2
@@ -1053,53 +1062,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
 text = "约会"
 
-[node name="InteractiveButton" type="Button" parent="UIPanel/InteractGroup" unique_id=1239441275]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
-text = "互动"
-
-[node name="InteractiveSubMenu" type="PanelContainer" parent="UIPanel" unique_id=2113755083]
-visible = false
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 635.0
-offset_top = -100.0
-offset_right = 755.0
-offset_bottom = -20.0
-grow_vertical = 2
-
-[node name="Margin" type="MarginContainer" parent="UIPanel/InteractiveSubMenu" unique_id=598714905]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="VBox" type="VBoxContainer" parent="UIPanel/InteractiveSubMenu/Margin" unique_id=1687287918]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="CoCreateButton" type="Button" parent="UIPanel/InteractiveSubMenu/Margin/VBox" unique_id=1034587306]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_n3i0f")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
-text = "共创画板"
-
 [node name="DiaryPanel" parent="UIPanel" unique_id=1731701313 instance=ExtResource("12_diary")]
 visible = false
+layout_mode = 1
+
+[node name="CreationPanel" parent="UIPanel" instance=ExtResource("12_creation")]
 layout_mode = 1
 
 [node name="BgSwitchButton" type="Button" parent="." unique_id=376807236]

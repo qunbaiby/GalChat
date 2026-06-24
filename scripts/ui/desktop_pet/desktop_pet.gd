@@ -1,27 +1,27 @@
 extends Window
 
+const MusicLibraryData = preload("res://scripts/data/music_library.gd")
+const MUSIC_PLAYER_SCENE: PackedScene = preload("res://scenes/ui/main/music/music_player.tscn")
+const AFFECTION_PANEL_SCENE: PackedScene = preload("res://scenes/ui/mobile/affection_panel.tscn")
+const ARCHIVE_MEMORY_PANEL_SCENE: PackedScene = preload("res://scenes/ui/archive/archive_memory_panel.tscn")
+const POMODORO_PANEL_SCENE: PackedScene = preload("res://scenes/ui/desktop_pet/pomodoro_panel.tscn")
+const SETTINGS_PANEL_SCENE: PackedScene = preload("res://scenes/ui/desktop_pet/desktop_pet_settings_panel.tscn")
+
 @onready var input_edit: TextEdit = $Control/InputLayer/MarginContainer/HBoxContainer/InputField
 @onready var send_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/SendButton
 @onready var quick_tools_panel: PanelContainer = $Control/QuickToolsPanel
-@onready var quick_tools_screen: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen
-@onready var quick_tools_screen_margin: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin
-@onready var dashboard_root: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot
-@onready var tool_title_label: Label = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/DatePill/DateMargin/Title
-@onready var tool_subtitle_label: Label = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/WeekPill/WeekMargin/SubTitle
-@onready var tool_clock_label: Label = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/InfoVBox/ClockLabel
-@onready var tool_mode_chip: Label = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/TimeWidget/MarginContainer/HeaderRow/ModeChip") as Label
-@onready var main_window_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/OtherButtons/MainWindowButton
-@onready var dialogue_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons/DialogueButton
-@onready var pet_settings_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/PetSettingsButton") as Button
-@onready var affection_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/AffectionButton") as Button
-@onready var memory_button: Button = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/ToolButtons/MemoryButton") as Button
-@onready var close_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/CloseButton
-@onready var pomodoro_toggle_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons/PomodoroToggleButton
-@onready var music_toggle_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/PrimaryButtons/MusicToggleButton
-@onready var hide_tool_button: Button = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/DashboardRoot/HideToolButton
-@onready var pomodoro_panel_host: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/PomodoroPanelHost
-@onready var music_panel_host: Control = $Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/MusicPanelHost
-@onready var settings_panel_host: Control = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/SettingsPanelHost") as Control
+@onready var tool_mode_chip: Label = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderCard/HeaderMargin/HeaderVBox/NameRow/ModeChip") as Label
+@onready var tool_nav_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ToolNavButton") as Button
+@onready var avatar_dock: Control = get_node_or_null("Control/AvatarDock") as Control
+@onready var main_window_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/MainWindowButton") as Button
+@onready var dialogue_button: Button = $Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/PrimaryButtons/DialogueButton
+@onready var pet_settings_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/SecondRow/PetSettingsButton") as Button
+@onready var affection_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/FirstRow/AffectionButton") as Button
+@onready var memory_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/FirstRow/MemoryButton") as Button
+@onready var close_button: Button = $Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/SecondRow/CloseButton
+@onready var pomodoro_toggle_button: Button = $Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/PrimaryButtons/PomodoroToggleButton
+@onready var music_toggle_button: Button = $Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/PrimaryButtons/MusicToggleButton
+@onready var hide_tool_button: Button = $Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/HideToolButton
 
 @onready var input_layer: PanelContainer = $Control/InputLayer
 @onready var voice_record_button: Button = $Control/InputLayer/MarginContainer/HBoxContainer/VoiceRecordButton
@@ -71,7 +71,9 @@ var _music_panel_instance: Control = null
 var _settings_panel_instance: Control = null
 var _affection_panel_instance: Control = null
 var _memory_panel_instance: Control = null
-var _active_tool_key: String = ""
+var _floating_panel_entries: Dictionary = {}
+var _dragging_overlay_key: String = ""
+var _dragging_overlay_offset: Vector2 = Vector2.ZERO
 var _root_window_parked: bool = false
 var _root_window_saved_position: Vector2i = Vector2i.ZERO
 var _root_window_saved_size: Vector2i = Vector2i.ZERO
@@ -127,30 +129,26 @@ func _ready() -> void:
 	# 确保内部 Control 占满整个小窗口
 	var control_node = $Control
 	control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
-	control_node.size = Vector2(1280, 720)
 	control_node.position = Vector2.ZERO
 	
 	if is_standalone_mode:
 		pass # 不再修改文字，保持 "主界面"
 		
 	input_layer.hide()
-	quick_tools_panel.hide()
-	pomodoro_panel_host.hide()
-	music_panel_host.hide()
-	if settings_panel_host:
-		settings_panel_host.hide()
+	_set_menu_visible(false)
 	quick_tools_panel.gui_input.connect(_on_tool_panel_gui_input)
-	pomodoro_panel_host.gui_input.connect(_on_tool_panel_gui_input)
-	music_panel_host.gui_input.connect(_on_tool_panel_gui_input)
-	if settings_panel_host:
-		settings_panel_host.gui_input.connect(_on_tool_panel_gui_input)
+	if avatar_dock:
+		avatar_dock.gui_input.connect(_on_tool_panel_gui_input)
 	
 	# TTSManager 已在全局自动处理配置，这里不需要额外配置
 	
 	# 连接信号
 	send_button.pressed.connect(_on_send_pressed)
-	main_window_button.pressed.connect(_on_main_window_pressed)
+	if main_window_button:
+		main_window_button.pressed.connect(_on_main_window_pressed)
 	close_button.pressed.connect(_on_close_pressed)
+	if tool_nav_button:
+		tool_nav_button.pressed.connect(_on_tool_nav_pressed)
 	dialogue_button.pressed.connect(_on_dialogue_button_pressed)
 	if pet_settings_button:
 		pet_settings_button.pressed.connect(_on_pet_settings_pressed)
@@ -163,12 +161,13 @@ func _ready() -> void:
 	voice_record_button.button_up.connect(_on_voice_record_up)
 	pomodoro_toggle_button.pressed.connect(_on_pomodoro_toggle_pressed)
 	music_toggle_button.pressed.connect(_on_music_toggle_pressed)
-	hide_tool_button.pressed.connect(func(): _set_menu_visible(false))
+	if hide_tool_button:
+		hide_tool_button.pressed.connect(func(): _set_menu_visible(false))
 	
 	if GameDataManager.config.qwen_asr_enabled:
-		var QwenASRClient = load("res://scripts/api/qwen_asr_client.gd")
-		if QwenASRClient:
-			qwen_asr_client = QwenASRClient.new()
+		var qwen_asr_script = load("res://scripts/api/qwen_asr_client.gd")
+		if qwen_asr_script:
+			qwen_asr_client = qwen_asr_script.new()
 			qwen_asr_client.name = "QwenASRClient"
 			add_child(qwen_asr_client)
 			qwen_asr_client.transcribe_completed.connect(_on_asr_success)
@@ -229,12 +228,11 @@ func _ready() -> void:
 	
 	input_layer.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
 	quick_tools_panel.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	pomodoro_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	music_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-	if settings_panel_host:
-		settings_panel_host.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
+	if avatar_dock:
+		avatar_dock.visibility_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
 
 	_load_quick_tool_state()
+	_update_tool_nav_button()
 	
 	# 初始化时延迟调用以更新鼠标穿透区域
 	call_deferred("_update_mouse_passthrough")
@@ -257,22 +255,20 @@ func _ready() -> void:
 
 func _load_quick_tool_state() -> void:
 	_update_mode_chip()
-	_update_panel_clock()
+	_update_tool_nav_button()
 
 func refresh_runtime_settings() -> void:
 	_load_prompt()
 	_update_mode_chip()
-	_update_panel_clock()
+	_update_tool_nav_button()
 	if pet_body and pet_body.has_method("_update_sprite_scale"):
 		pet_body._update_sprite_scale()
 
 func _set_menu_visible(visible_state: bool) -> void:
 	quick_tools_panel.visible = visible_state
-	if visible_state:
-		_hide_side_tool_panels()
-		_update_panel_clock()
-	else:
-		_hide_side_tool_panels()
+	if avatar_dock != null:
+		avatar_dock.visible = visible_state
+	_update_tool_nav_button()
 
 func _get_pet_body_local_rect() -> Rect2:
 	if pet_body and pet_body.has_method("get_body_global_rect"):
@@ -302,91 +298,352 @@ func _clamp_window_position_to_pet_body(target_pos: Vector2i, screen_rect: Rect2
 	
 	return clamped_pos
 
+func _get_overlay_root() -> Control:
+	return $Control
+
+func _get_pet_screen_rect() -> Rect2:
+	var mouse_pos: Vector2i = DisplayServer.mouse_get_position()
+	var screen_idx := DisplayServer.get_screen_from_rect(Rect2i(mouse_pos, Vector2i.ONE))
+	var screen_rect_i: Rect2i = DisplayServer.screen_get_usable_rect(screen_idx)
+	return Rect2(screen_rect_i.position, screen_rect_i.size)
+
+func _screen_to_local(screen_position: Vector2) -> Vector2:
+	return screen_position - Vector2(position.x, position.y)
+
+func _local_to_screen(local_position: Vector2) -> Vector2:
+	return Vector2(position.x, position.y) + local_position
+
+func _get_panel_target_size(panel: Control) -> Vector2:
+	if panel == null:
+		return Vector2.ZERO
+	var target_size := panel.custom_minimum_size
+	if target_size == Vector2.ZERO:
+		target_size = panel.get_combined_minimum_size()
+	if target_size == Vector2.ZERO:
+		target_size = panel.size
+	if target_size.y <= 0.0:
+		target_size.y = maxf(panel.size.y, panel.get_combined_minimum_size().y)
+	if target_size.x <= 0.0:
+		target_size.x = maxf(panel.size.x, panel.get_combined_minimum_size().x)
+	return target_size
+
+func _get_overlay_window_target_size(key: String, panel: Control, move_target: Control = null) -> Vector2:
+	if _floating_panel_entries.has(key):
+		var override_size: Variant = _floating_panel_entries[key].get("window_size_override", Vector2.ZERO)
+		if override_size is Vector2 and override_size != Vector2.ZERO:
+			return override_size
+	var candidates: Array[Vector2] = []
+	if is_instance_valid(panel):
+		candidates.append(_get_panel_target_size(panel))
+		candidates.append(panel.get_combined_minimum_size())
+		var panel_rect_size := Vector2(maxf(panel.offset_right - panel.offset_left, 0.0), maxf(panel.offset_bottom - panel.offset_top, 0.0))
+		candidates.append(panel_rect_size)
+	if is_instance_valid(move_target):
+		candidates.append(_get_panel_target_size(move_target))
+		candidates.append(move_target.get_combined_minimum_size())
+		var move_rect_size := Vector2(maxf(move_target.offset_right - move_target.offset_left, 0.0), maxf(move_target.offset_bottom - move_target.offset_top, 0.0))
+		candidates.append(move_rect_size)
+	var target_size := Vector2.ZERO
+	for candidate in candidates:
+		target_size.x = maxf(target_size.x, candidate.x)
+		target_size.y = maxf(target_size.y, candidate.y)
+	return target_size
+
+func _ensure_floating_wrapper(key: String) -> Control:
+	if _floating_panel_entries.has(key):
+		var existing_wrapper: Control = _floating_panel_entries[key].get("wrapper", null) as Control
+		if is_instance_valid(existing_wrapper):
+			return existing_wrapper
+	var wrapper := Control.new()
+	wrapper.name = "%sFloatingWrapper" % key.capitalize()
+	wrapper.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wrapper.visible = false
+	_get_overlay_root().add_child(wrapper)
+	return wrapper
+
+func _ensure_floating_window(key: String) -> Window:
+	if _floating_panel_entries.has(key):
+		var existing_wrapper = _floating_panel_entries[key].get("wrapper", null)
+		if existing_wrapper is Window and is_instance_valid(existing_wrapper):
+			return existing_wrapper as Window
+	var wrapper := Window.new()
+	wrapper.name = "%sFloatingWindow" % key.capitalize()
+	wrapper.transparent_bg = true
+	wrapper.transparent = true
+	wrapper.borderless = true
+	wrapper.always_on_top = true
+	wrapper.unresizable = true
+	wrapper.transient = false
+	wrapper.exclusive = false
+	wrapper.visible = false
+	wrapper.close_requested.connect(func(): _close_floating_panel(key))
+	add_child(wrapper)
+	return wrapper
+
+func _register_floating_panel_entry(key: String, panel: Control, wrapper, move_target: Control, drag_handle: Control = null, draggable: bool = false) -> void:
+	_floating_panel_entries[key] = {
+		"wrapper": wrapper,
+		"panel": panel,
+		"move_target": move_target
+	}
+	if draggable and drag_handle != null:
+		drag_handle.gui_input.connect(func(event: InputEvent): _on_overlay_drag_gui_input(key, move_target, event))
+	panel.visibility_changed.connect(func(): _on_floating_panel_visibility_changed(key))
+
+func _on_floating_panel_visibility_changed(key: String) -> void:
+	if not _floating_panel_entries.has(key):
+		return
+	var wrapper = _floating_panel_entries[key].get("wrapper", null)
+	var panel: Control = _floating_panel_entries[key].get("panel", null) as Control
+	if not is_instance_valid(panel):
+		return
+	if wrapper is Window and is_instance_valid(wrapper):
+		wrapper.visible = panel.visible
+	elif wrapper is Control and is_instance_valid(wrapper):
+		wrapper.visible = panel.visible
+	call_deferred("_update_mouse_passthrough")
+
+func _position_overlay_window(wrapper: Window, target_size: Vector2, anchor_bottom: bool = false, margin: float = 16.0) -> void:
+	if wrapper == null:
+		return
+	var screen_rect: Rect2 = _get_pet_screen_rect()
+	var size_i := Vector2i(ceili(target_size.x), ceili(target_size.y))
+	wrapper.size = size_i
+	var target_screen_pos := Vector2(
+		screen_rect.position.x + (screen_rect.size.x - target_size.x) * 0.5,
+		screen_rect.position.y + (screen_rect.size.y - target_size.y) * 0.5
+	)
+	if anchor_bottom:
+		target_screen_pos.y = screen_rect.end.y - target_size.y - 26.0
+	var min_pos := screen_rect.position + Vector2(margin, margin)
+	var max_pos := screen_rect.end - target_size - Vector2(margin, margin)
+	if max_pos.x < min_pos.x:
+		max_pos.x = min_pos.x
+	if max_pos.y < min_pos.y:
+		max_pos.y = min_pos.y
+	target_screen_pos.x = clampf(target_screen_pos.x, min_pos.x, max_pos.x)
+	target_screen_pos.y = clampf(target_screen_pos.y, min_pos.y, max_pos.y)
+	wrapper.position = Vector2i(roundi(target_screen_pos.x), roundi(target_screen_pos.y))
+
+func _clamp_overlay_window_to_screen(wrapper: Window, target_size: Vector2, margin: float = 16.0) -> void:
+	if wrapper == null:
+		return
+	var screen_rect: Rect2 = _get_pet_screen_rect()
+	var min_pos := screen_rect.position + Vector2(margin, margin)
+	var max_pos := screen_rect.end - target_size - Vector2(margin, margin)
+	if max_pos.x < min_pos.x:
+		max_pos.x = min_pos.x
+	if max_pos.y < min_pos.y:
+		max_pos.y = min_pos.y
+	var screen_position := Vector2(wrapper.position.x, wrapper.position.y)
+	screen_position.x = clampf(screen_position.x, min_pos.x, max_pos.x)
+	screen_position.y = clampf(screen_position.y, min_pos.y, max_pos.y)
+	wrapper.position = Vector2i(roundi(screen_position.x), roundi(screen_position.y))
+
+func _clamp_overlay_position(move_target: Control, margin: float = 16.0) -> void:
+	if move_target == null:
+		return
+	var target_size: Vector2 = _get_panel_target_size(move_target)
+	if target_size == Vector2.ZERO:
+		target_size = move_target.size
+	var screen_rect: Rect2 = _get_pet_screen_rect()
+	var min_screen_pos := screen_rect.position + Vector2(margin, margin)
+	var max_screen_pos := screen_rect.end - target_size - Vector2(margin, margin)
+	if max_screen_pos.x < min_screen_pos.x:
+		max_screen_pos.x = min_screen_pos.x
+	if max_screen_pos.y < min_screen_pos.y:
+		max_screen_pos.y = min_screen_pos.y
+	var screen_position := _local_to_screen(move_target.position)
+	screen_position.x = clampf(screen_position.x, min_screen_pos.x, max_screen_pos.x)
+	screen_position.y = clampf(screen_position.y, min_screen_pos.y, max_screen_pos.y)
+	move_target.position = _screen_to_local(screen_position)
+
+func _center_overlay_target(move_target: Control) -> void:
+	if move_target == null:
+		return
+	var target_size: Vector2 = _get_panel_target_size(move_target)
+	var screen_rect: Rect2 = _get_pet_screen_rect()
+	var screen_position := Vector2(
+		round(screen_rect.position.x + (screen_rect.size.x - target_size.x) * 0.5),
+		round(screen_rect.position.y + (screen_rect.size.y - target_size.y) * 0.5)
+	)
+	move_target.position = _screen_to_local(screen_position)
+	_clamp_overlay_position(move_target)
+
+func _position_music_overlay(panel: Control) -> void:
+	if panel == null:
+		return
+	var target_size: Vector2 = _get_panel_target_size(panel)
+	var screen_rect: Rect2 = _get_pet_screen_rect()
+	var screen_position := Vector2(
+		round(screen_rect.position.x + (screen_rect.size.x - target_size.x) * 0.5),
+		round(screen_rect.end.y - target_size.y - 26.0)
+	)
+	panel.position = _screen_to_local(screen_position)
+	_clamp_overlay_position(panel, 12.0)
+
+func _on_overlay_drag_gui_input(key: String, move_target: Control, event: InputEvent) -> void:
+	if move_target == null:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_consume_desktop_pet_ui_input()
+		var entry: Dictionary = _floating_panel_entries.get(key, {})
+		var wrapper = entry.get("wrapper", null)
+		if wrapper is Window and is_instance_valid(wrapper):
+			if event.pressed:
+				_dragging_overlay_key = key
+				_dragging_overlay_offset = Vector2(DisplayServer.mouse_get_position()) - Vector2(wrapper.position.x, wrapper.position.y)
+			elif _dragging_overlay_key == key:
+				_dragging_overlay_key = ""
+			return
+		if event.pressed:
+			_dragging_overlay_key = key
+			_dragging_overlay_offset = Vector2(DisplayServer.mouse_get_position()) - _local_to_screen(move_target.position)
+		elif _dragging_overlay_key == key:
+			_dragging_overlay_key = ""
+	elif event is InputEventMouseMotion and _dragging_overlay_key == key and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+		var entry: Dictionary = _floating_panel_entries.get(key, {})
+		var wrapper = entry.get("wrapper", null)
+		if wrapper is Window and is_instance_valid(wrapper):
+			var target_size := _get_panel_target_size(move_target if move_target != null else entry.get("panel", null) as Control)
+			var drag_screen_pos := Vector2(DisplayServer.mouse_get_position()) - _dragging_overlay_offset
+			wrapper.position = Vector2i(roundi(drag_screen_pos.x), roundi(drag_screen_pos.y))
+			_clamp_overlay_window_to_screen(wrapper, target_size)
+			_update_mouse_passthrough()
+			return
+		move_target.position = _screen_to_local(Vector2(DisplayServer.mouse_get_position()) - _dragging_overlay_offset)
+		_clamp_overlay_position(move_target)
+		_update_mouse_passthrough()
+
+func _show_floating_panel(key: String, panel: Control, move_target: Control, anchor_bottom: bool = false) -> void:
+	if panel == null:
+		return
+	var wrapper = _floating_panel_entries.get(key, {}).get("wrapper", null)
+	if wrapper is Window and is_instance_valid(wrapper):
+		if move_target != null:
+			var target_size := _get_overlay_window_target_size(key, panel, move_target)
+			var preserve_layout: bool = bool(_floating_panel_entries.get(key, {}).get("preserve_layout", false))
+			if not preserve_layout:
+				panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+				panel.position = Vector2.ZERO
+				panel.size = target_size
+				panel.custom_minimum_size = target_size
+			_position_overlay_window(wrapper, target_size, anchor_bottom, 12.0 if anchor_bottom else 16.0)
+		wrapper.show()
+	elif is_instance_valid(wrapper):
+		wrapper.show()
+		wrapper.move_to_front()
+	if wrapper is not Window and anchor_bottom:
+		_position_music_overlay(move_target)
+	else:
+		if wrapper is not Window:
+			_center_overlay_target(move_target)
+	panel.show()
+	if panel.focus_mode != Control.FOCUS_NONE:
+		panel.grab_focus()
+	call_deferred("_update_mouse_passthrough")
+
+func _close_floating_panel(key: String) -> void:
+	if not _floating_panel_entries.has(key):
+		return
+	var entry: Dictionary = _floating_panel_entries[key]
+	var wrapper = entry.get("wrapper", null)
+	var panel: Control = entry.get("panel", null) as Control
+	if is_instance_valid(panel):
+		if key == "settings" and panel.has_method("save_settings"):
+			panel.save_settings()
+		if panel.has_method("hide_panel"):
+			panel.hide_panel()
+		else:
+			panel.hide()
+	if is_instance_valid(wrapper):
+		wrapper.hide()
+	call_deferred("_update_mouse_passthrough")
+
+func _close_all_floating_panels() -> void:
+	for key in _floating_panel_entries.keys():
+		_close_floating_panel(str(key))
+
 func _get_pomodoro_panel_instance() -> Control:
 	if is_instance_valid(_pomodoro_panel_instance):
 		return _pomodoro_panel_instance
-	var panel_scene := load("res://scenes/ui/desktop_pet/pomodoro_panel.tscn")
-	if panel_scene == null:
-		return null
-	_pomodoro_panel_instance = panel_scene.instantiate()
+	_pomodoro_panel_instance = POMODORO_PANEL_SCENE.instantiate()
+	var wrapper := _ensure_floating_window("pomodoro")
+	wrapper.add_child(_pomodoro_panel_instance)
 	_pomodoro_panel_instance.visible = false
-	quick_tools_screen.add_child(_pomodoro_panel_instance)
-	_fit_embedded_tool_panel(_pomodoro_panel_instance, quick_tools_screen)
+	_pomodoro_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_pomodoro_panel_instance.position = Vector2.ZERO
+	var drag_handle: Control = _pomodoro_panel_instance.get_node_or_null("Panel/DragBar") as Control
+	if drag_handle == null:
+		drag_handle = _pomodoro_panel_instance.get_node_or_null("Panel") as Control
 	if _pomodoro_panel_instance.has_signal("back_requested"):
-		_pomodoro_panel_instance.back_requested.connect(_hide_side_tool_panels)
+		_pomodoro_panel_instance.back_requested.connect(func(): _close_floating_panel("pomodoro"))
+	_register_floating_panel_entry("pomodoro", _pomodoro_panel_instance, wrapper, _pomodoro_panel_instance, drag_handle, true)
 	return _pomodoro_panel_instance
-
-func _fit_embedded_tool_panel(panel: Control, host: Control) -> void:
-	if panel == null or host == null:
-		return
-	panel.custom_minimum_size = Vector2.ZERO
-	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.position = Vector2.ZERO
-	panel.size = host.size
-	panel.reset_size()
-	panel.update_minimum_size()
-	panel.queue_redraw()
 
 func _get_music_panel_instance() -> Control:
 	if is_instance_valid(_music_panel_instance):
 		return _music_panel_instance
-	var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_music_panel.tscn")
-	if panel_scene == null:
-		return null
-	_music_panel_instance = panel_scene.instantiate()
+	_music_panel_instance = MUSIC_PLAYER_SCENE.instantiate()
+	var wrapper := _ensure_floating_window("music")
+	wrapper.add_child(_music_panel_instance)
 	_music_panel_instance.visible = false
-	quick_tools_screen.add_child(_music_panel_instance)
-	if _music_panel_instance is Control:
-		_fit_embedded_tool_panel(_music_panel_instance as Control, quick_tools_screen)
-	if _music_panel_instance.has_signal("back_requested"):
-		_music_panel_instance.back_requested.connect(_hide_side_tool_panels)
+	_music_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_music_panel_instance.position = Vector2.ZERO
+	if _music_panel_instance.has_method("set_audio_player"):
+		_music_panel_instance.set_audio_player(music_player)
+	if _music_panel_instance.has_method("set_desktop_pet_mode"):
+		_music_panel_instance.set_desktop_pet_mode(true)
+	if _music_panel_instance.has_signal("close_requested"):
+		_music_panel_instance.close_requested.connect(func(): _close_floating_panel("music"))
+	_register_floating_panel_entry("music", _music_panel_instance, wrapper, _music_panel_instance, null, false)
+	_floating_panel_entries["music"]["window_size_override"] = Vector2(350, 60)
 	return _music_panel_instance
 
 func _get_affection_panel_instance() -> Control:
 	if is_instance_valid(_affection_panel_instance):
 		return _affection_panel_instance
-	var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_affection_panel.tscn")
-	if panel_scene == null:
-		return null
-	_affection_panel_instance = panel_scene.instantiate()
+	_affection_panel_instance = AFFECTION_PANEL_SCENE.instantiate()
+	var wrapper := _ensure_floating_window("affection")
+	wrapper.add_child(_affection_panel_instance)
 	_affection_panel_instance.visible = false
-	quick_tools_screen.add_child(_affection_panel_instance)
-	if _affection_panel_instance is Control:
-		_fit_embedded_tool_panel(_affection_panel_instance as Control, quick_tools_screen)
+	_affection_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_affection_panel_instance.position = Vector2.ZERO
+	var drag_handle: Control = _affection_panel_instance.get_node_or_null("RootMargin/RootVBox/TopBar") as Control
 	if _affection_panel_instance.has_signal("back_requested"):
-		_affection_panel_instance.back_requested.connect(_hide_side_tool_panels)
+		_affection_panel_instance.back_requested.connect(func(): _close_floating_panel("affection"))
+	_register_floating_panel_entry("affection", _affection_panel_instance, wrapper, _affection_panel_instance, drag_handle, true)
 	return _affection_panel_instance
 
 func _get_memory_panel_instance() -> Control:
 	if is_instance_valid(_memory_panel_instance):
 		return _memory_panel_instance
-	var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_memory_panel.tscn")
-	if panel_scene == null:
-		return null
-	_memory_panel_instance = panel_scene.instantiate()
+	_memory_panel_instance = ARCHIVE_MEMORY_PANEL_SCENE.instantiate()
+	var wrapper := _ensure_floating_window("memory")
+	wrapper.add_child(_memory_panel_instance)
 	_memory_panel_instance.visible = false
-	quick_tools_screen.add_child(_memory_panel_instance)
-	if _memory_panel_instance is Control:
-		_fit_embedded_tool_panel(_memory_panel_instance as Control, quick_tools_screen)
-	if _memory_panel_instance.has_signal("back_requested"):
-		_memory_panel_instance.back_requested.connect(_hide_side_tool_panels)
+	_memory_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var drag_handle: Control = _memory_panel_instance.get_node_or_null("CenterContainer/Panel/VBoxContainer/TopBar") as Control
+	var move_target: Control = _memory_panel_instance.get_node_or_null("CenterContainer/Panel") as Control
+	_register_floating_panel_entry("memory", _memory_panel_instance, wrapper, move_target, drag_handle, true)
+	_floating_panel_entries["memory"]["window_size_override"] = Vector2(1040, 660)
+	_floating_panel_entries["memory"]["preserve_layout"] = true
 	return _memory_panel_instance
 
 func _get_settings_panel_instance() -> Control:
 	if is_instance_valid(_settings_panel_instance):
 		return _settings_panel_instance
-	if settings_panel_host == null:
-		return null
-	var panel_scene := load("res://scenes/ui/desktop_pet/desktop_pet_settings_panel.tscn")
-	if panel_scene == null:
-		return null
-	_settings_panel_instance = panel_scene.instantiate()
+	_settings_panel_instance = SETTINGS_PANEL_SCENE.instantiate()
+	var wrapper := _ensure_floating_window("settings")
+	wrapper.add_child(_settings_panel_instance)
 	_settings_panel_instance.visible = false
-	quick_tools_screen.add_child(_settings_panel_instance)
-	if _settings_panel_instance is Control:
-		_fit_embedded_tool_panel(_settings_panel_instance as Control, quick_tools_screen)
+	_settings_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_settings_panel_instance.position = Vector2.ZERO
+	var drag_handle: Control = _settings_panel_instance.get_node_or_null("Margin/VBox/TopBar") as Control
 	if _settings_panel_instance.has_signal("back_requested"):
-		_settings_panel_instance.back_requested.connect(_hide_side_tool_panels)
+		_settings_panel_instance.back_requested.connect(func(): _close_floating_panel("settings"))
+	_register_floating_panel_entry("settings", _settings_panel_instance, wrapper, _settings_panel_instance, drag_handle, true)
 	return _settings_panel_instance
 
 func _update_mode_chip() -> void:
@@ -395,21 +652,17 @@ func _update_mode_chip() -> void:
 	tool_mode_chip.text = _get_pet_mode()
 
 func _update_panel_clock() -> void:
-	if tool_title_label == null or tool_subtitle_label == null or tool_clock_label == null:
+	return
+
+func _update_tool_nav_button() -> void:
+	if tool_nav_button == null:
 		return
-	var time_dict: Dictionary = Time.get_datetime_dict_from_system()
-	var weekday_names: Array[String] = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
-	var weekday_idx := int(time_dict.get("weekday", 0))
-	weekday_idx = clampi(weekday_idx, 0, weekday_names.size() - 1)
-	var hour := int(time_dict.get("hour", 0))
-	var minute := int(time_dict.get("minute", 0))
-	tool_title_label.text = "%04d.%02d.%02d" % [
-		int(time_dict.get("year", 0)),
-		int(time_dict.get("month", 0)),
-		int(time_dict.get("day", 0))
-	]
-	tool_subtitle_label.text = weekday_names[weekday_idx]
-	tool_clock_label.text = "%02d:%02d" % [hour, minute]
+	tool_nav_button.text = "×"
+	tool_nav_button.tooltip_text = "收起工具面板"
+
+func _on_tool_nav_pressed() -> void:
+	_consume_desktop_pet_ui_input()
+	_set_menu_visible(false)
 
 func _get_clock_greeting(hour: int) -> String:
 	if hour < 6:
@@ -425,101 +678,47 @@ func _get_clock_greeting(hour: int) -> String:
 func _on_pomodoro_toggle_pressed() -> void:
 	_consume_desktop_pet_ui_input()
 	var panel = _get_pomodoro_panel_instance()
-	_set_menu_visible(true)
-	_show_side_tool_panel("pomodoro", panel)
+	_show_floating_panel("pomodoro", panel, panel)
 
 func _on_music_toggle_pressed() -> void:
 	_consume_desktop_pet_ui_input()
-	_open_music_panel(false)
+	_open_music_panel(true)
 
 func _on_pet_settings_pressed() -> void:
 	_consume_desktop_pet_ui_input()
 	var panel = _get_settings_panel_instance()
-	_set_menu_visible(true)
-	_show_side_tool_panel("settings", panel)
+	_show_floating_panel("settings", panel, panel)
 
 func _on_affection_button_pressed() -> void:
 	_consume_desktop_pet_ui_input()
 	var panel = _get_affection_panel_instance()
 	if panel and panel.has_method("show_panel"):
 		panel.show_panel(GameDataManager.profile if GameDataManager else null)
-	_set_menu_visible(true)
-	_show_side_tool_panel("affection", panel)
+	_show_floating_panel("affection", panel, panel)
 
 func _on_memory_button_pressed() -> void:
 	_consume_desktop_pet_ui_input()
 	var panel = _get_memory_panel_instance()
-	if panel and panel.has_method("show_panel"):
-		panel.show_panel()
-	_set_menu_visible(true)
-	_show_side_tool_panel("memory", panel)
-
-func _show_side_tool_panel(tool_key: String, panel: Control) -> void:
-	if panel == null:
-		return
-	if not quick_tools_panel.visible:
-		quick_tools_panel.show()
-	if _active_tool_key == tool_key and panel.visible:
-		_hide_side_tool_panels()
-		return
-	_hide_side_tool_panels()
-	if dashboard_root:
-		dashboard_root.hide()
-	match tool_key:
-		"pomodoro":
-			if quick_tools_screen_margin:
-				quick_tools_screen_margin.hide()
-			_fit_embedded_tool_panel(panel, quick_tools_screen)
-		"music":
-			if quick_tools_screen_margin:
-				quick_tools_screen_margin.hide()
-			_fit_embedded_tool_panel(panel, quick_tools_screen)
-		"settings":
-			if quick_tools_screen_margin:
-				quick_tools_screen_margin.hide()
-			_fit_embedded_tool_panel(panel, quick_tools_screen)
-		"affection":
-			if quick_tools_screen_margin:
-				quick_tools_screen_margin.hide()
-			_fit_embedded_tool_panel(panel, quick_tools_screen)
-		"memory":
-			if quick_tools_screen_margin:
-				quick_tools_screen_margin.hide()
-			_fit_embedded_tool_panel(panel, quick_tools_screen)
-		_:
-			pass
-	panel.show()
-	if panel.get_parent() == quick_tools_screen:
-		quick_tools_screen.move_child(panel, quick_tools_screen.get_child_count() - 1)
-	_active_tool_key = tool_key
-	call_deferred("_update_mouse_passthrough")
+	if panel and panel.has_method("show_desktop_pet_panel"):
+		panel.show_desktop_pet_panel()
+	var move_target: Control = _floating_panel_entries.get("memory", {}).get("move_target", null) as Control
+	_show_floating_panel("memory", panel, move_target)
 
 func _open_music_panel(force_open: bool = true) -> void:
 	var panel = _get_music_panel_instance()
 	if panel and panel.has_method("set_audio_player"):
 		panel.set_audio_player(music_player)
-	if not quick_tools_panel.visible:
-		quick_tools_panel.show()
-	_update_panel_clock()
-	if force_open and panel:
-		_hide_side_tool_panels()
-		if dashboard_root:
-			dashboard_root.hide()
-		if quick_tools_screen_margin:
-			quick_tools_screen_margin.hide()
-		_fit_embedded_tool_panel(panel, quick_tools_screen)
-		panel.show()
-		if panel.get_parent() == quick_tools_screen:
-			quick_tools_screen.move_child(panel, quick_tools_screen.get_child_count() - 1)
-		_active_tool_key = "music"
-		call_deferred("_update_mouse_passthrough")
-		return
-	_show_side_tool_panel("music", panel)
+	if panel and panel.has_method("reload_library"):
+		panel.reload_library()
+	if force_open:
+		_show_floating_panel("music", panel, panel, true)
 
 func _refresh_music_panel_state() -> void:
 	var panel = _get_music_panel_instance()
 	if panel and panel.has_method("set_audio_player"):
 		panel.set_audio_player(music_player)
+	if panel and panel.has_method("reload_library"):
+		panel.reload_library()
 	if panel and panel.has_method("_update_ui"):
 		panel._update_ui()
 
@@ -541,56 +740,14 @@ func _is_pointer_over_desktop_pet_ui() -> bool:
 		return true
 	if _is_mouse_over_control(quick_tools_panel):
 		return true
-	if _is_mouse_over_control(pomodoro_panel_host):
+	if _is_mouse_over_control(avatar_dock):
 		return true
-	if _is_mouse_over_control(music_panel_host):
-		return true
-	if _is_mouse_over_control(settings_panel_host):
-		return true
+	for key in _floating_panel_entries.keys():
+		var panel: Control = _floating_panel_entries[key].get("panel", null) as Control
+		var move_target: Control = _floating_panel_entries[key].get("move_target", null) as Control
+		if _is_mouse_over_control(move_target if is_instance_valid(move_target) else panel):
+			return true
 	return false
-
-func _hide_side_tool_panels() -> void:
-	_active_tool_key = ""
-	if dashboard_root:
-		dashboard_root.show()
-	if quick_tools_screen_margin:
-		quick_tools_screen_margin.show()
-	if pomodoro_panel_host:
-		pomodoro_panel_host.hide()
-		for child in pomodoro_panel_host.get_children():
-			if child is CanvasItem:
-				child.visible = false
-	if is_instance_valid(_pomodoro_panel_instance):
-		_pomodoro_panel_instance.visible = false
-	if music_panel_host:
-		music_panel_host.hide()
-		for child in music_panel_host.get_children():
-			if child is CanvasItem:
-				child.visible = false
-	if is_instance_valid(_music_panel_instance):
-		_music_panel_instance.visible = false
-	if settings_panel_host:
-		settings_panel_host.hide()
-		for child in settings_panel_host.get_children():
-			if child.has_method("save_settings"):
-				child.save_settings()
-			if child is CanvasItem:
-				child.visible = false
-	if is_instance_valid(_settings_panel_instance):
-		if _settings_panel_instance.has_method("save_settings"):
-			_settings_panel_instance.save_settings()
-		_settings_panel_instance.visible = false
-	if is_instance_valid(_affection_panel_instance):
-		if _affection_panel_instance.has_method("hide_panel"):
-			_affection_panel_instance.hide_panel()
-		else:
-			_affection_panel_instance.visible = false
-	if is_instance_valid(_memory_panel_instance):
-		if _memory_panel_instance.has_method("hide_panel"):
-			_memory_panel_instance.hide_panel()
-		else:
-			_memory_panel_instance.visible = false
-	call_deferred("_update_mouse_passthrough")
 
 func _get_main_bgm_player() -> AudioStreamPlayer:
 	var root := get_tree().current_scene
@@ -707,7 +864,7 @@ func _build_safe_app_display_name(process_name: String, window_title: String, ap
 		return app_type
 	return process_name if process_name != "" else "某个应用"
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	_sync_root_window_focusability()
 	if not pet_body:
 		return
@@ -749,7 +906,6 @@ func _on_dialogue_button_pressed() -> void:
 	input_layer.show()
 	is_dialogue_panel_open = true
 	_set_menu_visible(false)
-	_hide_side_tool_panels()
 
 func _on_close_input_pressed() -> void:
 	input_layer.hide()
@@ -823,56 +979,39 @@ func _load_prompt() -> void:
 【切记】：指令（如 `[CMD:STOP_MUSIC]`）必须原样原词出现，紧跟在最后，不能被改变或省略！"
 
 func _get_available_music() -> Array:
-	var music_list = []
-	var dir = DirAccess.open("res://assets/audio/bgm")
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if not dir.current_is_dir():
-				if file_name.ends_with(".mp3") or file_name.ends_with(".ogg") or file_name.ends_with(".wav") or file_name.ends_with(".import"):
-					var song_name = file_name.replace(".import", "").get_basename()
-					if not music_list.has(song_name):
-						music_list.append(song_name)
-			file_name = dir.get_next()
+	var music_list: Array = []
+	for track in MusicLibraryData.load_playlist_tracks():
+		var song_name: String = MusicLibraryData.get_track_title(track)
+		if not music_list.has(song_name):
+			music_list.append(song_name)
 	return music_list
 
 func _play_music(song_name: String) -> void:
 	if not music_player:
 		return
+	var tracks: Array = MusicLibraryData.load_playlist_tracks()
+	if tracks.is_empty():
+		if ToastManager:
+			ToastManager.show_system_toast("桌面播单还是空的，先去共创音乐面板加几首歌吧", Color.RED)
+		return
 	var main_bgm := _get_main_bgm_player()
 	if main_bgm and main_bgm.playing:
 		main_bgm.stop()
-	var target_file = ""
-	var dir = DirAccess.open("res://assets/audio/bgm")
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		var available_files = []
-		while file_name != "":
-			if not dir.current_is_dir():
-				var clean_name = file_name.replace(".import", "")
-				if clean_name.ends_with(".mp3") or clean_name.ends_with(".ogg") or clean_name.ends_with(".wav"):
-					if not available_files.has(clean_name):
-						available_files.append(clean_name)
-			file_name = dir.get_next()
-			
-		if song_name != "":
-			for f in available_files:
-				if f.get_basename() == song_name:
-					target_file = f
-					break
-					
-		if target_file == "" and available_files.size() > 0:
-			target_file = available_files[randi() % available_files.size()]
-			
-	if target_file != "":
-		var stream = load("res://assets/audio/bgm/" + target_file)
-		if stream:
-			music_player.stream = stream
-			music_player.play()
-			_open_music_panel(true)
-			_refresh_music_panel_state()
+	var target_track: Dictionary = {}
+	if song_name != "":
+		for track in tracks:
+			if MusicLibraryData.get_track_title(track) == song_name:
+				target_track = track
+				break
+	if target_track.is_empty():
+		target_track = tracks[randi() % tracks.size()]
+	var stream: AudioStream = MusicLibraryData.load_audio_stream(str(target_track.get("path", "")))
+	if stream:
+		music_player.stream = stream
+		music_player.set_meta("music_track_id", str(target_track.get("id", "")))
+		music_player.play()
+		_open_music_panel(true)
+		_refresh_music_panel_state()
 
 func _stop_music() -> void:
 	if music_player and music_player.playing:
@@ -968,8 +1107,8 @@ func _build_default_touch_prompt(hour: int, minute: int) -> String:
 - 【格式强制】：你的回复必须完全遵循系统提示词中的【对话结构策略】（使用[SPLIT]等规则，必须包含括号动作描写）。
 - 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [hour, minute]
 
-func _build_mode_touch_prompt(hour: int, minute: int, mode: String) -> String:
-	match mode:
+func _build_mode_touch_prompt(hour: int, minute: int, pet_mode: String) -> String:
+	match pet_mode:
 		PET_MODE_QUIET:
 			return """【系统提示：当前现实时间是 %02d:%02d，玩家刚刚轻轻戳了你一下，而你现在处于安静模式。】
 请你用很轻、很短、不打扰的语气回应这次触碰，像安静地应了一声，然后顺手给一句低打扰的关心。
@@ -1063,7 +1202,7 @@ func _is_self_observe_window(process_name: String, window_title: String) -> bool
 		return true
 	return false
 
-func _should_capture_for_app(process_name: String, window_title: String, app_type: String, is_sensitive_window: bool) -> bool:
+func _should_capture_for_app(process_name: String, window_title: String, _app_type: String, is_sensitive_window: bool) -> bool:
 	if GameDataManager == null or GameDataManager.config == null:
 		return false
 	if _is_self_observe_window(process_name, window_title):
@@ -2088,7 +2227,6 @@ func _on_main_window_pressed() -> void:
 	# 请求主窗口焦点
 	_restore_main_window_from_pet()
 	_set_menu_visible(false)
-	_hide_side_tool_panels()
 	DisplayServer.window_request_attention()
 	
 	# 注意：移除了 _on_close_pressed() 以保持桌宠继续运行
@@ -2097,7 +2235,7 @@ func _on_close_pressed() -> void:
 	if music_player and music_player.playing:
 		music_player.stop()
 	_set_menu_visible(false)
-	_hide_side_tool_panels()
+	_close_all_floating_panels()
 	_restore_main_window_from_pet()
 	var current_scene := get_tree().current_scene
 	if current_scene != null and current_scene != self and current_scene is CanvasItem:
@@ -2129,7 +2267,7 @@ func _restore_main_window_from_pet() -> void:
 		root_window.position = _root_window_saved_position
 		if _root_window_saved_size.x > 0 and _root_window_saved_size.y > 0:
 			root_window.size = _root_window_saved_size
-		root_window.mode = _root_window_saved_mode
+		root_window.mode = _root_window_saved_mode as Window.Mode
 		var current_scene := get_tree().current_scene
 		if current_scene is CanvasItem:
 			(current_scene as CanvasItem).show()
@@ -2224,8 +2362,6 @@ func _toggle_quick_tools_from_right_click() -> void:
 	if is_dialogue_panel_open:
 		return
 	var should_show_menu := not quick_tools_panel.visible
-	if should_show_menu:
-		_hide_side_tool_panels()
 	_set_menu_visible(should_show_menu)
 
 func _update_mouse_passthrough() -> void:
@@ -2242,35 +2378,32 @@ func _update_mouse_passthrough() -> void:
 	# 始终包含左侧和底部边缘的一小块区域作为拖拽抓手，防止全透明后彻底丢失窗口控制权
 	rects.append(Rect2(0, size.y - 40, 40, 40))
 		
-	var i_layer = get_node_or_null("Control/InputLayer")
-	if i_layer and i_layer.is_visible_in_tree():
-		var in_rect = i_layer.get_global_rect()
+	if input_layer and input_layer.is_visible_in_tree():
+		var in_rect = input_layer.get_global_rect()
 		if in_rect.size.x > 0 and in_rect.size.y > 0:
 			rects.append(in_rect.grow(5))
 
-	var q_panel = get_node_or_null("Control/QuickToolsPanel")
-	if q_panel and q_panel.is_visible_in_tree():
-		var quick_rect = q_panel.get_global_rect()
+	if quick_tools_panel and quick_tools_panel.is_visible_in_tree():
+		var quick_rect = quick_tools_panel.get_global_rect()
 		if quick_rect.size.x > 0 and quick_rect.size.y > 0:
 			rects.append(quick_rect.grow(5))
-
-	var pomodoro_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/PomodoroPanelHost")
-	if pomodoro_host and pomodoro_host.is_visible_in_tree():
-		var pomodoro_rect = pomodoro_host.get_global_rect()
-		if pomodoro_rect.size.x > 0 and pomodoro_rect.size.y > 0:
-			rects.append(pomodoro_rect.grow(5))
-
-	var music_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/MusicPanelHost")
-	if music_host and music_host.is_visible_in_tree():
-		var music_rect = music_host.get_global_rect()
-		if music_rect.size.x > 0 and music_rect.size.y > 0:
-			rects.append(music_rect.grow(5))
-
-	var settings_host = get_node_or_null("Control/QuickToolsPanel/MarginContainer/VBoxContainer/Screen/ScreenMargin/ScreenStack/SettingsPanelHost")
-	if settings_host and settings_host.is_visible_in_tree():
-		var settings_rect = settings_host.get_global_rect()
-		if settings_rect.size.x > 0 and settings_rect.size.y > 0:
-			rects.append(settings_rect.grow(5))
+	if avatar_dock and avatar_dock.is_visible_in_tree():
+		var avatar_dock_rect = avatar_dock.get_global_rect()
+		if avatar_dock_rect.size.x > 0 and avatar_dock_rect.size.y > 0:
+			rects.append(avatar_dock_rect.grow(3))
+	
+	for key in _floating_panel_entries.keys():
+		var entry: Dictionary = _floating_panel_entries[key]
+		var wrapper = entry.get("wrapper", null)
+		if wrapper is Window and is_instance_valid(wrapper):
+			continue
+		var panel: Control = entry.get("panel", null) as Control
+		var move_target: Control = entry.get("move_target", null) as Control
+		var rect_source: Control = move_target if is_instance_valid(move_target) else panel
+		if rect_source and rect_source.is_visible_in_tree():
+			var panel_rect = rect_source.get_global_rect()
+			if panel_rect.size.x > 0 and panel_rect.size.y > 0:
+				rects.append(panel_rect.grow(5))
 		
 	if pet_body and pet_body.is_visible_in_tree():
 		if pet_body.has_method("get_passthrough_rects"):

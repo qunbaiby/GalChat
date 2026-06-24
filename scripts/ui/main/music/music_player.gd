@@ -1,5 +1,9 @@
 extends PanelContainer
 
+const MusicLibraryData = preload("res://scripts/data/music_library.gd")
+
+signal close_requested
+
 const ICON_COVER = preload("res://assets/images/icons/ui/music/mv-ai-fill.png")
 const ICON_VOLUME_LINE = preload("res://assets/images/icons/ui/music/volume-up-line.png")
 const ICON_VOLUME_FILL = preload("res://assets/images/icons/ui/music/volume-up-fill.png")
@@ -25,11 +29,10 @@ const ICON_REPEAT_ONE = preload("res://assets/images/icons/ui/music/repeat-one-l
 
 @onready var volume_popup: PanelContainer = $VolumePopup
 @onready var volume_slider: VSlider = $VolumePopup/Margin/VolumeSlider
+@onready var close_button: Button = $CloseButton
 
 const PLAYLIST_ITEM_SCENE = preload("res://scenes/ui/main/music/music_playlist_item.tscn")
 const PLAYLIST_POPUP_SCENE = preload("res://scenes/ui/main/music/music_playlist_popup.tscn")
-const IMPORT_POPUP_SCENE = preload("res://scenes/ui/main/music/music_import_popup.tscn")
-const IMPORTED_MUSIC_DIR := "user://imported_music"
 
 var audio_player: AudioStreamPlayer = null
 var current_bgm_index: int = 0
@@ -41,9 +44,7 @@ var current_mode: PlayMode = PlayMode.REPEAT_ONE
 var _is_hovering_volume: bool = false
 var _volume_hide_timer: Timer = null
 var playlist_popup_instance = null
-var import_popup_instance = null
-
-var current_category: int = 0 # 0: 全部, 1: 本地导入, 2: 收藏
+var _desktop_pet_mode: bool = false
 
 func _ready() -> void:
 	play_pause_btn.pressed.connect(_on_play_pause_pressed)
@@ -52,9 +53,10 @@ func _ready() -> void:
 	shuffle_btn.pressed.connect(_on_shuffle_pressed)
 	repeat_btn.pressed.connect(_on_repeat_pressed)
 	cover_btn.pressed.connect(_on_cover_pressed)
+	if close_button != null:
+		close_button.pressed.connect(func(): close_requested.emit())
 
 	call_deferred("_ensure_playlist_popup")
-	call_deferred("_ensure_import_popup")
 	
 	volume_btn.mouse_entered.connect(_on_volume_mouse_entered)
 	volume_btn.mouse_exited.connect(_on_volume_mouse_exited)
@@ -80,7 +82,19 @@ func _ready() -> void:
 	prev_btn.icon = ICON_PREV
 	next_btn.icon = ICON_NEXT
 	_update_mode_ui()
-	_load_bgm_list()
+	reload_library()
+
+func set_desktop_pet_mode(enabled: bool) -> void:
+	_desktop_pet_mode = enabled
+	if close_button != null:
+		close_button.visible = enabled
+
+func hide_panel() -> void:
+	if is_instance_valid(playlist_popup_instance):
+		playlist_popup_instance.hide()
+	if volume_popup != null:
+		volume_popup.hide()
+	hide()
 
 func _update_volume_popup_position() -> void:
 	var popup_size := volume_popup.get_combined_minimum_size()
@@ -112,6 +126,7 @@ func set_audio_player(player: AudioStreamPlayer) -> void:
 	if is_instance_valid(audio_player) and not audio_player.finished.is_connected(_on_audio_player_finished):
 		audio_player.finished.connect(_on_audio_player_finished)
 	_apply_loop_mode_to_current_stream()
+	_sync_index_to_current_stream()
 	_update_ui()
 
 func _apply_loop_mode_to_stream(stream: AudioStream) -> void:
@@ -135,71 +150,52 @@ func _on_audio_player_finished() -> void:
 		return
 	_on_next_pressed(true)
 
-func _load_bgm_list() -> void:
-	bgm_list.clear()
-	
-	# 从 audio_data.json 读取数据
-	var json_path = "res://assets/data/audio/audio_data.json"
-	if FileAccess.file_exists(json_path):
-		var file = FileAccess.open(json_path, FileAccess.READ)
-		if file:
-			var content = file.get_as_text()
-			file.close()
-			var json = JSON.parse_string(content)
-			if json is Dictionary and json.has("bgm"):
-				for bgm_item in json["bgm"]:
-					if bgm_item.has("path"):
-						var item_data = {
-							"id": bgm_item.get("id", ""),
-							"path": bgm_item["path"],
-							"is_favorite": bgm_item.get("is_favorite", false),
-							"is_local": bgm_item.get("is_local", false)
-						}
-						bgm_list.append(item_data)
-	
-	# 如果 json 中没有，则尝试扫描本地目录作为回退
+func reload_library() -> void:
+	var current_track_id: String = _get_current_track_id()
+	bgm_list = MusicLibraryData.load_playlist_tracks()
 	if bgm_list.is_empty():
-		var path = "res://assets/audio/bgm/"
-		if DirAccess.dir_exists_absolute(path):
-			var dir = DirAccess.open(path)
-			if dir:
-				dir.list_dir_begin()
-				var file_name = dir.get_next()
-				while file_name != "":
-					if not dir.current_is_dir() and (file_name.ends_with(".mp3") or file_name.ends_with(".ogg")):
-						var item_data = {
-							"id": file_name.get_basename(),
-							"path": path + file_name,
-							"is_favorite": false,
-							"is_local": false
-						}
-						bgm_list.append(item_data)
-					file_name = dir.get_next()
-	
+		current_bgm_index = 0
+		_clear_missing_current_track()
+	else:
+		var current_index: int = _find_track_index_by_id(current_track_id)
+		if current_index != -1:
+			current_bgm_index = current_index
+		else:
+			current_bgm_index = clampi(current_bgm_index, 0, bgm_list.size() - 1)
+			if current_track_id != "":
+				_clear_missing_current_track()
+		_sync_index_to_current_stream()
 	_build_playlist_ui()
+	_update_ui()
+
+func _clear_missing_current_track() -> void:
+	if not is_instance_valid(audio_player):
+		return
+	audio_player.stop()
+	audio_player.stream = null
+	audio_player.remove_meta("music_track_id")
+
+func _get_current_track_id() -> String:
+	if is_instance_valid(audio_player) and audio_player.has_meta("music_track_id"):
+		return str(audio_player.get_meta("music_track_id", ""))
+	if current_bgm_index >= 0 and current_bgm_index < bgm_list.size():
+		return str(bgm_list[current_bgm_index].get("id", ""))
+	return ""
 
 func _ensure_playlist_popup() -> void:
 	if is_instance_valid(playlist_popup_instance):
 		return
 
 	playlist_popup_instance = PLAYLIST_POPUP_SCENE.instantiate()
-	var host := get_tree().current_scene if get_tree().current_scene else get_tree().root
+	var host: Node = get_parent()
+	if host == null:
+		host = get_tree().current_scene if get_tree().current_scene else get_tree().root
 	host.add_child(playlist_popup_instance)
 
 	playlist_popup_instance.close_requested.connect(_on_playlist_close_pressed)
-	playlist_popup_instance.get_category_option().item_selected.connect(_on_category_selected)
-	playlist_popup_instance.get_import_btn().pressed.connect(_on_import_pressed)
-	playlist_popup_instance.setup_category_options(current_category)
+	playlist_popup_instance.get_category_option().hide()
+	playlist_popup_instance.get_import_btn().hide()
 	_build_playlist_ui()
-
-func _ensure_import_popup() -> void:
-	if is_instance_valid(import_popup_instance):
-		return
-	
-	import_popup_instance = IMPORT_POPUP_SCENE.instantiate()
-	var host := get_tree().current_scene if get_tree().current_scene else get_tree().root
-	host.add_child(import_popup_instance)
-	import_popup_instance.import_confirmed.connect(_on_import_confirmed)
 
 func _build_playlist_ui() -> void:
 	if not is_instance_valid(playlist_popup_instance):
@@ -209,148 +205,32 @@ func _build_playlist_ui() -> void:
 	for child in playlist_container.get_children():
 		child.queue_free()
 
+	if bgm_list.is_empty():
+		var empty_label := Label.new()
+		empty_label.text = "还没有加入桌面播单"
+		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty_label.add_theme_color_override("font_color", Color(0.44, 0.49, 0.58, 1))
+		playlist_container.add_child(empty_label)
+		return
+
 	for i in range(bgm_list.size()):
-		var item_data = bgm_list[i]
-
-		# 筛选逻辑
-		if current_category == 1 and not item_data["is_local"]:
-			continue
-		if current_category == 2 and not item_data["is_favorite"]:
-			continue
-
-		var path = item_data["path"]
-		var filename = path.get_file().get_basename()
-		var artist = "Local Music" if item_data["is_local"] else "Game Music"
-
+		var item_data: Dictionary = bgm_list[i]
 		var item = PLAYLIST_ITEM_SCENE.instantiate()
 		playlist_container.add_child(item)
-		item.setup(i, filename, artist, false, item_data["is_favorite"])
+		item.setup(
+			i,
+			MusicLibraryData.get_track_title(item_data),
+			MusicLibraryData.get_track_subtitle(item_data),
+			i == current_bgm_index and is_instance_valid(audio_player) and audio_player.playing and not audio_player.stream_paused,
+			bool(item_data.get("is_favorite", false))
+		)
+		if item.has_method("get_star_btn"):
+			var star_btn: Button = item.get_star_btn()
+			if star_btn != null:
+				star_btn.hide()
 		item.item_clicked.connect(_on_playlist_item_clicked)
-		item.star_toggled.connect(_on_star_toggled)
 
 	_update_playlist_ui()
-
-func _on_category_selected(index: int) -> void:
-	current_category = index
-	_build_playlist_ui()
-
-func _on_star_toggled(index: int, is_starred: bool) -> void:
-	if index >= 0 and index < bgm_list.size():
-		bgm_list[index]["is_favorite"] = is_starred
-		_save_audio_data()
-
-func _on_import_pressed() -> void:
-	_ensure_import_popup()
-	if is_instance_valid(import_popup_instance):
-		import_popup_instance.show_popup(self)
-
-func _on_import_confirmed(file_paths: PackedStringArray) -> void:
-	var imported_count: int = 0
-	for file_path in file_paths:
-		if _import_single_music_file(file_path):
-			imported_count += 1
-	
-	if imported_count <= 0:
-		if ToastManager:
-			ToastManager.show_system_toast("没有可导入的音乐文件", Color.RED)
-		return
-	
-	_save_audio_data()
-	if current_category != 0 and current_category != 1:
-		current_category = 1
-		if is_instance_valid(playlist_popup_instance):
-			playlist_popup_instance.get_category_option().select(1)
-	
-	_build_playlist_ui()
-	if ToastManager:
-		ToastManager.show_system_toast("已导入 %d 首本地音乐" % imported_count, Color(0.57, 0.82, 0.76, 1))
-
-func _import_single_music_file(source_path: String) -> bool:
-	if source_path == "":
-		return false
-	if not FileAccess.file_exists(source_path):
-		return false
-	
-	var extension: String = source_path.get_extension().to_lower()
-	if extension != "mp3" and extension != "ogg":
-		return false
-	
-	var target_path: String = _build_unique_import_path(source_path)
-	if target_path == "":
-		return false
-	
-	var source_file: FileAccess = FileAccess.open(source_path, FileAccess.READ)
-	if source_file == null:
-		return false
-	var buffer: PackedByteArray = source_file.get_buffer(source_file.get_length())
-	source_file.close()
-	
-	var target_file: FileAccess = FileAccess.open(target_path, FileAccess.WRITE)
-	if target_file == null:
-		return false
-	target_file.store_buffer(buffer)
-	target_file.close()
-	
-	var new_id: String = "local_" + str(Time.get_unix_time_from_system()) + "_" + str(randi())
-	var item_data := {
-		"id": new_id,
-		"path": target_path,
-		"is_favorite": false,
-		"is_local": true
-	}
-	
-	for existing_item in bgm_list:
-		if str(existing_item.get("path", "")) == target_path:
-			return false
-	
-	bgm_list.append(item_data)
-	return true
-
-func _build_unique_import_path(source_path: String) -> String:
-	DirAccess.make_dir_recursive_absolute(IMPORTED_MUSIC_DIR)
-	
-	var extension: String = source_path.get_extension().to_lower()
-	var base_name: String = source_path.get_file().get_basename().strip_edges()
-	if base_name == "":
-		base_name = "music"
-	
-	var candidate_path: String = "%s/%s.%s" % [IMPORTED_MUSIC_DIR, base_name, extension]
-	var suffix: int = 1
-	while FileAccess.file_exists(candidate_path):
-		candidate_path = "%s/%s_%d.%s" % [IMPORTED_MUSIC_DIR, base_name, suffix, extension]
-		suffix += 1
-	
-	return candidate_path
-
-func _save_audio_data() -> void:
-	var json_path = "res://assets/data/audio/audio_data.json"
-	var json_data = {"bgm": [], "bgs": [], "se": []}
-	
-	# 先读取原有的数据以保留 bgs 和 se
-	if FileAccess.file_exists(json_path):
-		var file = FileAccess.open(json_path, FileAccess.READ)
-		if file:
-			var content = file.get_as_text()
-			file.close()
-			var old_json = JSON.parse_string(content)
-			if old_json is Dictionary:
-				if old_json.has("bgs"): json_data["bgs"] = old_json["bgs"]
-				if old_json.has("se"): json_data["se"] = old_json["se"]
-	
-	# 写入新的 bgm
-	for item in bgm_list:
-		var bgm_node = {
-			"id": item["id"],
-			"path": item["path"]
-		}
-		if item["is_favorite"]: bgm_node["is_favorite"] = true
-		if item["is_local"]: bgm_node["is_local"] = true
-		json_data["bgm"].append(bgm_node)
-		
-	var file = FileAccess.open(json_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(json_data, "  "))
-		file.close()
 
 func _on_playlist_item_clicked(index: int) -> void:
 	if current_bgm_index == index and audio_player and audio_player.stream:
@@ -378,23 +258,29 @@ func _update_playlist_ui() -> void:
 	for i in range(playlist_container.get_child_count()):
 		var item = playlist_container.get_child(i)
 		if item.has_method("set_playing"):
-			var item_index = item.get("_index") if item.has_method("get") else i
-			var is_playing = (item_index == current_bgm_index) and audio_player and audio_player.playing and not audio_player.stream_paused
+			var item_index: int = i
+			if item.has_method("get"):
+				item_index = int(item.get("_index"))
+			var is_playing: bool = item_index == current_bgm_index and is_instance_valid(audio_player) and audio_player.playing and not audio_player.stream_paused
 			item.set_playing(is_playing)
 
 func _on_play_pause_pressed() -> void:
-	if not is_instance_valid(audio_player): return
+	if not is_instance_valid(audio_player) or bgm_list.is_empty():
+		return
 	
-	if audio_player.playing:
+	if audio_player.playing and not audio_player.stream_paused:
 		audio_player.stream_paused = true
 		play_pause_btn.icon = ICON_PLAY
-	else:
+	elif audio_player.stream and audio_player.stream_paused:
 		audio_player.stream_paused = false
+		play_pause_btn.icon = ICON_PAUSE
+	else:
 		if not audio_player.stream:
 			_play_current_index()
 		else:
 			audio_player.play(audio_player.get_playback_position())
-		play_pause_btn.icon = ICON_PAUSE
+			play_pause_btn.icon = ICON_PAUSE
+	_update_ui()
 
 func _on_next_pressed(natural_end: bool = false) -> void:
 	if bgm_list.is_empty() or not is_instance_valid(audio_player): return
@@ -467,59 +353,82 @@ func _update_volume_icon(value: float) -> void:
 		volume_btn.icon = ICON_VOLUME_FILL
 
 func _play_current_index() -> void:
-	if bgm_list.is_empty() or not is_instance_valid(audio_player): return
+	if bgm_list.is_empty() or not is_instance_valid(audio_player):
+		return
 	
-	var stream_path = bgm_list[current_bgm_index]["path"]
-	var stream = null
-	
-	# 处理加载
-	if stream_path.begins_with("res://"):
-		stream = load(stream_path)
-	else:
-		# 对 user:// 和绝对路径都按外部文件处理，避免未导入资源无法直接 load。
-		if stream_path.ends_with(".mp3"):
-			var file = FileAccess.open(stream_path, FileAccess.READ)
-			if file:
-				var sound = AudioStreamMP3.new()
-				sound.data = file.get_buffer(file.get_length())
-				stream = sound
-		elif stream_path.ends_with(".ogg"):
-			stream = AudioStreamOggVorbis.load_from_file(stream_path)
-	
-	if stream:
-		_apply_loop_mode_to_stream(stream)
-		audio_player.stream = stream
-		audio_player.play()
-		audio_player.stream_paused = false
-		_update_ui()
+	var current_track: Dictionary = bgm_list[current_bgm_index]
+	var stream: AudioStream = MusicLibraryData.load_audio_stream(str(current_track.get("path", "")))
+
+	if stream == null:
+		if ToastManager:
+			ToastManager.show_system_toast("无法加载已加入播单的音乐", Color.RED)
+		return
+
+	_apply_loop_mode_to_stream(stream)
+	audio_player.stream = stream
+	audio_player.set_meta("music_track_id", str(current_track.get("id", "")))
+	audio_player.play()
+	audio_player.stream_paused = false
+	_update_ui()
 
 func _update_ui() -> void:
-	if not is_instance_valid(audio_player) or not audio_player.stream:
-		title_label.text = "无正在播放的音乐"
-		artist_label.text = "-"
+	_sync_index_to_current_stream()
+	var current_track: Dictionary = _get_current_track()
+	if bgm_list.is_empty():
+		title_label.text = "桌面播单为空"
+		artist_label.text = "请先在共创音乐面板加入歌曲"
 		progress_bar.value = 0
 		play_pause_btn.icon = ICON_PLAY
 		_update_playlist_ui()
 		return
-		
-	var path = ""
-	if audio_player.stream and audio_player.stream.resource_path != "":
-		path = audio_player.stream.resource_path
-	elif not bgm_list.is_empty() and current_bgm_index < bgm_list.size():
-		path = bgm_list[current_bgm_index]["path"]
-		
-	var filename = path.get_file().get_basename()
-	var artist = "Game Music"
-	if not bgm_list.is_empty() and current_bgm_index < bgm_list.size():
-		if bgm_list[current_bgm_index].get("is_local", false):
-			artist = "Local Music"
-			
-	title_label.text = filename
-	artist_label.text = artist
+	if current_track.is_empty():
+		title_label.text = "无正在播放的音乐"
+		artist_label.text = "从桌面播单中选择一首开始播放"
+		progress_bar.value = 0
+		play_pause_btn.icon = ICON_PLAY
+		_update_playlist_ui()
+		return
+
+	title_label.text = MusicLibraryData.get_track_title(current_track)
+	artist_label.text = MusicLibraryData.get_track_subtitle(current_track)
 	
-	if audio_player.playing and not audio_player.stream_paused:
+	if is_instance_valid(audio_player) and audio_player.playing and not audio_player.stream_paused:
 		play_pause_btn.icon = ICON_PAUSE
 	else:
 		play_pause_btn.icon = ICON_PLAY
 		
 	_update_playlist_ui()
+
+func _get_current_track() -> Dictionary:
+	var current_track_id: String = _get_current_track_id()
+	var current_index: int = _find_track_index_by_id(current_track_id)
+	if current_index != -1:
+		return bgm_list[current_index]
+	if current_bgm_index >= 0 and current_bgm_index < bgm_list.size():
+		return bgm_list[current_bgm_index]
+	return {}
+
+func _sync_index_to_current_stream() -> void:
+	var current_track_id: String = _get_current_track_id()
+	if current_track_id != "":
+		var current_index: int = _find_track_index_by_id(current_track_id)
+		if current_index != -1:
+			current_bgm_index = current_index
+			return
+
+	if not is_instance_valid(audio_player) or audio_player.stream == null:
+		return
+	var current_path: String = str(audio_player.stream.resource_path)
+	if current_path == "":
+		return
+	for i in range(bgm_list.size()):
+		if str(bgm_list[i].get("path", "")) == current_path:
+			current_bgm_index = i
+			audio_player.set_meta("music_track_id", str(bgm_list[i].get("id", "")))
+			return
+
+func _find_track_index_by_id(track_id: String) -> int:
+	for i in range(bgm_list.size()):
+		if str(bgm_list[i].get("id", "")) == track_id:
+			return i
+	return -1

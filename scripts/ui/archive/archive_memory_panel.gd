@@ -1,8 +1,11 @@
 extends Control
 
 @onready var background_panel: Panel = $Background
+@onready var center_container: CenterContainer = $CenterContainer
 @onready var panel_root: Panel = $CenterContainer/Panel
+@onready var content_root: VBoxContainer = $CenterContainer/Panel/VBoxContainer
 @onready var close_btn: Button = $CenterContainer/Panel/VBoxContainer/TopBar/CloseButton
+@onready var top_bar: Panel = $CenterContainer/Panel/VBoxContainer/TopBar
 @onready var memory_list_container: VBoxContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/MemoryListContainer
 @onready var empty_state_card: PanelContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard
 @onready var empty_state_desc: Label = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
@@ -12,6 +15,7 @@ const MEMORY_ITEM_SCENE: PackedScene = preload("res://scenes/ui/archive/archive_
 const POPUP_MIN_SIZE: Vector2 = Vector2(1040, 660)
 
 var _panel_tween: Tween = null
+var _desktop_pet_mode: bool = false
 
 
 func _ready() -> void:
@@ -22,6 +26,8 @@ func _ready() -> void:
 
 
 func show_panel(char_id: String = "") -> void:
+	_desktop_pet_mode = false
+	_apply_mode_layout()
 	var target_char_id := char_id
 	if target_char_id == "" and GameDataManager.config and GameDataManager.config.current_character_id != "":
 		target_char_id = GameDataManager.config.current_character_id
@@ -40,6 +46,21 @@ func show_panel(char_id: String = "") -> void:
 	_panel_tween.tween_property(background_panel, "modulate:a", 1.0, 0.18)
 	_panel_tween.tween_property(panel_root, "modulate:a", 1.0, 0.22)
 	_panel_tween.tween_property(panel_root, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func show_desktop_pet_panel() -> void:
+	_desktop_pet_mode = true
+	_apply_mode_layout()
+	_load_desktop_pet_memory_archive()
+	_update_popup_layout()
+	show()
+	background_panel.modulate.a = 0.0
+	panel_root.modulate.a = 0.0
+	panel_root.scale = Vector2(0.97, 0.97)
+	_kill_panel_tween()
+	_panel_tween = create_tween()
+	_panel_tween.set_parallel(true)
+	_panel_tween.tween_property(panel_root, "modulate:a", 1.0, 0.18)
+	_panel_tween.tween_property(panel_root, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _load_memory_archive(char_id: String) -> void:
@@ -70,6 +91,15 @@ func _update_memory_display(mems: Dictionary) -> void:
 	empty_state_card.visible = not has_sections
 	if not has_sections:
 		empty_state_desc.text = "继续聊天、推进剧情或触发关键互动后，这里会按分类整理角色对你的记忆。"
+
+func _load_desktop_pet_memory_archive() -> void:
+	var mems := {"core": [], "emotion": [], "habit": [], "bond": []}
+	var pet_memory_manager = GameDataManager.desktop_pet_memory_manager if GameDataManager else null
+	if pet_memory_manager != null and pet_memory_manager.memories is Dictionary:
+		mems = pet_memory_manager.memories.duplicate(true)
+	_update_memory_display(mems)
+	if empty_state_card.visible:
+		empty_state_desc.text = "继续和桌宠聊天、陪伴互动后，这里会逐步沉淀只属于桌宠的独立记忆。"
 
 
 func _add_memory_category(title: String, badge_text: String, desc: String, items: Array, accent_color: Color) -> void:
@@ -224,11 +254,33 @@ func _on_panel_resized() -> void:
 func _update_popup_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var target_size: Vector2 = POPUP_MIN_SIZE
-	target_size.x = minf(target_size.x, viewport_size.x - 72.0)
-	target_size.y = minf(target_size.y, viewport_size.y - 72.0)
+	if _desktop_pet_mode:
+		target_size = viewport_size
+	else:
+		target_size.x = minf(target_size.x, viewport_size.x - 72.0)
+		target_size.y = minf(target_size.y, viewport_size.y - 72.0)
 	panel_root.custom_minimum_size = target_size
 	panel_root.size = target_size
+	if content_root != null:
+		content_root.custom_minimum_size = target_size
+		content_root.size = target_size
 	panel_root.pivot_offset = target_size * 0.5
+
+func _apply_mode_layout() -> void:
+	if _desktop_pet_mode:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		background_panel.hide()
+		background_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if center_container != null:
+			center_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			center_container.show()
+	else:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		background_panel.show()
+		background_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		if center_container != null:
+			center_container.mouse_filter = Control.MOUSE_FILTER_STOP
+			center_container.show()
 
 func _kill_panel_tween() -> void:
 	if _panel_tween != null:

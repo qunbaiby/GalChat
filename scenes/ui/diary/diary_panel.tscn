@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cy8xxa3qqt4m1"]
+[gd_scene format=3 uid="uid://cy8xxa3qqt4m1"]
 
 [ext_resource type="Script" uid="uid://bscfneq0ojqtm" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
 
@@ -48,7 +48,7 @@ shadow_offset = Vector2(2, 4)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Divider"]
 bg_color = Color(0.91, 0.88, 0.83, 1)
 
-[node name="DiaryPanel" type="Control"]
+[node name="DiaryPanel" type="Control" unique_id=32547487]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -57,7 +57,8 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=416154483]
+visible = false
 material = SubResource("ShaderMaterial_Blur")
 layout_mode = 1
 anchors_preset = 15
@@ -65,8 +66,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1637086502]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -74,40 +76,40 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DiaryBook" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(1040, 660)
+[node name="DiaryBook" type="PanelContainer" parent="CenterContainer" unique_id=1657536845]
+custom_minimum_size = Vector2(960, 560)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_DiaryBook")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook" unique_id=271765900]
 layout_mode = 2
-theme_override_constants/margin_left = 34
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 34
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 26
 
-[node name="HBox" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin"]
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin" unique_id=388688970]
 layout_mode = 2
-theme_override_constants/separation = 26
+theme_override_constants/separation = 20
 
-[node name="LeftPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox"]
+[node name="LeftPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox" unique_id=1396830693]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PhotoContainer" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage"]
+[node name="PhotoContainer" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage" unique_id=1532031164]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Polaroid1" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer"]
+[node name="Polaroid1" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=1750152624]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 210.0
-offset_bottom = 200.0
+offset_right = 182.0
+offset_bottom = 174.0
 rotation = -0.15
 theme_override_styles/panel = SubResource("StyleBoxFlat_Polaroid")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid1"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid1" unique_id=660752394]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 10
@@ -115,22 +117,22 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 35
 
-[node name="Image" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid1/Margin"]
+[node name="Image" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid1/Margin" unique_id=170280094]
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Polaroid2" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer"]
+[node name="Polaroid2" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=1974189615]
 layout_mode = 0
-offset_left = 190.0
-offset_top = 80.0
-offset_right = 390.0
-offset_bottom = 270.0
+offset_left = 168.0
+offset_top = 68.0
+offset_right = 340.0
+offset_bottom = 236.0
 rotation = 0.08
 theme_override_styles/panel = SubResource("StyleBoxFlat_Polaroid")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid2"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid2" unique_id=367098515]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 10
@@ -138,22 +140,22 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 35
 
-[node name="Image" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid2/Margin"]
+[node name="Image" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid2/Margin" unique_id=858580224]
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Polaroid3" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer"]
+[node name="Polaroid3" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=1734171411]
 layout_mode = 0
-offset_left = 50.0
-offset_top = 230.0
-offset_right = 250.0
-offset_bottom = 420.0
+offset_left = 46.0
+offset_top = 198.0
+offset_right = 218.0
+offset_bottom = 366.0
 rotation = -0.05
 theme_override_styles/panel = SubResource("StyleBoxFlat_Polaroid")
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid3"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid3" unique_id=2092007162]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 10
@@ -161,100 +163,100 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 35
 
-[node name="Image" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid3/Margin"]
+[node name="Image" type="TextureRect" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer/Polaroid3/Margin" unique_id=1594409359]
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage"]
+[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage" unique_id=95543504]
 visible = false
 layout_mode = 2
 alignment = 1
 
-[node name="PrevButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/BottomBar"]
+[node name="PrevButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/BottomBar" unique_id=2097127919]
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 text = "上一页"
 
-[node name="Divider" type="Panel" parent="CenterContainer/DiaryBook/Margin/HBox"]
+[node name="Divider" type="Panel" parent="CenterContainer/DiaryBook/Margin/HBox" unique_id=1413270000]
 custom_minimum_size = Vector2(2, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Divider")
 
-[node name="RightPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox"]
+[node name="RightPage" type="VBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox" unique_id=1657744918]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 15
 
-[node name="TopBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=372502954]
 layout_mode = 2
 
-[node name="DateLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+[node name="DateLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=1010386422]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.3, 0.24, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "2025年4月23日"
 
-[node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+[node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=453418781]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="WeatherLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
+[node name="WeatherLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=148467513]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.52, 0.44, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "晴"
 
-[node name="CloseButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar"]
-custom_minimum_size = Vector2(40, 40)
+[node name="CloseButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=997608548]
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 text = "X"
 
-[node name="TitleLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+[node name="TitleLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=1572570318]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.3, 0.24, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "— 每日小记 —"
 horizontal_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=517052801]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 3
 
-[node name="ContentText" type="RichTextLabel" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/ScrollContainer"]
+[node name="ContentText" type="RichTextLabel" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/ScrollContainer" unique_id=1870276917]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.34, 0.31, 0.28, 1)
-theme_override_constants/line_separation = 10
-theme_override_font_sizes/normal_font_size = 18
+theme_override_constants/line_separation = 8
+theme_override_font_sizes/normal_font_size = 16
 text = "　　今天发生了一些有趣的事情..."
 fit_content = true
 scroll_active = false
 
-[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage"]
+[node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=364483505]
 layout_mode = 2
 
-[node name="PageNumLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+[node name="PageNumLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar" unique_id=1164731932]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.52, 0.44, 1)
 text = "1 / 1"
 
-[node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+[node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar" unique_id=1941391972]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="NextButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar"]
+[node name="NextButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar" unique_id=96396114]
 visible = false
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 text = "下一页"
 
-[node name="ImageViewer" type="ColorRect" parent="."]
+[node name="ImageViewer" type="ColorRect" parent="." unique_id=1007445684]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -264,7 +266,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.85)
 
-[node name="FullImage" type="TextureRect" parent="ImageViewer"]
+[node name="FullImage" type="TextureRect" parent="ImageViewer" unique_id=791036325]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -278,7 +280,7 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CloseViewerBtn" type="Button" parent="ImageViewer"]
+[node name="CloseViewerBtn" type="Button" parent="ImageViewer" unique_id=1581468566]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 1
 anchors_preset = 1

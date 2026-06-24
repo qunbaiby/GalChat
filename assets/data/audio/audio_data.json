@@ -2,10 +2,13 @@
   "bgm": [
     {
       "id": "luna_bgm",
+      "in_playlist": true,
+      "is_favorite": true,
       "path": "res://assets/audio/bgm/Luna.mp3"
     },
     {
       "id": "soul_link_bgm",
+      "is_favorite": true,
       "path": "res://assets/audio/bgm/Soul link.mp3"
     },
     {

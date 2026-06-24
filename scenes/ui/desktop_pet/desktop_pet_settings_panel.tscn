@@ -159,7 +159,7 @@ text = "桌宠设置"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.47, 0.52, 0.59, 1)
 theme_override_font_sizes/font_size = 10
-text = "与系统设置中的桌宠配置保持一致"
+text = "桌宠专用设置面板，修改后立即同步生效"
 
 [node name="SaveButton" type="Button" parent="Margin/VBox/TopBar" unique_id=1079517133]
 custom_minimum_size = Vector2(62, 34)

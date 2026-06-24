@@ -18,6 +18,30 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
+[sub_resource type="Shader" id="Shader_WeatherIconShadow"]
+code = "shader_type canvas_item;
+uniform vec2 shadow_offset = vec2(2.0, 3.0);
+uniform vec4 shadow_color : source_color = vec4(0.10, 0.16, 0.18, 0.28);
+
+void fragment() {
+	vec2 offset_uv = UV - shadow_offset * TEXTURE_PIXEL_SIZE;
+	vec4 base_tex = texture(TEXTURE, UV);
+	vec4 shadow_tex = texture(TEXTURE, offset_uv);
+	float shadow_alpha = shadow_tex.a * shadow_color.a * (1.0 - base_tex.a);
+	vec3 final_rgb = shadow_color.rgb * shadow_alpha + base_tex.rgb * base_tex.a;
+	float final_alpha = shadow_alpha + base_tex.a;
+	if (final_alpha > 0.0) {
+		final_rgb /= final_alpha;
+	}
+	COLOR = vec4(final_rgb, final_alpha) * COLOR;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_WeatherIconShadow"]
+shader = SubResource("Shader_WeatherIconShadow")
+shader_parameter/shadow_offset = Vector2(5, 8)
+shader_parameter/shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+
 [node name="WeatherPanel" type="PanelContainer" unique_id=52342922]
 self_modulate = Color(1, 1, 1, 0)
 offset_right = 252.0
@@ -41,6 +65,7 @@ theme_override_constants/separation = 2
 alignment = 1
 
 [node name="WeatherIcon" type="TextureRect" parent="Margin/HBox/LeftVBox" unique_id=1987328893]
+material = SubResource("ShaderMaterial_WeatherIconShadow")
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -51,7 +76,7 @@ stretch_mode = 5
 [node name="LocLabel" type="Label" parent="Margin/HBox/LeftVBox" unique_id=377324790]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_colors/font_shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.49019608)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_constants/shadow_outline_size = 2
@@ -68,7 +93,7 @@ alignment = 1
 [node name="DateLabel" type="Label" parent="Margin/HBox/RightVBox" unique_id=1876685503]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_colors/font_shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.49019608)
 theme_override_constants/shadow_outline_size = 2
 theme_override_font_sizes/font_size = 16
 text = "2026/04/21(周二)"
@@ -80,7 +105,7 @@ theme_override_constants/separation = 4
 [node name="TimeLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox" unique_id=1523052148]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_colors/font_shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.49019608)
 theme_override_constants/shadow_offset_x = 0
 theme_override_constants/shadow_offset_y = 1
 theme_override_constants/shadow_outline_size = 2
@@ -94,8 +119,8 @@ theme_override_constants/margin_bottom = 6
 
 [node name="PeriodLabel" type="Label" parent="Margin/HBox/RightVBox/TimeHBox/PeriodMargin" unique_id=1532911774]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.19607843)
+theme_override_colors/font_color = Color(0.14117648, 0.7137255, 0.7019608, 1)
+theme_override_colors/font_shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.49019608)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_constants/shadow_outline_size = 2

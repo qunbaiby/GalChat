@@ -41,12 +41,12 @@ shadow_size = 5
 shadow_offset = Vector2(0, 2)
 anti_aliasing_size = 1.2
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gjpgi"]
-bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
-corner_radius_top_left = 15
-corner_radius_top_right = 15
-corner_radius_bottom_right = 15
-corner_radius_bottom_left = 15
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rogta"]
+bg_color = Color(1, 1, 1, 0.88235295)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qi7am"]
 bg_color = Color(1, 1, 1, 1)
@@ -110,6 +110,8 @@ corner_radius_bottom_left = 16
 shadow_color = Color(0.18, 0.28, 0.33, 0.08)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aivhu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryCapsuleButton"]
 bg_color = Color(0.61, 0.61, 0.61, 0.98)
@@ -197,8 +199,8 @@ corner_radius_bottom_left = 2
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_Sep"]
 color = Color(0.82, 0.9, 0.88, 0.95)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatCard"]
-bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6tvqi"]
+bg_color = Color(1, 1, 1, 0.88235295)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -206,6 +208,20 @@ corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StatIcon"]
 bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hmyd8"]
+bg_color = Color(1, 1, 1, 0.88235295)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3fp05"]
+bg_color = Color(1, 1, 1, 0.88235295)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -256,29 +272,25 @@ shadow_color = Color(0.12, 0.12, 0.12, 0.2)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aivhu"]
-bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slthw"]
-bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tm4ch"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [node name="ActivityPanel" type="Control" unique_id=2025322323]
 layout_mode = 3
@@ -327,7 +339,7 @@ theme_override_constants/separation = 0
 custom_minimum_size = Vector2(800, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 1.8
-theme_override_styles/panel = SubResource("StyleBoxFlat_gjpgi")
+theme_override_styles/panel = SubResource("StyleBoxFlat_rogta")
 
 [node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel" unique_id=2073068861]
 layout_mode = 2
@@ -460,26 +472,39 @@ theme_override_constants/separation = 30
 [node name="Slot1" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1837185738]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_aivhu")
 expand_icon = true
 
 [node name="Slot2" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=439568316]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_aivhu")
 expand_icon = true
 
 [node name="Slot3" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1918583757]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_aivhu")
 expand_icon = true
 
 [node name="Slot4" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1937340476]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_aivhu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_aivhu")
 expand_icon = true
 
 [node name="Slot5" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots/MorningRow" unique_id=1926281893]
 custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_aivhu")
 expand_icon = true
 
 [node name="ControlButtoon" type="VBoxContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox" unique_id=606160949]
@@ -712,7 +737,7 @@ columns = 2
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
+theme_override_styles/panel = SubResource("StyleBoxFlat_6tvqi")
 
 [node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Physical" unique_id=1394426787]
 layout_mode = 2
@@ -826,7 +851,7 @@ text = "-"
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
+theme_override_styles/panel = SubResource("StyleBoxFlat_6tvqi")
 
 [node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Intelligence" unique_id=1756367333]
 layout_mode = 2
@@ -940,7 +965,7 @@ text = "-"
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
+theme_override_styles/panel = SubResource("StyleBoxFlat_hmyd8")
 
 [node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Charm" unique_id=793487329]
 layout_mode = 2
@@ -1054,7 +1079,7 @@ text = "-"
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_StatCard")
+theme_override_styles/panel = SubResource("StyleBoxFlat_3fp05")
 
 [node name="Margin" type="MarginContainer" parent="BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer/StatsGrid/Block_Sensibility" unique_id=1540043789]
 layout_mode = 2
@@ -1226,15 +1251,21 @@ text = "✦"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BackButton" type="Button" parent="BackgroundPanel" unique_id=1260368274]
+[node name="BackButton" type="Button" parent="BackgroundPanel" unique_id=859286590]
 custom_minimum_size = Vector2(35, 35)
-layout_mode = 0
-offset_left = 1156.0
-offset_top = 9.0
-offset_right = 1191.0
-offset_bottom = 44.0
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -46.0
+offset_top = 13.0
+offset_right = -11.0
+offset_bottom = 48.0
+grow_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_3k5eb")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_aivhu")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slthw")
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_slthw")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_tm4ch")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tm4ch")
 text = "X"

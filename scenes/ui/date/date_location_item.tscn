@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://ddy6t8h2kloc"]
+[gd_scene format=3 uid="uid://ddy6t8h2kloc"]
 
-[ext_resource type="Script" path="res://scripts/ui/date/date_location_item.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://7qenai4fnlid" path="res://scripts/ui/date/date_location_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LocationPanel"]
 bg_color = Color(0.98, 0.98, 0.985, 0.94)
@@ -48,10 +48,12 @@ corner_radius_top_right = 30
 corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
 
-[node name="DateLocationItem" type="MarginContainer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="DateLocationItem" type="MarginContainer" unique_id=1020796038]
+anchors_preset = -1
+anchor_right = 0.37100002
+anchor_bottom = 0.156
+offset_right = 0.1199646
+offset_bottom = -0.3199997
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 20
@@ -59,48 +61,48 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_bottom = 5
 script = ExtResource("1_script")
 
-[node name="BgPanel" type="PanelContainer" parent="."]
+[node name="BgPanel" type="PanelContainer" parent="." unique_id=323831728]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_LocationPanel")
 
-[node name="ContentMargin" type="MarginContainer" parent="BgPanel"]
+[node name="ContentMargin" type="MarginContainer" parent="BgPanel" unique_id=971773264]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 10
 
-[node name="HBox" type="HBoxContainer" parent="BgPanel/ContentMargin"]
+[node name="HBox" type="HBoxContainer" parent="BgPanel/ContentMargin" unique_id=655157080]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="ThumbContainer" type="PanelContainer" parent="BgPanel/ContentMargin/HBox"]
+[node name="ThumbContainer" type="PanelContainer" parent="BgPanel/ContentMargin/HBox" unique_id=1967414308]
+clip_contents = true
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_vertical = 4
-clip_contents = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_ThumbContainer")
 
-[node name="ThumbRect" type="TextureRect" parent="BgPanel/ContentMargin/HBox/ThumbContainer"]
+[node name="ThumbRect" type="TextureRect" parent="BgPanel/ContentMargin/HBox/ThumbContainer" unique_id=2144566475]
 unique_name_in_owner = true
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="TextVBox" type="VBoxContainer" parent="BgPanel/ContentMargin/HBox"]
+[node name="TextVBox" type="VBoxContainer" parent="BgPanel/ContentMargin/HBox" unique_id=912820646]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
 theme_override_constants/separation = 5
+alignment = 1
 
-[node name="NameLabel" type="Label" parent="BgPanel/ContentMargin/HBox/TextVBox"]
+[node name="NameLabel" type="Label" parent="BgPanel/ContentMargin/HBox/TextVBox" unique_id=56195485]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 18
 text = "地点名称"
 
-[node name="DescLabel" type="Label" parent="BgPanel/ContentMargin/HBox/TextVBox"]
+[node name="DescLabel" type="Label" parent="BgPanel/ContentMargin/HBox/TextVBox" unique_id=1147534818]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
@@ -108,14 +110,14 @@ theme_override_font_sizes/font_size = 14
 text = "地点描述"
 autowrap_mode = 3
 
-[node name="AddButton" type="Button" parent="BgPanel/ContentMargin/HBox"]
+[node name="AddButton" type="Button" parent="BgPanel/ContentMargin/HBox" unique_id=1262485071]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_AddBtn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_AddBtnHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_AddBtnHover")
 theme_override_colors/font_color = Color(0.4, 0.65, 0.55, 1)
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_AddBtn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_AddBtnHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_AddBtnHover")
 text = "+"

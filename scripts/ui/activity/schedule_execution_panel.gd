@@ -46,6 +46,10 @@ const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_sch
 @onready var result_popup: Control = $ResultPopup
 @onready var result_content_vbox: VBoxContainer = $ResultPopup/VBox/Content/Margin/VBox
 @onready var stats_vbox: GridContainer = $ResultPopup/VBox/Content/Margin/VBox/StatsVBox
+@onready var weekly_event_separator: HSeparator = $ResultPopup/VBox/Content/Margin/VBox/WeeklyEventSeparator
+@onready var weekly_event_section: VBoxContainer = $ResultPopup/VBox/Content/Margin/VBox/WeeklyEventSection
+@onready var weekly_event_list: VBoxContainer = $ResultPopup/VBox/Content/Margin/VBox/WeeklyEventSection/WeeklyEventList
+@onready var weekly_event_template: PanelContainer = $ResultPopup/VBox/Content/Margin/VBox/WeeklyEventSection/WeeklyEventTemplate
 @onready var close_button: Button = $ResultPopup/CloseButton
 @onready var result_panel_close_button: Button = $ResultPopup/PanelCloseButton
 
@@ -351,73 +355,33 @@ func _record_weekly_key_event(event_info: Dictionary) -> void:
 	_weekly_key_events.append(event_info.duplicate(true))
 
 func _clear_weekly_event_summary_ui() -> void:
-	if not is_instance_valid(result_content_vbox):
+	if not is_instance_valid(weekly_event_list):
 		return
-	var old_separator = result_content_vbox.get_node_or_null("WeeklyEventSeparator")
-	if old_separator:
-		result_content_vbox.remove_child(old_separator)
-		old_separator.queue_free()
-	var old_section = result_content_vbox.get_node_or_null("WeeklyEventSection")
-	if old_section:
-		result_content_vbox.remove_child(old_section)
-		old_section.queue_free()
+	for child in weekly_event_list.get_children():
+		child.queue_free()
+	if is_instance_valid(weekly_event_section):
+		weekly_event_section.hide()
+	if is_instance_valid(weekly_event_separator):
+		weekly_event_separator.hide()
 
 func _render_weekly_event_summary() -> void:
 	_clear_weekly_event_summary_ui()
-	if _weekly_key_events.is_empty() or not is_instance_valid(result_content_vbox):
+	if _weekly_key_events.is_empty():
 		return
-
-	var separator = HSeparator.new()
-	separator.name = "WeeklyEventSeparator"
-	separator.add_theme_constant_override("separation", 10)
-	result_content_vbox.add_child(separator)
-
-	var section = VBoxContainer.new()
-	section.name = "WeeklyEventSection"
-	section.add_theme_constant_override("separation", 10)
-	result_content_vbox.add_child(section)
-
-	var title = Label.new()
-	title.text = "本周关键事件"
-	title.add_theme_color_override("font_color", Color(0.25, 0.23, 0.2, 1))
-	title.add_theme_font_size_override("font_size", 18)
-	section.add_child(title)
+	if not is_instance_valid(weekly_event_section) or not is_instance_valid(weekly_event_list) or not is_instance_valid(weekly_event_template):
+		return
+	weekly_event_separator.show()
+	weekly_event_section.show()
 
 	for event_info in _weekly_key_events:
-		var card = PanelContainer.new()
-		var card_style = StyleBoxFlat.new()
-		card_style.bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
-		card_style.border_width_left = 1
-		card_style.border_width_top = 1
-		card_style.border_width_right = 1
-		card_style.border_width_bottom = 1
-		card_style.border_color = Color(0.82, 0.9, 0.88, 0.95)
-		card_style.corner_radius_top_left = 12
-		card_style.corner_radius_top_right = 12
-		card_style.corner_radius_bottom_right = 12
-		card_style.corner_radius_bottom_left = 12
-		card.add_theme_stylebox_override("panel", card_style)
-		section.add_child(card)
-
-		var margin = MarginContainer.new()
-		margin.add_theme_constant_override("margin_left", 14)
-		margin.add_theme_constant_override("margin_top", 10)
-		margin.add_theme_constant_override("margin_right", 14)
-		margin.add_theme_constant_override("margin_bottom", 10)
-		card.add_child(margin)
-
-		var card_vbox = VBoxContainer.new()
-		card_vbox.add_theme_constant_override("separation", 6)
-		margin.add_child(card_vbox)
-
-		var header = Label.new()
+		var card: PanelContainer = weekly_event_template.duplicate()
+		card.visible = true
+		var header: Label = card.get_node("Margin/CardVBox/HeaderLabel")
+		var detail: Label = card.get_node("Margin/CardVBox/DetailLabel")
 		header.text = "%s | %s" % [
 			str(event_info.get("day_label", "本周")),
 			str(event_info.get("event_title", event_info.get("course_name", "关键事件")))
 		]
-		header.add_theme_color_override("font_color", Color(0.19, 0.47, 0.44, 1))
-		header.add_theme_font_size_override("font_size", 16)
-		card_vbox.add_child(header)
 
 		var course_name = str(event_info.get("course_name", ""))
 		var chosen_option = str(event_info.get("chosen_option", ""))
@@ -433,13 +397,9 @@ func _render_weekly_event_summary() -> void:
 			detail_parts.append(result_desc)
 		if attr_summary != "":
 			detail_parts.append("变化：%s" % attr_summary)
-
-		var detail = Label.new()
 		detail.text = "\n".join(detail_parts)
 		detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		detail.add_theme_color_override("font_color", Color(0.38, 0.34, 0.3, 1))
-		detail.add_theme_font_size_override("font_size", 14)
-		card_vbox.add_child(detail)
+		weekly_event_list.add_child(card)
 
 func _get_local_schedule_event(context: Dictionary) -> Dictionary:
 	if _local_event_pool.is_empty():

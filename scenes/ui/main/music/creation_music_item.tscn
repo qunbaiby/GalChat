@@ -1,0 +1,173 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main/music/creation_music_item.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Normal"]
+bg_color = Color(0.965, 0.986, 0.989, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.83, 0.91, 0.92, 0.9)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hover"]
+bg_color = Color(0.91, 0.97, 0.97, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 0.72)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Playing"]
+bg_color = Color(0.86, 0.95, 0.94, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.47, 0.75, 0.7, 0.9)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
+bg_color = Color(0.94, 0.975, 0.98, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.75, 0.87, 0.89, 0.92)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionAccent"]
+bg_color = Color(0.57, 0.82, 0.76, 0.22)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.47, 0.75, 0.7, 0.8)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[node name="CreationMusicItem" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 56)
+theme_override_styles/normal = SubResource("StyleBoxFlat_Normal")
+theme_override_styles/panel = SubResource("StyleBoxFlat_Normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Playing")
+script = ExtResource("1_script")
+
+[node name="RootMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 7
+
+[node name="RootHBox" type="HBoxContainer" parent="RootMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OrderLabel" type="Label" parent="RootMargin/RootHBox"]
+custom_minimum_size = Vector2(22, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.58, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoVBox" type="VBoxContainer" parent="RootMargin/RootHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="RootMargin/RootHBox/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.31, 0.33, 1)
+theme_override_font_sizes/font_size = 13
+text = "曲目名称"
+clip_text = true
+
+[node name="SubtitleLabel" type="Label" parent="RootMargin/RootHBox/InfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 10
+text = "官方曲库 · 2026-06-24"
+clip_text = true
+
+[node name="TypeLabel" type="Label" parent="RootMargin/RootHBox"]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.29, 0.49, 0.51, 1)
+theme_override_font_sizes/font_size = 11
+text = "原声"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ActionsHBox" type="HBoxContainer" parent="RootMargin/RootHBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PreviewButton" type="Button" parent="RootMargin/RootHBox/ActionsHBox"]
+custom_minimum_size = Vector2(42, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.41, 0.43, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
+theme_override_font_sizes/font_size = 10
+text = "试听"
+
+[node name="AppreciateButton" type="Button" parent="RootMargin/RootHBox/ActionsHBox"]
+custom_minimum_size = Vector2(42, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.41, 0.43, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
+theme_override_font_sizes/font_size = 10
+text = "赏析"
+
+[node name="FavoriteButton" type="Button" parent="RootMargin/RootHBox/ActionsHBox"]
+custom_minimum_size = Vector2(48, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.41, 0.43, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
+theme_override_font_sizes/font_size = 10
+text = "收藏"
+
+[node name="PlaylistButton" type="Button" parent="RootMargin/RootHBox/ActionsHBox"]
+custom_minimum_size = Vector2(54, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.31, 0.33, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionAccent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
+theme_override_font_sizes/font_size = 10
+text = "加播单"
+
+[node name="DurationLabel" type="Label" parent="RootMargin/RootHBox"]
+custom_minimum_size = Vector2(38, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 11
+text = "2:29"
+horizontal_alignment = 2
+vertical_alignment = 1

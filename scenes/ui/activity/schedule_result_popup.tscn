@@ -1,0 +1,525 @@
+[gd_scene format=3 uid="uid://cemrll4qv0v8n"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultTopBar"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultContent"]
+bg_color = Color(1, 1, 1, 0.96)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CoreStatBg"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CoreStatGrade"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_HLine"]
+color = Color(0.82, 0.9, 0.88, 0.95)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_WeeklyEventCard"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ResultFooter"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
+
+[node name="ScheduleResultPopup" type="Control" unique_id=689851478]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultMask" type="ColorRect" parent="." unique_id=141549878]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CloseButton" type="Button" parent="." unique_id=280362235]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+flat = true
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=961824726]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="PanelContainer" parent="VBox" unique_id=237285855]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ResultTopBar")
+
+[node name="BlueLine" type="ColorRect" parent="VBox/TopBar" unique_id=1037606887]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+size_flags_vertical = 0
+color = Color(0.3882353, 0.81960785, 0.8156863, 1)
+
+[node name="TitleLabel" type="Label" parent="VBox/TopBar" unique_id=381222941]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 18
+text = "一周行程总结"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Content" type="PanelContainer" parent="VBox" unique_id=1811997075]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ResultContent")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content" unique_id=820107781]
+layout_mode = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Content/Margin" unique_id=1813245205]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="CoreStatsGrid" type="GridContainer" parent="VBox/Content/Margin/VBox" unique_id=1030673131]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 12
+columns = 4
+
+[node name="CorePhysical" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid" unique_id=2011684794]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatBg")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical" unique_id=811374506]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 5
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin" unique_id=503587363]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Name" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox" unique_id=1496407430]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "体"
+
+[node name="GradePanel" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox" unique_id=694093249]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatGrade")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox/GradePanel" unique_id=1257908742]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+
+[node name="GradeLabel" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox/GradePanel/Margin" unique_id=1452952323]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "D"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox" unique_id=803365124]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OldVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox" unique_id=1698624137]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="Arrow" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox" unique_id=703292923]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "▶"
+
+[node name="NewVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CorePhysical/Margin/HBox" unique_id=2124088174]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="CoreIntelligence" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid" unique_id=1017224313]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatBg")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence" unique_id=329611123]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 5
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin" unique_id=1975856014]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Name" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox" unique_id=1286392257]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "智"
+
+[node name="GradePanel" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox" unique_id=1211573704]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatGrade")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox/GradePanel" unique_id=938320883]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+
+[node name="GradeLabel" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox/GradePanel/Margin" unique_id=1271368121]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "D"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox" unique_id=1296898295]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OldVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox" unique_id=1578023526]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="Arrow" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox" unique_id=1820681604]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "▶"
+
+[node name="NewVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreIntelligence/Margin/HBox" unique_id=214639716]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="CoreCharm" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid" unique_id=321331519]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatBg")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm" unique_id=1043583700]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 5
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin" unique_id=1363751831]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Name" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox" unique_id=630704413]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "魅"
+
+[node name="GradePanel" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox" unique_id=1210714789]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatGrade")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox/GradePanel" unique_id=1341310309]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+
+[node name="GradeLabel" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox/GradePanel/Margin" unique_id=1888182067]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "D"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox" unique_id=1386146865]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OldVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox" unique_id=363384901]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="Arrow" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox" unique_id=998319192]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "▶"
+
+[node name="NewVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreCharm/Margin/HBox" unique_id=1241054416]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="CoreSensibility" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid" unique_id=660682388]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatBg")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility" unique_id=1749879511]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 5
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin" unique_id=2085308362]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Name" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox" unique_id=1640105466]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "感"
+
+[node name="GradePanel" type="PanelContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox" unique_id=931071644]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_CoreStatGrade")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox/GradePanel" unique_id=943145229]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+
+[node name="GradeLabel" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox/GradePanel/Margin" unique_id=534953689]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "D"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox" unique_id=1151279524]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OldVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox" unique_id=1877862615]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="Arrow" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox" unique_id=1844112214]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "▶"
+
+[node name="NewVal" type="Label" parent="VBox/Content/Margin/VBox/CoreStatsGrid/CoreSensibility/Margin/HBox" unique_id=146168769]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/Margin/VBox" unique_id=1848424460]
+layout_mode = 2
+theme_override_constants/separation = 10
+theme_override_styles/separator = SubResource("StyleBoxLine_HLine")
+
+[node name="StatsVBox" type="GridContainer" parent="VBox/Content/Margin/VBox" unique_id=1288038914]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 60
+theme_override_constants/v_separation = 15
+columns = 4
+
+[node name="WeeklyEventSeparator" type="HSeparator" parent="VBox/Content/Margin/VBox" unique_id=1551645152]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+theme_override_styles/separator = SubResource("StyleBoxLine_HLine")
+
+[node name="WeeklyEventSection" type="VBoxContainer" parent="VBox/Content/Margin/VBox" unique_id=493044487]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="WeeklyEventTitle" type="Label" parent="VBox/Content/Margin/VBox/WeeklyEventSection" unique_id=1158392383]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "本周关键事件"
+
+[node name="WeeklyEventList" type="VBoxContainer" parent="VBox/Content/Margin/VBox/WeeklyEventSection" unique_id=251760967]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="WeeklyEventTemplate" type="PanelContainer" parent="VBox/Content/Margin/VBox/WeeklyEventSection" unique_id=1237988349]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_WeeklyEventCard")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/Margin/VBox/WeeklyEventSection/WeeklyEventTemplate" unique_id=132343100]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="CardVBox" type="VBoxContainer" parent="VBox/Content/Margin/VBox/WeeklyEventSection/WeeklyEventTemplate/Margin" unique_id=1703555657]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderLabel" type="Label" parent="VBox/Content/Margin/VBox/WeeklyEventSection/WeeklyEventTemplate/Margin/CardVBox" unique_id=1856421959]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.47, 0.44, 1)
+theme_override_font_sizes/font_size = 16
+text = "周一 | 关键事件"
+
+[node name="DetailLabel" type="Label" parent="VBox/Content/Margin/VBox/WeeklyEventSection/WeeklyEventTemplate/Margin/CardVBox" unique_id=360801654]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.34, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "课程：待定"
+autowrap_mode = 3
+
+[node name="Footer" type="PanelContainer" parent="VBox" unique_id=2047088574]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ResultFooter")
+
+[node name="Margin" type="MarginContainer" parent="VBox/Footer" unique_id=1125344489]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Footer/Margin" unique_id=1302977583]
+layout_mode = 2
+theme_override_constants/separation = 60
+alignment = 1
+
+[node name="MoodHBox" type="HBoxContainer" parent="VBox/Footer/Margin/HBox" unique_id=1999027048]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Label" type="Label" parent="VBox/Footer/Margin/HBox/MoodHBox" unique_id=575699752]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "心情"
+
+[node name="Val" type="Label" parent="VBox/Footer/Margin/HBox/MoodHBox" unique_id=463210328]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "76"
+
+[node name="Diff" type="Label" parent="VBox/Footer/Margin/HBox/MoodHBox" unique_id=935262853]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "+2"
+
+[node name="GoldHBox" type="HBoxContainer" parent="VBox/Footer/Margin/HBox" unique_id=932425830]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Label" type="Label" parent="VBox/Footer/Margin/HBox/GoldHBox" unique_id=884940965]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "金币"
+
+[node name="Val" type="Label" parent="VBox/Footer/Margin/HBox/GoldHBox" unique_id=776720431]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333333, 0.333333, 0.333333, 1)
+theme_override_font_sizes/font_size = 16
+text = "152"
+
+[node name="Diff" type="Label" parent="VBox/Footer/Margin/HBox/GoldHBox" unique_id=1306043123]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "+21"
+
+[node name="Spacer" type="Control" parent="VBox" unique_id=132065039]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="CloseTip" type="Label" parent="VBox" unique_id=117934056]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
+theme_override_font_sizes/font_size = 16
+text = "点击空白处或结算面板关闭"
+horizontal_alignment = 1
+
+[node name="PanelCloseButton" type="Button" parent="." unique_id=2128577822]
+visible = false
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+flat = true

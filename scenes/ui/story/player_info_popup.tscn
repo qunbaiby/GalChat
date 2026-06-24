@@ -1,21 +1,32 @@
-[gd_scene load_steps=9 format=3 uid="uid://wxfo2ad86y3e"]
+[gd_scene format=3 uid="uid://wxfo2ad86y3e"]
 
 [ext_resource type="Script" uid="uid://d2g72uekyv7s" path="res://scripts/ui/story/player_info_popup.gd" id="1_x0y1z"]
+[ext_resource type="Theme" uid="uid://bse0l6802nct" path="res://assets/themes/common.tres" id="2_ol4fl"]
+[ext_resource type="Material" uid="uid://dutxb7qbmb3kn" path="res://assets/shader/Cyan-green gradient.tres" id="2_w3yeg"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.18, 0.28, 0.33, 0.18)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
+[sub_resource type="Shader" id="Shader_PlayerInfoBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.2;
+uniform vec4 mix_color: source_color = vec4(0.06, 0.12, 0.14, 0.26);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_PlayerInfoBlur"]
+shader = SubResource("Shader_PlayerInfoBlur")
+shader_parameter/lod = 2.4
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.26)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lsqof"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderCard"]
 bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.62)
@@ -36,12 +47,18 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.14, 0.17, 0.19, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoCard"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2ry0"]
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ol4fl"]
 bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
 border_width_left = 1
 border_width_top = 1
@@ -56,29 +73,153 @@ shadow_color = Color(0.3, 0.45, 0.5, 0.08)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Field"]
-bg_color = Color(1, 1, 1, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.84, 0.89, 0.92, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StepperButton"]
-bg_color = Color(1, 1, 1, 0.92)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dt6b"]
+bg_color = Color(0.15686275, 0.14901961, 0.14901961, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gc6bf"]
+content_margin_right = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fu77x"]
+content_margin_right = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_ol4fl"]
+color = Color(0.13725491, 0.7137255, 0.6901961, 0.5882353)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gphxw"]
+bg_color = Color(1, 1, 0.9843137, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fgrhv"]
+bg_color = Color(0.2627451, 0.7607843, 0.7411765, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dhw5"]
+bg_color = Color(0.58431375, 0.9019608, 0.91764706, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ffs18"]
+bg_color = Color(0.2627451, 0.7607843, 0.7411765, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v1rh4"]
+bg_color = Color(0.2627451, 0.7607843, 0.7411765, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Field"]
+content_margin_right = 12.0
+bg_color = Color(1, 1, 1, 0.95)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+shadow_size = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_evxs5"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_726kg"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ConfirmDisabled"]
+bg_color = Color(0.88, 0.91, 0.92, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.83, 0.85, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x2nt"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w3yeg"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3882353, 0.81960785, 0.8156863, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kmj5t"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
 bg_color = Color(0.57, 0.82, 0.76, 1)
@@ -92,7 +233,7 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="PlayerInfoPopup" type="Control"]
+[node name="PlayerInfoPopup" type="Control" unique_id=1935024749]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -101,71 +242,67 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_x0y1z")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=657209599]
+material = SubResource("ShaderMaterial_PlayerInfoBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.07, 0.06, 0.16)
 
-[node name="PopupPanel" type="Panel" parent="."]
+[node name="PopupPanel" type="PanelContainer" parent="." unique_id=1638493202]
 unique_name_in_owner = true
+material = ExtResource("2_w3yeg")
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -280.0
-offset_top = -348.0
-offset_right = 280.0
-offset_bottom = 348.0
+offset_left = -250.0
+offset_top = -312.0
+offset_right = 250.0
+offset_bottom = 312.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_lsqof")
 
-[node name="MarginContainer" type="MarginContainer" parent="PopupPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="MarginContainer" type="MarginContainer" parent="PopupPanel" unique_id=184234714]
+layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 18
 
-[node name="MainVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer"]
+[node name="MainVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer" unique_id=846339647]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox"]
+[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox" unique_id=1233654066]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderCard")
 
-[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard"]
+[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard" unique_id=262692108]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 14
 
-[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin"]
+[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin" unique_id=2068185307]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="HeaderTitle" type="Label" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin/HeaderVBox"]
+[node name="HeaderTitle" type="Label" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin/HeaderVBox" unique_id=2145887356]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_colors/font_color = Color(0.1882353, 0.70980394, 0.69411767, 1)
 theme_override_font_sizes/font_size = 24
-text = "建立档案"
+text = "创建你的信息"
 horizontal_alignment = 1
 
-[node name="HeaderDesc" type="Label" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin/HeaderVBox"]
+[node name="HeaderDesc" type="Label" parent="PopupPanel/MarginContainer/MainVBox/HeaderCard/HeaderMargin/HeaderVBox" unique_id=585556871]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
 theme_override_font_sizes/font_size = 13
@@ -173,308 +310,283 @@ text = "填写基础信息后即可开启陪伴"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="AvatarSection" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox"]
+[node name="AvatarSection" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox" unique_id=1390800120]
 layout_mode = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="AvatarCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection"]
+[node name="AvatarCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection" unique_id=1925361270]
 custom_minimum_size = Vector2(92, 92)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_Button")
 
-[node name="AvatarFrame" type="Control" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard"]
+[node name="AvatarFrame" type="Panel" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard" unique_id=988614859]
 clip_children = 1
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_o2ry0")
 
-[node name="AvatarPreview" type="TextureRect" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard/AvatarFrame"]
+[node name="AvatarPreview" type="TextureRect" parent="PopupPanel/MarginContainer/MainVBox/AvatarSection/AvatarCard/AvatarFrame" unique_id=211613299]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+layout_mode = 0
+offset_right = 90.0
+offset_bottom = 90.0
 grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="InfoCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox"]
+[node name="InfoCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox" unique_id=164325255]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_InfoCard")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ol4fl")
 
-[node name="InfoMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard"]
+[node name="InfoMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard" unique_id=1198166019]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
-[node name="FormVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin"]
+[node name="FormVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin" unique_id=1740205814]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 2
+theme_override_constants/separation = 7
 
-[node name="NameField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-custom_minimum_size = Vector2(0, 54)
+[node name="TitleContainer" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1505882901]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_4dt6b")
+
+[node name="Label" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/TitleContainer" unique_id=50983925]
+layout_mode = 2
+text = "基础信息"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1664978486]
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="NameLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/NameField"]
-custom_minimum_size = Vector2(86, 0)
+[node name="NameLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/NameField" unique_id=1472058085]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
 theme_override_font_sizes/font_size = 15
-text = "昵称"
+text = "姓名"
 vertical_alignment = 1
 
-[node name="NameInput" type="LineEdit" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/NameField"]
+[node name="NameInput" type="LineEdit" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/NameField" unique_id=58553417]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
-theme_override_styles/focus = SubResource("StyleBoxFlat_Field")
-placeholder_text = "请输入你的名字"
+theme_override_colors/font_color = Color(0.23921569, 0.25882354, 0.2784314, 1)
+theme_override_colors/font_placeholder_color = Color(0.37254903, 0.38039216, 0.3882353, 1)
+theme_override_colors/caret_color = Color(0.35686275, 0.77254903, 0.7490196, 1)
+theme_override_colors/selection_color = Color(0.37254903, 0.38039216, 0.3882353, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_gc6bf")
+theme_override_styles/focus = SubResource("StyleBoxFlat_fu77x")
+placeholder_text = "请输入你的名字 >"
 alignment = 2
+max_length = 10
+caret_blink = true
+caret_force_displayed = true
 
-[node name="NameDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+[node name="NameDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1588377695]
 layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_ol4fl")
 
-[node name="GenderField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-custom_minimum_size = Vector2(0, 50)
+[node name="GenderField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=943358470]
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="GenderLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField"]
-custom_minimum_size = Vector2(86, 0)
+[node name="GenderLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField" unique_id=10231822]
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
 theme_override_font_sizes/font_size = 15
 text = "性别"
 vertical_alignment = 1
 
-[node name="GenderButtons" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField"]
+[node name="GenderButtons" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField" unique_id=1866915019]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="MaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons"]
+[node name="MaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons" unique_id=623139827]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.47843137, 0.83137256, 0.8117647, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_gphxw")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fgrhv")
+theme_override_styles/hover = SubResource("StyleBoxFlat_4dhw5")
 text = "男"
 
-[node name="FemaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons"]
+[node name="FemaleBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/GenderField/GenderButtons" unique_id=1645746272]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.47843137, 0.83137256, 0.8117647, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_gphxw")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ffs18")
+theme_override_styles/hover = SubResource("StyleBoxFlat_v1rh4")
 text = "女"
 
-[node name="GenderDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
+[node name="GenderDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1295304616]
 layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_ol4fl")
 
-[node name="BirthdayField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-custom_minimum_size = Vector2(0, 78)
+[node name="BirthdayField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1403356910]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
-[node name="BirthdaySummaryRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField"]
+[node name="BirthdaySummaryRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField" unique_id=1853560707]
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="BirthdayLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow"]
-custom_minimum_size = Vector2(86, 0)
+[node name="BirthdayLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow" unique_id=910920005]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
 theme_override_font_sizes/font_size = 15
 text = "生日"
 vertical_alignment = 1
 
-[node name="BirthdayValueButton" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow"]
+[node name="BirthdayEditor" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow" unique_id=167344433]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.43, 0.43, 0.43, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Field")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Field")
-text = "2003-01-10  >"
-alignment = 2
-
-[node name="BirthdayEditor" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="YearCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
-custom_minimum_size = Vector2(150, 42)
-layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Field")
 
-[node name="Margin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard"]
+[node name="BirthdayMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow/BirthdayEditor" unique_id=1910678701]
 layout_mode = 2
-theme_override_constants/margin_left = 4
+theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="HBox" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="YearMinusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 28)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
-text = "-"
-
-[node name="YearValueLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(68, 0)
+[node name="BirthdayInputs" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow/BirthdayEditor/BirthdayMargin" unique_id=138855757]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
+theme_override_constants/separation = 8
+
+[node name="YearSpinBox" type="SpinBox" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow/BirthdayEditor/BirthdayMargin/BirthdayInputs" unique_id=101555986]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(132, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_ol4fl")
+min_value = 1970.0
+max_value = 2099.0
+value = 1970.0
+rounded = true
+alignment = 1
+
+[node name="MonthSpinBox" type="SpinBox" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow/BirthdayEditor/BirthdayMargin/BirthdayInputs" unique_id=1050162415]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_ol4fl")
+min_value = 1.0
+max_value = 12.0
+value = 1.0
+rounded = true
+alignment = 1
+
+[node name="DaySpinBox" type="SpinBox" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdaySummaryRow/BirthdayEditor/BirthdayMargin/BirthdayInputs" unique_id=1443918873]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_ol4fl")
+min_value = 1.0
+max_value = 31.0
+value = 1.0
+rounded = true
+alignment = 1
+
+[node name="BirthdayDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=523903915]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_ol4fl")
+
+[node name="ZodiacField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1539728633]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="ZodiacName" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/ZodiacField" unique_id=1373759274]
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
 theme_override_font_sizes/font_size = 15
-text = "2003年"
-horizontal_alignment = 1
+text = "星座"
 vertical_alignment = 1
 
-[node name="YearPlusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/YearCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 28)
+[node name="ZodiacContainer" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/ZodiacField" unique_id=2133532854]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
-text = "+"
-
-[node name="MonthCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
-custom_minimum_size = Vector2(114, 42)
-layout_mode = 2
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_Field")
 
-[node name="Margin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="HBox" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="MonthMinusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin/HBox"]
+[node name="ZodiacLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/ZodiacField/ZodiacContainer" unique_id=821477957]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
-text = "-"
-
-[node name="MonthValueLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(44, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.14901961, 0.7137255, 0.7019608, 1)
 theme_override_font_sizes/font_size = 15
-text = "01月"
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "未知星座"
+horizontal_alignment = 2
 
-[node name="MonthPlusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/MonthCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 28)
+[node name="ZodiacDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1848928151]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
-text = "+"
+theme_override_styles/separator = SubResource("StyleBoxLine_ol4fl")
 
-[node name="DayCard" type="PanelContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor"]
-custom_minimum_size = Vector2(114, 42)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Field")
-
-[node name="Margin" type="MarginContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="HBox" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin"]
+[node name="MBTIField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=848317241]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="DayMinusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 28)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
-text = "-"
-
-[node name="DayValueLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(44, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.15, 0.16, 1)
-theme_override_font_sizes/font_size = 15
-text = "01日"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DayPlusBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/BirthdayField/BirthdayEditor/DayCard/Margin/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 28)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StepperButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StepperButton")
-text = "+"
-
-[node name="BirthdayDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-layout_mode = 2
-
-[node name="MBTIField" type="VBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox"]
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="MBTIRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField"]
+[node name="MBTIRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField" unique_id=2026804464]
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MBTILabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/MBTIRow"]
-custom_minimum_size = Vector2(86, 0)
+[node name="MBTILabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/MBTIRow" unique_id=1110112287]
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
 theme_override_font_sizes/font_size = 15
 text = "人格"
 vertical_alignment = 1
 
-[node name="MBTIButton" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/MBTIRow"]
+[node name="MBTIButton" type="Button" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/MBTIRow" unique_id=1166402672]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.43, 0.43, 0.43, 1)
+theme_override_colors/font_color = Color(0.35686275, 0.77254903, 0.7490196, 1)
+theme_override_colors/font_pressed_color = Color(0.58431375, 0.9019608, 0.91764706, 1)
+theme_override_colors/font_hover_color = Color(0.58431375, 0.9019608, 0.91764706, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_Field")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Field")
@@ -482,91 +594,66 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_Field")
 text = "未选择  >"
 alignment = 2
 
-[node name="ZodiacRow" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ZodiacSpacer" type="Control" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/ZodiacRow"]
-custom_minimum_size = Vector2(86, 0)
-layout_mode = 2
-
-[node name="ZodiacLabel" type="Label" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox/MBTIField/ZodiacRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 11
-text = "未知星座"
-horizontal_alignment = 2
-
-[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox"]
+[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/MainVBox" unique_id=237195944]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.12941177, 0.7176471, 0.69411767, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.14117648, 0.7137255, 0.7019608, 1)
+theme_override_colors/font_disabled_color = Color(0.47, 0.53, 0.56, 1)
 theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/normal = SubResource("StyleBoxFlat_evxs5")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_726kg")
+theme_override_styles/hover = SubResource("StyleBoxFlat_726kg")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_ConfirmDisabled")
+disabled = true
 text = "完成"
 
-[node name="MBTIPopup" type="Panel" parent="."]
+[node name="MBTIPopup" type="PanelContainer" parent="PopupPanel" unique_id=1817474131]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(680, 520)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -340.0
-offset_top = -260.0
-offset_right = 340.0
-offset_bottom = 260.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+use_parent_material = true
+clip_contents = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0x2nt")
 
-[node name="Margin" type="MarginContainer" parent="MBTIPopup"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Margin" type="MarginContainer" parent="PopupPanel/MBTIPopup" unique_id=1863875700]
+layout_mode = 2
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="VBox" type="VBoxContainer" parent="MBTIPopup/Margin"]
+[node name="VBox" type="VBoxContainer" parent="PopupPanel/MBTIPopup/Margin" unique_id=69169856]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="HeaderCard" type="PanelContainer" parent="MBTIPopup/Margin/VBox"]
+[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MBTIPopup/Margin/VBox" unique_id=1564348985]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderCard")
 
-[node name="HeaderMargin" type="MarginContainer" parent="MBTIPopup/Margin/VBox/HeaderCard"]
+[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MBTIPopup/Margin/VBox/HeaderCard" unique_id=1748832671]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 14
 
-[node name="HeaderVBox" type="VBoxContainer" parent="MBTIPopup/Margin/VBox/HeaderCard/HeaderMargin"]
+[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MBTIPopup/Margin/VBox/HeaderCard/HeaderMargin" unique_id=167319738]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Label" type="Label" parent="MBTIPopup/Margin/VBox/HeaderCard/HeaderMargin/HeaderVBox"]
+[node name="Label" type="Label" parent="PopupPanel/MBTIPopup/Margin/VBox/HeaderCard/HeaderMargin/HeaderVBox" unique_id=2016947096]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_colors/font_color = Color(0.12941177, 0.72156864, 0.6666667, 1)
 theme_override_font_sizes/font_size = 22
 text = "选择你的 MBTI"
 horizontal_alignment = 1
 
-[node name="Desc" type="Label" parent="MBTIPopup/Margin/VBox/HeaderCard/HeaderMargin/HeaderVBox"]
+[node name="Desc" type="Label" parent="PopupPanel/MBTIPopup/Margin/VBox/HeaderCard/HeaderMargin/HeaderVBox" unique_id=2055849875]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
 theme_override_font_sizes/font_size = 13
@@ -574,45 +661,39 @@ text = "选择一个最贴近你的性格标签，Luna 会把它作为理解你�
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="HintCard" type="PanelContainer" parent="MBTIPopup/Margin/VBox"]
+[node name="MBTIGridMargin" type="PanelContainer" parent="PopupPanel/MBTIPopup/Margin/VBox" unique_id=1935980715]
+clip_contents = true
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_InfoCard")
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_w3yeg")
 
-[node name="HintMargin" type="MarginContainer" parent="MBTIPopup/Margin/VBox/HintCard"]
+[node name="Scroll" type="ScrollContainer" parent="PopupPanel/MBTIPopup/Margin/VBox/MBTIGridMargin" unique_id=537060190]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
-
-[node name="HintLabel" type="Label" parent="MBTIPopup/Margin/VBox/HintCard/HintMargin"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.34, 0.4, 0.43, 1)
-theme_override_font_sizes/font_size = 12
-text = "已选择的类型会高亮显示，你可以随时重新选择。"
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="Scroll" type="ScrollContainer" parent="MBTIPopup/Margin/VBox"]
-layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
-[node name="MBTIGrid" type="GridContainer" parent="MBTIPopup/Margin/VBox/Scroll"]
+[node name="MBTIGrid" type="GridContainer" parent="PopupPanel/MBTIPopup/Margin/VBox/MBTIGridMargin/Scroll" unique_id=532932524]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 15
 theme_override_constants/v_separation = 15
 columns = 2
 
-[node name="CloseMBTI" type="Button" parent="MBTIPopup/Margin/VBox"]
+[node name="CloseMBTI" type="Button" parent="PopupPanel/MBTIPopup/Margin/VBox" unique_id=506840981]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 45)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_kmj5t")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "返回"

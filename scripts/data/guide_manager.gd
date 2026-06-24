@@ -26,8 +26,6 @@ const MAIN_SCENE_FEATURE_PATHS := {
 	"main.chat": "UIPanel/InteractGroup/ChatButton",
 	"main.gift": "UIPanel/InteractGroup/GiftButton",
 	"main.date": "UIPanel/InteractGroup/DateButton",
-	"main.interactive": "UIPanel/InteractGroup/InteractiveButton",
-	"main.co_create": "UIPanel/InteractiveSubMenu/Margin/VBox/CoCreateButton",
 	"main.phone": "UIPanel/SystemButton/ToolBarMargin/HBox/PhoneButton"
 }
 

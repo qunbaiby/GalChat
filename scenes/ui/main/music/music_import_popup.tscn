@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://cbd2hq5lgq2k5"]
+[gd_scene format=3 uid="uid://cbd2hq5lgq2k5"]
 
-[ext_resource type="Script" path="res://scripts/ui/main/music/music_import_popup.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://3pckfhk8gpui" path="res://scripts/ui/main/music/music_import_popup.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Popup"]
 bg_color = Color(0.98, 0.985, 0.99, 0.98)
@@ -41,7 +41,7 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
-[node name="MusicImportPopup" type="PanelContainer"]
+[node name="MusicImportPopup" type="PanelContainer" unique_id=629575026]
 visible = false
 custom_minimum_size = Vector2(420, 360)
 offset_right = 420.0
@@ -49,94 +49,94 @@ offset_bottom = 360.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Popup")
 script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=81611162]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 14
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin" unique_id=1311353258]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="HeaderHBox" type="HBoxContainer" parent="Margin/VBox"]
+[node name="HeaderHBox" type="HBoxContainer" parent="Margin/VBox" unique_id=462701952]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="Margin/VBox/HeaderHBox"]
+[node name="TitleLabel" type="Label" parent="Margin/VBox/HeaderHBox" unique_id=1098821794]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "导入本地音乐"
 
-[node name="CloseBtn" type="Button" parent="Margin/VBox/HeaderHBox"]
+[node name="CloseBtn" type="Button" parent="Margin/VBox/HeaderHBox" unique_id=798131686]
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 text = "X"
 flat = true
 
-[node name="DescLabel" type="Label" parent="Margin/VBox"]
+[node name="DescLabel" type="Label" parent="Margin/VBox" unique_id=1751903512]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.49, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "把音乐文件拖进这个弹窗里，确认列表后点击导入。"
 autowrap_mode = 3
 
-[node name="DropPanel" type="PanelContainer" parent="Margin/VBox"]
+[node name="DropPanel" type="PanelContainer" parent="Margin/VBox" unique_id=553050201]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_DropPanel")
 
-[node name="DropMargin" type="MarginContainer" parent="Margin/VBox/DropPanel"]
+[node name="DropMargin" type="MarginContainer" parent="Margin/VBox/DropPanel" unique_id=661411558]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
-[node name="DropVBox" type="VBoxContainer" parent="Margin/VBox/DropPanel/DropMargin"]
+[node name="DropVBox" type="VBoxContainer" parent="Margin/VBox/DropPanel/DropMargin" unique_id=1613357926]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 6
+alignment = 1
 
-[node name="HintLabel" type="Label" parent="Margin/VBox/DropPanel/DropMargin/DropVBox"]
+[node name="HintLabel" type="Label" parent="Margin/VBox/DropPanel/DropMargin/DropVBox" unique_id=1445585213]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.2, 0.24, 1)
 theme_override_font_sizes/font_size = 15
 text = "将 mp3 / ogg 文件拖到这个弹窗里"
 horizontal_alignment = 1
 
-[node name="CountLabel" type="Label" parent="Margin/VBox/DropPanel/DropMargin/DropVBox"]
+[node name="CountLabel" type="Label" parent="Margin/VBox/DropPanel/DropMargin/DropVBox" unique_id=540375689]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.66, 0.62, 1)
 theme_override_font_sizes/font_size = 12
 text = "待导入 0 首"
 horizontal_alignment = 1
 
-[node name="ListPanel" type="PanelContainer" parent="Margin/VBox"]
+[node name="ListPanel" type="PanelContainer" parent="Margin/VBox" unique_id=577666613]
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ListPanel")
 
-[node name="ListMargin" type="MarginContainer" parent="Margin/VBox/ListPanel"]
+[node name="ListMargin" type="MarginContainer" parent="Margin/VBox/ListPanel" unique_id=124820160]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/VBox/ListPanel/ListMargin"]
+[node name="Scroll" type="ScrollContainer" parent="Margin/VBox/ListPanel/ListMargin" unique_id=1921639520]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="FileList" type="VBoxContainer" parent="Margin/VBox/ListPanel/ListMargin/Scroll"]
+[node name="FileList" type="VBoxContainer" parent="Margin/VBox/ListPanel/ListMargin/Scroll" unique_id=1976526384]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="EmptyLabel" type="Label" parent="Margin/VBox/ListPanel/ListMargin/Scroll/FileList"]
+[node name="EmptyLabel" type="Label" parent="Margin/VBox/ListPanel/ListMargin/Scroll/FileList" unique_id=1392000022]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.61, 0.67, 1)
 theme_override_font_sizes/font_size = 13
@@ -144,20 +144,20 @@ text = "暂时还没有待导入的音乐文件"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="FooterHBox" type="HBoxContainer" parent="Margin/VBox"]
+[node name="FooterHBox" type="HBoxContainer" parent="Margin/VBox" unique_id=1305037897]
 layout_mode = 2
-alignment = 2
 theme_override_constants/separation = 8
+alignment = 2
 
-[node name="ClearBtn" type="Button" parent="Margin/VBox/FooterHBox"]
+[node name="ClearBtn" type="Button" parent="Margin/VBox/FooterHBox" unique_id=738679767]
 layout_mode = 2
 text = "清空"
 
-[node name="CancelBtn" type="Button" parent="Margin/VBox/FooterHBox"]
+[node name="CancelBtn" type="Button" parent="Margin/VBox/FooterHBox" unique_id=1538564571]
 layout_mode = 2
 text = "取消"
 
-[node name="ImportBtn" type="Button" parent="Margin/VBox/FooterHBox"]
+[node name="ImportBtn" type="Button" parent="Margin/VBox/FooterHBox" unique_id=367295604]
 layout_mode = 2
-text = "导入"
 disabled = true
+text = "导入"

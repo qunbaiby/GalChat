@@ -1,0 +1,236 @@
+[gd_scene format=3 uid="uid://5cl5fsy6wsw3"]
+
+[ext_resource type="Script" uid="uid://qg2cmholu3ki" path="res://scripts/ui/main/drawing_board_panel.gd" id="1_script"]
+
+[sub_resource type="Shader" id="Shader_Blur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.6;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_Blur"]
+shader = SubResource("Shader_Blur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelBg"]
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.18, 0.28, 0.33, 0.14)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondary"]
+bg_color = Color(1, 1, 1, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
+bg_color = Color(0.57, 0.82, 0.76, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.72, 0.65, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BoardFrame"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[node name="DrawingBoardPanel" type="Control" unique_id=408779452]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=677213045]
+visible = false
+material = SubResource("ShaderMaterial_Blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1480309785]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=1858411662]
+custom_minimum_size = Vector2(960, 560)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_PanelBg")
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=744832056]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=724512471]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=487714588]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TopBar" unique_id=1329642351]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 22
+text = "共创画板"
+
+[node name="Spacer" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TopBar" unique_id=535448404]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ClearButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TopBar" unique_id=2112537738]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonSecondary")
+text = "清空画板"
+
+[node name="GuideButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TopBar" unique_id=782497148]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
+text = "指导 Luna"
+
+[node name="CloseButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TopBar" unique_id=1603198047]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonSecondary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonSecondary")
+text = "关闭"
+
+[node name="BoardContainer" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=19225923]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_BoardFrame")
+
+[node name="BoardMargin" type="MarginContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BoardContainer" unique_id=105944886]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BoardContainer/BoardMargin" unique_id=398741432]
+layout_mode = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BoardContainer/BoardMargin/SubViewportContainer" unique_id=179131155]
+unique_name_in_owner = true
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(900, 452)
+render_target_update_mode = 4
+
+[node name="WhiteBackground" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BoardContainer/BoardMargin/SubViewportContainer/SubViewport" unique_id=2081554551]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LinesContainer" type="Node2D" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BoardContainer/BoardMargin/SubViewportContainer/SubViewport" unique_id=1150577687]
+unique_name_in_owner = true
+
+[node name="DrawingArea" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BoardContainer/BoardMargin" unique_id=952718571]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LoadingPanel" type="Panel" parent="." unique_id=180317689]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="LoadingPanel" unique_id=1527345973]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.08, 0.1, 0.22)
+
+[node name="LoadingLabel" type="Label" parent="LoadingPanel" unique_id=1274900665]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -42.0
+offset_right = 200.0
+offset_bottom = 42.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Luna正在认真画画..."
+horizontal_alignment = 1
+vertical_alignment = 1

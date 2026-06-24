@@ -1,21 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://0ca65qb3dtnr"]
+[gd_scene format=3 uid="uid://0ca65qb3dtnr"]
 
+[ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="1_4xjk6"]
 [ext_resource type="Script" uid="uid://d254ufur2bp43" path="res://scripts/ui/story/player_call_name_popup.gd" id="1_script"]
+[ext_resource type="Material" uid="uid://dutxb7qbmb3kn" path="res://assets/shader/Cyan-green gradient.tres" id="2_qruaf"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.76)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.18, 0.28, 0.33, 0.18)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iooq8"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderCard"]
 bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.62)
@@ -36,10 +30,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.84, 0.89, 0.92, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HintCard"]
 bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
@@ -53,28 +47,17 @@ corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[node name="PlayerCallNamePopup" type="Control"]
+[node name="PlayerCallNamePopup" type="Control" unique_id=1352693166]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_4xjk6")
 script = ExtResource("1_script")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=334174856]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -83,7 +66,8 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
-[node name="PopupPanel" type="Panel" parent="."]
+[node name="PopupPanel" type="Panel" parent="." unique_id=1625213348]
+material = ExtResource("2_qruaf")
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -96,9 +80,9 @@ offset_right = 238.0
 offset_bottom = 122.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_iooq8")
 
-[node name="MarginContainer" type="MarginContainer" parent="PopupPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="PopupPanel" unique_id=343034681]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -110,56 +94,56 @@ theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 22
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel/MarginContainer" unique_id=1699071769]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
+[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer" unique_id=895095640]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderCard")
 
-[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard"]
+[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard" unique_id=2005066532]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 14
 
-[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin"]
+[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin" unique_id=1735926594]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="TitleLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin/HeaderVBox"]
+[node name="TitleLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin/HeaderVBox" unique_id=1757117793]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 23
 text = "想让 Luna 如何称呼你？"
 horizontal_alignment = 1
 
-[node name="TitleInput" type="LineEdit" parent="PopupPanel/MarginContainer/VBoxContainer"]
+[node name="TitleInput" type="LineEdit" parent="PopupPanel/MarginContainer/VBoxContainer" unique_id=619920982]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-theme_override_colors/font_placeholder_color = Color(0.4467765, 0.44677734, 0.44677663, 1)
+theme_override_colors/font_placeholder_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Input")
 theme_override_styles/focus = SubResource("StyleBoxFlat_Input")
 placeholder_text = "例如 老师、哥哥、小名"
 alignment = 1
 
-[node name="HintCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
+[node name="HintCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer" unique_id=1315883971]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_HintCard")
 
-[node name="HintMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard"]
+[node name="HintMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard" unique_id=907693549]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 10
 
-[node name="HintLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard/HintMargin"]
+[node name="HintLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard/HintMargin" unique_id=1235363598]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.34, 0.4, 0.43, 1)
 theme_override_font_sizes/font_size = 13
@@ -167,13 +151,10 @@ text = "称呼会用于后续剧情与日常对话，也会写入 Luna 的核心
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/VBoxContainer"]
+[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/VBoxContainer" unique_id=200306581]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
 text = "确定"

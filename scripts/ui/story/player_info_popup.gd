@@ -2,9 +2,13 @@ extends Control
 
 signal info_submitted
 
-const DEFAULT_GENDER := "男"
+const DEFAULT_GENDER := ""
 const DEFAULT_BIRTH_YEAR := 2003
+const DEFAULT_BIRTH_MONTH := 1
+const DEFAULT_BIRTH_DAY := 1
+const BIRTHDAY_PLACEHOLDER := "请选择生日"
 const MBTI_PLACEHOLDER := "未选择  >"
+const MBTI_OPTION_ITEM_SCENE_PATH := "res://scenes/ui/story/mbti_option_item.tscn"
 const PLAYER_AVATAR_MALE := "res://assets/images/ui/player/avatar_male.svg"
 const PLAYER_AVATAR_FEMALE := "res://assets/images/ui/player/avatar_female.svg"
 const PLAYER_AVATAR_OTHER := "res://assets/images/ui/player/avatar_other.svg"
@@ -33,51 +37,42 @@ var _selected_gender: String = DEFAULT_GENDER
 var _birth_year: int = DEFAULT_BIRTH_YEAR
 var _birth_month: int = 1
 var _birth_day: int = 1
+var _has_birthdate_selection: bool = false
 var _gender_group: ButtonGroup
-var _gender_normal_style: StyleBoxFlat
-var _gender_selected_style: StyleBoxFlat
-var _mbti_card_style: StyleBoxFlat
-var _mbti_card_hover_style: StyleBoxFlat
-var _mbti_card_selected_style: StyleBoxFlat
+var _gender_button_theme_cache: Dictionary = {}
 
-@onready var popup_panel: Panel = %PopupPanel
+@onready var popup_panel: PanelContainer = %PopupPanel
 @onready var avatar_preview: TextureRect = %AvatarPreview
 @onready var name_input: LineEdit = %NameInput
 @onready var male_btn: Button = %MaleBtn
 @onready var female_btn: Button = %FemaleBtn
-@onready var birthday_value_button: Button = %BirthdayValueButton
-@onready var birthday_editor: HBoxContainer = %BirthdayEditor
-@onready var year_minus_btn: Button = %YearMinusBtn
-@onready var year_plus_btn: Button = %YearPlusBtn
-@onready var month_minus_btn: Button = %MonthMinusBtn
-@onready var month_plus_btn: Button = %MonthPlusBtn
-@onready var day_minus_btn: Button = %DayMinusBtn
-@onready var day_plus_btn: Button = %DayPlusBtn
-@onready var year_value_label: Label = %YearValueLabel
-@onready var month_value_label: Label = %MonthValueLabel
-@onready var day_value_label: Label = %DayValueLabel
+@onready var birthday_editor: PanelContainer = %BirthdayEditor
+@onready var year_spin_box: SpinBox = %YearSpinBox
+@onready var month_spin_box: SpinBox = %MonthSpinBox
+@onready var day_spin_box: SpinBox = %DaySpinBox
 @onready var zodiac_label: Label = %ZodiacLabel
 @onready var mbti_button: Button = %MBTIButton
 @onready var confirm_btn: Button = %ConfirmBtn
-@onready var mbti_popup: Panel = %MBTIPopup
+@onready var mbti_popup: PanelContainer = %MBTIPopup
 @onready var mbti_grid: GridContainer = %MBTIGrid
 @onready var close_mbti_btn: Button = %CloseMBTI
+@onready var mbti_grid_margin: PanelContainer = mbti_popup.get_node("Margin/VBox/MBTIGridMargin") as PanelContainer
+@onready var mbti_scroll: ScrollContainer = mbti_popup.get_node("Margin/VBox/MBTIGridMargin/Scroll") as ScrollContainer
 
 func _ready() -> void:
 	_build_gender_styles()
 	_init_gender_buttons()
-	_init_birthday_steppers()
-	_build_mbti_styles()
+	_init_birthday_inputs()
+	_configure_mbti_popup_layout()
 	_init_mbti_grid()
 	_load_existing_profile()
 	_bind_live_updates()
 	_update_days(_birth_month)
 	_update_zodiac()
-	_refresh_birthday_labels()
+	_sync_birthday_inputs()
 	_update_avatar_preview()
 	_update_completion_progress()
 	mbti_button.pressed.connect(_show_mbti_popup)
-	birthday_value_button.pressed.connect(_toggle_birthday_editor)
 	close_mbti_btn.pressed.connect(_hide_mbti_popup)
 	confirm_btn.pressed.connect(_on_confirm_pressed)
 
@@ -85,95 +80,67 @@ func _bind_live_updates() -> void:
 	name_input.text_changed.connect(_update_completion_progress)
 
 func _build_gender_styles() -> void:
-	_gender_normal_style = StyleBoxFlat.new()
-	_gender_normal_style.bg_color = Color(1, 1, 1, 0.96)
-	_gender_normal_style.border_width_left = 1
-	_gender_normal_style.border_width_top = 1
-	_gender_normal_style.border_width_right = 1
-	_gender_normal_style.border_width_bottom = 1
-	_gender_normal_style.border_color = Color(0.89, 0.82, 0.72, 1)
-	_gender_normal_style.corner_radius_top_left = 14
-	_gender_normal_style.corner_radius_top_right = 14
-	_gender_normal_style.corner_radius_bottom_left = 14
-	_gender_normal_style.corner_radius_bottom_right = 14
-
-	_gender_selected_style = StyleBoxFlat.new()
-	_gender_selected_style.bg_color = Color(0.57, 0.82, 0.76, 1)
-	_gender_selected_style.border_width_left = 1
-	_gender_selected_style.border_width_top = 1
-	_gender_selected_style.border_width_right = 1
-	_gender_selected_style.border_width_bottom = 1
-	_gender_selected_style.border_color = Color(0.45, 0.72, 0.65, 1)
-	_gender_selected_style.corner_radius_top_left = 14
-	_gender_selected_style.corner_radius_top_right = 14
-	_gender_selected_style.corner_radius_bottom_left = 14
-	_gender_selected_style.corner_radius_bottom_right = 14
+	_cache_gender_button_theme(male_btn)
+	_cache_gender_button_theme(female_btn)
 
 func _init_gender_buttons() -> void:
 	_gender_group = ButtonGroup.new()
 	_setup_gender_button(male_btn, "男")
 	_setup_gender_button(female_btn, "女")
+	_clear_gender_selection()
 
 func _setup_gender_button(button: Button, gender: String) -> void:
 	button.toggle_mode = true
 	button.button_group = _gender_group
 	button.pressed.connect(_on_gender_pressed.bind(gender))
 
-func _build_mbti_styles() -> void:
-	_mbti_card_style = StyleBoxFlat.new()
-	_mbti_card_style.bg_color = Color(1, 1, 1, 0.94)
-	_mbti_card_style.border_width_left = 1
-	_mbti_card_style.border_width_top = 1
-	_mbti_card_style.border_width_right = 1
-	_mbti_card_style.border_width_bottom = 1
-	_mbti_card_style.border_color = Color(0.83, 0.89, 0.92, 1)
-	_mbti_card_style.corner_radius_top_left = 14
-	_mbti_card_style.corner_radius_top_right = 14
-	_mbti_card_style.corner_radius_bottom_left = 14
-	_mbti_card_style.corner_radius_bottom_right = 14
+func _cache_gender_button_theme(button: Button) -> void:
+	_gender_button_theme_cache[button] = {
+		"normal_style": _duplicate_stylebox(button.get_theme_stylebox("normal")),
+		"hover_style": _duplicate_stylebox(button.get_theme_stylebox("hover")),
+		"pressed_style": _duplicate_stylebox(button.get_theme_stylebox("pressed")),
+		"font_color": button.get_theme_color("font_color"),
+		"font_pressed_color": button.get_theme_color("font_pressed_color"),
+		"font_hover_color": button.get_theme_color("font_hover_color"),
+		"font_hover_pressed_color": button.get_theme_color("font_hover_pressed_color")
+	}
 
-	_mbti_card_hover_style = StyleBoxFlat.new()
-	_mbti_card_hover_style.bg_color = Color(0.94, 0.98, 0.97, 1)
-	_mbti_card_hover_style.border_width_left = 1
-	_mbti_card_hover_style.border_width_top = 1
-	_mbti_card_hover_style.border_width_right = 1
-	_mbti_card_hover_style.border_width_bottom = 1
-	_mbti_card_hover_style.border_color = Color(0.67, 0.83, 0.8, 1)
-	_mbti_card_hover_style.corner_radius_top_left = 14
-	_mbti_card_hover_style.corner_radius_top_right = 14
-	_mbti_card_hover_style.corner_radius_bottom_left = 14
-	_mbti_card_hover_style.corner_radius_bottom_right = 14
+func _duplicate_stylebox(stylebox: StyleBox) -> StyleBox:
+	if stylebox == null:
+		return null
+	return stylebox.duplicate()
 
-	_mbti_card_selected_style = StyleBoxFlat.new()
-	_mbti_card_selected_style.bg_color = Color(0.57, 0.82, 0.76, 0.22)
-	_mbti_card_selected_style.border_width_left = 2
-	_mbti_card_selected_style.border_width_top = 2
-	_mbti_card_selected_style.border_width_right = 2
-	_mbti_card_selected_style.border_width_bottom = 2
-	_mbti_card_selected_style.border_color = Color(0.45, 0.72, 0.65, 1)
-	_mbti_card_selected_style.corner_radius_top_left = 14
-	_mbti_card_selected_style.corner_radius_top_right = 14
-	_mbti_card_selected_style.corner_radius_bottom_left = 14
-	_mbti_card_selected_style.corner_radius_bottom_right = 14
+func _init_birthday_inputs() -> void:
+	year_spin_box.min_value = 1970
+	year_spin_box.max_value = 2099
+	year_spin_box.step = 1
+	year_spin_box.rounded = true
+	year_spin_box.value_changed.connect(_on_birth_year_changed)
 
-func _init_birthday_steppers() -> void:
-	year_minus_btn.pressed.connect(_change_year.bind(-1))
-	year_plus_btn.pressed.connect(_change_year.bind(1))
-	month_minus_btn.pressed.connect(_change_month.bind(-1))
-	month_plus_btn.pressed.connect(_change_month.bind(1))
-	day_minus_btn.pressed.connect(_change_day.bind(-1))
-	day_plus_btn.pressed.connect(_change_day.bind(1))
-	_refresh_birthday_labels()
+	month_spin_box.min_value = 1
+	month_spin_box.max_value = 12
+	month_spin_box.step = 1
+	month_spin_box.rounded = true
+	month_spin_box.value_changed.connect(_on_birth_month_changed)
+
+	day_spin_box.min_value = 1
+	day_spin_box.max_value = 31
+	day_spin_box.step = 1
+	day_spin_box.rounded = true
+	day_spin_box.value_changed.connect(_on_birth_day_changed)
+
+	_sync_birthday_inputs()
 
 func _load_existing_profile() -> void:
 	if not GameDataManager.profile:
-		_select_gender(DEFAULT_GENDER)
+		_clear_gender_selection()
+		_clear_birthday_selection()
 		mbti_button.text = MBTI_PLACEHOLDER
-		_update_birthday_display()
+		selected_mbti = "未选择"
 		return
 
 	var profile = GameDataManager.profile
-	name_input.text = str(profile.player_name)
+	name_input.text = str(profile.player_name).substr(0, 10)
 	selected_mbti = str(profile.player_mbti).strip_edges()
 	if selected_mbti == "":
 		selected_mbti = "未选择"
@@ -182,13 +149,15 @@ func _load_existing_profile() -> void:
 
 	var gender = str(profile.player_gender).strip_edges()
 	if gender != "男" and gender != "女":
-		gender = DEFAULT_GENDER
-	_select_gender(gender)
+		_clear_gender_selection()
+	else:
+		_select_gender(gender)
 
 	var year: int = DEFAULT_BIRTH_YEAR
-	var month: int = 1
-	var day: int = 1
+	var month: int = DEFAULT_BIRTH_MONTH
+	var day: int = DEFAULT_BIRTH_DAY
 	var birthday_text: String = str(profile.player_birthday).strip_edges()
+	_has_birthdate_selection = birthday_text != ""
 	if birthday_text != "":
 		var iso_matcher := RegEx.new()
 		iso_matcher.compile("(\\d{4})-(\\d{1,2})-(\\d{1,2})")
@@ -210,8 +179,23 @@ func _load_existing_profile() -> void:
 	_birth_day = day
 	_update_days(_birth_month)
 	_birth_day = mini(_birth_day, _get_days_in_month(_birth_month))
-	_refresh_birthday_labels()
-	_update_birthday_display()
+	_sync_birthday_inputs()
+	_update_zodiac()
+
+func _clear_gender_selection() -> void:
+	_selected_gender = DEFAULT_GENDER
+	male_btn.set_pressed_no_signal(false)
+	female_btn.set_pressed_no_signal(false)
+	_apply_gender_button_style(male_btn)
+	_apply_gender_button_style(female_btn)
+
+func _clear_birthday_selection() -> void:
+	_birth_year = DEFAULT_BIRTH_YEAR
+	_birth_month = DEFAULT_BIRTH_MONTH
+	_birth_day = DEFAULT_BIRTH_DAY
+	_has_birthdate_selection = false
+	_sync_birthday_inputs()
+	_update_zodiac()
 
 func _select_gender(gender: String) -> void:
 	_selected_gender = "女" if gender == "女" else "男"
@@ -221,14 +205,20 @@ func _select_gender(gender: String) -> void:
 	_apply_gender_button_style(female_btn)
 
 func _apply_gender_button_style(button: Button) -> void:
-	var selected = button.button_pressed
-	var normal_style = _gender_selected_style if selected else _gender_normal_style
-	var font_color = Color(1, 1, 1, 1) if selected else Color(0.33, 0.28, 0.22, 1)
+	var theme_cache: Dictionary = _gender_button_theme_cache.get(button, {})
+	if theme_cache.is_empty():
+		return
+	var selected: bool = button.button_pressed
+	var normal_style: StyleBox = theme_cache.get("pressed_style") if selected else theme_cache.get("normal_style")
+	var hover_style: StyleBox = theme_cache.get("pressed_style") if selected else theme_cache.get("hover_style")
 	button.add_theme_stylebox_override("normal", normal_style)
-	button.add_theme_stylebox_override("hover", normal_style)
-	button.add_theme_stylebox_override("pressed", _gender_selected_style)
+	button.add_theme_stylebox_override("hover", hover_style)
+	button.add_theme_stylebox_override("pressed", theme_cache.get("pressed_style"))
 	button.add_theme_stylebox_override("focus", normal_style)
-	button.add_theme_color_override("font_color", font_color)
+	button.add_theme_color_override("font_color", theme_cache.get("font_pressed_color") if selected else theme_cache.get("font_color"))
+	button.add_theme_color_override("font_hover_color", theme_cache.get("font_hover_pressed_color") if selected else theme_cache.get("font_hover_color"))
+	button.add_theme_color_override("font_pressed_color", theme_cache.get("font_pressed_color"))
+	button.add_theme_color_override("font_hover_pressed_color", theme_cache.get("font_hover_pressed_color"))
 
 func _on_gender_pressed(gender: String) -> void:
 	_select_gender(gender)
@@ -239,6 +229,8 @@ func _resolve_player_avatar_path(gender: String) -> String:
 	match gender:
 		"女":
 			return PLAYER_AVATAR_FEMALE
+		"":
+			return PLAYER_AVATAR_OTHER
 		_:
 			return PLAYER_AVATAR_MALE
 
@@ -252,6 +244,8 @@ func _update_avatar_preview() -> void:
 func _update_days(month: int) -> void:
 	var days_in_month: int = _get_days_in_month(month)
 	_birth_day = mini(_birth_day, days_in_month)
+	if day_spin_box != null:
+		day_spin_box.max_value = days_in_month
 
 func _get_days_in_month(month: int) -> int:
 	if month == 2:
@@ -260,44 +254,51 @@ func _get_days_in_month(month: int) -> int:
 		return 30
 	return 31
 
-func _change_year(delta: int) -> void:
-	_birth_year = clampi(_birth_year + delta, 1970, 2099)
-	_refresh_birthday_labels()
-	_update_birthday_display()
-	_update_completion_progress()
-
-func _change_month(delta: int) -> void:
-	_birth_month = clampi(_birth_month + delta, 1, 12)
+func _sync_birthday_inputs() -> void:
+	if year_spin_box == null or month_spin_box == null or day_spin_box == null:
+		return
+	year_spin_box.set_block_signals(true)
+	month_spin_box.set_block_signals(true)
+	day_spin_box.set_block_signals(true)
+	year_spin_box.value = _birth_year
+	month_spin_box.value = _birth_month
 	_update_days(_birth_month)
-	_refresh_birthday_labels()
+	day_spin_box.value = _birth_day
+	year_spin_box.set_block_signals(false)
+	month_spin_box.set_block_signals(false)
+	day_spin_box.set_block_signals(false)
+
+func _on_birth_year_changed(value: float) -> void:
+	_has_birthdate_selection = true
+	_birth_year = clampi(int(round(value)), 1970, 2099)
+	_sync_birthday_inputs()
 	_update_zodiac()
-	_update_birthday_display()
 	_update_completion_progress()
 
-func _change_day(delta: int) -> void:
-	_birth_day = clampi(_birth_day + delta, 1, _get_days_in_month(_birth_month))
-	_refresh_birthday_labels()
+func _on_birth_month_changed(value: float) -> void:
+	_has_birthdate_selection = true
+	_birth_month = clampi(int(round(value)), 1, 12)
+	_update_days(_birth_month)
+	_sync_birthday_inputs()
 	_update_zodiac()
-	_update_birthday_display()
 	_update_completion_progress()
 
-func _refresh_birthday_labels() -> void:
-	year_value_label.text = "%04d年" % _birth_year
-	month_value_label.text = "%02d月" % _birth_month
-	day_value_label.text = "%02d日" % _birth_day
-
-func _toggle_birthday_editor() -> void:
-	birthday_editor.visible = not birthday_editor.visible
-	_update_birthday_display()
-
-func _update_birthday_display() -> void:
-	var arrow = "v" if birthday_editor.visible else ">"
-	birthday_value_button.text = "%s  %s" % [_get_formatted_birthday(), arrow]
+func _on_birth_day_changed(value: float) -> void:
+	_has_birthdate_selection = true
+	_birth_day = clampi(int(round(value)), 1, _get_days_in_month(_birth_month))
+	_sync_birthday_inputs()
+	_update_zodiac()
+	_update_completion_progress()
 
 func _get_formatted_birthday() -> String:
+	if not _has_birthdate_selection:
+		return ""
 	return "%04d-%02d-%02d" % [_birth_year, _birth_month, _birth_day]
 
 func _update_zodiac() -> void:
+	if not _has_birthdate_selection:
+		zodiac_label.text = BIRTHDAY_PLACEHOLDER
+		return
 	var month: int = _birth_month
 	var day: int = _birth_day
 	zodiac_label.text = _get_zodiac_name(month, day)
@@ -333,44 +334,53 @@ func _init_mbti_grid() -> void:
 	for child in mbti_grid.get_children():
 		child.queue_free()
 
+	var item_scene: PackedScene = load(MBTI_OPTION_ITEM_SCENE_PATH)
+	if item_scene == null:
+		return
+
 	for type_info in MBTI_TYPES:
-		var mbti_id = str(type_info.get("id", ""))
-		var mbti_name = str(type_info.get("name", ""))
-		var mbti_desc = str(type_info.get("desc", ""))
-		var button = Button.new()
-		button.custom_minimum_size = Vector2(0, 82)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.text = "%s (%s)\n%s" % [mbti_id, mbti_name, mbti_desc]
-		button.add_theme_font_size_override("font_size", 14)
-		button.add_theme_color_override("font_color", Color(0.16, 0.19, 0.21, 1))
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		button.add_theme_stylebox_override("normal", _mbti_card_style)
-		button.add_theme_stylebox_override("hover", _mbti_card_hover_style)
-		button.add_theme_stylebox_override("pressed", _mbti_card_selected_style)
-		button.set_meta("mbti_id", mbti_id)
-		button.pressed.connect(_on_mbti_selected.bind(mbti_id, mbti_name))
-		mbti_grid.add_child(button)
+		var mbti_id: String = str(type_info.get("id", ""))
+		var mbti_name: String = str(type_info.get("name", ""))
+		var mbti_desc: String = str(type_info.get("desc", ""))
+		var item: Node = item_scene.instantiate()
+		mbti_grid.add_child(item)
+		if item.has_method("setup_item"):
+			item.call("setup_item", mbti_id, mbti_name, mbti_desc)
+		if item.has_signal("selected"):
+			item.connect("selected", Callable(self, "_on_mbti_selected"))
 	_refresh_mbti_button_styles()
+
+func _configure_mbti_popup_layout() -> void:
+	mbti_popup.clip_contents = true
+	mbti_popup.hide()
+	mbti_grid_margin.clip_contents = true
+	mbti_grid_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mbti_grid_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mbti_scroll.clip_contents = true
+	mbti_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mbti_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mbti_scroll.scroll_horizontal = 0
+	mbti_scroll.scroll_vertical = 0
+	mbti_grid.clip_contents = true
+	mbti_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 func _refresh_mbti_button_styles() -> void:
 	for child in mbti_grid.get_children():
-		var button: Button = child as Button
-		if button == null:
+		if not child.has_method("get_mbti_id") or not child.has_method("set_selected_state"):
 			continue
-		var mbti_id: String = str(button.get_meta("mbti_id", ""))
-		var is_selected: bool = selected_mbti != "未选择" and mbti_id == selected_mbti
-		button.add_theme_stylebox_override("normal", _mbti_card_selected_style if is_selected else _mbti_card_style)
-		button.add_theme_stylebox_override("hover", _mbti_card_selected_style if is_selected else _mbti_card_hover_style)
-		button.add_theme_stylebox_override("pressed", _mbti_card_selected_style)
-		button.add_theme_color_override("font_color", Color(0.18, 0.34, 0.31, 1) if is_selected else Color(0.16, 0.19, 0.21, 1))
+		var item_mbti_id: String = str(child.call("get_mbti_id"))
+		var is_selected: bool = selected_mbti != "未选择" and item_mbti_id == selected_mbti
+		child.call("set_selected_state", is_selected)
 
 func _show_mbti_popup() -> void:
 	_refresh_mbti_button_styles()
+	mbti_scroll.scroll_horizontal = 0
+	mbti_scroll.scroll_vertical = 0
 	mbti_popup.show()
 
 func _hide_mbti_popup() -> void:
+	mbti_scroll.scroll_horizontal = 0
+	mbti_scroll.scroll_vertical = 0
 	mbti_popup.hide()
 
 func _on_mbti_selected(mbti_id: String, mbti_name: String) -> void:
@@ -388,10 +398,17 @@ func _build_mbti_button_text(mbti_id: String) -> String:
 	return "%s  >" % mbti_id
 
 func _update_completion_progress(_changed_text: String = "") -> void:
-	return
+	var name_text: String = name_input.text.strip_edges()
+	var has_name: bool = not name_text.is_empty()
+	var has_gender: bool = _selected_gender == "男" or _selected_gender == "女"
+	var has_birthday: bool = _has_birthdate_selection and not _get_formatted_birthday().is_empty()
+	var has_mbti: bool = selected_mbti != "" and selected_mbti != "未选择"
+	confirm_btn.disabled = not (has_name and has_gender and has_birthday and has_mbti)
 
 func _on_confirm_pressed() -> void:
-	var name_text = name_input.text.strip_edges()
+	if confirm_btn.disabled:
+		return
+	var name_text = name_input.text.strip_edges().substr(0, 10)
 	if name_text.is_empty():
 		name_input.grab_focus()
 		return

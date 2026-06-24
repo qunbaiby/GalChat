@@ -1,0 +1,35 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dutxb7qbmb3kn"]
+
+[sub_resource type="Shader" id="Shader_PopupPanelGradient"]
+code = "shader_type canvas_item;
+uniform vec4 color_top : source_color = vec4(0.43, 0.84, 0.78, 1.0);
+uniform vec4 color_mid : source_color = vec4(0.77, 0.94, 0.91, 1.0);
+uniform vec4 color_bottom : source_color = vec4(0.99, 0.995, 0.99, 1.0);
+uniform float mid_point : hint_range(0.0, 1.0) = 0.42;
+
+void fragment() {
+	float t = clamp(UV.y, 0.0, 1.0);
+	vec4 gradient = color_bottom;
+	if (t < mid_point) {
+		float top_mix = 0.0;
+		if (mid_point > 0.0) {
+			top_mix = t / mid_point;
+		}
+		gradient = mix(color_top, color_mid, top_mix);
+	} else {
+		float bottom_mix = 1.0;
+		if (mid_point < 1.0) {
+			bottom_mix = (t - mid_point) / (1.0 - mid_point);
+		}
+		gradient = mix(color_mid, color_bottom, bottom_mix);
+	}
+	COLOR = vec4(gradient.rgb, gradient.a * COLOR.a);
+}
+"
+
+[resource]
+shader = SubResource("Shader_PopupPanelGradient")
+shader_parameter/color_top = Color(1, 0.7948024, 0.82931155, 1)
+shader_parameter/color_mid = Color(0.9647059, 0.9882353, 0.9882353, 1)
+shader_parameter/color_bottom = Color(0.99, 0.995, 0.99, 1)
+shader_parameter/mid_point = 0.42

@@ -1,0 +1,547 @@
+[gd_scene load_steps=9 format=3 uid="uid://b1rciehsgld31"]
+
+[ext_resource type="Script" uid="uid://jmsls7ovfyww" path="res://scripts/ui/main/creation_music_panel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c7i4qen7i4iq8" path="res://assets/images/icons/ui/music/volume-up-fill.png" id="2_volume_icon"]
+[ext_resource type="Texture2D" uid="uid://hitc17qulbok" path="res://assets/images/icons/ui/music/shuffle-fill.png" id="3_shuffle_icon"]
+[ext_resource type="Texture2D" uid="uid://usyrpjohvbh1" path="res://assets/images/icons/ui/music/skip-back-fill.png" id="4_prev_icon"]
+[ext_resource type="Texture2D" uid="uid://ga2dbs7kgotc" path="res://assets/images/icons/ui/music/pause-circle-fill.png" id="5_pause_icon"]
+[ext_resource type="Texture2D" uid="uid://d2o4wqh8uaa46" path="res://assets/images/icons/ui/music/skip-forward-fill.png" id="6_next_icon"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
+bg_color = Color(0.858824, 0.913726, 0.941176, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.882353, 0.952941, 0.956863, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.16, 0.35, 0.38, 0.14)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabOff"]
+bg_color = Color(0.93, 0.97, 0.98, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.73, 0.86, 0.88, 0.9)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabOn"]
+bg_color = Color(0.57, 0.82, 0.76, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.43, 0.72, 0.67, 1)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Placeholder"]
+bg_color = Color(0.905882, 0.952941, 0.956863, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.88, 0.89, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ComposeIcon"]
+bg_color = Color(0.57, 0.82, 0.76, 0.22)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.57, 0.82, 0.76, 0.36)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
+bg_color = Color(0.93, 0.97, 0.98, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.73, 0.86, 0.88, 0.95)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
+bg_color = Color(0.96, 0.985, 0.988, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.91, 0.92, 0.96)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_IconButton"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.74, 0.86, 0.88, 0.92)
+corner_radius_top_left = 17
+corner_radius_top_right = 17
+corner_radius_bottom_right = 17
+corner_radius_bottom_left = 17
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonAccent"]
+bg_color = Color(0.57, 0.82, 0.76, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.43, 0.72, 0.67, 1)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
+bg_color = Color(0.88, 0.93, 0.95, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressFill"]
+bg_color = Color(0.53, 0.78, 0.75, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="CreationMusicPanel" type="Control" unique_id=345619456]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=572900764]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelRoot" type="PanelContainer" parent="CenterContainer" unique_id=1416613720]
+custom_minimum_size = Vector2(960, 560)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
+
+[node name="RootMargin" type="MarginContainer" parent="CenterContainer/PanelRoot" unique_id=457088573]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin" unique_id=512124373]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox" unique_id=485419428]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/TopBar" unique_id=1755032148]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.18, 0.3, 0.33, 1)
+theme_override_font_sizes/font_size = 24
+text = "曲库"
+
+[node name="CloseButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/TopBar" unique_id=1651742086]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.24, 0.42, 0.44, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_TabOff")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+text = "X"
+
+[node name="MainVBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox" unique_id=485026634]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="LeftColumn" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox" unique_id=492828165]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="ComposeCard" type="PanelContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn" unique_id=426798857]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Placeholder")
+
+[node name="ComposeMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard" unique_id=755747992]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 11
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 11
+
+[node name="ComposeHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin" unique_id=25502784]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ComposeIconPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox" unique_id=1910118553]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ComposeIcon")
+
+[node name="ComposeIconLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox/ComposeIconPanel" unique_id=1258568981]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.6, 0.58, 1)
+theme_override_font_sizes/font_size = 16
+text = "♪"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ComposeTextVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox" unique_id=2088275018]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ComposeTitle" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox/ComposeTextVBox" unique_id=882433424]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.33, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "定制演奏"
+
+[node name="ComposeDesc" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox/ComposeTextVBox" unique_id=23672635]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.58, 0.59, 1)
+theme_override_font_sizes/font_size = 11
+text = "把你的旋律交给 Luna 编排演奏"
+
+[node name="ComposeTaskButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox" unique_id=1194050640]
+custom_minimum_size = Vector2(84, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.55, 0.57, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_TabOff")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOff")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOff")
+disabled = true
+text = "生成任务 (0)"
+
+[node name="ComposeActionButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox" unique_id=435400600]
+custom_minimum_size = Vector2(68, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.41, 0.43, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
+disabled = true
+text = "去定制"
+
+[node name="ComposeDecor" type="ColorRect" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ComposeCard/ComposeMargin/ComposeHBox" unique_id=1670891686]
+custom_minimum_size = Vector2(42, 38)
+layout_mode = 2
+color = Color(0.57, 0.82, 0.76, 0.18)
+
+[node name="CategoryRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn" unique_id=1350770190]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BuiltinTabButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/CategoryRow" unique_id=1573238911]
+custom_minimum_size = Vector2(76, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.32, 0.34, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+text = "官方曲库"
+
+[node name="FavoriteTabButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/CategoryRow" unique_id=592525502]
+custom_minimum_size = Vector2(76, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.32, 0.34, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_TabOff")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+text = "我的收藏"
+
+[node name="LocalTabButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/CategoryRow" unique_id=481982271]
+custom_minimum_size = Vector2(76, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.32, 0.34, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_TabOff")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+text = "本地上传"
+
+[node name="ListHeader" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn" unique_id=1035652651]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NumberLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListHeader" unique_id=39358978]
+custom_minimum_size = Vector2(22, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 12
+text = "#"
+horizontal_alignment = 1
+
+[node name="SongLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListHeader" unique_id=564695959]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 12
+text = "曲目"
+
+[node name="TypeLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListHeader" unique_id=359042056]
+custom_minimum_size = Vector2(62, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 12
+text = "类型"
+horizontal_alignment = 1
+
+[node name="ActionLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListHeader" unique_id=1991029210]
+custom_minimum_size = Vector2(196, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 12
+text = "操作"
+horizontal_alignment = 1
+
+[node name="DurationLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListHeader" unique_id=1144899159]
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 12
+text = "时长"
+horizontal_alignment = 2
+
+[node name="ListCard" type="PanelContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn" unique_id=570525265]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="ListMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListCard" unique_id=2085332511]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ListScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListCard/ListMargin" unique_id=613900330]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="TrackListContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/LeftColumn/ListCard/ListMargin/ListScroll" unique_id=1535602201]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="RightColumn" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox" unique_id=207422677]
+custom_minimum_size = Vector2(262, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="PlaylistCard" type="PanelContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn" unique_id=1134381886]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="PlaylistMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard" unique_id=1917307346]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="PlaylistVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin" unique_id=1016875589]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="PlaylistHeader" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin/PlaylistVBox" unique_id=746055675]
+layout_mode = 2
+
+[node name="PlaylistTitle" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin/PlaylistVBox/PlaylistHeader" unique_id=761184005]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.18, 0.3, 0.33, 1)
+theme_override_font_sizes/font_size = 15
+text = "桌面音乐播单"
+
+[node name="PlaylistCountLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin/PlaylistVBox/PlaylistHeader" unique_id=1906876006]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.56, 0.58, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="PlaylistScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin/PlaylistVBox" unique_id=1268849915]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlaylistListContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin/PlaylistVBox/PlaylistScroll" unique_id=1306048400]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="AddLocalButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/MainVBox/RightColumn/PlaylistCard/PlaylistMargin/PlaylistVBox" unique_id=411391910]
+visible = false
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.41, 0.43, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+text = "添加本地音乐"
+
+[node name="BottomBar" type="PanelContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox" unique_id=73472121]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
+
+[node name="BottomMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar" unique_id=149111560]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 7
+
+[node name="BottomVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin" unique_id=768895699]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="ControlsRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox" unique_id=1988592298]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="ShuffleButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/ControlsRow" unique_id=1675631553]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_hover_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_pressed_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+icon = ExtResource("3_shuffle_icon")
+flat = true
+expand_icon = true
+
+[node name="PrevButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/ControlsRow" unique_id=1967903319]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_hover_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_pressed_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+icon = ExtResource("4_prev_icon")
+flat = true
+expand_icon = true
+
+[node name="PlayPauseButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/ControlsRow" unique_id=6470037]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonAccent")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonAccent")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonAccent")
+icon = ExtResource("5_pause_icon")
+flat = true
+expand_icon = true
+
+[node name="NextButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/ControlsRow" unique_id=316400832]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_hover_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_pressed_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+icon = ExtResource("6_next_icon")
+flat = true
+expand_icon = true
+
+[node name="VolumeButton" type="Button" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/ControlsRow" unique_id=1018568575]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_hover_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_colors/icon_pressed_color = Color(0.26, 0.48, 0.49, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_IconButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TabOn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TabOn")
+disabled = true
+icon = ExtResource("2_volume_icon")
+flat = true
+expand_icon = true
+
+[node name="TimelineRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox" unique_id=1899190208]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CurrentTimeLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/TimelineRow" unique_id=1721983179]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.56, 0.57, 1)
+theme_override_font_sizes/font_size = 10
+text = "0:00"
+
+[node name="ProgressBar" type="ProgressBar" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/TimelineRow" unique_id=1472087213]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ProgressFill")
+max_value = 1.0
+step = 0.001
+show_percentage = false
+
+[node name="TotalTimeLabel" type="Label" parent="CenterContainer/PanelRoot/RootMargin/RootVBox/BottomBar/BottomMargin/BottomVBox/TimelineRow" unique_id=225469241]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.56, 0.57, 1)
+theme_override_font_sizes/font_size = 10
+text = "0:00"
+horizontal_alignment = 2

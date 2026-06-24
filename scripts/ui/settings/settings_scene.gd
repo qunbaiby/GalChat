@@ -24,7 +24,6 @@ extends Control
 @onready var embed_model_input: LineEdit = %EmbedModelInput
 
 @onready var vision_mode_check: CheckButton = %VisionModeCheck
-@onready var player_nickname_input: LineEdit = %PlayerNicknameInput
 @onready var vision_key_input: LineEdit = %VisionKeyInput
 @onready var vision_model_input: LineEdit = %VisionModelInput
 @onready var vision_base_url_input: LineEdit = %VisionBaseUrlInput
@@ -66,7 +65,6 @@ extends Control
 @onready var ai_tab_button: Button = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AiTabButton
 @onready var display_tab_button: Button = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/DisplayTabButton
 @onready var audio_tab_button: Button = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/AudioTabButton
-@onready var pet_tab_button: Button = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox/PetTabButton
 @onready var save_button: Button = get_node_or_null("SaveButton")
 @onready var clear_history_btn: Button = %ClearHistoryBtn
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
@@ -83,14 +81,12 @@ var _sidebar_buttons: Array[Button] = []
 var _tab_header_titles: Dictionary = {
 	"AI 设置": "设置 / AI",
 	"画面设置": "设置 / 图像",
-	"声音设置": "设置 / 声音",
-	"桌宠设置": "设置 / 桌宠"
+	"声音设置": "设置 / 声音"
 }
 var _tab_descriptions: Dictionary = {
 	"AI 设置": "模型、接口、语音与图像等能力配置",
 	"画面设置": "分辨率、帧率与显示表现",
-	"声音设置": "背景音乐、角色语音与音量表现",
-	"桌宠设置": "桌宠行为、报时、称呼与外观缩放"
+	"声音设置": "背景音乐、角色语音与音量表现"
 }
 
 func _ready() -> void:
@@ -111,22 +107,6 @@ func _ready() -> void:
 	tts_backend_option.item_selected.connect(_on_tts_backend_changed)
 	image_gen_mode_check.toggled.connect(_on_image_gen_toggled)
 	
-	if pet_global_cooldown_slider: pet_global_cooldown_slider.value_changed.connect(_on_pet_slider_changed)
-	if pet_scale_slider: pet_scale_slider.value_changed.connect(_on_pet_slider_changed)
-	if pet_enable_app_observe_check: pet_enable_app_observe_check.toggled.connect(_on_pet_toggle_changed)
-	if pet_enable_hourly_chime_check: pet_enable_hourly_chime_check.toggled.connect(_on_pet_toggle_changed)
-	if pet_enable_afk_greeting_check: pet_enable_afk_greeting_check.toggled.connect(_on_pet_toggle_changed)
-	if pet_disturbance_mode_option: pet_disturbance_mode_option.item_selected.connect(_on_pet_mode_changed)
-	if pet_quiet_ranges_input:
-		pet_quiet_ranges_input.text_submitted.connect(_on_pet_text_setting_submitted)
-		pet_quiet_ranges_input.focus_exited.connect(_on_pet_text_setting_focus_exited)
-	if player_nickname_input:
-		player_nickname_input.text_submitted.connect(_on_pet_text_setting_submitted)
-		player_nickname_input.focus_exited.connect(_on_pet_text_setting_focus_exited)
-	if pet_observe_allow_input: pet_observe_allow_input.focus_exited.connect(_on_pet_text_setting_focus_exited)
-	if pet_never_capture_input: pet_never_capture_input.focus_exited.connect(_on_pet_text_setting_focus_exited)
-	if pet_sensitive_window_input: pet_sensitive_window_input.focus_exited.connect(_on_pet_text_setting_focus_exited)
-	
 	asr_test_button.button_down.connect(_on_asr_test_down)
 	asr_test_button.button_up.connect(_on_asr_test_up)
 	
@@ -137,13 +117,7 @@ func _ready() -> void:
 	model_option.set_item_metadata(1, "deepseek-coder")
 	model_option.add_item("deepseek-reasoner (R1/V4)")
 	model_option.set_item_metadata(2, "deepseek-reasoner")
-	if pet_disturbance_mode_option:
-		pet_disturbance_mode_option.clear()
-		pet_disturbance_mode_option.add_item("摸鱼模式")
-		pet_disturbance_mode_option.add_item("专注模式")
-		pet_disturbance_mode_option.add_item("安静模式")
-		pet_disturbance_mode_option.add_item("深夜模式")
-	_sidebar_buttons = [ai_tab_button, display_tab_button, audio_tab_button, pet_tab_button]
+	_sidebar_buttons = [ai_tab_button, display_tab_button, audio_tab_button]
 	for i in _sidebar_buttons.size():
 		var button: Button = _sidebar_buttons[i]
 		if is_instance_valid(button):
@@ -288,27 +262,6 @@ func _load_ui_data() -> void:
 	embed_model_input.text = config.doubao_embedding_model
 
 	vision_mode_check.button_pressed = config.vision_enabled
-	
-	if pet_enable_app_observe_check:
-		pet_enable_app_observe_check.button_pressed = config.pet_enable_app_observe
-	if pet_enable_hourly_chime_check:
-		pet_enable_hourly_chime_check.button_pressed = config.pet_enable_hourly_chime
-	if pet_enable_afk_greeting_check:
-		pet_enable_afk_greeting_check.button_pressed = config.pet_enable_afk_greeting
-	if pet_disturbance_mode_option:
-		var selected_idx := ["摸鱼模式", "专注模式", "安静模式", "深夜模式"].find(str(config.pet_disturbance_mode))
-		pet_disturbance_mode_option.select(selected_idx if selected_idx >= 0 else 0)
-	if pet_quiet_ranges_input:
-		pet_quiet_ranges_input.text = config.pet_quiet_time_ranges
-	if pet_observe_allow_input:
-		pet_observe_allow_input.text = config.pet_observe_allow_list
-	if pet_never_capture_input:
-		pet_never_capture_input.text = config.pet_never_capture_list
-	if pet_sensitive_window_input:
-		pet_sensitive_window_input.text = config.pet_sensitive_window_list
-	
-	if player_nickname_input:
-		player_nickname_input.text = config.player_nickname
 	vision_key_input.text = config.vision_api_key
 	vision_model_input.text = config.vision_model
 	vision_base_url_input.text = config.vision_base_url
@@ -320,11 +273,6 @@ func _load_ui_data() -> void:
 	doubao_image_key_input.text = config.doubao_image_api_key
 	doubao_image_model_input.text = config.doubao_image_model
 	enable_ai_illustration_check.button_pressed = config.enable_ai_diary_illustration
-	
-	if pet_global_cooldown_slider: pet_global_cooldown_slider.value = config.pet_global_cooldown
-	if pet_scale_slider: pet_scale_slider.value = config.pet_scale_multiplier
-	
-	_update_pet_labels()
 	
 	_update_model_ui()
 	_update_image_gen_ui()
@@ -430,8 +378,6 @@ func _save_ui_data() -> void:
 	config.doubao_embedding_model = embed_model_input.text
 	
 	config.vision_enabled = vision_mode_check.button_pressed
-	if player_nickname_input:
-		config.player_nickname = player_nickname_input.text
 	config.vision_api_key = vision_key_input.text
 	config.vision_model = vision_model_input.text
 	config.vision_base_url = vision_base_url_input.text
@@ -443,17 +389,6 @@ func _save_ui_data() -> void:
 	config.doubao_image_api_key = doubao_image_key_input.text
 	config.doubao_image_model = doubao_image_model_input.text
 	config.enable_ai_diary_illustration = enable_ai_illustration_check.button_pressed
-	
-	if pet_global_cooldown_slider: config.pet_global_cooldown = int(pet_global_cooldown_slider.value)
-	if pet_scale_slider: config.pet_scale_multiplier = float(pet_scale_slider.value)
-	if pet_enable_app_observe_check: config.pet_enable_app_observe = pet_enable_app_observe_check.button_pressed
-	if pet_enable_hourly_chime_check: config.pet_enable_hourly_chime = pet_enable_hourly_chime_check.button_pressed
-	if pet_enable_afk_greeting_check: config.pet_enable_afk_greeting = pet_enable_afk_greeting_check.button_pressed
-	if pet_disturbance_mode_option: config.pet_disturbance_mode = pet_disturbance_mode_option.get_item_text(pet_disturbance_mode_option.selected)
-	if pet_quiet_ranges_input: config.pet_quiet_time_ranges = pet_quiet_ranges_input.text.strip_edges()
-	if pet_observe_allow_input: config.pet_observe_allow_list = pet_observe_allow_input.text.strip_edges()
-	if pet_never_capture_input: config.pet_never_capture_list = pet_never_capture_input.text.strip_edges()
-	if pet_sensitive_window_input: config.pet_sensitive_window_list = pet_sensitive_window_input.text.strip_edges()
 	
 	config.resolution_idx = resolution_option.selected
 	config.fps_idx = fps_option.selected
@@ -695,78 +630,3 @@ func _on_asr_test_failed(err: String) -> void:
 	asr_test_button.disabled = false
 	asr_test_output.text = ""
 	asr_test_output.placeholder_text = "识别失败: " + err
-
-func _on_pet_slider_changed(_value: float) -> void:
-	if _is_loading_ui:
-		return
-	_update_pet_labels()
-	_save_pet_settings_immediately()
-
-func _on_pet_toggle_changed(_toggled: bool) -> void:
-	if _is_loading_ui:
-		return
-	_save_pet_settings_immediately()
-
-func _on_pet_mode_changed(_index: int) -> void:
-	if _is_loading_ui:
-		return
-	_save_pet_settings_immediately()
-
-func _on_pet_text_setting_submitted(_text: String) -> void:
-	if _is_loading_ui:
-		return
-	_save_pet_settings_immediately()
-
-func _on_pet_text_setting_focus_exited() -> void:
-	if _is_loading_ui:
-		return
-	_save_pet_settings_immediately()
-
-func _save_pet_settings_immediately() -> void:
-	var config = GameDataManager.config
-	if player_nickname_input:
-		config.player_nickname = player_nickname_input.text.strip_edges()
-	if pet_global_cooldown_slider:
-		config.pet_global_cooldown = int(pet_global_cooldown_slider.value)
-	if pet_scale_slider:
-		config.pet_scale_multiplier = float(pet_scale_slider.value)
-	if pet_enable_app_observe_check:
-		config.pet_enable_app_observe = pet_enable_app_observe_check.button_pressed
-	if pet_enable_hourly_chime_check:
-		config.pet_enable_hourly_chime = pet_enable_hourly_chime_check.button_pressed
-	if pet_enable_afk_greeting_check:
-		config.pet_enable_afk_greeting = pet_enable_afk_greeting_check.button_pressed
-	if pet_disturbance_mode_option:
-		config.pet_disturbance_mode = pet_disturbance_mode_option.get_item_text(pet_disturbance_mode_option.selected)
-	if pet_quiet_ranges_input:
-		config.pet_quiet_time_ranges = pet_quiet_ranges_input.text.strip_edges()
-	if pet_observe_allow_input:
-		config.pet_observe_allow_list = pet_observe_allow_input.text.strip_edges()
-	if pet_never_capture_input:
-		config.pet_never_capture_list = pet_never_capture_input.text.strip_edges()
-	if pet_sensitive_window_input:
-		config.pet_sensitive_window_list = pet_sensitive_window_input.text.strip_edges()
-	config.save_config()
-	config.apply_settings()
-	_notify_pet_runtime_config_changed()
-
-func _notify_pet_runtime_config_changed() -> void:
-	var root = get_tree().root
-	for child in root.get_children():
-		if child.name == "DesktopPet":
-			if child.has_method("refresh_runtime_settings"):
-				child.refresh_runtime_settings()
-			var body = child.get_node_or_null("Control/PetBody")
-			if body and body.has_method("_update_sprite_scale"):
-				body._update_sprite_scale()
-
-func _update_pet_labels() -> void:
-	# 不修改原本的节点结构，避免影响 Label 的直接显示，我们可以通过父节点的标签或者直接修改 Label 文本（但这会覆盖原本的说明文字）
-	# 为了避免破坏 UI，如果你的 Label 是直接用来做标题的，我们可以在旁边或者下面加显示数值。
-	# 根据你提供的场景树结构：Label 是和 Slider 并列在 Grid 里的。
-	# 最稳妥的方式是将当前值拼接到 Label 的末尾。
-	
-	if pet_global_cooldown_slider and pet_global_cooldown_label:
-		pet_global_cooldown_label.text = "全局最小冷却 (%d 秒)" % int(pet_global_cooldown_slider.value)
-	if pet_scale_slider and pet_scale_label:
-		pet_scale_label.text = "桌宠立绘缩放倍率 (%.2fx)" % pet_scale_slider.value

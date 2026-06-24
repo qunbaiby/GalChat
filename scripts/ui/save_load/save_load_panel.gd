@@ -3,11 +3,10 @@ extends Control
 @onready var background_panel: Panel = $Background
 @onready var panel_root: PanelContainer = $CenterContainer/PanelRoot
 @onready var title_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/TopBar/TitleLabel
-@onready var mode_hint_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/TopBar/ModeHintLabel
 @onready var close_btn: Button = $CenterContainer/PanelRoot/MainMargin/RootVBox/TopBar/BackButton
 @onready var slot_count_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ListHeader/CountLabel
 @onready var list_title_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ListHeader/ListTitle
-@onready var list_hint_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ListHint
+@onready var mode_hint_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ModeHintLabel
 @onready var list_container: VBoxContainer = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox/ScrollContainer/ListContainer
 @onready var section_desc_label: Label = $CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/SectionDesc
 
@@ -28,7 +27,6 @@ func show_panel(_unused_mode: bool = false) -> void:
 	mode_hint_label.text = "每个档案都是独立世界线，自动存档会持续写入当前档案。"
 	section_desc_label.text = "点击已有档案继续陪伴，点击空槽位新建档案。"
 	list_title_label.text = "档案列表"
-	list_hint_label.text = "第一行显示相处天数，第二行显示玩家与 Luna 当前阶段，第三行显示最后游玩时间。"
 	_update_popup_layout()
 	refresh_list()
 	show()
@@ -111,7 +109,7 @@ func _on_delete_requested(slot_id: String) -> void:
 		"清除记忆",
 		"确认要清除这段记忆么？",
 		"清除之后将无法再找回！！",
-		"请输入指定文字后才能继续。",
+		"请输入“确认清除”后才能继续。",
 		"清除记忆",
 		"取消",
         "确认清除"

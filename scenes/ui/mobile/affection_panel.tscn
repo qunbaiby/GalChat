@@ -1,15 +1,16 @@
 [gd_scene format=3 uid="uid://djhqebpnxveca"]
 
+[ext_resource type="Material" uid="uid://dutxb7qbmb3kn" path="res://assets/shader/Cyan-green gradient.tres" id="1_dn0wj"]
 [ext_resource type="Script" uid="uid://dnhqa6gfphbe2" path="res://scripts/ui/mobile/affection_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="2_love_icon"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qs251"]
-bg_color = Color(0.84829044, 0.8787868, 0.8958585, 0.88235295)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.7764706, 0.6862745, 0.5921569, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_58ixy"]
+bg_color = Color(1, 1, 1, 0.88235295)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.54901963, 0.65882355, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -59,8 +60,6 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0.18, 0.52, 0.5, 0.08)
-shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Row"]
 content_margin_left = 10.0
@@ -85,47 +84,32 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_er0f6"]
-bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_evxs5"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dn0wj"]
-bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fpdsl"]
-bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_726kg"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [node name="AffectionPanel" type="Panel" unique_id=505656574]
+material = ExtResource("1_dn0wj")
 custom_minimum_size = Vector2(800, 460)
 offset_right = 800.0
 offset_bottom = 462.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_qs251")
+theme_override_styles/panel = SubResource("StyleBoxFlat_58ixy")
 script = ExtResource("1_script")
 
 [node name="RootMargin" type="MarginContainer" parent="." unique_id=1697737166]
@@ -156,7 +140,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="RootMargin/RootVBox/TopBar" unique_id=363868913]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 0.5254902, 0.6392157, 1)
 theme_override_font_sizes/font_size = 22
 text = "情感状态"
 horizontal_alignment = 1
@@ -471,18 +455,20 @@ text = "突破条件提示"
 autowrap_mode = 3
 
 [node name="BackBtn" type="Button" parent="." unique_id=1579978150]
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -53.0
-offset_top = 7.0
-offset_right = -18.0
-offset_bottom = 42.0
+offset_left = -42.0
+offset_top = 9.0
+offset_right = -12.0
+offset_bottom = 39.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_er0f6")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_dn0wj")
-theme_override_styles/hover = SubResource("StyleBoxFlat_fpdsl")
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_evxs5")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_726kg")
+theme_override_styles/hover = SubResource("StyleBoxFlat_726kg")
 text = "X"

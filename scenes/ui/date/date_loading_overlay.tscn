@@ -43,7 +43,7 @@ corner_radius_bottom_right = 20
 corner_radius_bottom_left = 60
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SummaryPanel"]
-bg_color = Color(0.7372549, 0.8862745, 0.85490197, 1)
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -151,7 +151,7 @@ offset_bottom = 58.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.57, 0.82, 0.76, 0.5)
+color = Color(0.58431375, 0.9019608, 0.91764706, 0.5254902)
 
 [node name="VisualCaption" type="Label" parent="CenterPanel/Margin/HBox/VisualPanel/VisualContent" unique_id=1661708348]
 layout_mode = 1
@@ -195,9 +195,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -50.0
-offset_top = -74.0
+offset_top = -50.0
 offset_right = 50.0
-offset_bottom = 26.0
+offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -225,7 +225,7 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="CenterPanel/Margin/HBox/ContentVBox" unique_id=1407385524]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.18, 0.22, 0.26, 1)
+theme_override_colors/font_color = Color(0.13725491, 0.70980394, 0.68235296, 1)
 theme_override_font_sizes/font_size = 30
 text = "约会准备中"
 autowrap_mode = 3

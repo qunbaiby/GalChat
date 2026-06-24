@@ -11,6 +11,8 @@ const MAIN_SCENE_IDLE_CHAT_MIN_SECONDS := 55.0
 const MAIN_SCENE_IDLE_CHAT_MAX_SECONDS := 95.0
 const MAIN_SCENE_IDLE_CHAT_RETRY_SECONDS := 12.0
 const MAIN_SCENE_BGM_FADE_FLOOR_DB := -40.0
+const DRAWING_BOARD_SCENE_PATH := "res://scenes/ui/main/drawing_board_panel.tscn"
+const CREATION_MUSIC_SCENE_PATH := "res://scenes/ui/main/creation_music_panel.tscn"
 
 @onready var ui_panel: Panel = $UIPanel
 @onready var rest_button: Button = $UIPanel/BottomBarHBox/ActionHBox/RestButton
@@ -39,7 +41,7 @@ const MAIN_SCENE_BGM_FADE_FLOOR_DB := -40.0
 @onready var bg_switch_button: Button = $BgSwitchButton
 @onready var bg_transition_fade: ColorRect = $BgTransitionFade
 
-@onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
+@onready var creation_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
 @onready var wechat_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton
 @onready var wechat_unread_badge: Label = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton/UnreadBadge
 @onready var main_action_button: Button = $UIPanel/BottomBarHBox/ActionHBox/MainActionButton
@@ -51,6 +53,7 @@ var _photo_manager = PhotoMemoryManagerScript.new()
 @onready var bgm: AudioStreamPlayer = $BGM
 @onready var music_player: Control = $UIPanel/BottomBarHBox/MusicPlayer
 @onready var diary_panel: Control = $UIPanel/DiaryPanel
+@onready var creation_panel: Control = $UIPanel/CreationPanel
 @onready var diary_notification: PanelContainer = $UIPanel/DiaryNotification
 @onready var wardrobe_panel: Control = $WardrobePanel
 @onready var dialogue_panel: Control = $DialoguePanel
@@ -71,9 +74,6 @@ var _photo_manager = PhotoMemoryManagerScript.new()
 @onready var chat_button: Button = $UIPanel/InteractGroup/ChatButton
 @onready var gift_button: Button = $UIPanel/InteractGroup/GiftButton
 @onready var date_button: Button = $UIPanel/InteractGroup/DateButton
-@onready var interactive_button: Button = $UIPanel/InteractGroup/InteractiveButton
-@onready var interactive_sub_menu: Control = $UIPanel/InteractiveSubMenu
-@onready var co_create_button: Button = $UIPanel/InteractiveSubMenu/Margin/VBox/CoCreateButton
 
 var activity_panel_instance = null
 var drawing_board_instance = null
@@ -115,6 +115,7 @@ var _goal_panel_pending_reveal: bool = false
 var _main_scene_bgm_pause_reasons: Dictionary = {}
 var _main_scene_bgm_base_volume_db: float = 0.0
 var _main_scene_bgm_fade_tween: Tween = null
+var _creation_music_preview_active: bool = false
 var _affection_button_tween: Tween = null
 var _affection_button_pending_reveal: bool = false
 var _mood_hover_tween: Tween = null
@@ -125,6 +126,7 @@ var _main_scene_idle_chat_elapsed: float = 0.0
 var _main_scene_idle_chat_interval: float = MAIN_SCENE_IDLE_CHAT_MIN_SECONDS
 
 var map_scene_instance = null
+var creation_music_panel_instance = null
 
 const TOPIC_LIST = [
 	"最近在忙些什么呢？",
@@ -1216,31 +1218,32 @@ func _execute_rest_transition(dialog: Node) -> void:
 		_sync_main_scene_bgm_state()
 	print("[MainScene] 休息按钮被点击，预留接口")
 
-func _on_interactive_pressed() -> void:
-	if _is_ui_blocked(): return
-	_animate_button(interactive_button)
-	interactive_sub_menu.visible = not interactive_sub_menu.visible
-
-func _on_co_create_pressed() -> void:
-	if _is_ui_blocked(): return
-	_animate_button(co_create_button)
-	interactive_sub_menu.visible = false
+func _open_drawing_board() -> void:
 	if drawing_board_instance == null:
-		var DrawingBoardObj = load("res://scenes/ui/activity/drawing_board_panel.tscn")
+		var DrawingBoardObj: PackedScene = load(DRAWING_BOARD_SCENE_PATH)
 		drawing_board_instance = DrawingBoardObj.instantiate()
-		ui_panel.add_child(drawing_board_instance)
-		drawing_board_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var drawing_board_control: Control = drawing_board_instance as Control
+		if is_instance_valid(creation_panel):
+			creation_panel.add_child(drawing_board_control)
+		else:
+			ui_panel.add_child(drawing_board_control)
+		drawing_board_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		if drawing_board_instance.has_signal("creation_completed"):
 			drawing_board_instance.creation_completed.connect(_on_drawing_creation_completed)
 		if drawing_board_instance.has_signal("creation_failed"):
 			drawing_board_instance.creation_failed.connect(_on_drawing_creation_failed)
-		if drawing_board_instance.has_signal("close_requested"):
-			drawing_board_instance.close_requested.connect(func(): drawing_board_instance.hide())
-	drawing_board_instance.show()
+	_attach_creation_overlay(drawing_board_instance)
+	if drawing_board_instance.has_method("show_panel"):
+		drawing_board_instance.show_panel()
+	else:
+		drawing_board_instance.show()
 
 func _on_drawing_creation_completed(image_path: String, prompt: String) -> void:
 	if drawing_board_instance:
-		drawing_board_instance.hide()
+		if drawing_board_instance.has_method("hide_panel"):
+			drawing_board_instance.hide_panel()
+		else:
+			drawing_board_instance.hide()
 
 	if image_path.strip_edges() != "":
 		var photo_manager = PhotoMemoryManagerScript.new()
@@ -1265,6 +1268,88 @@ func _on_drawing_creation_completed(image_path: String, prompt: String) -> void:
 
 func _on_drawing_creation_failed(error_msg: String) -> void:
 	ToastManager.show_system_toast(error_msg, Color.RED)
+
+func _attach_creation_overlay(overlay: Control) -> void:
+	if not is_instance_valid(overlay) or not is_instance_valid(creation_panel):
+		return
+	if creation_panel.has_method("attach_overlay"):
+		creation_panel.call("attach_overlay", overlay)
+		return
+	if overlay.get_parent() != creation_panel:
+		overlay.reparent(creation_panel, false)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	creation_panel.move_child(overlay, creation_panel.get_child_count() - 1)
+
+func _open_creation_music_panel() -> void:
+	if is_instance_valid(diary_panel) and diary_panel.visible:
+		if diary_panel.has_method("hide_diary"):
+			diary_panel.hide_diary()
+		else:
+			diary_panel.hide()
+	if is_instance_valid(drawing_board_instance) and drawing_board_instance.visible:
+		if drawing_board_instance.has_method("hide_panel"):
+			drawing_board_instance.hide_panel()
+		else:
+			drawing_board_instance.hide()
+	if creation_music_panel_instance == null:
+		var music_panel_scene: PackedScene = load(CREATION_MUSIC_SCENE_PATH)
+		creation_music_panel_instance = music_panel_scene.instantiate()
+		var music_panel_control: Control = creation_music_panel_instance as Control
+		if is_instance_valid(creation_panel):
+			creation_panel.add_child(music_panel_control)
+		else:
+			ui_panel.add_child(music_panel_control)
+		music_panel_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		if creation_music_panel_instance.has_signal("close_requested"):
+			creation_music_panel_instance.close_requested.connect(func() -> void:
+				if creation_music_panel_instance.has_method("hide_panel"):
+					creation_music_panel_instance.hide_panel()
+				else:
+					creation_music_panel_instance.hide()
+			)
+		if creation_music_panel_instance.has_signal("preview_started"):
+			creation_music_panel_instance.preview_started.connect(_on_creation_music_preview_started)
+		if creation_music_panel_instance.has_signal("preview_stopped"):
+			creation_music_panel_instance.preview_stopped.connect(_on_creation_music_preview_stopped)
+		if creation_music_panel_instance.has_signal("playlist_updated"):
+			creation_music_panel_instance.playlist_updated.connect(_on_creation_music_playlist_updated)
+	_attach_creation_overlay(creation_music_panel_instance)
+	if creation_music_panel_instance.has_method("show_panel"):
+		creation_music_panel_instance.show_panel()
+	else:
+		creation_music_panel_instance.show()
+
+func _on_creation_music_preview_started() -> void:
+	_creation_music_preview_active = true
+	if not is_instance_valid(bgm):
+		return
+	if bgm.playing and not bgm.stream_paused:
+		var fade_tween: Tween = _tween_main_scene_bgm_volume(MAIN_SCENE_BGM_FADE_FLOOR_DB, 0.22)
+		if fade_tween != null:
+			fade_tween.finished.connect(func() -> void:
+				if _creation_music_preview_active:
+					_pause_main_scene_bgm("creation_music_preview")
+			, CONNECT_ONE_SHOT)
+	else:
+		_pause_main_scene_bgm("creation_music_preview")
+
+func _on_creation_music_preview_stopped() -> void:
+	_creation_music_preview_active = false
+	_resume_main_scene_bgm("creation_music_preview")
+	if _can_resume_main_scene_bgm() and is_instance_valid(bgm) and bgm.stream:
+		bgm.stream_paused = false
+		if not bgm.playing:
+			bgm.play()
+		bgm.volume_db = MAIN_SCENE_BGM_FADE_FLOOR_DB
+		_tween_main_scene_bgm_volume(_main_scene_bgm_base_volume_db, 0.28)
+	else:
+		_sync_main_scene_bgm_state()
+
+func _on_creation_music_playlist_updated() -> void:
+	if is_instance_valid(music_player) and music_player.has_method("reload_library"):
+		music_player.reload_library()
+	if is_instance_valid(desktop_pet_instance) and desktop_pet_instance.has_method("_refresh_music_panel_state"):
+		desktop_pet_instance.call("_refresh_music_panel_state")
 
 func _show_generated_image_and_dialogue(image_path: String) -> void:
 	if is_instance_valid(_generated_image_panel):
@@ -2255,7 +2340,7 @@ func _ready() -> void:
 	rest_button.pressed.connect(_on_rest_pressed)
 	main_action_button.pressed.connect(_on_main_action_pressed)
 	skill_button.pressed.connect(_on_skill_placeholder_pressed)
-	diary_button.pressed.connect(_on_diary_pressed)
+	creation_button.pressed.connect(_on_creation_pressed)
 	if wechat_button:
 		wechat_button.pressed.connect(_on_wechat_pressed)
 	if wechat_unread_badge:
@@ -2300,8 +2385,17 @@ func _ready() -> void:
 	chat_button.pressed.connect(_on_main_chat_pressed)
 	gift_button.pressed.connect(_on_gift_pressed)
 	date_button.pressed.connect(_on_date_pressed)
-	interactive_button.pressed.connect(_on_interactive_pressed)
-	co_create_button.pressed.connect(_on_co_create_pressed)
+	if is_instance_valid(creation_panel):
+		if creation_panel.has_signal("drawing_requested"):
+			creation_panel.drawing_requested.connect(_on_creation_drawing_requested)
+		if creation_panel.has_signal("diary_requested"):
+			creation_panel.diary_requested.connect(_on_creation_diary_requested)
+		if creation_panel.has_signal("music_requested"):
+			creation_panel.music_requested.connect(_on_creation_music_requested)
+		if creation_panel.has_signal("close_requested"):
+			creation_panel.close_requested.connect(_on_creation_closed)
+	if is_instance_valid(diary_panel):
+		_attach_creation_overlay(diary_panel)
 	if end_chat_btn:
 		end_chat_btn.pressed.connect(_on_end_chat_pressed)
 	if history_btn:
@@ -2473,6 +2567,10 @@ func _can_trigger_idle_chatter() -> bool:
 	if is_instance_valid(wardrobe_panel) and wardrobe_panel.visible:
 		return false
 	if is_instance_valid(diary_panel) and diary_panel.visible:
+		return false
+	if is_instance_valid(creation_panel) and creation_panel.visible:
+		return false
+	if is_instance_valid(drawing_board_instance) and drawing_board_instance.visible:
 		return false
 	if is_instance_valid(affection_popup_frame) and affection_popup_frame.visible:
 		return false
@@ -3694,11 +3792,54 @@ func _on_affection_pressed() -> void:
 	_show_affection_popup()
 	_report_guide_action("open_affection")
 
-func _on_diary_pressed() -> void:
+func _on_creation_pressed() -> void:
 	if _is_ui_blocked(): return
-	_animate_button(diary_button)
-	diary_panel.show_diary()
+	_animate_button(creation_button)
+	_show_creation_panel()
+
+func _show_creation_panel() -> void:
+	if is_instance_valid(creation_panel):
+		if creation_panel.has_method("show_panel"):
+			creation_panel.show_panel()
+		else:
+			creation_panel.show()
+
+func _hide_creation_panel() -> void:
+	if is_instance_valid(diary_panel) and diary_panel.visible:
+		if diary_panel.has_method("hide_diary"):
+			diary_panel.hide_diary()
+		else:
+			diary_panel.hide()
+	if is_instance_valid(drawing_board_instance) and drawing_board_instance.visible:
+		if drawing_board_instance.has_method("hide_panel"):
+			drawing_board_instance.hide_panel()
+		else:
+			drawing_board_instance.hide()
+	if is_instance_valid(creation_music_panel_instance) and creation_music_panel_instance.visible:
+		if creation_music_panel_instance.has_method("hide_panel"):
+			creation_music_panel_instance.hide_panel()
+		else:
+			creation_music_panel_instance.hide()
+	if is_instance_valid(creation_panel):
+		if creation_panel.has_method("hide_panel"):
+			creation_panel.hide_panel()
+		else:
+			creation_panel.hide()
+
+func _on_creation_drawing_requested() -> void:
+	_open_drawing_board()
+
+func _on_creation_diary_requested() -> void:
+	if is_instance_valid(diary_panel):
+		_attach_creation_overlay(diary_panel)
+		diary_panel.show_diary()
 	_report_guide_action("open_diary")
+
+func _on_creation_music_requested() -> void:
+	_open_creation_music_panel()
+
+func _on_creation_closed() -> void:
+	pass
 
 func _on_wardrobe_pressed() -> void:
 	if _is_ui_blocked(): return
