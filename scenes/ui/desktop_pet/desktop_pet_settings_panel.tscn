@@ -1,98 +1,14 @@
 [gd_scene format=3 uid="uid://d3hhf7kh00nws"]
 
+[ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="1_4c27p"]
 [ext_resource type="Script" uid="uid://bk2e3otk0p615" path="res://scripts/ui/desktop_pet/desktop_pet_settings_panel.gd" id="1_script"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
-content_margin_left = 10.0
-content_margin_top = 8.0
-content_margin_right = 10.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Input"]
-content_margin_left = 10.0
-content_margin_top = 8.0
-content_margin_right = 10.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.87, 0.92, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="Theme" id="Theme_Inline"]
-Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-Button/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
-Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
-CheckButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-CheckButton/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
-CheckButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-CheckButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
-Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-LineEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-LineEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
-LineEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
-LineEdit/styles/normal = SubResource("StyleBoxFlat_Input")
-OptionButton/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-OptionButton/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
-OptionButton/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-OptionButton/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
-OptionButton/styles/hover = SubResource("StyleBoxFlat_Input")
-OptionButton/styles/normal = SubResource("StyleBoxFlat_Input")
-OptionButton/styles/pressed = SubResource("StyleBoxFlat_Input")
-PopupMenu/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-PopupMenu/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-PopupMenu/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
-TextEdit/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-TextEdit/colors/placeholder_color = Color(0.42, 0.46, 0.53, 0.82)
-TextEdit/styles/focus = SubResource("StyleBoxFlat_InputFocus")
-TextEdit/styles/normal = SubResource("StyleBoxFlat_Input")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
 bg_color = Color(0.955, 0.968, 0.985, 0.98)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Button"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.86, 0.89, 0.94, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 0.94)
@@ -107,21 +23,60 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 shadow_color = Color(0.3, 0.37, 0.48, 0.12)
 
-[node name="DesktopPetSettingsPanel" type="PanelContainer" unique_id=1076963704]
-custom_minimum_size = Vector2(280, 553)
-anchors_preset = -1
-anchor_right = 0.22000001
-anchor_bottom = 0.768
-offset_right = 0.3999939
-offset_bottom = 0.039978027
-grow_horizontal = 2
-grow_vertical = 2
-theme = SubResource("Theme_Inline")
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4c27p"]
+load_path = "res://.godot/imported/closebg.png-b4ede7627493c00f7ec44ff9f899f280.ctex"
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4c27p"]
+texture = SubResource("CompressedTexture2D_4c27p")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_teq0w"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4c27p"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wijqw"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xpwt5"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[node name="DesktopPetSettingsPanel" type="Panel" unique_id=445620019]
+custom_minimum_size = Vector2(960, 540)
+offset_right = 800.0
+offset_bottom = 460.0
+theme = ExtResource("1_4c27p")
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 script = ExtResource("1_script")
 
 [node name="Margin" type="MarginContainer" parent="." unique_id=558678191]
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
@@ -131,45 +86,22 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TopBar" type="HBoxContainer" parent="Margin/VBox" unique_id=1702499505]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="BackButton" type="Button" parent="Margin/VBox/TopBar" unique_id=273148328]
-custom_minimum_size = Vector2(34, 34)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_Button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Button")
-text = "<"
-
-[node name="TitleVBox" type="VBoxContainer" parent="Margin/VBox/TopBar" unique_id=506569148]
+[node name="TitleVBox" type="VBoxContainer" parent="Margin/VBox" unique_id=506569148]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="Title" type="Label" parent="Margin/VBox/TopBar/TitleVBox" unique_id=1044730605]
+[node name="Title" type="Label" parent="Margin/VBox/TitleVBox" unique_id=1044730605]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.17, 0.2, 0.25, 1)
 theme_override_font_sizes/font_size = 16
 text = "桌宠设置"
 
-[node name="SubTitle" type="Label" parent="Margin/VBox/TopBar/TitleVBox" unique_id=332151522]
+[node name="SubTitle" type="Label" parent="Margin/VBox/TitleVBox" unique_id=332151522]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.47, 0.52, 0.59, 1)
 theme_override_font_sizes/font_size = 10
 text = "桌宠专用设置面板，修改后立即同步生效"
-
-[node name="SaveButton" type="Button" parent="Margin/VBox/TopBar" unique_id=1079517133]
-custom_minimum_size = Vector2(62, 34)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.17, 0.2, 0.25, 1)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
-text = "保存"
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/VBox" unique_id=143434002]
 layout_mode = 2
@@ -200,7 +132,7 @@ theme_override_constants/separation = 8
 [node name="SectionTitle" type="Label" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox" unique_id=707718604]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "桌宠设置"
+text = "基础设置"
 
 [node name="PlayerNicknameRow" type="VBoxContainer" parent="Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox" unique_id=1615665653]
 layout_mode = 2
@@ -389,3 +321,36 @@ theme_override_colors/font_color = Color(0.37, 0.39, 0.4, 0.78)
 theme_override_font_sizes/font_size = 11
 text = "模式建议：安静模式几乎不主动打扰，专注模式保留轻量陪伴，摸鱼模式保持当前活泼反应，深夜模式默认更克制。"
 autowrap_mode = 3
+
+[node name="ToolNavButtonbg" type="Panel" parent="." unique_id=1453239185]
+clip_children = 1
+layout_mode = 0
+offset_left = 902.0
+offset_right = 945.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_4c27p")
+
+[node name="ToolNavButtonbg" type="Panel" parent="ToolNavButtonbg" unique_id=1063490449]
+layout_mode = 0
+offset_right = 46.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_teq0w")
+
+[node name="BackButton" type="Button" parent="." unique_id=488847637]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -51.0
+offset_top = 9.0
+offset_right = -21.0
+offset_bottom = 39.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_4c27p")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_wijqw")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xpwt5")
+text = "X"

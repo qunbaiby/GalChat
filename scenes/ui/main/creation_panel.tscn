@@ -1,10 +1,11 @@
 [gd_scene format=3 uid="uid://ceul0k2i64jdf"]
 
 [ext_resource type="Script" uid="uid://bdfm1uxfq6wm4" path="res://scripts/ui/main/creation_panel.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://ch5hkgrxfpnme" path="res://assets/images/story/cg/story_cg_luna_drawing_side.png" id="2_luna"]
+[ext_resource type="Texture2D" uid="uid://dxtsg4qyfukjg" path="res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png" id="2_s5euo"]
 [ext_resource type="Texture2D" uid="uid://cixfrbv5lapgk" path="res://assets/images/icons/ui/main/skill-alt.png" id="3_draw"]
 [ext_resource type="Texture2D" uid="uid://cfxiyuf71yewt" path="res://assets/images/icons/ui/mobile/home/memory_notes.svg" id="4_diary"]
 [ext_resource type="Texture2D" uid="uid://bgm6vn1eos1u3" path="res://assets/images/icons/ui/story/voice_record.svg" id="5_music"]
+[ext_resource type="Texture2D" uid="uid://by126rkkfl5r2" path="res://assets/images/ui/common/closebg.png" id="6_s5euo"]
 
 [sub_resource type="Shader" id="Shader_Blur"]
 code = "shader_type canvas_item;
@@ -26,31 +27,32 @@ shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Backdrop"]
 bg_color = Color(1, 1, 1, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Shell"]
-bg_color = Color(0.98039216, 0.98039216, 0.96862745, 0.985)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_joedt"]
+bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.78)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.88, 0.9, 0.86, 0.9)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
-shadow_color = Color(0.05, 0.08, 0.1, 0.22)
-shadow_size = 26
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0.18, 0.28, 0.33, 0.16)
+shadow_size = 22
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftStage"]
-bg_color = Color(0.9607843, 0.9490196, 0.8980392, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.88, 0.84, 0.7, 0.95)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s5euo"]
+bg_color = Color(1, 1, 1, 0.88235295)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ljkkk"]
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftBadge"]
 bg_color = Color(0.05, 0.05, 0.07, 0.9)
@@ -59,17 +61,12 @@ corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightStage"]
-bg_color = Color(0.86, 0.91, 0.93, 0.62)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.84, 0.88, 0.9, 0.82)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_58ixy"]
+bg_color = Color(1, 1, 1, 0.88235295)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_GridCard"]
 bg_color = Color(1, 1, 1, 0.96)
@@ -128,6 +125,15 @@ bg_color = Color(0.7137255, 0.8352941, 0.5019608, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xgae1"]
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xgae1"]
+texture = ExtResource("6_s5euo")
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
 bg_color = Color(1, 1, 1, 0.96)
 border_width_left = 1
@@ -184,7 +190,7 @@ mouse_filter = 2
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer" unique_id=1010944419]
 custom_minimum_size = Vector2(960, 560)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Shell")
+theme_override_styles/panel = SubResource("StyleBoxFlat_joedt")
 
 [node name="PanelCanvas" type="Control" parent="CenterContainer/PanelRoot" unique_id=914149944]
 custom_minimum_size = Vector2(960, 560)
@@ -211,24 +217,23 @@ theme_override_constants/separation = 14
 custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_LeftStage")
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5euo")
 
-[node name="LeftCanvas" type="Control" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/LeftCard" unique_id=738251013]
+[node name="LeftCanvas" type="Panel" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/LeftCard" unique_id=260280306]
+clip_children = 1
 custom_minimum_size = Vector2(228, 0)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ljkkk")
 
 [node name="Portrait" type="TextureRect" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/LeftCard/LeftCanvas" unique_id=1909520635]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 6.0
-offset_top = 6.0
-offset_right = -6.0
-offset_bottom = -6.0
+offset_left = -266.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_luna")
+texture = ExtResource("2_s5euo")
 expand_mode = 1
 stretch_mode = 6
 
@@ -239,10 +244,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -56.0
-offset_top = -76.0
-offset_right = 56.0
-offset_bottom = -42.0
+offset_left = -81.0
+offset_top = -81.0
+offset_right = 81.0
+offset_bottom = -47.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_LeftBadge")
@@ -268,7 +273,7 @@ offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 0.96)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 16
 text = "和 Luna 一起开始创作"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -277,7 +282,7 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_RightStage")
+theme_override_styles/panel = SubResource("StyleBoxFlat_58ixy")
 
 [node name="RightMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage" unique_id=2083266983]
 layout_mode = 2
@@ -319,10 +324,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
-columns = 3
+columns = 4
 
 [node name="DrawingButton" type="Button" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer" unique_id=979037455]
-custom_minimum_size = Vector2(150, 180)
+custom_minimum_size = Vector2(120, 150)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_GridCard")
@@ -360,7 +365,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DiaryButton" type="Button" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer" unique_id=430954822]
-custom_minimum_size = Vector2(150, 180)
+custom_minimum_size = Vector2(120, 150)
 layout_mode = 2
 size_flags_horizontal = 6
 theme_override_styles/normal = SubResource("StyleBoxFlat_GridCard")
@@ -398,7 +403,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="MusicButton" type="Button" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer" unique_id=524515306]
-custom_minimum_size = Vector2(150, 180)
+custom_minimum_size = Vector2(120, 150)
 layout_mode = 2
 size_flags_horizontal = 6
 theme_override_styles/normal = SubResource("StyleBoxFlat_GridCard")
@@ -436,7 +441,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="PlaceholderCard" type="PanelContainer" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer" unique_id=493765196]
-custom_minimum_size = Vector2(150, 180)
+custom_minimum_size = Vector2(120, 150)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_PlaceholderCard")
@@ -467,20 +472,40 @@ text = "更多创作"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="ClipPanel" type="Panel" parent="CenterContainer/PanelRoot/PanelCanvas" unique_id=1909343781]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_xgae1")
+
+[node name="ToolNavButtonbg" type="Panel" parent="CenterContainer/PanelRoot/PanelCanvas/ClipPanel" unique_id=1647761918]
+layout_mode = 0
+offset_left = 913.0
+offset_top = -2.0
+offset_right = 965.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_xgae1")
+
 [node name="CloseButton" type="Button" parent="CenterContainer/PanelRoot/PanelCanvas" unique_id=1483844897]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -57.0
-offset_top = 9.0
-offset_right = -17.0
+offset_left = -40.0
+offset_top = -8.0
+offset_right = -5.0
 offset_bottom = 49.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(0.24, 0.24, 0.24, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = SubResource("StyleBoxFlat_CloseButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_CloseButton")
 text = "×"
+flat = true

@@ -1,6 +1,11 @@
 extends RefCounted
 
 var _current_moment_reply_post_id: String = ""
+const DIARY_IMAGE_VARIANT_HINTS: Array[String] = [
+	"主画面，突出当天最重要的互动和人物关系",
+	"补充镜头，强调环境氛围或并肩相处的细节",
+	"记忆碎片特写，聚焦道具、手部动作或情绪瞬间"
+]
 
 func _save_diary_to_profile(diary_entry: Dictionary) -> void:
 	if GameDataManager.profile and GameDataManager.profile.has_method("add_diary"):
@@ -80,6 +85,7 @@ func handle_diary_request_completed(client, result: int, response_code: int, _he
 					"date": Time.get_date_string_from_system(),
 					"weather": "晴",
 					"content": content,
+					"images": [],
 					"image_url": "",
 					"image_generation_time": 0.0,
 					"image_prompt": "",
@@ -144,34 +150,108 @@ func _process_diary_illustration(client, diary_entry: Dictionary) -> void:
 	if image_prompt.is_empty():
 		print("[DeepSeekClient] 无法生成插图提示词，跳过插图生成")
 		if GameDataManager.config and "default_image_path" in GameDataManager.config:
+			diary_entry["images"] = [GameDataManager.config.default_image_path]
 			diary_entry["image_url"] = GameDataManager.config.default_image_path
 		_save_diary_to_profile(diary_entry)
 		client.diary_generated.emit(diary_entry)
 		return
 	if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
 		print("[DeepSeekClient] 图像生成已禁用，使用默认占位图")
+		diary_entry["images"] = [GameDataManager.config.default_image_path]
 		diary_entry["image_url"] = GameDataManager.config.default_image_path
+		_save_diary_to_profile(diary_entry)
 		client.diary_generated.emit(diary_entry)
 		return
-	var image_client = _create_image_client(client)
-	var on_success = func(_diary_id: String, local_path: String, metadata: Dictionary):
-		diary_entry["image_url"] = local_path
-		diary_entry["image_generation_time"] = metadata.get("duration", 0.0)
-		diary_entry["image_prompt"] = metadata.get("prompt", "")
-		diary_entry["image_model_version"] = metadata.get("model", "")
-		_save_diary_to_profile(diary_entry)
-		image_client.queue_free()
-		client.diary_generated.emit(diary_entry)
-	var on_failed = func(_diary_id: String, error_msg: String):
-		print("[DeepSeekClient] 日记插图生成失败: ", error_msg)
+	var requested_count := _pick_diary_image_count()
+	var image_prompts := _build_diary_image_prompts(image_prompt, requested_count)
+	var image_paths: Array[String] = []
+	var prompt_records: Array[String] = []
+	var total_generation_time := 0.0
+	var model_version := ""
+	for i in range(image_prompts.size()):
+		var generation_result := await _generate_diary_image_once(client, "%s_%d" % [str(diary_entry.id), i + 1], image_prompts[i])
+		if bool(generation_result.get("success", false)):
+			var local_path := str(generation_result.get("path", "")).strip_edges()
+			if local_path != "":
+				image_paths.append(local_path)
+			var metadata: Dictionary = generation_result.get("metadata", {})
+			total_generation_time += float(metadata.get("duration", 0.0))
+			prompt_records.append(str(metadata.get("prompt", image_prompts[i])))
+			if model_version == "":
+				model_version = str(metadata.get("model", ""))
+		else:
+			print("[DeepSeekClient] 日记插图生成失败: ", str(generation_result.get("error", "未知错误")))
+	if image_paths.is_empty():
 		if GameDataManager.config and "default_image_path" in GameDataManager.config:
-			diary_entry["image_url"] = GameDataManager.config.default_image_path
+			var default_path := str(GameDataManager.config.default_image_path)
+			diary_entry["images"] = [default_path]
+			diary_entry["image_url"] = default_path
 		_save_diary_to_profile(diary_entry)
-		image_client.queue_free()
 		client.diary_generated.emit(diary_entry)
-	image_client.image_generated.connect(on_success)
-	image_client.image_generation_failed.connect(on_failed)
-	image_client.generate_diary_illustration(diary_entry.id, image_prompt)
+		return
+	diary_entry["images"] = image_paths
+	diary_entry["image_url"] = image_paths[0]
+	diary_entry["image_generation_time"] = total_generation_time
+	diary_entry["image_prompt"] = "\n---\n".join(prompt_records)
+	diary_entry["image_model_version"] = model_version
+	_save_diary_to_profile(diary_entry)
+	client.diary_generated.emit(diary_entry)
+
+func _pick_diary_image_count() -> int:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	return rng.randi_range(1, 3)
+
+func _build_diary_image_prompts(base_prompt: String, count: int) -> Array[String]:
+	var prompts: Array[String] = []
+	var safe_count := maxi(1, mini(count, 3))
+	for i in range(safe_count):
+		var variant_hint := DIARY_IMAGE_VARIANT_HINTS[min(i, DIARY_IMAGE_VARIANT_HINTS.size() - 1)]
+		prompts.append("%s\n\nAdditional shot guidance: generate image %d/%d, keep the same characters and core scene continuity, but emphasize %s." % [
+			base_prompt,
+			i + 1,
+			safe_count,
+			variant_hint
+		])
+	return prompts
+
+func _generate_diary_image_once(client, diary_id: String, prompt: String) -> Dictionary:
+	var image_client = _create_image_client(client)
+	var finished := false
+	var result := {
+		"success": false,
+		"path": "",
+		"metadata": {},
+		"error": ""
+	}
+	var on_success = func(_generated_diary_id: String, local_path: String, metadata: Dictionary):
+		if finished:
+			return
+		finished = true
+		result = {
+			"success": true,
+			"path": local_path,
+			"metadata": metadata,
+			"error": ""
+		}
+	var on_failed = func(_generated_diary_id: String, error_msg: String):
+		if finished:
+			return
+		finished = true
+		result = {
+			"success": false,
+			"path": "",
+			"metadata": {},
+			"error": error_msg
+		}
+	image_client.image_generated.connect(on_success, CONNECT_ONE_SHOT)
+	image_client.image_generation_failed.connect(on_failed, CONNECT_ONE_SHOT)
+	image_client.generate_diary_illustration(diary_id, prompt)
+	while not finished:
+		await Engine.get_main_loop().process_frame
+	if is_instance_valid(image_client):
+		image_client.queue_free()
+	return result
 
 func send_moment_generation(client, custom_profile: CharacterProfile = null) -> void:
 	while not client.is_inside_tree():

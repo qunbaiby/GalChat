@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dakf4iikoukkf" path="res://scripts/ui/activity/activity_item.gd" id="1_item"]
 [ext_resource type="PackedScene" uid="uid://caw5jhw3f5suo" path="res://scenes/ui/activity/activity_reward_tag.tscn" id="3_sp6cq"]
 [ext_resource type="PackedScene" uid="uid://dqm664lxsdoq1" path="res://scenes/ui/activity/activity_cost_tag.tscn" id="4_pqcyc"]
+[ext_resource type="Texture2D" uid="uid://bh26ei5xbue10" path="res://assets/icons/activities/art_history.png" id="4_sp6cq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5kksj"]
 bg_color = Color(1, 1, 1, 0.98)
@@ -125,6 +126,7 @@ custom_minimum_size = Vector2(60, 50)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 3
+texture = ExtResource("4_sp6cq")
 expand_mode = 1
 stretch_mode = 6
 

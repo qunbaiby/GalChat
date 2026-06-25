@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cy8xxa3qqt4m1"]
 
 [ext_resource type="Script" uid="uid://bscfneq0ojqtm" path="res://scripts/ui/diary/diary_panel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://by126rkkfl5r2" path="res://assets/images/ui/common/closebg.png" id="2_mr5q7"]
 
 [sub_resource type="Shader" id="Shader_Blur"]
 code = "shader_type canvas_item;
@@ -19,20 +20,48 @@ shader = SubResource("Shader_Blur")
 shader_parameter/lod = 2.8
 shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DiaryBook"]
-bg_color = Color(0.985, 0.982, 0.972, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mr5q7"]
+bg_color = Color(0.827451, 0.8666667, 0.91764706, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.87, 0.82, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 18
-shadow_offset = Vector2(0, 5)
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0.18, 0.28, 0.33, 0.16)
+shadow_size = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivchf"]
+bg_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dxjao"]
+bg_color = Color(1, 1, 1, 0.88235295)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dwek"]
+bg_color = Color(1, 1, 1, 0.88235295)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j65l3"]
+bg_color = Color(0.96, 0.985, 0.988, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.91, 0.92, 0.96)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Polaroid"]
 bg_color = Color(1, 1, 1, 1)
@@ -47,6 +76,90 @@ shadow_offset = Vector2(2, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Divider"]
 bg_color = Color(0.91, 0.88, 0.83, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_WeatherBadge"]
+bg_color = Color(0.971252, 0.70354015, 0.760904, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.25, 0.33, 0.22, 0.14)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_015ql"]
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4dwek"]
+texture = ExtResource("2_mr5q7")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x8y8a"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s6oty"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vesjf"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_11vau"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gjeb7"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tfyeg"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.83, 0.83, 0.8, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.08, 0.08, 0.08, 0.14)
+shadow_size = 6
+shadow_offset = Vector2(0, 1)
 
 [node name="DiaryPanel" type="Control" unique_id=32547487]
 layout_mode = 3
@@ -79,7 +192,35 @@ grow_vertical = 2
 [node name="DiaryBook" type="PanelContainer" parent="CenterContainer" unique_id=1657536845]
 custom_minimum_size = Vector2(960, 560)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_DiaryBook")
+theme_override_styles/panel = SubResource("StyleBoxFlat_mr5q7")
+
+[node name="BookDecorLayer" type="Control" parent="CenterContainer/DiaryBook" unique_id=206164832]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SpineGlow" type="Panel" parent="CenterContainer/DiaryBook/BookDecorLayer" unique_id=173427557]
+layout_mode = 0
+offset_left = 454.0
+offset_top = 24.0
+offset_right = 481.0
+offset_bottom = 536.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ivchf")
+
+[node name="LeftPaper" type="Panel" parent="CenterContainer/DiaryBook/BookDecorLayer" unique_id=61548043]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 458.0
+offset_bottom = 546.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_dxjao")
+
+[node name="RightPaper" type="Panel" parent="CenterContainer/DiaryBook/BookDecorLayer" unique_id=832699251]
+layout_mode = 0
+offset_left = 476.0
+offset_top = 14.0
+offset_right = 946.0
+offset_bottom = 546.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4dwek")
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/DiaryBook" unique_id=271765900]
 layout_mode = 2
@@ -100,12 +241,26 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="PhotoStage" type="Panel" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=314007007]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 6.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_j65l3")
+
 [node name="Polaroid1" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=1750152624]
 layout_mode = 0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 182.0
-offset_bottom = 174.0
+offset_left = 50.0
+offset_top = 78.99999
+offset_right = 222.0
+offset_bottom = 243.0
 rotation = -0.15
 theme_override_styles/panel = SubResource("StyleBoxFlat_Polaroid")
 
@@ -125,10 +280,10 @@ stretch_mode = 6
 
 [node name="Polaroid2" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=1974189615]
 layout_mode = 0
-offset_left = 168.0
-offset_top = 68.0
-offset_right = 340.0
-offset_bottom = 236.0
+offset_left = 208.0
+offset_top = 136.99997
+offset_right = 380.0
+offset_bottom = 305.0
 rotation = 0.08
 theme_override_styles/panel = SubResource("StyleBoxFlat_Polaroid")
 
@@ -148,10 +303,10 @@ stretch_mode = 6
 
 [node name="Polaroid3" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/LeftPage/PhotoContainer" unique_id=1734171411]
 layout_mode = 0
-offset_left = 46.0
-offset_top = 198.0
-offset_right = 218.0
-offset_bottom = 366.0
+offset_left = 86.0
+offset_top = 267.0
+offset_right = 258.0
+offset_bottom = 435.0
 rotation = -0.05
 theme_override_styles/panel = SubResource("StyleBoxFlat_Polaroid")
 
@@ -180,6 +335,7 @@ layout_mode = 2
 text = "上一页"
 
 [node name="Divider" type="Panel" parent="CenterContainer/DiaryBook/Margin/HBox" unique_id=1413270000]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(2, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Divider")
@@ -191,28 +347,36 @@ theme_override_constants/separation = 15
 
 [node name="TopBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=372502954]
 layout_mode = 2
+theme_override_constants/separation = 15
 
 [node name="DateLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=1010386422]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.3, 0.24, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 20
 text = "2025年4月23日"
+
+[node name="WeekdayLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=1462236075]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.37, 0.32, 0.26, 1)
+theme_override_font_sizes/font_size = 20
+text = "星期三"
 
 [node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=453418781]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="WeatherLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=148467513]
+[node name="WeatherBadge" type="PanelContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=1219696596]
+custom_minimum_size = Vector2(52, 34)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.52, 0.44, 1)
-theme_override_font_sizes/font_size = 16
-text = "晴"
+theme_override_styles/panel = SubResource("StyleBoxFlat_WeatherBadge")
 
-[node name="CloseButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar" unique_id=997608548]
-custom_minimum_size = Vector2(36, 36)
+[node name="WeatherLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/TopBar/WeatherBadge" unique_id=148467513]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
-text = "X"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "晴"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="TitleLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=1572570318]
 layout_mode = 2
@@ -240,21 +404,94 @@ scroll_active = false
 
 [node name="BottomBar" type="HBoxContainer" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage" unique_id=364483505]
 layout_mode = 2
+alignment = 1
 
 [node name="PageNumLabel" type="Label" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar" unique_id=1164731932]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.52, 0.44, 1)
+theme_override_font_sizes/font_size = 15
 text = "1 / 1"
+horizontal_alignment = 1
 
 [node name="Space" type="Control" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar" unique_id=1941391972]
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="NextButton" type="Button" parent="CenterContainer/DiaryBook/Margin/HBox/RightPage/BottomBar" unique_id=96396114]
 visible = false
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 text = "下一页"
+
+[node name="ClipPanel" type="Panel" parent="CenterContainer/DiaryBook" unique_id=751578354]
+clip_children = 1
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_015ql")
+
+[node name="ToolNavButtonbg" type="Panel" parent="CenterContainer/DiaryBook/ClipPanel" unique_id=245280999]
+layout_mode = 0
+offset_left = 915.0
+offset_top = -3.0
+offset_right = 967.0
+offset_bottom = 43.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_4dwek")
+
+[node name="OverlayLayer" type="Control" parent="CenterContainer/DiaryBook" unique_id=512288431]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PageTabs" type="VBoxContainer" parent="CenterContainer/DiaryBook/OverlayLayer" unique_id=881941828]
+layout_mode = 0
+offset_left = 937.0
+offset_top = 333.0
+offset_right = 979.0
+offset_bottom = 523.0
+theme_override_constants/separation = 12
+
+[node name="PrevButton" type="Button" parent="CenterContainer/DiaryBook/OverlayLayer/PageTabs" unique_id=454943979]
+custom_minimum_size = Vector2(42, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 0.2, 0.22352941, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_x8y8a")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_s6oty")
+theme_override_styles/hover = SubResource("StyleBoxFlat_vesjf")
+text = "上
+一
+页"
+
+[node name="NextButton" type="Button" parent="CenterContainer/DiaryBook/OverlayLayer/PageTabs" unique_id=1736271072]
+custom_minimum_size = Vector2(42, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.12941177, 0.7176471, 0.69411767, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_11vau")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gjeb7")
+theme_override_styles/hover = SubResource("StyleBoxFlat_gjeb7")
+text = "下
+一
+页
+"
+
+[node name="CloseButton" type="Button" parent="CenterContainer/DiaryBook/OverlayLayer" unique_id=981385756]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 0
+offset_left = 916.0
+offset_top = -9.0
+offset_right = 964.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxFlat_tfyeg")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_tfyeg")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tfyeg")
+text = "×"
+flat = true
 
 [node name="ImageViewer" type="ColorRect" parent="." unique_id=1007445684]
 visible = false

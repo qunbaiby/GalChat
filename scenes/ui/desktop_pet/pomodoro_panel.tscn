@@ -2,6 +2,17 @@
 
 [ext_resource type="Script" uid="uid://2jbxg6cdkipi" path="res://scripts/ui/desktop_pet/pomodoro_panel.gd" id="1_0iwa6"]
 [ext_resource type="Shader" uid="uid://dkyo1vybgpup2" path="res://assets/shaders/rainbow_border.gdshader" id="2_kakfh"]
+[ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="2_u6th4"]
+[ext_resource type="Material" uid="uid://dutxb7qbmb3kn" path="res://assets/shader/Cyan-green gradient.tres" id="2_uxiuw"]
+
+[sub_resource type="Theme" id="Theme_Inline"]
+Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
+Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
+Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+SpinBox/colors/font_color = Color(0.17, 0.2, 0.25, 1)
+SpinBox/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.985, 0.988, 0.995, 0.98)
@@ -27,36 +38,51 @@ shader_parameter/border_width = 0.015
 shader_parameter/blur = 0.005
 shader_parameter/progress = 1.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Btn"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.89, 0.82, 0.72, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_kakfh"]
+load_path = "res://.godot/imported/closebg.png-b4ede7627493c00f7ec44ff9f899f280.ctex"
 
-[sub_resource type="Theme" id="Theme_Inline"]
-Button/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-Button/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
-Button/colors/font_hover_color = Color(0.17, 0.2, 0.25, 1)
-Button/colors/font_pressed_color = Color(0.17, 0.2, 0.25, 1)
-Label/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-SpinBox/colors/font_color = Color(0.17, 0.2, 0.25, 1)
-SpinBox/colors/font_disabled_color = Color(0.47, 0.52, 0.59, 0.82)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kakfh"]
+texture = SubResource("CompressedTexture2D_kakfh")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u6th4"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uxiuw"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pmsxv"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kdsc0"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [node name="PomodoroPanel" type="Control" unique_id=868551656]
-custom_minimum_size = Vector2(280, 553)
+custom_minimum_size = Vector2(960, 540)
 layout_mode = 3
-anchor_right = 0.238
-anchor_bottom = 0.799
-offset_right = -24.640015
-offset_bottom = -22.28003
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 0
+offset_right = 800.0
+offset_bottom = 460.0
 theme = SubResource("Theme_Inline")
 script = ExtResource("1_0iwa6")
 
@@ -71,33 +97,20 @@ grow_vertical = 2
 color = Color(0.08, 0.07, 0.06, 0.16)
 
 [node name="Panel" type="PanelContainer" parent="." unique_id=1056260000]
+material = ExtResource("2_uxiuw")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_u6th4")
 theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 
 [node name="DragBar" type="Control" parent="Panel" unique_id=82360347]
 custom_minimum_size = Vector2(0, 42)
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_right = 0.0
-offset_bottom = 42.0
-grow_horizontal = 2
-mouse_default_cursor_shape = 13
-
-[node name="CloseButton" type="Button" parent="Panel" unique_id=2023327125]
-custom_minimum_size = Vector2(42, 34)
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-theme_override_colors/font_color = Color(0.45, 0.48, 0.56, 1)
-theme_override_font_sizes/font_size = 18
-text = "<"
-flat = true
+mouse_default_cursor_shape = 13
 
 [node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=1299983536]
 layout_mode = 2
@@ -115,7 +128,7 @@ layout_mode = 2
 
 [node name="Ring" type="ColorRect" parent="Panel/MarginContainer/VBoxContainer/CenterContainer" unique_id=399927934]
 material = SubResource("ShaderMaterial_rainbow")
-custom_minimum_size = Vector2(184, 184)
+custom_minimum_size = Vector2(250, 250)
 layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/CenterContainer/Ring" unique_id=17776481]
@@ -164,31 +177,19 @@ alignment = 1
 [node name="PlayButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls" unique_id=1462051826]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 text = "▶"
 
 [node name="PauseButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls" unique_id=1267961859]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 text = "||"
 
 [node name="ResetButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Controls" unique_id=1018479235]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_Btn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Btn")
 text = "↻"
 
 [node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer" unique_id=10629750]
@@ -259,3 +260,36 @@ max_value = 10.0
 value = 2.0
 alignment = 1
 suffix = "轮"
+
+[node name="ToolNavButtonbg" type="Panel" parent="." unique_id=241683302]
+clip_children = 1
+layout_mode = 0
+offset_left = 902.0
+offset_right = 945.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_kakfh")
+
+[node name="ToolNavButtonbg" type="Panel" parent="ToolNavButtonbg" unique_id=186456824]
+layout_mode = 0
+offset_right = 46.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_u6th4")
+
+[node name="CloseButton" type="Button" parent="." unique_id=1668881012]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -51.0
+offset_top = 9.0
+offset_right = -21.0
+offset_bottom = 39.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.28627452, 0.7764706, 0.7490196, 1)
+theme_override_colors/font_hover_color = Color(0.28627452, 0.7764706, 0.7490196, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_uxiuw")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_pmsxv")
+theme_override_styles/hover = SubResource("StyleBoxFlat_kdsc0")
+text = "X"

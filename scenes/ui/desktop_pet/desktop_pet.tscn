@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
 [ext_resource type="Texture2D" uid="uid://be04r7mkdm1jp" path="res://assets/images/ui/desktoppet/QuickToolsFrame.png" id="3_xx4g7"]
 [ext_resource type="PackedScene" uid="uid://d0vnlpr3gjrac" path="res://scenes/ui/desktop_pet/pet_body.tscn" id="3_yofv2"]
-[ext_resource type="Texture2D" uid="uid://ch5hkgrxfpnme" path="res://assets/images/story/cg/story_cg_luna_drawing_side.png" id="5_luna_bg"]
+[ext_resource type="Texture2D" uid="uid://dk4duoxiyc787" path="res://assets/images/backgrounds/main/Holiday Pool Days.png" id="4_yofv2"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="5_xx4g7"]
 [ext_resource type="Texture2D" uid="uid://by126rkkfl5r2" path="res://assets/images/ui/common/closebg.png" id="5_yofv2"]
 
@@ -561,9 +561,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 64.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("5_luna_bg")
+texture = ExtResource("4_yofv2")
 expand_mode = 1
 stretch_mode = 6
 

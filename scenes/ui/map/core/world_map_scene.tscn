@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c1wbpr22f0ufh"]
+[gd_scene format=3 uid="uid://c1wbpr22f0ufh"]
 
 [ext_resource type="Script" uid="uid://buy5qwhw4b0f3" path="res://scripts/ui/map/core/world_map_scene.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://8mlvxtfblldg" path="res://assets/images/backgrounds/map/background/WorldMap.png" id="2_k082m"]
@@ -50,7 +50,7 @@ corner_radius_bottom_left = 16
 shadow_color = Color(0.08, 0.14, 0.16, 0.08)
 shadow_size = 8
 
-[node name="WorldMapScene" type="Control"]
+[node name="WorldMapScene" type="Control" unique_id=1500070746]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -59,7 +59,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="." unique_id=387983200]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -76,7 +76,7 @@ texture = ExtResource("2_k082m")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="BackgroundShade" type="ColorRect" parent="."]
+[node name="BackgroundShade" type="ColorRect" parent="." unique_id=1538501417]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -85,14 +85,14 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.1, 0.12, 0.16)
 
-[node name="TopStatusPanel" parent="." instance=ExtResource("top_status_panel")]
+[node name="TopStatusPanel" parent="." unique_id=2055672706 instance=ExtResource("top_status_panel")]
 layout_mode = 1
 offset_left = 996.0
 offset_top = 7.0
 offset_right = 1262.0
 offset_bottom = 51.0
 
-[node name="SubAreaContainer" type="Control" parent="."]
+[node name="SubAreaContainer" type="Control" parent="." unique_id=289777190]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -102,7 +102,7 @@ offset_bottom = -264.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BottomBar" type="PanelContainer" parent="."]
+[node name="BottomBar" type="PanelContainer" parent="." unique_id=2005721827]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 1
 anchors_preset = 12
@@ -117,12 +117,12 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_BottomBar")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="BottomBar"]
+[node name="ScrollContainer" type="ScrollContainer" parent="BottomBar" unique_id=1478785863]
 layout_mode = 2
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="BottomBar/ScrollContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="BottomBar/ScrollContainer" unique_id=733878117]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -131,13 +131,13 @@ theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 12
 
-[node name="AreaList" type="HBoxContainer" parent="BottomBar/ScrollContainer/MarginContainer"]
+[node name="AreaList" type="HBoxContainer" parent="BottomBar/ScrollContainer/MarginContainer" unique_id=339491654]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_constants/separation = 20
 
-[node name="TopBar" type="PanelContainer" parent="."]
+[node name="TopBar" type="PanelContainer" parent="." unique_id=1445761168]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -148,35 +148,35 @@ offset_bottom = 71.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="TopBarMargin" type="MarginContainer" parent="TopBar"]
+[node name="TopBarMargin" type="MarginContainer" parent="TopBar" unique_id=1984369079]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 10
 
-[node name="TopBarHBox" type="HBoxContainer" parent="TopBar/TopBarMargin"]
+[node name="TopBarHBox" type="HBoxContainer" parent="TopBar/TopBarMargin" unique_id=1586425615]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="BackButton" type="Button" parent="TopBar/TopBarMargin/TopBarHBox"]
+[node name="BackButton" type="Button" parent="TopBar/TopBarMargin/TopBarHBox" unique_id=488357669]
 custom_minimum_size = Vector2(124, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
-text = "< 返回主页"
+text = "< 返回工作室"
 
-[node name="TitleSpacerLeft" type="Control" parent="TopBar/TopBarMargin/TopBarHBox"]
+[node name="TitleSpacerLeft" type="Control" parent="TopBar/TopBarMargin/TopBarHBox" unique_id=918791669]
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="TitleCenter" type="CenterContainer" parent="TopBar/TopBarMargin/TopBarHBox"]
+[node name="TitleCenter" type="CenterContainer" parent="TopBar/TopBarMargin/TopBarHBox" unique_id=1054192171]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Title" type="Label" parent="TopBar/TopBarMargin/TopBarHBox/TitleCenter"]
+[node name="Title" type="Label" parent="TopBar/TopBarMargin/TopBarHBox/TitleCenter" unique_id=276528069]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.26, 0.29, 1)
 theme_override_font_sizes/font_size = 24

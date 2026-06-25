@@ -1,43 +1,8 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://eci6523o1mts"]
 
-[ext_resource type="Script" path="res://scripts/ui/archive/archive_relation_panel.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://scenes/ui/archive/relation_graph_content.tscn" id="2_relation_view"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
-bg_color = Color(0.05, 0.1, 0.12, 0.32)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
-bg_color = Color(0.958, 0.976, 0.984, 0.985)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.78, 0.87, 0.89, 0.82)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.03, 0.08, 0.1, 0.14)
-shadow_size = 22
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.9, 0.95, 0.96, 0.94)
-border_width_bottom = 1
-border_color = Color(0.79, 0.88, 0.89, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
-bg_color = Color(0.985, 0.993, 0.996, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.8, 0.88, 0.9, 0.82)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+[ext_resource type="Script" uid="uid://dlpi17bc8i4hb" path="res://scripts/ui/archive/archive_relation_panel.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="2_2h7d0"]
+[ext_resource type="PackedScene" uid="uid://b6xf3g0ef3eiu" path="res://scenes/ui/archive/relation_graph_content.tscn" id="2_relation_view"]
 
 [sub_resource type="Shader" id="Shader_ArchiveRelationBlur"]
 code = "shader_type canvas_item;
@@ -56,7 +21,67 @@ shader = SubResource("Shader_ArchiveRelationBlur")
 shader_parameter/lod = 2.5
 shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.32)
 
-[node name="ArchiveRelationPanel" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
+bg_color = Color(0.958, 0.976, 0.984, 0.985)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.87, 0.89, 0.82)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.03, 0.08, 0.1, 0.14)
+shadow_size = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
+bg_color = Color(0.9, 0.95, 0.96, 0.94)
+border_width_bottom = 1
+border_color = Color(0.79, 0.88, 0.89, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4c27p"]
+load_path = "res://.godot/imported/closebg.png-b4ede7627493c00f7ec44ff9f899f280.ctex"
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_2h7d0"]
+texture = SubResource("CompressedTexture2D_4c27p")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ybfv1"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_od31g"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13725491, 0.7137255, 0.6901961, 0.39215687)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nnmqu"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_37bgx"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[node name="ArchiveRelationPanel" type="Control" unique_id=343346154]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -66,7 +91,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=768727863]
 material = SubResource("ShaderMaterial_ArchiveRelationBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -74,9 +99,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(1, 1, 1, 1)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1642841410]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -84,12 +108,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="Panel" parent="CenterContainer"]
+[node name="Panel" type="Panel" parent="CenterContainer" unique_id=1065191962]
 custom_minimum_size = Vector2(1120, 680)
 layout_mode = 2
+theme = ExtResource("2_2h7d0")
 theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel" unique_id=1668416420]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -98,12 +123,12 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
 
-[node name="TopBar" type="Panel" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="TopBar" type="Panel" parent="CenterContainer/Panel/VBoxContainer" unique_id=620025725]
 custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+[node name="Label" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar" unique_id=1107316055]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -118,7 +143,7 @@ text = "关系档案"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HintLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
+[node name="HintLabel" type="Label" parent="CenterContainer/Panel/VBoxContainer/TopBar" unique_id=519789230]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -133,25 +158,7 @@ text = "左侧查看关系图谱，右侧阅读节点与关系说明。"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/TopBar"]
-custom_minimum_size = Vector2(84, 36)
-layout_mode = 1
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -112.0
-offset_top = -18.0
-offset_right = -28.0
-offset_bottom = 18.0
-grow_horizontal = 0
-grow_vertical = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
-text = "关闭"
-
-[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer" unique_id=1083745262]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 20
@@ -159,6 +166,38 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="RelationGraphView" parent="CenterContainer/Panel/VBoxContainer/BodyMargin" instance=ExtResource("2_relation_view")]
+[node name="RelationGraphView" parent="CenterContainer/Panel/VBoxContainer/BodyMargin" unique_id=1578749066 instance=ExtResource("2_relation_view")]
 layout_mode = 2
-size_flags_vertical = 3
+
+[node name="ToolNavButtonbg" type="Panel" parent="CenterContainer/Panel" unique_id=473122148]
+clip_children = 1
+layout_mode = 0
+offset_left = 1062.0
+offset_right = 1105.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_2h7d0")
+
+[node name="ToolNavButtonbg" type="Panel" parent="CenterContainer/Panel/ToolNavButtonbg" unique_id=1744799920]
+layout_mode = 0
+offset_right = 46.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ybfv1")
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel" unique_id=2144268368]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -51.0
+offset_top = 9.0
+offset_right = -21.0
+offset_bottom = 39.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_od31g")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_nnmqu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_37bgx")
+text = "X"

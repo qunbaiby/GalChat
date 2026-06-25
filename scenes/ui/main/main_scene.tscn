@@ -11,8 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://dkyoexaqqxn8e" path="res://assets/images/icons/ui/main/clothing-rack.png" id="8_spmh8"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
+[ext_resource type="PackedScene" uid="uid://ceul0k2i64jdf" path="res://scenes/ui/main/creation_panel.tscn" id="12_creation"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt4m1" path="res://scenes/ui/diary/diary_panel.tscn" id="12_diary"]
-[ext_resource type="PackedScene" path="res://scenes/ui/main/creation_panel.tscn" id="12_creation"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="13_api"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="14_dialogue"]
 [ext_resource type="Texture2D" uid="uid://ctdj134k383t1" path="res://assets/images/icons/ui/main/eye.png" id="14_rl784"]
@@ -300,21 +300,6 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n3i0f"]
-bg_color = Color(0.2509804, 0.2509804, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.99607843, 0.5176471, 0.65882355, 1)
-corner_radius_top_left = 15
-corner_radius_top_right = 15
-corner_radius_bottom_right = 15
-corner_radius_bottom_left = 15
-shadow_color = Color(0.99607843, 0.5058824, 0.6509804, 0.5137255)
-shadow_size = 1
-shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SystemToolbarButton"]
 bg_color = Color(0.04, 0.04, 0.05, 0.82)
@@ -1066,8 +1051,24 @@ text = "约会"
 visible = false
 layout_mode = 1
 
-[node name="CreationPanel" parent="UIPanel" instance=ExtResource("12_creation")]
+[node name="CreationPanel" parent="UIPanel" unique_id=539188175 instance=ExtResource("12_creation")]
+visible = false
 layout_mode = 1
+
+[node name="MainActionButton" type="Button" parent="UIPanel" unique_id=8074925]
+material = SubResource("ShaderMaterial_trapezoid_map")
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 0
+offset_left = 1088.0
+offset_top = 551.0
+offset_right = 1271.0
+offset_bottom = 626.0
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
+text = "外出"
 
 [node name="BgSwitchButton" type="Button" parent="." unique_id=376807236]
 visible = false

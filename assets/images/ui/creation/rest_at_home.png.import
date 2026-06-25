@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2fci1hxvxtf1"
-path="res://.godot/imported/cafe_break.png-e6c722559d9e92de067c826a049ef990.ctex"
+uid="uid://b5di2d61qpy7u"
+path="res://.godot/imported/rest_at_home.png-bd6d136e1cb0d3a0e01160b5a712fdbb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/activities/cafe_break.png"
-dest_files=["res://.godot/imported/cafe_break.png-e6c722559d9e92de067c826a049ef990.ctex"]
+source_file="res://assets/images/ui/creation/rest_at_home.png"
+dest_files=["res://.godot/imported/rest_at_home.png-bd6d136e1cb0d3a0e01160b5a712fdbb.ctex"]
 
 [params]
 

@@ -29,7 +29,7 @@ void fragment() {
 
 [resource]
 shader = SubResource("Shader_PopupPanelGradient")
-shader_parameter/color_top = Color(1, 0.7948024, 0.82931155, 1)
+shader_parameter/color_top = Color(0.24705882, 0.77254903, 0.74509805, 1)
 shader_parameter/color_mid = Color(0.9647059, 0.9882353, 0.9882353, 1)
 shader_parameter/color_bottom = Color(0.99, 0.995, 0.99, 1)
 shader_parameter/mid_point = 0.42

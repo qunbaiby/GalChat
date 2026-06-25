@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://11qncg5lxfxf"]
+[gd_scene format=3 uid="uid://11qncg5lxfxf"]
 
 [ext_resource type="Script" uid="uid://crx3gd4j0iyx6" path="res://scripts/ui/map/core/quick_location_scene.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
@@ -47,7 +47,7 @@ shadow_color = Color(0.04, 0.1, 0.12, 0.12)
 shadow_size = 8
 shadow_offset = Vector2(0, 2)
 
-[node name="QuickLocationScene" type="Control"]
+[node name="QuickLocationScene" type="Control" unique_id=1766193923]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -56,7 +56,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="." unique_id=16475304]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -67,7 +67,7 @@ texture = ExtResource("2_3k4mg")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="BackgroundShade" type="ColorRect" parent="."]
+[node name="BackgroundShade" type="ColorRect" parent="." unique_id=416239358]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -76,7 +76,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.04, 0.08, 0.1, 0.18)
 
-[node name="MapInfoPanel" type="PanelContainer" parent="."]
+[node name="MapInfoPanel" type="PanelContainer" parent="." unique_id=161036835]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -87,29 +87,29 @@ offset_bottom = -7.0
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_MapInfo")
 
-[node name="InfoMargin" type="MarginContainer" parent="MapInfoPanel"]
+[node name="InfoMargin" type="MarginContainer" parent="MapInfoPanel" unique_id=1608269828]
 layout_mode = 2
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 15
 
-[node name="VBox" type="VBoxContainer" parent="MapInfoPanel/InfoMargin"]
+[node name="VBox" type="VBoxContainer" parent="MapInfoPanel/InfoMargin" unique_id=1261060577]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="NameLabel" type="Label" parent="MapInfoPanel/InfoMargin/VBox"]
+[node name="NameLabel" type="Label" parent="MapInfoPanel/InfoMargin/VBox" unique_id=1225531707]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 28
 text = "地点名称"
 
-[node name="DescLabel" type="Label" parent="MapInfoPanel/InfoMargin/VBox"]
+[node name="DescLabel" type="Label" parent="MapInfoPanel/InfoMargin/VBox" unique_id=49726118]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.60718316, 0.6452449, 0.70609653, 1)
 theme_override_font_sizes/font_size = 15
 text = "这里是地点的描述信息。"
 autowrap_mode = 2
 
-[node name="InteractionMenu" type="Control" parent="."]
+[node name="InteractionMenu" type="Control" parent="." unique_id=404880652]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -117,26 +117,26 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="NPCPortrait" type="Node2D" parent="InteractionMenu"]
+[node name="NPCPortrait" type="Node2D" parent="InteractionMenu" unique_id=814939792]
 position = Vector2(611, 1418)
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="InteractionMenu/NPCPortrait"]
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="InteractionMenu/NPCPortrait" unique_id=870135699]
 scale = Vector2(0.6, 0.6)
 sprite_frames = ExtResource("4_racli")
 
-[node name="StaticSprite" type="Sprite2D" parent="InteractionMenu/NPCPortrait"]
+[node name="StaticSprite" type="Sprite2D" parent="InteractionMenu/NPCPortrait" unique_id=1940006613]
 scale = Vector2(0.6, 0.6)
 
-[node name="BubbleAnchorTop" type="Marker2D" parent="InteractionMenu/NPCPortrait"]
+[node name="BubbleAnchorTop" type="Marker2D" parent="InteractionMenu/NPCPortrait" unique_id=1236228224]
 position = Vector2(20, -520)
 
-[node name="BubbleAnchorSide" type="Marker2D" parent="InteractionMenu/NPCPortrait"]
+[node name="BubbleAnchorSide" type="Marker2D" parent="InteractionMenu/NPCPortrait" unique_id=919780217]
 position = Vector2(180, -430)
 
-[node name="BubbleRoot" type="Node2D" parent="InteractionMenu/NPCPortrait"]
+[node name="BubbleRoot" type="Node2D" parent="InteractionMenu/NPCPortrait" unique_id=578443909]
 position = Vector2(-207, -727)
 
-[node name="SpeechBubble" type="PanelContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot"]
+[node name="SpeechBubble" type="PanelContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot" unique_id=2107159586]
 modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(380, 120)
 anchors_preset = 2
@@ -150,14 +150,14 @@ grow_vertical = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("BubbleStyle")
 
-[node name="BubbleMargin" type="MarginContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble"]
+[node name="BubbleMargin" type="MarginContainer" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble" unique_id=1316875991]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 14
 
-[node name="BubbleText" type="RichTextLabel" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble/BubbleMargin"]
+[node name="BubbleText" type="RichTextLabel" parent="InteractionMenu/NPCPortrait/BubbleRoot/SpeechBubble/BubbleMargin" unique_id=641443384]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/default_color = Color(0.18, 0.28, 0.31, 1)
@@ -166,7 +166,7 @@ text = "……"
 fit_content = true
 scroll_active = false
 
-[node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu"]
+[node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu" unique_id=1264259984]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -182,12 +182,12 @@ grow_vertical = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="NPCInfoVBox" type="VBoxContainer" parent="InteractionMenu/InfoAndOptions"]
+[node name="NPCInfoVBox" type="VBoxContainer" parent="InteractionMenu/InfoAndOptions" unique_id=732784242]
 layout_mode = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="NameLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
+[node name="NameLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=1117855115]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.995, 0.995, 1)
 theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.3)
@@ -197,18 +197,18 @@ text = "名字"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StageHBox" type="HBoxContainer" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
+[node name="StageHBox" type="HBoxContainer" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=1352511853]
 layout_mode = 2
 theme_override_constants/separation = 15
 alignment = 1
 
-[node name="LeftLine" type="ColorRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox"]
+[node name="LeftLine" type="ColorRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox" unique_id=332235190]
 custom_minimum_size = Vector2(60, 2)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.8, 0.8, 0.8, 0.6)
 
-[node name="StageLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox"]
+[node name="StageLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox" unique_id=1812075053]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.94, 0.92, 1)
 theme_override_font_sizes/font_size = 25
@@ -216,13 +216,13 @@ text = "陌生人"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="RightLine" type="ColorRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox"]
+[node name="RightLine" type="ColorRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox" unique_id=1889919856]
 custom_minimum_size = Vector2(60, 2)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.8, 0.8, 0.8, 0.6)
 
-[node name="HeartsLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox"]
+[node name="HeartsLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=447791093]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.73, 0.92, 1)
 theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.3)
@@ -231,16 +231,16 @@ text = "♡♡♡♡♡♡♡♡♡♡"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Spacer" type="Control" parent="InteractionMenu/InfoAndOptions"]
+[node name="Spacer" type="Control" parent="InteractionMenu/InfoAndOptions" unique_id=267735434]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[node name="OptionsVBox" type="VBoxContainer" parent="InteractionMenu/InfoAndOptions"]
+[node name="OptionsVBox" type="VBoxContainer" parent="InteractionMenu/InfoAndOptions" unique_id=1551327903]
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="BackButton" type="Button" parent="."]
+[node name="BackButton" type="Button" parent="." unique_id=672406101]
 layout_mode = 1
 offset_left = 41.0
 offset_top = 24.0
@@ -252,7 +252,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 text = "< 返回地图"
 
-[node name="TopStatusPanel" parent="." instance=ExtResource("top_status_panel")]
+[node name="TopStatusPanel" parent="." unique_id=1958722271 instance=ExtResource("top_status_panel")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -263,5 +263,5 @@ offset_right = -19.0
 offset_bottom = 58.0
 grow_horizontal = 0
 
-[node name="DeepSeekClient" type="Node" parent="."]
+[node name="DeepSeekClient" type="Node" parent="." unique_id=976530428]
 script = ExtResource("1_script_deepseek")

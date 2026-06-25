@@ -2,13 +2,13 @@ extends Control
 
 @onready var background_panel: ColorRect = $Background
 @onready var panel_root: Panel = $CenterContainer/Panel
-@onready var close_btn: Button = $CenterContainer/Panel/VBoxContainer/TopBar/CloseButton
+@onready var close_btn: Button = $CenterContainer/Panel/CloseButton
 @onready var radar_chart: Control = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox/RadarChart
-@onready var line_chart: Control = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/TrendCard/TrendMargin/TrendVBox/LineChart
-@onready var base_personality_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox/ContentScroll/BasePersonalityText
-@onready var status_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/StatusVBox/Text
-@onready var behavior_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/BehaviorVBox/Text
-@onready var advice_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/AdviceVBox/Text
+@onready var line_chart: Control = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/TrendCard/TrendMargin/TrendVBox/LineChart
+@onready var base_personality_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/BaseTraitsCard/BaseTraitsMargin/ContentVBox/AnalysisVBox/ContentScroll/BasePersonalityText
+@onready var status_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/StatusVBox/Text
+@onready var behavior_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/BehaviorVBox/Text
+@onready var advice_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/AdviceVBox/Text
 @onready var deepseek_client = $DeepSeekClient
 
 const POPUP_PADDING: float = 72.0
@@ -98,7 +98,7 @@ func _update_personality_display(profile: CharacterProfile) -> void:
 		"agreeableness": float(profile.agreeableness),
 		"neuroticism": float(profile.neuroticism)
 	})
-	line_chart.set_data(history)
+	line_chart.set_data(_build_weekly_history(history))
 
 	var base_traits_str: String = GameDataManager.personality_system.get_base_traits(profile)
 	base_personality_text.text = "暂无初始底色配置" if base_traits_str == "" else base_traits_str
@@ -118,6 +118,29 @@ func _update_personality_display(profile: CharacterProfile) -> void:
 	behavior_text.text = "等待分析..."
 	advice_text.text = "等待分析..."
 	_request_ai_personality_summary(profile, base_traits_str, dynamic_traits_str)
+
+
+func _build_weekly_history(history: Array) -> Array:
+	var weekly_map: Dictionary = {}
+	var ordered_weeks: Array[int] = []
+
+	for item in history:
+		if not (item is Dictionary):
+			continue
+		var day_offset: int = int(item.get("day_offset", 0))
+		var week_index: int = max(1, int(floor(float(day_offset) / 7.0)) + 1)
+		var weekly_item: Dictionary = item.duplicate(true)
+		weekly_item["week_index"] = week_index
+		weekly_item["label"] = "W%d" % week_index
+		if not weekly_map.has(week_index):
+			ordered_weeks.append(week_index)
+		weekly_map[week_index] = weekly_item
+
+	ordered_weeks.sort()
+	var weekly_history: Array = []
+	for week_index in ordered_weeks:
+		weekly_history.append(weekly_map[week_index])
+	return weekly_history
 
 
 func _request_ai_personality_summary(profile: CharacterProfile, base_traits: String, dynamic_traits: String) -> void:

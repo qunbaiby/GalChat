@@ -187,7 +187,7 @@
                            "energy_cost":  35,
                            "gold_cost":  0,
                            "mood_change":  -12,
-                           "icon_path":  "res://assets/icons/activities/art_planning.png",
+                           "icon_path":  "res://assets/icons/activities/visual_aesthetics.png",
                            "preview_image":  "res://assets/animation/activities/image.png",
                            "rewards":  {
                                            "stat_knowledge":  [

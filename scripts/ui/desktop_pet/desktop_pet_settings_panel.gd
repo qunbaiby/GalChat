@@ -1,9 +1,8 @@
-extends PanelContainer
+extends Panel
 
 signal back_requested
 
-@onready var back_button: Button = $Margin/VBox/TopBar/BackButton
-@onready var save_button: Button = $Margin/VBox/TopBar/SaveButton
+@onready var back_button: Button = $BackButton
 @onready var player_nickname_input: LineEdit = $Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/PlayerNicknameRow/PlayerNicknameInput
 @onready var disturbance_mode_option: OptionButton = $Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/ModeRow/PetDisturbanceModeOption
 @onready var quiet_ranges_input: LineEdit = $Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/QuietTimeRow/PetQuietRangesInput
@@ -26,7 +25,6 @@ var _is_loading_ui: bool = false
 
 func _ready() -> void:
     back_button.pressed.connect(_on_back_pressed)
-    save_button.pressed.connect(_on_save_pressed)
     disturbance_mode_option.clear()
     for mode_name in PET_MODES:
         disturbance_mode_option.add_item(mode_name)
@@ -49,6 +47,8 @@ func _ready() -> void:
 func _on_visibility_changed() -> void:
     if visible:
         _load_ui_data()
+    elif not _is_loading_ui:
+        save_settings()
 
 func _load_ui_data() -> void:
     _is_loading_ui = true
@@ -91,9 +91,6 @@ func save_settings() -> void:
 func _on_back_pressed() -> void:
     save_settings()
     back_requested.emit()
-
-func _on_save_pressed() -> void:
-    save_settings()
 
 func _on_pet_slider_changed(_value: float) -> void:
     _update_pet_labels()

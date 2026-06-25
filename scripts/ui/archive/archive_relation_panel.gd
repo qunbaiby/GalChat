@@ -2,7 +2,7 @@ extends Control
 
 @onready var background_panel: ColorRect = $Background
 @onready var panel_root: Panel = $CenterContainer/Panel
-@onready var close_btn: Button = $CenterContainer/Panel/VBoxContainer/TopBar/CloseButton
+@onready var close_btn: Button = $CenterContainer/Panel/CloseButton
 @onready var relation_graph_view: RelationGraphView = $CenterContainer/Panel/VBoxContainer/BodyMargin/RelationGraphView
 
 const POPUP_MIN_SIZE: Vector2 = Vector2(1120, 680)

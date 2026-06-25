@@ -8,15 +8,18 @@
     },
     {
       "id": "soul_link_bgm",
+      "in_playlist": true,
       "is_favorite": true,
       "path": "res://assets/audio/bgm/Soul link.mp3"
     },
     {
       "id": "starry_wish_bgm",
+      "in_playlist": true,
       "path": "res://assets/audio/bgm/星空下的祈愿.mp3"
     },
     {
       "id": "beyond_dream_bgm",
+      "in_playlist": true,
       "path": "res://assets/audio/bgm/梦之彼方.mp3"
     },
     {

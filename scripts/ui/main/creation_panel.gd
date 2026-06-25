@@ -15,8 +15,6 @@ signal close_requested
 
 func _ready() -> void:
 	hide()
-	if dismiss_button:
-		dismiss_button.pressed.connect(_on_close_pressed)
 	if close_button:
 		close_button.pressed.connect(_on_close_pressed)
 	if drawing_button:
@@ -66,6 +64,8 @@ func _has_visible_overlay() -> bool:
 		if child is Control and (child as Control).visible:
 			var child_control: Control = child as Control
 			if child_control.name == "MainMargin":
+				continue
+			if child_control.name == "ClipPanel":
 				continue
 			return true
 	return false
