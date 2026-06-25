@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cwm5mqnckotbj"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_status_badge"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.12, 0.13, 0.16, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.15)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="ChatStatusBadge" type="PanelContainer" unique_id=644519446]
+visible = false
+offset_left = 54.0
+offset_top = -16.0
+offset_right = 130.0
+offset_bottom = 10.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_status_badge")
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=190514687]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 2
+
+[node name="HBox" type="HBoxContainer" parent="Margin" unique_id=1445024036]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StatusIconLabel" type="Label" parent="Margin/HBox" unique_id=833868061]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 11
+text = "!"
+
+[node name="StatusTextLabel" type="Label" parent="Margin/HBox" unique_id=159820974]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 11
+text = "主线"

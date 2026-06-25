@@ -263,12 +263,12 @@
                     "id": "open_interact_group_after_goal",
                     "type": "wait_action",
                     "step_category": "interaction",
-                    "title": "打开互动入口",
-                    "text": "现在跟 Luna 聊聊周六安排的事情吧，先点击互动按钮，把主场景里的互动列表展开。之后你就能直接选择和 Luna 聊天、送礼或约会等互动方式。",
-                    "wait_action": "open_main_interact_group",
+                    "title": "点击聊天入口",
+                    "text": "现在跟 Luna 聊聊周六安排的事情吧，直接点击场景里的聊天按钮。它会在有主线时优先带你进入主线，没有主线时再进入其他聊天。",
+                    "wait_action": "open_main_chat",
                     "target_scene": "main",
                     "requires_scene": "main",
-                    "highlight_feature": "main.interact_trigger",
+                    "highlight_feature": "main.chat",
                     "hide_until_scene_ready": true
                 },
                 {
@@ -276,11 +276,11 @@
                     "type": "wait_action",
                     "step_category": "interaction",
                     "title": "留意这些常用区域",
-                    "text": "互动列表已经展开了。主场景里的互动列表、天气面板和顶部状态面板，之后都会经常陪你一起观察 Luna 的日常状态。现在点击任意一个高亮区域，我再继续带你往下。",
+                    "text": "聊天入口已经认识了。天气面板和顶部状态面板，之后也会经常陪你一起观察 Luna 的日常状态。现在点击任意一个高亮区域，我再继续带你往下。",
                     "wait_action": "inspect_main_panels_after_interact",
                     "target_scene": "main",
                     "requires_scene": "main",
-                    "highlight_feature": "main.interact_group",
+                    "highlight_feature": "main.weather",
                     "focus_targets": [
                         {
                             "highlight_feature": "main.weather"
@@ -300,7 +300,7 @@
                     "type": "wait_action",
                     "step_category": "chat",
                     "title": "和 Luna 聊天",
-                    "text": "互动列表已经展开了。现在点击“与 Luna 聊天”，主动和她聊聊静老师周六专项辅导这件事。",
+                    "text": "现在再点击场景里的聊天按钮，主动和她聊聊静老师周六专项辅导这件事。",
                     "wait_action": "open_main_chat",
                     "target_scene": "main",
                     "requires_scene": "main",

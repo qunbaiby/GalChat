@@ -3,12 +3,12 @@
 [ext_resource type="Script" uid="uid://43gatkhq8vdy" path="res://scripts/ui/main/main_scene.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://chn4805nmasow" path="res://scenes/ui/main/backgrounds/locations/class_break_moments_bg.tscn" id="2_rl784"]
 [ext_resource type="PackedScene" uid="uid://esq41rrjvxf3" path="res://scenes/ui/stats/stats_panel.tscn" id="2_stats"]
-[ext_resource type="Texture2D" uid="uid://cixfrbv5lapgk" path="res://assets/images/icons/ui/main/skill-alt.png" id="5_rl784"]
+[ext_resource type="Texture2D" uid="uid://b856qy3copu6c" path="res://assets/images/icons/ui/main/street_menu_icon_activity.png" id="5_p33vi"]
 [ext_resource type="PackedScene" uid="uid://bxudmxa8cfwjr" path="res://scenes/ui/main/weather_panel.tscn" id="5_weather"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_bgm"]
-[ext_resource type="Texture2D" uid="uid://bw0q8i4c6n5pt" path="res://assets/images/icons/ui/main/book-open-cover.png" id="6_p33vi"]
-[ext_resource type="Texture2D" uid="uid://b6jh3sac5vxj2" path="res://assets/images/icons/ui/main/comments.png" id="7_fbdjj"]
-[ext_resource type="Texture2D" uid="uid://dkyoexaqqxn8e" path="res://assets/images/icons/ui/main/clothing-rack.png" id="8_spmh8"]
+[ext_resource type="Texture2D" uid="uid://b3o3x5ufus66t" path="res://assets/images/icons/ui/main/street_menu_icon_album.png" id="6_fbdjj"]
+[ext_resource type="Texture2D" uid="uid://dmpq7bpbfrx6j" path="res://assets/images/icons/ui/main/street_menu_icon_community.png" id="7_spmh8"]
+[ext_resource type="Texture2D" uid="uid://ceucj6ww3fpln" path="res://assets/images/icons/ui/main/street_menu_icon_formation.png" id="8_fbdjj"]
 [ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="10_music_player"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="11_top_panel"]
 [ext_resource type="PackedScene" uid="uid://ceul0k2i64jdf" path="res://scenes/ui/main/creation_panel.tscn" id="12_creation"]
@@ -22,6 +22,27 @@
 [ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
 [ext_resource type="Texture2D" uid="uid://cv303mddfg2o" path="res://assets/images/icons/ui/main/background_switch.svg" id="23_bg_switch_icon"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="24_love_icon"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
+shader = ExtResource("15_trapezoid_shader")
+shader_parameter/slant = 0.3550000168625
+shader_parameter/corner_radius = 0.06
+shader_parameter/aspect_ratio = 2.533
+shader_parameter/padding = 0.0
+shader_parameter/border_width = 0.0
+shader_parameter/border_color = Color(0.57, 0.82, 0.76, 1)
+shader_parameter/glow_size = 0.0
+shader_parameter/glow_color = Color(0, 0, 0, 0)
+shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
+bg_color = Color(0.98039216, 0.9843137, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionPressed"]
+bg_color = Color(1, 0.96, 0.9, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
+bg_color = Color(0.94, 0.98, 0.97, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AppCardNormal"]
 bg_color = Color(0.5803922, 0.63529414, 0.6784314, 0.6)
@@ -115,27 +136,6 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
-shader = ExtResource("15_trapezoid_shader")
-shader_parameter/slant = 0.3550000168625
-shader_parameter/corner_radius = 0.06
-shader_parameter/aspect_ratio = 2.533
-shader_parameter/padding = 0.0
-shader_parameter/border_width = 0.0
-shader_parameter/border_color = Color(0.57, 0.82, 0.76, 1)
-shader_parameter/glow_size = 0.0
-shader_parameter/glow_color = Color(0, 0, 0, 0)
-shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
-bg_color = Color(0.98039216, 0.9843137, 0.9882353, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionPressed"]
-bg_color = Color(1, 0.96, 0.9, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
-bg_color = Color(0.94, 0.98, 0.97, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p33vi"]
 bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
@@ -277,30 +277,6 @@ bg_color = Color(0.011764706, 0.15294118, 0.14901961, 0.42745098)
 corner_radius_top_left = 15
 corner_radius_bottom_left = 15
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecHover"]
-bg_color = Color(0.94, 0.98, 0.97, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecPressed"]
-bg_color = Color(0.85, 0.94, 0.92, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.57, 0.82, 0.76, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SystemToolbarButton"]
 bg_color = Color(0.04, 0.04, 0.05, 0.82)
 border_width_left = 1
@@ -369,6 +345,21 @@ offset_top = 7.0
 offset_right = 1132.0
 offset_bottom = 52.0
 
+[node name="DateButton" type="Button" parent="UIPanel" unique_id=8074925]
+material = SubResource("ShaderMaterial_trapezoid_map")
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 0
+offset_left = 1073.0
+offset_top = 551.0
+offset_right = 1271.0
+offset_bottom = 626.0
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
+text = "约会"
+
 [node name="BottomBarHBox" type="HBoxContainer" parent="UIPanel" unique_id=1262766178]
 layout_mode = 1
 anchors_preset = 12
@@ -388,17 +379,17 @@ layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 3
 
-[node name="SkillButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=593884269]
+[node name="GiftButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=593884269]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
-tooltip_text = "天赋"
+tooltip_text = "礼物"
 theme_override_styles/normal = SubResource("StyleBoxFlat_AppCardNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_AppCardPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_AppCardHover")
 
-[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton" unique_id=1648838588]
+[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/GiftButton" unique_id=1648838588]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -413,21 +404,21 @@ mouse_filter = 2
 theme_override_constants/separation = 2
 alignment = 1
 
-[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton/ContentVBox" unique_id=1941732434]
+[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox" unique_id=1941732434]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2
-texture = ExtResource("5_rl784")
+texture = ExtResource("5_p33vi")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/SkillButton/ContentVBox" unique_id=1996260350]
+[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox" unique_id=1996260350]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
-text = "天赋"
+text = "礼物"
 horizontal_alignment = 1
 
 [node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=466334356]
@@ -460,7 +451,7 @@ custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("6_p33vi")
+texture = ExtResource("6_fbdjj")
 expand_mode = 1
 stretch_mode = 5
 
@@ -529,7 +520,7 @@ custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("7_fbdjj")
+texture = ExtResource("7_spmh8")
 expand_mode = 1
 stretch_mode = 5
 
@@ -570,7 +561,7 @@ custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("8_spmh8")
+texture = ExtResource("8_fbdjj")
 expand_mode = 1
 stretch_mode = 5
 
@@ -1001,52 +992,6 @@ text = "角色写了一篇新的日记，快去看看吧~"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="InteractGroup" type="VBoxContainer" parent="UIPanel" unique_id=1931080054]
-visible = false
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 443.0
-offset_top = -213.0
-offset_right = 605.0
-offset_bottom = -3.0
-grow_vertical = 2
-theme_override_constants/separation = 10
-
-[node name="ChatButton" type="Button" parent="UIPanel/InteractGroup" unique_id=483761258]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
-text = "与【角色名】聊天"
-
-[node name="GiftButton" type="Button" parent="UIPanel/InteractGroup" unique_id=503770277]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
-text = "送礼"
-
-[node name="DateButton" type="Button" parent="UIPanel/InteractGroup" unique_id=2091859225]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.25, 0.25, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_SecHover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_SecPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_SecHover")
-text = "约会"
-
 [node name="DiaryPanel" parent="UIPanel" unique_id=1731701313 instance=ExtResource("12_diary")]
 visible = false
 layout_mode = 1
@@ -1054,21 +999,6 @@ layout_mode = 1
 [node name="CreationPanel" parent="UIPanel" unique_id=539188175 instance=ExtResource("12_creation")]
 visible = false
 layout_mode = 1
-
-[node name="MainActionButton" type="Button" parent="UIPanel" unique_id=8074925]
-material = SubResource("ShaderMaterial_trapezoid_map")
-custom_minimum_size = Vector2(160, 75)
-layout_mode = 0
-offset_left = 1088.0
-offset_top = 551.0
-offset_right = 1271.0
-offset_bottom = 626.0
-size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
-text = "外出"
 
 [node name="BgSwitchButton" type="Button" parent="." unique_id=376807236]
 visible = false

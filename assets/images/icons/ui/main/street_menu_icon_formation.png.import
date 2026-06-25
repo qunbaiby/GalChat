@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dkyoexaqqxn8e"
-path="res://.godot/imported/clothing-rack.png-170f5e6182c5f01e394687419f6bfd2f.ctex"
+uid="uid://ceucj6ww3fpln"
+path="res://.godot/imported/street_menu_icon_formation.png-410a05ae96a7f3bce6e31c6d7d3ca2d5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/clothing-rack.png"
-dest_files=["res://.godot/imported/clothing-rack.png-170f5e6182c5f01e394687419f6bfd2f.ctex"]
+source_file="res://assets/images/icons/ui/main/street_menu_icon_formation.png"
+dest_files=["res://.godot/imported/street_menu_icon_formation.png-410a05ae96a7f3bce6e31c6d7d3ca2d5.ctex"]
 
 [params]
 

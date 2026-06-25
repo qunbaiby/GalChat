@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bw0q8i4c6n5pt"
-path="res://.godot/imported/book-open-cover.png-6883e5582dcf29bd8444e39cc14bfe6f.ctex"
+uid="uid://dmwq0agevlhky"
+path="res://.godot/imported/talk_right_blue_icon.png-295d2e25166f5b6acfd5bc48815586f9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/book-open-cover.png"
-dest_files=["res://.godot/imported/book-open-cover.png-6883e5582dcf29bd8444e39cc14bfe6f.ctex"]
+source_file="res://assets/images/icons/ui/main/talk_right_blue_icon.png"
+dest_files=["res://.godot/imported/talk_right_blue_icon.png-295d2e25166f5b6acfd5bc48815586f9.ctex"]
 
 [params]
 

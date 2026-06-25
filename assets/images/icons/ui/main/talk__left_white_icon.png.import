@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b6jh3sac5vxj2"
-path="res://.godot/imported/comments.png-07460e22c59aeb018677647bd4ede97e.ctex"
+uid="uid://bbv2vb5ndojnj"
+path="res://.godot/imported/talk__left_white_icon.png-c4a20b72f6749f0a3c54acfeaf6c6276.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/comments.png"
-dest_files=["res://.godot/imported/comments.png-07460e22c59aeb018677647bd4ede97e.ctex"]
+source_file="res://assets/images/icons/ui/main/talk__left_white_icon.png"
+dest_files=["res://.godot/imported/talk__left_white_icon.png-c4a20b72f6749f0a3c54acfeaf6c6276.ctex"]
 
 [params]
 

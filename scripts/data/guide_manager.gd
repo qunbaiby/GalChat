@@ -617,16 +617,12 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 			return false
 		var highlight_feature := str(step_data.get("highlight_feature", "")).strip_edges()
 		var target_mode := str(step_data.get("target_mode", "")).strip_edges()
-		if highlight_feature == "main.interact_group" and main_scene.has_method("is_interact_group_ready_for_guide"):
-			return bool(main_scene.is_interact_group_ready_for_guide())
 		if highlight_feature == "main.goal" and main_scene.has_method("is_goal_panel_ready_for_guide"):
 			return bool(main_scene.is_goal_panel_ready_for_guide())
 		if highlight_feature == "main.affection" and main_scene.has_method("is_affection_button_ready_for_guide"):
 			return bool(main_scene.is_affection_button_ready_for_guide())
 		if highlight_feature == "main.affection_panel" and main_scene.has_method("is_affection_panel_ready_for_guide"):
 			return bool(main_scene.is_affection_panel_ready_for_guide())
-		if highlight_feature == "main.interact_trigger" and main_scene.has_method("is_interact_trigger_ready_for_guide"):
-			return bool(main_scene.is_interact_trigger_ready_for_guide())
 		if highlight_feature == "main.chat" and main_scene.has_method("is_chat_button_ready_for_guide"):
 			return bool(main_scene.is_chat_button_ready_for_guide())
 		if target_mode == "topic_options" and main_scene.has_method("is_main_chat_topic_options_ready"):
@@ -779,16 +775,12 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				raw_result = main_scene.get_top_status_panel_focus_entry()
 			elif highlight_feature == "main.weather" and main_scene.has_method("get_weather_panel_focus_entry"):
 				raw_result = main_scene.get_weather_panel_focus_entry()
-			elif highlight_feature == "main.interact_group" and main_scene.has_method("get_interact_group_focus_entry"):
-				raw_result = main_scene.get_interact_group_focus_entry()
 			elif highlight_feature == "main.goal" and main_scene.has_method("get_goal_panel_focus_entry"):
 				raw_result = main_scene.get_goal_panel_focus_entry()
 			elif highlight_feature == "main.stats" and main_scene.has_method("get_stats_panel_focus_entry"):
 				raw_result = main_scene.get_stats_panel_focus_entry()
 			elif highlight_feature == "main.wechat" and main_scene.has_method("get_wechat_button_focus_entry"):
 				raw_result = main_scene.get_wechat_button_focus_entry()
-			elif highlight_feature == "main.interact_trigger" and main_scene.has_method("get_interact_trigger_focus_entry"):
-				raw_result = main_scene.get_interact_trigger_focus_entry()
 			elif highlight_feature == "main.chat" and main_scene.has_method("get_chat_button_focus_entry"):
 				raw_result = main_scene.get_chat_button_focus_entry()
 			elif target_mode == "topic_options" and main_scene.has_method("get_main_chat_topic_options_focus_entry"):
@@ -943,8 +935,6 @@ func _resolve_step_target_node(step_data: Dictionary) -> Node:
 		var main_scene := _resolve_main_scene()
 		if not is_instance_valid(main_scene):
 			return null
-		if highlight_feature == "main.interact_trigger" and main_scene.has_method("_get_interact_trigger_button"):
-			return main_scene._get_interact_trigger_button()
 		if target_mode == "topic_options" and main_scene.has_method("get_node_or_null"):
 			return main_scene.get_node_or_null("DialoguePanel/QuickOptionLayer")
 		if highlight_feature != "" and MAIN_SCENE_FEATURE_PATHS.has(highlight_feature):
@@ -1061,8 +1051,6 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 			return interaction_id == "wechat.close"
 		"explain_main_goal_panel":
 			return interaction_id == "main.goal_panel"
-		"open_interact_group_after_goal":
-			return interaction_id == "main.interact_trigger"
 		"open_chat_after_goal":
 			return interaction_id == "main.chat"
 		"choose_topic_after_goal":

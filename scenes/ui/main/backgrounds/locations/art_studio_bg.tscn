@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://dw05orqxxao2c" path="res://scripts/ui/main/backgrounds/core/default_room_bg.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://rjndld7ka760" path="res://assets/images/backgrounds/main/art_studio_bg.png" id="2_jxfeh"]
 [ext_resource type="Texture2D" uid="uid://cx8u4vi35evxe" path="res://assets/images/backgrounds/main/default_room_luna_idle.png" id="3_luna_idle"]
+[ext_resource type="Texture2D" uid="uid://bbv2vb5ndojnj" path="res://assets/images/icons/ui/main/talk__left_white_icon.png" id="4_00ele"]
+[ext_resource type="PackedScene" uid="uid://cwm5mqnckotbj" path="res://scenes/ui/main/backgrounds/components/chat_status_badge.tscn" id="4_status_badge"]
+[ext_resource type="Texture2D" uid="uid://b54l8edia6yia" path="res://assets/images/icons/ui/main/talk_left_blue_icon.png" id="5_ddnn8"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_jxfeh"]
 animations = [{
@@ -14,104 +17,6 @@ animations = [{
 "name": &"default",
 "speed": 5.0
 }]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StoryNormal"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 4
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 4
-shadow_offset = Vector2(2, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StoryPressed"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(0.9, 0.9, 0.9, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 4
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 2
-shadow_offset = Vector2(1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StoryHover"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 4
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 6
-shadow_offset = Vector2(2, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StoryFocus"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 4
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 4
-shadow_offset = Vector2(2, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InteractNormal"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 4
-shadow_offset = Vector2(2, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InteractPressed"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(0.9, 0.9, 0.9, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 2
-shadow_offset = Vector2(1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InteractHover"]
-content_margin_left = 15.0
-content_margin_top = 8.0
-content_margin_right = 15.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 6
-shadow_offset = Vector2(2, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jxfeh"]
 content_margin_left = 20.0
@@ -125,6 +30,18 @@ corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 4
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j5iyk"]
+texture = ExtResource("4_00ele")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nq2w3"]
+texture = ExtResource("5_ddnn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6lb0t"]
+texture = ExtResource("5_ddnn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_y0bpq"]
+texture = ExtResource("5_ddnn8")
 
 [node name="ArtStudioBg" type="Control" unique_id=1124312191]
 layout_mode = 3
@@ -164,38 +81,6 @@ position = Vector2(658.76575, 373.99905)
 scale = Vector2(0.7736431, 0.7736431)
 sprite_frames = SubResource("SpriteFrames_jxfeh")
 
-[node name="StoryButton" type="Button" parent="." unique_id=1499845283]
-layout_mode = 0
-offset_left = 1004.0
-offset_top = 121.0
-offset_right = 1119.0
-offset_bottom = 167.0
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_colors/font_pressed_color = Color(0.3, 0.3, 0.3, 1)
-theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_StoryNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_StoryPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_StoryHover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_StoryFocus")
-text = "心事"
-
-[node name="InteractTriggerButton" type="Button" parent="." unique_id=1744170112]
-layout_mode = 0
-offset_left = 621.0
-offset_top = 154.0
-offset_right = 736.0
-offset_bottom = 200.0
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_colors/font_pressed_color = Color(0.3, 0.3, 0.3, 1)
-theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_InteractNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_InteractPressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_InteractHover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_InteractNormal")
-text = "互动"
-
 [node name="IdleQuoteBubble" type="PanelContainer" parent="." unique_id=695416829]
 visible = false
 layout_mode = 0
@@ -215,3 +100,21 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
+
+[node name="ChatButton" type="Button" parent="." unique_id=117013809]
+layout_mode = 0
+offset_left = 647.0
+offset_top = 170.0
+offset_right = 744.0202
+offset_bottom = 255.0
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_styles/normal = SubResource("StyleBoxTexture_j5iyk")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_nq2w3")
+theme_override_styles/hover = SubResource("StyleBoxTexture_6lb0t")
+theme_override_styles/focus = SubResource("StyleBoxTexture_y0bpq")
+
+[node name="StatusBadge" parent="ChatButton" unique_id=644519446 instance=ExtResource("4_status_badge")]
+layout_mode = 0
