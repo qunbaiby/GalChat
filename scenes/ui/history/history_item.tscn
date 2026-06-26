@@ -1,7 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://item12345"]
+[gd_scene format=3 uid="uid://item12345"]
 
 [ext_resource type="Script" uid="uid://cte13wyhmtt8l" path="res://scripts/ui/history/history_item.gd" id="1_item123"]
-[ext_resource type="Theme" uid="uid://cx6y837p8y74k" path="res://assets/themes/galchat_theme.tres" id="1_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Avatar"]
 bg_color = Color(0.2, 0.2, 0.2, 1)
@@ -17,30 +16,29 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="HistoryItem" type="MarginContainer"]
+[node name="HistoryItem" type="MarginContainer" unique_id=1747903151]
 anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
-theme = ExtResource("1_theme")
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_bottom = 10
 script = ExtResource("1_item123")
 
-[node name="MainHBox" type="HBoxContainer" parent="."]
+[node name="MainHBox" type="HBoxContainer" parent="." unique_id=1270751672]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="AvatarPanel" type="PanelContainer" parent="MainHBox"]
+[node name="AvatarPanel" type="PanelContainer" parent="MainHBox" unique_id=620952227]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Avatar")
 
-[node name="Mask" type="Control" parent="MainHBox/AvatarPanel"]
+[node name="Mask" type="Control" parent="MainHBox/AvatarPanel" unique_id=1230274515]
 clip_children = 1
 layout_mode = 2
 
-[node name="AvatarRect" type="TextureRect" parent="MainHBox/AvatarPanel/Mask"]
+[node name="AvatarRect" type="TextureRect" parent="MainHBox/AvatarPanel/Mask" unique_id=807566666]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -51,16 +49,16 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ContentVBox" type="VBoxContainer" parent="MainHBox"]
+[node name="ContentVBox" type="VBoxContainer" parent="MainHBox" unique_id=82757601]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="HeaderHBox" type="HBoxContainer" parent="MainHBox/ContentVBox"]
+[node name="HeaderHBox" type="HBoxContainer" parent="MainHBox/ContentVBox" unique_id=1538118744]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="NameLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox"]
+[node name="NameLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox" unique_id=1224080613]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -68,12 +66,12 @@ theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 18
 text = "Name"
 
-[node name="MetaHBox" type="HBoxContainer" parent="MainHBox/ContentVBox/HeaderHBox"]
+[node name="MetaHBox" type="HBoxContainer" parent="MainHBox/ContentVBox/HeaderHBox" unique_id=1684439168]
 layout_mode = 2
-alignment = 2
 theme_override_constants/separation = 8
+alignment = 2
 
-[node name="TypeTagLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox"]
+[node name="TypeTagLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox" unique_id=1122677519]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -82,7 +80,7 @@ theme_override_font_sizes/font_size = 12
 text = "日常"
 vertical_alignment = 1
 
-[node name="TimeLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox"]
+[node name="TimeLabel" type="Label" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox" unique_id=1583563969]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.55, 0.6, 1)
@@ -90,7 +88,7 @@ theme_override_font_sizes/font_size = 12
 text = "[2026-03-29 12:00:00]"
 vertical_alignment = 1
 
-[node name="PlayButton" type="Button" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox"]
+[node name="PlayButton" type="Button" parent="MainHBox/ContentVBox/HeaderHBox/MetaHBox" unique_id=133023950]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(28, 28)
@@ -101,7 +99,7 @@ theme_override_font_sizes/font_size = 14
 text = "▶"
 flat = true
 
-[node name="ContentLabel" type="RichTextLabel" parent="MainHBox/ContentVBox"]
+[node name="ContentLabel" type="RichTextLabel" parent="MainHBox/ContentVBox" unique_id=835370852]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -111,30 +109,30 @@ bbcode_enabled = true
 text = "Message content..."
 fit_content = true
 
-[node name="ChoicePanel" type="PanelContainer" parent="MainHBox/ContentVBox"]
+[node name="ChoicePanel" type="PanelContainer" parent="MainHBox/ContentVBox" unique_id=961577300]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Choice")
 
-[node name="Margin" type="MarginContainer" parent="MainHBox/ContentVBox/ChoicePanel"]
+[node name="Margin" type="MarginContainer" parent="MainHBox/ContentVBox/ChoicePanel" unique_id=426227730]
 layout_mode = 2
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 10
 
-[node name="HBox" type="HBoxContainer" parent="MainHBox/ContentVBox/ChoicePanel/Margin"]
+[node name="HBox" type="HBoxContainer" parent="MainHBox/ContentVBox/ChoicePanel/Margin" unique_id=913084258]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="IconLabel" type="Label" parent="MainHBox/ContentVBox/ChoicePanel/Margin/HBox"]
+[node name="IconLabel" type="Label" parent="MainHBox/ContentVBox/ChoicePanel/Margin/HBox" unique_id=1435088080]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.65, 0.58, 1)
 theme_override_font_sizes/font_size = 16
 text = "✓"
 
-[node name="ChoiceLabel" type="Label" parent="MainHBox/ContentVBox/ChoicePanel/Margin/HBox"]
+[node name="ChoiceLabel" type="Label" parent="MainHBox/ContentVBox/ChoicePanel/Margin/HBox" unique_id=667524785]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

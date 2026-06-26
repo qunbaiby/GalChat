@@ -570,7 +570,7 @@ func _on_floating_call_close_pressed() -> void:
 func _center_floating_call_window() -> void:
 	var viewport_size := get_viewport_rect().size
 	var target := (viewport_size - floating_call_window.size) * 0.5
-	target += Vector2(130, -10)
+	target += Vector2(96, -6)
 	_set_floating_window_position(target)
 
 func _set_floating_window_position(target: Vector2) -> void:
@@ -590,7 +590,7 @@ func _center_moments_window() -> void:
 	if window_size.x <= 1.0 or window_size.y <= 1.0:
 		window_size = moments_popup_window.custom_minimum_size
 	if window_size.x <= 1.0 or window_size.y <= 1.0:
-		window_size = Vector2(720, 640)
+		window_size = Vector2(380, 540)
 	moments_popup_window.size = window_size
 	var target := (viewport_size - window_size) * 0.5
 	_set_moments_window_position(target)

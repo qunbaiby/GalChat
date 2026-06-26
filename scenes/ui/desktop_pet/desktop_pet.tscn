@@ -2,11 +2,18 @@
 
 [ext_resource type="Script" uid="uid://bt1hh6wbxqso0" path="res://scripts/ui/desktop_pet/desktop_pet.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="3_api"]
-[ext_resource type="Texture2D" uid="uid://be04r7mkdm1jp" path="res://assets/images/ui/desktoppet/QuickToolsFrame.png" id="3_xx4g7"]
+[ext_resource type="Texture2D" uid="uid://s8lolucbfklr" path="res://scenes/ui/desktop_pet/06f5a979c09c50947b4cb3b0e471a26a.png" id="3_v5u4d"]
 [ext_resource type="PackedScene" uid="uid://d0vnlpr3gjrac" path="res://scenes/ui/desktop_pet/pet_body.tscn" id="3_yofv2"]
 [ext_resource type="Texture2D" uid="uid://dk4duoxiyc787" path="res://assets/images/backgrounds/main/Holiday Pool Days.png" id="4_yofv2"]
 [ext_resource type="Texture2D" uid="uid://dwnte3afrhe77" path="res://assets/images/characters/Luna/avatar/luna.png" id="5_xx4g7"]
 [ext_resource type="Texture2D" uid="uid://by126rkkfl5r2" path="res://assets/images/ui/common/closebg.png" id="5_yofv2"]
+[ext_resource type="Texture2D" uid="uid://cjla5swe4uuyl" path="res://assets/images/icons/ui/music/mv-ai-fill.png" id="6_cover_icon"]
+[ext_resource type="Texture2D" uid="uid://c7i4qen7i4iq8" path="res://assets/images/icons/ui/music/volume-up-fill.png" id="7_volume_icon"]
+[ext_resource type="Texture2D" uid="uid://hitc17qulbok" path="res://assets/images/icons/ui/music/shuffle-fill.png" id="8_shuffle_icon"]
+[ext_resource type="Texture2D" uid="uid://usyrpjohvbh1" path="res://assets/images/icons/ui/music/skip-back-fill.png" id="9_prev_icon"]
+[ext_resource type="Texture2D" uid="uid://ga2dbs7kgotc" path="res://assets/images/icons/ui/music/pause-circle-fill.png" id="10_pause_icon"]
+[ext_resource type="Texture2D" uid="uid://d2o4wqh8uaa46" path="res://assets/images/icons/ui/music/skip-forward-fill.png" id="11_next_icon"]
+[ext_resource type="Texture2D" uid="uid://b2mpo88dgybkg" path="res://assets/images/icons/ui/music/repeat-2-line.png" id="12_repeat_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PetInput"]
 bg_color = Color(0.985, 0.988, 0.995, 0.96)
@@ -47,81 +54,198 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_yofv2"]
-texture = ExtResource("3_xx4g7")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToolContent"]
-bg_color = Color(0.96, 0.965, 0.972, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DeviceShell"]
+bg_color = Color(0.913725, 0.917647, 0.933333, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.94, 1)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
-shadow_color = Color(0.24, 0.32, 0.42, 0.06)
-shadow_size = 10
-shadow_offset = Vector2(0, 3)
+border_color = Color(0.84, 0.85, 0.89, 1)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0.14, 0.16, 0.22, 0.12)
+shadow_size = 16
+shadow_offset = Vector2(0, 5)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TimeWidgetDatePill"]
-bg_color = Color(0.95, 0.59, 0.76, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TimeWidgetWeekPill"]
-bg_color = Color(0.93, 0.84, 0.47, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionCardPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0.32, 0.62, 0.58, 0.16)
-shadow_size = 12
-shadow_offset = Vector2(0, 4)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionCard"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.86, 0.89, 0.94, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0.24, 0.32, 0.42, 0.06)
-shadow_size = 10
-shadow_offset = Vector2(0, 3)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FooterPill"]
-bg_color = Color(0.14, 0.16, 0.2, 0.96)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightStage"]
-bg_color = Color(0.84, 0.92, 0.95, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.93, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ToolTransparent"]
+bg_color = Color(1, 1, 1, 0)
 corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
 
+[sub_resource type="Gradient" id="Gradient_QuickToolFade"]
+offsets = PackedFloat32Array(0, 0.48, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.14, 0.96, 0.965, 0.972, 0.96)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_QuickToolFade"]
+gradient = SubResource("Gradient_QuickToolFade")
+fill_from = Vector2(0.508547, 0.1965812)
+fill_to = Vector2(0.508547, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolCard"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.87, 0.92, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.24, 0.32, 0.42, 0.06)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordDisc"]
+bg_color = Color(0.05, 0.06, 0.08, 1)
+corner_radius_top_left = 54
+corner_radius_top_right = 54
+corner_radius_bottom_right = 54
+corner_radius_bottom_left = 54
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RecordCenter"]
+bg_color = Color(0.96, 0.97, 0.98, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.86, 0.9, 0.94, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="Shader" id="Shader_AvatarCircle"]
+code = "shader_type canvas_item;
+
+void fragment() {
+	vec2 centered_uv = UV * 2.0 - vec2(1.0);
+	float mask = smoothstep(1.0, 0.94, length(centered_uv));
+	vec4 tex = texture(TEXTURE, UV);
+	COLOR = vec4(tex.rgb, tex.a * mask);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_AvatarCircle"]
+shader = SubResource("Shader_AvatarCircle")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolDarkCard"]
+bg_color = Color(0.2, 0.22, 0.26, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.13, 0.15, 0.18, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolWeekBadge"]
+bg_color = Color(0.475, 0.807, 0.965, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yofv2"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolDateBadge"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.84, 0.88, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolMonthBadge"]
+bg_color = Color(0.396, 0.749, 0.925, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolRoundGreen"]
+bg_color = Color(0.651, 0.902, 0.416, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolRoundCoral"]
+bg_color = Color(0.965, 0.494, 0.4, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolRoundBlue"]
+bg_color = Color(0.443, 0.729, 0.984, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolRoundYellow"]
+bg_color = Color(0.965, 0.784, 0.282, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolRoundGray"]
+bg_color = Color(0.47, 0.49, 0.53, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolActionDark"]
+bg_color = Color(0.16, 0.17, 0.2, 0.96)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_QuickToolActionLight"]
+bg_color = Color(1, 1, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.87, 0.92, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_v5u4d"]
 texture = ExtResource("5_yofv2")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarDock"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.87, 0.89, 0.93, 1)
+corner_radius_top_left = 52
+corner_radius_top_right = 52
+corner_radius_bottom_right = 52
+corner_radius_bottom_left = 52
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopNavButton"]
 bg_color = Color(1, 1, 1, 0.98)
@@ -137,32 +261,6 @@ corner_radius_bottom_left = 20
 shadow_color = Color(0.24, 0.32, 0.42, 0.08)
 shadow_size = 8
 shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarDock"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 52
-corner_radius_top_right = 52
-corner_radius_bottom_right = 52
-corner_radius_bottom_left = 52
-
-[sub_resource type="Shader" id="Shader_AvatarCircle"]
-code = "shader_type canvas_item;
-
-void fragment() {
-	vec2 centered_uv = UV * 2.0 - vec2(1.0);
-	float mask = smoothstep(1.0, 0.94, length(centered_uv));
-	vec4 tex = texture(TEXTURE, UV);
-	COLOR = vec4(tex.rgb, tex.a * mask);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_AvatarCircle"]
-shader = SubResource("Shader_AvatarCircle")
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -267,401 +365,481 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_PetButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_PetButton")
 text = "关闭"
 
+[node name="06f5a979c09c50947b4Cb3b0e471a26a" type="Sprite2D" parent="Control" unique_id=2078836609]
+visible = false
+position = Vector2(807.47266, 403.76147)
+scale = Vector2(0.6911873, 0.69118714)
+texture = ExtResource("3_v5u4d")
+
 [node name="QuickToolsPanel" type="PanelContainer" parent="Control" unique_id=1677745701]
 visible = false
 clip_children = 2
-custom_minimum_size = Vector2(620, 430)
+custom_minimum_size = Vector2(270, 525)
 layout_mode = 0
-offset_left = 298.0
-offset_top = 222.0
-offset_right = 918.0
-offset_bottom = 652.0
-theme_override_styles/panel = SubResource("StyleBoxTexture_yofv2")
+offset_left = 640.0
+offset_top = 144.0
+offset_right = 910.0
+offset_bottom = 669.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_DeviceShell")
 
 [node name="Canvas" type="Panel" parent="Control/QuickToolsPanel" unique_id=1255209303]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ToolContent")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ToolTransparent")
 
 [node name="ShellMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas" unique_id=817245411]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MainHBox" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin" unique_id=1926009912]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="LeftColumn" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox" unique_id=1514606265]
-custom_minimum_size = Vector2(332, 0)
+[node name="ShellRoot" type="Control" parent="Control/QuickToolsPanel/Canvas/ShellMargin" unique_id=1756842201]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 14
+mouse_filter = 2
 
-[node name="HeaderMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn" unique_id=1912448563]
-layout_mode = 2
-theme_override_constants/margin_left = 85
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 18
-
-[node name="HeaderCard" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin" unique_id=1249808424]
-self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(0, 88)
-layout_mode = 2
-
-[node name="HeaderVBox" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard" unique_id=921567139]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="NameRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox" unique_id=855049711]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="NameLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/NameRow" unique_id=1168904545]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.19, 0.22, 0.29, 1)
-theme_override_font_sizes/font_size = 35
-text = "Luna"
-
-[node name="ModeChip" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/NameRow" unique_id=85804070]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.39, 0.67, 0.66, 1)
-theme_override_font_sizes/font_size = 11
-text = "摸鱼模式"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="UidLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox" unique_id=1790615085]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.58, 0.64, 1)
-theme_override_font_sizes/font_size = 15
-text = "Luna 的随身工具台"
-
-[node name="Divider" type="HSeparator" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox" unique_id=1534940212]
-visible = false
-layout_mode = 2
-
-[node name="TimeRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox" unique_id=220461783]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="DatePill" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/TimeRow" unique_id=1845830293]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_TimeWidgetDatePill")
-
-[node name="DateMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/TimeRow/DatePill" unique_id=1824023428]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 3
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 3
-
-[node name="Title" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/TimeRow/DatePill/DateMargin" unique_id=1291171604]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 13
-text = "2026.06.24"
-
-[node name="WeekPill" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/TimeRow" unique_id=1256629675]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_TimeWidgetWeekPill")
-
-[node name="WeekMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/TimeRow/WeekPill" unique_id=297433199]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 3
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 3
-
-[node name="SubTitle" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox/TimeRow/WeekPill/WeekMargin" unique_id=314926082]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 13
-text = "WEDNESDAY"
-
-[node name="ClockLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/HeaderMargin/HeaderCard/HeaderVBox" unique_id=894146437]
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(0.19, 0.22, 0.29, 1)
-theme_override_font_sizes/font_size = 28
-text = "18:00"
-
-[node name="Screen" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn" unique_id=598783987]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ToolContent")
-
-[node name="ScreenInner" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen" unique_id=576192740]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
-
-[node name="ToolContentArea" type="Control" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner" unique_id=852541846]
-clip_contents = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ScreenMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea" unique_id=2055199367]
+[node name="BottomBackground" type="TextureRect" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot" unique_id=593188331]
+modulate = Color(1, 1, 1, 0.8901961)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="DashboardRoot" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin" unique_id=239434929]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 10
-
-[node name="PrimaryButtons" type="GridContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot" unique_id=1160734631]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 3
-
-[node name="DialogueButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/PrimaryButtons" unique_id=2116927600]
-custom_minimum_size = Vector2(0, 92)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCardPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCardPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCardPrimary")
-text = "聊天"
-
-[node name="MusicToggleButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/PrimaryButtons" unique_id=1927716268]
-custom_minimum_size = Vector2(0, 92)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "音乐"
-
-[node name="PomodoroToggleButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/PrimaryButtons" unique_id=1958419132]
-custom_minimum_size = Vector2(0, 92)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCardPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCardPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCardPrimary")
-text = "番茄钟"
-
-[node name="SecondaryRows" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot" unique_id=882559695]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="FirstRow" type="GridContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows" unique_id=201123622]
-layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 2
-
-[node name="AffectionButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/FirstRow" unique_id=1593789929]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "情感"
-
-[node name="MemoryButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/FirstRow" unique_id=1454527922]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "记忆"
-
-[node name="SecondRow" type="GridContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows" unique_id=2047657319]
-layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 2
-
-[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/SecondRow" unique_id=929406551]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "设置"
-
-[node name="CloseButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot/SecondaryRows/SecondRow" unique_id=1255299958]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionCard")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ActionCard")
-text = "关闭"
-
-[node name="MainWindowButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot" unique_id=969172869]
-visible = false
-layout_mode = 2
-text = "主界面"
-
-[node name="Spacer" type="Control" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot" unique_id=1173230056]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="HideToolButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/LeftColumn/Screen/ScreenInner/ToolContentArea/ScreenMargin/DashboardRoot" unique_id=1582735837]
-visible = false
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.92)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_FooterPill")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_FooterPill")
-theme_override_styles/hover = SubResource("StyleBoxFlat_FooterPill")
-text = "收起工具"
-
-[node name="RightStage" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox" unique_id=657907437]
-custom_minimum_size = Vector2(232, 0)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_RightStage")
-
-[node name="RightCanvas" type="Panel" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/RightStage" unique_id=585039439]
-layout_mode = 2
-
-[node name="RightPortrait" type="TextureRect" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/RightStage/RightCanvas" unique_id=1196880565]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 64.0
+offset_top = -35.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("4_yofv2")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="BrandLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/RightStage/RightCanvas" unique_id=1040816287]
+[node name="BottomFade" type="TextureRect" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot" unique_id=823170329]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -62.0
-offset_top = 18.0
-offset_right = 62.0
-offset_bottom = 42.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.82)
-theme_override_font_sizes/font_size = 24
-text = "LUNA"
-horizontal_alignment = 1
-
-[node name="DecorDots" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/RightStage/RightCanvas" unique_id=1242529019]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -42.0
-offset_top = 88.0
-offset_right = 42.0
-offset_bottom = 132.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.7)
-theme_override_font_sizes/font_size = 22
-text = "· · ·
-· · ·"
-horizontal_alignment = 1
-
-[node name="RightHint" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/MainHBox/RightStage/RightCanvas" unique_id=1339837693]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -40.0
-offset_right = -16.0
-offset_bottom = -14.0
 grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_QuickToolFade")
+
+[node name="ContentMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot" unique_id=1633811290]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -1.25
+offset_bottom = 1.75
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 75
+theme_override_constants/margin_right = 16
+
+[node name="ContentVBox" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin" unique_id=1987202422]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="TopRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox" unique_id=437650361]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LeftStack" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow" unique_id=1449911494]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="RecordCard" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack" unique_id=181540945]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolCard")
+
+[node name="RecordInner" type="Control" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/RecordCard" unique_id=1171705881]
+layout_mode = 2
+
+[node name="Needle" type="ColorRect" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/RecordCard/RecordInner" unique_id=435938575]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 22.0
+offset_bottom = 72.0
+grow_horizontal = 2
+color = Color(0.92, 0.93, 0.95, 1)
+
+[node name="DiscOuter" type="Panel" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/RecordCard/RecordInner" unique_id=1656812146]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -48.0
+offset_top = -48.0
+offset_right = 48.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_RecordDisc")
+
+[node name="DiscCenter" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/RecordCard/RecordInner/DiscOuter" unique_id=1189300158]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_RecordCenter")
+
+[node name="DiscCover" type="TextureRect" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/RecordCard/RecordInner/DiscOuter/DiscCenter" unique_id=1924206315]
+material = SubResource("ShaderMaterial_AvatarCircle")
+layout_mode = 2
+texture = ExtResource("4_yofv2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ClockCard" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack" unique_id=515014725]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolDarkCard")
+
+[node name="ClockMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard" unique_id=1184119492]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 3
+
+[node name="ClockVBox" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin" unique_id=1996292995]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ClockTopRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox" unique_id=1476535854]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="WeekBadge" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockTopRow" unique_id=1858462233]
+custom_minimum_size = Vector2(38, 25)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolWeekBadge")
+
+[node name="WeekLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockTopRow/WeekBadge" unique_id=957705115]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
-text = "陪你一起度过现在的时间"
+text = "SAT"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimeBadge" type="Panel" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockTopRow" unique_id=1952146422]
+custom_minimum_size = Vector2(78, 25)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yofv2")
+
+[node name="TimeLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockTopRow/TimeBadge" unique_id=1033643156]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 22
+text = "10:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ClockBottomRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox" unique_id=385712562]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DateBadge" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockBottomRow" unique_id=1014043179]
+custom_minimum_size = Vector2(50, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolDateBadge")
+
+[node name="DateLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockBottomRow/DateBadge" unique_id=67693416]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 13
+text = "03.21"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MonthBadge" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockBottomRow" unique_id=1939280339]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolMonthBadge")
+
+[node name="MonthLabel" type="Label" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/LeftStack/ClockCard/ClockMargin/ClockVBox/ClockBottomRow/MonthBadge" unique_id=125544519]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "MARCH"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PreviewCard" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow" unique_id=1902655620]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolCard")
+
+[node name="PreviewMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/PreviewCard" unique_id=1427701394]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="PreviewFrame" type="Panel" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/PreviewCard/PreviewMargin" unique_id=1668796442]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_QuickToolCard")
+
+[node name="PreviewImage" type="TextureRect" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/TopRow/PreviewCard/PreviewMargin/PreviewFrame" unique_id=703731732]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_yofv2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ToolButtonsRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox" unique_id=1277342166]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="MemoryButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow" unique_id=717834180]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.24, 0.28, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolRoundGreen")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolRoundGreen")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolRoundGreen")
+text = "记"
+
+[node name="AffectionButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow" unique_id=890646458]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolRoundCoral")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolRoundCoral")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolRoundCoral")
+text = "感"
+
+[node name="RecordEntryButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow" unique_id=710225740]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolRoundBlue")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolRoundBlue")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolRoundBlue")
+text = "录"
+
+[node name="PetSettingsButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow" unique_id=1509377138]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.24, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolRoundYellow")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolRoundYellow")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolRoundYellow")
+text = "设"
+
+[node name="CloseButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow" unique_id=812742060]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolRoundGray")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolRoundGray")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolRoundGray")
+text = "×"
+
+[node name="PrimaryActionsRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox" unique_id=2102163449]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DialogueButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/PrimaryActionsRow" unique_id=520321100]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolActionDark")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolActionDark")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolActionDark")
+text = "聊天"
+
+[node name="PomodoroToggleButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/PrimaryActionsRow" unique_id=47453412]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.16, 0.17, 0.2, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolActionLight")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolActionLight")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolActionLight")
+text = "番茄钟"
+
+[node name="MoodPanel" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox" unique_id=1695384330]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="BottomSection" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox" unique_id=499957315]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BottomSectionMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection" unique_id=695091597]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 35
+theme_override_constants/margin_right = 60
+
+[node name="MusicColumn" type="VBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin" unique_id=1602107125]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="MusicControlsRow" type="HBoxContainer" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn" unique_id=447316326]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="MusicPlaylistButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=125113771]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+icon = ExtResource("6_cover_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicPrevButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=661550157]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+icon = ExtResource("9_prev_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicPlayPauseButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=72461250]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+icon = ExtResource("10_pause_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicNextButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=1570915853]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+icon = ExtResource("11_next_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicVolumeButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=185650264]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+icon = ExtResource("7_volume_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicShuffleButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=1468281117]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+icon = ExtResource("8_shuffle_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicRepeatButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn/MusicControlsRow" unique_id=1933368240]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+icon = ExtResource("12_repeat_icon")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="MusicProgress" type="ProgressBar" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/BottomSection/BottomSectionMargin/MusicColumn" unique_id=812591426]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_PetButton")
+theme_override_styles/fill = SubResource("StyleBoxFlat_QuickToolWeekBadge")
+max_value = 1.0
+step = 0.001
+show_percentage = false
 
 [node name="ToolNavButtonbg" type="Panel" parent="Control/QuickToolsPanel/Canvas" unique_id=530590806]
 layout_mode = 0
-offset_left = 575.0
-offset_top = -1.0
-offset_right = 625.0
-offset_bottom = 43.0
+offset_left = 234.0
+offset_right = 270.0
+offset_bottom = 36.0
 theme_override_styles/panel = SubResource("StyleBoxTexture_v5u4d")
 
-[node name="ToolNavButton" type="Button" parent="Control/QuickToolsPanel/Canvas" unique_id=73628408]
-custom_minimum_size = Vector2(35, 35)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -41.0
-offset_top = -8.0
-offset_bottom = 49.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = SubResource("StyleBoxFlat_TopNavButton")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_TopNavButton")
-theme_override_styles/hover = SubResource("StyleBoxFlat_TopNavButton")
-text = "×"
-flat = true
-
-[node name="AvatarDock" type="PanelContainer" parent="Control" unique_id=1339886462]
-visible = false
-clip_contents = true
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 1
-offset_left = 286.0
-offset_top = 207.0
-offset_right = 390.0
-offset_bottom = 311.0
+[node name="AvatarDock" type="PanelContainer" parent="Control/QuickToolsPanel/Canvas" unique_id=1587012984]
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 0
+offset_left = 206.0
+offset_top = 456.0
+offset_right = 251.0
+offset_bottom = 501.0
+size_flags_vertical = 8
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarDock")
 
-[node name="AvatarMargin" type="MarginContainer" parent="Control/AvatarDock" unique_id=1078700363]
+[node name="AvatarMargin" type="MarginContainer" parent="Control/QuickToolsPanel/Canvas/AvatarDock" unique_id=335932856]
 layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
 
-[node name="AvatarTexture" type="TextureRect" parent="Control/AvatarDock/AvatarMargin" unique_id=459800741]
+[node name="AvatarTexture" type="TextureRect" parent="Control/QuickToolsPanel/Canvas/AvatarDock/AvatarMargin" unique_id=1665799579]
 material = SubResource("ShaderMaterial_AvatarCircle")
 layout_mode = 2
 texture = ExtResource("5_xx4g7")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ToolNavButton" type="Button" parent="Control/QuickToolsPanel/Canvas" unique_id=73628408]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -33.0
+offset_top = -6.0
+offset_right = 1.0
+offset_bottom = 43.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("StyleBoxFlat_TopNavButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TopNavButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TopNavButton")
+text = "×"
+flat = true
 
 [node name="DeepSeekClient" type="Node" parent="." unique_id=1977180373]
 script = ExtResource("3_api")

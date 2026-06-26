@@ -24,8 +24,8 @@ const MAIN_SCENE_FEATURE_PATHS := {
 	"main.wardrobe": "UIPanel/BottomBarHBox/BtnHBox/WardrobeButton",
 	"main.main_action": "UIPanel/BottomBarHBox/ActionHBox/MainActionButton",
 	"main.chat": "UIPanel/InteractGroup/ChatButton",
-	"main.gift": "UIPanel/InteractGroup/GiftButton",
-	"main.date": "UIPanel/InteractGroup/DateButton",
+	"main.gift": "UIPanel/BottomBarHBox/BtnHBox/GiftButton",
+	"main.date": "UIPanel/DateButton",
 	"main.phone": "UIPanel/SystemButton/ToolBarMargin/HBox/PhoneButton"
 }
 
@@ -316,6 +316,42 @@ func is_feature_unlocked(feature_id: String, default_unlocked: bool = true) -> b
 	if unlocks.has(feature_id):
 		return bool(unlocks[feature_id])
 	return default_unlocked
+
+func set_feature_unlocked(feature_id: String, unlocked: bool, scene: Node = null, save_now: bool = true) -> bool:
+	var normalized_feature_id := feature_id.strip_edges()
+	if normalized_feature_id == "":
+		return false
+	var feature_unlocks: Dictionary = _state.get("feature_unlocks", {})
+	if feature_unlocks.has(normalized_feature_id) and bool(feature_unlocks[normalized_feature_id]) == unlocked:
+		return false
+	feature_unlocks[normalized_feature_id] = unlocked
+	_state["feature_unlocks"] = feature_unlocks
+	if save_now:
+		_save_state()
+	apply_main_scene_feature_states(scene)
+	return true
+
+func set_feature_unlocks(raw_updates: Dictionary, scene: Node = null, save_now: bool = true) -> bool:
+	if raw_updates.is_empty():
+		return false
+	var feature_unlocks: Dictionary = _state.get("feature_unlocks", {})
+	var changed := false
+	for raw_key in raw_updates.keys():
+		var feature_id := str(raw_key).strip_edges()
+		if feature_id == "":
+			continue
+		var unlocked := bool(raw_updates[raw_key])
+		if feature_unlocks.has(feature_id) and bool(feature_unlocks[feature_id]) == unlocked:
+			continue
+		feature_unlocks[feature_id] = unlocked
+		changed = true
+	if not changed:
+		return false
+	_state["feature_unlocks"] = feature_unlocks
+	if save_now:
+		_save_state()
+	apply_main_scene_feature_states(scene)
+	return true
 
 func report_action(action_id: String, _payload: Dictionary = {}) -> bool:
 	var current_step := _get_current_step()

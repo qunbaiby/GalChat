@@ -6,22 +6,30 @@ extends Control
 @onready var content_root: VBoxContainer = $CenterContainer/Panel/VBoxContainer
 @onready var close_btn: Button = $CenterContainer/Panel/CloseButton
 @onready var top_bar: Panel = $CenterContainer/Panel/VBoxContainer/TopBar
+@onready var body_margin: MarginContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin
+@onready var scroll_container: ScrollContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer
+@onready var content_vbox: VBoxContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox
 @onready var memory_list_container: VBoxContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/MemoryListContainer
 @onready var empty_state_card: PanelContainer = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard
 @onready var empty_state_desc: Label = $CenterContainer/Panel/VBoxContainer/BodyMargin/ScrollContainer/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
 
 const MEMORY_SECTION_SCENE: PackedScene = preload("res://scenes/ui/archive/archive_memory_section.tscn")
 const MEMORY_ITEM_SCENE: PackedScene = preload("res://scenes/ui/archive/archive_memory_item.tscn")
-const POPUP_MIN_SIZE: Vector2 = Vector2(1040, 660)
+const POPUP_VIEWPORT_MARGIN: Vector2 = Vector2(72, 72)
 
 var _panel_tween: Tween = null
 var _desktop_pet_mode: bool = false
+var _panel_design_size: Vector2 = Vector2(960, 540)
 
 
 func _ready() -> void:
 	close_btn.pressed.connect(_on_close_pressed)
 	background_panel.gui_input.connect(_on_background_gui_input)
 	resized.connect(_on_panel_resized)
+	if panel_root.custom_minimum_size.x > 0.0 and panel_root.custom_minimum_size.y > 0.0:
+		_panel_design_size = panel_root.custom_minimum_size
+	elif panel_root.size.x > 0.0 and panel_root.size.y > 0.0:
+		_panel_design_size = panel_root.size
 	hide()
 
 
@@ -46,6 +54,7 @@ func show_panel(char_id: String = "") -> void:
 	_panel_tween.tween_property(background_panel, "modulate:a", 1.0, 0.18)
 	_panel_tween.tween_property(panel_root, "modulate:a", 1.0, 0.22)
 	_panel_tween.tween_property(panel_root, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	call_deferred("_update_popup_layout")
 
 func show_desktop_pet_panel() -> void:
 	_desktop_pet_mode = true
@@ -61,6 +70,7 @@ func show_desktop_pet_panel() -> void:
 	_panel_tween.set_parallel(true)
 	_panel_tween.tween_property(panel_root, "modulate:a", 1.0, 0.18)
 	_panel_tween.tween_property(panel_root, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	call_deferred("_update_popup_layout")
 
 
 func _load_memory_archive(char_id: String) -> void:
@@ -253,12 +263,11 @@ func _on_panel_resized() -> void:
 
 func _update_popup_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
-	var target_size: Vector2 = POPUP_MIN_SIZE
-	if _desktop_pet_mode:
-		target_size = viewport_size
-	else:
-		target_size.x = minf(target_size.x, viewport_size.x - 72.0)
-		target_size.y = minf(target_size.y, viewport_size.y - 72.0)
+	var target_size: Vector2 = _panel_design_size
+	target_size.x = minf(target_size.x, viewport_size.x - POPUP_VIEWPORT_MARGIN.x)
+	target_size.y = minf(target_size.y, viewport_size.y - POPUP_VIEWPORT_MARGIN.y)
+	target_size.x = maxf(target_size.x, 0.0)
+	target_size.y = maxf(target_size.y, 0.0)
 	panel_root.custom_minimum_size = target_size
 	panel_root.size = target_size
 	if content_root != null:
@@ -281,6 +290,9 @@ func _apply_mode_layout() -> void:
 		if center_container != null:
 			center_container.mouse_filter = Control.MOUSE_FILTER_STOP
 			center_container.show()
+
+func refresh_layout() -> void:
+	_update_popup_layout()
 
 func _kill_panel_tween() -> void:
 	if _panel_tween != null:

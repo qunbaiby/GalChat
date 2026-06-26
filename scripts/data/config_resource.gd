@@ -60,8 +60,8 @@ var pet_enable_afk_greeting: bool = true # 允许闲置问候
 var pet_disturbance_mode: String = "摸鱼模式"
 var pet_quiet_time_ranges: String = "23:30-08:00"
 var pet_observe_allow_list: String = ""
-var pet_never_capture_list: String = "银行,支付,密码,验证码,登录,后台,控制台"
-var pet_sensitive_window_list: String = "微信,wechat,qq,discord,telegram,飞书,钉钉,企业微信,outlook,mail,邮箱"
+var pet_never_capture_list: String = ""
+var pet_sensitive_window_list: String = ""
 
 # 图像生成配置 (Image Generation)
 var image_generation_enabled: bool = true
@@ -247,9 +247,15 @@ func load_config() -> void:
                 pet_enable_afk_greeting = data.get("pet_enable_afk_greeting", pet_enable_afk_greeting)
                 pet_disturbance_mode = str(data.get("pet_disturbance_mode", pet_disturbance_mode))
                 pet_quiet_time_ranges = str(data.get("pet_quiet_time_ranges", pet_quiet_time_ranges))
-                pet_observe_allow_list = str(data.get("pet_observe_allow_list", pet_observe_allow_list))
-                pet_never_capture_list = str(data.get("pet_never_capture_list", pet_never_capture_list))
-                pet_sensitive_window_list = str(data.get("pet_sensitive_window_list", pet_sensitive_window_list))
+                pet_observe_allow_list = str(data.get("pet_observe_allow_list", pet_observe_allow_list)).strip_edges()
+                pet_never_capture_list = str(data.get("pet_never_capture_list", pet_never_capture_list)).strip_edges()
+                pet_sensitive_window_list = str(data.get("pet_sensitive_window_list", pet_sensitive_window_list)).strip_edges()
+
+                # 将历史默认值迁移为空，避免旧版本预填内容持续误导当前策略。
+                if pet_never_capture_list == "银行,支付,密码,验证码,登录,后台,控制台":
+                    pet_never_capture_list = ""
+                if pet_sensitive_window_list == "微信,wechat,qq,discord,telegram,飞书,钉钉,企业微信,outlook,mail,邮箱":
+                    pet_sensitive_window_list = ""
                 
                 image_generation_enabled = data.get("image_generation_enabled", image_generation_enabled)
                 default_image_path = data.get("default_image_path", default_image_path)

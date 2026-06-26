@@ -310,6 +310,7 @@ func _on_click_control_gui_input(event: InputEvent) -> void:
             pet_right_clicked.emit()
         if event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed:
+                _request_collapse_tool_panel()
                 _click_start_pos = Vector2(DisplayServer.mouse_get_position())
                 _left_drag_tracking = true
                 _window_drag_offset = DisplayServer.mouse_get_position() - get_window().position
@@ -320,6 +321,11 @@ func _on_click_control_gui_input(event: InputEvent) -> void:
                 if dist < 10.0:
                     pet_clicked.emit()
                     _play_interact_anim()
+
+func _request_collapse_tool_panel() -> void:
+    var pet_window := get_window()
+    if pet_window and pet_window.has_method("_collapse_tool_panel_for_pet_interaction"):
+        pet_window.call("_collapse_tool_panel_for_pet_interaction")
 
 func _move_window_from_screen_pos(screen_pos: Vector2i) -> void:
     var pet_window := get_window()

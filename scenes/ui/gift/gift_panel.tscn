@@ -95,29 +95,30 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.22)
 
 [node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(960, 540)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -281.71622
-offset_top = -289.54166
-offset_right = 281.7162
-offset_bottom = 289.54163
+offset_left = -480.0
+offset_top = -270.0
+offset_right = 480.0
+offset_bottom = 270.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MainCard")
 
 [node name="TopBar" type="PanelContainer" parent="Panel"]
-custom_minimum_size = Vector2(0, 54)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 1.716217
+offset_left = 1.0
 offset_top = 1.0
-offset_right = -1.7161865
-offset_bottom = 61.0
+offset_right = -1.0
+offset_bottom = 57.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
@@ -130,40 +131,40 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 text = "礼物"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CloseButton" type="Button" parent="Panel/TopBar/TopBarHBox"]
-custom_minimum_size = Vector2(44, 44)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
 theme_override_colors/font_hover_color = Color(0.45, 0.72, 0.65, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "✕"
 flat = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 0
-offset_left = 15.716217
-offset_top = 66.54166
-offset_right = 543.7162
-offset_bottom = 566.5416
-theme_override_constants/separation = 12
+offset_left = 20.0
+offset_top = 72.0
+offset_right = 940.0
+offset_bottom = 520.0
+theme_override_constants/separation = 14
 
 [node name="TabContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="TabOuting" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(114, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
@@ -172,12 +173,12 @@ button_pressed = true
 text = "出行好物"
 
 [node name="TabHome" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(114, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
@@ -185,12 +186,12 @@ toggle_mode = true
 text = "家居好物"
 
 [node name="TabDating" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(114, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
@@ -198,12 +199,12 @@ toggle_mode = true
 text = "约会好物"
 
 [node name="TabPersonality" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(114, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
@@ -213,7 +214,7 @@ text = "个性好物"
 [node name="Content" type="VBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/Content"]
 layout_mode = 2
@@ -223,47 +224,47 @@ horizontal_scroll_mode = 3
 [node name="GridContainer" type="GridContainer" parent="Panel/VBoxContainer/Content/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 14
-theme_override_constants/v_separation = 14
-columns = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 5
 
 [node name="DetailPanel" type="PanelContainer" parent="Panel/VBoxContainer/Content"]
-custom_minimum_size = Vector2(0, 118)
+custom_minimum_size = Vector2(0, 94)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Detail")
 
 [node name="DetailLabel" type="RichTextLabel" parent="Panel/VBoxContainer/Content/DetailPanel"]
-custom_minimum_size = Vector2(0, 90)
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
 theme_override_colors/default_color = Color(0.254902, 0.286275, 0.298039, 1)
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 15
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
 
 [node name="BottomBar" type="HBoxContainer" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 62)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="ShopButton" type="Button" parent="Panel/VBoxContainer/BottomBar"]
-custom_minimum_size = Vector2(150, 55)
+custom_minimum_size = Vector2(168, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
 text = "商城"
 
 [node name="SendButton" type="Button" parent="Panel/VBoxContainer/BottomBar"]
-custom_minimum_size = Vector2(150, 55)
+custom_minimum_size = Vector2(168, 48)
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_colors/font_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_disabled_color = Color(0.25098, 0.309804, 0.337255, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnPrimary")

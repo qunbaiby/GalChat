@@ -279,7 +279,7 @@ text = "低打扰策略中心"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.5, 0.58, 1)
 theme_override_font_sizes/font_size = 12
-text = "可按模式快速切换桌宠风格，并单独指定允许观察、永不截图和敏感窗口关键词。关键词支持逗号、空格或换行分隔。"
+text = "关键词支持逗号、空格或换行分隔；允许观察、永不截图、敏感窗口这三项留空都表示不额外限制。"
 autowrap_mode = 3
 
 [node name="ObserveAllowLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1223624962]
@@ -301,7 +301,7 @@ text = "永不截图的应用关键词"
 [node name="PetNeverCaptureInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=2137241661]
 custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
-placeholder_text = "例如 银行, 支付, 后台, 控制台"
+placeholder_text = "留空表示不限制；只有你想禁止截图时再填写，例如 银行, 支付"
 wrap_mode = 1
 
 [node name="SensitiveWindowLabel" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=233868151]
@@ -312,7 +312,7 @@ text = "敏感窗口关键词"
 [node name="PetSensitiveWindowInput" type="TextEdit" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1585977943]
 custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
-placeholder_text = "敏感窗口只读应用名不截图，例如 微信, QQ, 飞书, Outlook"
+placeholder_text = "留空表示不限制；只有你想标记为敏感窗口时再填写，例如 微信, QQ"
 wrap_mode = 1
 
 [node name="FooterHint" type="Label" parent="Margin/VBox/Scroll/ContentVBox/PolicyCard/Margin/VBox" unique_id=1897785087]

@@ -188,10 +188,17 @@ func trigger_script(script_id: String) -> bool:
 	
 	var script = _chat_scripts[script_id]
 	add_contact(str(script.get("character_id", "")))
+	_try_unlock_wechat_feature_on_first_fixed_chat()
 	unread_count_changed.emit(script["character_id"], _unread_counts.get(script["character_id"], 0))
 	
 	_advance_script(script_id)
 	return true
+
+func _try_unlock_wechat_feature_on_first_fixed_chat() -> void:
+	var guide_manager := get_node_or_null("/root/GuideManager")
+	if guide_manager == null or not guide_manager.has_method("set_feature_unlocked"):
+		return
+	guide_manager.set_feature_unlocked("main.wechat", true)
 
 func queue_trigger_on_next_main_scene(script_id: String) -> bool:
 	var normalized_id := str(script_id).strip_edges()

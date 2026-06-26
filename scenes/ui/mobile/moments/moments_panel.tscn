@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bqhy5nsoe5rrr"]
+[gd_scene format=3 uid="uid://bqhy5nsoe5rrr"]
 
 [ext_resource type="Script" uid="uid://drb4rgnlrf2iw" path="res://scripts/ui/mobile/moments/moments_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dbgrktxchqxp7" path="res://assets/images/story/cg/story_cg_luna_door_sunset.jpg" id="3_cover"]
@@ -81,7 +81,7 @@ border_color = Color(0.8, 0.88, 0.9, 0.75)
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 
-[node name="MomentsPanel" type="Panel"]
+[node name="MomentsPanel" type="Panel" unique_id=887804982]
 clip_contents = true
 anchors_preset = 15
 anchor_right = 1.0
@@ -91,7 +91,7 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsBg")
 script = ExtResource("1_script")
 
-[node name="BgColor" type="ColorRect" parent="."]
+[node name="BgColor" type="ColorRect" parent="." unique_id=1281366315]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -100,7 +100,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.985, 0.988, 0.995, 0)
 
-[node name="Scroll" type="ScrollContainer" parent="."]
+[node name="Scroll" type="ScrollContainer" parent="." unique_id=1512792151]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -110,16 +110,17 @@ grow_vertical = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
 
-[node name="ContentVBox" type="VBoxContainer" parent="Scroll"]
+[node name="ContentVBox" type="VBoxContainer" parent="Scroll" unique_id=2118256251]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="Header" type="Control" parent="Scroll/ContentVBox"]
-custom_minimum_size = Vector2(0, 293)
+[node name="Header" type="Control" parent="Scroll/ContentVBox" unique_id=1241201032]
+custom_minimum_size = Vector2(0, 220)
 layout_mode = 2
 
-[node name="CoverImageFrame" type="Panel" parent="Scroll/ContentVBox/Header"]
+[node name="CoverImageFrame" type="Panel" parent="Scroll/ContentVBox/Header" unique_id=1921806462]
 clip_children = 1
 layout_mode = 1
 anchors_preset = 15
@@ -129,7 +130,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_uuw5o")
 
-[node name="CoverImage" type="TextureRect" parent="Scroll/ContentVBox/Header/CoverImageFrame"]
+[node name="CoverImage" type="TextureRect" parent="Scroll/ContentVBox/Header/CoverImageFrame" unique_id=1033571653]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -141,7 +142,7 @@ texture = ExtResource("3_cover")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="CoverShade" type="TextureRect" parent="Scroll/ContentVBox/Header"]
+[node name="CoverShade" type="TextureRect" parent="Scroll/ContentVBox/Header" unique_id=545967361]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -151,27 +152,27 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_CoverShade")
 
-[node name="PlayerName" type="Label" parent="Scroll/ContentVBox/Header"]
+[node name="PlayerName" type="Label" parent="Scroll/ContentVBox/Header" unique_id=225385396]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -209.0
-offset_top = -54.0
-offset_right = -84.0
-offset_bottom = -29.0
+offset_left = -196.0
+offset_top = -52.0
+offset_right = -78.0
+offset_bottom = -30.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Player"
 horizontal_alignment = 2
 
-[node name="AvatarBg" type="Panel" parent="Scroll/ContentVBox/Header"]
+[node name="AvatarBg" type="Panel" parent="Scroll/ContentVBox/Header" unique_id=353895429]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 3
@@ -179,15 +180,15 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -71.0
-offset_top = -68.0
-offset_right = -13.0
-offset_bottom = -9.0
+offset_left = -70.0
+offset_top = -66.0
+offset_right = -16.0
+offset_bottom = -12.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
-[node name="PlayerAvatar" type="TextureRect" parent="Scroll/ContentVBox/Header/AvatarBg"]
+[node name="PlayerAvatar" type="TextureRect" parent="Scroll/ContentVBox/Header/AvatarBg" unique_id=1154641996]
 material = SubResource("ShaderMaterial_CircleCrop")
 layout_mode = 1
 anchors_preset = 15
@@ -199,7 +200,7 @@ texture = ExtResource("4_avatar")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ChangeCoverBtn" type="Button" parent="Scroll/ContentVBox/Header"]
+[node name="ChangeCoverBtn" type="Button" parent="Scroll/ContentVBox/Header" unique_id=202469474]
 visible = false
 layout_mode = 1
 anchors_preset = 3
@@ -207,58 +208,58 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -84.0
-offset_top = -100.0
+offset_left = -92.0
+offset_top = -84.0
 offset_right = -16.0
-offset_bottom = -66.0
+offset_bottom = -54.0
 grow_horizontal = 0
 grow_vertical = 0
+theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_ChangeCoverBtn")
 text = "换封面"
 
-[node name="BodyInset" type="MarginContainer" parent="Scroll/ContentVBox"]
+[node name="BodyPanel" type="PanelContainer" parent="Scroll/ContentVBox" unique_id=1718150766]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="BodyPanel" type="PanelContainer" parent="Scroll/ContentVBox/BodyInset"]
-layout_mode = 2
-size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_BodyPanel")
 
-[node name="BodyVBox" type="VBoxContainer" parent="Scroll/ContentVBox/BodyInset/BodyPanel"]
+[node name="BodyInset" type="MarginContainer" parent="Scroll/ContentVBox/BodyPanel" unique_id=1151762921]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_bottom = 8
+
+[node name="BodyVBox" type="VBoxContainer" parent="Scroll/ContentVBox/BodyPanel/BodyInset" unique_id=538170571]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="Spacer" type="Control" parent="Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox"]
-custom_minimum_size = Vector2(0, 18)
+[node name="Spacer" type="Control" parent="Scroll/ContentVBox/BodyPanel/BodyInset/BodyVBox" unique_id=1321894090]
+custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 
-[node name="MomentListMargin" type="MarginContainer" parent="Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 13
-theme_override_constants/margin_right = 13
-theme_override_constants/margin_bottom = 18
-
-[node name="MomentList" type="VBoxContainer" parent="Scroll/ContentVBox/BodyInset/BodyPanel/BodyVBox/MomentListMargin"]
+[node name="MomentListMargin" type="MarginContainer" parent="Scroll/ContentVBox/BodyPanel/BodyInset/BodyVBox" unique_id=1000417841]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 18
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 14
 
-[node name="TopBarBg" type="ColorRect" parent="."]
+[node name="MomentList" type="VBoxContainer" parent="Scroll/ContentVBox/BodyPanel/BodyInset/BodyVBox/MomentListMargin" unique_id=976546824]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="TopBarBg" type="ColorRect" parent="." unique_id=1328098141]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 50.0
+offset_bottom = 42.0
 grow_horizontal = 2
 mouse_filter = 2
 color = Color(0.985, 0.988, 0.995, 0)
 
-[node name="ImageViewer" type="ColorRect" parent="."]
+[node name="ImageViewer" type="ColorRect" parent="." unique_id=1211736790]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -268,7 +269,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.9)
 
-[node name="FullImage" type="TextureRect" parent="ImageViewer"]
+[node name="FullImage" type="TextureRect" parent="ImageViewer" unique_id=1450416146]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -278,17 +279,17 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CloseViewerBtn" type="Button" parent="ImageViewer"]
-custom_minimum_size = Vector2(35, 35)
+[node name="CloseViewerBtn" type="Button" parent="ImageViewer" unique_id=121702590]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -44.0
-offset_top = 9.0
-offset_right = -9.0
-offset_bottom = 44.0
+offset_left = -40.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 40.0
 grow_horizontal = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "×"
 flat = true

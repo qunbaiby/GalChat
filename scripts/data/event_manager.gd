@@ -202,6 +202,12 @@ func execute_event(event_id: String, params: Dictionary = {}) -> void:
 			_handle_start_guide(params)
 		"start_demo_guide":
 			_handle_start_demo_guide()
+		"unlock_main_feature":
+			_handle_set_main_feature_unlock(params, true)
+		"lock_main_feature":
+			_handle_set_main_feature_unlock(params, false)
+		"set_main_feature_unlock":
+			_handle_set_main_feature_unlock(params, bool(params.get("unlocked", true)))
 		"memory_revisit":
 			_handle_memory_revisit(params)
 		_:
@@ -287,6 +293,25 @@ func _handle_start_guide(params: Dictionary) -> void:
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("start_guide"):
 		guide_manager.start_guide(guide_id)
+
+func _handle_set_main_feature_unlock(params: Dictionary, unlocked: bool) -> void:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager == null or not guide_manager.has_method("set_feature_unlocks"):
+		return
+	var updates: Dictionary = {}
+	var feature_id := str(params.get("feature_id", "")).strip_edges()
+	if feature_id != "":
+		updates[feature_id] = unlocked
+	var raw_feature_ids: Variant = params.get("feature_ids", [])
+	if raw_feature_ids is Array:
+		for raw_id in raw_feature_ids:
+			var normalized_id := str(raw_id).strip_edges()
+			if normalized_id != "":
+				updates[normalized_id] = unlocked
+	if updates.is_empty():
+		return
+	guide_manager.set_feature_unlocks(updates)
+	print("[EventManager] 主场景功能%s: %s" % ["解锁" if unlocked else "锁定", updates.keys()])
 
 func _get_random_character_profile() -> CharacterProfile:
 	var char_ids = ["luna", "jing", "ya", "ling", "aili"]

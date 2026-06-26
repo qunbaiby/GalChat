@@ -159,24 +159,24 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="WindowPanel" type="PanelContainer" parent="CenterContainer" unique_id=1522188058]
-custom_minimum_size = Vector2(1040, 660)
+custom_minimum_size = Vector2(960, 540)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Window")
 
 [node name="WindowVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel" unique_id=1127649892]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="TopBar" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox" unique_id=42251381]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 
 [node name="TopBarMargin" type="MarginContainer" parent="CenterContainer/WindowPanel/WindowVBox/TopBar" unique_id=216731318]
 layout_mode = 2
-theme_override_constants/margin_left = 12
+theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_bottom = 4
 
 [node name="TopBarHBox" type="HBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/TopBar/TopBarMargin" unique_id=1184144793]
 layout_mode = 2
@@ -186,15 +186,15 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.47, 0.5, 0.57, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 22
 text = "微聊"
 vertical_alignment = 1
 
 [node name="BtnClose" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/TopBar/TopBarMargin/TopBarHBox" unique_id=213994506]
-custom_minimum_size = Vector2(30, 30)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.44, 0.5, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_WindowClose")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_WindowClose")
 theme_override_styles/hover = SubResource("StyleBoxFlat_WindowClose")
@@ -203,26 +203,27 @@ text = "×"
 [node name="MainHBox" type="HBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox" unique_id=433742163]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 8
 
 [node name="NavPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox" unique_id=1127108030]
-custom_minimum_size = Vector2(74, 618)
+custom_minimum_size = Vector2(68, 494)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_NavPanel")
 
 [node name="NavMargin" type="MarginContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel" unique_id=163347545]
 layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
 
 [node name="NavVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin" unique_id=2136955831]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="BtnChat" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox" unique_id=1378671639]
-custom_minimum_size = Vector2(0, 65)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 flat = true
 
@@ -232,7 +233,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Icon" type="TextureRect" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnChat/BtnChatBox" unique_id=1086538095]
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("3_chat")
@@ -241,13 +242,13 @@ stretch_mode = 5
 
 [node name="Text" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnChat/BtnChatBox" unique_id=838289056]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "聊天"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BtnContacts" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox" unique_id=69930827]
-custom_minimum_size = Vector2(0, 65)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 flat = true
 
@@ -257,7 +258,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Icon" type="TextureRect" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnContacts/BtnChatBox" unique_id=1835102245]
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_contacts")
@@ -266,13 +267,13 @@ stretch_mode = 5
 
 [node name="Text" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnContacts/BtnChatBox" unique_id=329102701]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "联系人"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BtnMoments" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox" unique_id=1416947984]
-custom_minimum_size = Vector2(0, 65)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 flat = true
 
@@ -282,7 +283,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Icon" type="TextureRect" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnMoments/BtnChatBox" unique_id=781674014]
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("5_moments")
@@ -291,7 +292,7 @@ stretch_mode = 5
 
 [node name="Text" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox/BtnMoments/BtnChatBox" unique_id=2100656697]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "朋友圈"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -301,7 +302,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="ListPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox" unique_id=1628893526]
-custom_minimum_size = Vector2(286, 618)
+custom_minimum_size = Vector2(248, 494)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 
@@ -309,23 +310,23 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 11
+theme_override_constants/separation = 9
 
 [node name="HeaderVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox" unique_id=242103927]
-custom_minimum_size = Vector2(0, 55)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_constants/separation = 3
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox" unique_id=1820942200]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "聊天列表"
 
 [node name="SubTitle" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox" unique_id=1689524039]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "最近对话与未读消息"
 
 [node name="ListContainer" type="Control" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox" unique_id=1967586226]
@@ -353,19 +354,19 @@ grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatEmptyState" unique_id=1435547654]
 layout_mode = 2
-theme_override_constants/separation = 9
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatEmptyState/VBox" unique_id=1089237775]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "选择一个聊天对象"
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatEmptyState/VBox" unique_id=2127785017]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "中间显示最近聊天，右侧会在这里展开完整会话。"
 horizontal_alignment = 1
 
@@ -380,19 +381,19 @@ grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactEmptyState" unique_id=248962617]
 layout_mode = 2
-theme_override_constants/separation = 9
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactEmptyState/VBox" unique_id=1223675907]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "选择一个联系人"
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactEmptyState/VBox" unique_id=1379272405]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "右侧会显示角色资料，并提供发消息、语音和视频入口。"
 horizontal_alignment = 1
 
@@ -420,7 +421,7 @@ horizontal_scroll_mode = 0
 [node name="DetailVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel" unique_id=553887301]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 15
+theme_override_constants/separation = 12
 
 [node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox" unique_id=668886696]
 layout_mode = 2
@@ -428,11 +429,11 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderPanel")
 
 [node name="HeaderVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel" unique_id=482713769]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="AvatarMask" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox" unique_id=801840305]
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(78, 78)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
@@ -445,27 +446,27 @@ stretch_mode = 6
 [node name="Name" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox" unique_id=1016030074]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 22
 text = "角色名"
 horizontal_alignment = 1
 
 [node name="Meta" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox" unique_id=32993215]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "阶段 / 好感 / 信任"
 horizontal_alignment = 1
 
 [node name="Tags" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox" unique_id=1898110067]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.45, 0.38, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "暂无标签"
 horizontal_alignment = 1
 
 [node name="StatsRow" type="HBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox" unique_id=1496020961]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="IntimacyCard" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow" unique_id=294151653]
 layout_mode = 2
@@ -479,14 +480,14 @@ theme_override_constants/separation = 3
 [node name="Key" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/IntimacyCard/CardVBox" unique_id=1149283677]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "好感"
 horizontal_alignment = 1
 
 [node name="Value" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/IntimacyCard/CardVBox" unique_id=585959680]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "0"
 horizontal_alignment = 1
 
@@ -502,14 +503,14 @@ theme_override_constants/separation = 3
 [node name="Key" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/TrustCard/CardVBox" unique_id=1426846050]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "信任"
 horizontal_alignment = 1
 
 [node name="Value" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/TrustCard/CardVBox" unique_id=156343941]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "0"
 horizontal_alignment = 1
 
@@ -525,14 +526,14 @@ theme_override_constants/separation = 3
 [node name="Key" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/StageCard/CardVBox" unique_id=338175268]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "阶段"
 horizontal_alignment = 1
 
 [node name="Value" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/StatsRow/StageCard/CardVBox" unique_id=681446408]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Lv.1"
 horizontal_alignment = 1
 
@@ -542,53 +543,53 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderPanel")
 
 [node name="InfoVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/InfoPanel" unique_id=842731620]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 5
 
 [node name="DescTitle" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/InfoPanel/InfoVBox" unique_id=1596961355]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 text = "角色资料"
 
 [node name="DescValue" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/InfoPanel/InfoVBox" unique_id=1879929596]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.47, 0.5, 0.57, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "暂无记录"
 autowrap_mode = 3
 
 [node name="ActionRow" type="HBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox" unique_id=1048464177]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="BtnSendMessage" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow" unique_id=313491653]
-custom_minimum_size = Vector2(0, 45)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_PrimaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_PrimaryButton")
 text = "发消息"
 
 [node name="BtnVoiceCall" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow" unique_id=642318158]
-custom_minimum_size = Vector2(0, 45)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
 text = "语音聊天"
 
 [node name="BtnVideoCall" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/ActionRow" unique_id=451315263]
-custom_minimum_size = Vector2(0, 45)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButton")
@@ -607,12 +608,12 @@ mouse_filter = 1
 [node name="FloatingWindow" type="PanelContainer" parent="MomentsPopupOverlay" unique_id=1207763721]
 visible = false
 clip_contents = true
-custom_minimum_size = Vector2(380, 660)
+custom_minimum_size = Vector2(380, 540)
 layout_mode = 0
-offset_left = 90.0
-offset_top = 30.0
-offset_right = 470.0
-offset_bottom = 690.0
+offset_left = 160.0
+offset_top = 90.0
+offset_right = 540.0
+offset_bottom = 630.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsFloatingWindow")
 
 [node name="WindowRoot" type="Control" parent="MomentsPopupOverlay/FloatingWindow" unique_id=200740709]
@@ -629,11 +630,11 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="TitleBar" type="PanelContainer" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot" unique_id=1001545308]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 42.0
+offset_bottom = 38.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsTitleBar")
@@ -642,23 +643,23 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_MomentsTitleBar")
 layout_mode = 2
 
 [node name="LeftSpacer" type="Control" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox" unique_id=211544297]
-custom_minimum_size = Vector2(34, 34)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 
 [node name="Title" type="Label" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox" unique_id=1936445631]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "朋友圈"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CloseBtn" type="Button" parent="MomentsPopupOverlay/FloatingWindow/WindowRoot/TitleBar/HBox" unique_id=1891934507]
-custom_minimum_size = Vector2(34, 34)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.47, 0.5, 0.57, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "×"
 flat = true
 
@@ -675,12 +676,12 @@ mouse_filter = 1
 [node name="FloatingWindow" type="PanelContainer" parent="FloatingCallOverlay" unique_id=1125446320]
 visible = false
 clip_contents = true
-custom_minimum_size = Vector2(360, 540)
+custom_minimum_size = Vector2(520, 400)
 layout_mode = 0
-offset_left = 470.0
-offset_top = 70.0
-offset_right = 830.0
-offset_bottom = 610.0
+offset_left = 420.0
+offset_top = 120.0
+offset_right = 940.0
+offset_bottom = 520.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_FloatingWindow")
 
 [node name="VBox" type="VBoxContainer" parent="FloatingCallOverlay/FloatingWindow" unique_id=99596603]
@@ -690,7 +691,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 0
 
 [node name="TitleBar" type="PanelContainer" parent="FloatingCallOverlay/FloatingWindow/VBox" unique_id=962447476]
-custom_minimum_size = Vector2(0, 35)
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_FloatingTitleBar")
 
@@ -701,15 +702,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 text = "通话"
 vertical_alignment = 1
 
 [node name="CloseBtn" type="Button" parent="FloatingCallOverlay/FloatingWindow/VBox/TitleBar/HBox" unique_id=1673370484]
-custom_minimum_size = Vector2(35, 35)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.47, 0.5, 0.57, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "×"
 flat = true
 
