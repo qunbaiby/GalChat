@@ -379,8 +379,8 @@ func add_bubble(text: String, is_typewriter: bool = false) -> void:
     label.custom_minimum_size.x = 250
     label.size.x = 250
     
-    # 2. 强制重置状态，清除从隐藏模板 Duplicate 带来的缓存 Bug
-    label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+    # 2. 使用智能换行，避免括号描述和正文在任意字符位置被硬切开
+    label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     label.fit_content = false
     label.fit_content = true
     

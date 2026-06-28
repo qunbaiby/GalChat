@@ -16,7 +16,7 @@ func _load_activities_db() -> void:
 		return
 		
 	var file = FileAccess.open(_db_path, FileAccess.READ)
-	var json_str = file.get_as_text()
+	var json_str = _strip_utf8_bom(file.get_as_text())
 	file.close()
 	
 	var json = JSON.new()
@@ -36,10 +36,19 @@ func _load_activities_db() -> void:
 	else:
 		printerr("Failed to parse activities JSON: ", json.get_error_message())
 
+func _strip_utf8_bom(text: String) -> String:
+	while text.begins_with("\ufeff"):
+		text = text.substr(1)
+	return text
+
 func get_categories() -> Array:
+	if categories.is_empty() and activities.is_empty():
+		_load_activities_db()
 	return categories
 
 func get_activities_by_category(cat_id: String) -> Array:
+	if activities.is_empty():
+		_load_activities_db()
 	var result = []
 	for act in activities:
 		if act.has("category_id") and act["category_id"] == cat_id:
@@ -50,6 +59,8 @@ func get_rest_activities() -> Array:
 	return rest_activities
 
 func get_activity_by_id(activity_id: String) -> Dictionary:
+	if activities.is_empty() and rest_activities.is_empty():
+		_load_activities_db()
 	for act in activities:
 		if act["id"] == activity_id:
 			return act

@@ -118,3 +118,7 @@ theme_override_styles/focus = SubResource("StyleBoxTexture_1j1m3")
 
 [node name="StatusBadge" parent="ChatButton" unique_id=644519446 instance=ExtResource("4_status_badge")]
 layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 76.0
+offset_bottom = 26.0
