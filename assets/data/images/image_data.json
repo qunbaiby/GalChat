@@ -144,25 +144,25 @@
             "name": "Luna侧身作画CG",
             "path": "res://assets/images/story/cg/story_cg_luna_drawing_side.png"
         },
-        {
+                {
             "id": "cg_luna_door_sunset",
-            "name": "Luna门前黄昏CG",
+            "name": "Luna门落日CG",
             "path": "res://assets/images/story/cg/story_cg_luna_door_sunset.jpg"
         },
         {
-            "id": "cg_luna_piano_room",
-            "name": "Luna钢琴房CG",
-            "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
+            "id": "cg_first_meeting",
+            "name": "第一次相遇CG",
+            "path": "res://assets/images/story/cg/story_cg_first_meeting.png"
         },
         {
-            "id": "cg_music_room",
+            "id": "cg_luna_piano_practice",
             "name": "音乐教室CG",
-            "path": "res://assets/images/story/cg/story_cg_luna_piano_room.png"
+            "path": "res://assets/images/story/cg/story_cg_luna_piano_practice.png"
         },
         {
             "id": "story_cg_luna_piano_practice",
             "name": "Luna钢琴练习CG",
-            "path": "res://assets/images/story/cg/story_cg_luna_piano_practice.png"
+            "path": "res://assets/images/story/cg/story_cg_luna_piano_closeup.png"
         }
     ],
     "ui": [

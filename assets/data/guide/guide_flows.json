@@ -260,23 +260,11 @@
                     "hide_until_scene_ready": true
                 },
                 {
-                    "id": "open_interact_group_after_goal",
-                    "type": "wait_action",
-                    "step_category": "interaction",
-                    "title": "点击聊天入口",
-                    "text": "现在跟 Luna 聊聊周六安排的事情吧，直接点击场景里的聊天按钮。它会在有主线时优先带你进入主线，没有主线时再进入其他聊天。",
-                    "wait_action": "open_main_chat",
-                    "target_scene": "main",
-                    "requires_scene": "main",
-                    "highlight_feature": "main.chat",
-                    "hide_until_scene_ready": true
-                },
-                {
                     "id": "inspect_main_panels_after_interact",
                     "type": "wait_action",
                     "step_category": "interaction",
                     "title": "留意这些常用区域",
-                    "text": "聊天入口已经认识了。天气面板和顶部状态面板，之后也会经常陪你一起观察 Luna 的日常状态。现在点击任意一个高亮区域，我再继续带你往下。",
+                    "text": "天气面板和顶部状态面板，之后也会经常陪你一起观察 Luna 的日常状态。现在点击任意一个高亮区域，我再继续带你往下。",
                     "wait_action": "inspect_main_panels_after_interact",
                     "target_scene": "main",
                     "requires_scene": "main",

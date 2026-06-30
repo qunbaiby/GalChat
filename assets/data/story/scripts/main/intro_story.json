@@ -73,7 +73,7 @@
                 },
                 {
                     "type": "background",
-                    "bg_id": "cg_luna_piano_room",
+                    "bg_id": "cg_first_meeting",
                     "transition_type": "blur",
                     "duration": 1.5
                 },

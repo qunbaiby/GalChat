@@ -97,6 +97,7 @@ var player_eq_level: int = 6
 var custom_configs: Dictionary = {}
 
 const CONFIG_PATH = "user://config.json"
+const TEST_DEFAULT_CONFIG_PATH = "res://assets/config/config.json"
 
 func set_custom_config(key: String, value: Variant) -> void:
     custom_configs[key] = value
@@ -190,7 +191,56 @@ func save_config() -> void:
         file.store_string(JSON.stringify(data, "\t"))
         file.close()
 
+func _read_json_dict(file_path: String) -> Dictionary:
+    if not FileAccess.file_exists(file_path):
+        return {}
+    var file := FileAccess.open(file_path, FileAccess.READ)
+    if file == null:
+        return {}
+    var content := file.get_as_text()
+    file.close()
+    var json := JSON.new()
+    if json.parse(content) != OK:
+        return {}
+    var data = json.get_data()
+    if data is Dictionary:
+        return data
+    return {}
+
+func _apply_ai_voice_defaults(data: Dictionary) -> void:
+    api_key = str(data.get("api_key", api_key))
+    doubao_chat_api_key = str(data.get("doubao_chat_api_key", doubao_chat_api_key))
+    model = str(data.get("model", model))
+    tts_backend = str(data.get("tts_backend", tts_backend))
+    if tts_backend == "chattts":
+        tts_backend = "qwen_tts"
+    doubao_app_id = str(data.get("doubao_app_id", doubao_app_id))
+    doubao_token = str(data.get("doubao_token", doubao_token))
+    doubao_cluster = str(data.get("doubao_cluster", doubao_cluster))
+    qwen_tts_api_key = str(data.get("qwen_tts_api_key", qwen_tts_api_key))
+    qwen_asr_enabled = bool(data.get("qwen_asr_enabled", qwen_asr_enabled))
+    qwen_asr_api_key = str(data.get("qwen_asr_api_key", qwen_asr_api_key))
+    if data.has("character_voice_types") and data["character_voice_types"] is Dictionary:
+        character_voice_types = (data["character_voice_types"] as Dictionary).duplicate(true)
+    if data.has("qwen_tts_voice_types") and data["qwen_tts_voice_types"] is Dictionary:
+        qwen_tts_voice_types = (data["qwen_tts_voice_types"] as Dictionary).duplicate(true)
+    voice_enabled = bool(data.get("voice_enabled", voice_enabled))
+    embedding_enabled = bool(data.get("embedding_enabled", embedding_enabled))
+    doubao_embedding_api_key = str(data.get("doubao_embedding_api_key", doubao_embedding_api_key))
+    doubao_embedding_model = str(data.get("doubao_embedding_model", doubao_embedding_model))
+    vision_enabled = bool(data.get("vision_enabled", vision_enabled))
+    vision_api_key = str(data.get("vision_api_key", vision_api_key))
+    vision_model = str(data.get("vision_model", vision_model))
+    vision_base_url = str(data.get("vision_base_url", vision_base_url))
+    image_generation_enabled = bool(data.get("image_generation_enabled", image_generation_enabled))
+    image_generation_provider = int(data.get("image_generation_provider", image_generation_provider))
+    openai_image_api_key = str(data.get("openai_image_api_key", openai_image_api_key))
+    doubao_image_api_key = str(data.get("doubao_image_api_key", doubao_image_api_key))
+    doubao_image_model = str(data.get("doubao_image_model", doubao_image_model))
+    enable_ai_diary_illustration = bool(data.get("enable_ai_diary_illustration", enable_ai_diary_illustration))
+
 func load_config() -> void:
+    _apply_ai_voice_defaults(_read_json_dict(TEST_DEFAULT_CONFIG_PATH))
     if FileAccess.file_exists(CONFIG_PATH):
         var file = FileAccess.open(CONFIG_PATH, FileAccess.READ)
         var content = file.get_as_text()

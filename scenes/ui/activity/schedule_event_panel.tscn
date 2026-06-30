@@ -77,18 +77,6 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
 [node name="ScheduleEventPanel" type="Control" unique_id=1157136230]
 layout_mode = 3
 anchors_preset = 15
@@ -231,12 +219,15 @@ bbcode_enabled = true
 text = "[center]属性变化[/center]"
 scroll_active = false
 
-[node name="ContinueButton" type="Button" parent="Panel/VBoxContainer/ResultBox" unique_id=1487453228]
-custom_minimum_size = Vector2(0, 50)
+[node name="ContinueButton" type="Button" parent="Panel/VBoxContainer/ResultBox" unique_id=214982033]
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimary")
-text = "继续课程"
+theme_override_colors/font_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.12941177, 0.7176471, 0.69411767, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_evxs5")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_726kg")
+theme_override_styles/hover = SubResource("StyleBoxFlat_726kg")
+text = "继续行程"
