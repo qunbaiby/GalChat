@@ -250,6 +250,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "开始陪伴"
 
 [node name="DesktopPetButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons" unique_id=603154421]
+visible = false
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)

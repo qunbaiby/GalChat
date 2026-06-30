@@ -90,7 +90,6 @@ func _ready() -> void:
 	weather_manager.name = "WeatherManager"
 	add_child(weather_manager)
 	
-	# 初始化天气和时间桥接器（将本地系统与 Romestead 插件绑定）
 	var weather_bridge = preload("res://scripts/data/weather_bridge.gd").new()
 	weather_bridge.name = "WeatherBridge"
 	add_child(weather_bridge)

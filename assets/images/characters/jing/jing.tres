@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cy7y4ie11c4g5"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://cy7y4ie11c4g5"]
 
 [ext_resource type="Texture2D" uid="uid://5mnctwk8c1y3" path="res://assets/images/characters/jing/jing.png" id="1_xuafo"]
 

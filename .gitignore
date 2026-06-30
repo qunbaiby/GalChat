@@ -7,6 +7,7 @@
 *.dll
 export_presets.cfg
 GalChat_Release/
+/Luna/
 /data_*/
 
 # Whisper Models (too large for Git)

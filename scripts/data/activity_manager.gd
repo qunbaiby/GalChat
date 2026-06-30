@@ -1,7 +1,7 @@
 class_name ActivityManager
 extends Node
 
-var _db_path: String = "res://assets/data/interaction/activity/activities.json"
+const ACTIVITIES_DATA = preload("res://assets/data/interaction/activity/activities_data.gd")
 
 var categories: Array = []
 var activities: Array = []
@@ -11,35 +11,18 @@ func _ready() -> void:
 	_load_activities_db()
 
 func _load_activities_db() -> void:
-	if not FileAccess.file_exists(_db_path):
-		printerr("Activity DB not found at: ", _db_path)
+	var data: Dictionary = ACTIVITIES_DATA.get_data()
+	if data.is_empty():
+		printerr("Activity DB is empty.")
 		return
-		
-	var file = FileAccess.open(_db_path, FileAccess.READ)
-	var json_str = _strip_utf8_bom(file.get_as_text())
-	file.close()
-	
-	var json = JSON.new()
-	var err = json.parse(json_str)
-	if err == OK:
-		var data = json.get_data()
-		if data.has("categories"):
-			categories = data["categories"]
-		if data.has("activities"):
-			activities = data["activities"]
-			# Also populate rest_activities for backward compatibility
-			rest_activities.clear()
-			for act in activities:
-				if act.has("category_id") and act["category_id"] == "rest":
-					rest_activities.append(act)
-		print("Loaded activities DB: %d categories, %d activities, %d rest activities" % [categories.size(), activities.size(), rest_activities.size()])
-	else:
-		printerr("Failed to parse activities JSON: ", json.get_error_message())
-
-func _strip_utf8_bom(text: String) -> String:
-	while text.begins_with("\ufeff"):
-		text = text.substr(1)
-	return text
+	if data.has("categories"):
+		categories = data["categories"]
+	if data.has("activities"):
+		activities = data["activities"]
+		rest_activities.clear()
+		for act in activities:
+			if act.has("category_id") and act["category_id"] == "rest":
+				rest_activities.append(act)
 
 func get_categories() -> Array:
 	if categories.is_empty() and activities.is_empty():
