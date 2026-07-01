@@ -11,26 +11,29 @@ var ai_mode_enabled: bool = true
 var doubao_chat_api_key: String = ""
 
 # 语音相关配置
-var tts_backend: String = "qwen_tts" # "doubao" 或 "qwen_tts"
-var doubao_app_id: String = "2557182005"
-var doubao_token: String = "vtuoxQuuStbX442IL3ZhvH4QptGlfepf"
-var doubao_cluster: String = "volcano_tts"
-
-var qwen_tts_api_key: String = ""
+var tts_api_key: String = ""
+var tts_audio_format: String = "mp3"
+var tts_sample_rate: int = 24000
+var tts_speech_rate: int = 0
+var tts_loudness_rate: int = 0
+var tts_autoplay_ai_chat: bool = true
 
 var qwen_asr_enabled: bool = false
 var qwen_asr_api_key: String = ""
 
-# 角色独立音色配置，key 为 char_id，value 为音色 ID
-var character_voice_types: Dictionary = {
-    "luna": "ICL_zh_female_bingruoshaonv_tob",
-    "ya": "ICL_zh_female_yujie_tob"
+const DEFAULT_TTS_CHARACTER_SPEAKERS: Dictionary = {
+    "aili": "zh_female_linjianvhai_moon_bigtts",
+    "jing": "zh_female_gaolengyujie_moon_bigtts",
+    "ling": "zh_female_mengyatou_mars_bigtts",
+    "luna": "zh_female_cancan_mars_bigtts",
+    "luna_father": "zh_male_yuanboxiaoshu_moon_bigtts",
+    "nicole": "zh_female_gaolengyujie_emo_v2_mars_bigtts",
+    "shuo": "zh_male_shaonianzixin_moon_bigtts",
+    "ya": "zh_female_wenroushunv_mars_bigtts"
 }
 
-var qwen_tts_voice_types: Dictionary = {
-    "luna": "Cherry",
-    "ya": "Jielin"
-}
+# 角色独立音色配置，key 为 char_id，value 为新版 TTS 2.0 speaker ID
+var tts_character_speakers: Dictionary = DEFAULT_TTS_CHARACTER_SPEAKERS.duplicate(true)
 
 var voice_enabled: bool = true
 
@@ -97,7 +100,6 @@ var player_eq_level: int = 6
 var custom_configs: Dictionary = {}
 
 const CONFIG_PATH = "user://config.json"
-const TEST_DEFAULT_CONFIG_PATH = "res://assets/config/config.json"
 
 func set_custom_config(key: String, value: Variant) -> void:
     custom_configs[key] = value
@@ -132,15 +134,15 @@ func save_config() -> void:
         "temperature": temperature,
         "max_tokens": max_tokens,
         "ai_mode_enabled": ai_mode_enabled,
-        "tts_backend": tts_backend,
-        "doubao_app_id": doubao_app_id,
-        "doubao_token": doubao_token,
-        "doubao_cluster": doubao_cluster,
-        "qwen_tts_api_key": qwen_tts_api_key,
+        "tts_api_key": tts_api_key,
+        "tts_audio_format": tts_audio_format,
+        "tts_sample_rate": tts_sample_rate,
+        "tts_speech_rate": tts_speech_rate,
+        "tts_loudness_rate": tts_loudness_rate,
+        "tts_autoplay_ai_chat": tts_autoplay_ai_chat,
         "qwen_asr_enabled": qwen_asr_enabled,
         "qwen_asr_api_key": qwen_asr_api_key,
-        "character_voice_types": character_voice_types,
-        "qwen_tts_voice_types": qwen_tts_voice_types,
+        "tts_character_speakers": tts_character_speakers,
         "voice_enabled": voice_enabled,
         "embedding_enabled": embedding_enabled,
         "doubao_embedding_api_key": doubao_embedding_api_key,
@@ -207,23 +209,67 @@ func _read_json_dict(file_path: String) -> Dictionary:
         return data
     return {}
 
+func _normalize_tts_audio_format(value: String) -> String:
+    var normalized: String = value.strip_edges().to_lower()
+    if normalized == "wav":
+        return "wav"
+    return "mp3"
+
+func get_default_tts_speaker(char_id: String) -> String:
+    var normalized_char_id: String = char_id.strip_edges().to_lower()
+    return str(DEFAULT_TTS_CHARACTER_SPEAKERS.get(normalized_char_id, "zh_female_vv_uranus_bigtts"))
+
+func _is_legacy_tts_speaker(speaker_id: String) -> bool:
+    var normalized: String = speaker_id.strip_edges()
+    if normalized.is_empty():
+        return true
+    if normalized.begins_with("ICL_"):
+        return true
+    if normalized.ends_with("_tob"):
+        return true
+    if normalized == "BV001_streaming":
+        return true
+    return false
+
+func _sanitize_tts_character_speakers(raw_speakers: Dictionary) -> Dictionary:
+    var sanitized: Dictionary = DEFAULT_TTS_CHARACTER_SPEAKERS.duplicate(true)
+    for key_variant in raw_speakers.keys():
+        var char_id: String = str(key_variant).strip_edges().to_lower()
+        if char_id.is_empty():
+            continue
+        var speaker_id: String = str(raw_speakers.get(key_variant, "")).strip_edges()
+        if _is_legacy_tts_speaker(speaker_id):
+            speaker_id = get_default_tts_speaker(char_id)
+        sanitized[char_id] = speaker_id
+    return sanitized
+
+func _apply_tts_defaults_from_data(data: Dictionary) -> void:
+    var api_key_value: String = str(data.get("tts_api_key", "")).strip_edges()
+    if api_key_value.is_empty():
+        api_key_value = str(data.get("doubao_token", tts_api_key)).strip_edges()
+    if not api_key_value.is_empty():
+        tts_api_key = api_key_value
+
+    tts_audio_format = _normalize_tts_audio_format(str(data.get("tts_audio_format", tts_audio_format)))
+    tts_sample_rate = int(data.get("tts_sample_rate", tts_sample_rate))
+    tts_speech_rate = int(data.get("tts_speech_rate", tts_speech_rate))
+    tts_loudness_rate = int(data.get("tts_loudness_rate", tts_loudness_rate))
+    tts_autoplay_ai_chat = bool(data.get("tts_autoplay_ai_chat", tts_autoplay_ai_chat))
+
+    if data.has("tts_character_speakers") and data["tts_character_speakers"] is Dictionary:
+        tts_character_speakers = _sanitize_tts_character_speakers(data["tts_character_speakers"] as Dictionary)
+    elif data.has("character_voice_types") and data["character_voice_types"] is Dictionary:
+        tts_character_speakers = _sanitize_tts_character_speakers(data["character_voice_types"] as Dictionary)
+    elif data.has("doubao_voice_type"):
+        tts_character_speakers["luna"] = get_default_tts_speaker("luna")
+
 func _apply_ai_voice_defaults(data: Dictionary) -> void:
     api_key = str(data.get("api_key", api_key))
     doubao_chat_api_key = str(data.get("doubao_chat_api_key", doubao_chat_api_key))
     model = str(data.get("model", model))
-    tts_backend = str(data.get("tts_backend", tts_backend))
-    if tts_backend == "chattts":
-        tts_backend = "qwen_tts"
-    doubao_app_id = str(data.get("doubao_app_id", doubao_app_id))
-    doubao_token = str(data.get("doubao_token", doubao_token))
-    doubao_cluster = str(data.get("doubao_cluster", doubao_cluster))
-    qwen_tts_api_key = str(data.get("qwen_tts_api_key", qwen_tts_api_key))
+    _apply_tts_defaults_from_data(data)
     qwen_asr_enabled = bool(data.get("qwen_asr_enabled", qwen_asr_enabled))
     qwen_asr_api_key = str(data.get("qwen_asr_api_key", qwen_asr_api_key))
-    if data.has("character_voice_types") and data["character_voice_types"] is Dictionary:
-        character_voice_types = (data["character_voice_types"] as Dictionary).duplicate(true)
-    if data.has("qwen_tts_voice_types") and data["qwen_tts_voice_types"] is Dictionary:
-        qwen_tts_voice_types = (data["qwen_tts_voice_types"] as Dictionary).duplicate(true)
     voice_enabled = bool(data.get("voice_enabled", voice_enabled))
     embedding_enabled = bool(data.get("embedding_enabled", embedding_enabled))
     doubao_embedding_api_key = str(data.get("doubao_embedding_api_key", doubao_embedding_api_key))
@@ -240,7 +286,6 @@ func _apply_ai_voice_defaults(data: Dictionary) -> void:
     enable_ai_diary_illustration = bool(data.get("enable_ai_diary_illustration", enable_ai_diary_illustration))
 
 func load_config() -> void:
-    _apply_ai_voice_defaults(_read_json_dict(TEST_DEFAULT_CONFIG_PATH))
     if FileAccess.file_exists(CONFIG_PATH):
         var file = FileAccess.open(CONFIG_PATH, FileAccess.READ)
         var content = file.get_as_text()
@@ -257,27 +302,9 @@ func load_config() -> void:
                 temperature = data.get("temperature", temperature)
                 max_tokens = data.get("max_tokens", max_tokens)
                 ai_mode_enabled = data.get("ai_mode_enabled", ai_mode_enabled)
-                tts_backend = data.get("tts_backend", tts_backend)
-                if tts_backend == "chattts":
-                    tts_backend = "qwen_tts"
-                doubao_app_id = data.get("doubao_app_id", doubao_app_id)
-                doubao_token = data.get("doubao_token", doubao_token)
-                doubao_cluster = data.get("doubao_cluster", doubao_cluster)
-                qwen_tts_api_key = data.get("qwen_tts_api_key", qwen_tts_api_key)
+                _apply_tts_defaults_from_data(data)
                 qwen_asr_enabled = data.get("qwen_asr_enabled", qwen_asr_enabled)
                 qwen_asr_api_key = data.get("qwen_asr_api_key", qwen_asr_api_key)
-                if data.has("character_voice_types"):
-                    var dict_data = data["character_voice_types"]
-                    if dict_data is Dictionary:
-                        character_voice_types = dict_data
-                elif data.has("doubao_voice_type"):
-                    character_voice_types["luna"] = data["doubao_voice_type"]
-                
-                if data.has("qwen_tts_voice_types"):
-                    var seeds_data = data["qwen_tts_voice_types"]
-                    if seeds_data is Dictionary:
-                        qwen_tts_voice_types = seeds_data
-                
                 voice_enabled = data.get("voice_enabled", voice_enabled)
                 embedding_enabled = data.get("embedding_enabled", embedding_enabled)
                 doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)

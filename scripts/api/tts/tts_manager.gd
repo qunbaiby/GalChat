@@ -1,117 +1,251 @@
 extends Node
 
-# 全局 TTS 管理器，负责统筹多种 TTS 后端（如 豆包、GPT-SoVITS、VITS 等）
-# 作为 Autoload 单例运行，所有需要发声的模块直接调用此类
+const TTS_SERVICE_SCRIPT = preload("res://scripts/api/tts_service.gd")
+const ChatSplitHelper = preload("res://scripts/utils/chat_split_helper.gd")
+const COMPAT_CACHE_DIR := "user://tts_cache/by_key"
 
 signal tts_success(audio_stream: AudioStream, text: String)
 signal tts_failed(error_msg: String, text: String)
+signal tts_request_started(request_id: String, context: Dictionary)
+signal tts_completed(request_id: String, result: Dictionary)
+signal tts_playback_started(request_id: String, metadata: Dictionary)
+signal tts_playback_finished(request_id: String, metadata: Dictionary)
 
-var current_adapter: TTSAdapter = null
-var current_adapter_type: String = ""
+var current_adapter: Node = null
+var current_adapter_type: String = "doubao_tts_2"
 
-func _ready():
-	# 根据用户设置初始化 TTS 后端
-	if GameDataManager.config and GameDataManager.config.tts_backend != "":
-		set_adapter(GameDataManager.config.tts_backend)
-	else:
-		set_adapter("qwen_tts")
+var _service: Node = null
+var _request_context_by_id: Dictionary = {}
 
-# 切换 TTS 适配器
-func set_adapter(adapter_type: String) -> void:
-	if adapter_type == current_adapter_type and current_adapter != null:
-		return
-		
-	if current_adapter:
-		current_adapter.queue_free()
-		current_adapter = null
-		
-	current_adapter_type = adapter_type
-	
-	match adapter_type:
-		"doubao":
-			# 加载现有的 DoubaoTTSService（它现在应该继承自 TTSAdapter）
-			var DoubaoAdapter = load("res://scripts/api/doubao_TTS_Service.gd") 
-			if DoubaoAdapter:
-				current_adapter = DoubaoAdapter.new()
-		"qwen_tts":
-			var QwenTTSAdapter = load("res://scripts/api/tts/qwen_tts_adapter.gd")
-			if QwenTTSAdapter:
-				current_adapter = QwenTTSAdapter.new()
-		"gpt_sovits":
-			# TODO: 预留给本地免费 GPT-SoVITS 的适配器
-			print("[TTSManager] GPT-SoVITS adapter not implemented yet.")
-		_:
-			print("[TTSManager] Unknown adapter type: ", adapter_type)
-			
-	if current_adapter:
-		add_child(current_adapter)
-		
-		# 绑定信号
-		current_adapter.tts_success.connect(_on_adapter_success)
-		current_adapter.tts_failed.connect(_on_adapter_failed)
-		
-		# 注入现有配置
-		_setup_current_adapter_auth()
+func _ready() -> void:
+	_ensure_service()
+	_ensure_cache_dir()
 
-func _setup_current_adapter_auth() -> void:
-	if current_adapter and GameDataManager.config:
-		var config_dict = {
-			"app_id": GameDataManager.config.doubao_app_id,
-			"token": GameDataManager.config.doubao_token,
-			"cluster": GameDataManager.config.doubao_cluster,
-			"qwen_tts_api_key": GameDataManager.config.qwen_tts_api_key
-		}
-		current_adapter.setup_auth(config_dict)
+func set_adapter(_adapter_type: String) -> void:
+	# 旧接口保留为兼容层，当前项目统一收敛到豆包 TTS 2.0。
+	current_adapter_type = "doubao_tts_2"
+	_ensure_service()
 
-func _build_effective_options(options: Dictionary = {}) -> Dictionary:
-	var final_options = options.duplicate(true)
-
-	# 【动态情绪注入】：如果外部没有指定 emotion，自动注入当前角色的心情
-	if not final_options.has("emotion") and GameDataManager.profile:
-		final_options["emotion"] = GameDataManager.profile.current_expression
-
-	# 兼容原有逻辑，注入当前的 voice_type 或 voice_seed
-	if GameDataManager.profile and GameDataManager.config:
-		var char_id := str(final_options.get("character_id", "")).strip_edges().to_lower()
-		if char_id == "" and str(GameDataManager.profile.current_character_id).strip_edges() != "":
-			char_id = str(GameDataManager.profile.current_character_id).strip_edges().to_lower()
-		elif char_id == "" and str(GameDataManager.config.current_character_id).strip_edges() != "":
-			char_id = str(GameDataManager.config.current_character_id).strip_edges().to_lower()
-		if current_adapter_type == "doubao":
-			if not final_options.has("voice_type") and GameDataManager.config.character_voice_types.has(char_id):
-				final_options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
-		elif current_adapter_type == "qwen_tts":
-			if not final_options.has("voice_type") and GameDataManager.config.qwen_tts_voice_types.has(char_id):
-				final_options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[char_id]
-
-	return final_options
-
-# 外部调用的统一接口
 func synthesize(text: String, options: Dictionary = {}) -> void:
-	if not current_adapter:
-		tts_failed.emit("No TTS adapter configured", text)
+	_ensure_service()
+	if _service == null:
+		tts_failed.emit("TTS 服务未初始化。", text)
 		return
 
-	var final_options := _build_effective_options(options)
-	current_adapter.synthesize(text, final_options)
+	var normalized_text: String = _normalize_spoken_text(text)
+	if normalized_text.is_empty():
+		tts_failed.emit("TTS 文本为空。", text)
+		return
+
+	var final_options: Dictionary = _build_effective_options(options)
+	var request_id: String = str(_service.call("request_speech", normalized_text, final_options)).strip_edges()
+	if request_id.is_empty():
+		return
+
+	_request_context_by_id[request_id] = {
+		"text": normalized_text,
+		"raw_text": text,
+		"options": final_options.duplicate(true),
+		"cache_key": get_cache_key(normalized_text, final_options)
+	}
 
 func get_cache_key(text: String, options: Dictionary = {}) -> String:
-	if not current_adapter:
+	var normalized_text: String = _normalize_spoken_text(text)
+	if normalized_text.is_empty():
 		return ""
-	return current_adapter.get_cache_key(text, _build_effective_options(options))
+	var final_options: Dictionary = _build_effective_options(options)
+	var cache_payload: Dictionary = {
+		"text": normalized_text,
+		"speaker": str(final_options.get("speaker", "")).strip_edges(),
+		"audio_format": str(final_options.get("audio_format", "mp3")).strip_edges(),
+		"sample_rate": int(final_options.get("sample_rate", 24000)),
+		"speech_rate": int(final_options.get("speech_rate", 0)),
+		"loudness_rate": int(final_options.get("loudness_rate", 0)),
+		"model": str(final_options.get("model", "")).strip_edges(),
+		"ssml": str(final_options.get("ssml", "")).strip_edges()
+	}
+	if final_options.has("additions") and final_options.get("additions", null) is Dictionary:
+		cache_payload["additions"] = (final_options.get("additions", {}) as Dictionary).duplicate(true)
+	return JSON.stringify(cache_payload, "", true).md5_text()
 
 func load_cached_audio_by_key(cache_key: String) -> AudioStream:
-	if not current_adapter:
+	var normalized_key: String = cache_key.strip_edges()
+	if normalized_key.is_empty():
 		return null
-	return current_adapter.load_cached_audio_by_key(cache_key)
+	for extension in ["mp3", "wav"]:
+		var cache_path: String = _build_compat_cache_path(normalized_key, extension)
+		if FileAccess.file_exists(cache_path):
+			return _load_stream_from_path(cache_path, extension)
+	return null
 
 func clear_cache() -> void:
-	if current_adapter:
-		current_adapter.clear_cache()
+	_clear_dir(COMPAT_CACHE_DIR)
+	_clear_dir("user://tts_cache")
 
-# --- 内部回调转发 ---
-func _on_adapter_success(stream: AudioStream, text: String) -> void:
-	tts_success.emit(stream, text)
+func refresh_from_settings() -> void:
+	_ensure_service()
+	if _service != null and _service.has_method("refresh_from_settings"):
+		_service.call("refresh_from_settings")
 
-func _on_adapter_failed(err_msg: String, text: String) -> void:
-	tts_failed.emit(err_msg, text)
+func stop_playback() -> void:
+	_ensure_service()
+	if _service != null and _service.has_method("stop_playback"):
+		_service.call("stop_playback")
+
+func _ensure_service() -> void:
+	if _service != null and is_instance_valid(_service):
+		current_adapter = _service
+		return
+	_service = TTS_SERVICE_SCRIPT.new()
+	_service.name = "TTSServiceV2"
+	add_child(_service)
+	current_adapter = _service
+	if not _service.tts_request_started.is_connected(_on_service_request_started):
+		_service.tts_request_started.connect(_on_service_request_started)
+	if not _service.tts_completed.is_connected(_on_service_completed):
+		_service.tts_completed.connect(_on_service_completed)
+	if not _service.tts_failed.is_connected(_on_service_failed):
+		_service.tts_failed.connect(_on_service_failed)
+	if not _service.tts_playback_started.is_connected(_on_service_playback_started):
+		_service.tts_playback_started.connect(_on_service_playback_started)
+	if not _service.tts_playback_finished.is_connected(_on_service_playback_finished):
+		_service.tts_playback_finished.connect(_on_service_playback_finished)
+
+func _build_effective_options(options: Dictionary = {}) -> Dictionary:
+	var final_options: Dictionary = options.duplicate(true)
+	var config = GameDataManager.config if GameDataManager != null else null
+	var profile = GameDataManager.profile if GameDataManager != null else null
+
+	var char_id: String = str(final_options.get("character_id", "")).strip_edges().to_lower()
+	if char_id.is_empty() and profile != null:
+		char_id = str(profile.current_character_id).strip_edges().to_lower()
+	if char_id.is_empty() and config != null:
+		char_id = str(config.current_character_id).strip_edges().to_lower()
+	if not char_id.is_empty():
+		final_options["character_id"] = char_id
+
+	if not final_options.has("speaker") and final_options.has("voice_type"):
+		final_options["speaker"] = str(final_options.get("voice_type", "")).strip_edges()
+	if not final_options.has("speaker") and config != null and config.tts_character_speakers.has(char_id):
+		final_options["speaker"] = str(config.tts_character_speakers.get(char_id, "")).strip_edges()
+
+	if not final_options.has("api_key") and config != null:
+		final_options["api_key"] = str(config.tts_api_key).strip_edges()
+	if not final_options.has("audio_format") and config != null:
+		final_options["audio_format"] = str(config.tts_audio_format).strip_edges()
+	if not final_options.has("sample_rate") and config != null:
+		final_options["sample_rate"] = int(config.tts_sample_rate)
+	if not final_options.has("speech_rate") and config != null:
+		final_options["speech_rate"] = int(config.tts_speech_rate)
+	if not final_options.has("loudness_rate") and config != null:
+		final_options["loudness_rate"] = int(config.tts_loudness_rate)
+	if not final_options.has("request_source"):
+		final_options["request_source"] = "tts_manager"
+
+	# 业务层自行控制播放节点，这里统一禁用服务内部自动播报，避免重复出声。
+	final_options["autoplay"] = false
+	return final_options
+
+func _normalize_spoken_text(text: String) -> String:
+	return ChatSplitHelper.strip_parentheses(text).strip_edges()
+
+func _on_service_request_started(request_id: String, context: Dictionary) -> void:
+	tts_request_started.emit(request_id, context)
+
+func _on_service_completed(request_id: String, result: Dictionary) -> void:
+	var request_info: Dictionary = {}
+	if _request_context_by_id.has(request_id):
+		request_info = (_request_context_by_id.get(request_id, {}) as Dictionary).duplicate(true)
+		_request_context_by_id.erase(request_id)
+
+	var final_result: Dictionary = result.duplicate(true)
+	var source_audio_path: String = str(final_result.get("audio_path", "")).strip_edges()
+	var audio_format: String = str(final_result.get("audio_format", "mp3")).strip_edges()
+	var cache_key: String = str(request_info.get("cache_key", "")).strip_edges()
+	if not cache_key.is_empty() and not source_audio_path.is_empty():
+		var compat_path: String = _build_compat_cache_path(cache_key, audio_format)
+		var copy_error: Error = _copy_file(source_audio_path, compat_path)
+		if copy_error == OK:
+			final_result["cache_key"] = cache_key
+			final_result["compat_audio_path"] = compat_path
+
+	var audio_stream: AudioStream = null
+	var load_path: String = str(final_result.get("compat_audio_path", source_audio_path)).strip_edges()
+	if not load_path.is_empty():
+		audio_stream = _load_stream_from_path(load_path, audio_format)
+
+	tts_completed.emit(request_id, final_result)
+	if audio_stream != null:
+		tts_success.emit(audio_stream, str(request_info.get("text", final_result.get("text", ""))).strip_edges())
+	else:
+		var failed_text: String = str(request_info.get("text", final_result.get("text", ""))).strip_edges()
+		tts_failed.emit("TTS 音频解码失败。", failed_text)
+
+func _on_service_failed(request_id: String, error_message: String, context: Dictionary) -> void:
+	var raw_text: String = str(context.get("text", "")).strip_edges()
+	if _request_context_by_id.has(request_id):
+		var request_info: Dictionary = _request_context_by_id.get(request_id, {}) as Dictionary
+		raw_text = str(request_info.get("text", raw_text)).strip_edges()
+		_request_context_by_id.erase(request_id)
+	tts_failed.emit(error_message, raw_text)
+
+func _on_service_playback_started(request_id: String, metadata: Dictionary) -> void:
+	tts_playback_started.emit(request_id, metadata)
+
+func _on_service_playback_finished(request_id: String, metadata: Dictionary) -> void:
+	tts_playback_finished.emit(request_id, metadata)
+
+func _build_compat_cache_path(cache_key: String, audio_format: String) -> String:
+	var normalized_format: String = audio_format.to_lower().strip_edges()
+	var extension: String = "wav" if normalized_format == "wav" else "mp3"
+	return "%s/%s.%s" % [COMPAT_CACHE_DIR, cache_key, extension]
+
+func _load_stream_from_path(path: String, audio_format: String) -> AudioStream:
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return null
+	var audio_bytes: PackedByteArray = file.get_buffer(file.get_length())
+	file.close()
+	match audio_format.to_lower().strip_edges():
+		"wav":
+			return AudioStreamWAV.load_from_buffer(audio_bytes)
+		_:
+			if audio_bytes.is_empty():
+				return null
+			var stream := AudioStreamMP3.new()
+			stream.data = audio_bytes
+			return stream
+
+func _ensure_cache_dir() -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(COMPAT_CACHE_DIR))
+
+func _copy_file(source_path: String, target_path: String) -> Error:
+	var source_file: FileAccess = FileAccess.open(source_path, FileAccess.READ)
+	if source_file == null:
+		return FileAccess.get_open_error()
+	var target_file: FileAccess = FileAccess.open(target_path, FileAccess.WRITE)
+	if target_file == null:
+		var open_error: Error = FileAccess.get_open_error()
+		source_file.close()
+		return open_error
+	target_file.store_buffer(source_file.get_buffer(source_file.get_length()))
+	source_file.close()
+	target_file.close()
+	return OK
+
+func _clear_dir(dir_path: String) -> void:
+	var absolute_path: String = ProjectSettings.globalize_path(dir_path)
+	var dir: DirAccess = DirAccess.open(absolute_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var entry: String = dir.get_next()
+	while entry != "":
+		if entry != "." and entry != "..":
+			var full_path: String = absolute_path.path_join(entry)
+			if dir.current_is_dir():
+				_clear_dir(dir_path.path_join(entry))
+			else:
+				DirAccess.remove_absolute(full_path)
+		entry = dir.get_next()
+	dir.list_dir_end()

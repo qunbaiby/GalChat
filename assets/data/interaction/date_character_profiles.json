@@ -4,8 +4,7 @@
     "greeting_prompt": "【系统指令】玩家打开了约会面板，准备邀请你去约会。请以角色本人此刻的口吻，说一句简短的约会开场白，带一点期待感。要求：一句话即可，不要带括号动作描述。",
     "greeting_fallback": "今天天气不错，你想带我去哪里？",
     "tts": {
-      "doubao_voice_type": "",
-      "qwen_voice_type": ""
+      "speaker": ""
     },
     "date_preferences": {
       "favorite_types": [],
@@ -55,8 +54,7 @@
     "greeting_prompt": "【系统指令】玩家打开了约会面板，准备邀请Luna去约会。请以Luna本人此刻的口吻，说一句简短自然的约会开场白。语气要温柔克制、带一点在意和期待。要求：一句话即可，不要带括号动作描述。",
     "greeting_fallback": "今天天气不错，你想带我去哪里？",
     "tts": {
-      "doubao_voice_type": "BV001_streaming",
-      "qwen_voice_type": "Cherry"
+      "speaker": "zh_female_cancan_mars_bigtts"
     },
     "date_preferences": {
       "favorite_types": ["stroll", "dining", "exhibition"],

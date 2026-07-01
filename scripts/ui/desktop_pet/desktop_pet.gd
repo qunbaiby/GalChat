@@ -1348,10 +1348,10 @@ func _get_desktop_pet_tts_options() -> Dictionary:
 	if GameDataManager == null or GameDataManager.config == null:
 		return options
 	var char_id := GameDataManager.config.current_character_id
-	var voice_type := "ICL_zh_female_bingruoshaonv_tob"
-	if GameDataManager.config.character_voice_types.has(char_id):
-		voice_type = GameDataManager.config.character_voice_types[char_id]
-	options["voice_type"] = voice_type
+	var speaker_id := GameDataManager.config.get_default_tts_speaker(char_id)
+	if GameDataManager.config.tts_character_speakers.has(char_id):
+		speaker_id = GameDataManager.config.tts_character_speakers[char_id]
+	options["speaker"] = speaker_id
 	return options
 
 func _build_desktop_pet_voice_cache_key(text: String) -> String:
@@ -2834,11 +2834,11 @@ func _process_next_bubble() -> void:
 	
 	if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
 		var char_id = GameDataManager.config.current_character_id
-		var v_type = "ICL_zh_female_bingruoshaonv_tob"
-		if GameDataManager.config.character_voice_types.has(char_id):
-			v_type = GameDataManager.config.character_voice_types[char_id]
+		var speaker_id = GameDataManager.config.get_default_tts_speaker(char_id)
+		if GameDataManager.config.tts_character_speakers.has(char_id):
+			speaker_id = GameDataManager.config.tts_character_speakers[char_id]
 			
-		var options = {"voice_type": v_type}
+		var options = {"speaker": speaker_id}
 		
 		# 移除有垃圾回收风险的 Lambda 和本地数组，使用成员变量控制
 		_tts_finished = false

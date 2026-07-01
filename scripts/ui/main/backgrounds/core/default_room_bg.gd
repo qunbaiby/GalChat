@@ -291,8 +291,8 @@ func show_idle_quote_text(raw_quote: String, strip_actions: bool = false, auto_h
 	if play_voice and GameDataManager.config.voice_enabled:
 		var options = {}
 		var char_id = GameDataManager.profile.current_character_id
-		if GameDataManager.config.character_voice_types.has(char_id):
-			options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
+		if GameDataManager.config.tts_character_speakers.has(char_id):
+			options["speaker"] = GameDataManager.config.tts_character_speakers[char_id]
 
 		if not TTSManager.tts_success.is_connected(_on_idle_tts_success):
 			TTSManager.tts_success.connect(_on_idle_tts_success)

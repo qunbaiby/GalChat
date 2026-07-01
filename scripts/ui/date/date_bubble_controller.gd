@@ -285,31 +285,18 @@ func _play_bubble_tts(text: String) -> void:
 		return
 	var options: Dictionary = {}
 	options["character_id"] = character_id
-	var backend: String = str(GameDataManager.config.tts_backend)
 	var tts_config: Dictionary = character_profile.get("tts", {})
-	if backend == "qwen_tts":
-		var config_qwen_voice: String = str(GameDataManager.config.qwen_tts_voice_types.get(character_id, "")).strip_edges()
-		if config_qwen_voice != "":
-			options["voice_type"] = config_qwen_voice
-		else:
-			var qwen_voice: String = str(tts_config.get("qwen_voice_type", "")).strip_edges()
-			if qwen_voice != "":
-				options["voice_type"] = qwen_voice
+	var config_speaker: String = str(GameDataManager.config.tts_character_speakers.get(character_id, "")).strip_edges()
+	if config_speaker != "":
+		options["speaker"] = config_speaker
 	else:
-		var config_doubao_voice: String = str(GameDataManager.config.character_voice_types.get(character_id, "")).strip_edges()
-		if config_doubao_voice != "":
-			options["voice_type"] = config_doubao_voice
-		else:
-			var profile_doubao_voice: String = str(tts_config.get("doubao_voice_type", "")).strip_edges()
-			if profile_doubao_voice != "":
-				options["voice_type"] = profile_doubao_voice
-	if not options.has("voice_type"):
-		if backend == "qwen_tts":
-			if GameDataManager.config.qwen_tts_voice_types.has(character_id):
-				options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[character_id]
-		else:
-			if GameDataManager.config.character_voice_types.has(character_id):
-				options["voice_type"] = GameDataManager.config.character_voice_types[character_id]
+		var profile_speaker: String = str(tts_config.get("speaker", "")).strip_edges()
+		if profile_speaker == "":
+			profile_speaker = str(tts_config.get("doubao_voice_type", "")).strip_edges()
+		if profile_speaker == "":
+			profile_speaker = str(tts_config.get("qwen_voice_type", "")).strip_edges()
+		if profile_speaker != "":
+			options["speaker"] = profile_speaker
 	TTSManager.synthesize(spoken_text, options)
 
 

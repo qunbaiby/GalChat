@@ -1098,10 +1098,9 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 func _play_voice_message(text: String) -> void:
 	if GameDataManager.config.voice_enabled:
 		var options = {}
-		if GameDataManager.config.character_voice_types.has(current_char_id):
-			options["voice_type"] = GameDataManager.config.character_voice_types[current_char_id]
+		if GameDataManager.config.tts_character_speakers.has(current_char_id):
+			options["speaker"] = GameDataManager.config.tts_character_speakers[current_char_id]
 			
-		TTSManager.synthesize(text, options)
 
 func _load_mobile_history() -> void:
 	chat_history.clear()

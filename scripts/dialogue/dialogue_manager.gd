@@ -2274,8 +2274,8 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 				char_id = _current_story_speaker_id
 				
 			var options = {}
-			if GameDataManager.config.character_voice_types.has(char_id):
-				options["voice_type"] = GameDataManager.config.character_voice_types[char_id]
+			if GameDataManager.config.tts_character_speakers.has(char_id):
+				options["speaker"] = GameDataManager.config.tts_character_speakers[char_id]
 				
 			cache_key = TTSManager.get_cache_key(text_to_speak, options)
 			TTSManager.synthesize(text_to_speak, options)

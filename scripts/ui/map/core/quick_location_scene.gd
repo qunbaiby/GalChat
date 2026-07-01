@@ -999,13 +999,8 @@ func _play_bubble_tts(text: String) -> void:
 	if spoken_text == "":
 		return
 	var options := {}
-	var backend := str(GameDataManager.config.tts_backend)
-	if backend == "qwen_tts":
-		if GameDataManager.config.qwen_tts_voice_types.has(current_interacting_npc_id):
-			options["voice_type"] = GameDataManager.config.qwen_tts_voice_types[current_interacting_npc_id]
-	else:
-		if GameDataManager.config.character_voice_types.has(current_interacting_npc_id):
-			options["voice_type"] = GameDataManager.config.character_voice_types[current_interacting_npc_id]
+	if GameDataManager.config.tts_character_speakers.has(current_interacting_npc_id):
+		options["speaker"] = GameDataManager.config.tts_character_speakers[current_interacting_npc_id]
 	TTSManager.synthesize(spoken_text, options)
 
 func _on_bubble_tts_success(audio_stream: AudioStream, text: String) -> void:

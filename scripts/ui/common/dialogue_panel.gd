@@ -346,8 +346,8 @@ func _start_typewriter():
 		if tts_text != "":
 			_tts_pending = true
 			var options = {}
-			if GameDataManager.config.character_voice_types.has(character_id):
-				options["voice_type"] = GameDataManager.config.character_voice_types[character_id]
+			if GameDataManager.config.tts_character_speakers.has(character_id):
+				options["speaker"] = GameDataManager.config.tts_character_speakers[character_id]
 			TTSManager.synthesize(tts_text, options)
 		else:
 			_tts_pending = false

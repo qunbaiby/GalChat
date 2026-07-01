@@ -36,18 +36,18 @@ extends Control
 @onready var doubao_image_model_input: LineEdit = %DoubaoImageModelInput
 @onready var enable_ai_illustration_check: CheckButton = %EnableAiIllustrationCheck
 
-@onready var pet_global_cooldown_slider: HSlider = %PetGlobalCooldownSlider
-@onready var pet_global_cooldown_label: Label = %PetGlobalCooldownLabel
-@onready var pet_scale_slider: HSlider = %PetScaleSlider
-@onready var pet_scale_label: Label = %PetScaleLabel
-@onready var pet_enable_app_observe_check: CheckButton = %PetEnableAppObserveCheck
-@onready var pet_enable_hourly_chime_check: CheckButton = %PetEnableHourlyChimeCheck
-@onready var pet_enable_afk_greeting_check: CheckButton = %PetEnableAfkGreetingCheck
-@onready var pet_disturbance_mode_option: OptionButton = %PetDisturbanceModeOption
-@onready var pet_quiet_ranges_input: LineEdit = %PetQuietRangesInput
-@onready var pet_observe_allow_input: TextEdit = %PetObserveAllowInput
-@onready var pet_never_capture_input: TextEdit = %PetNeverCaptureInput
-@onready var pet_sensitive_window_input: TextEdit = %PetSensitiveWindowInput
+@onready var pet_global_cooldown_slider: HSlider = get_node_or_null("%PetGlobalCooldownSlider") as HSlider
+@onready var pet_global_cooldown_label: Label = get_node_or_null("%PetGlobalCooldownLabel") as Label
+@onready var pet_scale_slider: HSlider = get_node_or_null("%PetScaleSlider") as HSlider
+@onready var pet_scale_label: Label = get_node_or_null("%PetScaleLabel") as Label
+@onready var pet_enable_app_observe_check: CheckButton = get_node_or_null("%PetEnableAppObserveCheck") as CheckButton
+@onready var pet_enable_hourly_chime_check: CheckButton = get_node_or_null("%PetEnableHourlyChimeCheck") as CheckButton
+@onready var pet_enable_afk_greeting_check: CheckButton = get_node_or_null("%PetEnableAfkGreetingCheck") as CheckButton
+@onready var pet_disturbance_mode_option: OptionButton = get_node_or_null("%PetDisturbanceModeOption") as OptionButton
+@onready var pet_quiet_ranges_input: LineEdit = get_node_or_null("%PetQuietRangesInput") as LineEdit
+@onready var pet_observe_allow_input: TextEdit = get_node_or_null("%PetObserveAllowInput") as TextEdit
+@onready var pet_never_capture_input: TextEdit = get_node_or_null("%PetNeverCaptureInput") as TextEdit
+@onready var pet_sensitive_window_input: TextEdit = get_node_or_null("%PetSensitiveWindowInput") as TextEdit
 
 @onready var resolution_option: OptionButton = %ResolutionOption
 @onready var fps_option: OptionButton = %FPSOption
@@ -218,16 +218,14 @@ func _load_ui_data() -> void:
 	tokens_spinbox.value = config.max_tokens
 	ai_mode_check.button_pressed = config.ai_mode_enabled
 	
-	if config.tts_backend == "qwen_tts":
-		tts_backend_option.selected = 1
-	else:
-		tts_backend_option.selected = 0
-	
 	voice_mode_check.button_pressed = config.voice_enabled
-	app_id_input.text = config.doubao_app_id
-	token_input.text = config.doubao_token
-	cluster_input.text = config.doubao_cluster
-	qwen_tts_key_input.text = config.qwen_tts_api_key
+	tts_backend_option.selected = 0
+	tts_backend_option.disabled = true
+	app_id_input.text = ""
+	token_input.text = config.tts_api_key
+	token_input.placeholder_text = "填入豆包 TTS 2.0 API Key，不是旧版 token"
+	cluster_input.text = ""
+	qwen_tts_key_input.text = ""
 	asr_mode_check.button_pressed = config.qwen_asr_enabled
 	asr_cluster_input.text = config.qwen_asr_api_key
 	
@@ -314,24 +312,14 @@ func _create_voice_type_input(char_id: String, config, tag: String = "") -> void
 		return
 	hbox_doubao.name = "DoubaoHBox_" + char_id
 	line_edit_doubao.name = "InputDoubao_" + char_id
-	line_edit_doubao.text = config.character_voice_types.get(char_id, "ICL_zh_female_bingruoshaonv_tob")
-	preview_btn_doubao.pressed.connect(_on_preview_voice_pressed.bind(line_edit_doubao, char_id, "doubao"))
+	line_edit_doubao.placeholder_text = "填入 speaker ID"
+	line_edit_doubao.text = str(config.tts_character_speakers.get(char_id, config.get_default_tts_speaker(char_id)))
+	preview_btn_doubao.text = "试听"
+	preview_btn_doubao.pressed.connect(_on_preview_voice_pressed.bind(line_edit_doubao, char_id))
 
 	var hbox_qwen_tts: HBoxContainer = item.get_node_or_null("QwenTTSHBox")
-	if hbox_qwen_tts == null:
-		return
-	var line_edit_qwen_tts: LineEdit = hbox_qwen_tts.get_node_or_null("InputQwenTTS")
-	if line_edit_qwen_tts == null:
-		return
-	var preview_btn_qwen_tts: Button = hbox_qwen_tts.get_node_or_null("PreviewQwenButton")
-	if preview_btn_qwen_tts == null:
-		return
-	hbox_qwen_tts.name = "QwenTTSHBox_" + char_id
-	line_edit_qwen_tts.name = "InputQwenTTS_" + char_id
-	line_edit_qwen_tts.placeholder_text = "填入音色 (如 Cherry)"
-	var current_val: String = str(config.qwen_tts_voice_types.get(char_id, "Cherry"))
-	line_edit_qwen_tts.text = str(current_val)
-	preview_btn_qwen_tts.pressed.connect(_on_preview_voice_pressed.bind(line_edit_qwen_tts, char_id, "qwen_tts"))
+	if hbox_qwen_tts != null:
+		hbox_qwen_tts.hide()
 
 func _save_ui_data() -> void:
 	var config = GameDataManager.config
@@ -347,31 +335,20 @@ func _save_ui_data() -> void:
 	config.max_tokens = tokens_spinbox.value
 	config.ai_mode_enabled = ai_mode_check.button_pressed
 	
-	if tts_backend_option.selected == 1:
-		config.tts_backend = "qwen_tts"
-	else:
-		config.tts_backend = "doubao"
-	
 	config.voice_enabled = voice_mode_check.button_pressed
-	config.doubao_app_id = app_id_input.text
-	config.doubao_token = token_input.text
-	config.doubao_cluster = cluster_input.text
-	config.qwen_tts_api_key = qwen_tts_key_input.text
+	config.tts_api_key = token_input.text.strip_edges()
 	config.qwen_asr_enabled = asr_mode_check.button_pressed
 	config.qwen_asr_api_key = asr_cluster_input.text
 	
 	# 保存所有动态生成的角色音色配置
+	config.tts_character_speakers.clear()
 	for vbox in voice_type_container.get_children():
 		for hbox in vbox.get_children():
 			if hbox is HBoxContainer:
 				for child in hbox.get_children():
 					if child is LineEdit and child.name.begins_with("InputDoubao_"):
 						var char_id = child.name.replace("InputDoubao_", "")
-						config.character_voice_types[char_id] = child.text
-					elif child is LineEdit and child.name.begins_with("InputQwenTTS_"):
-						var char_id = child.name.replace("InputQwenTTS_", "")
-						var val = child.text.strip_edges()
-						config.qwen_tts_voice_types[char_id] = val
+						config.tts_character_speakers[char_id] = child.text.strip_edges()
 	
 	config.embedding_enabled = embed_mode_check.button_pressed
 	config.doubao_embedding_api_key = embed_key_input.text
@@ -399,8 +376,7 @@ func _save_ui_data() -> void:
 	config.save_config()
 	config.apply_settings()
 	
-	# 如果切换了 TTS 后端，直接通知 TTSManager 更新
-	TTSManager.set_adapter(config.tts_backend)
+	TTSManager.refresh_from_settings()
 
 func _on_resolution_changed(idx: int) -> void:
 	GameDataManager.config.resolution_idx = idx
@@ -434,9 +410,6 @@ func _on_tts_backend_changed(_idx: int) -> void:
 	_update_tts_ui()
 
 func _update_tts_ui() -> void:
-	var provider = tts_backend_option.selected
-	var is_qwen_tts = (provider == 1)
-	
 	var set_visibility = func(node: Control, should_visible: bool):
 		if is_instance_valid(node):
 			node.visible = should_visible
@@ -444,19 +417,23 @@ func _update_tts_ui() -> void:
 			var label = node.get_parent().get_node_or_null(label_name)
 			if label:
 				label.visible = should_visible
-				
-	set_visibility.call(app_id_input, not is_qwen_tts)
-	set_visibility.call(token_input, not is_qwen_tts)
-	set_visibility.call(cluster_input, not is_qwen_tts)
-	set_visibility.call(qwen_tts_key_input, is_qwen_tts)
+	
+	set_visibility.call(tts_backend_option, false)
+	set_visibility.call(app_id_input, false)
+	set_visibility.call(cluster_input, false)
+	set_visibility.call(qwen_tts_key_input, false)
+	set_visibility.call(token_input, true)
+	var token_label: Label = token_input.get_parent().get_node_or_null("TokenInputLabel") as Label
+	if token_label:
+		token_label.text = "豆包 TTS 2.0 API Key"
 	
 	# Toggle character voice inputs visibility
 	for vbox in voice_type_container.get_children():
 		for child in vbox.get_children():
 			if child.name.begins_with("DoubaoHBox_"):
-				child.visible = not is_qwen_tts
+				child.visible = true
 			elif child.name.begins_with("QwenTTSHBox_"):
-				child.visible = is_qwen_tts
+				child.visible = false
 
 func _update_model_ui() -> void:
 	var set_visibility = func(node: Control, should_visible: bool):
@@ -510,13 +487,21 @@ func _on_save_pressed() -> void:
 	_save_ui_data()
 	hide_panel()
 
-func _on_preview_voice_pressed(input_node: Control, char_id: String, backend: String) -> void:
+func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
 	var voice_type = ""
 	if input_node is LineEdit:
 		voice_type = input_node.text.strip_edges()
 		
 	if voice_type == "":
-		print("音色配置为空，无法试听")
+		_show_settings_toast("音色配置为空，无法试听", Color.RED)
+		return
+
+	if voice_type.begins_with("ICL_") or voice_type.ends_with("_tob") or voice_type == "BV001_streaming":
+		_show_settings_toast("当前音色 ID 属于旧版体系，不能用于 TTS 2.0，请改用新版 speaker。", Color.RED)
+		return
+
+	if token_input.text.strip_edges() == "":
+		_show_settings_toast("未填写豆包 TTS 2.0 API Key，无法试听。", Color.RED)
 		return
 		
 	var test_text = ""
@@ -535,42 +520,37 @@ func _on_preview_voice_pressed(input_node: Control, char_id: String, backend: St
 	else:
 		test_text = "你好，这是一段默认的音色试听文本，测试声音是否正常。"
 		
-	print("正在请求试听音色: ", voice_type, " | 文本: ", test_text, " | 引擎: ", backend)
+	print("正在请求试听音色: ", voice_type, " | 文本: ", test_text, " | 引擎: doubao_tts_2")
 	
 	if audio_player.playing:
 		audio_player.stop()
 		
-	# 为了防止修改了设置但还没点保存就去点试听，我们需要让试听走专门的设置参数，
-	# 这里因为 TTSManager 目前通过 GameDataManager.config 和当前选择的 adapter 发送，
-	# 我们可以临时让 TTSManager 使用正在设置的后端和音色
-	var options = {}
-	if backend == "doubao":
-		options["voice_type"] = voice_type
-		# 强制使用当前的 doubao 配置 (即使还没保存)
-		options["app_id"] = app_id_input.text
-		options["token"] = token_input.text
-		options["cluster"] = cluster_input.text
-	elif backend == "qwen_tts":
-		options["voice_type"] = voice_type
-		options["qwen_tts_api_key"] = qwen_tts_key_input.text
-		
-	# 临时切换 TTSAdapter，播放完毕后不需要切回，因为保存时也会最终确认
-	TTSManager.set_adapter(backend)
-	
-	# 需要把上面刚读到的动态 URL/Token 等注入到适配器中
-	if TTSManager.current_adapter:
-		TTSManager.current_adapter.setup_auth(options)
-		
+	var options: Dictionary = {
+		"speaker": voice_type,
+		"api_key": token_input.text.strip_edges(),
+		"character_id": char_id,
+		"request_source": "tts_preview"
+	}
 	TTSManager.synthesize(test_text, options)
 
 func _on_tts_success(audio_stream: AudioStream, _text: String) -> void:
 	if audio_player and is_inside_tree() and visible:
+		if AudioServer.get_bus_index("Voice") >= 0:
+			audio_player.bus = "Voice"
 		audio_player.stream = audio_stream
 		audio_player.play()
+		_show_settings_toast("音色试听生成成功", Color(0.57, 0.82, 0.76, 1))
 
 func _on_tts_failed(error_msg: String, _text: String) -> void:
 	if is_inside_tree() and visible:
 		print("音色试听失败: ", error_msg)
+		_show_settings_toast("音色试听失败：" + error_msg, Color.RED)
+
+func _show_settings_toast(message: String, color: Color = Color(0.57, 0.82, 0.76, 1)) -> void:
+	if typeof(ToastManager) != TYPE_NIL and ToastManager.has_method("show_system_toast"):
+		ToastManager.show_system_toast(message, color)
+	else:
+		print(message)
 
 func _on_clear_history_pressed() -> void:
 	# 待实现清除历史记录的逻辑

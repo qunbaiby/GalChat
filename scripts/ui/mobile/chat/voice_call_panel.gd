@@ -198,8 +198,8 @@ func _process_next_message() -> void:
     # 开始 TTS
     if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
         var options = {}
-        if GameDataManager.config.character_voice_types.has(current_char_id):
-            options["voice_type"] = GameDataManager.config.character_voice_types[current_char_id]
+        if GameDataManager.config.tts_character_speakers.has(current_char_id):
+            options["speaker"] = GameDataManager.config.tts_character_speakers[current_char_id]
             
         TTSManager.synthesize(tts_text, options)
         
