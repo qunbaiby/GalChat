@@ -4,7 +4,7 @@
 [ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="1_xhh76"]
 
 [node name="SaveSlotItem" type="PanelContainer" unique_id=372643843]
-custom_minimum_size = Vector2(0, 138)
+custom_minimum_size = Vector2(0, 128)
 offset_right = 526.0
 offset_bottom = 186.0
 size_flags_horizontal = 3
@@ -27,8 +27,8 @@ layout_mode = 2
 
 [node name="IdLabel" type="Label" parent="MarginContainer/ContentVBox/HeaderHBox" unique_id=119326918]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "档案 1"
+theme_override_font_sizes/font_size = 20
+text = "记忆名称"
 
 [node name="Spacer" type="Control" parent="MarginContainer/ContentVBox/HeaderHBox" unique_id=511568832]
 layout_mode = 2
@@ -37,7 +37,7 @@ size_flags_horizontal = 3
 [node name="DeleteButton" type="Button" parent="MarginContainer/ContentVBox/HeaderHBox" unique_id=802113337]
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
-text = "删除"
+text = "清除"
 
 [node name="SummaryLabel" type="Label" parent="MarginContainer/ContentVBox" unique_id=1376567490]
 layout_mode = 2

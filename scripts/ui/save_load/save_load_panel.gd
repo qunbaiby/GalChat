@@ -14,7 +14,9 @@ const SLOT_ITEM_SCENE: PackedScene = preload("res://scenes/ui/save_load/save_slo
 const POPUP_MIN_SIZE: Vector2 = Vector2(980, 620)
 
 var _panel_tween: Tween = null
+var _is_refreshing: bool = false
 signal archive_slot_selected(slot_id: String, is_empty: bool)
+signal new_archive_requested
 
 func _ready() -> void:
 	hide()
@@ -25,11 +27,11 @@ func _ready() -> void:
 func show_panel(_unused_mode: bool = false) -> void:
 	title_label.text = "选择档案"
 	mode_hint_label.text = "每个档案都是独立世界线，自动存档会持续写入当前档案。"
-	section_desc_label.text = "点击已有档案继续陪伴，点击空槽位新建档案。"
-	list_title_label.text = "档案列表"
+	section_desc_label.text = "创建新的记忆后，它会出现在列表顶部下方；已有记忆会按最后游玩时间从晚到早排列。"
+	list_title_label.text = "记忆列表"
 	_update_popup_layout()
-	refresh_list()
 	show()
+	call_deferred("refresh_list")
 
 	background_panel.modulate.a = 0.0
 	panel_root.modulate.a = 0.0
@@ -55,13 +57,28 @@ func hide_panel() -> void:
 	_panel_tween.tween_callback(hide)
 
 func refresh_list() -> void:
+	if _is_refreshing:
+		return
+	_is_refreshing = true
 	for child: Node in list_container.get_children():
 		child.queue_free()
+
+	var create_item = SLOT_ITEM_SCENE.instantiate()
+	list_container.add_child(create_item)
+	create_item.setup_create_item()
+	create_item.create_requested.connect(_on_create_requested)
+
+	if GameDataManager.save_manager == null:
+		slot_count_label.text = "0 段记忆"
+		_is_refreshing = false
+		return
 
 	var archive_slots: Array = GameDataManager.save_manager.get_save_slots()
 	for i in range(archive_slots.size()):
 		var slot_meta: Dictionary = archive_slots[i]
-		var slot_id: String = str(slot_meta.get("slot_id", "slot_%d" % (i + 1)))
+		var slot_id: String = str(slot_meta.get("slot_id", ""))
+		if slot_id == "":
+			continue
 		var item = SLOT_ITEM_SCENE.instantiate()
 		list_container.add_child(item)
 		item.setup(i + 1, slot_id, slot_meta)
@@ -69,7 +86,8 @@ func refresh_list() -> void:
 		if item.has_signal("delete_requested"):
 			item.delete_requested.connect(_on_delete_requested)
 
-	slot_count_label.text = "%d 个档案位" % archive_slots.size()
+	slot_count_label.text = "%d 段记忆" % archive_slots.size()
+	_is_refreshing = false
 
 func _on_close_pressed() -> void:
 	hide_panel()
@@ -98,6 +116,9 @@ func _kill_panel_tween() -> void:
 
 func _on_slot_selected(slot_id: String, is_empty: bool) -> void:
 	archive_slot_selected.emit(slot_id, is_empty)
+
+func _on_create_requested() -> void:
+	new_archive_requested.emit()
 
 func _on_delete_requested(slot_id: String) -> void:
 	var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")

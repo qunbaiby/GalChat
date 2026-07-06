@@ -8,7 +8,6 @@ const ActivityLoadingOverlayScene = preload("res://scenes/ui/activity/activity_l
 @onready var left_panel_margin: MarginContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin
 @onready var left_panel_vbox: VBoxContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox
 @onready var back_button: Button = $BackgroundPanel/BackButton
-@onready var place_into_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle/PlaceIntoButton
 @onready var category_tabs: HBoxContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTabsContainer/CategoryTabsMargin/CategoryTabs
 @onready var category_content_card: PanelContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard
 @onready var category_content_margin: MarginContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryContentCard/CategoryContentMargin
@@ -17,7 +16,7 @@ const ActivityLoadingOverlayScene = preload("res://scenes/ui/activity/activity_l
 @onready var schedule_label: Label = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle/ScheduleLabel
 @onready var schedule_slots: VBoxContainer = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ScheduleSlots
 @onready var undo_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/UndoButton
-@onready var clear_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/ClearButton
+@onready var place_into_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/PlaceIntoButton
 @onready var right_panel: Control = $BackgroundPanel/Margin/MainHBox/RightPanel
 
 @export var category_tab_scene: PackedScene = preload("res://scenes/ui/activity/category_tab_item.tscn")
@@ -47,6 +46,7 @@ const ActivityLoadingOverlayScene = preload("res://scenes/ui/activity/activity_l
 
 var scheduled_activities: Array = []
 const MAX_SLOTS = 5
+const SLOT_EMPTY_PLUS := "+"
 var current_category_id: String = ""
 
 var _pending_exec_data: Dictionary = {}
@@ -89,9 +89,8 @@ func _ready() -> void:
 	execute_button.pressed.connect(_on_execute_pressed)
 	if not execute_button.gui_input.is_connected(_on_execute_button_gui_input):
 		execute_button.gui_input.connect(_on_execute_button_gui_input)
-	place_into_button.pressed.connect(_on_place_into_pressed)
 	undo_button.pressed.connect(_on_undo_pressed)
-	clear_button.pressed.connect(_on_clear_pressed)
+	place_into_button.pressed.connect(_on_place_into_pressed)
 	if right_panel and not right_panel.gui_input.is_connected(_on_right_panel_gui_input):
 		right_panel.gui_input.connect(_on_right_panel_gui_input)
 	
@@ -474,51 +473,27 @@ func _update_ui() -> void:
 	for i in range(MAX_SLOTS):
 		var btn = slots[i] as Button
 		var item = scheduled_activities[i]
-		
-		# 获取基础样式
-		var base_style = btn.get_theme_stylebox("normal")
-		var new_style = null
-		if base_style and base_style is StyleBoxFlat:
-			new_style = base_style.duplicate()
-		else:
-			new_style = StyleBoxFlat.new()
-			new_style.bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
-			new_style.corner_radius_top_left = 14
-			new_style.corner_radius_top_right = 14
-			new_style.corner_radius_bottom_right = 14
-			new_style.corner_radius_bottom_left = 14
-			new_style.border_width_left = 1
-			new_style.border_width_top = 1
-			new_style.border_width_right = 1
-			new_style.border_width_bottom = 1
-			new_style.border_color = Color(0.82, 0.9, 0.88, 0.95)
-			
-		if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
-			new_style.border_width_left = 3
-			new_style.border_width_top = 3
-			new_style.border_width_right = 3
-			new_style.border_width_bottom = 3
-			new_style.border_color = Color(0.93, 0.74, 0.42, 0.95)
-			new_style.bg_color = Color(1, 0.96, 0.9, 1)
-		else:
-			new_style.border_width_left = 1
-			new_style.border_width_top = 1
-			new_style.border_width_right = 1
-			new_style.border_width_bottom = 1
-			new_style.border_color = Color(0.82, 0.9, 0.88, 0.95)
-			
-		btn.add_theme_stylebox_override("normal", new_style)
-		btn.add_theme_stylebox_override("hover", new_style)
-		btn.add_theme_stylebox_override("pressed", new_style)
-		btn.add_theme_stylebox_override("disabled", new_style)
+		var slot_style: StyleBoxFlat = _build_slot_button_style(item)
+		btn.add_theme_stylebox_override("normal", slot_style)
+		btn.add_theme_stylebox_override("hover", slot_style)
+		btn.add_theme_stylebox_override("pressed", slot_style)
+		btn.add_theme_stylebox_override("disabled", slot_style)
 		btn.set_meta("is_main_event_slot", typeof(item) == TYPE_DICTIONARY and item.get("type") == "event")
+		btn.add_theme_color_override("font_color", Color(0.24, 0.70, 0.66, 0.72))
+		btn.add_theme_color_override("font_pressed_color", Color(0.24, 0.70, 0.66, 0.92))
+		btn.add_theme_color_override("font_hover_color", Color(0.24, 0.70, 0.66, 0.92))
+		btn.add_theme_font_size_override("font_size", 46)
 		
 		if item == null:
-			btn.text = ""
+			btn.text = SLOT_EMPTY_PLUS
 			btn.icon = null
 		elif typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
 			btn.text = ""
 			btn.icon = MAIN_EVENT_SLOT_ICON
+			btn.add_theme_font_size_override("font_size", 16)
+			btn.add_theme_color_override("font_color", Color(0.72, 0.56, 0.26, 1))
+			btn.add_theme_color_override("font_pressed_color", Color(0.72, 0.56, 0.26, 1))
+			btn.add_theme_color_override("font_hover_color", Color(0.72, 0.56, 0.26, 1))
 		elif typeof(item) == TYPE_STRING:
 			var act = GameDataManager.activity_manager.get_activity_by_id(item)
 			if not act.is_empty():
@@ -529,9 +504,17 @@ func _update_ui() -> void:
 						btn.icon = icon_res
 				else:
 					btn.text = act.name.substr(0, 1) 
+					btn.add_theme_font_size_override("font_size", 22)
+					btn.add_theme_color_override("font_color", Color(0.19, 0.31, 0.34, 0.96))
+					btn.add_theme_color_override("font_pressed_color", Color(0.19, 0.31, 0.34, 0.96))
+					btn.add_theme_color_override("font_hover_color", Color(0.19, 0.31, 0.34, 0.96))
 			else:
 				btn.text = "未知"
 				btn.icon = null
+				btn.add_theme_font_size_override("font_size", 18)
+				btn.add_theme_color_override("font_color", Color(0.19, 0.31, 0.34, 0.96))
+				btn.add_theme_color_override("font_pressed_color", Color(0.19, 0.31, 0.34, 0.96))
+				btn.add_theme_color_override("font_hover_color", Color(0.19, 0.31, 0.34, 0.96))
 			
 	execute_button.disabled = scheduled_count < MAX_SLOTS
 	
@@ -542,9 +525,53 @@ func _update_ui() -> void:
 			break
 			
 	undo_button.disabled = not has_removable
-	clear_button.disabled = not has_removable
+	place_into_button.disabled = not _can_use_auto_schedule()
 	
 	_update_right_panel(profile)
+
+func _build_slot_button_style(item: Variant) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.corner_radius_top_left = 22
+	style.corner_radius_top_right = 22
+	style.corner_radius_bottom_right = 22
+	style.corner_radius_bottom_left = 22
+	style.anti_aliasing_size = 1.2
+	style.shadow_offset = Vector2(0, 2)
+	if item == null:
+		style.bg_color = Color(0.83, 0.99, 0.96, 0.14)
+		style.border_width_left = 2
+		style.border_width_top = 2
+		style.border_width_right = 2
+		style.border_width_bottom = 2
+		style.border_color = Color(0.35, 0.80, 0.74, 0.42)
+		style.shadow_color = Color(0.18, 0.72, 0.66, 0.08)
+		style.shadow_size = 4
+	elif typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
+		style.bg_color = Color(1.0, 0.97, 0.91, 0.98)
+		style.border_width_left = 2
+		style.border_width_top = 2
+		style.border_width_right = 2
+		style.border_width_bottom = 2
+		style.border_color = Color(0.92, 0.75, 0.42, 0.95)
+		style.shadow_color = Color(0.80, 0.60, 0.24, 0.16)
+		style.shadow_size = 8
+	else:
+		style.bg_color = Color(0.93, 0.99, 0.98, 0.98)
+		style.border_width_left = 2
+		style.border_width_top = 2
+		style.border_width_right = 2
+		style.border_width_bottom = 2
+		style.border_color = Color(0.28, 0.76, 0.71, 0.92)
+		style.shadow_color = Color(0.16, 0.67, 0.62, 0.16)
+		style.shadow_size = 8
+	return style
+
+
+func _can_use_auto_schedule() -> bool:
+	for item in scheduled_activities:
+		if item == null or typeof(item) == TYPE_STRING:
+			return true
+	return false
 
 func _update_right_panel(profile) -> void:
 	# 设置头像
@@ -787,12 +814,29 @@ func _on_place_into_pressed() -> void:
 		ToastManager.show_system_toast("当前没有可自动安排的课程")
 		return
 
+	var changed_count: int = 0
+	var filled_empty_count: int = 0
 	for i in range(MAX_SLOTS):
-		if typeof(scheduled_activities[i]) == TYPE_STRING or scheduled_activities[i] == null:
-			scheduled_activities[i] = auto_plan[i]
+		var old_item = scheduled_activities[i]
+		var new_item = auto_plan[i]
+		if old_item == new_item:
+			continue
+		if typeof(old_item) == TYPE_DICTIONARY and old_item.get("type") == "event":
+			continue
+		if old_item == null and new_item != null:
+			filled_empty_count += 1
+		if new_item != null or old_item != null:
+			changed_count += 1
+		scheduled_activities[i] = new_item
 
+	if changed_count <= 0:
+		ToastManager.show_system_toast("当前安排已经很合适了")
+		return
 	_update_ui()
-	ToastManager.show_system_toast("已为你生成一套推荐行程")
+	if filled_empty_count > 0 and changed_count == filled_empty_count:
+		ToastManager.show_system_toast("已补全空余行程")
+	else:
+		ToastManager.show_system_toast("已为你优化今日安排")
 
 func _build_auto_schedule_plan() -> Array:
 	var result: Array = scheduled_activities.duplicate(true)
@@ -803,6 +847,21 @@ func _build_auto_schedule_plan() -> Array:
 	var remaining_gold: int = int(profile.gold)
 	var simulated_progress: Dictionary = profile.course_progress.duplicate(true)
 	var mood_bonus_rate: float = GameDataManager.mood_system.get_stat_bonus_rate(profile.mood_value)
+	var scheduled_counts: Dictionary = {}
+	var has_empty_slot: bool = false
+
+	for slot_item in result:
+		if slot_item == null:
+			has_empty_slot = true
+			continue
+		if typeof(slot_item) == TYPE_DICTIONARY and slot_item.get("type") == "event":
+			continue
+		if typeof(slot_item) == TYPE_STRING:
+			var fixed_id: String = str(slot_item).strip_edges()
+			if fixed_id != "":
+				if not scheduled_counts.has(fixed_id):
+					scheduled_counts[fixed_id] = 0
+				scheduled_counts[fixed_id] += 1
 
 	for item in result:
 		if typeof(item) != TYPE_STRING:
@@ -818,12 +877,26 @@ func _build_auto_schedule_plan() -> Array:
 	if remaining_gold < 0:
 		remaining_gold = 0
 
+	if not has_empty_slot:
+		remaining_gold = int(profile.gold)
+		simulated_progress = profile.course_progress.duplicate(true)
+		scheduled_counts.clear()
+		for slot_index in range(MAX_SLOTS):
+			if typeof(result[slot_index]) == TYPE_DICTIONARY and result[slot_index].get("type") == "event":
+				continue
+			result[slot_index] = null
+
 	var filled_any: bool = false
 	for slot_index in range(MAX_SLOTS):
 		if typeof(result[slot_index]) == TYPE_DICTIONARY and result[slot_index].get("type") == "event":
 			continue
+		if has_empty_slot and typeof(result[slot_index]) == TYPE_STRING:
+			continue
 
-		var best_activity: Dictionary = _pick_best_activity_for_auto_plan(simulated_progress, remaining_gold, mood_bonus_rate)
+		var previous_activity_id: String = ""
+		if slot_index > 0 and typeof(result[slot_index - 1]) == TYPE_STRING:
+			previous_activity_id = str(result[slot_index - 1]).strip_edges()
+		var best_activity: Dictionary = _pick_best_activity_for_auto_plan(simulated_progress, remaining_gold, mood_bonus_rate, scheduled_counts, previous_activity_id)
 		if best_activity.is_empty():
 			if result[slot_index] == null:
 				break
@@ -835,19 +908,22 @@ func _build_auto_schedule_plan() -> Array:
 		filled_any = true
 		remaining_gold -= int(best_activity.get("gold_cost", 0))
 		simulated_progress[best_id] = int(simulated_progress.get(best_id, 0)) + int(best_activity.get("progress_increment", 0))
+		if not scheduled_counts.has(best_id):
+			scheduled_counts[best_id] = 0
+		scheduled_counts[best_id] += 1
 
 	if not filled_any:
 		return []
 	return result
 
-func _pick_best_activity_for_auto_plan(simulated_progress: Dictionary, remaining_gold: int, mood_bonus_rate: float) -> Dictionary:
+func _pick_best_activity_for_auto_plan(simulated_progress: Dictionary, remaining_gold: int, mood_bonus_rate: float, scheduled_counts: Dictionary, previous_activity_id: String) -> Dictionary:
 	var best_activity: Dictionary = {}
 	var best_score: float = -INF
 
 	for act in GameDataManager.activity_manager.activities:
 		if not _can_auto_schedule_activity(act, simulated_progress, remaining_gold):
 			continue
-		var score := _score_activity_for_auto_plan(act, mood_bonus_rate)
+		var score := _score_activity_for_auto_plan(act, mood_bonus_rate, scheduled_counts, previous_activity_id)
 		if score > best_score:
 			best_score = score
 			best_activity = act
@@ -873,7 +949,7 @@ func _can_auto_schedule_activity(act: Dictionary, simulated_progress: Dictionary
 
 	return true
 
-func _score_activity_for_auto_plan(act: Dictionary, mood_bonus_rate: float) -> float:
+func _score_activity_for_auto_plan(act: Dictionary, mood_bonus_rate: float, scheduled_counts: Dictionary, previous_activity_id: String) -> float:
 	var stat_score: float = 0.0
 	var rewards: Dictionary = act.get("rewards", {})
 	for stat_key in rewards.keys():
@@ -895,7 +971,11 @@ func _score_activity_for_auto_plan(act: Dictionary, mood_bonus_rate: float) -> f
 		mood_value = mood_change * 0.15
 
 	var gold_penalty: float = float(act.get("gold_cost", 0)) * 0.6
-	return stat_score + progress_value + mood_value - gold_penalty
+	var activity_id: String = str(act.get("id", "")).strip_edges()
+	var repeat_penalty: float = float(int(scheduled_counts.get(activity_id, 0))) * 1.35
+	if previous_activity_id == activity_id:
+		repeat_penalty += 2.4
+	return stat_score + progress_value + mood_value - gold_penalty - repeat_penalty
 
 func _on_right_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -934,15 +1014,6 @@ func _on_undo_pressed() -> void:
 			scheduled_activities[i] = null
 			_update_ui()
 			return
-
-func _on_clear_pressed() -> void:
-	if not _is_guide_interaction_allowed("activity.schedule_controls"):
-		_notify_guide_interaction_blocked()
-		return
-	for i in range(MAX_SLOTS):
-		if typeof(scheduled_activities[i]) == TYPE_STRING:
-			scheduled_activities[i] = null
-	_update_ui()
 
 func _on_execute_pressed() -> void:
 	var current_frame := Engine.get_process_frames()

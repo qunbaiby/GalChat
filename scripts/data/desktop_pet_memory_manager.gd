@@ -6,3 +6,9 @@ func get_memory_file_path() -> String:
 	if GameDataManager.config and GameDataManager.config.current_character_id != "":
 		char_id = GameDataManager.config.current_character_id
 	return GameDataManager.get_character_save_path("desktop_pet_memory.json", char_id)
+
+func get_memory_domain() -> String:
+	return MEMORY_DOMAIN_DESKTOP_PET
+
+func get_default_context_domain() -> String:
+	return CONTEXT_DOMAIN_REALITY

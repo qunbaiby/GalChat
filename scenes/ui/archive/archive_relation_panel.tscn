@@ -28,19 +28,19 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.78, 0.87, 0.89, 0.82)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.03, 0.08, 0.1, 0.14)
-shadow_size = 22
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
 bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
 border_color = Color(0.79, 0.88, 0.89, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
+corner_radius_top_left = 0
+corner_radius_top_right = 0
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4c27p"]
 load_path = "res://.godot/imported/closebg.png-b4ede7627493c00f7ec44ff9f899f280.ctex"
@@ -92,6 +92,7 @@ mouse_filter = 1
 script = ExtResource("1_script")
 
 [node name="Background" type="ColorRect" parent="." unique_id=768727863]
+visible = false
 material = SubResource("ShaderMaterial_ArchiveRelationBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -109,7 +110,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="CenterContainer" unique_id=1065191962]
-custom_minimum_size = Vector2(1120, 680)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme = ExtResource("2_2h7d0")
 theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
@@ -124,7 +125,7 @@ grow_vertical = 2
 theme_override_constants/separation = 0
 
 [node name="TopBar" type="Panel" parent="CenterContainer/Panel/VBoxContainer" unique_id=620025725]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
@@ -132,13 +133,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 36.0
-offset_top = 14.0
-offset_right = -118.0
-offset_bottom = 42.0
+offset_left = 40.0
+offset_top = 18.0
+offset_right = -124.0
+offset_bottom = 54.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 text = "关系档案"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -147,13 +148,13 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 36.0
-offset_top = 46.0
-offset_right = -118.0
-offset_bottom = 68.0
+offset_left = 40.0
+offset_top = 58.0
+offset_right = -124.0
+offset_bottom = 86.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.92)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 16
 text = "左侧查看关系图谱，右侧阅读节点与关系说明。"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -161,10 +162,10 @@ vertical_alignment = 1
 [node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer" unique_id=1083745262]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 30
 
 [node name="RelationGraphView" parent="CenterContainer/Panel/VBoxContainer/BodyMargin" unique_id=1578749066 instance=ExtResource("2_relation_view")]
 layout_mode = 2

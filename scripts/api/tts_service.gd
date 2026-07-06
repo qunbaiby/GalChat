@@ -219,7 +219,7 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 	var audio_format: String = _normalize_audio_format(str(request_info.get("audio_format", DEFAULT_AUDIO_FORMAT)).strip_edges())
 	var resolved_audio_bytes: PackedByteArray = _extract_audio_bytes_from_response(body)
 	if resolved_audio_bytes.is_empty():
-		_emit_failure(request_id, "TTS 响应中未解析到有效音频数据。", request_info, log_id)
+		_emit_failure(request_id, _build_audio_parse_error_message(body, log_id), request_info, log_id)
 		_try_start_next_request()
 		return
 	var save_path: String = _build_cache_file_path(request_id, audio_format)
@@ -228,7 +228,13 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		_emit_failure(request_id, "TTS 音频保存失败，错误码：%d" % save_error, request_info, log_id)
 		_try_start_next_request()
 		return
-	var stream: AudioStream = _build_stream_from_bytes(resolved_audio_bytes, audio_format)
+	_emit_success(request_info, save_path, audio_format, log_id)
+	_try_start_next_request()
+
+func _emit_success(request_info: Dictionary, audio_path: String, audio_format: String, log_id: String = "") -> void:
+	var request_id: String = str(request_info.get("request_id", "")).strip_edges()
+	var audio_bytes: PackedByteArray = FileAccess.get_file_as_bytes(audio_path)
+	var stream: AudioStream = _build_stream_from_bytes(audio_bytes, audio_format)
 	var playback_supported: bool = stream != null
 	if bool(request_info.get("autoplay", false)) and playback_supported:
 		_active_playback_request_id = request_id
@@ -237,14 +243,14 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		_playback_player.play()
 		tts_playback_started.emit(request_id, {
 			"request_id": request_id,
-			"audio_path": save_path,
+			"audio_path": audio_path,
 			"audio_format": audio_format,
 			"log_id": log_id
 		})
 
 	var result_payload: Dictionary = {
 		"request_id": request_id,
-		"audio_path": save_path,
+		"audio_path": audio_path,
 		"audio_format": audio_format,
 		"text": str(request_info.get("text", "")).strip_edges(),
 		"speaker": str(request_info.get("speaker", "")).strip_edges(),
@@ -253,7 +259,6 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		"request_source": str(request_info.get("request_source", "")).strip_edges()
 	}
 	tts_completed.emit(request_id, result_payload)
-	_try_start_next_request()
 
 func _save_audio_bytes(save_path: String, audio_bytes: PackedByteArray) -> Error:
 	var file: FileAccess = FileAccess.open(save_path, FileAccess.WRITE)
@@ -368,6 +373,20 @@ func _build_http_error_message(response_code: int, body: PackedByteArray, log_id
 			if not remote_message.is_empty():
 				return "TTS 请求失败：HTTP %d，%s%s" % [response_code, remote_message, suffix]
 			return "TTS 请求失败：HTTP %d%s" % [response_code, suffix]
+
+func _build_audio_parse_error_message(body: PackedByteArray, log_id: String = "") -> String:
+	var suffix: String = ""
+	if not log_id.is_empty():
+		suffix = "（logid：%s）" % log_id
+	var parsed_error: Dictionary = _parse_error_body(body)
+	var parsed_code: int = int(parsed_error.get("code", -1))
+	if not parsed_error.is_empty() and parsed_code != 0:
+		var remote_message: String = str(parsed_error.get("message", parsed_error.get("msg", ""))).strip_edges()
+		if remote_message.is_empty():
+			remote_message = str(parsed_error.get("error", "")).strip_edges()
+		if not remote_message.is_empty():
+			return "TTS 请求失败：%s%s" % [remote_message, suffix]
+	return "TTS 响应中未解析到有效音频数据。%s" % suffix
 
 func _parse_error_body(body: PackedByteArray) -> Dictionary:
 	var wrapped_payload: Dictionary = _parse_json_payload(body)
@@ -511,11 +530,19 @@ func _is_legacy_speaker_id(speaker_id: String) -> bool:
 	var normalized: String = speaker_id.strip_edges()
 	if normalized.is_empty():
 		return false
+	if normalized.begins_with("S_"):
+		return false
+	if normalized.find("_uranus_bigtts") >= 0 or normalized.find("_saturn_bigtts") >= 0:
+		return false
 	if normalized.begins_with("ICL_"):
 		return true
 	if normalized.ends_with("_tob"):
 		return true
 	if normalized == "BV001_streaming":
+		return true
+	if normalized.find("_moon_bigtts") >= 0 or normalized.find("_mars_bigtts") >= 0:
+		return true
+	if normalized.find("_emo_v2_") >= 0:
 		return true
 	return false
 

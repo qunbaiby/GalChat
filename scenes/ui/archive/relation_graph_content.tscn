@@ -37,15 +37,15 @@ corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
 [node name="RelationGraphView" type="HBoxContainer"]
-offset_right = 1000.0
-offset_bottom = 620.0
+offset_right = 1180.0
+offset_bottom = 680.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 18
+theme_override_constants/separation = 24
 script = ExtResource("1_script")
 
 [node name="GraphCard" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(420, 0)
+custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -58,16 +58,16 @@ size_flags_vertical = 3
 theme_override_constants/separation = 0
 
 [node name="HeaderPanel" type="PanelContainer" parent="GraphCard/VBox"]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="HeaderMargin" type="MarginContainer" parent="GraphCard/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
 
 [node name="HeaderVBox" type="VBoxContainer" parent="GraphCard/VBox/HeaderPanel/HeaderMargin"]
 layout_mode = 2
@@ -86,10 +86,10 @@ text = "左侧查看节点分布、锁定状态与阵营筛选。"
 
 [node name="ToolbarMargin" type="MarginContainer" parent="GraphCard/VBox"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
 
 [node name="Toolbar" type="HBoxContainer" parent="GraphCard/VBox/ToolbarMargin"]
 layout_mode = 2
@@ -131,10 +131,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="ViewportFrame" type="PanelContainer" parent="GraphCard/VBox/Viewport/ViewportMargin"]
 clip_contents = true
@@ -178,16 +178,16 @@ size_flags_vertical = 3
 theme_override_constants/separation = 0
 
 [node name="HeaderPanel" type="PanelContainer" parent="DetailCard/VBox"]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="HeaderMargin" type="MarginContainer" parent="DetailCard/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
 
 [node name="HeaderVBox" type="VBoxContainer" parent="DetailCard/VBox/HeaderPanel/HeaderMargin"]
 layout_mode = 2
@@ -207,10 +207,10 @@ text = "右侧集中展示节点、关系与解锁说明。"
 [node name="Margin" type="MarginContainer" parent="DetailCard/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="ContentScroll" type="ScrollContainer" parent="DetailCard/VBox/Margin"]
 layout_mode = 2

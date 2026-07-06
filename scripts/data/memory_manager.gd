@@ -15,6 +15,10 @@ const MEMORY_VISIBILITY_PROMPT = "prompt"
 const MEMORY_VISIBILITY_CONDITIONAL = "conditional"
 const MEMORY_VISIBILITY_HIDDEN = "hidden"
 const MEMORY_VISIBILITY_ARCHIVE_ONLY = "archive_only"
+const MEMORY_DOMAIN_PLAYER = "player_memory"
+const MEMORY_DOMAIN_DESKTOP_PET = "desktop_pet_memory"
+const MEMORY_DOMAIN_STORY = "story_memory"
+const PLAYER_MEMORY_ALLOWED_LAYERS := ["core", "emotion", "habit", "bond"]
 
 # 四级记忆分层架构，每层存储字典列表 [{"id": String, "content": String, "timestamp": String}]
 var memories: Dictionary = {
@@ -32,6 +36,18 @@ func get_memory_file_path() -> String:
 	if GameDataManager.config and GameDataManager.config.current_character_id != "":
 		char_id = GameDataManager.config.current_character_id
 	return GameDataManager.get_character_save_path("player_memory.json", char_id)
+
+func get_memory_domain() -> String:
+	return MEMORY_DOMAIN_PLAYER
+
+func get_default_context_domain() -> String:
+	return CONTEXT_DOMAIN_STORY
+
+func get_default_memory_scope() -> String:
+	return MEMORY_SCOPE_PLAYER_SHARED
+
+func get_default_memory_visibility() -> String:
+	return MEMORY_VISIBILITY_PROMPT
 
 func _init() -> void:
 	# 不在_init()加载，等待GameDataManager显式调用load_memory()
@@ -114,6 +130,8 @@ func _is_duplicate_memory_entry(mem: Dictionary, content: String, source_type: S
 func should_surface_memory_in_player_channels(mem: Dictionary, channel: String = "prompt", has_query: bool = false) -> bool:
 	if mem.is_empty():
 		return false
+	if str(mem.get("memory_domain", get_memory_domain())) != get_memory_domain():
+		return false
 	var scope = normalize_memory_scope(str(mem.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED)))
 	var visibility = normalize_memory_visibility(str(mem.get("memory_visibility", "")), scope)
 	if visibility == MEMORY_VISIBILITY_HIDDEN or visibility == MEMORY_VISIBILITY_ARCHIVE_ONLY:
@@ -128,6 +146,43 @@ func should_surface_memory_in_player_channels(mem: Dictionary, channel: String =
 		return scope == MEMORY_SCOPE_PLAYER_SHARED or scope == MEMORY_SCOPE_PLAYER_OBSERVED
 
 	return visibility == MEMORY_VISIBILITY_PROMPT
+
+func accepts_memory_entry(layer: String, content: String, memory_context: Dictionary = {}, memory_options: Dictionary = {}) -> bool:
+	var final_layer = layer.strip_edges().to_lower()
+	if not PLAYER_MEMORY_ALLOWED_LAYERS.has(final_layer):
+		return false
+	if content.strip_edges() == "":
+		return false
+	if str(memory_options.get("source_type", "")).strip_edges() == "story_script":
+		return false
+	var scope = normalize_memory_scope(str(memory_options.get("memory_scope", get_default_memory_scope())))
+	if scope != MEMORY_SCOPE_PLAYER_SHARED:
+		return false
+	return true
+
+func query_memories(query_options: Dictionary = {}) -> Array:
+	var channel := str(query_options.get("channel", "prompt"))
+	var layers = query_options.get("layers", PLAYER_MEMORY_ALLOWED_LAYERS)
+	var max_count := int(query_options.get("max_count", 12))
+	var require_player_shared := bool(query_options.get("require_player_shared", channel == "prompt" or channel == "archive"))
+	var results: Array = []
+	if not layers is Array:
+		layers = PLAYER_MEMORY_ALLOWED_LAYERS
+	for raw_layer in layers:
+		var layer := str(raw_layer)
+		if not memories.has(layer):
+			continue
+		for mem in memories[layer]:
+			if not mem is Dictionary:
+				continue
+			if require_player_shared and normalize_memory_scope(str(mem.get("memory_scope", get_default_memory_scope()))) != MEMORY_SCOPE_PLAYER_SHARED:
+				continue
+			if not should_surface_memory_in_player_channels(mem, channel, bool(query_options.get("has_query", false))):
+				continue
+			results.append({"layer": layer, "memory": mem})
+			if max_count > 0 and results.size() >= max_count:
+				return results
+	return results
 
 func get_memory_snapshot_for_extraction() -> Dictionary:
 	var snapshot: Dictionary = {}
@@ -267,6 +322,7 @@ func load_memory() -> void:
 								if not item.has("real_period"): item["real_period"] = ""
 								if not item.has("real_weather"): item["real_weather"] = ""
 								if not item.has("real_temp"): item["real_temp"] = 0.0
+								if not item.has("memory_domain"): item["memory_domain"] = get_memory_domain()
 								layer_mems.append(item)
 						memories[key] = layer_mems
 				turns_since_last_extract = int(data.get("_turns_since_last_extract", turns_since_last_extract))
@@ -290,6 +346,8 @@ func _generate_id() -> String:
 	return str(Time.get_unix_time_from_system() * 1000 + randi() % 1000)
 
 func add_memory(layer: String, content: String, memory_context: Dictionary = {}) -> void:
+	if not accepts_memory_entry(layer, content, memory_context, {}):
+		return
 	if memories.has(layer):
 		# 防止重复内容添加
 		for mem in memories[layer]:
@@ -310,8 +368,9 @@ func add_memory(layer: String, content: String, memory_context: Dictionary = {})
 			"source_type": "",
 			"source_id": "",
 			"source_title": "",
-			"memory_scope": MEMORY_SCOPE_PLAYER_SHARED,
-			"memory_visibility": MEMORY_VISIBILITY_PROMPT,
+			"memory_domain": get_memory_domain(),
+			"memory_scope": get_default_memory_scope(),
+			"memory_visibility": get_default_memory_visibility(),
 			"memory_participants": [],
 			"memory_player_involved": true,
 			"memory_player_witnessed": true,
@@ -334,6 +393,9 @@ func add_memory(layer: String, content: String, memory_context: Dictionary = {})
 		print("【记忆管理器】新增 %s 记忆: [%s] %s" % [layer, new_mem["id"], content])
 
 func add_memory_quick(layer: String, content: String, memory_context: Dictionary = {}, memory_options: Dictionary = {}) -> void:
+	layer = layer.strip_edges().to_lower()
+	if not accepts_memory_entry(layer, content, memory_context, memory_options):
+		return
 	if not memories.has(layer):
 		return
 	var final_content = content.strip_edges()
@@ -357,8 +419,9 @@ func add_memory_quick(layer: String, content: String, memory_context: Dictionary
 		"source_type": source_type,
 		"source_id": source_id,
 		"source_title": str(memory_options.get("source_title", "")),
-		"memory_scope": normalize_memory_scope(str(memory_options.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED))),
-		"memory_visibility": normalize_memory_visibility(str(memory_options.get("memory_visibility", "")), str(memory_options.get("memory_scope", MEMORY_SCOPE_PLAYER_SHARED))),
+		"memory_domain": str(memory_options.get("memory_domain", get_memory_domain())),
+		"memory_scope": normalize_memory_scope(str(memory_options.get("memory_scope", get_default_memory_scope()))),
+		"memory_visibility": normalize_memory_visibility(str(memory_options.get("memory_visibility", get_default_memory_visibility())), str(memory_options.get("memory_scope", get_default_memory_scope()))),
 		"memory_participants": memory_options.get("memory_participants", []),
 		"memory_player_involved": bool(memory_options.get("memory_player_involved", true)),
 		"memory_player_witnessed": bool(memory_options.get("memory_player_witnessed", true)),

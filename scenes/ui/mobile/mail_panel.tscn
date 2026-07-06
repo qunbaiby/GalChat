@@ -29,19 +29,19 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.79, 0.88, 0.9, 0.82)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.03, 0.08, 0.1, 0.14)
-shadow_size = 22
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
 bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
 border_color = Color(0.79, 0.88, 0.89, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
+corner_radius_top_left = 0
+corner_radius_top_right = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftPane"]
 bg_color = Color(0.94, 0.945, 0.952, 0.98)
@@ -91,6 +91,7 @@ mouse_filter = 1
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_Blur")
 layout_mode = 1
 anchors_preset = 15
@@ -109,12 +110,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(1040, 660)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Root")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
-custom_minimum_size = Vector2(1040, 660)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_constants/separation = 0
 
@@ -124,17 +125,17 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 22
 
 [node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(84, 36)
+custom_minimum_size = Vector2(96, 42)
 layout_mode = 2
 text = "关闭"
 
@@ -142,7 +143,7 @@ text = "关闭"
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.24, 0.25, 0.28, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 text = "邮箱"
 
 [node name="CounterLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
@@ -164,18 +165,18 @@ horizontal_alignment = 2
 [node name="BodyMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
 
 [node name="BodyHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 18
+theme_override_constants/separation = 24
 
 [node name="LeftPane" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
-custom_minimum_size = Vector2(360, 0)
+custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPane")
@@ -222,10 +223,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_RightPane")
 
 [node name="RightMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane"]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 24
 
 [node name="RightVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin"]
 layout_mode = 2
@@ -235,7 +236,7 @@ theme_override_constants/separation = 12
 [node name="DetailTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.3, 0.32, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "邮件标题"
 
 [node name="MetaHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
@@ -264,7 +265,7 @@ theme_override_font_sizes/font_size = 16
 text = "收件人：-"
 
 [node name="BodyLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
-custom_minimum_size = Vector2(0, 180)
+custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.34, 0.35, 0.38, 1)

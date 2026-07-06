@@ -18,18 +18,18 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_SaveLoadBlur"]
 shader = SubResource("Shader_SaveLoadBlur")
 shader_parameter/lod = 2.5
-shader_parameter/mix_color = Color(0.1, 0.08, 0.06, 0.34)
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Background"]
 bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
-bg_color = Color(0.8255664, 0.86781013, 0.91958547, 0.78)
+bg_color = Color(0.91, 0.965, 0.965, 0.86)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
+border_color = Color(0.68, 0.82, 0.82, 0.9)
 corner_radius_top_left = 24
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
@@ -38,7 +38,7 @@ shadow_color = Color(0.18, 0.28, 0.33, 0.16)
 shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.62)
+bg_color = Color(0.96, 0.99, 0.985, 0.72)
 border_width_bottom = 1
 border_color = Color(0.82, 0.9, 0.88, 0.95)
 corner_radius_top_left = 22
@@ -196,7 +196,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
 theme_override_font_sizes/font_size = 14
-text = "0 个档案位"
+text = "0 段记忆"
 horizontal_alignment = 2
 
 [node name="ModeHintLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyMargin/BodyVBox/ListCard/ListMargin/ListVBox" unique_id=966108381]
@@ -222,6 +222,6 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
 theme_override_font_sizes/font_size = 14
-text = "点击已有档案继续陪伴，点击空槽位新建档案。"
+text = "创建新的记忆后，它会固定出现在入口下方，并按最后游玩时间从晚到早排列。"
 horizontal_alignment = 1
 autowrap_mode = 3

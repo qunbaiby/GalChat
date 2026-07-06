@@ -34,17 +34,17 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.84, 0.8, 0.72, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.08)
-shadow_size = 18
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SidePanel"]
 bg_color = Color(0.15686275, 0.14901961, 0.14901961, 1)
-corner_radius_top_left = 22
-corner_radius_bottom_left = 22
+corner_radius_top_left = 0
+corner_radius_bottom_left = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabNormal"]
 bg_color = Color(0, 0, 0, 0)
@@ -280,6 +280,7 @@ mouse_filter = 1
 script = ExtResource("1_script")
 
 [node name="Background" type="Panel" parent="." unique_id=423376645]
+visible = false
 material = SubResource("ShaderMaterial_SettingsBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -298,7 +299,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer" unique_id=670355744]
-custom_minimum_size = Vector2(1120, 660)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme = ExtResource("2_x5xkn")
 theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
@@ -311,7 +312,7 @@ theme_override_constants/margin_right = -1
 theme_override_constants/margin_bottom = -1
 
 [node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin" unique_id=2120957368]
-custom_minimum_size = Vector2(1120, 660)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_constants/separation = 0
 
@@ -321,16 +322,16 @@ size_flags_vertical = 3
 theme_override_constants/separation = 0
 
 [node name="SidePanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox" unique_id=853475248]
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_SidePanel")
 
 [node name="SideMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel" unique_id=1795300894]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 24
 
 [node name="SideVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin" unique_id=93128478]
 layout_mode = 2
@@ -481,19 +482,19 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_en6pb")
 
 [node name="ContentMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel" unique_id=102122870]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 26
 
 [node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin" unique_id=353397358]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 18
 
 [node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox" unique_id=1272713928]
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ContentTopBar")
 
@@ -501,13 +502,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_ContentTopBar")
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 20.0
-offset_top = 9.0
-offset_right = -116.0
-offset_bottom = 39.0
+offset_left = 24.0
+offset_top = 14.0
+offset_right = -126.0
+offset_bottom = 46.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.96)
-theme_override_font_sizes/font_size = 21
+theme_override_font_sizes/font_size = 24
 text = "设置 / AI"
 vertical_alignment = 1
 
@@ -515,10 +516,10 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 20.0
-offset_top = 39.0
-offset_right = -116.0
-offset_bottom = 67.0
+offset_left = 24.0
+offset_top = 48.0
+offset_right = -126.0
+offset_bottom = 76.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.92, 0.95, 0.98, 0.62)
 theme_override_font_sizes/font_size = 13
@@ -526,15 +527,15 @@ text = "模型、接口、语音与图像等能力配置"
 vertical_alignment = 1
 
 [node name="BackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar" unique_id=462621181]
-custom_minimum_size = Vector2(48, 48)
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -62.0
-offset_top = 12.0
-offset_right = -14.0
-offset_bottom = 60.0
+offset_left = -70.0
+offset_top = 15.0
+offset_right = -16.0
+offset_bottom = 69.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 0.92)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)

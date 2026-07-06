@@ -339,11 +339,13 @@ func build_memory_prompt(profile: CharacterProfile, memory_manager_override = nu
 		
 	var current_memories = "{}"
 	var memory_manager = _resolve_memory_manager(memory_manager_override)
+	var memory_domain = memory_manager.get_memory_domain() if memory_manager and memory_manager.has_method("get_memory_domain") else "player_memory"
 	if memory_manager and memory_manager.has_method("get_memory_snapshot_for_extraction"):
 		current_memories = JSON.stringify(memory_manager.get_memory_snapshot_for_extraction(), "\t")
 		
 	return template.format({
 		"name": profile.char_name,
+		"memory_domain": memory_domain,
 		"current_memories": current_memories
 	})
 

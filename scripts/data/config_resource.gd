@@ -22,14 +22,14 @@ var qwen_asr_enabled: bool = false
 var qwen_asr_api_key: String = ""
 
 const DEFAULT_TTS_CHARACTER_SPEAKERS: Dictionary = {
-    "aili": "zh_female_linjianvhai_moon_bigtts",
-    "jing": "zh_female_gaolengyujie_moon_bigtts",
-    "ling": "zh_female_mengyatou_mars_bigtts",
-    "luna": "zh_female_cancan_mars_bigtts",
-    "luna_father": "zh_male_yuanboxiaoshu_moon_bigtts",
-    "nicole": "zh_female_gaolengyujie_emo_v2_mars_bigtts",
-    "shuo": "zh_male_shaonianzixin_moon_bigtts",
-    "ya": "zh_female_wenroushunv_mars_bigtts"
+    "aili": "zh_female_vv_uranus_bigtts",
+    "jing": "zh_female_vv_uranus_bigtts",
+    "ling": "zh_female_vv_uranus_bigtts",
+    "luna": "zh_female_vv_uranus_bigtts",
+    "luna_father": "zh_female_vv_uranus_bigtts",
+    "nicole": "zh_female_vv_uranus_bigtts",
+    "shuo": "zh_female_vv_uranus_bigtts",
+    "ya": "zh_female_vv_uranus_bigtts"
 }
 
 # 角色独立音色配置，key 为 char_id，value 为新版 TTS 2.0 speaker ID
@@ -223,11 +223,19 @@ func _is_legacy_tts_speaker(speaker_id: String) -> bool:
     var normalized: String = speaker_id.strip_edges()
     if normalized.is_empty():
         return true
+    if normalized.begins_with("S_"):
+        return false
+    if normalized.find("_uranus_bigtts") >= 0 or normalized.find("_saturn_bigtts") >= 0:
+        return false
     if normalized.begins_with("ICL_"):
         return true
     if normalized.ends_with("_tob"):
         return true
     if normalized == "BV001_streaming":
+        return true
+    if normalized.find("_moon_bigtts") >= 0 or normalized.find("_mars_bigtts") >= 0:
+        return true
+    if normalized.find("_emo_v2_") >= 0:
         return true
     return false
 

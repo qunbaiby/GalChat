@@ -17,6 +17,7 @@ var bug_feedback_panel_instance = null
 var desktop_pet_instance: Window = null
 var _pending_new_archive_slot_id: String = ""
 var _pending_previous_archive_slot_id: String = ""
+var _opening_archive_panel: bool = false
 
 func _ready() -> void:
 	if GameDataManager.config:
@@ -68,30 +69,61 @@ func _unhandled_input(event: InputEvent) -> void:
 			_open_debug_panel()
 
 func _on_start_pressed() -> void:
+	if _opening_archive_panel:
+		return
+	_opening_archive_panel = true
+	start_button.disabled = true
 	_animate_button(start_button)
+	await get_tree().process_frame
 	_show_archive_select_panel()
+	start_button.disabled = false
+	_opening_archive_panel = false
 
 func _show_archive_select_panel() -> void:
+	if GameDataManager.save_manager == null:
+		push_error("StartScene 无法打开存档界面：SaveManager 未初始化。")
+		return
 	if archive_select_panel_instance == null:
 		var panel_scene = load("res://scenes/ui/save_load/save_load_panel.tscn")
+		if panel_scene == null:
+			push_error("StartScene 无法加载存档界面场景。")
+			return
 		archive_select_panel_instance = panel_scene.instantiate()
 		add_child(archive_select_panel_instance)
 		archive_select_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		archive_select_panel_instance.archive_slot_selected.connect(_on_archive_slot_selected)
+		if archive_select_panel_instance.has_signal("new_archive_requested"):
+			archive_select_panel_instance.new_archive_requested.connect(_on_new_archive_requested)
 	archive_select_panel_instance.show_panel()
 
 func _on_archive_slot_selected(slot_id: String, is_empty: bool) -> void:
 	if is_empty:
-		await _create_new_archive(slot_id)
+		await _create_new_archive(slot_id, "新的记忆")
 		return
 	if not GameDataManager.save_manager.load_archive(slot_id):
 		return
 	archive_select_panel_instance.hide_panel()
 	await _enter_game_for_current_archive(false)
 
-func _create_new_archive(slot_id: String) -> void:
+func _on_new_archive_requested() -> void:
+	var popup_scene = load("res://scenes/ui/save_load/archive_name_popup.tscn")
+	if popup_scene == null:
+		return
+	var popup = popup_scene.instantiate()
+	add_child(popup)
+	popup.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	popup.name_submitted.connect(func(archive_name: String) -> void:
+		var final_name := archive_name.strip_edges()
+		if is_instance_valid(popup):
+			popup.queue_free()
+		if final_name == "":
+			return
+		await _create_new_archive(GameDataManager.save_manager.generate_archive_id(), final_name)
+	)
+
+func _create_new_archive(slot_id: String, archive_name: String = "") -> void:
 	var previous_slot_id: String = GameDataManager.get_active_archive_id()
-	if not GameDataManager.save_manager.prepare_empty_archive(slot_id):
+	if not GameDataManager.save_manager.prepare_empty_archive(slot_id, archive_name):
 		return
 	_pending_new_archive_slot_id = slot_id
 	_pending_previous_archive_slot_id = previous_slot_id

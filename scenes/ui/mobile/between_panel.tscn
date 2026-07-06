@@ -26,19 +26,19 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.78, 0.87, 0.89, 0.82)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.03, 0.08, 0.1, 0.14)
-shadow_size = 22
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
 bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
 border_color = Color(0.79, 0.88, 0.89, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
+corner_radius_top_left = 0
+corner_radius_top_right = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonNormal"]
 bg_color = Color(0.985, 0.993, 0.996, 1)
@@ -114,6 +114,7 @@ mouse_filter = 1
 script = ExtResource("1_script")
 
 [node name="DimBg" type="ColorRect" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_BetweenBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -131,12 +132,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(1040, 660)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
-custom_minimum_size = Vector2(1040, 660)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_constants/separation = 0
 
@@ -146,17 +147,17 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_Header")
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 22
 
 [node name="TopBar" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(84, 36)
+custom_minimum_size = Vector2(96, 42)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
@@ -171,7 +172,7 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 text = "你我之间"
 horizontal_alignment = 1
 
@@ -179,25 +180,25 @@ horizontal_alignment = 1
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="TopSpacer" type="Control" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(84, 0)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 32
 
 [node name="RootVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 18
 
 [node name="SummaryCard" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
 layout_mode = 2
@@ -248,7 +249,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
 text = "时间线"
 
 [node name="FilterScroll" type="ScrollContainer" parent="CenterContainer/PanelRoot/VBox/Margin/RootVBox"]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 horizontal_scroll_mode = 2
 vertical_scroll_mode = 0
@@ -367,17 +368,17 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.76)
 
 [node name="DetailPanel" type="PanelContainer" parent="DetailOverlay"]
-custom_minimum_size = Vector2(350, 560)
+custom_minimum_size = Vector2(520, 660)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -175.0
-offset_top = -280.0
-offset_right = 175.0
-offset_bottom = 280.0
+offset_left = -260.0
+offset_top = -330.0
+offset_right = 260.0
+offset_bottom = 330.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Detail")
@@ -435,7 +436,7 @@ theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="DetailImage" type="TextureRect" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
-custom_minimum_size = Vector2(0, 190)
+custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -447,7 +448,7 @@ theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="DetailSummary" type="RichTextLabel" parent="DetailOverlay/DetailPanel/VBoxRoot/Margin/VBox"]
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 fit_content = true
 

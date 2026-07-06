@@ -245,13 +245,11 @@ func _build_memory_entries() -> Array:
 		return []
 	var results: Array = []
 	var layers = ["bond", "emotion", "habit"]
-	for layer in layers:
-		var layer_items = GameDataManager.memory_manager.memories.get(layer, [])
-		for mem in layer_items:
-			if not mem is Dictionary:
-				continue
-			if not GameDataManager.memory_manager.should_surface_memory_in_player_channels(mem, "album", false):
-				continue
+	var memory_entries = GameDataManager.memory_manager.query_memories({"channel": "album", "layers": layers, "max_count": 0, "require_player_shared": true}) if GameDataManager.memory_manager.has_method("query_memories") else []
+	for entry in memory_entries:
+		var layer := str(entry.get("layer", ""))
+		var mem = entry.get("memory", {})
+		if mem is Dictionary:
 			var content = str(mem.get("content", "")).strip_edges()
 			if content == "":
 				continue

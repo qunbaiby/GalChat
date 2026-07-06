@@ -29,19 +29,12 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.78, 0.87, 0.89, 0.82)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.03, 0.08, 0.1, 0.14)
-shadow_size = 22
+shadow_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
 bg_color = Color(0.9, 0.95, 0.96, 0.94)
 border_width_bottom = 1
 border_color = Color(0.79, 0.88, 0.89, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5vq3v"]
 bg_color = Color(0.985, 0.994, 0.996, 1)
@@ -165,6 +158,7 @@ script = ExtResource("1_script")
 script = ExtResource("2_deepseek")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1981742361]
+visible = false
 material = SubResource("ShaderMaterial_ArchivePersonalityBlur")
 layout_mode = 1
 anchors_preset = 15
@@ -183,7 +177,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="CenterContainer" unique_id=583467176]
-custom_minimum_size = Vector2(960, 540)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Main")
 
@@ -199,7 +193,7 @@ grow_vertical = 2
 theme_override_constants/separation = 0
 
 [node name="TopBar" type="Panel" parent="CenterContainer/Panel/VBoxContainer" unique_id=1162560912]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
@@ -207,13 +201,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 36.0
-offset_top = 10.0
-offset_right = -118.0
-offset_bottom = 41.0
+offset_left = 40.0
+offset_top = 18.0
+offset_right = -124.0
+offset_bottom = 54.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 30
 text = "人格档案"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -222,13 +216,13 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 36.0
-offset_top = 39.0
-offset_right = -118.0
-offset_bottom = 61.0
+offset_left = 40.0
+offset_top = 58.0
+offset_right = -124.0
+offset_bottom = 86.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.92)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 16
 text = "左侧查看性格图表，右侧阅读分析与底色设定。"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -236,19 +230,19 @@ vertical_alignment = 1
 [node name="BodyMargin" type="MarginContainer" parent="CenterContainer/Panel/VBoxContainer" unique_id=1407117003]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 30
 
 [node name="MainHBox" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin" unique_id=180834214]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 24
 
 [node name="ChartCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox" unique_id=1129539065]
-custom_minimum_size = Vector2(450, 0)
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -312,7 +306,7 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="RadarChart" type="Control" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/ChartCard/ChartMargin/ContentVBox/ChartsVBox/RadarCard/RadarMargin/RadarVBox" unique_id=1749440864]
-custom_minimum_size = Vector2(0, 200)
+custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -336,7 +330,7 @@ text = "■ 青色区域: 当前演化状态"
 
 [node name="TextCrad" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox" unique_id=276890748]
 clip_contents = true
-custom_minimum_size = Vector2(450, 0)
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_tvike")
 
@@ -362,6 +356,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 16
 
 [node name="TrendCard" type="PanelContainer" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox" unique_id=1638165823]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_InnerCard")
@@ -391,7 +386,7 @@ text = "默认展示最近 8 周，并突出最近 3 周与当前周。"
 autowrap_mode = 3
 
 [node name="LineChart" type="Control" parent="CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/TrendCard/TrendMargin/TrendVBox" unique_id=1945260876]
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("4_line")
@@ -565,10 +560,14 @@ fit_content = true
 
 [node name="ToolNavButtonbg" type="Panel" parent="CenterContainer/Panel" unique_id=2028287066]
 clip_children = 1
-layout_mode = 0
-offset_left = 902.0
-offset_right = 945.0
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -57.0
+offset_right = -14.0
 offset_bottom = 44.0
+grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxTexture_5vq3v")
 
 [node name="ToolNavButtonbg" type="Panel" parent="CenterContainer/Panel/ToolNavButtonbg" unique_id=1051666364]

@@ -6,13 +6,17 @@ const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
 @onready var back_btn: Button = $BackBtn
-@onready var level_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/StatsCard/StatsVBox/LevelRow/HBox/LevelLabel
-@onready var stage_title_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/HeroSection/HeartCard/HeartCardMargin/StageTitleLabel
-@onready var points_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/HeroSection/PointsLabel
-@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/HeroSection/StageProgressBar
+@onready var visual_column: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn
+@onready var info_column: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn
+@onready var status_header: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader
+@onready var stats_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel
+@onready var level_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox/LevelLabel
+@onready var stage_title_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin/StageTitleLabel
+@onready var points_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/PointsLabel
+@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/StageProgressBar
 @onready var breakthrough_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox/BreakthroughLabel
-@onready var intimacy_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/StatsCard/StatsVBox/IntimacyRow/HBox/Value
-@onready var trust_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/LeftColumn/StatsCard/StatsVBox/TrustRow/HBox/Value
+@onready var intimacy_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox/Value
+@onready var trust_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox/Value
 @onready var state_badge_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge
 @onready var state_badge_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge/StateBadgeLabel
 @onready var summary_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox/SummaryLabel
@@ -23,8 +27,17 @@ var _map_name_cache: Dictionary = {}
 
 func _ready() -> void:
 	hide()
+	_setup_information_layout()
 	if is_instance_valid(back_btn) and not back_btn.pressed.is_connected(_on_back_pressed):
 		back_btn.pressed.connect(_on_back_pressed)
+
+func _setup_information_layout() -> void:
+	if is_instance_valid(status_header):
+		status_header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		status_header.alignment = BoxContainer.ALIGNMENT_BEGIN
+	if is_instance_valid(stats_panel):
+		stats_panel.self_modulate = Color.WHITE
+		stats_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 func show_panel(profile) -> void:
 	update_ui(profile)

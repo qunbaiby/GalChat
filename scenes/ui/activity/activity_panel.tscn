@@ -48,44 +48,8 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qi7am"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.7506197, 0.8341726, 0.87056893, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3k5eb"]
-bg_color = Color(0.23921569, 0.23921569, 0.2509804, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButtonInnerFrame"]
-bg_color = Color(1, 1, 1, 0)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.7539839, 0.75398386, 0.75398386, 0.78039217)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3wwei"]
-bg_color = Color(0.1882353, 0.20784314, 0.22745098, 0.91764706)
+bg_color = Color(0.3529412, 0.7647059, 0.7411765, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -292,6 +256,18 @@ shadow_color = Color(0.12, 0.12, 0.12, 0.18)
 shadow_size = 8
 shadow_offset = Vector2(0, 3)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButtonInnerFrame"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7539839, 0.75398386, 0.75398386, 0.78039217)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slthw"]
 bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
 corner_radius_top_left = 30
@@ -377,37 +353,9 @@ layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle" unique_id=1990332656]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.24313726, 0.6627451, 0.64705884, 1)
 theme_override_font_sizes/font_size = 16
 text = "✦ 行程选择"
-
-[node name="line" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle" unique_id=830220514]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-----------------------------------------------------------------------------------------------------------"
-
-[node name="PlaceIntoButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle" unique_id=344484836]
-custom_minimum_size = Vector2(120, 30)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.23256236, 0.24076453, 0.26542205, 1)
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_qi7am")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_3k5eb")
-theme_override_styles/hover = SubResource("StyleBoxFlat_3k5eb")
-text = "一键安排"
-
-[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/CategoryTitle/PlaceIntoButton" unique_id=891365561]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = -2.0
-offset_bottom = -2.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ActionButtonInnerFrame")
 
 [node name="CategoryTabsContainer" type="PanelContainer" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox" unique_id=2131677982]
 layout_mode = 2
@@ -463,16 +411,19 @@ layout_mode = 2
 
 [node name="ScheduleTitle" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle" unique_id=29980191]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.24313726, 0.6627451, 0.64705884, 1)
 theme_override_font_sizes/font_size = 16
 text = "✦ 行程安排"
 
 [node name="line" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle" unique_id=1259507180]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.24313726, 0.6627451, 0.64705884, 1)
 text = "----------------------------------------------------------------------------------------------------------------------------"
 
 [node name="ScheduleLabel" type="Label" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/ScheduleTitle" unique_id=1302316492]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.24313726, 0.6627451, 0.64705884, 1)
 theme_override_font_sizes/font_size = 20
 text = "0/5"
 
@@ -561,7 +512,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_SecondaryCapsuleInnerFrame")
 
-[node name="ClearButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon" unique_id=694231516]
+[node name="PlaceIntoButton" type="Button" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon" unique_id=694231516]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_vertical = 8
@@ -574,9 +525,9 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_l5m64")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_y38op")
 theme_override_styles/hover = SubResource("StyleBoxFlat_5ma3q")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_SecondaryCapsuleButtonDisabled")
-text = "一键清空"
+text = "一键安排"
 
-[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/ClearButton" unique_id=1709704832]
+[node name="InnerFrame" type="Panel" parent="BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/PlaceIntoButton" unique_id=1709704832]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

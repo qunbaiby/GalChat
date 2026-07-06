@@ -165,7 +165,8 @@ func handle_memory_completed(client, result: int, response_code: int, body: Pack
 								var content = op.get("content", "")
 								var id = op.get("id", "")
 								if action == "ADD":
-									await target_memory_manager.add_memory(layer, content, request_memory_context)
+									var memory_options := _build_memory_options_from_operation(op, target_memory_manager)
+									target_memory_manager.add_memory_quick(layer, content, request_memory_context, memory_options)
 									plain_text_changes += "新增记忆: %s\n" % content
 								elif action == "UPDATE":
 									var success = await target_memory_manager.update_memory(layer, id, content, request_memory_context)
@@ -180,3 +181,20 @@ func handle_memory_completed(client, result: int, response_code: int, body: Pack
 						print("Memory Agent 无法解析JSON: ", parse_json.get_error_message())
 	clear_memory_request_context(client)
 	client._handle_response(result, response_code, body, client.memory_request_completed, client.memory_request_failed)
+
+func _build_memory_options_from_operation(op: Dictionary, target_memory_manager) -> Dictionary:
+	var default_scope = target_memory_manager.get_default_memory_scope() if target_memory_manager and target_memory_manager.has_method("get_default_memory_scope") else "player_shared"
+	var default_visibility = target_memory_manager.get_default_memory_visibility() if target_memory_manager and target_memory_manager.has_method("get_default_memory_visibility") else "prompt"
+	var default_domain = target_memory_manager.get_memory_domain() if target_memory_manager and target_memory_manager.has_method("get_memory_domain") else "player_memory"
+	return {
+		"is_bond_mark": bool(op.get("is_bond_mark", str(op.get("layer", "")) == "bond")),
+		"source_type": str(op.get("source_type", "chat_extraction")),
+		"source_id": str(op.get("source_id", "")),
+		"source_title": str(op.get("source_title", "AI 对话提取")),
+		"memory_domain": str(op.get("memory_domain", default_domain)),
+		"memory_scope": str(op.get("memory_scope", default_scope)),
+		"memory_visibility": str(op.get("memory_visibility", default_visibility)),
+		"memory_participants": op.get("memory_participants", ["player"]),
+		"memory_player_involved": bool(op.get("memory_player_involved", true)),
+		"memory_player_witnessed": bool(op.get("memory_player_witnessed", true))
+	}

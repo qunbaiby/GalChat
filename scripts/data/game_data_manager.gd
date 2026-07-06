@@ -11,6 +11,7 @@ var mood_system: Node
 var expression_system: Node
 var memory_manager: MemoryManager
 var desktop_pet_memory_manager: MemoryManager
+var story_memory_manager: MemoryManager
 var personality_system: Node
 var stats_system: Node
 var activity_manager: Node
@@ -64,6 +65,10 @@ func _ready() -> void:
 	desktop_pet_memory_manager = preload("res://scripts/data/desktop_pet_memory_manager.gd").new()
 	desktop_pet_memory_manager.name = "DesktopPetMemoryManager"
 	add_child(desktop_pet_memory_manager)
+
+	story_memory_manager = preload("res://scripts/data/story_memory_manager.gd").new()
+	story_memory_manager.name = "StoryMemoryManager"
+	add_child(story_memory_manager)
 	
 	personality_system = preload("res://scripts/data/personality_system.gd").new()
 	add_child(personality_system)
@@ -108,6 +113,7 @@ func _ready() -> void:
 	history.load_history()
 	memory_manager.load_memory()
 	desktop_pet_memory_manager.load_memory()
+	story_memory_manager.load_memory()
 	
 	npc_relationship_manager = preload("res://scripts/data/npc_relationship_manager.gd").new()
 	add_child(npc_relationship_manager)
@@ -223,6 +229,8 @@ func reload_active_archive_data() -> void:
 		memory_manager.load_memory()
 	if desktop_pet_memory_manager:
 		desktop_pet_memory_manager.load_memory()
+	if story_memory_manager:
+		story_memory_manager.load_memory()
 	if npc_relationship_manager:
 		npc_relationship_manager.load_relationships()
 	if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
@@ -295,6 +303,7 @@ func switch_character(char_id: String) -> void:
 	if history: history.save_history()
 	if memory_manager: memory_manager.save_memory()
 	if desktop_pet_memory_manager: desktop_pet_memory_manager.save_memory()
+	if story_memory_manager: story_memory_manager.save_memory()
 	if npc_relationship_manager: npc_relationship_manager.save_relationships()
 	if story_time_manager: story_time_manager.save_data()
 	if gift_manager and gift_manager.has_method("save_state"):
@@ -312,6 +321,8 @@ func switch_character(char_id: String) -> void:
 	memory_manager.load_memory()
 	if desktop_pet_memory_manager:
 		desktop_pet_memory_manager.load_memory()
+	if story_memory_manager:
+		story_memory_manager.load_memory()
 	if npc_relationship_manager: npc_relationship_manager.load_relationships()
 	if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
 		story_time_manager.reload_for_current_character(char_id)

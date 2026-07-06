@@ -891,7 +891,10 @@ func _apply_date_story_memory_boost(script_id: String, script_meta: Dictionary, 
 	GameDataManager.memory_manager.add_memory_quick(memory_layer, str(record.get("content", "")), memory_context, memory_options)
 
 func _register_story_completion_memory(script_id: String) -> void:
-	if GameDataManager.memory_manager == null or script_engine == null:
+	if script_engine == null:
+		return
+	var story_memory_manager = GameDataManager.story_memory_manager if GameDataManager else null
+	if story_memory_manager == null:
 		return
 
 	var script_meta = script_engine.get_current_script_meta() if script_engine.has_method("get_current_script_meta") else {}
@@ -919,13 +922,14 @@ func _register_story_completion_memory(script_id: String) -> void:
 			"source_type": "story_script",
 			"source_id": script_id,
 			"source_title": str(record.get("title", script_meta.get("memory_title", script_id))),
+			"story_layer": memory_layer,
 			"memory_scope": memory_scope,
 			"memory_visibility": memory_visibility,
 			"memory_participants": memory_participants,
 			"memory_player_involved": memory_player_involved,
 			"memory_player_witnessed": memory_player_witnessed
 		}
-		GameDataManager.memory_manager.add_memory_quick(memory_layer, memory_content, memory_context, memory_options)
+		story_memory_manager.call("add_story_memory", memory_content, memory_context, memory_options)
 
 func _build_story_completion_memory_records(script_id: String, script_meta: Dictionary) -> Array:
 	var configured = script_meta.get("memory_records", [])

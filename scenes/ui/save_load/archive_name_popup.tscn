@@ -1,0 +1,160 @@
+[gd_scene format=3 uid="uid://archive_name_popup"]
+
+[ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/save_load/archive_name_popup.gd" id="2_script"]
+[ext_resource type="Material" uid="uid://dutxb7qbmb3kn" path="res://assets/shader/Cyan-green gradient.tres" id="3_gradient"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderCard"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.62)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Input"]
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84, 0.89, 0.92, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HintCard"]
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="ArchiveNamePopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_script")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.07, 0.06, 0.16)
+
+[node name="PopupPanel" type="Panel" parent="."]
+material = ExtResource("3_gradient")
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -238.0
+offset_top = -143.5
+offset_right = 238.0
+offset_bottom = 122.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="PopupPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 22
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HeaderCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_HeaderCard")
+
+[node name="HeaderMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="HeaderVBox" type="VBoxContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HeaderCard/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 23
+text = "请为这段记忆输入名称"
+horizontal_alignment = 1
+
+[node name="NameInput" type="LineEdit" parent="PopupPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_Input")
+theme_override_styles/focus = SubResource("StyleBoxFlat_Input")
+placeholder_text = "例如 第一次相遇、夏日记忆、Luna 的新篇章"
+alignment = 1
+
+[node name="HintCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_HintCard")
+
+[node name="HintMargin" type="MarginContainer" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="HintLabel" type="Label" parent="PopupPanel/MarginContainer/VBoxContainer/HintCard/HintMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.4, 0.43, 1)
+theme_override_font_sizes/font_size = 13
+text = "这个名称会显示在存档列表中，用来区分不同世界线与陪伴记忆。"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ConfirmBtn" type="Button" parent="PopupPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "确定"

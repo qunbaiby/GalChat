@@ -56,7 +56,6 @@ var _current_filter: String = CATEGORY_ALL
 var _filter_button_labels: Dictionary = {}
 var _filter_button_normal_styles: Dictionary = {}
 var _filter_button_active_styles: Dictionary = {}
-const POPUP_MIN_SIZE: Vector2 = Vector2(1120, 700)
 var _panel_tween: Tween = null
 
 func _ready() -> void:
@@ -123,9 +122,7 @@ func _on_panel_resized() -> void:
 
 func _update_popup_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
-	var target_size: Vector2 = POPUP_MIN_SIZE
-	target_size.x = minf(target_size.x, viewport_size.x - 72.0)
-	target_size.y = minf(target_size.y, viewport_size.y - 72.0)
+	var target_size: Vector2 = viewport_size
 	panel_root.custom_minimum_size = target_size
 	panel_root.size = target_size
 	panel_root.pivot_offset = target_size * 0.5
@@ -249,11 +246,11 @@ func _update_grid_columns() -> void:
 		return
 	var viewport_width: float = panel_root.size.x
 	if viewport_width <= 0.0:
-		viewport_width = POPUP_MIN_SIZE.x
-	var usable_width: float = maxf(320.0, viewport_width - 120.0)
-	var target_card_width: float = 200.0
-	var columns: int = int(floor((usable_width + 14.0) / (target_card_width + 14.0)))
-	grid.columns = clampi(columns, 3, 5)
+		viewport_width = 1280.0
+	var usable_width: float = maxf(480.0, viewport_width - 160.0)
+	var target_card_width: float = 220.0
+	var columns: int = int(floor((usable_width + 16.0) / (target_card_width + 16.0)))
+	grid.columns = clampi(columns, 4, 6)
 
 func _get_summary_title() -> String:
 	match _current_filter:

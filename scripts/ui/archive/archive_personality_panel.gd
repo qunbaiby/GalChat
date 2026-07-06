@@ -11,8 +11,6 @@ extends Control
 @onready var advice_text: RichTextLabel = $CenterContainer/Panel/VBoxContainer/BodyMargin/MainHBox/TextCrad/TextMargin/TextScroll/TextVBox/AnalysisCard/AnalysisMargin/AnalysisVBox/ContentScroll/ContentVBox/AdviceVBox/Text
 @onready var deepseek_client = $DeepSeekClient
 
-const POPUP_PADDING: float = 72.0
-
 var _popup_min_size: Vector2 = Vector2(850, 600)
 
 var _panel_tween: Tween = null
@@ -215,9 +213,7 @@ func _on_panel_resized() -> void:
 
 func _update_popup_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
-	var target_size: Vector2 = _popup_min_size
-	target_size.x = minf(target_size.x, viewport_size.x - POPUP_PADDING)
-	target_size.y = minf(target_size.y, viewport_size.y - POPUP_PADDING)
+	var target_size: Vector2 = viewport_size
 	panel_root.custom_minimum_size = target_size
 	panel_root.size = target_size
 	panel_root.pivot_offset = target_size * 0.5

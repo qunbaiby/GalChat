@@ -173,11 +173,11 @@ func _find_related_memory(context: Dictionary, extra: Dictionary) -> Dictionary:
 	var preferred_layers = extra.get("preferred_layers", ["bond", "emotion", "habit"])
 	if not preferred_layers is Array:
 		preferred_layers = ["bond", "emotion", "habit"]
-	for layer in preferred_layers:
-		var layer_items = GameDataManager.memory_manager.memories.get(str(layer), [])
-		for mem in layer_items:
-			if not mem is Dictionary:
-				continue
+	var memory_entries = GameDataManager.memory_manager.query_memories({"channel": "album", "layers": preferred_layers, "max_count": 0, "require_player_shared": true}) if GameDataManager.memory_manager.has_method("query_memories") else []
+	for entry in memory_entries:
+		var layer := str(entry.get("layer", ""))
+		var mem = entry.get("memory", {})
+		if mem is Dictionary:
 			var content = str(mem.get("content", "")).strip_edges()
 			if content == "":
 				continue

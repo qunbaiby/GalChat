@@ -57,6 +57,7 @@ func get_cache_key(text: String, options: Dictionary = {}) -> String:
 	var cache_payload: Dictionary = {
 		"text": normalized_text,
 		"speaker": str(final_options.get("speaker", "")).strip_edges(),
+		"resource_id": str(final_options.get("resource_id", "seed-tts-2.0")).strip_edges(),
 		"audio_format": str(final_options.get("audio_format", "mp3")).strip_edges(),
 		"sample_rate": int(final_options.get("sample_rate", 24000)),
 		"speech_rate": int(final_options.get("speech_rate", 0)),
@@ -128,9 +129,12 @@ func _build_effective_options(options: Dictionary = {}) -> Dictionary:
 		final_options["speaker"] = str(final_options.get("voice_type", "")).strip_edges()
 	if not final_options.has("speaker") and config != null and config.tts_character_speakers.has(char_id):
 		final_options["speaker"] = str(config.tts_character_speakers.get(char_id, "")).strip_edges()
+	final_options["speaker"] = _resolve_tts_2_speaker(str(final_options.get("speaker", "")).strip_edges(), char_id, config)
 
 	if not final_options.has("api_key") and config != null:
 		final_options["api_key"] = str(config.tts_api_key).strip_edges()
+	if not final_options.has("resource_id"):
+		final_options["resource_id"] = "seed-tts-2.0"
 	if not final_options.has("audio_format") and config != null:
 		final_options["audio_format"] = str(config.tts_audio_format).strip_edges()
 	if not final_options.has("sample_rate") and config != null:
@@ -148,6 +152,34 @@ func _build_effective_options(options: Dictionary = {}) -> Dictionary:
 
 func _normalize_spoken_text(text: String) -> String:
 	return ChatSplitHelper.strip_parentheses(text).strip_edges()
+
+func _resolve_tts_2_speaker(speaker_id: String, char_id: String, config) -> String:
+	var normalized_speaker: String = speaker_id.strip_edges()
+	if not _is_legacy_tts_speaker(normalized_speaker):
+		return normalized_speaker
+	if config != null and config.has_method("get_default_tts_speaker"):
+		var fallback_speaker: String = str(config.get_default_tts_speaker(char_id)).strip_edges()
+		if not _is_legacy_tts_speaker(fallback_speaker):
+			return fallback_speaker
+	return "zh_female_vv_uranus_bigtts"
+
+func _is_legacy_tts_speaker(speaker_id: String) -> bool:
+	var normalized: String = speaker_id.strip_edges()
+	if normalized.is_empty():
+		return true
+	if normalized.begins_with("S_"):
+		return false
+	if normalized.find("_uranus_bigtts") >= 0 or normalized.find("_saturn_bigtts") >= 0:
+		return false
+	if normalized.begins_with("ICL_") or normalized.ends_with("_tob"):
+		return true
+	if normalized == "BV001_streaming":
+		return true
+	if normalized.find("_moon_bigtts") >= 0 or normalized.find("_mars_bigtts") >= 0:
+		return true
+	if normalized.find("_emo_v2_") >= 0:
+		return true
+	return false
 
 func _on_service_request_started(request_id: String, context: Dictionary) -> void:
 	tts_request_started.emit(request_id, context)

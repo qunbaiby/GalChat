@@ -2,9 +2,9 @@ extends Node
 class_name SaveManager
 
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
-const MAX_ARCHIVE_SLOTS := 6
 const DEFAULT_CHARACTER_ID := "luna"
 const META_FILE_NAME := "meta.json"
+const MAX_DISCOVERED_ARCHIVES := 300
 
 var current_slot_id: String = ""
 
@@ -13,9 +13,30 @@ func _ready() -> void:
 
 func get_archive_slot_ids() -> Array[String]:
 	var slot_ids: Array[String] = []
-	for i in range(1, MAX_ARCHIVE_SLOTS + 1):
-		slot_ids.append("slot_%d" % i)
+	var root_dir := GameDataManager.ARCHIVE_ROOT_DIR
+	if not DirAccess.dir_exists_absolute(root_dir):
+		return slot_ids
+	var dir := DirAccess.open(root_dir)
+	if dir == null:
+		return slot_ids
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "" and slot_ids.size() < MAX_DISCOVERED_ARCHIVES:
+		if entry != "." and entry != ".." and dir.current_is_dir() and _archive_meta_exists(entry):
+			slot_ids.append(entry)
+		entry = dir.get_next()
+	dir.list_dir_end()
 	return slot_ids
+
+func generate_archive_id() -> String:
+	var timestamp := Time.get_datetime_string_from_system().replace(":", "").replace("-", "").replace("T", "_")
+	var base_id := "memory_%s" % timestamp
+	var candidate := base_id
+	var index := 1
+	while DirAccess.dir_exists_absolute(_get_archive_root_path(candidate)):
+		index += 1
+		candidate = "%s_%d" % [base_id, index]
+	return candidate
 
 func get_active_archive_id() -> String:
 	if GameDataManager and GameDataManager.config:
@@ -25,6 +46,12 @@ func get_active_archive_id() -> String:
 func get_archive_root(slot_id: String = "") -> String:
 	return GameDataManager.get_archive_root_dir(slot_id)
 
+func _get_archive_root_path(slot_id: String) -> String:
+	return "%s/%s" % [GameDataManager.ARCHIVE_ROOT_DIR, slot_id.strip_edges()]
+
+func _archive_meta_exists(slot_id: String) -> bool:
+	return FileAccess.file_exists(_get_archive_root_path(slot_id).path_join(META_FILE_NAME))
+
 func get_meta_path(slot_id: String = "") -> String:
 	return get_archive_root(slot_id).path_join(META_FILE_NAME)
 
@@ -32,15 +59,11 @@ func get_save_slots() -> Array:
 	var slots: Array = []
 	for slot_id in get_archive_slot_ids():
 		var meta := load_slot_meta(slot_id)
-		if meta.is_empty():
-			slots.append({
-				"slot_id": slot_id,
-				"is_empty": true
-			})
-		else:
+		if not meta.is_empty():
 			meta["slot_id"] = slot_id
 			meta["is_empty"] = false
 			slots.append(meta)
+	slots.sort_custom(func(a, b): return str(a.get("last_played_at", "")) > str(b.get("last_played_at", "")))
 	return slots
 
 func load_slot_meta(slot_id: String) -> Dictionary:
@@ -64,7 +87,7 @@ func load_slot_meta(slot_id: String) -> Dictionary:
 	meta["slot_id"] = slot_id
 	return meta
 
-func prepare_empty_archive(slot_id: String) -> bool:
+func prepare_empty_archive(slot_id: String, archive_name: String = "") -> bool:
 	var final_slot_id := slot_id.strip_edges()
 	if final_slot_id == "":
 		return false
@@ -75,6 +98,10 @@ func prepare_empty_archive(slot_id: String) -> bool:
 	GameDataManager.clear_archive_custom_config(final_slot_id, false)
 	current_slot_id = final_slot_id
 	GameDataManager.reload_active_archive_data()
+	var final_archive_name := archive_name.strip_edges()
+	if final_archive_name == "":
+		final_archive_name = "新的记忆"
+	_write_slot_meta(final_slot_id, _build_initial_meta(final_slot_id, final_archive_name))
 	if GameDataManager.config:
 		GameDataManager.config.save_config()
 	return true
@@ -95,7 +122,7 @@ func load_game(slot_id: String) -> bool:
 	return load_archive(slot_id)
 
 func delete_save(slot_id: String) -> bool:
-	var archive_root := get_archive_root(slot_id)
+	var archive_root := _get_archive_root_path(slot_id)
 	if not DirAccess.dir_exists_absolute(archive_root):
 		GameDataManager.clear_archive_custom_config(slot_id)
 		return false
@@ -157,6 +184,8 @@ func _flush_runtime_state() -> void:
 
 func _build_runtime_meta(slot_id: String) -> Dictionary:
 	var now_text := _get_now_text()
+	var existing_meta := load_slot_meta(slot_id)
+	var archive_name := str(existing_meta.get("archive_name", "")).strip_edges()
 	var profile := GameDataManager.profile
 	var player_name := "未命名"
 	var stage_title := "相识"
@@ -172,8 +201,12 @@ func _build_runtime_meta(slot_id: String) -> Dictionary:
 			stage_title = str(stage_conf.get("stageTitle", stage_title))
 	if GameDataManager.story_time_manager != null:
 		day_count = maxi(1, int(GameDataManager.story_time_manager.current_day_offset) + 1)
+	if archive_name == "":
+		archive_name = player_name if player_name != "未命名" else "新的记忆"
 	return {
 		"slot_id": slot_id,
+		"archive_name": archive_name,
+		"created_at": str(existing_meta.get("created_at", now_text)),
 		"player_name": player_name,
 		"day_count": day_count,
 		"stage": current_stage,
@@ -181,6 +214,22 @@ func _build_runtime_meta(slot_id: String) -> Dictionary:
 		"last_played_at": now_text,
 		"display_line_1": "与 Luna 相处第%d天" % day_count,
 		"display_line_2": "%s & Luna  当前情感阶段：%s" % [player_name, stage_title],
+		"display_line_3": "最后游玩：%s" % now_text
+	}
+
+func _build_initial_meta(slot_id: String, archive_name: String) -> Dictionary:
+	var now_text := _get_now_text()
+	return {
+		"slot_id": slot_id,
+		"archive_name": archive_name,
+		"created_at": now_text,
+		"player_name": "未命名",
+		"day_count": 1,
+		"stage": 1,
+		"stage_title": "相识",
+		"last_played_at": now_text,
+		"display_line_1": "与 Luna 相处第1天",
+		"display_line_2": "未命名 & Luna  当前情感阶段：相识",
 		"display_line_3": "最后游玩：%s" % now_text
 	}
 
@@ -217,6 +266,7 @@ func _build_meta_from_archive(slot_id: String) -> Dictionary:
 	var last_played_at := _resolve_archive_last_played_at(slot_id, profile_path, time_path)
 	return {
 		"slot_id": slot_id,
+		"archive_name": player_name,
 		"player_name": player_name,
 		"day_count": day_count,
 		"stage": current_stage,

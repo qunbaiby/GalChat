@@ -1,95 +1,110 @@
-[gd_scene load_steps=3 format=3 uid="uid://ctejn75g18lnm"]
+[gd_scene format=3 uid="uid://ctejn75g18lnm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Item"]
 bg_color = Color(0.992, 0.998, 0.999, 0.98)
-border_width_left = 1
+border_width_left = 4
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.81, 0.89, 0.9, 0.84)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.08, 0.15, 0.16, 0.05)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Tag"]
-bg_color = Color(0.45, 0.78, 0.72, 0.14)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SourceTag"]
+bg_color = Color(0.45, 0.78, 0.72, 0.12)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 0.3)
+border_color = Color(0.45, 0.78, 0.72, 0.24)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="ArchiveMemoryItem" type="PanelContainer"]
+[node name="ArchiveMemoryItem" type="PanelContainer" unique_id=435604128]
 offset_right = 541.0
-offset_bottom = 69.0
+offset_bottom = 124.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Item")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=241050763]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
 
-[node name="MainHBox" type="HBoxContainer" parent="Margin"]
+[node name="ItemVBox" type="VBoxContainer" parent="Margin" unique_id=1958202312]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="MetaVBox" type="VBoxContainer" parent="Margin/MainHBox"]
-custom_minimum_size = Vector2(90, 0)
+[node name="HeaderRow" type="HBoxContainer" parent="Margin/ItemVBox" unique_id=1119342795]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 12
 
-[node name="TimeDot" type="Label" parent="Margin/MainHBox/MetaVBox"]
+[node name="TimePanel" type="PanelContainer" parent="Margin/ItemVBox/HeaderRow" unique_id=630602990]
+custom_minimum_size = Vector2(124, 32)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.78, 0.72, 1)
-theme_override_font_sizes/font_size = 12
-text = "◆"
+theme_override_styles/panel = SubResource("StyleBoxFlat_Item")
 
-[node name="TimeLabel" type="Label" parent="Margin/MainHBox/MetaVBox"]
+[node name="TimeLabel" type="Label" parent="Margin/ItemVBox/HeaderRow/TimePanel" unique_id=2096850438]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.46, 0.53, 0.58, 1)
 theme_override_font_sizes/font_size = 13
 text = "未记录"
+horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="ContentVBox" type="VBoxContainer" parent="Margin/MainHBox"]
+[node name="SourceVBox" type="VBoxContainer" parent="Margin/ItemVBox/HeaderRow" unique_id=1610548257]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 3
 
-[node name="ContentLabel" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox"]
+[node name="SourceTitle" type="Label" parent="Margin/ItemVBox/HeaderRow/SourceVBox" unique_id=1940889484]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.46, 0.54, 0.56, 1)
+theme_override_font_sizes/font_size = 12
+text = "记忆来源"
+
+[node name="SourceTagPanel" type="PanelContainer" parent="Margin/ItemVBox/HeaderRow/SourceVBox" unique_id=214652215]
+layout_mode = 2
+size_flags_horizontal = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_SourceTag")
+
+[node name="SourceTagMargin" type="MarginContainer" parent="Margin/ItemVBox/HeaderRow/SourceVBox/SourceTagPanel" unique_id=420310171]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="SourceValue" type="Label" parent="Margin/ItemVBox/HeaderRow/SourceVBox/SourceTagPanel/SourceTagMargin" unique_id=681706112]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.56, 0.52, 1)
+theme_override_font_sizes/font_size = 13
+text = "长期对话提取"
+autowrap_mode = 3
+
+[node name="ContentLabel" type="RichTextLabel" parent="Margin/ItemVBox" unique_id=1861586034]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/default_color = Color(0.20511743, 0.20511743, 0.20511743, 1)
+theme_override_colors/default_color = Color(0.16, 0.18, 0.18, 1)
+theme_override_font_sizes/normal_font_size = 17
 bbcode_enabled = true
 text = "记忆内容"
 fit_content = true
 scroll_active = false
 
-[node name="MetaLabel" type="Label" parent="Margin/MainHBox/ContentVBox"]
+[node name="MetaLabel" type="Label" parent="Margin/ItemVBox" unique_id=1259002810]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.46, 0.53, 0.58, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "补充说明"
 autowrap_mode = 3
-
-[node name="TagPanel" type="PanelContainer" parent="Margin/MainHBox"]
-visible = false
-custom_minimum_size = Vector2(86, 28)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Tag")
-
-[node name="TagLabel" type="Label" parent="Margin/MainHBox/TagPanel"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.23, 0.58, 0.53, 1)
-theme_override_font_sizes/font_size = 12
-text = "标签"
-horizontal_alignment = 1
-vertical_alignment = 1
