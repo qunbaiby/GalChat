@@ -1,10 +1,13 @@
 extends Control
 
 signal gift_sent(gift_data: Dictionary)
+signal close_requested
 
-@onready var close_button: Button = $Panel/TopBar/TopBarHBox/CloseButton
+@onready var dimmer: ColorRect = $ColorRect
+@onready var panel_root: Panel = $Panel
+@onready var close_button: Button = get_node_or_null("Panel/TopBar/TopBarHBox/CloseButton") as Button
+@onready var top_bar: PanelContainer = $Panel/TopBar
 @onready var send_button: Button = $Panel/VBoxContainer/BottomBar/SendButton
-@onready var shop_button: Button = $Panel/VBoxContainer/BottomBar/ShopButton
 @onready var grid_container: GridContainer = $Panel/VBoxContainer/Content/ScrollContainer/GridContainer
 @onready var detail_label: RichTextLabel = $Panel/VBoxContainer/Content/DetailPanel/DetailLabel
 
@@ -15,14 +18,14 @@ signal gift_sent(gift_data: Dictionary)
 
 var selected_gift_id: String = ""
 var current_category: String = "outing"
+var _embedded_mode: bool = false
 
 const GIFT_ITEM_SCENE = preload("res://scenes/ui/gift/gift_item.tscn")
 
 func _ready() -> void:
-	close_button.pressed.connect(_on_close_pressed)
+	if is_instance_valid(close_button):
+		close_button.pressed.connect(_on_close_pressed)
 	send_button.pressed.connect(_on_send_pressed)
-	if shop_button:
-		shop_button.pressed.connect(_on_close_pressed)
 		
 	var bg = ButtonGroup.new()
 	tab_outing.button_group = bg
@@ -36,6 +39,25 @@ func _ready() -> void:
 	tab_personality.pressed.connect(_on_tab_pressed.bind("personality"))
 	
 	_init_gift_list()
+
+func configure_embedded_mode() -> void:
+	_embedded_mode = true
+	if is_instance_valid(dimmer):
+		dimmer.hide()
+	if is_instance_valid(panel_root):
+		panel_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		panel_root.offset_left = 0.0
+		panel_root.offset_top = 0.0
+		panel_root.offset_right = 0.0
+		panel_root.offset_bottom = 0.0
+		panel_root.custom_minimum_size = Vector2(0, 0)
+	if is_instance_valid(top_bar):
+		top_bar.custom_minimum_size = Vector2(0, 42)
+		var close_parent := close_button.get_parent() if is_instance_valid(close_button) else null
+		if close_parent is Control:
+			(close_parent as Control).hide()
+	if is_instance_valid(grid_container):
+		grid_container.columns = 2
 
 func _on_tab_pressed(category: String) -> void:
 	if current_category == category:
@@ -108,3 +130,4 @@ func _on_send_pressed() -> void:
 
 func _on_close_pressed() -> void:
 	hide()
+	close_requested.emit()

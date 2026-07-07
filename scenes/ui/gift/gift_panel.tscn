@@ -1,91 +1,93 @@
-[gd_scene load_steps=7 format=3 uid="uid://b438gkrhdtx2f"]
+[gd_scene format=3 uid="uid://b438gkrhdtx2f"]
 
 [ext_resource type="Script" uid="uid://cah8nwa6x0yds" path="res://scripts/ui/gift/gift_panel.gd" id="1_gift"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainCard"]
-bg_color = Color(0.94902, 0.980392, 0.976471, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.513726, 0.678431, 0.67451, 0.85)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 10
-shadow_offset = Vector2(0, 6)
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.81, 0.89, 0.9, 0.82)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.08, 0.1, 0.12, 0.06)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-content_margin_left = 14.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 0.988235, 0.972549, 1)
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.978, 0.991, 0.994, 1)
 border_width_bottom = 1
-border_color = Color(0.95, 0.88, 0.82, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
+border_color = Color(0.81, 0.89, 0.9, 0.72)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnSecondary"]
-content_margin_left = 18.0
-content_margin_top = 10.0
-content_margin_right = 18.0
-content_margin_bottom = 10.0
-bg_color = Color(0.898039, 0.94902, 0.94902, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.521569, 0.741176, 0.737255, 1)
+content_margin_left = 10.0
+content_margin_top = 7.0
+content_margin_right = 10.0
+content_margin_bottom = 7.0
+bg_color = Color(0.978, 0.991, 0.994, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.64, 0.84, 0.8, 0.5)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BtnPrimary"]
-content_margin_left = 18.0
-content_margin_top = 10.0
-content_margin_right = 18.0
-content_margin_bottom = 10.0
-bg_color = Color(0.564706, 0.807843, 0.803922, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.439216, 0.662745, 0.658824, 1)
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 0.62352943, 0.6862745, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.62352943, 0.6862745, 0.36)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
-bg_color = Color(0.921569, 0.960784, 0.956863, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.788235, 0.847059, 0.843137, 1)
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.978, 0.991, 0.994, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.81, 0.89, 0.9, 0.82)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="GiftPanel" type="Control"]
+[node name="GiftPanel" type="Control" unique_id=1285861971]
+custom_minimum_size = Vector2(455, 420)
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_right = 0.35500002
+anchor_bottom = 0.583
+offset_right = 0.5999756
+offset_bottom = 0.23999023
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gift")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=507617724]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -94,77 +96,61 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.22)
 
-[node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(960, 540)
+[node name="Panel" type="Panel" parent="." unique_id=1336243375]
+custom_minimum_size = Vector2(455, 420)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -480.0
-offset_top = -270.0
-offset_right = 480.0
-offset_bottom = 270.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MainCard")
 
-[node name="TopBar" type="PanelContainer" parent="Panel"]
-custom_minimum_size = Vector2(0, 56)
+[node name="TopBar" type="PanelContainer" parent="Panel" unique_id=100256780]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 1.0
 offset_top = 1.0
 offset_right = -1.0
-offset_bottom = 57.0
+offset_bottom = 43.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
-[node name="TopBarHBox" type="HBoxContainer" parent="Panel/TopBar"]
+[node name="TopBarHBox" type="HBoxContainer" parent="Panel/TopBar" unique_id=1977394030]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Title" type="Label" parent="Panel/TopBar/TopBarHBox"]
+[node name="Title" type="Label" parent="Panel/TopBar/TopBarHBox" unique_id=1636035957]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
+theme_override_font_sizes/font_size = 14
 text = "礼物"
-horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CloseButton" type="Button" parent="Panel/TopBar/TopBarHBox"]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.33, 0.18, 1)
-theme_override_colors/font_hover_color = Color(0.45, 0.72, 0.65, 1)
-theme_override_font_sizes/font_size = 20
-text = "✕"
-flat = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1288815251]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 72.0
-offset_right = 940.0
-offset_bottom = 520.0
-theme_override_constants/separation = 14
+offset_left = 10.0
+offset_top = 52.0
+offset_right = 445.0
+offset_bottom = 410.0
+theme_override_constants/separation = 8
 
-[node name="TabContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="TabContainer" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=2017047190]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 6
 alignment = 1
 
-[node name="TabOuting" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(114, 40)
+[node name="TabOuting" type="Button" parent="Panel/VBoxContainer/TabContainer" unique_id=1973990806]
+custom_minimum_size = Vector2(92, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
@@ -172,104 +158,93 @@ toggle_mode = true
 button_pressed = true
 text = "出行好物"
 
-[node name="TabHome" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(114, 40)
+[node name="TabHome" type="Button" parent="Panel/VBoxContainer/TabContainer" unique_id=419786385]
+custom_minimum_size = Vector2(92, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
 toggle_mode = true
 text = "家居好物"
 
-[node name="TabDating" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(114, 40)
+[node name="TabDating" type="Button" parent="Panel/VBoxContainer/TabContainer" unique_id=426747023]
+custom_minimum_size = Vector2(92, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
 toggle_mode = true
 text = "约会好物"
 
-[node name="TabPersonality" type="Button" parent="Panel/VBoxContainer/TabContainer"]
-custom_minimum_size = Vector2(114, 40)
+[node name="TabPersonality" type="Button" parent="Panel/VBoxContainer/TabContainer" unique_id=2101919450]
+custom_minimum_size = Vector2(92, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_hover_color = Color(0.101961, 0.168627, 0.176471, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
 toggle_mode = true
 text = "个性好物"
 
-[node name="Content" type="VBoxContainer" parent="Panel/VBoxContainer"]
+[node name="Content" type="VBoxContainer" parent="Panel/VBoxContainer" unique_id=2143600808]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/Content"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/Content" unique_id=1869553822]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 3
 
-[node name="GridContainer" type="GridContainer" parent="Panel/VBoxContainer/Content/ScrollContainer"]
+[node name="GridContainer" type="GridContainer" parent="Panel/VBoxContainer/Content/ScrollContainer" unique_id=1329991953]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
-columns = 5
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 4
 
-[node name="DetailPanel" type="PanelContainer" parent="Panel/VBoxContainer/Content"]
-custom_minimum_size = Vector2(0, 94)
+[node name="DetailPanel" type="PanelContainer" parent="Panel/VBoxContainer/Content" unique_id=2050925601]
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Detail")
 
-[node name="DetailLabel" type="RichTextLabel" parent="Panel/VBoxContainer/Content/DetailPanel"]
-custom_minimum_size = Vector2(0, 74)
+[node name="DetailLabel" type="RichTextLabel" parent="Panel/VBoxContainer/Content/DetailPanel" unique_id=369540308]
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 theme_override_colors/default_color = Color(0.254902, 0.286275, 0.298039, 1)
-theme_override_font_sizes/normal_font_size = 15
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
 
-[node name="BottomBar" type="HBoxContainer" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 54)
+[node name="BottomBar" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=1600308573]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
+alignment = 2
 
-[node name="ShopButton" type="Button" parent="Panel/VBoxContainer/BottomBar"]
-custom_minimum_size = Vector2(168, 48)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.25098, 0.309804, 0.337255, 1)
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_BtnSecondary")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnSecondary")
-theme_override_styles/hover = SubResource("StyleBoxFlat_BtnSecondary")
-text = "商城"
-
-[node name="SendButton" type="Button" parent="Panel/VBoxContainer/BottomBar"]
-custom_minimum_size = Vector2(168, 48)
+[node name="SendButton" type="Button" parent="Panel/VBoxContainer/BottomBar" unique_id=451280245]
+custom_minimum_size = Vector2(128, 36)
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_colors/font_color = Color(0.101961, 0.168627, 0.176471, 1)
 theme_override_colors/font_disabled_color = Color(0.25098, 0.309804, 0.337255, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BtnPrimary")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_BtnSecondary")
 disabled = true
 text = "送出"
-
-

@@ -9,7 +9,7 @@ signal activity_hovered(data: Dictionary)
 @onready var rewards_container: Container = %RewardsContainer
 @onready var progress_container: Container = %ProgressContainer
 @onready var progress_label: Label = %ProgressLabel
-@onready var increment_label: Label = %IncrementLabel
+@onready var increment_label: Label = get_node_or_null("%IncrementLabel") as Label
 @onready var progress_bar: ProgressBar = %ProgressBar
 
 const RewardTagScene = preload("res://scenes/ui/activity/activity_reward_tag.tscn")
@@ -85,20 +85,22 @@ func setup(data: Dictionary, cur_prog: int = 0) -> void:
 		
 	activity_data = data
 	current_prog_val = cur_prog
-	name_label.text = data.get("name", "未知")
+	var activity_name: String = data.get("name", "未知")
+	name_label.text = activity_name
 		
 	var max_prog = data.get("max_progress", 0)
 	var increment = data.get("progress_increment", 0)
 	
 	if progress_container:
 		if max_prog > 0:
+			name_label.text = "%s（+%d/次）" % [activity_name, increment]
 			progress_container.show()
 			progress_bar.max_value = max_prog
 			progress_bar.value = cur_prog
 			progress_label.text = "%d/%d" % [cur_prog, max_prog]
 			progress_label.add_theme_color_override("font_color", DEFAULT_PROGRESS_COLOR)
-			increment_label.text = "单次 +%d" % increment
-			increment_label.show()
+			if increment_label:
+				increment_label.hide()
 		else:
 			progress_container.hide()
 	

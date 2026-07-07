@@ -27,7 +27,7 @@ func _ready() -> void:
 func show_panel(_unused_mode: bool = false) -> void:
 	title_label.text = "选择档案"
 	mode_hint_label.text = "每个档案都是独立世界线，自动存档会持续写入当前档案。"
-	section_desc_label.text = "创建新的记忆后，它会出现在列表顶部下方；已有记忆会按最后游玩时间从晚到早排列。"
+	section_desc_label.text = "创建新的记忆入口会放在其他档案条下面；已有记忆会按最后游玩时间从晚到早排列。"
 	list_title_label.text = "记忆列表"
 	_update_popup_layout()
 	show()
@@ -63,12 +63,11 @@ func refresh_list() -> void:
 	for child: Node in list_container.get_children():
 		child.queue_free()
 
-	var create_item = SLOT_ITEM_SCENE.instantiate()
-	list_container.add_child(create_item)
-	create_item.setup_create_item()
-	create_item.create_requested.connect(_on_create_requested)
-
 	if GameDataManager.save_manager == null:
+		var create_item = SLOT_ITEM_SCENE.instantiate()
+		list_container.add_child(create_item)
+		create_item.setup_create_item()
+		create_item.create_requested.connect(_on_create_requested)
 		slot_count_label.text = "0 段记忆"
 		_is_refreshing = false
 		return
@@ -85,6 +84,11 @@ func refresh_list() -> void:
 		item.slot_selected.connect(_on_slot_selected)
 		if item.has_signal("delete_requested"):
 			item.delete_requested.connect(_on_delete_requested)
+
+	var create_item = SLOT_ITEM_SCENE.instantiate()
+	list_container.add_child(create_item)
+	create_item.setup_create_item()
+	create_item.create_requested.connect(_on_create_requested)
 
 	slot_count_label.text = "%d 段记忆" % archive_slots.size()
 	_is_refreshing = false

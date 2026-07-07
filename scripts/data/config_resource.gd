@@ -68,7 +68,7 @@ var pet_sensitive_window_list: String = ""
 
 # 图像生成配置 (Image Generation)
 var image_generation_enabled: bool = true
-var default_image_path: String = "res://assets/graphics/bg/default_bg.jpg"
+var default_image_path: String = "res://icon.svg"
 var openai_image_api_key: String = ""
 var image_generation_provider: int = 0 # 0: OpenAI, 1: Doubao
 var doubao_image_api_key: String = ""

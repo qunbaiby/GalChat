@@ -124,7 +124,7 @@ func _reinitialize_http_nodes() -> void:
 	narrator_http = reset_node.call("NarratorHTTP", 15.0, "request_completed", "_on_narrator_completed")
 	character_mood_http = reset_node.call("CharacterMoodHTTP", 10.0, "request_completed", "_on_character_mood_completed")
 	npc_event_http = reset_node.call("NPCEventHTTP", 20.0, "request_completed", "_on_npc_event_completed")
-	diary_http = reset_node.call("DiaryHTTP", 0.0, "request_completed", "_on_diary_request_completed")
+	diary_http = reset_node.call("DiaryHTTP", 60.0, "request_completed", "_on_diary_request_completed")
 	vision_http = reset_node.call("VisionHTTP", 30.0, "request_completed", "_on_vision_completed")
 	moment_http = reset_node.call("MomentHTTP", 0.0, "request_completed", "_on_moment_request_completed")
 	moment_reply_http = reset_node.call("MomentReplyHTTP", 15.0, "request_completed", "_on_moment_reply_request_completed")

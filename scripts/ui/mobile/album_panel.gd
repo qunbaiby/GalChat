@@ -15,18 +15,20 @@ signal photo_picked(path: String)
 signal back_requested
 
 @onready var background_panel: Panel = $Background
-@onready var panel_root: PanelContainer = $CenterContainer/PanelRoot
-@onready var back_btn: Button = $CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/BackBtn
+@onready var panel_root: Panel = $CenterContainer/PanelRoot
+@onready var back_btn: Button = $CenterContainer/PanelRoot/BackBtn
 @onready var title_label: Label = $CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/Title
-@onready var summary_panel: PanelContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/SummaryPanel
-@onready var summary_title_label: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/SummaryPanel/Margin/VBox/SummaryTitle
-@onready var summary_label: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/SummaryPanel/Margin/VBox/SummaryLabel
-@onready var filter_scroll: ScrollContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll
-@onready var filter_bar: HBoxContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar
-@onready var grid: GridContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/Scroll/Grid
-@onready var empty_state_card: PanelContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyStateCard
-@onready var empty_state_title: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateTitle
-@onready var empty_state_desc: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
+@onready var summary_panel: PanelContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/SummaryPanel
+@onready var summary_title_label: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/SummaryPanel/Margin/VBox/SummaryTitle
+@onready var summary_label: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/SummaryPanel/Margin/VBox/SummaryLabel
+@onready var filter_scroll: ScrollContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll
+@onready var filter_bar: VBoxContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar
+@onready var list_panel: PanelContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/ListPanel
+@onready var list_scroll: ScrollContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/ListPanel/ListScroll
+@onready var grid: GridContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/ListPanel/ListScroll/Grid
+@onready var empty_state_card: PanelContainer = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/ListPanel/EmptyStateCard
+@onready var empty_state_title: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/ListPanel/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateTitle
+@onready var empty_state_desc: Label = $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/RightContent/ListPanel/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
 @onready var fullscreen_viewer: Control = $FullscreenViewer
 @onready var full_image: TextureRect = $FullscreenViewer/FullImage
 @onready var close_viewer_btn: Button = $FullscreenViewer/CloseViewerBtn
@@ -37,14 +39,14 @@ signal back_requested
 @onready var meta_body: Label = $FullscreenViewer/MetaPanel/Margin/VBox/MetaBody
 @onready var meta_footer: Label = $FullscreenViewer/MetaPanel/Margin/VBox/MetaFooterRow/MetaFooter
 @onready var filter_buttons := {
-	 CATEGORY_ALL: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/AllBtn,
-	 CATEGORY_CAMERA: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/CameraBtn,
-	 CATEGORY_CHAT: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/ChatBtn,
-	 CATEGORY_CG: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/CgBtn,
-	 CATEGORY_DIARY: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/DiaryBtn,
-	 CATEGORY_MOMENT: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/MomentBtn,
-	 CATEGORY_DRAWING: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/DrawingBtn,
-	 CATEGORY_OTHER: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/FilterScroll/FilterBar/OtherBtn
+	 CATEGORY_ALL: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/AllBtn,
+	 CATEGORY_CAMERA: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/CameraBtn,
+	 CATEGORY_CHAT: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/ChatBtn,
+	 CATEGORY_CG: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/CgBtn,
+	 CATEGORY_DIARY: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/DiaryBtn,
+	 CATEGORY_MOMENT: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/MomentBtn,
+	 CATEGORY_DRAWING: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/DrawingBtn,
+	 CATEGORY_OTHER: $CenterContainer/PanelRoot/VBox/BodyMargin/ContentVBox/LeftSidebar/SidebarMargin/SidebarVBox/FilterScroll/FilterBar/OtherBtn
 }
 
 var _album_records: Array = []
@@ -141,8 +143,10 @@ func _load_photos() -> void:
 	if _album_records.is_empty():
 		empty_state_title.text = "这个分类还没有内容" if _current_filter != CATEGORY_ALL else "相册还在等待第一张纪念"
 		empty_state_desc.text = _get_empty_state_desc()
+		list_scroll.hide()
 		empty_state_card.show()
 		return
+	list_scroll.show()
 	empty_state_card.hide()
 	_render_photos()
 
@@ -205,7 +209,7 @@ func _update_filter_buttons() -> void:
 		var normal_style: StyleBox = _filter_button_active_styles.get(category) if is_current else _filter_button_normal_styles.get(category)
 		if normal_style:
 			btn.add_theme_stylebox_override("normal", normal_style)
-		btn.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1.0) if is_current else Color(0.34, 0.31, 0.28, 1.0))
+		btn.add_theme_color_override("font_color", Color(1, 1, 1, 1) if is_current else Color(0.2, 0.31, 0.34, 1))
 
 func _update_album_summary() -> void:
 	var all_records = _photo_manager.get_album_records()
@@ -244,13 +248,12 @@ func _get_empty_state_desc() -> String:
 func _update_grid_columns() -> void:
 	if not is_instance_valid(grid):
 		return
-	var viewport_width: float = panel_root.size.x
-	if viewport_width <= 0.0:
-		viewport_width = 1280.0
-	var usable_width: float = maxf(480.0, viewport_width - 160.0)
+	var usable_width: float = grid.get_parent_control().size.x if grid.get_parent_control() != null else panel_root.size.x - 260.0
+	if usable_width <= 0.0:
+		usable_width = 960.0
 	var target_card_width: float = 220.0
 	var columns: int = int(floor((usable_width + 16.0) / (target_card_width + 16.0)))
-	grid.columns = clampi(columns, 4, 6)
+	grid.columns = clampi(columns, 3, 5)
 
 func _get_summary_title() -> String:
 	match _current_filter:

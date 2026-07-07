@@ -9,10 +9,10 @@ const TimelineItemScene = preload("res://scenes/ui/mobile/between_timeline_item.
 
 @onready var background_panel: Panel = null
 @onready var dim_bg: ColorRect = $DimBg
-@onready var panel_root: PanelContainer = $CenterContainer/PanelRoot
+@onready var panel_root: Panel = $CenterContainer/PanelRoot
 @onready var root_vbox: VBoxContainer = $CenterContainer/PanelRoot/VBox/Margin/RootVBox
 @onready var top_bar: HBoxContainer = $CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar
-@onready var back_btn: Button = $CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/BackBtn
+@onready var back_btn: Button = $CenterContainer/PanelRoot/BackBtn
 @onready var title_label: Label = $CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox/TitleLabel
 @onready var summary_label: Label = $CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox/SummaryLabel
 @onready var mode_bar: HBoxContainer = $CenterContainer/PanelRoot/VBox/Margin/RootVBox/ModeBar
@@ -160,15 +160,15 @@ func _get_filtered_entries() -> Array:
 func _update_view_mode_buttons() -> void:
 	list_mode_btn.text = "当前: 分类" if current_view_mode == "list" else "分类视图"
 	timeline_mode_btn.text = "当前: 时间线" if current_view_mode == "timeline" else "时间线"
-	list_mode_btn.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1) if current_view_mode == "list" else Color(0.34, 0.31, 0.28, 1))
-	timeline_mode_btn.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1) if current_view_mode == "timeline" else Color(0.34, 0.31, 0.28, 1))
+	list_mode_btn.add_theme_color_override("font_color", Color(1, 1, 1, 1) if current_view_mode == "list" else Color(0.2, 0.31, 0.34, 1))
+	timeline_mode_btn.add_theme_color_override("font_color", Color(1, 1, 1, 1) if current_view_mode == "timeline" else Color(0.2, 0.31, 0.34, 1))
 
 func _update_filter_buttons() -> void:
 	for filter_key in filter_buttons.keys():
 		var btn: Button = filter_buttons[filter_key]
 		var base_text = btn.text.replace("当前:", "")
 		btn.text = "当前:%s" % base_text if filter_key == current_filter else base_text
-		btn.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1) if filter_key == current_filter else Color(0.34, 0.31, 0.28, 1))
+		btn.add_theme_color_override("font_color", Color(1, 1, 1, 1) if filter_key == current_filter else Color(0.2, 0.31, 0.34, 1))
 
 func _populate_timeline_view(entries: Array) -> void:
 	var timeline_entries = entries.duplicate(true)

@@ -30,10 +30,25 @@ var _diary_book_base_position: Vector2 = Vector2.ZERO
 var _diary_tween: Tween = null
 
 const DIARY_ENTER_OFFSET_X: float = -72.0
+const BACKDROP_ENTER_DURATION: float = 0.18
+const BACKDROP_EXIT_DURATION: float = 0.16
 const DIARY_ENTER_DURATION: float = 0.24
 const DIARY_EXIT_DURATION: float = 0.2
 const FALLBACK_IMAGE: Texture2D = preload("res://icon.svg")
 const WEEKDAY_LABELS: Array[String] = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+const PHOTO_STAGE_MIN_X: float = 18.0
+const PHOTO_STAGE_MIN_Y: float = 16.0
+const PHOTO_STAGE_MAX_X: float = 386.0
+const PHOTO_STAGE_MAX_Y: float = 428.0
+const PHOTO_SINGLE_SIZE := Vector2(340, 400)
+const PHOTO_PAIR_MAIN_SIZE := Vector2(300, 346)
+const PHOTO_PAIR_SECONDARY_SIZE := Vector2(188, 178)
+const PHOTO_TRIPLE_SIZE := Vector2(186, 176)
+const PHOTO_STAGE_CENTER := Vector2(
+	(PHOTO_STAGE_MIN_X + PHOTO_STAGE_MAX_X) * 0.5,
+	(PHOTO_STAGE_MIN_Y + PHOTO_STAGE_MAX_Y) * 0.5
+)
+const PHOTO_LAYOUT_DOWN_OFFSET := Vector2(0.0, 55.0)
 
 func _ready() -> void:
 	if close_btn != null:
@@ -53,6 +68,7 @@ func _ready() -> void:
 	
 	if color_rect:
 		color_rect.hide()
+		color_rect.modulate.a = 0.0
 	_diary_book_base_position = diary_book.position
 	hide()
 
@@ -73,10 +89,17 @@ func show_diary() -> void:
 	_stop_diary_tween()
 	show()
 	modulate.a = 1.0
+	await get_tree().process_frame
+	_diary_book_base_position = diary_book.position
+	if color_rect:
+		color_rect.show()
+		color_rect.modulate.a = 0.0
 	diary_book.position = _diary_book_base_position + Vector2(DIARY_ENTER_OFFSET_X, 0.0)
 	diary_book.modulate.a = 0.0
 	diary_book.scale = Vector2.ONE
 	_diary_tween = create_tween().set_parallel(true)
+	if color_rect:
+		_diary_tween.tween_property(color_rect, "modulate:a", 1.0, BACKDROP_ENTER_DURATION).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 	_diary_tween.tween_property(diary_book, "position", _diary_book_base_position, DIARY_ENTER_DURATION).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
 	_diary_tween.tween_property(diary_book, "modulate:a", 1.0, DIARY_ENTER_DURATION).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
 
@@ -85,6 +108,8 @@ func hide_diary() -> void:
 		return
 	_stop_diary_tween()
 	_diary_tween = create_tween().set_parallel(true)
+	if color_rect:
+		_diary_tween.tween_property(color_rect, "modulate:a", 0.0, BACKDROP_EXIT_DURATION).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
 	_diary_tween.tween_property(diary_book, "position", _diary_book_base_position, DIARY_EXIT_DURATION).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUART)
 	_diary_tween.tween_property(diary_book, "modulate:a", 0.0, DIARY_EXIT_DURATION).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUART)
 	_diary_tween.chain().tween_callback(_finish_hide_diary)
@@ -97,6 +122,9 @@ func _stop_diary_tween() -> void:
 func _finish_hide_diary() -> void:
 	diary_book.position = _diary_book_base_position
 	diary_book.modulate.a = 1.0
+	if color_rect:
+		color_rect.modulate.a = 0.0
+		color_rect.hide()
 	hide()
 
 func _load_diaries() -> void:
@@ -174,31 +202,43 @@ func _apply_layout(count: int) -> void:
 	var rand_offset = randf_range(-0.02, 0.02)
 	
 	if count == 1:
-		polaroid_1.position = Vector2(34, 16)
-		polaroid_1.size = Vector2(394, 470)
+		polaroid_1.position = PHOTO_STAGE_CENTER - PHOTO_SINGLE_SIZE * 0.5 + PHOTO_LAYOUT_DOWN_OFFSET
+		polaroid_1.size = PHOTO_SINGLE_SIZE
 		polaroid_1.rotation = -0.06 + rand_offset
 		
 	elif count == 2:
-		polaroid_1.position = Vector2(26, 18)
-		polaroid_1.size = Vector2(338, 388)
+		polaroid_1.position = PHOTO_STAGE_CENTER - PHOTO_PAIR_MAIN_SIZE * 0.5 + Vector2(-38.0, -40.0) + PHOTO_LAYOUT_DOWN_OFFSET
+		polaroid_1.size = PHOTO_PAIR_MAIN_SIZE
 		polaroid_1.rotation = -0.11 + rand_offset
 		
-		polaroid_2.position = Vector2(188, 304)
-		polaroid_2.size = Vector2(220, 210)
+		polaroid_2.position = PHOTO_STAGE_CENTER - PHOTO_PAIR_SECONDARY_SIZE * 0.5 + Vector2(74.0, 112.0) + PHOTO_LAYOUT_DOWN_OFFSET
+		polaroid_2.size = PHOTO_PAIR_SECONDARY_SIZE
 		polaroid_2.rotation = 0.09 + rand_offset
 		
 	elif count == 3:
-		polaroid_1.position = Vector2(18, 16)
-		polaroid_1.size = Vector2(232, 214)
+		polaroid_1.position = PHOTO_STAGE_CENTER - PHOTO_TRIPLE_SIZE * 0.5 + Vector2(-100.0, -128.0) + PHOTO_LAYOUT_DOWN_OFFSET
+		polaroid_1.size = PHOTO_TRIPLE_SIZE
 		polaroid_1.rotation = -0.13 + rand_offset
 		
-		polaroid_2.position = Vector2(206, 102)
-		polaroid_2.size = Vector2(226, 214)
+		polaroid_2.position = PHOTO_STAGE_CENTER - PHOTO_TRIPLE_SIZE * 0.5 + Vector2(88.0, -54.0) + PHOTO_LAYOUT_DOWN_OFFSET
+		polaroid_2.size = PHOTO_TRIPLE_SIZE
 		polaroid_2.rotation = 0.1 + rand_offset
 		
-		polaroid_3.position = Vector2(64, 282)
-		polaroid_3.size = Vector2(210, 198)
+		polaroid_3.position = PHOTO_STAGE_CENTER - PHOTO_TRIPLE_SIZE * 0.5 + Vector2(-18.0, 122.0) + PHOTO_LAYOUT_DOWN_OFFSET
+		polaroid_3.size = PHOTO_TRIPLE_SIZE
 		polaroid_3.rotation = -0.04 + rand_offset
+
+	for polaroid in [polaroid_1, polaroid_2, polaroid_3]:
+		_clamp_polaroid_to_photo_stage(polaroid)
+
+func _clamp_polaroid_to_photo_stage(polaroid: Control) -> void:
+	if polaroid == null:
+		return
+	var max_position := Vector2(PHOTO_STAGE_MAX_X, PHOTO_STAGE_MAX_Y) - polaroid.size
+	polaroid.position = Vector2(
+		clampf(polaroid.position.x, PHOTO_STAGE_MIN_X, max_position.x),
+		clampf(polaroid.position.y, PHOTO_STAGE_MIN_Y, max_position.y)
+	)
 
 func _collect_diary_images(entry: Dictionary) -> Array[String]:
 	var image_urls: Array[String] = []
@@ -217,6 +257,8 @@ func _load_diary_texture(image_path: String) -> Texture2D:
 	if normalized == "":
 		return FALLBACK_IMAGE
 	if normalized.begins_with("res://"):
+		if not ResourceLoader.exists(normalized):
+			return FALLBACK_IMAGE
 		var resource_tex := load(normalized) as Texture2D
 		if resource_tex != null:
 			return resource_tex

@@ -44,7 +44,7 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [node name="ActivityItem" type="Button" unique_id=351493499]
-custom_minimum_size = Vector2(190, 90)
+custom_minimum_size = Vector2(190, 85)
 offset_right = 190.0
 offset_bottom = 85.0
 size_flags_horizontal = 3
@@ -148,7 +148,7 @@ theme_override_constants/separation = 0
 
 [node name="ProgressBar" type="ProgressBar" parent="ClipMask/ActivityContainer/ProgressContainer/ProgressMargin/ProgressContainer" unique_id=585153878]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 10)
+custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBg")
@@ -167,12 +167,4 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.42, 0.48, 0.52, 1)
 theme_override_font_sizes/font_size = 10
 text = "进度"
-horizontal_alignment = 1
-
-[node name="IncrementLabel" type="Label" parent="ClipMask/ActivityContainer/ProgressContainer/ProgressMargin/ProgressContainer" unique_id=1336223676]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 10
-text = "+10"
 horizontal_alignment = 1

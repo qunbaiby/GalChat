@@ -20,11 +20,11 @@ const MAIN_SCENE_FEATURE_PATHS := {
 	"main.goal": "UIPanel/GoalPanel",
 	"main.stats": "UIPanel/StatsPanelAnchor/StatsPanel",
 	"main.wechat": "UIPanel/BottomBarHBox/BtnHBox/WeChatButton",
-	"main.diary": "UIPanel/BottomBarHBox/BtnHBox/DiaryButton",
+	"main.diary": "UIPanel/BottomBarHBox/BtnHBox/GiftButton",
 	"main.wardrobe": "UIPanel/BottomBarHBox/BtnHBox/WardrobeButton",
 	"main.main_action": "UIPanel/BottomBarHBox/ActionHBox/MainActionButton",
 	"main.chat": "UIPanel/InteractGroup/ChatButton",
-	"main.gift": "UIPanel/BottomBarHBox/BtnHBox/GiftButton",
+	"main.gift": "UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame/AffectionPanel/RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn/GiftButton",
 	"main.date": "UIPanel/DateButton",
 	"main.phone": "UIPanel/SystemButton/ToolBarMargin/HBox/PhoneButton"
 }

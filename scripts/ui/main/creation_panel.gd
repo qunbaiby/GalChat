@@ -2,7 +2,6 @@ extends Control
 class_name CreationPanel
 
 signal drawing_requested
-signal diary_requested
 signal music_requested
 signal close_requested
 
@@ -10,7 +9,6 @@ signal close_requested
 @onready var panel_canvas: Control = get_node_or_null("CenterContainer/PanelRoot/PanelCanvas")
 @onready var close_button: Button = get_node_or_null("CenterContainer/PanelRoot/PanelCanvas/CloseButton")
 @onready var drawing_button: Button = get_node_or_null("CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/DrawingButton")
-@onready var diary_button: Button = get_node_or_null("CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/DiaryButton")
 @onready var music_button: Button = get_node_or_null("CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/MusicButton")
 
 func _ready() -> void:
@@ -20,10 +18,6 @@ func _ready() -> void:
 	if drawing_button:
 		drawing_button.pressed.connect(func() -> void:
 			drawing_requested.emit()
-		)
-	if diary_button:
-		diary_button.pressed.connect(func() -> void:
-			diary_requested.emit()
 		)
 	if music_button:
 		music_button.pressed.connect(func() -> void:

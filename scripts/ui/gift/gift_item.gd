@@ -3,9 +3,9 @@ extends Button
 signal gift_selected(gift_id: String)
 
 @onready var icon_rect: TextureRect = $Margin/VBox/Icon
-@onready var name_label: Label = $Margin/VBox/Name
+@onready var name_label: Label = $QuantityBar/HBox/Name
+@onready var quantity_label: Label = $QuantityBar/HBox/Quantity
 @onready var new_badge: Control = $NewBadge
-@onready var selected_corners: Control = $SelectedCorners
 
 var gift_id: String = ""
 
@@ -23,8 +23,16 @@ func setup(gift: Dictionary) -> void:
 		var tex = load(gift.icon_path)
 		if tex:
 			icon_rect.texture = tex
+
+	quantity_label.text = str(_get_display_amount(gift))
 	
 	new_badge.visible = bool(gift.get("is_new", false))
 
 func set_selected(selected: bool) -> void:
-	selected_corners.visible = selected
+	button_pressed = selected
+
+func _get_display_amount(gift: Dictionary) -> int:
+	for key in ["count", "quantity", "amount", "owned", "stock"]:
+		if gift.has(key):
+			return max(0, int(gift.get(key, 0)))
+	return 1

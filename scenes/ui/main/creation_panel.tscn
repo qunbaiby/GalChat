@@ -364,44 +364,6 @@ text = "共创画板"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DiaryButton" type="Button" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer" unique_id=430954822]
-custom_minimum_size = Vector2(120, 150)
-layout_mode = 2
-size_flags_horizontal = 6
-theme_override_styles/normal = SubResource("StyleBoxFlat_GridCard")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_GridCardHover")
-theme_override_styles/hover = SubResource("StyleBoxFlat_GridCardHover")
-
-[node name="CardVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/DiaryButton" unique_id=443455706]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="TopPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/DiaryButton/CardVBox" unique_id=499084434]
-custom_minimum_size = Vector2(0, 84)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_DiaryTop")
-
-[node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/DiaryButton/CardVBox/TopPanel" unique_id=1823821457]
-layout_mode = 2
-texture = ExtResource("4_diary")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="BottomLabel" type="Label" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer/DiaryButton/CardVBox" unique_id=478642002]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.34, 0.34, 0.34, 1)
-theme_override_font_sizes/font_size = 13
-text = "Luna日记"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="MusicButton" type="Button" parent="CenterContainer/PanelRoot/PanelCanvas/MainMargin/MainHBox/RightStage/RightMargin/RightVBox/ScrollContainer/GridContainer" unique_id=524515306]
 custom_minimum_size = Vector2(120, 150)
 layout_mode = 2

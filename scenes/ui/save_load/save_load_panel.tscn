@@ -222,6 +222,6 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.42, 0.45, 1)
 theme_override_font_sizes/font_size = 14
-text = "创建新的记忆后，它会固定出现在入口下方，并按最后游玩时间从晚到早排列。"
+text = "创建新的记忆入口会放在其他档案条下面；已有记忆会按最后游玩时间从晚到早排列。"
 horizontal_alignment = 1
 autowrap_mode = 3

@@ -8,9 +8,8 @@ signal back_requested
 @onready var quiet_ranges_input: LineEdit = $Margin/VBox/Scroll/ContentVBox/BasicCard/Margin/VBox/QuietTimeRow/PetQuietRangesInput
 
 @onready var pet_global_cooldown_label: Label = $Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox/PetGlobalCooldownLabel
-@onready var pet_global_cooldown_slider: HSlider = $Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox/PetGlobalCooldownSlider
-@onready var pet_scale_label: Label = $Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox/PetScaleLabel
-@onready var pet_scale_slider: HSlider = $Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox/PetScaleSlider
+@onready var pet_global_cooldown_spin_box: SpinBox = $Margin/VBox/Scroll/ContentVBox/BehaviorCard/Margin/VBox/PetGlobalCooldownSpinBox
+@onready var scroll_container: ScrollContainer = $Margin/VBox/Scroll
 
 @onready var pet_enable_app_observe_check: CheckButton = $Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox/PetEnableAppObserveCheck
 @onready var pet_enable_hourly_chime_check: CheckButton = $Margin/VBox/Scroll/ContentVBox/SwitchCard/Margin/VBox/PetEnableHourlyChimeCheck
@@ -28,8 +27,8 @@ func _ready() -> void:
     disturbance_mode_option.clear()
     for mode_name in PET_MODES:
         disturbance_mode_option.add_item(mode_name)
-    pet_global_cooldown_slider.value_changed.connect(_on_pet_slider_changed)
-    pet_scale_slider.value_changed.connect(_on_pet_slider_changed)
+    pet_global_cooldown_spin_box.value_changed.connect(_on_pet_cooldown_changed)
+    scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     disturbance_mode_option.item_selected.connect(_on_pet_setting_changed)
     pet_enable_app_observe_check.toggled.connect(_on_pet_setting_toggled)
     pet_enable_hourly_chime_check.toggled.connect(_on_pet_setting_toggled)
@@ -61,8 +60,7 @@ func _load_ui_data() -> void:
     pet_enable_app_observe_check.button_pressed = config.pet_enable_app_observe
     pet_enable_hourly_chime_check.button_pressed = config.pet_enable_hourly_chime
     pet_enable_afk_greeting_check.button_pressed = config.pet_enable_afk_greeting
-    pet_global_cooldown_slider.value = config.pet_global_cooldown
-    pet_scale_slider.value = config.pet_scale_multiplier
+    pet_global_cooldown_spin_box.value = config.pet_global_cooldown
 
     var selected_idx := PET_MODES.find(str(config.pet_disturbance_mode))
     disturbance_mode_option.select(selected_idx if selected_idx >= 0 else 0)
@@ -82,8 +80,7 @@ func save_settings() -> void:
     config.pet_enable_app_observe = pet_enable_app_observe_check.button_pressed
     config.pet_enable_hourly_chime = pet_enable_hourly_chime_check.button_pressed
     config.pet_enable_afk_greeting = pet_enable_afk_greeting_check.button_pressed
-    config.pet_global_cooldown = int(pet_global_cooldown_slider.value)
-    config.pet_scale_multiplier = float(pet_scale_slider.value)
+    config.pet_global_cooldown = int(pet_global_cooldown_spin_box.value)
     config.save_config()
     config.apply_settings()
     _notify_pet_runtime_config_changed()
@@ -92,10 +89,14 @@ func _on_back_pressed() -> void:
     save_settings()
     back_requested.emit()
 
-func _on_pet_slider_changed(_value: float) -> void:
+func _on_pet_cooldown_changed(_value: float) -> void:
     _update_pet_labels()
     if _is_loading_ui:
         return
+    var config = GameDataManager.config
+    config.pet_global_cooldown = int(pet_global_cooldown_spin_box.value)
+    config.apply_settings()
+    _notify_pet_runtime_config_changed()
     save_settings()
 
 func _on_pet_setting_changed(_index: int) -> void:
@@ -129,5 +130,4 @@ func _notify_pet_runtime_config_changed() -> void:
                 body._update_sprite_scale()
 
 func _update_pet_labels() -> void:
-    pet_global_cooldown_label.text = "全局最小冷却: %d 秒" % int(pet_global_cooldown_slider.value)
-    pet_scale_label.text = "桌宠立绘缩放倍率: %.2fx" % float(pet_scale_slider.value)
+    pet_global_cooldown_label.text = "全局最小冷却: %d 秒" % int(pet_global_cooldown_spin_box.value)

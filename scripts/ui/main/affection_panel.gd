@@ -1,26 +1,33 @@
 extends Panel
 
 signal back_requested
+signal gift_requested
 
 const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 
 @onready var back_btn: Button = $BackBtn
+@onready var gift_btn: Button = $RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn/GiftButton
 @onready var visual_column: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn
-@onready var info_column: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn
-@onready var status_header: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader
-@onready var stats_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel
-@onready var level_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox/LevelLabel
-@onready var stage_title_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin/StageTitleLabel
-@onready var points_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/PointsLabel
-@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/StageProgressBar
-@onready var breakthrough_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox/BreakthroughLabel
-@onready var intimacy_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox/Value
-@onready var trust_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox/Value
-@onready var state_badge_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge
-@onready var state_badge_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge/StateBadgeLabel
-@onready var summary_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox/SummaryLabel
-@onready var milestone_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/MilestoneLabel
+@onready var right_margin: MarginContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin
+@onready var info_column: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn
+@onready var status_header: VBoxContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader
+@onready var stats_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel
+@onready var right_scroll: ScrollContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll
+@onready var level_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox/LevelLabel
+@onready var stage_title_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard/HeartCardMargin/StageTitleLabel
+@onready var points_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/PointsLabel
+@onready var stage_progress_bar: ProgressBar = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/StageProgressBar
+@onready var breakthrough_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/BreakthroughVBox/BreakthroughLabel
+@onready var intimacy_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox/Value
+@onready var trust_value_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox/Value
+@onready var state_badge_panel: PanelContainer = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow/StateBadge
+@onready var state_badge_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow/StateBadge/StateBadgeLabel
+@onready var summary_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/StageVBox/SummaryLabel
+@onready var milestone_label: Label = $RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/MilestoneLabel
+
+var _embedded_gift_panel: Control = null
+var _gift_panel_open: bool = false
 
 var _event_registry_cache: Dictionary = {}
 var _map_name_cache: Dictionary = {}
@@ -30,6 +37,8 @@ func _ready() -> void:
 	_setup_information_layout()
 	if is_instance_valid(back_btn) and not back_btn.pressed.is_connected(_on_back_pressed):
 		back_btn.pressed.connect(_on_back_pressed)
+	if is_instance_valid(gift_btn) and not gift_btn.pressed.is_connected(_on_gift_pressed):
+		gift_btn.pressed.connect(_on_gift_pressed)
 
 func _setup_information_layout() -> void:
 	if is_instance_valid(status_header):
@@ -40,6 +49,7 @@ func _setup_information_layout() -> void:
 		stats_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 func show_panel(profile) -> void:
+	restore_info_panel()
 	update_ui(profile)
 	show()
 
@@ -47,7 +57,53 @@ func hide_panel() -> void:
 	hide()
 
 func _on_back_pressed() -> void:
+	if _gift_panel_open:
+		restore_info_panel()
+		return
 	back_requested.emit()
+
+func _on_gift_pressed() -> void:
+	gift_requested.emit()
+
+func show_gift_panel(panel: Control) -> void:
+	if panel == null or right_margin == null:
+		return
+	if _embedded_gift_panel != panel:
+		if is_instance_valid(_embedded_gift_panel) and _embedded_gift_panel.get_parent() == right_margin:
+			right_margin.remove_child(_embedded_gift_panel)
+		_embedded_gift_panel = panel
+	if panel.get_parent() != right_margin:
+		if panel.get_parent() != null:
+			panel.reparent(right_margin, false)
+		else:
+			right_margin.add_child(panel)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if panel.has_method("configure_embedded_mode"):
+		panel.configure_embedded_mode()
+	if panel.has_signal("close_requested") and not panel.close_requested.is_connected(restore_info_panel):
+		panel.close_requested.connect(restore_info_panel)
+	if is_instance_valid(info_column):
+		info_column.hide()
+	_gift_panel_open = true
+	_update_panel_mode_controls()
+	panel.show_panel() if panel.has_method("show_panel") else panel.show()
+
+func restore_info_panel() -> void:
+	if is_instance_valid(_embedded_gift_panel):
+		_embedded_gift_panel.hide()
+	if is_instance_valid(info_column):
+		info_column.show()
+	_gift_panel_open = false
+	_update_panel_mode_controls()
+
+func _update_panel_mode_controls() -> void:
+	if is_instance_valid(gift_btn):
+		gift_btn.disabled = _gift_panel_open
+		gift_btn.modulate.a = 0.46 if _gift_panel_open else 1.0
+	if is_instance_valid(back_btn):
+		back_btn.tooltip_text = "返回情感信息" if _gift_panel_open else "关闭"
 
 func _get_flavor_info(profile) -> Dictionary:
 	if GameDataManager != null and GameDataManager.personality_system != null:

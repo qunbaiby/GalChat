@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://djhqebpnxveca"]
 
-[ext_resource type="Script" uid="uid://dnhqa6gfphbe2" path="res://scripts/ui/mobile/affection_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://csnfwk807or2y" path="res://scripts/ui/main/affection_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="2_love_icon"]
 [ext_resource type="Texture2D" uid="uid://dxtsg4qyfukjg" path="res://assets/images/backgrounds/main/story_scene_rainy_door_bg.png" id="3_portrait"]
 
@@ -80,40 +80,6 @@ corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeartCard"]
-bg_color = Color(1, 1, 1, 0.96)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.62352943, 0.6862745, 0.32)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0.08, 0.1, 0.12, 0.08)
-shadow_size = 6
-shadow_offset = Vector2(0, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeartInner"]
-bg_color = Color(0.98, 0.995, 0.992, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.64, 0.84, 0.8, 0.7)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
-bg_color = Color(1, 0.62352943, 0.6862745, 0.36862746)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
 bg_color = Color(1, 1, 1, 0.95)
 border_width_left = 1
@@ -139,6 +105,40 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeartCard"]
+bg_color = Color(1, 1, 1, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.62352943, 0.6862745, 0.32)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
+shadow_color = Color(0.08, 0.1, 0.12, 0.08)
+shadow_size = 6
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeartInner"]
+bg_color = Color(0.98, 0.995, 0.992, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.64, 0.84, 0.8, 0.7)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ProgressBg"]
+bg_color = Color(1, 0.62352943, 0.6862745, 0.36862746)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
 bg_color = Color(1, 0.5882353, 0.6666667, 0.21176471)
 border_width_left = 1
@@ -150,15 +150,6 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_dn0wj"]
-load_path = "res://.godot/imported/closebg.png-b4ede7627493c00f7ec44ff9f899f280.ctex"
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qs251"]
-texture = SubResource("CompressedTexture2D_dn0wj")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fpdsl"]
-bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_evxs5"]
 bg_color = Color(1, 0.5254902, 0.6392157, 1)
@@ -210,19 +201,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 18
 
-[node name="TopBar" type="HBoxContainer" parent="RootMargin/RootVBox" unique_id=404217542]
-visible = false
-layout_mode = 2
-
-[node name="Title" type="Label" parent="RootMargin/RootVBox/TopBar" unique_id=363868913]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.18, 0.2, 0.21, 1)
-theme_override_font_sizes/font_size = 22
-text = "情感状态"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="ContentVBox" type="VBoxContainer" parent="RootMargin/RootVBox" unique_id=845861701]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -258,8 +236,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -216.0
-offset_right = -2.0
+offset_left = -240.0
+offset_right = 2.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("3_portrait")
@@ -307,103 +285,113 @@ text = "记录你们之间逐渐靠近的距离"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="GiftButton" type="Button" parent="RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn" unique_id=1811293409]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_Card")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_Row")
+theme_override_styles/hover = SubResource("StyleBoxFlat_Row")
+text = "赠送礼物"
+
 [node name="Divider" type="ColorRect" parent="RootMargin/RootVBox/ContentVBox/MainHBox" unique_id=1364911629]
 custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 size_flags_vertical = 3
 color = Color(0.88, 0.9, 0.93, 1)
 
-[node name="RightScroll" type="ScrollContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox" unique_id=1308777658]
-custom_minimum_size = Vector2(455, 0)
+[node name="RightPanel" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox" unique_id=1704185011]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.85
-horizontal_scroll_mode = 3
 
-[node name="RightColumn" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll" unique_id=348678981]
+[node name="RightMargin" type="MarginContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel" unique_id=210676494]
+layout_mode = 2
+
+[node name="RightColumn" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin" unique_id=348678981]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.18
 theme_override_constants/separation = 12
 
-[node name="StatusHeader" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn" unique_id=1368452001]
+[node name="StatusHeader" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn" unique_id=1368452001]
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="HeartCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader" unique_id=1935099144]
+[node name="HeartCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader" unique_id=1935099144]
 custom_minimum_size = Vector2(112, 112)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeartCard")
 
-[node name="HeartCardMargin" type="MarginContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard" unique_id=1536026884]
+[node name="HeartCardMargin" type="MarginContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard" unique_id=1536026884]
 layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="InnerCircle" type="Panel" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin" unique_id=1054386859]
+[node name="InnerCircle" type="Panel" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard/HeartCardMargin" unique_id=1054386859]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_HeartInner")
 
-[node name="HeartMargin" type="MarginContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin" unique_id=934747677]
+[node name="HeartMargin" type="MarginContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard/HeartCardMargin" unique_id=934747677]
 layout_mode = 2
 theme_override_constants/margin_top = 8
 
-[node name="HeartWrap" type="CenterContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin/HeartMargin" unique_id=1673699600]
+[node name="HeartWrap" type="CenterContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard/HeartCardMargin/HeartMargin" unique_id=1673699600]
 layout_mode = 2
 
-[node name="HeartIcon" type="TextureRect" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin/HeartMargin/HeartWrap" unique_id=868233155]
-custom_minimum_size = Vector2(62, 62)
+[node name="HeartIcon" type="TextureRect" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard/HeartCardMargin/HeartMargin/HeartWrap" unique_id=868233155]
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 texture = ExtResource("2_love_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="StageTitleLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader/HeartCard/HeartCardMargin" unique_id=1989202111]
+[node name="StageTitleLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader/HeartCard/HeartCardMargin" unique_id=1989202111]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.5254902, 0.6392157, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "初遇"
 horizontal_alignment = 1
 
-[node name="PointsLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader" unique_id=1670765453]
+[node name="PointsLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader" unique_id=1670765453]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.62352943, 0.6862745, 1)
 theme_override_font_sizes/font_size = 15
 text = "0 / 100"
 horizontal_alignment = 1
 
-[node name="StageProgressBar" type="ProgressBar" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatusHeader" unique_id=409242273]
+[node name="StageProgressBar" type="ProgressBar" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatusHeader" unique_id=409242273]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_ProgressBg")
 value = 50.0
 show_percentage = false
 
-[node name="StatsPanel" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn" unique_id=139404923]
+[node name="StatsPanel" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn" unique_id=139404923]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="StatsVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel" unique_id=495641054]
+[node name="StatsVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel" unique_id=495641054]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="LevelRow" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox" unique_id=1783675719]
+[node name="LevelRow" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox" unique_id=1783675719]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Row")
 
-[node name="HBox" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/LevelRow" unique_id=64207939]
+[node name="HBox" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/LevelRow" unique_id=64207939]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Name" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox" unique_id=2105998057]
+[node name="Name" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox" unique_id=2105998057]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
@@ -411,7 +399,7 @@ theme_override_font_sizes/font_size = 12
 text = "情感等级"
 vertical_alignment = 1
 
-[node name="LevelLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox" unique_id=2038870742]
+[node name="LevelLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/LevelRow/HBox" unique_id=2038870742]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.62352943, 0.6862745, 1)
 theme_override_colors/font_outline_color = Color(1, 0.62352943, 0.6862745, 0.36862746)
@@ -421,15 +409,15 @@ text = "LV 1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="IntimacyRow" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox" unique_id=1075622202]
+[node name="IntimacyRow" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox" unique_id=1075622202]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Row")
 
-[node name="HBox" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/IntimacyRow" unique_id=1265299156]
+[node name="HBox" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/IntimacyRow" unique_id=1265299156]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Name" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox" unique_id=718111707]
+[node name="Name" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox" unique_id=718111707]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
@@ -437,22 +425,22 @@ theme_override_font_sizes/font_size = 12
 text = "亲密度"
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox" unique_id=1339737087]
+[node name="Value" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/IntimacyRow/HBox" unique_id=1339737087]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.62352943, 0.6862745, 1)
 theme_override_font_sizes/font_size = 13
 text = "0"
 horizontal_alignment = 2
 
-[node name="TrustRow" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox" unique_id=1599167906]
+[node name="TrustRow" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox" unique_id=1599167906]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Row")
 
-[node name="HBox" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/TrustRow" unique_id=907490388]
+[node name="HBox" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/TrustRow" unique_id=907490388]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Name" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox" unique_id=828760987]
+[node name="Name" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox" unique_id=828760987]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
@@ -460,28 +448,42 @@ theme_override_font_sizes/font_size = 12
 text = "信任值"
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox" unique_id=942391502]
+[node name="Value" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/StatsPanel/StatsVBox/TrustRow/HBox" unique_id=942391502]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.62352943, 0.6862745, 1)
 theme_override_font_sizes/font_size = 13
 text = "0"
 horizontal_alignment = 2
 
-[node name="SummaryVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn" unique_id=2005879088]
+[node name="RightScroll" type="ScrollContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn" unique_id=1308777658]
+custom_minimum_size = Vector2(455, 0)
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.85
+horizontal_scroll_mode = 3
 
-[node name="TitleRow" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox" unique_id=623030536]
+[node name="ScrollContent" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll" unique_id=835374940]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="SummaryVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent" unique_id=2005879088]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="TitleCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow" unique_id=1015104064]
+[node name="TitleRow" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox" unique_id=623030536]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="TitleCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow" unique_id=1015104064]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Title" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/TitleCard" unique_id=275765642]
+[node name="Title" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow/TitleCard" unique_id=275765642]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
@@ -490,7 +492,7 @@ text = "当前状态"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Divider" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow" unique_id=1757996528]
+[node name="Divider" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow" unique_id=1757996528]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.84, 0.86, 0.9, 0.6)
@@ -499,12 +501,12 @@ text = "- - - - - - - - - - - - - - - - - - - - - - "
 vertical_alignment = 1
 clip_text = true
 
-[node name="StateBadge" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow" unique_id=559826414]
+[node name="StateBadge" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow" unique_id=559826414]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
 
-[node name="StateBadgeLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox/TitleRow/StateBadge" unique_id=386657666]
+[node name="StateBadgeLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox/TitleRow/StateBadge" unique_id=386657666]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
@@ -512,7 +514,7 @@ text = "防备疏离"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MilestoneLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/SummaryVBox" unique_id=2047828893]
+[node name="MilestoneLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/SummaryVBox" unique_id=2047828893]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.45, 0.48, 0.56, 1)
@@ -520,22 +522,23 @@ theme_override_font_sizes/font_size = 11
 text = "状态概览"
 autowrap_mode = 3
 
-[node name="StageVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn" unique_id=766801978]
+[node name="StageVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent" unique_id=766801978]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="StageRow" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox" unique_id=1174095398]
+[node name="StageRow" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/StageVBox" unique_id=1174095398]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="StageCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox/StageRow" unique_id=515892127]
+[node name="StageCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/StageVBox/StageRow" unique_id=515892127]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Label" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox/StageRow/StageCard" unique_id=393340817]
+[node name="Label" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/StageVBox/StageRow/StageCard" unique_id=393340817]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
 theme_override_font_sizes/font_size = 12
@@ -543,7 +546,7 @@ text = "阶段说明"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Divider" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox/StageRow" unique_id=1828813932]
+[node name="Divider" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/StageVBox/StageRow" unique_id=1828813932]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.84, 0.86, 0.9, 0.6)
@@ -552,7 +555,7 @@ text = "- - - - - - - - - - - - - - - - - - - - - - "
 vertical_alignment = 1
 clip_text = true
 
-[node name="SummaryLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/StageVBox" unique_id=1030309611]
+[node name="SummaryLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/StageVBox" unique_id=1030309611]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.35, 0.37, 0.44, 1)
@@ -560,29 +563,30 @@ theme_override_font_sizes/font_size = 11
 text = "阶段说明"
 autowrap_mode = 3
 
-[node name="BreakthroughVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn" unique_id=1215874599]
+[node name="BreakthroughVBox" type="VBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent" unique_id=1215874599]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="BreakthroughRow" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox" unique_id=1229824147]
+[node name="BreakthroughRow" type="HBoxContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/BreakthroughVBox" unique_id=1229824147]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="BreakthroughCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox/BreakthroughRow" unique_id=842945814]
+[node name="BreakthroughCard" type="PanelContainer" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/BreakthroughVBox/BreakthroughRow" unique_id=842945814]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 
-[node name="Title" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox/BreakthroughRow/BreakthroughCard" unique_id=728993429]
+[node name="Title" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/BreakthroughVBox/BreakthroughRow/BreakthroughCard" unique_id=728993429]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.37, 0.39, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "突破条件"
 horizontal_alignment = 1
 
-[node name="Divider" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox/BreakthroughRow" unique_id=540697671]
+[node name="Divider" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/BreakthroughVBox/BreakthroughRow" unique_id=540697671]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.84, 0.86, 0.9, 0.6)
@@ -591,7 +595,7 @@ text = "- - - - - - - - - - - - - - - - - - - - - - "
 vertical_alignment = 1
 clip_text = true
 
-[node name="BreakthroughLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightScroll/RightColumn/BreakthroughVBox" unique_id=1955215082]
+[node name="BreakthroughLabel" type="Label" parent="RootMargin/RootVBox/ContentVBox/MainHBox/RightPanel/RightMargin/RightColumn/RightScroll/ScrollContent/BreakthroughVBox" unique_id=1955215082]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.45, 0.48, 0.56, 1)
@@ -599,29 +603,15 @@ theme_override_font_sizes/font_size = 11
 text = "突破条件提示"
 autowrap_mode = 3
 
-[node name="ToolNavButtonbg" type="Panel" parent="." unique_id=331732538]
-clip_children = 1
-layout_mode = 0
-offset_left = 745.0
-offset_right = 788.0
-offset_bottom = 44.0
-theme_override_styles/panel = SubResource("StyleBoxTexture_qs251")
-
-[node name="ToolNavButtonbg" type="Panel" parent="ToolNavButtonbg" unique_id=892016491]
-layout_mode = 0
-offset_right = 46.0
-offset_bottom = 44.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_fpdsl")
-
 [node name="BackBtn" type="Button" parent="." unique_id=1579978150]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -48.0
+offset_left = -46.0
 offset_top = 9.0
-offset_right = -18.0
+offset_right = -16.0
 offset_bottom = 39.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)

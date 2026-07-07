@@ -19,7 +19,7 @@ shadow_size = 8
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
-size = Vector2(133.5, 179)
+size = Vector2(123, 184)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble"]
 bg_color = Color(0.985, 0.988, 0.995, 0.96)
@@ -40,53 +40,24 @@ shadow_offset = Vector2(0, 3)
 input_pickable = true
 script = ExtResource("2_script")
 
-[node name="AvatarContainer" type="Control" parent="." unique_id=866241448]
-custom_minimum_size = Vector2(160, 160)
-layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -80.0
-offset_top = -80.0
-offset_right = 80.0
-offset_bottom = 80.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="AvatarMask" type="Control" parent="AvatarContainer" unique_id=129223484]
-clip_children = 1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AvatarContainer/AvatarMask" unique_id=1602040081]
-position = Vector2(80.5, 86.499985)
-scale = Vector2(0.12519936, 0.12519936)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1602040081]
+position = Vector2(1.8240991, 29.826233)
+scale = Vector2(0.18019307, 0.18019304)
 sprite_frames = ExtResource("2_vn3qc")
 
-[node name="StateRing" type="Control" parent="AvatarContainer" unique_id=296746783]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="MoodBubble" type="PanelContainer" parent="AvatarContainer" unique_id=1863439176]
-layout_mode = 1
-offset_left = 174.0
-offset_top = 10.0
-offset_right = 241.0
-offset_bottom = 44.0
+[node name="MoodBubble" type="PanelContainer" parent="." unique_id=1863439176]
+offset_left = 75.0
+offset_top = -65.5
+offset_right = 142.0
+offset_bottom = -31.5
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vn3qc")
 
-[node name="MarginContainer" type="MarginContainer" parent="AvatarContainer/MoodBubble" unique_id=1835973669]
+[node name="MoodRing" type="Control" parent="MoodBubble" unique_id=683428323]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MoodBubble" unique_id=1835973669]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -94,11 +65,11 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="MoodHBox" type="HBoxContainer" parent="AvatarContainer/MoodBubble/MarginContainer" unique_id=1935980190]
+[node name="MoodHBox" type="HBoxContainer" parent="MoodBubble/MarginContainer" unique_id=1935980190]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="MoodEmojiLabel" type="Label" parent="AvatarContainer/MoodBubble/MarginContainer/MoodHBox" unique_id=1752599703]
+[node name="MoodEmojiLabel" type="Label" parent="MoodBubble/MarginContainer/MoodHBox" unique_id=1752599703]
 custom_minimum_size = Vector2(18, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
@@ -106,7 +77,7 @@ theme_override_font_sizes/font_size = 14
 text = "🙂"
 vertical_alignment = 1
 
-[node name="MoodNameLabel" type="Label" parent="AvatarContainer/MoodBubble/MarginContainer/MoodHBox" unique_id=626013298]
+[node name="MoodNameLabel" type="Label" parent="MoodBubble/MarginContainer/MoodHBox" unique_id=626013298]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
@@ -115,15 +86,15 @@ text = "平静"
 vertical_alignment = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1001523764]
-position = Vector2(4.75, 15)
+position = Vector2(3.5, 28)
 shape = SubResource("RectangleShape2D_yofv2")
 
 [node name="BubbleContainer" type="VBoxContainer" parent="." unique_id=1402705437]
 custom_minimum_size = Vector2(0, 250)
 offset_left = -199.0
-offset_top = -340.0
+offset_top = -330.0
 offset_right = 201.0
-offset_bottom = -90.0
+offset_bottom = -80.0
 size_flags_stretch_ratio = 1.5
 mouse_filter = 2
 alignment = 2
@@ -149,6 +120,7 @@ custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.25, 0.23, 0.2, 1)
+theme_override_font_sizes/normal_font_size = 20
 bbcode_enabled = true
 fit_content = true
 scroll_active = false

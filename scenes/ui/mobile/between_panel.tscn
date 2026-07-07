@@ -17,7 +17,7 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_BetweenBlur"]
 shader = SubResource("Shader_BetweenBlur")
 shader_parameter/lod = 2.5
-shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.32)
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
 bg_color = Color(0.958, 0.976, 0.984, 0.985)
@@ -54,25 +54,35 @@ corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonCurrent"]
 bg_color = Color(0.44, 0.77, 0.73, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
-bg_color = Color(0.985, 0.994, 0.996, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.91, 0.84)
+border_color = Color(0.2, 0.66, 0.61, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.16, 0.67, 0.62, 0.24)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Summary"]
+bg_color = Color(0.985, 0.993, 0.996, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.88, 0.9, 0.82)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Detail"]
-bg_color = Color(0.992, 0.998, 0.999, 0.98)
+bg_color = Color(0.985, 0.993, 0.996, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -101,6 +111,26 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseNormal"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseHover"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [node name="BetweenPanel" type="Control"]
 visible = false
@@ -131,14 +161,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
+[node name="PanelRoot" type="Panel" parent="CenterContainer"]
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelRoot"]
 custom_minimum_size = Vector2(1280, 720)
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 0
 
 [node name="HeaderPanel" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox"]
@@ -156,14 +191,6 @@ theme_override_constants/margin_bottom = 22
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(96, 42)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonCurrent")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonCurrent")
-text = "关闭"
-
 [node name="TitleVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -172,7 +199,7 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar/TitleVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 30
 text = "你我之间"
 horizontal_alignment = 1
 
@@ -184,15 +211,31 @@ theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="TopSpacer" type="Control" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(96, 0)
-layout_mode = 2
+
+[node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot"]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -45.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 45.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_colors/font_hover_color = Color(0.14117648, 0.7137255, 0.6745098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_CloseNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_CloseHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_CloseHover")
+text = "X"
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/PanelRoot/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 36
-theme_override_constants/margin_top = 30
+theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 36
 theme_override_constants/margin_bottom = 32
 

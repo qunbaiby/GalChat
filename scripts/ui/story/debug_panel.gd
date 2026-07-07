@@ -1544,13 +1544,17 @@ func _on_generate_diary_pressed() -> void:
 	}
 	_on_diary_generated(mock_diary)
 
-func _on_diary_generated(_diary_entry: Dictionary) -> void:
+func _on_diary_generated(diary_entry: Dictionary) -> void:
 	generate_diary_btn.disabled = false
 	generate_diary_btn.text = "生成日记"
 	var main_scene = get_tree().current_scene
 	if main_scene and main_scene.has_method("show_diary_notification"):
 		main_scene.show_diary_notification()
-	_update_status("日记生成成功")
+	var image_error := str(diary_entry.get("image_generation_error", "")).strip_edges()
+	if image_error != "":
+		_update_status("日记文字生成成功，插图使用占位图：%s" % image_error)
+	else:
+		_update_status("日记生成成功")
 
 func _on_diary_error(error_msg: String) -> void:
 	generate_diary_btn.disabled = false

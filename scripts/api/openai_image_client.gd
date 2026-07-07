@@ -6,16 +6,33 @@ signal image_generation_failed(diary_id: String, error_msg: String)
 
 const API_URL = "https://api.openai.com/v1/images/generations"
 const MAX_RETRIES = 3
+const REQUEST_TIMEOUT_SECONDS = 45.0
+const IMAGE_SIZE = "1024x1024"
 
-func generate_diary_illustration(diary_id: String, prompt: String) -> void:
-    _generate_async(diary_id, prompt)
+func generate_diary_illustration(diary_id: String, prompt: String) -> Dictionary:
+    return await _generate_async(diary_id, prompt)
 
-func _generate_async(diary_id: String, prompt: String) -> void:
+func _success_result(local_path: String, metadata: Dictionary) -> Dictionary:
+    return {
+        "success": true,
+        "path": local_path,
+        "metadata": metadata,
+        "error": ""
+    }
+
+func _failure_result(error_msg: String) -> Dictionary:
+    return {
+        "success": false,
+        "path": "",
+        "metadata": {},
+        "error": error_msg
+    }
+
+func _generate_async(diary_id: String, prompt: String) -> Dictionary:
     var start_time = Time.get_ticks_msec()
     
     if GameDataManager.config and not GameDataManager.config.image_generation_enabled:
-        image_generation_failed.emit.call_deferred(diary_id, "Image generation is disabled in settings.")
-        return
+        return _failure_result("Image generation is disabled in settings.")
         
     var api_key = ""
     var model = "dall-e-2"
@@ -24,16 +41,16 @@ func _generate_async(diary_id: String, prompt: String) -> void:
         api_key = GameDataManager.config.openai_image_api_key
         
     if api_key.is_empty():
-        image_generation_failed.emit.call_deferred(diary_id, "OpenAI Image API Key未设置，请在设置中配置。")
-        return
+        return _failure_result("OpenAI Image API Key未设置，请在设置中配置。")
         
     var request_data = {
         "model": model,
         "prompt": prompt,
         "n": 1,
-        "size": "1024x1024",
+        "size": IMAGE_SIZE,
         "response_format": "url"
     }
+    print("[OpenAIImageClient] 开始生成图片 model=%s size=%s prompt_len=%d" % [model, IMAGE_SIZE, prompt.length()])
     
     var headers = [
         "Content-Type: application/json",
@@ -45,6 +62,7 @@ func _generate_async(diary_id: String, prompt: String) -> void:
     var error_message = ""
     
     var http_request = HTTPRequest.new()
+    http_request.timeout = REQUEST_TIMEOUT_SECONDS
     add_child(http_request)
     
     # 1. 请求 API (带重试)
@@ -82,8 +100,7 @@ func _generate_async(diary_id: String, prompt: String) -> void:
             
     if not success or image_url.is_empty():
         http_request.queue_free()
-        image_generation_failed.emit.call_deferred(diary_id, error_message)
-        return
+        return _failure_result(error_message)
         
     # 2. 下载图像 (带重试)
     var img_download_success = false
@@ -113,8 +130,7 @@ func _generate_async(diary_id: String, prompt: String) -> void:
     http_request.queue_free()
     
     if not img_download_success:
-        image_generation_failed.emit.call_deferred(diary_id, error_message)
-        return
+        return _failure_result(error_message)
         
     # 3. 解析与保存图像
     var image = Image.new()
@@ -138,8 +154,7 @@ func _generate_async(diary_id: String, prompt: String) -> void:
                 load_err = image.load_webp_from_buffer(img_body)
                 
     if load_err != OK or image.is_empty():
-        image_generation_failed.emit.call_deferred(diary_id, "无法解析下载的图像数据 (大小: " + str(img_body.size()) + "). Error Code: " + str(load_err))
-        return
+        return _failure_result("无法解析下载的图像数据 (大小: " + str(img_body.size()) + "). Error Code: " + str(load_err))
                 
     var time_dict = Time.get_datetime_dict_from_system()
     var date_str = "%04d-%02d-%02d" % [time_dict.year, time_dict.month, time_dict.day]
@@ -149,8 +164,7 @@ func _generate_async(diary_id: String, prompt: String) -> void:
     if not DirAccess.dir_exists_absolute(dir_path):
         var dir_err = DirAccess.make_dir_recursive_absolute(dir_path)
         if dir_err != OK:
-            image_generation_failed.emit.call_deferred(diary_id, "无法创建目录: " + dir_path)
-            return
+            return _failure_result("无法创建目录: " + dir_path)
             
     var file_name = "img_%s_%d.png" % [diary_id, timestamp]
     var file_path = dir_path + "/" + file_name
@@ -158,8 +172,7 @@ func _generate_async(diary_id: String, prompt: String) -> void:
     # 保存为 PNG 并压缩
     var save_err = image.save_png(file_path)
     if save_err != OK:
-        image_generation_failed.emit.call_deferred(diary_id, "保存 PNG 文件失败: %d" % save_err)
-        return
+        return _failure_result("保存 PNG 文件失败: %d" % save_err)
         
     var duration = (Time.get_ticks_msec() - start_time) / 1000.0
     var metadata = {
@@ -168,4 +181,5 @@ func _generate_async(diary_id: String, prompt: String) -> void:
         "model": model
     }
     
-    image_generated.emit.call_deferred(diary_id, file_path, metadata)
+    image_generated.emit(diary_id, file_path, metadata)
+    return _success_result(file_path, metadata)

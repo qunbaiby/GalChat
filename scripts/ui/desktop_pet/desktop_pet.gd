@@ -3,7 +3,8 @@ extends Window
 const MusicLibraryData = preload("res://scripts/data/music_library.gd")
 const PLAYLIST_POPUP_SCENE: PackedScene = preload("res://scenes/ui/main/music/music_playlist_popup.tscn")
 const PLAYLIST_ITEM_SCENE: PackedScene = preload("res://scenes/ui/main/music/music_playlist_item.tscn")
-const AFFECTION_PANEL_SCENE: PackedScene = preload("res://scenes/ui/mobile/affection_panel.tscn")
+const AFFECTION_PANEL_SCENE: PackedScene = preload("res://scenes/ui/main/affection_panel.tscn")
+const GIFT_PANEL_SCENE: PackedScene = preload("res://scenes/ui/gift/gift_panel.tscn")
 const ARCHIVE_MEMORY_PANEL_SCENE: PackedScene = preload("res://scenes/ui/archive/archive_memory_panel.tscn")
 const DESKTOP_PET_HISTORY_PANEL_SCENE: PackedScene = preload("res://scenes/ui/desktop_pet/desktop_pet_history_panel.tscn")
 const POMODORO_PANEL_SCENE: PackedScene = preload("res://scenes/ui/desktop_pet/pomodoro_panel.tscn")
@@ -97,6 +98,7 @@ var _music_volume_popup: PanelContainer = null
 var _music_volume_slider: VSlider = null
 var _settings_panel_instance: Control = null
 var _affection_panel_instance: Control = null
+var _gift_panel_instance: Control = null
 var _memory_panel_instance: Control = null
 var _desktop_pet_history_panel_instance: Control = null
 var _floating_panel_entries: Dictionary = {}
@@ -152,7 +154,7 @@ func _ready() -> void:
 	exclusive = false
 	
 	# 设置为小窗口大小
-	var target_size = Vector2i(1280, 720)
+	var target_size = Vector2i(1400, 820)
 	size = target_size
 	
 	# 获取当前鼠标所在的屏幕索引
@@ -941,11 +943,49 @@ func _get_affection_panel_instance() -> Control:
 	_affection_panel_instance.visible = false
 	_affection_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	_affection_panel_instance.position = Vector2.ZERO
-	var drag_handle: Control = _affection_panel_instance.get_node_or_null("RootMargin/RootVBox/TopBar") as Control
+	var drag_handle: Control = _affection_panel_instance
 	if _affection_panel_instance.has_signal("back_requested"):
 		_affection_panel_instance.back_requested.connect(func(): _close_floating_panel("affection"))
+	if _affection_panel_instance.has_signal("gift_requested"):
+		_affection_panel_instance.gift_requested.connect(_on_affection_gift_requested)
 	_register_floating_panel_entry("affection", _affection_panel_instance, wrapper, _affection_panel_instance, drag_handle, true)
 	return _affection_panel_instance
+
+func _get_gift_panel_instance() -> Control:
+	if is_instance_valid(_gift_panel_instance):
+		return _gift_panel_instance
+	_gift_panel_instance = GIFT_PANEL_SCENE.instantiate()
+	_gift_panel_instance.visible = false
+	if _gift_panel_instance.has_signal("gift_sent"):
+		_gift_panel_instance.gift_sent.connect(_on_pet_gift_sent)
+	return _gift_panel_instance
+
+func _on_affection_gift_requested() -> void:
+	var panel := _get_gift_panel_instance()
+	if is_instance_valid(_affection_panel_instance) and _affection_panel_instance.has_method("show_gift_panel"):
+		_affection_panel_instance.show_gift_panel(panel)
+
+func _on_pet_gift_sent(gift_data: Dictionary) -> void:
+	var gift_id := str(gift_data.get("id", ""))
+	if gift_id == "":
+		return
+	var result = GameDataManager.gift_manager.send_gift(GameDataManager.profile, gift_id)
+	if not result.success:
+		if pet_body:
+			pet_body.add_bubble("[color=red]%s[/color]" % str(result.msg))
+		return
+	if is_instance_valid(_affection_panel_instance) and _affection_panel_instance.has_method("restore_info_panel"):
+		_affection_panel_instance.restore_info_panel()
+	if is_instance_valid(_affection_panel_instance) and _affection_panel_instance.visible and _affection_panel_instance.has_method("update_ui"):
+		_affection_panel_instance.update_ui(GameDataManager.profile)
+	var gift_name := str(gift_data.get("name", "礼物"))
+	var stage_conf: Dictionary = GameDataManager.profile.get_current_stage_config()
+	var stage_desc := str(stage_conf.get("stageDesc", ""))
+	var player_name := str(GameDataManager.profile.player_title)
+	if player_name.is_empty():
+		player_name = "指导人"
+	var prompt := "【系统提示】玩家（当前身份：%s）刚刚在桌宠界面送给你一份礼物：【%s】。当前情感阶段是：%s。请结合你的性格、心情和这份礼物的特点，主动对玩家说出感谢和反应（必须包含动作描写）。不要复述系统提示，直接给出台词。" % [player_name, gift_name, stage_desc]
+	_trigger_proactive_chat(prompt, true, CHAT_ORIGIN_TOUCH)
 
 func _get_memory_panel_instance() -> Control:
 	if is_instance_valid(_memory_panel_instance):
@@ -971,7 +1011,9 @@ func _get_settings_panel_instance() -> Control:
 	_settings_panel_instance.visible = false
 	_settings_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	_settings_panel_instance.position = Vector2.ZERO
-	var drag_handle: Control = _settings_panel_instance.get_node_or_null("Margin/VBox/TopBar") as Control
+	var drag_handle: Control = _settings_panel_instance.get_node_or_null("Margin/VBox/TitleBar") as Control
+	if drag_handle == null:
+		drag_handle = _settings_panel_instance.get_node_or_null("Margin/VBox/TitleVBox") as Control
 	if _settings_panel_instance.has_signal("back_requested"):
 		_settings_panel_instance.back_requested.connect(func(): _close_floating_panel("settings"))
 	_register_floating_panel_entry("settings", _settings_panel_instance, wrapper, _settings_panel_instance, drag_handle, true)
@@ -3006,6 +3048,8 @@ func is_main_window_parked() -> bool:
 	return _root_window_parked
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _has_visible_floating_window():
+		return
 	if _is_pointer_over_desktop_pet_ui():
 		return
 	if event is InputEventMouseButton:
@@ -3059,6 +3103,13 @@ func _trigger_pet_touch() -> void:
 		else:
 			prompt = _build_mode_touch_prompt(h, m, _get_pet_mode())
 		_trigger_proactive_chat(prompt, true, CHAT_ORIGIN_TOUCH)
+
+func _has_visible_floating_window() -> bool:
+	for key in _floating_panel_entries.keys():
+		var wrapper = _floating_panel_entries[key].get("wrapper", null)
+		if wrapper is Window and is_instance_valid(wrapper) and wrapper.visible:
+			return true
+	return false
 
 func _on_pet_body_right_clicked() -> void:
 	_toggle_quick_tools_from_right_click()

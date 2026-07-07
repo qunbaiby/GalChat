@@ -299,7 +299,8 @@ grow_vertical = 0
 size_flags_stretch_ratio = 1.5
 
 [node name="PetBody" parent="Control" unique_id=39703576 instance=ExtResource("3_yofv2")]
-position = Vector2(1095, 559)
+position = Vector2(1055, 535)
+scale = Vector2(1.25, 1.25)
 
 [node name="InputLayer" type="PanelContainer" parent="Control" unique_id=1729692891]
 layout_mode = 1
@@ -308,9 +309,9 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -361.0
+offset_left = -395.0
 offset_top = -62.0
-offset_right = -9.0
+offset_right = -43.0
 offset_bottom = -10.0
 grow_horizontal = 0
 grow_vertical = 0

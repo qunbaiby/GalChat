@@ -2,7 +2,7 @@ extends Control
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
-const AffectionPanelScene = preload("res://scenes/ui/mobile/affection_panel.tscn")
+const AffectionPanelScene = preload("res://scenes/ui/main/affection_panel.tscn")
 const BackgroundSettingPanelScene = preload("res://scenes/ui/main/background_setting_panel.tscn")
 const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
@@ -14,6 +14,7 @@ const MAIN_SCENE_IDLE_CHAT_RETRY_SECONDS := 12.0
 const MAIN_SCENE_BGM_FADE_FLOOR_DB := -40.0
 const DRAWING_BOARD_SCENE_PATH := "res://scenes/ui/main/drawing_board_panel.tscn"
 const CREATION_MUSIC_SCENE_PATH := "res://scenes/ui/main/creation_music_panel.tscn"
+const GIFT_PANEL_SCENE: PackedScene = preload("res://scenes/ui/gift/gift_panel.tscn")
 const MAIN_FEATURE_LOCK_HINT := "功能尚未解锁"
 const LOCKED_BUTTON_MODULATE := Color(0.58, 0.6, 0.66, 0.92)
 const UNLOCKED_BUTTON_MODULATE := Color(1, 1, 1, 1)
@@ -25,7 +26,7 @@ const MAIN_FEATURE_ALIASES := {
 
 @onready var ui_panel: Panel = $UIPanel
 @onready var rest_button: Button = $UIPanel/BottomBarHBox/ActionHBox/RestButton
-@onready var gift_button: Button = $UIPanel/BottomBarHBox/BtnHBox/GiftButton
+@onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/GiftButton
 @onready var date_button: Button = $UIPanel/DateButton
 @onready var hide_ui_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/HideUIButton
 @onready var camera_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/CameraButton
@@ -48,7 +49,7 @@ const MAIN_FEATURE_ALIASES := {
 @onready var affection_dismiss_button: Button = $UIPanel/AffectionOverlay/DismissButton
 @onready var affection_popup_frame: Control = $UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame
 @onready var wardrobe_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WardrobeButton
-@onready var gift_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox/Label
+@onready var diary_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox/Label
 @onready var creation_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox/Label
 @onready var wechat_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox/Label
 @onready var wardrobe_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox/Label
@@ -110,6 +111,7 @@ var mobile_interface_instance = null
 var incoming_call_notification_instance = null
 var history_panel_instance = null
 var schedule_panel_instance = null
+var gift_panel_instance: Control = null
 
 var _story_mode_active: bool = false
 var _main_action_mode: String = "schedule"
@@ -733,6 +735,12 @@ func _ensure_affection_panel_popup() -> void:
 	affection_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if affection_panel_instance.has_signal("back_requested"):
 		affection_panel_instance.back_requested.connect(_hide_affection_popup)
+	if affection_panel_instance.has_signal("gift_requested"):
+		affection_panel_instance.gift_requested.connect(_on_affection_gift_requested)
+
+func _on_affection_gift_requested() -> void:
+	if _is_ui_blocked(): return
+	_open_gift_panel()
 
 func _show_affection_popup() -> void:
 	_ensure_affection_panel_popup()
@@ -1102,22 +1110,19 @@ func _on_date_pressed() -> void:
 
 func _on_gift_pressed() -> void:
 	if _is_ui_blocked(): return
-	if is_instance_valid(gift_button):
-		_animate_button(gift_button)
-	
-	var gift_popup_path = "res://scenes/ui/gift/gift_panel.tscn"
-	if FileAccess.file_exists(gift_popup_path):
-		var gift_popup_scene = load(gift_popup_path)
-		if gift_popup_scene:
-			var popup = gift_popup_scene.instantiate()
-			ui_panel.add_child(popup)
-			
-			if popup.has_signal("gift_sent"):
-				popup.gift_sent.connect(_on_gift_sent)
-				
-			if popup.has_method("show_panel"):
-				popup.show_panel()
-			_report_guide_action("open_gift")
+	_open_gift_panel()
+
+func _open_gift_panel() -> void:
+	_ensure_affection_panel_popup()
+	if not is_instance_valid(affection_panel_instance):
+		return
+	if not is_instance_valid(gift_panel_instance):
+		gift_panel_instance = GIFT_PANEL_SCENE.instantiate()
+		if gift_panel_instance.has_signal("gift_sent"):
+			gift_panel_instance.gift_sent.connect(_on_gift_sent)
+	if affection_panel_instance.has_method("show_gift_panel"):
+		affection_panel_instance.show_gift_panel(gift_panel_instance)
+	_report_guide_action("open_gift")
 
 func _on_gift_sent(gift_data: Dictionary) -> void:
 	var gift_id = gift_data.get("id", "")
@@ -1140,6 +1145,10 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 		
 	if top_status_panel and top_status_panel.has_method("_update_ui"):
 		top_status_panel._update_ui()
+	if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("restore_info_panel"):
+		affection_panel_instance.restore_info_panel()
+	if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("update_ui"):
+		affection_panel_instance.update_ui(GameDataManager.profile)
 		
 	# 送礼后触发对话面板和特定话题
 	if _ui_tween:
@@ -2412,7 +2421,7 @@ func _ready() -> void:
 	affection_dismiss_button.pressed.connect(_hide_affection_popup)
 	rest_button.pressed.connect(_on_rest_pressed)
 	main_action_button.pressed.connect(_on_main_action_pressed)
-	gift_button.pressed.connect(_on_gift_pressed)
+	diary_button.pressed.connect(_on_diary_pressed)
 	date_button.pressed.connect(_on_date_pressed)
 	creation_button.pressed.connect(_on_creation_pressed)
 	if wechat_button:
@@ -2459,14 +2468,10 @@ func _ready() -> void:
 	if is_instance_valid(creation_panel):
 		if creation_panel.has_signal("drawing_requested"):
 			creation_panel.drawing_requested.connect(_on_creation_drawing_requested)
-		if creation_panel.has_signal("diary_requested"):
-			creation_panel.diary_requested.connect(_on_creation_diary_requested)
 		if creation_panel.has_signal("music_requested"):
 			creation_panel.music_requested.connect(_on_creation_music_requested)
 		if creation_panel.has_signal("close_requested"):
 			creation_panel.close_requested.connect(_on_creation_closed)
-	if is_instance_valid(diary_panel):
-		_attach_creation_overlay(diary_panel)
 	if end_chat_btn:
 		end_chat_btn.pressed.connect(_on_end_chat_pressed)
 	if history_btn:
@@ -2512,8 +2517,8 @@ func _ready() -> void:
 	camera_button.pivot_offset = camera_button.size / 2
 	phone_button.pivot_offset = phone_button.size / 2
 	rest_button.pivot_offset = rest_button.size / 2
-	if is_instance_valid(gift_button):
-		gift_button.pivot_offset = gift_button.size / 2
+	if is_instance_valid(diary_button):
+		diary_button.pivot_offset = diary_button.size / 2
 	if is_instance_valid(date_button):
 		date_button.pivot_offset = date_button.size / 2
 	hide_ui_button.pivot_offset = hide_ui_button.size / 2
@@ -2684,7 +2689,7 @@ func _get_guide_manager() -> Node:
 
 func _setup_feature_lock_ui() -> void:
 	_feature_lock_views.clear()
-	_register_compound_feature_lock_view("main.gift", gift_button, gift_button_label)
+	_register_compound_feature_lock_view("main.diary", diary_button, diary_button_label)
 	_register_compound_feature_lock_view("main.creation", creation_button, creation_button_label)
 	_register_compound_feature_lock_view("main.wechat", wechat_button, wechat_button_label)
 	_register_compound_feature_lock_view("main.wardrobe", wardrobe_button, wardrobe_button_label)
@@ -2833,7 +2838,7 @@ func _apply_feature_lock_view(view: Dictionary, is_locked: bool, extra_disabled:
 	target_button.tooltip_text = MAIN_FEATURE_LOCK_HINT if is_locked else default_tooltip
 
 func _update_main_feature_lock_states() -> void:
-	_apply_feature_lock_view(_feature_lock_views.get("main.gift", {}), not _is_main_feature_unlocked_internal("main.gift", true))
+	_apply_feature_lock_view(_feature_lock_views.get("main.diary", {}), not _is_main_feature_unlocked_internal("main.diary", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.creation", {}), not _is_main_feature_unlocked_internal("main.creation", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.wechat", {}), not _is_main_feature_unlocked_internal("main.wechat", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.wardrobe", {}), not _is_main_feature_unlocked_internal("main.wardrobe", true))
@@ -3966,6 +3971,16 @@ func _on_creation_pressed() -> void:
 	_animate_button(creation_button)
 	_show_creation_panel()
 
+func _on_diary_pressed() -> void:
+	if _is_ui_blocked(): return
+	_animate_button(diary_button)
+	_show_diary_panel()
+
+func _show_diary_panel() -> void:
+	if is_instance_valid(diary_panel):
+		diary_panel.show_diary()
+	_report_guide_action("open_diary")
+
 func _show_creation_panel() -> void:
 	if is_instance_valid(creation_panel):
 		if creation_panel.has_method("show_panel"):
@@ -3974,11 +3989,6 @@ func _show_creation_panel() -> void:
 			creation_panel.show()
 
 func _hide_creation_panel() -> void:
-	if is_instance_valid(diary_panel) and diary_panel.visible:
-		if diary_panel.has_method("hide_diary"):
-			diary_panel.hide_diary()
-		else:
-			diary_panel.hide()
 	if is_instance_valid(drawing_board_instance) and drawing_board_instance.visible:
 		if drawing_board_instance.has_method("hide_panel"):
 			drawing_board_instance.hide_panel()
@@ -3997,12 +4007,6 @@ func _hide_creation_panel() -> void:
 
 func _on_creation_drawing_requested() -> void:
 	_open_drawing_board()
-
-func _on_creation_diary_requested() -> void:
-	if is_instance_valid(diary_panel):
-		_attach_creation_overlay(diary_panel)
-		diary_panel.show_diary()
-	_report_guide_action("open_diary")
 
 func _on_creation_music_requested() -> void:
 	_open_creation_music_panel()
