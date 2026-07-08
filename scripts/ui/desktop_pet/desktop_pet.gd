@@ -28,6 +28,7 @@ const ICON_REPEAT_ONE = preload("res://assets/images/icons/ui/music/repeat-one-l
 @onready var tool_nav_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ToolNavButton") as Button
 @onready var avatar_dock: Control = get_node_or_null("Control/QuickToolsPanel/Canvas/AvatarDock") as Control
 @onready var dialogue_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/PrimaryActionsRow/DialogueButton") as Button
+@onready var app_observe_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/PrimaryActionsRow/AppObserveButton") as Button
 @onready var pet_settings_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow/PetSettingsButton") as Button
 @onready var affection_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow/AffectionButton") as Button
 @onready var memory_button: Button = get_node_or_null("Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/ToolButtonsRow/MemoryButton") as Button
@@ -108,6 +109,7 @@ var _root_window_parked: bool = false
 var _root_window_saved_position: Vector2i = Vector2i.ZERO
 var _root_window_saved_size: Vector2i = Vector2i.ZERO
 var _root_window_saved_mode: int = Window.MODE_WINDOWED
+var _pending_initial_pet_position: Vector2i = Vector2i.ZERO
 var _mood_title_label: Label = null
 var _mood_name_label: Label = null
 var _mood_emoji_label: Label = null
@@ -119,6 +121,10 @@ const PET_MODE_QUIET := "安静模式"
 const PET_MODE_FOCUS := "专注模式"
 const PET_MODE_LOAF := "摸鱼模式"
 const PET_MODE_NIGHT := "深夜模式"
+const PET_SCREEN_MARGIN := 20
+const PET_MIN_VISIBLE_SIZE := 80
+const PET_WINDOW_PADDING := 80
+const DESKTOP_PET_DESIGN_SIZE := Vector2(1280.0, 720.0)
 const AFK_GREETING_DELAY_MS := 180000
 const SOFT_REMINDER_APP_TYPES := ["通讯聊天软件", "办公文档软件"]
 const CHAT_ORIGIN_SYSTEM := "system_trigger"
@@ -136,8 +142,8 @@ var _last_observed_soft_reminder: bool = false
 var _last_observed_analysis_text: String = ""
 
 func _ready() -> void:
-	if get_tree().current_scene == self:
-		is_standalone_mode = true
+	is_standalone_mode = get_tree().current_scene == self
+	park_main_window_for_pet()
 	_current_character_id = GameDataManager.config.current_character_id
 	_ready_tick_msec = Time.get_ticks_msec()
 	_roll_next_afk_greeting_threshold()
@@ -153,22 +159,23 @@ func _ready() -> void:
 	transient = false
 	exclusive = false
 	
-	# 设置为小窗口大小
-	var target_size = Vector2i(1400, 820)
-	size = target_size
-	
 	# 获取当前鼠标所在的屏幕索引
 	var screen_idx = DisplayServer.get_screen_from_rect(Rect2i(DisplayServer.mouse_get_position(), Vector2i.ONE))
 	var screen_rect = DisplayServer.screen_get_usable_rect(screen_idx)
+
+	# 旧版桌宠模型：窗口保持场景设计尺寸，节点相对布局完全交给场景文件。
+	var target_size: Vector2i = Vector2i(int(DESKTOP_PET_DESIGN_SIZE.x), int(DESKTOP_PET_DESIGN_SIZE.y))
+	size = target_size
 	
-	# 初始位置：右下角
-	var init_pos = Vector2i(screen_rect.end.x - target_size.x - 20, screen_rect.end.y - target_size.y - 20)
-	position = init_pos
+	_pending_initial_pet_position = Vector2i(screen_rect.end.x - target_size.x - PET_SCREEN_MARGIN, screen_rect.end.y - target_size.y - PET_SCREEN_MARGIN)
+	position = _get_safe_offscreen_window_position(target_size)
 	
-	# 确保内部 Control 占满整个小窗口
+	# 确保内部 Control 按场景设计尺寸铺满窗口，不做全屏缩放。
 	var control_node = $Control
 	control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
 	control_node.position = Vector2.ZERO
+	control_node.size = DESKTOP_PET_DESIGN_SIZE
+	control_node.scale = Vector2.ONE
 	
 	if is_standalone_mode:
 		pass # 不再修改文字，保持 "主界面"
@@ -192,6 +199,8 @@ func _ready() -> void:
 		tool_nav_button.pressed.connect(_on_tool_nav_pressed)
 	if dialogue_button:
 		dialogue_button.pressed.connect(_on_dialogue_button_pressed)
+	if app_observe_button:
+		app_observe_button.visible = false
 	if pet_settings_button:
 		pet_settings_button.pressed.connect(_on_pet_settings_pressed)
 	if affection_button:
@@ -264,7 +273,12 @@ func _ready() -> void:
 	
 	if pet_body:
 		pet_body.bubbles_changed.connect(func(): call_deferred("_update_mouse_passthrough"))
-		pet_body.pet_clicked.connect(_trigger_pet_touch)
+		if pet_body.has_signal("app_observe_requested"):
+			pet_body.app_observe_requested.connect(_on_app_observe_button_pressed)
+		if pet_body.has_signal("pet_area_touched"):
+			pet_body.pet_area_touched.connect(_trigger_pet_area_touch)
+		else:
+			pet_body.pet_clicked.connect(_trigger_pet_touch)
 		if pet_body.has_signal("pet_right_clicked"):
 			pet_body.pet_right_clicked.connect(_on_pet_body_right_clicked)
 	
@@ -277,11 +291,8 @@ func _ready() -> void:
 	_refresh_music_panel_state()
 	_update_tool_nav_button()
 	
-	# 初始化时延迟调用以更新鼠标穿透区域
-	call_deferred("_update_mouse_passthrough")
+	call_deferred("_show_after_live2d_warmup")
 	call_deferred("_sync_root_window_focusability")
-	if get_tree().current_scene == self:
-		call_deferred("park_main_window_for_pet")
 	
 	# 实例化 WindowDetector (通过字符串路径加载，避免非 C# 版本下报错)
 	var window_detector_path = "res://scripts/csharp/WindowDetector.cs"
@@ -292,9 +303,24 @@ func _ready() -> void:
 			add_child(_window_detector)
 	else:
 		pass
-	
-	# 延迟一帧后显示窗口，以防止初次渲染的黑/灰块
-	call_deferred("show")
+
+func _show_after_live2d_warmup() -> void:
+	var warmup_pos := _get_safe_offscreen_window_position(size)
+	show()
+	position = warmup_pos
+	for i in range(30):
+		position = warmup_pos
+		await get_tree().process_frame
+	position = _pending_initial_pet_position
+	await get_tree().process_frame
+	call_deferred("_update_mouse_passthrough")
+
+func _get_safe_offscreen_window_position(window_size: Vector2i) -> Vector2i:
+	var desktop_rect := Rect2i(DisplayServer.screen_get_position(0), DisplayServer.screen_get_size(0))
+	for screen_index in range(1, DisplayServer.get_screen_count()):
+		var screen_rect := Rect2i(DisplayServer.screen_get_position(screen_index), DisplayServer.screen_get_size(screen_index))
+		desktop_rect = desktop_rect.merge(screen_rect)
+	return Vector2i(desktop_rect.position.x - window_size.x - 200, desktop_rect.position.y - window_size.y - 200)
 
 func _load_quick_tool_state() -> void:
 	_update_mode_chip()
@@ -621,23 +647,53 @@ func _get_pet_body_local_rect() -> Rect2:
 
 func _clamp_window_position_to_pet_body(target_pos: Vector2i, screen_rect: Rect2i) -> Vector2i:
 	var body_local_rect := _get_pet_body_local_rect()
-	var min_x := int(round(screen_rect.position.x - body_local_rect.position.x))
-	var max_x := int(round(screen_rect.end.x - body_local_rect.end.x))
-	var min_y := int(round(screen_rect.position.y - body_local_rect.position.y))
-	var max_y := int(round(screen_rect.end.y - body_local_rect.end.y))
+	var visible_width := minf(PET_MIN_VISIBLE_SIZE, body_local_rect.size.x)
+	var visible_height := minf(PET_MIN_VISIBLE_SIZE, body_local_rect.size.y)
+	var min_x := int(round(screen_rect.position.x + PET_SCREEN_MARGIN + visible_width - body_local_rect.end.x))
+	var max_x := int(round(screen_rect.end.x - PET_SCREEN_MARGIN - visible_width - body_local_rect.position.x))
+	var min_y := int(round(screen_rect.position.y + PET_SCREEN_MARGIN + visible_height - body_local_rect.end.y))
+	var max_y := int(round(screen_rect.end.y - PET_SCREEN_MARGIN - visible_height - body_local_rect.position.y))
 	var clamped_pos := target_pos
 	
 	if min_x > max_x:
-		clamped_pos.x = min_x
+		clamped_pos.x = target_pos.x
 	else:
 		clamped_pos.x = clampi(clamped_pos.x, min_x, max_x)
 	
 	if min_y > max_y:
-		clamped_pos.y = min_y
+		clamped_pos.y = target_pos.y
 	else:
 		clamped_pos.y = clampi(clamped_pos.y, min_y, max_y)
 	
 	return clamped_pos
+
+func _clamp_pet_body_position(body: Node2D, target_global_position: Vector2, screen_rect: Rect2i) -> Vector2:
+	if not is_instance_valid(body):
+		return target_global_position
+	var before_global := body.global_position
+	body.global_position = target_global_position
+	var body_rect := _get_pet_body_local_rect()
+	var adjusted_global := target_global_position
+	var screen_local_rect := Rect2(Vector2.ZERO, Vector2(screen_rect.size))
+	var min_left := PET_SCREEN_MARGIN - body_rect.size.x + minf(PET_MIN_VISIBLE_SIZE, body_rect.size.x)
+	var max_left := screen_local_rect.end.x - PET_SCREEN_MARGIN - minf(PET_MIN_VISIBLE_SIZE, body_rect.size.x)
+	var min_top := PET_SCREEN_MARGIN - body_rect.size.y + minf(PET_MIN_VISIBLE_SIZE, body_rect.size.y)
+	var max_top := screen_local_rect.end.y - PET_SCREEN_MARGIN - minf(PET_MIN_VISIBLE_SIZE, body_rect.size.y)
+	var delta := Vector2.ZERO
+	if body_rect.position.x < min_left:
+		delta.x = min_left - body_rect.position.x
+	elif body_rect.position.x > max_left:
+		delta.x = max_left - body_rect.position.x
+	if body_rect.position.y < min_top:
+		delta.y = min_top - body_rect.position.y
+	elif body_rect.position.y > max_top:
+		delta.y = max_top - body_rect.position.y
+	body.global_position = before_global
+	adjusted_global += delta
+	return adjusted_global
+
+func refresh_desktop_pet_passthrough_after_drag() -> void:
+	call_deferred("_update_mouse_passthrough")
 
 func _get_overlay_root() -> Control:
 	return $Control
@@ -1602,6 +1658,14 @@ func _on_dialogue_button_pressed() -> void:
 	is_dialogue_panel_open = true
 	_set_menu_visible(false)
 
+func _on_app_observe_button_pressed() -> void:
+	_consume_desktop_pet_ui_input()
+	_set_menu_visible(false)
+	if is_dialogue_panel_open or is_chatting:
+		return
+	if not _trigger_touch_app_observe() and pet_body:
+		pet_body.add_bubble("[color=orange]现在没有可观察的前台窗口。[/color]")
+
 func _on_record_entry_pressed() -> void:
 	_consume_desktop_pet_ui_input()
 	var panel = _get_desktop_pet_history_panel_instance()
@@ -1834,6 +1898,23 @@ func _build_mode_touch_prompt(hour: int, minute: int, pet_mode: String) -> Strin
 - 【格式强制】：必须遵循【对话结构策略】，使用[SPLIT]拆分句子，必须包含括号动作描写。""" % [hour, minute]
 		_:
 			return _build_default_touch_prompt(hour, minute)
+
+func _build_area_touch_prompt(hour: int, minute: int, hit_area: String) -> String:
+	var touch_line := "玩家刚刚轻轻戳了你一下。"
+	var reaction_line := "请给出自然、短促、有生活感的第一反应。"
+	match hit_area:
+		"head":
+			touch_line = "玩家刚刚摸了摸你的头。"
+			reaction_line = "反应重点是被摸头后的细微亲近感，可以害羞、放松、嘴硬或小声撒娇，但不要过度夸张。"
+		"body":
+			touch_line = "玩家刚刚戳了戳你的身体。"
+			reaction_line = "反应重点是被戳到后的即时反馈，可以轻轻抗议、疑惑、逗玩家一下，或带一点关系阶段对应的亲昵。"
+	return """【系统提示：当前现实时间是 %02d:%02d，%s】
+%s
+- 这次只是身体互动，不要展开应用观察，不要假装看到了玩家屏幕。
+- 结合你们的关系阶段、当前心情和微习惯，语气像真人即时反应。
+- 【格式强制】：必须遵循系统提示词中的【对话结构策略】，使用[SPLIT]拆分 1~2 段，必须包含括号动作描写。
+- 绝对不要在台词中报出当前时间，绝对不能提到你是AI或桌宠。""" % [hour, minute, touch_line, reaction_line]
 
 func _trigger_touch_app_observe() -> bool:
 	if not is_instance_valid(_window_detector):
@@ -2806,6 +2887,8 @@ func _on_pet_character_mood_response(response: Dictionary) -> void:
 	if expression_changed or mood_changed:
 		profile.profile_updated.emit()
 		profile.save_profile()
+	if pet_body and pet_body.has_method("play_mood_expression"):
+		pet_body.call("play_mood_expression", expression_id)
 
 func _on_pet_character_mood_error(_error_msg: String) -> void:
 	pass
@@ -2962,6 +3045,7 @@ func _has_readable_text(text: String) -> bool:
 
 func _on_tts_success(audio_stream: AudioStream, _text: String) -> void:
 	if audio_player:
+		audio_player.bus = &"Voice"
 		audio_player.stream = audio_stream
 		audio_player.play()
 
@@ -2999,7 +3083,7 @@ func _sync_root_window_focusability(force_root_focusable: bool = false) -> void:
 		root_window.unfocusable = false
 		return
 	if visible and root_window.mode == Window.MODE_MINIMIZED:
-		_convert_minimized_root_to_hidden(root_window)
+		_park_root_window(root_window)
 	var should_unfocus := visible and (root_window.mode == Window.MODE_MINIMIZED or not root_window.visible)
 	if root_window.unfocusable != should_unfocus:
 		root_window.unfocusable = should_unfocus
@@ -3028,9 +3112,9 @@ func park_main_window_for_pet() -> void:
 		return
 	if root_window.mode == Window.MODE_MINIMIZED:
 		root_window.mode = Window.MODE_WINDOWED
-	_convert_minimized_root_to_hidden(root_window)
+	_park_root_window(root_window)
 
-func _convert_minimized_root_to_hidden(root_window: Window) -> void:
+func _park_root_window(root_window: Window) -> void:
 	if not _root_window_parked:
 		_root_window_saved_position = root_window.position
 		_root_window_saved_size = root_window.size
@@ -3077,6 +3161,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		position = _clamp_window_position_to_pet_body(new_pos, screen_rect)
 
 func _trigger_pet_touch() -> void:
+	_trigger_pet_area_touch("body")
+
+func _trigger_pet_area_touch(hit_area: String) -> void:
 	_collapse_tool_panel_for_pet_interaction()
 	if is_dialogue_panel_open:
 		return
@@ -3095,12 +3182,8 @@ func _trigger_pet_touch() -> void:
 		var time_dict: Dictionary = Time.get_datetime_dict_from_system()
 		var h: int = int(time_dict["hour"])
 		var m: int = int(time_dict["minute"])
-		var prompt: String = ""
-		if GameDataManager.config.pet_enable_app_observe:
-			if _trigger_touch_app_observe():
-				return
-			prompt = _build_default_touch_prompt(h, m)
-		else:
+		var prompt: String = _build_area_touch_prompt(h, m, hit_area)
+		if prompt == "":
 			prompt = _build_mode_touch_prompt(h, m, _get_pet_mode())
 		_trigger_proactive_chat(prompt, true, CHAT_ORIGIN_TOUCH)
 

@@ -4,26 +4,26 @@ const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manage
 
 signal incoming_call_ended
 
-@onready var title_label: Label = $Panel/VBox/TopBar/Title
-@onready var more_btn: Button = $Panel/VBox/TopBar/MoreBtn
-@onready var more_menu_popup: PanelContainer = $Panel/MoreMenuPopup
-@onready var voice_call_option_btn: Button = $Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption
-@onready var video_call_option_btn: Button = $Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption
-@onready var panel_bg: Panel = $Panel
-@onready var top_bar: HBoxContainer = $Panel/VBox/TopBar
-@onready var scroll_margin: MarginContainer = $Panel/VBox/ScrollContainer/Margin
-@onready var bottom_area: VBoxContainer = $Panel/VBox/BottomArea
-@onready var attachment_panel: PanelContainer = $Panel/VBox/BottomArea/AttachmentPanel
-@onready var attachment_row: HBoxContainer = $Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow
-@onready var message_list: VBoxContainer = $Panel/VBox/ScrollContainer/Margin/MessageList
-@onready var input_row: HBoxContainer = $Panel/VBox/BottomArea/InputRow
-@onready var input_edit: LineEdit = $Panel/VBox/BottomArea/InputRow/InputEdit
-@onready var send_btn: Button = $Panel/VBox/BottomArea/InputRow/SendBtn
-@onready var plus_btn: Button = $Panel/VBox/BottomArea/InputRow/PlusBtn
-@onready var fixed_options_container: VBoxContainer = $Panel/VBox/BottomArea/FixedOptionsContainer
-@onready var image_btn: TextureButton = $Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn/Btn
-@onready var red_packet_btn: TextureButton = $Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn/Btn
-@onready var scroll_container: ScrollContainer = $Panel/VBox/ScrollContainer
+@onready var title_label: Label = $MobileChatMargin/Panel/VBox/TopBar/Title
+@onready var more_btn: Button = $MobileChatMargin/Panel/VBox/TopBar/MoreBtn
+@onready var more_menu_popup: PanelContainer = $MobileChatMargin/Panel/MoreMenuPopup
+@onready var voice_call_option_btn: Button = $MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption
+@onready var video_call_option_btn: Button = $MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption
+@onready var panel_bg: Panel = $MobileChatMargin/Panel
+@onready var top_bar: HBoxContainer = $MobileChatMargin/Panel/VBox/TopBar
+@onready var scroll_margin: MarginContainer = $MobileChatMargin/Panel/VBox/ScrollContainer/Margin
+@onready var bottom_area: VBoxContainer = $MobileChatMargin/Panel/VBox/BottomArea
+@onready var attachment_panel: PanelContainer = $MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel
+@onready var attachment_row: HBoxContainer = $MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow
+@onready var message_list: VBoxContainer = $MobileChatMargin/Panel/VBox/ScrollContainer/Margin/MessageList
+@onready var input_row: HBoxContainer = $MobileChatMargin/Panel/VBox/BottomArea/InputRow
+@onready var input_edit: LineEdit = $MobileChatMargin/Panel/VBox/BottomArea/InputRow/InputEdit
+@onready var send_btn: Button = $MobileChatMargin/Panel/VBox/BottomArea/InputRow/SendBtn
+@onready var plus_btn: Button = $MobileChatMargin/Panel/VBox/BottomArea/InputRow/PlusBtn
+@onready var fixed_options_container: VBoxContainer = $MobileChatMargin/Panel/VBox/BottomArea/FixedOptionsContainer
+@onready var image_btn: TextureButton = $MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn/Btn
+@onready var red_packet_btn: TextureButton = $MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn/Btn
+@onready var scroll_container: ScrollContainer = $MobileChatMargin/Panel/VBox/ScrollContainer
 @onready var deepseek_client = $DeepSeekClient
 
 @onready var image_overlay: Control = $ImageOverlay
@@ -288,8 +288,6 @@ func _apply_panel_mode() -> void:
 		size_flags_vertical = Control.SIZE_EXPAND_FILL
 		top_bar.custom_minimum_size = Vector2(0, 34)
 		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		title_label.add_theme_font_size_override("font_size", 16)
-		title_label.add_theme_color_override("font_color", Color(0.24, 0.26, 0.30, 1.0))
 		scroll_margin.add_theme_constant_override("margin_left", 16)
 		scroll_margin.add_theme_constant_override("margin_top", 4)
 		scroll_margin.add_theme_constant_override("margin_right", 16)
@@ -308,8 +306,6 @@ func _apply_panel_mode() -> void:
 		custom_minimum_size = _default_panel_minimum_size
 		top_bar.custom_minimum_size = Vector2(0, _default_top_bar_height)
 		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		title_label.add_theme_font_size_override("font_size", 18)
-		title_label.add_theme_color_override("font_color", Color(0.3, 0.35, 0.35, 1.0))
 		scroll_margin.add_theme_constant_override("margin_left", 15)
 		scroll_margin.add_theme_constant_override("margin_top", 15)
 		scroll_margin.add_theme_constant_override("margin_right", 15)

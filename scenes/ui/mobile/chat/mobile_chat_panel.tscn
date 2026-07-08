@@ -39,27 +39,65 @@ shadow_color = Color(0.04, 0.08, 0.1, 0.12)
 shadow_size = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputBg"]
-bg_color = Color(0.992, 0.998, 0.999, 1)
+bg_color = Color(1, 1, 1, 0.88235295)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.84, 0.82, 0.95)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+expand_margin_left = 10.0
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
+shadow_size = 8
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputDisabled"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.28)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.38)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.13, 0.48, 0.46, 0.06)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4j7x0"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.8, 0.88, 0.9, 0.82)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.06, 0.12, 0.15, 0.04)
-shadow_size = 4
+border_color = Color(1, 1, 1, 0.72)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 3
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SendBtn"]
-bg_color = Color(0.44, 0.77, 0.73, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.52, 0.49, 0.12)
-shadow_size = 6
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.72)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 3
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PopupBg"]
 bg_color = Color(0.1, 0.16, 0.18, 0.96)
@@ -84,38 +122,45 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Panel" type="Panel" parent="." unique_id=715637969]
-material = SubResource("ShaderMaterial_Blur")
+[node name="MobileChatMargin" type="MarginContainer" parent="." unique_id=2024595472]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="Panel" type="Panel" parent="MobileChatMargin" unique_id=715637969]
+material = SubResource("ShaderMaterial_Blur")
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
 
-[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=915467953]
+[node name="VBox" type="VBoxContainer" parent="MobileChatMargin/Panel" unique_id=915467953]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 5
 
-[node name="TopBar" type="HBoxContainer" parent="Panel/VBox" unique_id=2111312378]
+[node name="TopBar" type="HBoxContainer" parent="MobileChatMargin/Panel/VBox" unique_id=2111312378]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="Panel/VBox/TopBar" unique_id=1804187683]
+[node name="Title" type="Label" parent="MobileChatMargin/Panel/VBox/TopBar" unique_id=1804187683]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 20
 text = "Character"
 vertical_alignment = 1
 
-[node name="MoreBtn" type="Button" parent="Panel/VBox/TopBar" unique_id=472712945]
+[node name="MoreBtn" type="Button" parent="MobileChatMargin/Panel/VBox/TopBar" unique_id=472712945]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
@@ -123,12 +168,12 @@ theme_override_font_sizes/font_size = 20
 text = "..."
 flat = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBox" unique_id=738146617]
+[node name="ScrollContainer" type="ScrollContainer" parent="MobileChatMargin/Panel/VBox" unique_id=738146617]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Margin" type="MarginContainer" parent="Panel/VBox/ScrollContainer" unique_id=1185100719]
+[node name="Margin" type="MarginContainer" parent="MobileChatMargin/Panel/VBox/ScrollContainer" unique_id=1185100719]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -137,30 +182,30 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="MessageList" type="VBoxContainer" parent="Panel/VBox/ScrollContainer/Margin" unique_id=599406847]
+[node name="MessageList" type="VBoxContainer" parent="MobileChatMargin/Panel/VBox/ScrollContainer/Margin" unique_id=599406847]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 14
 
-[node name="BottomArea" type="VBoxContainer" parent="Panel/VBox" unique_id=609617605]
+[node name="BottomArea" type="VBoxContainer" parent="MobileChatMargin/Panel/VBox" unique_id=609617605]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="FixedOptionsContainer" type="VBoxContainer" parent="Panel/VBox/BottomArea" unique_id=2005521782]
+[node name="FixedOptionsContainer" type="VBoxContainer" parent="MobileChatMargin/Panel/VBox/BottomArea" unique_id=2005521782]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="InputRow" type="HBoxContainer" parent="Panel/VBox/BottomArea" unique_id=1517099552]
+[node name="InputRow" type="HBoxContainer" parent="MobileChatMargin/Panel/VBox/BottomArea" unique_id=1517099552]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MarginLeft" type="Control" parent="Panel/VBox/BottomArea/InputRow" unique_id=750189808]
+[node name="MarginLeft" type="Control" parent="MobileChatMargin/Panel/VBox/BottomArea/InputRow" unique_id=750189808]
 custom_minimum_size = Vector2(4, 0)
 layout_mode = 2
 
-[node name="EmojiBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow" unique_id=1300843255]
+[node name="EmojiBtn" type="Button" parent="MobileChatMargin/Panel/VBox/BottomArea/InputRow" unique_id=1300843255]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
@@ -169,28 +214,32 @@ theme_override_font_sizes/font_size = 20
 text = "☺"
 flat = true
 
-[node name="InputEdit" type="LineEdit" parent="Panel/VBox/BottomArea/InputRow" unique_id=1549716208]
+[node name="InputEdit" type="LineEdit" parent="MobileChatMargin/Panel/VBox/BottomArea/InputRow" unique_id=1549716208]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
-theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_colors/font_uneditable_color = Color(0.12, 0.36, 0.34, 0.68)
+theme_override_colors/font_placeholder_color = Color(0.34, 0.37, 0.43, 0.62)
 theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_InputBg")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_InputDisabled")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputBg")
 placeholder_text = "输入消息内容..."
 caret_blink = true
 
-[node name="SendBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow" unique_id=238425437]
-custom_minimum_size = Vector2(56, 34)
+[node name="SendBtn" type="Button" parent="MobileChatMargin/Panel/VBox/BottomArea/InputRow" unique_id=238425437]
+custom_minimum_size = Vector2(64, 36)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_SendBtn")
+theme_override_styles/normal = SubResource("StyleBoxFlat_4j7x0")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SendBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SendBtn")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_SendBtn")
 text = "发送"
 
-[node name="PlusBtn" type="Button" parent="Panel/VBox/BottomArea/InputRow" unique_id=1197365424]
+[node name="PlusBtn" type="Button" parent="MobileChatMargin/Panel/VBox/BottomArea/InputRow" unique_id=1197365424]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
@@ -199,32 +248,32 @@ theme_override_font_sizes/font_size = 22
 text = "+"
 flat = true
 
-[node name="MarginRight" type="Control" parent="Panel/VBox/BottomArea/InputRow" unique_id=177724130]
+[node name="MarginRight" type="Control" parent="MobileChatMargin/Panel/VBox/BottomArea/InputRow" unique_id=177724130]
 custom_minimum_size = Vector2(4, 0)
 layout_mode = 2
 
-[node name="AttachmentPanel" type="PanelContainer" parent="Panel/VBox/BottomArea" unique_id=302619101]
+[node name="AttachmentPanel" type="PanelContainer" parent="MobileChatMargin/Panel/VBox/BottomArea" unique_id=302619101]
 visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_InputBg")
 
-[node name="AttachmentMargin" type="MarginContainer" parent="Panel/VBox/BottomArea/AttachmentPanel" unique_id=835197663]
+[node name="AttachmentMargin" type="MarginContainer" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel" unique_id=835197663]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="AttachmentRow" type="HBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin" unique_id=392976050]
+[node name="AttachmentRow" type="HBoxContainer" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin" unique_id=392976050]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="ImageBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow" unique_id=2012135606]
+[node name="ImageBtn" type="VBoxContainer" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow" unique_id=2012135606]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn" unique_id=2014259048]
+[node name="Btn" type="TextureButton" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn" unique_id=2014259048]
 modulate = Color(0.9, 0.84, 0.76, 1)
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
@@ -233,18 +282,18 @@ texture_normal = ExtResource("6_image")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn" unique_id=477616766]
+[node name="Label" type="Label" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/ImageBtn" unique_id=477616766]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 11
 text = "图片"
 horizontal_alignment = 1
 
-[node name="RedPacketBtn" type="VBoxContainer" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow" unique_id=527238822]
+[node name="RedPacketBtn" type="VBoxContainer" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow" unique_id=527238822]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Btn" type="TextureButton" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn" unique_id=154712484]
+[node name="Btn" type="TextureButton" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn" unique_id=154712484]
 modulate = Color(0.9, 0.84, 0.76, 1)
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
@@ -253,18 +302,18 @@ texture_normal = ExtResource("8_red_packet")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn" unique_id=1487385432]
+[node name="Label" type="Label" parent="MobileChatMargin/Panel/VBox/BottomArea/AttachmentPanel/AttachmentMargin/AttachmentRow/RedPacketBtn" unique_id=1487385432]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.560784, 0.592157, 0.65098, 1)
 theme_override_font_sizes/font_size = 11
 text = "红包"
 horizontal_alignment = 1
 
-[node name="BottomSpacer" type="Control" parent="Panel/VBox/BottomArea" unique_id=713406582]
+[node name="BottomSpacer" type="Control" parent="MobileChatMargin/Panel/VBox/BottomArea" unique_id=713406582]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[node name="MoreMenuPopup" type="PanelContainer" parent="Panel" unique_id=786730537]
+[node name="MoreMenuPopup" type="PanelContainer" parent="MobileChatMargin/Panel" unique_id=786730537]
 visible = false
 layout_mode = 1
 anchors_preset = 1
@@ -277,56 +326,56 @@ offset_bottom = 138.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_PopupBg")
 
-[node name="PopupMargin" type="MarginContainer" parent="Panel/MoreMenuPopup" unique_id=1442821706]
+[node name="PopupMargin" type="MarginContainer" parent="MobileChatMargin/Panel/MoreMenuPopup" unique_id=1442821706]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="PopupVBox" type="VBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin" unique_id=1137609452]
+[node name="PopupVBox" type="VBoxContainer" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin" unique_id=1137609452]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="VoiceCallOption" type="Button" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox" unique_id=1333476711]
+[node name="VoiceCallOption" type="Button" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox" unique_id=1333476711]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 flat = true
 
-[node name="HBox" type="HBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption" unique_id=2054614235]
+[node name="HBox" type="HBoxContainer" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption" unique_id=2054614235]
 layout_mode = 0
 theme_override_constants/separation = 12
 
-[node name="Icon" type="TextureRect" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox" unique_id=361341084]
+[node name="Icon" type="TextureRect" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox" unique_id=361341084]
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 texture = ExtResource("7_voice")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox" unique_id=960248948]
+[node name="Label" type="Label" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VoiceCallOption/HBox" unique_id=960248948]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
 text = "语音通话"
 
-[node name="VideoCallOption" type="Button" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox" unique_id=2012658976]
+[node name="VideoCallOption" type="Button" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox" unique_id=2012658976]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 flat = true
 
-[node name="HBox" type="HBoxContainer" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption" unique_id=1083977017]
+[node name="HBox" type="HBoxContainer" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption" unique_id=1083977017]
 layout_mode = 0
 theme_override_constants/separation = 12
 
-[node name="Icon" type="TextureRect" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox" unique_id=153733127]
+[node name="Icon" type="TextureRect" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox" unique_id=153733127]
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 texture = ExtResource("4_eye")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox" unique_id=1046437229]
+[node name="Label" type="Label" parent="MobileChatMargin/Panel/MoreMenuPopup/PopupMargin/PopupVBox/VideoCallOption/HBox" unique_id=1046437229]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
@@ -409,7 +458,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.08, 0.08, 1)
+color = Color(0.04, 0.08, 0.09, 0.92)
 
 [node name="VBox" type="VBoxContainer" parent="RedPacketOverlay" unique_id=1646462558]
 layout_mode = 1
@@ -435,7 +484,7 @@ flat = true
 [node name="Title" type="Label" parent="RedPacketOverlay/VBox/TopBar" unique_id=1807583087]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+theme_override_colors/font_color = Color(0.7529412, 0.99607843, 0.9764706, 1)
 theme_override_font_sizes/font_size = 18
 text = "发红包"
 horizontal_alignment = 1
@@ -466,13 +515,14 @@ theme_override_constants/separation = 10
 
 [node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox" unique_id=1097862803]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
 text = "  单个金额"
 
 [node name="AmountInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/AmountPanel/HBox" unique_id=770469396]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.24, 0.56, 0.52, 0.62)
 theme_override_font_sizes/font_size = 18
 placeholder_text = "¥0.00"
 alignment = 2
@@ -485,7 +535,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_PhoneBg")
 [node name="TextInput" type="LineEdit" parent="RedPacketOverlay/VBox/Margin/FormVBox/TextPanel" unique_id=245373692]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
+theme_override_colors/font_placeholder_color = Color(0.24, 0.56, 0.52, 0.62)
 placeholder_text = "恭喜发财，大吉大利"
 flat = true
 
@@ -505,12 +556,12 @@ alignment = 1
 
 [node name="Label" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox" unique_id=1508035370]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
 text = "  红包封面"
 
 [node name="Label2" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox/VBox" unique_id=133608091]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.24, 0.56, 0.52, 0.72)
 theme_override_font_sizes/font_size = 12
 text = "  默认"
 
@@ -518,11 +569,11 @@ text = "  默认"
 custom_minimum_size = Vector2(40, 50)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.8, 0.2, 0.2, 1)
+color = Color(0.24705882, 0.77254903, 0.74509805, 0.84)
 
 [node name="RightArrow" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox/CoverPanel/HBox" unique_id=1695377815]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.24, 0.56, 0.52, 0.72)
 text = " >  "
 
 [node name="Spacer" type="Control" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=63900302]
@@ -531,7 +582,7 @@ layout_mode = 2
 
 [node name="DisplayAmount" type="Label" parent="RedPacketOverlay/VBox/Margin/FormVBox" unique_id=2062998440]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.7529412, 0.99607843, 0.9764706, 1)
 theme_override_font_sizes/font_size = 36
 text = "¥ 0.00"
 horizontal_alignment = 1

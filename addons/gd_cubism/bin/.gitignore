@@ -1,0 +1,5 @@
+*
+!.gitignore
+!Live2DCubismCore.dll
+!libgd_cubism.windows.debug.x86_64.dll
+!libgd_cubism.windows.release.x86_64.dll

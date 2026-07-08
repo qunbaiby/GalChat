@@ -78,13 +78,22 @@ func _create_category(title: String, contacts: Array) -> void:
 		return
 		
 	var header = Label.new()
-	header.text = "  " + title
-	header.custom_minimum_size = Vector2(0, 30)
+	header.text = "   " + title
+	header.custom_minimum_size = Vector2(0, 28)
 	header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	header.add_theme_color_override("font_color", Color(0.560784, 0.592157, 0.65098))
+	header.add_theme_color_override("font_color", Color(0.24313726, 0.6627451, 0.64705884, 1.0))
 	header.add_theme_font_size_override("font_size", 12)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.965, 0.972, 0.985)
+	style.bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.86)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = Color(0.82, 0.9, 0.88, 0.72)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
 	header.add_theme_stylebox_override("normal", style)
 	
 	contact_list.add_child(header)

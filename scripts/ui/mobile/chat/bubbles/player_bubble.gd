@@ -14,26 +14,41 @@ func _ready():
 	
 	# Avatar rounding
 	var avatar_style = StyleBoxFlat.new()
-	avatar_style.bg_color = Color.WHITE
-	avatar_style.corner_radius_top_left = 20
-	avatar_style.corner_radius_top_right = 20
-	avatar_style.corner_radius_bottom_left = 20
-	avatar_style.corner_radius_bottom_right = 20
+	avatar_style.bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1.0)
+	avatar_style.border_width_left = 2
+	avatar_style.border_width_top = 2
+	avatar_style.border_width_right = 2
+	avatar_style.border_width_bottom = 2
+	avatar_style.border_color = Color(0.14, 0.17, 0.19, 1.0)
+	avatar_style.corner_radius_top_left = 999
+	avatar_style.corner_radius_top_right = 999
+	avatar_style.corner_radius_bottom_left = 999
+	avatar_style.corner_radius_bottom_right = 999
 	avatar_panel.add_theme_stylebox_override("panel", avatar_style)
 
 	text_style = StyleBoxFlat.new()
-	text_style.bg_color = Color(0.956863, 0.529412, 0.188235, 1)
+	text_style.bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.86)
+	text_style.border_width_left = 1
+	text_style.border_width_top = 1
+	text_style.border_width_right = 1
+	text_style.border_width_bottom = 1
+	text_style.border_color = Color(1, 1, 1, 0.58)
 	text_style.corner_radius_top_left = 15
 	text_style.corner_radius_top_right = 0
 	text_style.corner_radius_bottom_left = 15
 	text_style.corner_radius_bottom_right = 15
 	# Add shadow
-	text_style.shadow_color = Color(0, 0, 0, 0.1)
+	text_style.shadow_color = Color(0.13, 0.48, 0.46, 0.18)
 	text_style.shadow_size = 4
 	text_style.shadow_offset = Vector2(0, 2)
 	
 	rp_style = StyleBoxFlat.new()
-	rp_style.bg_color = Color(0.901961, 0.45098, 0.121569, 1)
+	rp_style.bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.86)
+	rp_style.border_width_left = 1
+	rp_style.border_width_top = 1
+	rp_style.border_width_right = 1
+	rp_style.border_width_bottom = 1
+	rp_style.border_color = Color(1, 1, 1, 0.58)
 	rp_style.corner_radius_top_left = 12
 	rp_style.corner_radius_top_right = 0
 	rp_style.corner_radius_bottom_left = 12
@@ -70,7 +85,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 	if msg_type == "red_packet":
 		var rp_style_copy = rp_style.duplicate()
 		if msg.get("status") == "claimed":
-			rp_style_copy.bg_color = Color(0.85, 0.35, 0.25, 0.6)
+			rp_style_copy.bg_color = Color(0.57, 0.82, 0.76, 0.62)
 		bubble_panel.add_theme_stylebox_override("panel", rp_style_copy)
 		
 		# Reset margins for RP
@@ -97,13 +112,13 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var rp_title = Label.new()
 		rp_title.text = text if text != "" else "恭喜发财，大吉大利"
 		rp_title.add_theme_font_size_override("font_size", 14)
-		rp_title.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
+		rp_title.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 		rp_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		
 		var rp_status = Label.new()
 		rp_status.text = "对方已领取" if msg.get("status") == "claimed" else "微信红包"
 		rp_status.add_theme_font_size_override("font_size", 12)
-		rp_status.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 0.7))
+		rp_status.add_theme_color_override("font_color", Color(1, 1, 1, 0.76))
 		
 		rp_vbox.add_child(rp_title)
 		rp_vbox.add_child(rp_status)
@@ -134,12 +149,12 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var dur_label = Label.new()
 		dur_label.text = str(duration) + "\""
 		dur_label.add_theme_font_size_override("font_size", 16)
-		dur_label.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
+		dur_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 		
 		var voice_icon = Label.new()
 		voice_icon.text = "•))"
 		voice_icon.add_theme_font_size_override("font_size", 16)
-		voice_icon.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
+		voice_icon.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 		
 		voice_hbox.add_child(dur_label)
 		voice_hbox.add_child(voice_icon)
@@ -180,7 +195,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 		var label = Label.new()
 		label.text = text
 		label.add_theme_font_size_override("font_size", 16)
-		label.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2, 1))
+		label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		
 		var font = ThemeDB.fallback_font

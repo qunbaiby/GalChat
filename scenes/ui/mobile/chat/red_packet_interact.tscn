@@ -3,39 +3,54 @@
 [ext_resource type="Script" path="res://scripts/ui/mobile/chat/red_packet_interact.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RedShell"]
-bg_color = Color(0.44, 0.77, 0.73, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Flap"]
-bg_color = Color(0.36, 0.67, 0.63, 1)
-corner_radius_bottom_left = 28
-corner_radius_bottom_right = 28
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Avatar"]
-bg_color = Color(0.95, 0.993, 0.995, 0.98)
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.86)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.72, 0.9, 0.88, 0.85)
+border_color = Color(1, 1, 1, 0.58)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0.13, 0.48, 0.46, 0.18)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Flap"]
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.72)
+corner_radius_bottom_left = 28
+corner_radius_bottom_right = 28
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.32)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Avatar"]
+bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.14, 0.17, 0.19, 1)
 corner_radius_top_left = 999
 corner_radius_top_right = 999
 corner_radius_bottom_right = 999
 corner_radius_bottom_left = 999
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_OpenBtn"]
-bg_color = Color(0.96, 0.996, 0.994, 1)
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.68, 0.88, 0.84, 0.9)
+border_color = Color(1, 1, 1, 0.72)
 corner_radius_top_left = 999
 corner_radius_top_right = 999
 corner_radius_bottom_right = 999
 corner_radius_bottom_left = 999
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DetailHeader"]
-bg_color = Color(0.44, 0.77, 0.73, 0.18)
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.42)
+border_width_bottom = 1
+border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.32)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
 
@@ -55,7 +70,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.14, 0.2, 0.22, 0.92)
+color = Color(0.04, 0.08, 0.09, 0.90)
 
 [node name="BgWhite" type="ColorRect" parent="."]
 visible = false
@@ -66,6 +81,7 @@ anchor_bottom = 1.0
 offset_top = 150.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.9607843, 0.98039216, 0.96862745, 0.96)
 
 [node name="ReceiveUI" type="Control" parent="."]
 layout_mode = 1
@@ -133,7 +149,7 @@ layout_mode = 2
 [node name="OpenBtn" type="Button" parent="ReceiveUI/VBox/BtnCenter"]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.24, 0.46, 0.44, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
 theme_override_font_sizes/font_size = 48
 theme_override_styles/normal = SubResource("StyleBoxFlat_OpenBtn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_OpenBtn")
@@ -181,25 +197,25 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="DetailUI/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
 [node name="TextLabel" type="Label" parent="DetailUI/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0.24, 0.56, 0.52, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="DetailUI/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
 theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 
 [node name="AmountLabel" type="Label" parent="DetailUI/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_color = Color(0.12, 0.36, 0.34, 1)
 theme_override_font_sizes/font_size = 40
 horizontal_alignment = 1
 

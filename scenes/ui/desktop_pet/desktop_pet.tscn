@@ -290,16 +290,16 @@ layout_mode = 1
 anchor_top = 1.0
 anchor_right = 0.67200005
 anchor_bottom = 1.0
-offset_left = 954.0
-offset_top = -265.0
-offset_right = 373.83997
-offset_bottom = -15.0
+offset_left = 856.0
+offset_top = -485.0
+offset_right = 395.83997
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_stretch_ratio = 1.5
 
 [node name="PetBody" parent="Control" unique_id=39703576 instance=ExtResource("3_yofv2")]
-position = Vector2(1055, 535)
+position = Vector2(1055.0001, 385.00006)
 scale = Vector2(1.25, 1.25)
 
 [node name="InputLayer" type="PanelContainer" parent="Control" unique_id=1729692891]
@@ -690,6 +690,17 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolActionDark")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolActionDark")
 theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolActionDark")
 text = "聊天"
+
+[node name="AppObserveButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/PrimaryActionsRow" unique_id=276968380]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_QuickToolActionDark")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_QuickToolActionDark")
+theme_override_styles/hover = SubResource("StyleBoxFlat_QuickToolActionDark")
+text = "观察"
 
 [node name="PomodoroToggleButton" type="Button" parent="Control/QuickToolsPanel/Canvas/ShellMargin/ShellRoot/ContentMargin/ContentVBox/PrimaryActionsRow" unique_id=47453412]
 custom_minimum_size = Vector2(0, 54)

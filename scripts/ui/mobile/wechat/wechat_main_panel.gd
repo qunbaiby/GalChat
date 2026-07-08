@@ -339,9 +339,9 @@ func _refresh_nav_state() -> void:
 	_apply_nav_button_state(btn_moments, _moments_popup_open)
 
 func _apply_nav_button_state(button: Button, is_active: bool) -> void:
-	var bg := Color(0.90, 0.97, 0.95, 1.0) if is_active else Color(1, 1, 1, 0.0)
-	var border := Color(0.57, 0.82, 0.76, 1.0) if is_active else Color(0.88, 0.90, 0.94, 0.0)
-	var font_color := Color(0.20, 0.45, 0.38, 1.0) if is_active else Color(0.47, 0.50, 0.57, 1.0)
+	var bg := Color(0.7529412, 0.99607843, 0.9764706, 0.88) if is_active else Color(1, 1, 1, 0.16)
+	var border := Color(1, 1, 1, 0.72) if is_active else Color(1, 1, 1, 0.18)
+	var font_color := Color(0.12, 0.36, 0.34, 1.0) if is_active else Color(1, 1, 1, 0.86)
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.border_width_left = 1
@@ -349,10 +349,13 @@ func _apply_nav_button_state(button: Button, is_active: bool) -> void:
 	style.border_width_right = 1
 	style.border_width_bottom = 1
 	style.border_color = border
-	style.corner_radius_top_left = 18
-	style.corner_radius_top_right = 18
-	style.corner_radius_bottom_right = 18
-	style.corner_radius_bottom_left = 18
+	style.corner_radius_top_left = 16
+	style.corner_radius_top_right = 16
+	style.corner_radius_bottom_right = 16
+	style.corner_radius_bottom_left = 16
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.14 if is_active else 0.0)
+	style.shadow_size = 3 if is_active else 0
+	style.shadow_offset = Vector2(0, 1)
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
@@ -690,7 +693,7 @@ func show_panel(animated: bool = true) -> void:
 	show()
 	window_panel.scale = Vector2.ONE
 	if not animated:
-		dim_bg.color.a = 0.24
+		dim_bg.color.a = 1.0
 		window_panel.modulate.a = 1.0
 		return
 
@@ -699,7 +702,7 @@ func show_panel(animated: bool = true) -> void:
 	window_panel.scale = Vector2(0.96, 0.96)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(dim_bg, "color:a", 0.34, 0.18)
+	tween.tween_property(dim_bg, "color:a", 1.0, 0.18)
 	tween.tween_property(window_panel, "modulate:a", 1.0, 0.22)
 	tween.tween_property(window_panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 

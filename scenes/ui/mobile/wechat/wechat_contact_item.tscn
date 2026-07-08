@@ -1,58 +1,59 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cgd0xpmy64luv"]
 
-[ext_resource type="Script" path="res://scripts/ui/mobile/wechat/wechat_contact_item.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dyt0hx2tldyhh" path="res://scripts/ui/mobile/wechat/wechat_contact_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Normal"]
-bg_color = Color(0.992, 0.998, 0.999, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.8, 0.88, 0.9, 0.82)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.52, 0.5, 0.08)
-shadow_size = 10
+bg_color = Color(1, 1, 1, 0.88235295)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.84, 0.82, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
+shadow_size = 8
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hover"]
-bg_color = Color(0.93, 0.985, 0.98, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.47, 0.79, 0.76, 0.92)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.52, 0.5, 0.12)
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.57, 0.82, 0.76, 0.14)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.53, 0.81, 0.78, 0.75)
+bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.14, 0.17, 0.19, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
-[node name="WeChatContactItem" type="Button"]
-custom_minimum_size = Vector2(0, 60)
+[node name="WeChatContactItem" type="Button" unique_id=1444817252]
+custom_minimum_size = Vector2(0, 68)
+offset_right = 219.0
+offset_bottom = 68.0
 theme_override_styles/normal = SubResource("StyleBoxFlat_Normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
-flat = true
+theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
 script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=898671859]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,33 +70,28 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 13
 theme_override_constants/margin_bottom = 8
 
-[node name="HBox" type="HBoxContainer" parent="Margin"]
+[node name="HBox" type="HBoxContainer" parent="Margin" unique_id=2126477533]
 layout_mode = 2
 theme_override_constants/separation = 13
 
-[node name="AvatarMask" type="PanelContainer" parent="Margin/HBox"]
-custom_minimum_size = Vector2(35, 35)
+[node name="AvatarMask" type="PanelContainer" parent="Margin/HBox" unique_id=843698189]
+clip_children = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_vertical = 4
-clip_children = 1
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
-[node name="AvatarRect" type="TextureRect" parent="Margin/HBox/AvatarMask"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="AvatarRect" type="TextureRect" parent="Margin/HBox/AvatarMask" unique_id=1416607088]
+layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="NameLabel" type="Label" parent="Margin/HBox"]
+[node name="NameLabel" type="Label" parent="Margin/HBox" unique_id=1750427805]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
+theme_override_font_sizes/font_size = 16
 text = "联系人"
 vertical_alignment = 1

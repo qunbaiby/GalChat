@@ -44,12 +44,12 @@ func _cache_styles() -> void:
         _normal_style = base_style.duplicate()
 
     _selected_style = StyleBoxFlat.new()
-    _selected_style.bg_color = Color(0.90, 0.97, 0.95, 1.0)
-    _selected_style.border_width_left = 1
-    _selected_style.border_width_top = 1
-    _selected_style.border_width_right = 1
-    _selected_style.border_width_bottom = 1
-    _selected_style.border_color = Color(0.57, 0.82, 0.76, 1.0)
+    _selected_style.bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.98)
+    _selected_style.border_width_left = 2
+    _selected_style.border_width_top = 2
+    _selected_style.border_width_right = 2
+    _selected_style.border_width_bottom = 2
+    _selected_style.border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.95)
     _selected_style.corner_radius_top_left = 8
     _selected_style.corner_radius_top_right = 8
     _selected_style.corner_radius_bottom_right = 8

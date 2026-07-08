@@ -1,34 +1,34 @@
-[gd_scene load_steps=5 format=3 uid="uid://b00pkh81t23a"]
+[gd_scene format=3 uid="uid://b00pkh81t23a"]
 
 [ext_resource type="Script" uid="uid://ct1inmjexc2cs" path="res://scripts/ui/mobile/chat/bubbles/character_bubble.gd" id="1_script"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharacterBubble"]
-bg_color = Color(0.992, 0.998, 0.999, 0.98)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5kksj"]
+bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.8, 0.88, 0.9, 0.82)
+border_color = Color(0.07132422, 0.828159, 0.84753275, 0.84313726)
+corner_radius_top_left = 14
+corner_radius_top_right = 4
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharacterBubble"]
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.72)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 8
-shadow_color = Color(0.09, 0.15, 0.18, 0.08)
+shadow_color = Color(0.13, 0.48, 0.46, 0.12)
 shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CharacterAvatar"]
-bg_color = Color(1, 1, 1, 0.98)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.53, 0.81, 0.78, 0.75)
-
-[node name="CharacterBubble" type="HBoxContainer"]
+[node name="CharacterBubble" type="HBoxContainer" unique_id=1876032054]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -37,7 +37,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 script = ExtResource("1_script")
 
-[node name="AvatarMargin" type="MarginContainer" parent="."]
+[node name="AvatarMargin" type="MarginContainer" parent="." unique_id=1647522850]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_vertical = 0
@@ -45,34 +45,39 @@ theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
 
-[node name="AvatarPanel" type="PanelContainer" parent="AvatarMargin"]
+[node name="AvatarPanel" type="PanelContainer" parent="AvatarMargin" unique_id=340481979]
 clip_children = 1
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_CharacterAvatar")
+theme_override_styles/panel = SubResource("StyleBoxFlat_5kksj")
 
-[node name="AvatarRect" type="TextureRect" parent="AvatarMargin/AvatarPanel"]
+[node name="Avatarframe" type="PanelContainer" parent="AvatarMargin/AvatarPanel" unique_id=1332097715]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5kksj")
+
+[node name="AvatarRect" type="TextureRect" parent="AvatarMargin/AvatarPanel" unique_id=1255246517]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="BubblePanel" type="PanelContainer" parent="."]
+[node name="BubblePanel" type="PanelContainer" parent="." unique_id=54284497]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_CharacterBubble")
 
-[node name="MarginContainer" type="MarginContainer" parent="BubblePanel"]
+[node name="MarginContainer" type="MarginContainer" parent="BubblePanel" unique_id=1043629430]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="ContentContainer" type="VBoxContainer" parent="BubblePanel/MarginContainer"]
+[node name="ContentContainer" type="VBoxContainer" parent="BubblePanel/MarginContainer" unique_id=1483331091]
 layout_mode = 2
 
-[node name="Spacer" type="Control" parent="."]
+[node name="Spacer" type="Control" parent="." unique_id=8880952]
 custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
 size_flags_horizontal = 3

@@ -1,67 +1,66 @@
-[gd_scene load_steps=6 format=3 uid="uid://cpxmmv8r5v3j2"]
+[gd_scene format=3 uid="uid://cpxmmv8r5v3j2"]
 
 [ext_resource type="Script" uid="uid://bf2sx5f0exv2d" path="res://scripts/ui/mobile/chat/mobile_contact_list_item.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Normal"]
-bg_color = Color(0.992, 0.998, 0.999, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.8, 0.88, 0.9, 0.82)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.52, 0.5, 0.08)
+bg_color = Color(1, 1, 1, 0.88235295)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.84, 0.82, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Hover"]
-bg_color = Color(0.93, 0.985, 0.98, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.47, 0.79, 0.76, 0.92)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.18, 0.52, 0.5, 0.12)
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.57, 0.82, 0.76, 0.14)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.53, 0.81, 0.78, 0.75)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.14, 0.17, 0.19, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_UnreadBadge"]
-bg_color = Color(0.92, 0.27, 0.27, 1)
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="MobileContactListItem" type="Button"]
+[node name="MobileContactListItem" type="Button" unique_id=45191884]
 custom_minimum_size = Vector2(0, 76)
 offset_right = 389.0
 offset_bottom = 80.0
 theme_override_styles/normal = SubResource("StyleBoxFlat_Normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_Hover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_Hover")
-flat = true
 script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=703909480]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -78,11 +77,11 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 13
 theme_override_constants/margin_bottom = 8
 
-[node name="HBox" type="HBoxContainer" parent="Margin"]
+[node name="HBox" type="HBoxContainer" parent="Margin" unique_id=1882590163]
 layout_mode = 2
 theme_override_constants/separation = 13
 
-[node name="AvatarMask" type="PanelContainer" parent="Margin/HBox"]
+[node name="AvatarMask" type="PanelContainer" parent="Margin/HBox" unique_id=2079111047]
 clip_children = 1
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
@@ -90,36 +89,36 @@ size_flags_vertical = 4
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarMask")
 
-[node name="AvatarRect" type="TextureRect" parent="Margin/HBox/AvatarMask"]
+[node name="AvatarRect" type="TextureRect" parent="Margin/HBox/AvatarMask" unique_id=1168554182]
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="TextVBox" type="VBoxContainer" parent="Margin/HBox"]
+[node name="TextVBox" type="VBoxContainer" parent="Margin/HBox" unique_id=133356029]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 alignment = 1
 
-[node name="TopHBox" type="HBoxContainer" parent="Margin/HBox/TextVBox"]
+[node name="TopHBox" type="HBoxContainer" parent="Margin/HBox/TextVBox" unique_id=505762525]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="NameLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
+[node name="NameLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox" unique_id=1798260751]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
+theme_override_colors/font_color = Color(0.12, 0.13, 0.14, 1)
 theme_override_font_sizes/font_size = 16
 text = "联系人"
 
-[node name="TimeLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
+[node name="TimeLabel" type="Label" parent="Margin/HBox/TextVBox/TopHBox" unique_id=469996942]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.58, 0.62, 1)
 theme_override_font_sizes/font_size = 12
 text = "12:00"
 
-[node name="UnreadBadge" type="Label" parent="Margin/HBox/TextVBox/TopHBox"]
+[node name="UnreadBadge" type="Label" parent="Margin/HBox/TextVBox/TopHBox" unique_id=1092954112]
 visible = false
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
@@ -130,10 +129,10 @@ text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MsgLabel" type="Label" parent="Margin/HBox/TextVBox"]
+[node name="MsgLabel" type="Label" parent="Margin/HBox/TextVBox" unique_id=1577791248]
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
+theme_override_colors/font_color = Color(0.34, 0.37, 0.43, 1)
 theme_override_font_sizes/font_size = 14
 text = "暂无消息"
 clip_text = true

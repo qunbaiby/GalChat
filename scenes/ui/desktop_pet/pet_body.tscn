@@ -1,25 +1,9 @@
 [gd_scene format=3 uid="uid://d0vnlpr3gjrac"]
 
 [ext_resource type="Script" uid="uid://b5ponp1xixff7" path="res://scripts/ui/desktop_pet/pet_body.gd" id="2_script"]
-[ext_resource type="SpriteFrames" uid="uid://d3nrsw7qynsyj" path="res://assets/images/characters/desktop_pet/luna_desktop.tres" id="2_vn3qc"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vn3qc"]
-bg_color = Color(0.985, 0.988, 0.995, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.89, 0.91, 0.95, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 2
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 8
-shadow_offset = Vector2(0, 3)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yofv2"]
-size = Vector2(123, 184)
+size = Vector2(233, 297)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble"]
 bg_color = Color(0.985, 0.988, 0.995, 0.96)
@@ -36,57 +20,192 @@ shadow_color = Color(0.57, 0.82, 0.76, 0.1)
 shadow_size = 8
 shadow_offset = Vector2(0, 3)
 
-[node name="PetBody" type="CharacterBody2D" unique_id=907605141]
-input_pickable = true
+[node name="PetBody" type="Node2D" unique_id=731059729]
 script = ExtResource("2_script")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1602040081]
-position = Vector2(1.8240991, 29.826233)
-scale = Vector2(0.18019307, 0.18019304)
-sprite_frames = ExtResource("2_vn3qc")
+[node name="GDCubismUserModel" type="GDCubismUserModel" parent="." unique_id=1602040081]
+assets = "res://assets/live2d/Mao/Mao.model3.json"
+anim_loop = false
+anim_loop_fade_in = true
+anim_expression = ""
+anim_motion = ""
+ParamAngleX = 2.0413992
+ParamAngleY = -3.935298
+ParamAngleZ = 2.5945137
+ParamCheek = 0.0
+ParamFaceInkOn = 0.0
+ParamEyeLOpen = 1.0
+ParamEyeLSmile = 0.0
+ParamEyeLForm = 0.0
+ParamEyeROpen = 1.0
+ParamEyeRSmile = 0.0
+ParamEyeRForm = 0.0
+ParamEyeBallX = 0.0
+ParamEyeBallY = 0.0
+ParamEyeBallForm = 0.0
+ParamEyeEffect = 0.0
+ParamBrowLY = 0.0
+ParamBrowRY = 0.0
+ParamBrowLX = 0.0
+ParamBrowRX = 0.0
+ParamBrowLAngle = 0.0
+ParamBrowRAngle = 0.0
+ParamBrowLForm = 0.0
+ParamBrowRForm = 0.0
+ParamA = 0.0
+ParamI = 0.0
+ParamU = 0.0
+ParamE = 0.0
+ParamO = 0.0
+ParamMouthUp = 1.0
+ParamMouthDown = 0.0
+ParamMouthAngry = 0.0
+ParamMouthAngryLine = 0.0
+ParamBodyAngleX = -1.5430764
+ParamBodyAngleY = 0.0
+ParamBodyAngleZ = 0.0
+ParamBreath = 0.43131065
+ParamLeftShoulderUp = 0.0
+ParamRightShoulderUp = 0.0
+ParamArmLA01 = 0.0
+ParamArmLA02 = 0.0
+ParamArmLA03 = 0.0
+ParamHandLA = 0.0
+ParamArmRA01 = 0.0
+ParamArmRA02 = 0.0
+ParamArmRA03 = 0.0
+ParamWandRotate = 0.0
+ParamHandRA = 0.0
+ParamInkDrop = 0.0
+ParamInkDropRotate = 0.0
+ParamInkDropOn = 0.0
+ParamArmLB01 = 0.0
+ParamArmLB02 = 0.0
+ParamArmLB03 = 0.0
+ParamHandLB = 0.0
+ParamHatForm = 0.0
+ParamArmRB01 = 0.0
+ParamArmRB02 = 0.0
+ParamArmRB02Y = 0.0
+ParamArmRB03 = 0.0
+ParamHandRB = 0.0
+ParamAllX = 0.0
+ParamAllY = 0.0
+ParamAllRotate = 0.0
+ParamHairFront = 0.005122422
+ParamHairSideL = 0.0052192844
+ParamHairSideR = 0.0052192844
+ParamHairBack = 0.0034291893
+ParamHairBackR = 0.0045578377
+ParamHairBackL = 0.0045578377
+ParamoHairMesh = 0.0029906011
+ParamHairFrontFuwa = -0.0039276686
+ParamHairSideFuwa = -0.0051672226
+ParamHairBackFuwa = -0.009096944
+ParamWing = -0.008799519
+ParamRibbon = -0.0052102404
+ParamHatBrim = -0.0031115194
+ParamHatTop = -0.0030866866
+ParamAccessory1 = -0.003246094
+ParamAccessory2 = 0.0031492808
+ParamString = -0.0019886552
+ParamRobeL = -0.0025835524
+ParamRobeR = -0.0025835524
+ParamRobeFuwa = 0.0
+ParamHeartMissOn = 0.0
+ParamHeartBackMissOn = 0.0
+ParamHeartColorRainbow = 0.0
+ParamHeartHealOn = 0.0
+ParamHeartBackHealOn = 0.0
+ParamHeartColorHeal = 0.0
+ParamHeartDrow = 0.0
+ParamHeartSize = 0.0
+ParamHeartColorLight = 0.0
+ParamWandInkColorRainbow = 0.0
+ParamWandInkColorHeal = 0.0
+ParamWandInk = 0.0
+ParamSmokeOn = 0.0
+ParamSmoke = 0.0
+ParamExplosionChargeOn = 0.0
+ParamExplosionLightCharge = 0.0
+ParamExplosionOn = 0.0
+ParamExplosion = 0.0
+ParamRabbitElimination = 0.0
+ParamRabbitAppearance = 0.0
+ParamRabbitSize = 0.0
+ParamRabbitDraworder = 0.0
+ParamRabbitEar = 0.0
+ParamRabbitDirection = 0.0
+ParamRabbitLight = 0.0
+ParamRabbitLightSize = 0.0
+ParamRabbitX = 0.0
+ParamRabbitY = 1.0
+ParamRabbitRotate = 0.0
+ParamAuraOn = 0.0
+ParamAura = 0.0
+ParamAuraColor1 = 0.0
+ParamAuraColor2 = 0.0
+ParamHeartLightOn = 0.0
+ParamHeartLight = 0.0
+ParamHeartLightColor = 0.0
+ParamHealLightOn = 0.0
+ParamHealLight = 0.0
+ParamStrengthenLightOn = 0.0
+ParamStrengthenLight = 0.0
+ParamStrengthenLightMove = 0.0
+ParamMagicPositionX = 0.0
+ParamMagicPositionY = 0.0
+ParamAllColor1 = 0.0
+ParamAllColor2 = 0.0
+ParamSphereOn = 0.0
+ParamSphereMove = 0.0
+ParamSphereMultiplyColor = 0.0
+ParamSphereScreenColor = 0.0
+PartCore = 1.0
+PartRabbit = 1.0
+PartEffect = 1.0
+PartInk = 1.0
+PartSmoke = 1.0
+PartExplosionLight = 1.0
+Partaura = 1.0
+PartLight = 1.0
+PartHeart = 1.0
+PartHat = 1.0
+PartHairSide = 1.0
+PartHairFront = 1.0
+PartHairBack = 1.0
+PartBrow = 1.0
+PartEye = 1.0
+PartCheek = 1.0
+PartNose = 1.0
+PartMouth = 1.0
+PartFace = 1.0
+PartEar = 1.0
+PartNeck = 1.0
+PartRobe = 1.0
+PartHoodie = 1.0
+PartLeg = 1.0
+PartArmLA = 1.0
+PartArmRA = 1.0
+PartArmLB = 0.0
+PartArmRB = 0.0
+PartColorSample = 1.0
+PartEyeBall = 1.0
+PartWandA = 1.0
+PartWandB = 1.0
+position = Vector2(-8.5, 68)
+scale = Vector2(0.035, 0.035)
 
-[node name="MoodBubble" type="PanelContainer" parent="." unique_id=1863439176]
-offset_left = 75.0
-offset_top = -65.5
-offset_right = 142.0
-offset_bottom = -31.5
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_vn3qc")
+[node name="GDCubismEffectEyeBlink" type="GDCubismEffectEyeBlink" parent="GDCubismUserModel" unique_id=712065009]
 
-[node name="MoodRing" type="Control" parent="MoodBubble" unique_id=683428323]
-layout_mode = 2
-mouse_filter = 2
+[node name="GDCubismEffectBreath" type="GDCubismEffectBreath" parent="GDCubismUserModel" unique_id=1791076642]
 
-[node name="MarginContainer" type="MarginContainer" parent="MoodBubble" unique_id=1835973669]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
+[node name="GDCubismEffectTargetPoint" type="GDCubismEffectTargetPoint" parent="GDCubismUserModel" unique_id=849376723]
 
-[node name="MoodHBox" type="HBoxContainer" parent="MoodBubble/MarginContainer" unique_id=1935980190]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="MoodEmojiLabel" type="Label" parent="MoodBubble/MarginContainer/MoodHBox" unique_id=1752599703]
-custom_minimum_size = Vector2(18, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 14
-text = "🙂"
-vertical_alignment = 1
-
-[node name="MoodNameLabel" type="Label" parent="MoodBubble/MarginContainer/MoodHBox" unique_id=626013298]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/font_size = 12
-text = "平静"
-vertical_alignment = 1
+[node name="GDCubismEffectHitArea" type="GDCubismEffectHitArea" parent="GDCubismUserModel" unique_id=55965170]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1001523764]
-position = Vector2(3.5, 28)
+position = Vector2(-1.5, 76.5)
 shape = SubResource("RectangleShape2D_yofv2")
 
 [node name="BubbleContainer" type="VBoxContainer" parent="." unique_id=1402705437]
@@ -120,8 +239,33 @@ custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.25, 0.23, 0.2, 1)
-theme_override_font_sizes/normal_font_size = 20
+theme_override_font_sizes/normal_font_size = 15
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
+
+[node name="StateRing" type="Control" parent="." unique_id=683428323]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 3
+anchors_preset = 0
+offset_left = 83.0
+offset_top = -36.0
+offset_right = 139.0
+offset_bottom = 20.0
+
+[node name="ClockLabel" type="Label" parent="StateRing" unique_id=1001027364]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.96, 0.99, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.04, 0.08, 0.1, 0.65)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "00:00"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -61,7 +61,9 @@ func _ready():
 func _init_styles():
 	# Receive UI Styles
 	var flap_style = StyleBoxFlat.new()
-	flap_style.bg_color = Color(0.85, 0.28, 0.20, 1)
+	flap_style.bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.72)
+	flap_style.border_width_bottom = 1
+	flap_style.border_color = Color(1, 1, 1, 0.32)
 	flap_style.corner_radius_bottom_left = 250
 	flap_style.corner_radius_bottom_right = 250
 	r_top_flap.add_theme_stylebox_override("panel", flap_style)
@@ -71,21 +73,26 @@ func _init_styles():
 	r_avatar_style.corner_radius_top_right = 40
 	r_avatar_style.corner_radius_bottom_left = 40
 	r_avatar_style.corner_radius_bottom_right = 40
-	r_avatar_style.bg_color = Color.WHITE
+	r_avatar_style.bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1.0)
+	r_avatar_style.border_width_left = 2
+	r_avatar_style.border_width_top = 2
+	r_avatar_style.border_width_right = 2
+	r_avatar_style.border_width_bottom = 2
+	r_avatar_style.border_color = Color(0.14, 0.17, 0.19, 1.0)
 	r_avatar_panel.add_theme_stylebox_override("panel", r_avatar_style)
 	
 	var btn_style = StyleBoxFlat.new()
-	btn_style.bg_color = Color(1, 0.8, 0.4)
+	btn_style.bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.92)
 	btn_style.corner_radius_top_left = 50
 	btn_style.corner_radius_top_right = 50
 	btn_style.corner_radius_bottom_left = 50
 	btn_style.corner_radius_bottom_right = 50
-	btn_style.border_width_left = 4
-	btn_style.border_width_top = 4
-	btn_style.border_width_right = 4
-	btn_style.border_width_bottom = 4
-	btn_style.border_color = Color(1, 0.9, 0.5)
-	btn_style.shadow_color = Color(0, 0, 0, 0.2)
+	btn_style.border_width_left = 2
+	btn_style.border_width_top = 2
+	btn_style.border_width_right = 2
+	btn_style.border_width_bottom = 2
+	btn_style.border_color = Color(1, 1, 1, 0.72)
+	btn_style.shadow_color = Color(0.13, 0.48, 0.46, 0.18)
 	btn_style.shadow_size = 8
 	btn_style.shadow_offset = Vector2(0, 4)
 	r_open_btn.add_theme_stylebox_override("normal", btn_style)
@@ -94,7 +101,9 @@ func _init_styles():
 	
 	# Detail UI Styles
 	var curve_style = StyleBoxFlat.new()
-	curve_style.bg_color = Color(0.92, 0.35, 0.25, 1)
+	curve_style.bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.42)
+	curve_style.border_width_bottom = 1
+	curve_style.border_color = Color(0.24705882, 0.77254903, 0.74509805, 0.32)
 	curve_style.corner_radius_bottom_left = 1000
 	curve_style.corner_radius_bottom_right = 1000
 	d_curve_panel.add_theme_stylebox_override("panel", curve_style)
@@ -104,7 +113,12 @@ func _init_styles():
 	d_avatar_style.corner_radius_top_right = 30
 	d_avatar_style.corner_radius_bottom_left = 30
 	d_avatar_style.corner_radius_bottom_right = 30
-	d_avatar_style.bg_color = Color.WHITE
+	d_avatar_style.bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1.0)
+	d_avatar_style.border_width_left = 2
+	d_avatar_style.border_width_top = 2
+	d_avatar_style.border_width_right = 2
+	d_avatar_style.border_width_bottom = 2
+	d_avatar_style.border_color = Color(0.14, 0.17, 0.19, 1.0)
 	d_avatar_panel.add_theme_stylebox_override("panel", d_avatar_style)
 
 func _show_receive_ui():

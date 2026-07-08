@@ -5,100 +5,145 @@
 [ext_resource type="Texture2D" uid="uid://7isnld2hxqai" path="res://assets/images/icons/ui/system/invite.svg" id="4_contacts"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="5_moments"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Window"]
-bg_color = Color(0.96, 0.978, 0.986, 0.98)
+[sub_resource type="Shader" id="Shader_WechatBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.8;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.08, 0.09, 0.22);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_WechatBlur"]
+shader = SubResource("Shader_WechatBlur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_joedt"]
+bg_color = Color(0.827451, 0.8666667, 0.91764706, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.76, 0.86, 0.88, 0.85)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.03, 0.08, 0.1, 0.18)
-shadow_size = 28
+border_color = Color(0.73, 0.81, 0.88, 0.9)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0.18, 0.28, 0.33, 0.16)
+shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ColumnPanel"]
+content_margin_left = 14.0
 content_margin_top = 10.0
-bg_color = Color(1, 1, 1, 0.8)
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 0.88235295)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.83, 0.9, 0.91, 0.9)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0.07, 0.13, 0.16, 0.06)
-shadow_size = 8
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_WindowClose"]
-bg_color = Color(0.97, 0.982, 0.988, 0.94)
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.78, 0.87, 0.89, 0.85)
+border_color = Color(1, 1, 1, 0.72)
 corner_radius_top_left = 19
 corner_radius_top_right = 19
 corner_radius_bottom_right = 19
 corner_radius_bottom_left = 19
-shadow_color = Color(0.05, 0.1, 0.12, 0.1)
-shadow_size = 8
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_NavPanel"]
-bg_color = Color(0.91, 0.95, 0.965, 0.98)
+content_margin_left = 10.0
+content_margin_top = 12.0
+content_margin_right = 10.0
+content_margin_bottom = 12.0
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+border_width_left = 1
+border_width_top = 1
 border_width_right = 1
-border_color = Color(0.78, 0.87, 0.89, 0.9)
+border_width_bottom = 1
+border_color = Color(0.79, 0.86, 0.89, 0.72)
 corner_radius_top_left = 24
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
 corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderPanel"]
-bg_color = Color(0.985, 0.992, 0.995, 0.9)
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(0.9607843, 0.98039216, 0.96862745, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.81, 0.89, 0.9, 0.85)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+border_color = Color(0.82, 0.9, 0.88, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.18, 0.28, 0.33, 0.08)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarMask"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.53, 0.81, 0.78, 0.75)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+bg_color = Color(0.22352941, 0.22745098, 0.23529412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.14, 0.17, 0.19, 1)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
-bg_color = Color(0.44, 0.77, 0.73, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0.18, 0.52, 0.5, 0.14)
-shadow_size = 6
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.20392157)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
-bg_color = Color(0.985, 0.992, 0.995, 0.95)
+bg_color = Color(0.7529412, 0.99607843, 0.9764706, 0.78431374)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.8, 0.88, 0.9, 0.82)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+border_color = Color(1, 1, 1, 0.72)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.13333334, 0.75686276, 0.7019608, 0.25490198)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MomentsFloatingWindow"]
 bg_color = Color(0.965, 0.98, 0.988, 0.98)
@@ -142,13 +187,14 @@ grow_vertical = 2
 script = ExtResource("1_script")
 
 [node name="DimBg" type="ColorRect" parent="." unique_id=1412354415]
+material = SubResource("ShaderMaterial_WechatBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.04, 0.08, 0.24)
+color = Color(1, 1, 1, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=259321176]
 layout_mode = 1
@@ -159,16 +205,16 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="WindowPanel" type="PanelContainer" parent="CenterContainer" unique_id=1522188058]
-custom_minimum_size = Vector2(960, 540)
+custom_minimum_size = Vector2(1040, 580)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_Window")
+theme_override_styles/panel = SubResource("StyleBoxFlat_joedt")
 
 [node name="WindowVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel" unique_id=1127649892]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="TopBar" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox" unique_id=42251381]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 
@@ -185,7 +231,7 @@ alignment = 1
 [node name="WindowTitle" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/TopBar/TopBarMargin/TopBarHBox" unique_id=1859433649]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.47, 0.5, 0.57, 1)
+theme_override_colors/font_color = Color(0.24313726, 0.6627451, 0.64705884, 1)
 theme_override_font_sizes/font_size = 22
 text = "微聊"
 vertical_alignment = 1
@@ -203,27 +249,28 @@ text = "×"
 [node name="MainHBox" type="HBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox" unique_id=433742163]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="NavPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox" unique_id=1127108030]
-custom_minimum_size = Vector2(68, 494)
+custom_minimum_size = Vector2(76, 506)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_NavPanel")
 
 [node name="NavMargin" type="MarginContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel" unique_id=163347545]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
 
 [node name="NavVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin" unique_id=2136955831]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 15
+alignment = 1
 
 [node name="BtnChat" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox" unique_id=1378671639]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 flat = true
 
@@ -248,7 +295,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BtnContacts" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox" unique_id=69930827]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 flat = true
 
@@ -273,7 +320,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BtnMoments" type="Button" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/NavPanel/NavMargin/NavVBox" unique_id=1416947984]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 flat = true
 
@@ -302,7 +349,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="ListPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox" unique_id=1628893526]
-custom_minimum_size = Vector2(248, 494)
+custom_minimum_size = Vector2(286, 506)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ColumnPanel")
 
@@ -319,13 +366,13 @@ theme_override_constants/separation = 3
 
 [node name="Title" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox" unique_id=1820942200]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.24313726, 0.6627451, 0.64705884, 1)
+theme_override_font_sizes/font_size = 18
 text = "聊天列表"
 
 [node name="SubTitle" type="Label" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox" unique_id=1689524039]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.56, 0.59, 0.65, 1)
+theme_override_colors/font_color = Color(0.34, 0.37, 0.43, 1)
 theme_override_font_sizes/font_size = 11
 text = "最近对话与未读消息"
 
@@ -334,6 +381,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="ContentPanel" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox" unique_id=1766126912]
+custom_minimum_size = Vector2(0, 506)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -417,6 +465,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="DetailVBox" type="VBoxContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel" unique_id=553887301]
 layout_mode = 2
@@ -433,6 +482,7 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="AvatarMask" type="PanelContainer" parent="CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactDetailPanel/DetailVBox/HeaderPanel/HeaderVBox" unique_id=801840305]
+clip_children = 1
 custom_minimum_size = Vector2(78, 78)
 layout_mode = 2
 size_flags_horizontal = 4
