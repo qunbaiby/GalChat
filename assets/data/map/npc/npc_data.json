@@ -6,6 +6,7 @@
     "interactions": [
       {"id": "chat", "label": "聊天"},
       {"id": "order", "label": "点单"},
+      {"id": "work", "label": "打工"},
       {"id": "leave", "label": "离开"}
     ]
   },

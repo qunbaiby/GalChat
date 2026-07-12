@@ -12,6 +12,22 @@ shader_parameter/border_width = 0.022
 shader_parameter/blur = 0.015
 shader_parameter/progress = 1.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AvatarPlate"]
+bg_color = Color(0.985, 0.995, 0.998, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.58, 0.86, 0.83, 0.78)
+border_blend = true
+corner_radius_top_left = 26
+corner_radius_top_right = 8
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 8
+shadow_color = Color(0.04, 0.1, 0.12, 0.18)
+shadow_size = 12
+shadow_offset = Vector2(0, 3)
+
 [node name="QuickNPCPortrait" type="VBoxContainer"]
 offset_right = 160.0
 offset_bottom = 200.0
@@ -23,6 +39,20 @@ custom_minimum_size = Vector2(160, 160)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+
+[node name="AvatarPlate" type="PanelContainer" parent="AvatarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarPlate")
 
 [node name="AvatarMask" type="Control" parent="AvatarContainer"]
 clip_children = 1
@@ -73,9 +103,9 @@ flat = true
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.97, 0.995, 0.995, 1)
-theme_override_colors/font_outline_color = Color(0.04, 0.1, 0.12, 0.75)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_outline_color = Color(0.04, 0.1, 0.12, 0.68)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 23
 text = "NPC: 名字"
 horizontal_alignment = 1
 

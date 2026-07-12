@@ -232,6 +232,8 @@ func show_idle_quote_text(raw_quote: String, strip_actions: bool = false, auto_h
 	var quote := _sanitize_bubble_text(raw_quote, strip_actions)
 	if quote == "":
 		quote = "..."
+	if _is_idle_speaking and quote == _current_idle_text:
+		return
 
 	_is_idle_speaking = true
 	_current_idle_text = quote

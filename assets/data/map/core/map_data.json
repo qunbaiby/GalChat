@@ -80,7 +80,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "你的专属工作与生活空间。",
       "bg_id": "bg_home_bedroom_morning",
-      "map_position": {"x": 210, "y": 206},
+      "map_position": {"x": 330, "y": 248},
       "resident_npcs": [],
       "events": []
     },
@@ -91,7 +91,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/library.png",
       "description": "收藏着珍贵黑胶唱片与绝版画册的静谧空间。",
       "bg_id": "bg_library",
-      "map_position": {"x": 420, "y": 28},
+      "map_position": {"x": 360, "y": 82},
       "resident_npcs": ["jing"],
       "scheduled_npcs": [
         {
@@ -126,7 +126,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/gym.png",
       "description": "充满活力的运动场所。",
       "bg_id": "bg_gym",
-      "map_position": {"x": 380, "y": 220},
+      "map_position": {"x": 540, "y": 238},
       "resident_npcs": [],
       "events": []
     },
@@ -136,7 +136,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "拥有顶级声学设计的专业音乐排练与合奏空间。",
       "bg_id": "bg_concert_hall",
-      "map_position": {"x": 980, "y": 36},
+      "map_position": {"x": 960, "y": 80},
       "resident_npcs": ["ling"],
       "events": []
     },
@@ -146,7 +146,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/art_gallery.png",
       "description": "充满艺术气息的美术教学与作品展览空间。",
       "bg_id": "bg_art_gallery",
-      "map_position": {"x": 150, "y": 188},
+      "map_position": {"x": 225, "y": 238},
       "resident_npcs": ["shuo"],
       "events": []
     },
@@ -156,7 +156,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "校内用于大型演出、公开排练与舞台实验的专业剧场。",
       "bg_id": "grand_theater",
-      "map_position": {"x": 690, "y": 24},
+      "map_position": {"x": 700, "y": 80},
       "resident_npcs": ["aili"],
       "events": []
     },
@@ -165,7 +165,7 @@
       "name": "艺术广场",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/art_gallery.png",
       "description": "露天的艺术展示与学生交流广场。",
-      "map_position": {"x": 710, "y": 190},
+      "map_position": {"x": 820, "y": 238},
       "conditions": [
         {"type": "stat", "stat_name": "stat_knowledge", "value": 20}
       ],
@@ -178,7 +178,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "春天会开满樱花的浪漫校园小道。夜晚会锁闭。",
       "bg_id": "bg_sakura_avenue",
-      "map_position": {"x": 200, "y": 32},
+      "map_position": {"x": 120, "y": 78},
       "conditions": [
         {"type": "time", "start_hour": 6, "end_hour": 19}
       ],
@@ -191,7 +191,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "雅经营的优雅咖啡厅，环境安静，咖啡香醇。",
       "bg_id": "bg_qingyu_time_cafe",
-      "map_position": {"x": 480, "y": 82},
+      "map_position": {"x": 560, "y": 98},
       "resident_npcs": ["ya"],
       "events": ["bond"]
     },
@@ -201,7 +201,7 @@
       "icon": "loc_movie_theater",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "设备顶尖的现代影院，适合约会与观影。",
-      "map_position": {"x": 470, "y": 48},
+      "map_position": {"x": 500, "y": 94},
       "resident_npcs": [],
       "events": []
     },
@@ -211,7 +211,7 @@
       "icon": "loc_yuli_alley",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/qingyu_time_cafe.png",
       "description": "充满独立品牌与手作小店的文创街区。",
-      "map_position": {"x": 40, "y": 28},
+      "map_position": {"x": 185, "y": 86},
       "resident_npcs": [],
       "events": []
     },
@@ -254,7 +254,7 @@
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/concert_hall.png",
       "description": "海风伴奏的露天音乐角，常有独立音乐人演出。",
       "bg_id": "bg_music_corner",
-      "map_position": {"x": 130, "y": 34},
+      "map_position": {"x": 150, "y": 86},
       "resident_npcs": [],
       "events": []
     },
@@ -274,7 +274,7 @@
       "icon": "loc_wangjiang_pavilion",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "青岚山顶的古亭，视野开阔，能听见风穿过树林的声音。",
-      "map_position": {"x": 460, "y": 52},
+      "map_position": {"x": 430, "y": 108},
       "resident_npcs": [],
       "events": []
     },
@@ -310,7 +310,7 @@
       "name": "深山秘汤",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "青岚山深处的天然温泉，据说只有有缘人才能找到。",
-      "map_position": {"x": 900, "y": 22},
+      "map_position": {"x": 820, "y": 92},
       "visibility_conditions": [
         {"type": "npc_stage", "npc_id": "ya", "min_stage": 4}
       ],
@@ -337,7 +337,7 @@
       "name": "天台花园",
       "location_icon_path": "res://assets/images/backgrounds/map/icon/location/sakura_avenue.png",
       "description": "艺术大学主楼的天台，种满了花草，是学生们秘密约会的地方。",
-      "map_position": {"x": 30, "y": 18},
+      "map_position": {"x": 1080, "y": 250},
       "visibility_conditions": [
         {"type": "npc_stage", "npc_id": "shuo", "min_stage": 3}
       ],

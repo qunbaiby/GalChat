@@ -3,29 +3,31 @@
 [ext_resource type="Script" uid="uid://dw0ckk7sblp1o" path="res://scripts/ui/map/cafe/cafe_order_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainPanel"]
-bg_color = Color(0.825566, 0.86781, 0.919585, 0.8)
+bg_color = Color(0.965, 0.99, 0.986, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0.18, 0.28, 0.33, 0.14)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
+border_color = Color(0.58, 0.86, 0.83, 0.92)
+border_blend = true
+corner_radius_top_left = 24
+corner_radius_top_right = 8
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 8
+shadow_color = Color(0.04, 0.1, 0.12, 0.22)
+shadow_size = 28
+shadow_offset = Vector2(0, 7)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.960784, 0.980392, 0.968627, 0.92)
+bg_color = Color(0.985, 0.995, 0.998, 0.78)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
+border_color = Color(0.72, 0.92, 0.88, 0.78)
+border_blend = true
+corner_radius_top_left = 22
+corner_radius_top_right = 8
 shadow_color = Color(0.18, 0.28, 0.33, 0.08)
 shadow_size = 10
 shadow_offset = Vector2(0, 3)
@@ -36,63 +38,68 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.72, 0.9, 0.87, 0.88)
+corner_radius_top_left = 14
+corner_radius_top_right = 5
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondaryHover"]
-bg_color = Color(0.95, 0.992, 0.989, 1)
+bg_color = Color(0.752941, 0.996078, 0.976471, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.52, 0.84, 0.81, 0.96)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.16, 0.76, 0.72, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 5
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_urrar"]
-bg_color = Color(0.960784, 0.980392, 0.968627, 0.92)
+bg_color = Color(0.985, 0.995, 0.998, 0.62)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
-corner_radius_bottom_right = 20
+border_color = Color(0.72, 0.92, 0.88, 0.72)
+border_blend = true
+corner_radius_top_right = 8
+corner_radius_bottom_right = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Tag"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.92)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.78, 0.98, 0.96, 0.68)
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
+shadow_color = Color(0.18, 0.52, 0.5, 0.2)
+shadow_size = 12
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimaryHover"]
-bg_color = Color(0.49, 0.86, 0.8, 1)
+bg_color = Color(0.752941, 0.996078, 0.976471, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.41, 0.69, 0.63, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.16, 0.76, 0.72, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
 
 [node name="CafeOrderMenu" type="CanvasLayer"]
 layer = 100
@@ -113,16 +120,16 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -746.6667
-offset_top = -270.0
+offset_left = -766.6667
+offset_top = -286.0
 offset_right = -26.6667
-offset_bottom = 270.0
+offset_bottom = 286.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_MainPanel")
 
 [node name="TopBar" type="Panel" parent="MainPanel"]
-custom_minimum_size = Vector2(0, 54)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -136,8 +143,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.14, 0.24, 0.27, 1)
+theme_override_font_sizes/font_size = 24
 text = "咖啡和甜点"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -165,7 +172,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 54.0
+offset_top = 60.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
@@ -180,10 +187,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 24.0
+offset_left = 22.0
 offset_top = 16.0
-offset_right = -16.0
-offset_bottom = -34.0
+offset_right = -14.0
+offset_bottom = -42.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
@@ -192,7 +199,7 @@ horizontal_scroll_mode = 0
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="CurrencyLabel" type="Label" parent="MainPanel/ContentHBox/LeftPanel"]
 unique_name_in_owner = true
@@ -205,7 +212,8 @@ offset_top = -30.0
 offset_right = 220.0
 offset_bottom = -10.0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.24, 0.36, 0.4, 1)
+theme_override_colors/font_color = Color(0.14, 0.32, 0.34, 1)
+theme_override_font_sizes/font_size = 13
 text = "当前货币：0"
 
 [node name="NoticeLabel" type="Label" parent="MainPanel/ContentHBox/LeftPanel"]
@@ -218,7 +226,8 @@ offset_top = -30.0
 offset_right = 360.0
 offset_bottom = -10.0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
+theme_override_colors/font_color = Color(0.42, 0.56, 0.59, 1)
+theme_override_font_sizes/font_size = 12
 text = "※此商店商品每1周刷新"
 
 [node name="RightPanel" type="Panel" parent="MainPanel/ContentHBox"]
@@ -233,33 +242,34 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
 
 [node name="DetailVBox" type="VBoxContainer" parent="MainPanel/ContentHBox/RightPanel/Margin"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 18
 
 [node name="NameLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.14, 0.24, 0.27, 1)
+theme_override_font_sizes/font_size = 20
 text = "▪ 商品名称"
 
 [node name="DescLabel" type="Label" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.38, 0.49, 0.53, 1)
+theme_override_colors/font_color = Color(0.32, 0.45, 0.49, 1)
+theme_override_constants/line_spacing = 5
 text = "商品描述..."
 autowrap_mode = 2
 
 [node name="PreviewRect" type="TextureRect" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 170)
+custom_minimum_size = Vector2(184, 184)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -301,10 +311,10 @@ text = "0"
 
 [node name="BuyButton" type="Button" parent="MainPanel/ContentHBox/RightPanel/Margin/DetailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ButtonPrimary")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonPrimaryHover")

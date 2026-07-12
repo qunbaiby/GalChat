@@ -86,7 +86,7 @@ func _on_item_selected(item: Dictionary, card_node: Control):
 	if item.has("icon") and FileAccess.file_exists(item.icon):
 		preview_rect.texture = load(item.icon)
 	else:
-		preview_rect.texture = load("res://assets/icons/activities/cafe_break.png")
+		preview_rect.texture = load("res://assets/images/ui/creation/cafe_break.png")
 		
 	if item.has("buff") and item.buff != "":
 		tag_label.text = " ☺ " + item.buff + " "

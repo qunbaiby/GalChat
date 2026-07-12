@@ -35,23 +35,6 @@ shader_parameter/glow_size = 0.0
 shader_parameter/glow_color = Color(0, 0, 0, 0)
 shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
 
-[sub_resource type="Shader" id="Shader_AffectionOverlayBlur"]
-code = "shader_type canvas_item;
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float lod: hint_range(0.0, 5.0) = 2.8;
-uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
-
-void fragment() {
-	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
-	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_AffectionOverlayBlur"]
-shader = SubResource("Shader_AffectionOverlayBlur")
-shader_parameter/lod = 2.8
-shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
 bg_color = Color(0.98039216, 0.9843137, 0.9882353, 1)
 
@@ -286,6 +269,23 @@ border_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 16
 corner_radius_bottom_left = 16
 shadow_offset = Vector2(0, 2)
+
+[sub_resource type="Shader" id="Shader_AffectionOverlayBlur"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform float lod: hint_range(0.0, 5.0) = 2.8;
+uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
+
+void fragment() {
+	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
+	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_AffectionOverlayBlur"]
+shader = SubResource("Shader_AffectionOverlayBlur")
+shader_parameter/lod = 2.8
+shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_clf1o"]
 content_margin_left = 5.0
@@ -620,6 +620,7 @@ theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_MainActionNormal")
 text = "外出"
 
 [node name="MoodPanel" type="Panel" parent="UIPanel" unique_id=1164367690]
@@ -965,7 +966,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(1, 1, 1, 1)
 
 [node name="DismissButton" type="Button" parent="UIPanel/AffectionOverlay" unique_id=51522570]
 layout_mode = 1

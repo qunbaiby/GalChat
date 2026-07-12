@@ -4,14 +4,23 @@
 [ext_resource type="Script" uid="uid://dvcrbb0iq3i8r" path="res://scripts/api/deepseek_client.gd" id="1_script_deepseek"]
 [ext_resource type="Texture2D" uid="uid://dc0v3forupmdx" path="res://assets/images/backgrounds/map/background/qingyu_street/qingyu_time_cafe/qingyu_time_cafe.png" id="2_3k4mg"]
 [ext_resource type="SpriteFrames" uid="uid://cy7y4ie11c4g5" path="res://assets/images/characters/jing/jing.tres" id="4_racli"]
+[ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="heart_icon"]
 [ext_resource type="PackedScene" uid="uid://sv4gjnbeh1bx" path="res://scenes/ui/main/top_status_panel.tscn" id="top_status_panel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MapInfo"]
-bg_color = Color(0.06, 0.11, 0.13, 0.5)
+bg_color = Color(0.965, 0.99, 0.986, 0.82)
+border_width_left = 1
 border_width_top = 1
-border_color = Color(0.58, 0.86, 0.83, 0.28)
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 18
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.58, 0.86, 0.83, 0.66)
+border_blend = true
+corner_radius_top_left = 22
+corner_radius_top_right = 8
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 8
+shadow_color = Color(0.04, 0.1, 0.12, 0.2)
+shadow_size = 22
 shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="BubbleStyle"]
@@ -20,32 +29,51 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.62, 0.88, 0.85, 0.95)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+border_color = Color(0.58, 0.86, 0.83, 0.95)
+border_blend = true
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
 shadow_color = Color(0.04, 0.1, 0.12, 0.14)
-shadow_size = 10
+shadow_size = 12
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
 content_margin_left = 22.0
 content_margin_top = 15.0
 content_margin_right = 22.0
 content_margin_bottom = 15.0
-bg_color = Color(0.985, 0.995, 0.998, 0.98)
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.82)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.76, 0.88, 0.9, 0.88)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
-shadow_color = Color(0.04, 0.1, 0.12, 0.12)
-shadow_size = 8
+border_color = Color(0.77, 0.98, 0.96, 0.7)
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
+shadow_color = Color(0.12, 0.45, 0.43, 0.18)
+shadow_size = 10
 shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_NPCMenuGlass"]
+bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9607843, 0.9882353, 1, 0.27058825)
+border_blend = true
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.03, 0.08, 0.12, 0.22)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+anti_aliasing_size = 1.2
 
 [node name="QuickLocationScene" type="Control" unique_id=1766193923]
 layout_mode = 3
@@ -74,23 +102,26 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.04, 0.08, 0.1, 0.18)
+color = Color(0.04, 0.08, 0.1, 0.12)
 
 [node name="MapInfoPanel" type="PanelContainer" parent="." unique_id=161036835]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -139.0
-offset_right = 1280.0
-offset_bottom = -7.0
+offset_left = 22.0
+offset_top = -150.0
+offset_right = 1258.0
+offset_bottom = -14.0
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_MapInfo")
 
 [node name="InfoMargin" type="MarginContainer" parent="MapInfoPanel" unique_id=1608269828]
 layout_mode = 2
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 15
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 18
 
 [node name="VBox" type="VBoxContainer" parent="MapInfoPanel/InfoMargin" unique_id=1261060577]
 layout_mode = 2
@@ -98,13 +129,13 @@ theme_override_constants/separation = 8
 
 [node name="NameLabel" type="Label" parent="MapInfoPanel/InfoMargin/VBox" unique_id=1225531707]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.14, 0.24, 0.27, 1)
+theme_override_font_sizes/font_size = 29
 text = "地点名称"
 
 [node name="DescLabel" type="Label" parent="MapInfoPanel/InfoMargin/VBox" unique_id=49726118]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.60718316, 0.6452449, 0.70609653, 1)
+theme_override_colors/font_color = Color(0.32, 0.45, 0.49, 1)
 theme_override_font_sizes/font_size = 15
 text = "这里是地点的描述信息。"
 autowrap_mode = 2
@@ -166,6 +197,22 @@ text = "……"
 fit_content = true
 scroll_active = false
 
+[node name="NPCMenuGlassPanel" type="PanelContainer" parent="InteractionMenu" unique_id=600920301]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -424.0
+offset_top = -264.0
+offset_right = -30.0
+offset_bottom = 164.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_NPCMenuGlass")
+
 [node name="InfoAndOptions" type="VBoxContainer" parent="InteractionMenu" unique_id=1264259984]
 layout_mode = 1
 anchors_preset = 6
@@ -174,70 +221,77 @@ anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = -398.0
-offset_top = -256.0
+offset_top = -238.0
 offset_right = -55.0
-offset_bottom = 148.0
+offset_bottom = 132.0
 grow_horizontal = 0
 grow_vertical = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="NPCInfoVBox" type="VBoxContainer" parent="InteractionMenu/InfoAndOptions" unique_id=732784242]
 layout_mode = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 4
 alignment = 1
 
 [node name="NameLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=1117855115]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.98, 0.995, 0.995, 1)
-theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.3)
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(0.96, 0.995, 0.99, 1)
+theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.24)
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 34
 text = "名字"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="StageHBox" type="HBoxContainer" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=1352511853]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="LeftLine" type="ColorRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox" unique_id=332235190]
-custom_minimum_size = Vector2(60, 2)
+custom_minimum_size = Vector2(44, 1)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.8, 0.8, 0.8, 0.6)
+color = Color(0.78, 0.95, 0.92, 0.52)
 
 [node name="StageLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox" unique_id=1812075053]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.94, 0.92, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_colors/font_color = Color(0.81, 0.97, 0.94, 1)
+theme_override_font_sizes/font_size = 22
 text = "陌生人"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="RightLine" type="ColorRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox" unique_id=1889919856]
-custom_minimum_size = Vector2(60, 2)
+custom_minimum_size = Vector2(44, 1)
 layout_mode = 2
 size_flags_vertical = 4
-color = Color(0.8, 0.8, 0.8, 0.6)
+color = Color(0.78, 0.95, 0.92, 0.52)
 
-[node name="HeartsLabel" type="Label" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=447791093]
+[node name="HeartsLabel" type="HBoxContainer" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox" unique_id=447791093]
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.73, 0.92, 1)
-theme_override_colors/font_shadow_color = Color(0.04, 0.1, 0.12, 0.3)
-theme_override_font_sizes/font_size = 25
-text = "♡♡♡♡♡♡♡♡♡♡"
-horizontal_alignment = 1
-vertical_alignment = 1
+size_flags_horizontal = 4
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="PreviewHeart" type="TextureRect" parent="InteractionMenu/InfoAndOptions/NPCInfoVBox/HeartsLabel" unique_id=170183720]
+custom_minimum_size = Vector2(17, 17)
+layout_mode = 2
+mouse_filter = 2
+modulate = Color(0.22, 0.72, 0.66, 0.82)
+texture = ExtResource("heart_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Spacer" type="Control" parent="InteractionMenu/InfoAndOptions" unique_id=267735434]
-custom_minimum_size = Vector2(0, 10)
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
 [node name="OptionsVBox" type="VBoxContainer" parent="InteractionMenu/InfoAndOptions" unique_id=1551327903]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="BackButton" type="Button" parent="." unique_id=672406101]
@@ -246,7 +300,8 @@ offset_left = 41.0
 offset_top = 24.0
 offset_right = 131.0
 offset_bottom = 64.0
-theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
+theme_override_colors/font_color = Color(0.98, 1, 0.998, 1)
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")

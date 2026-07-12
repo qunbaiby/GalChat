@@ -240,13 +240,31 @@ func _load_stream_from_path(path: String, audio_format: String) -> AudioStream:
 	file.close()
 	match audio_format.to_lower().strip_edges():
 		"wav":
+			if not _is_valid_wav_payload(audio_bytes):
+				return null
 			return AudioStreamWAV.load_from_buffer(audio_bytes)
 		_:
-			if audio_bytes.is_empty():
+			if not _is_valid_mp3_payload(audio_bytes):
 				return null
 			var stream := AudioStreamMP3.new()
 			stream.data = audio_bytes
 			return stream
+
+func _is_valid_mp3_payload(audio_bytes: PackedByteArray) -> bool:
+	if audio_bytes.size() < 4:
+		return false
+	var scan_limit: int = mini(audio_bytes.size() - 2, 256)
+	for index in range(scan_limit):
+		if char(audio_bytes[index]) == "I" and char(audio_bytes[index + 1]) == "D" and char(audio_bytes[index + 2]) == "3":
+			return true
+		if audio_bytes[index] == 0xff and (audio_bytes[index + 1] & 0xe0) == 0xe0:
+			return true
+	return false
+
+func _is_valid_wav_payload(audio_bytes: PackedByteArray) -> bool:
+	if audio_bytes.size() < 12:
+		return false
+	return char(audio_bytes[0]) == "R" and char(audio_bytes[1]) == "I" and char(audio_bytes[2]) == "F" and char(audio_bytes[3]) == "F" and char(audio_bytes[8]) == "W" and char(audio_bytes[9]) == "A" and char(audio_bytes[10]) == "V" and char(audio_bytes[11]) == "E"
 
 func _ensure_cache_dir() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(COMPAT_CACHE_DIR))

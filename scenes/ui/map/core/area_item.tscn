@@ -4,31 +4,34 @@
 [ext_resource type="Texture2D" uid="uid://cwe5wxgvmk2n3" path="res://assets/images/icons/ui/map/area_lock.svg" id="2_lock_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(0.992, 0.998, 0.999, 0.96)
+bg_color = Color(1, 1, 1, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.78, 0.88, 0.9, 0.88)
+border_color = Color(0.07132422, 0.828159, 0.84753275, 0.84)
+border_blend = true
 corner_radius_top_left = 18
-corner_radius_top_right = 18
+corner_radius_top_right = 6
 corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0.06, 0.12, 0.15, 0.12)
-shadow_size = 12
-shadow_offset = Vector2(0, 3)
+corner_radius_bottom_left = 6
+shadow_color = Color(0.06, 0.12, 0.15, 0.16)
+shadow_size = 16
+shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Mask"]
 bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 16
-corner_radius_top_right = 16
+corner_radius_top_right = 4
 corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BottomBar"]
-bg_color = Color(0.08, 0.15, 0.18, 0.84)
+bg_color = Color(0.05, 0.13, 0.15, 0.74)
+border_width_top = 1
+border_color = Color(0.64, 0.92, 0.88, 0.32)
 corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LockBadge"]
 bg_color = Color(0.08, 0.16, 0.18, 0.8)
@@ -40,10 +43,10 @@ corner_radius_bottom_left = 14
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x8d2v"]
 
 [node name="AreaItem" type="PanelContainer"]
-custom_minimum_size = Vector2(156, 192)
-offset_right = 156.0
-offset_bottom = 192.0
-pivot_offset = Vector2(78, 96)
+custom_minimum_size = Vector2(154, 194)
+offset_right = 154.0
+offset_bottom = 194.0
+pivot_offset = Vector2(77, 97)
 theme_override_styles/panel = SubResource("StyleBoxFlat_Card")
 script = ExtResource("1_script")
 
@@ -83,22 +86,23 @@ expand_mode = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 15.0
-offset_top = 15.0
-offset_right = -15.0
-offset_bottom = 65.0
+offset_left = 12.0
+offset_top = 16.0
+offset_right = -12.0
+offset_bottom = 70.0
 grow_horizontal = 2
 theme_override_constants/separation = 2
 
 [node name="NameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.17, 0.28, 0.31, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.12, 0.22, 0.25, 1)
+theme_override_font_sizes/font_size = 15
 text = "江屿现代艺术大学"
+autowrap_mode = 2
 
 [node name="EnNameLabel" type="Label" parent="Mask/ClipControl/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.44, 0.58, 0.63, 1)
+theme_override_colors/font_color = Color(0.33, 0.56, 0.57, 1)
 theme_override_font_sizes/font_size = 11
 text = "ACADEMY"
 
@@ -108,7 +112,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -46.0
+offset_top = -48.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_BottomBar")
@@ -125,7 +129,7 @@ grow_vertical = 2
 
 [node name="Dots" type="Label" parent="Mask/ClipControl/BottomBar/HBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.9, 0.85, 1)
+theme_override_colors/font_color = Color(0.68, 0.96, 0.9, 1)
 theme_override_font_sizes/font_size = 12
 text = "●○○"
 vertical_alignment = 1
@@ -137,7 +141,7 @@ size_flags_horizontal = 3
 [node name="Arrow" type="Label" parent="Mask/ClipControl/BottomBar/HBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.98, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 13
 text = "进入 >"
 vertical_alignment = 1
 

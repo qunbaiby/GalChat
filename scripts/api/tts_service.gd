@@ -115,6 +115,7 @@ func _try_start_next_request() -> void:
 		"X-Control-Require-Usage-Tokens-Return: *"
 	]
 	var request_body: Dictionary = _build_request_body(next_request)
+	_log_request_debug(next_request, request_body)
 	var error: Error = _http_request.request(
 		HTTP_TTS_ENDPOINT,
 		headers,
@@ -129,6 +130,13 @@ func _try_start_next_request() -> void:
 
 	_active_request = next_request.duplicate(true)
 	tts_request_started.emit(str(_active_request.get("request_id", "")), _build_context_payload(_active_request))
+
+func _log_request_debug(options: Dictionary, request_body: Dictionary) -> void:
+	if str(options.get("request_source", "")).strip_edges() != "quick_location_bubble":
+		return
+	var req_params: Dictionary = request_body.get("req_params", {}) as Dictionary
+	var audio_params: Dictionary = req_params.get("audio_params", {}) as Dictionary
+	print("[TTSService] quick_location_bubble 参数: speaker=", str(req_params.get("speaker", "")), " | resource_id=", str(options.get("resource_id", "")), " | format=", str(audio_params.get("format", "")), " | sample_rate=", int(audio_params.get("sample_rate", 0)), " | bit_rate=", int(audio_params.get("bit_rate", 0)), " | text_len=", str(req_params.get("text", "")).length())
 
 func _build_request_options(text: String, options: Dictionary) -> Dictionary:
 	var format_id: String = _normalize_audio_format(str(options.get("audio_format", _get_game_settings_value("tts_audio_format", DEFAULT_AUDIO_FORMAT))).strip_edges())
@@ -219,6 +227,10 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 	var audio_format: String = _normalize_audio_format(str(request_info.get("audio_format", DEFAULT_AUDIO_FORMAT)).strip_edges())
 	var resolved_audio_bytes: PackedByteArray = _extract_audio_bytes_from_response(body)
 	if resolved_audio_bytes.is_empty():
+		_emit_failure(request_id, _build_audio_parse_error_message(body, log_id), request_info, log_id)
+		_try_start_next_request()
+		return
+	if not _is_valid_audio_payload(resolved_audio_bytes, audio_format):
 		_emit_failure(request_id, _build_audio_parse_error_message(body, log_id), request_info, log_id)
 		_try_start_next_request()
 		return
@@ -325,15 +337,40 @@ func _extract_streamed_audio_bytes(body: PackedByteArray) -> PackedByteArray:
 func _build_stream_from_bytes(audio_bytes: PackedByteArray, audio_format: String) -> AudioStream:
 	match audio_format:
 		"mp3":
-			if audio_bytes.is_empty():
+			if not _is_valid_mp3_payload(audio_bytes):
 				return null
 			var mp3_stream := AudioStreamMP3.new()
 			mp3_stream.data = audio_bytes
 			return mp3_stream
 		"wav":
+			if not _is_valid_wav_payload(audio_bytes):
+				return null
 			return AudioStreamWAV.load_from_buffer(audio_bytes)
 		_:
 			return null
+
+func _is_valid_audio_payload(audio_bytes: PackedByteArray, audio_format: String) -> bool:
+	match audio_format.to_lower().strip_edges():
+		"wav":
+			return _is_valid_wav_payload(audio_bytes)
+		_:
+			return _is_valid_mp3_payload(audio_bytes)
+
+func _is_valid_mp3_payload(audio_bytes: PackedByteArray) -> bool:
+	if audio_bytes.size() < 4:
+		return false
+	var scan_limit: int = mini(audio_bytes.size() - 2, 256)
+	for index in range(scan_limit):
+		if char(audio_bytes[index]) == "I" and char(audio_bytes[index + 1]) == "D" and char(audio_bytes[index + 2]) == "3":
+			return true
+		if audio_bytes[index] == 0xff and (audio_bytes[index + 1] & 0xe0) == 0xe0:
+			return true
+	return false
+
+func _is_valid_wav_payload(audio_bytes: PackedByteArray) -> bool:
+	if audio_bytes.size() < 12:
+		return false
+	return char(audio_bytes[0]) == "R" and char(audio_bytes[1]) == "I" and char(audio_bytes[2]) == "F" and char(audio_bytes[3]) == "F" and char(audio_bytes[8]) == "W" and char(audio_bytes[9]) == "A" and char(audio_bytes[10]) == "V" and char(audio_bytes[11]) == "E"
 
 func _headers_to_dictionary(headers: PackedStringArray) -> Dictionary:
 	var result: Dictionary = {}
@@ -378,6 +415,8 @@ func _build_audio_parse_error_message(body: PackedByteArray, log_id: String = ""
 	var suffix: String = ""
 	if not log_id.is_empty():
 		suffix = "（logid：%s）" % log_id
+	if _is_stream_finished_without_audio(body):
+		return "TTS 服务已返回结束帧，但没有返回音频数据；请检查音色、文本和接口参数。%s" % suffix
 	var parsed_error: Dictionary = _parse_error_body(body)
 	var parsed_code: int = int(parsed_error.get("code", -1))
 	if not parsed_error.is_empty() and parsed_code != 0:
@@ -387,6 +426,31 @@ func _build_audio_parse_error_message(body: PackedByteArray, log_id: String = ""
 		if not remote_message.is_empty():
 			return "TTS 请求失败：%s%s" % [remote_message, suffix]
 	return "TTS 响应中未解析到有效音频数据。%s" % suffix
+
+func _is_stream_finished_without_audio(body: PackedByteArray) -> bool:
+	var body_text := body.get_string_from_utf8()
+	if body_text.strip_edges().is_empty():
+		return false
+	var saw_success_frame := false
+	var saw_finish_frame := false
+	for raw_line in body_text.split("\n", false):
+		var line_text := raw_line.strip_edges()
+		if line_text.is_empty():
+			continue
+		var json := JSON.new()
+		if json.parse(line_text) != OK or not (json.data is Dictionary):
+			return false
+		var payload: Dictionary = json.data as Dictionary
+		var code := int(payload.get("code", -1))
+		if code == 0:
+			saw_success_frame = true
+		elif code == 20000000:
+			saw_finish_frame = true
+		else:
+			return false
+		if payload.get("data", null) is String and not str(payload.get("data", "")).strip_edges().is_empty():
+			return false
+	return saw_success_frame and saw_finish_frame
 
 func _parse_error_body(body: PackedByteArray) -> Dictionary:
 	var wrapped_payload: Dictionary = _parse_json_payload(body)

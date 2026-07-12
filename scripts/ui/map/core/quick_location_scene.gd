@@ -1,5 +1,6 @@
 extends Control
 
+const ChatSplitHelper = preload("res://scripts/utils/chat_split_helper.gd")
 const NPC_BUBBLE_LINES_PATH := "res://assets/data/map/npc/npc_bubble_lines.json"
 const SUBMENU_FADE_DURATION := 0.25
 const SUBMENU_PORTRAIT_RATIO_X := 1.0 / 6.0
@@ -15,6 +16,9 @@ const SUBMENU_PANEL_MIN_RIGHT_MARGIN := 28.0
 const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
 const QUICK_LOCATION_SKIP_EVENT_META := "skip_quick_location_initial_event_broadcast"
 const QUICK_ACTION_BUTTON_SCENE = preload("res://scenes/ui/map/core/quick_action_button.tscn")
+const HEART_ICON: Texture2D = preload("res://assets/images/icons/ui/system/heart.svg")
+const HEART_FILLED_COLOR := Color(0.18, 0.70, 0.64, 1.0)
+const HEART_EMPTY_COLOR := Color(0.55, 0.73, 0.71, 0.72)
 
 @onready var bg_texture: TextureRect = $Background
 @onready var map_info_panel: PanelContainer = $MapInfoPanel
@@ -27,7 +31,7 @@ const QUICK_ACTION_BUTTON_SCENE = preload("res://scenes/ui/map/core/quick_action
 
 @onready var menu_name_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/NameLabel
 @onready var menu_stage_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/StageHBox/StageLabel
-@onready var menu_hearts_label = $InteractionMenu/InfoAndOptions/NPCInfoVBox/HeartsLabel
+@onready var menu_hearts_container: HBoxContainer = $InteractionMenu/InfoAndOptions/NPCInfoVBox/HeartsLabel
 
 @onready var npc_portrait = $InteractionMenu/NPCPortrait
 @onready var npc_anim_sprite = $InteractionMenu/NPCPortrait/AnimatedSprite
@@ -412,16 +416,9 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 		var conf = profile.get_current_stage_config()
 		menu_stage_label.text = conf.get("stageTitle", "陌生人")
 		
-		# 构建爱心字符串 (根据当前阶段显示实心心，总共10颗心)
 		var max_hearts = 10
 		var filled_hearts = min(current_stage, max_hearts)
-		var hearts_str = ""
-		for i in range(max_hearts):
-			if i < filled_hearts:
-				hearts_str += "♥"
-			else:
-				hearts_str += "♡"
-		menu_hearts_label.text = hearts_str
+		_update_menu_hearts(filled_hearts, max_hearts)
 	else:
 		# 默认非主角NPC的好感度展示
 		# 这里使用专门的 NPC 好感度系统
@@ -440,13 +437,7 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 			
 		var max_hearts = 10
 		var filled_hearts = min(current_hearts, max_hearts)
-		var hearts_str = ""
-		for i in range(max_hearts):
-			if i < filled_hearts:
-				hearts_str += "♥"
-			else:
-				hearts_str += "♡"
-		menu_hearts_label.text = hearts_str
+		_update_menu_hearts(filled_hearts, max_hearts)
 	
 	# 重置显示状态
 	if npc_anim_sprite:
@@ -570,6 +561,23 @@ func _get_npc_stage_data(npc_id: String) -> Dictionary:
 				# TODO: 接入真实的 NPC 好感度管理器来获取实际进度，这里暂时取第一阶段
 				return data["stages"][0]
 	return {"stageTitle": "普通朋友", "heartCount": 0}
+
+func _update_menu_hearts(filled_hearts: int, max_hearts: int) -> void:
+	if menu_hearts_container == null:
+		return
+	for child in menu_hearts_container.get_children():
+		child.queue_free()
+	var safe_max := maxi(0, max_hearts)
+	var safe_filled := clampi(filled_hearts, 0, safe_max)
+	for heart_index in range(safe_max):
+		var heart_icon := TextureRect.new()
+		heart_icon.custom_minimum_size = Vector2(17, 17)
+		heart_icon.texture = HEART_ICON
+		heart_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		heart_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		heart_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		heart_icon.modulate = HEART_FILLED_COLOR if heart_index < safe_filled else HEART_EMPTY_COLOR
+		menu_hearts_container.add_child(heart_icon)
 
 func _open_sub_menu(scene_path: String, action_id: String = "") -> void:
 	_submenu_restore_started = false
@@ -860,14 +868,20 @@ func _pick_action_bubble_line(npc_id: String, npc_name: String, npc_data: Dictio
 
 func _inject_placeholder_interactions(interactions: Array) -> Array:
 	var result: Array = []
+	var existing_ids: Array = []
+	for existing_action in interactions:
+		if existing_action is Dictionary:
+			var existing_id := str(existing_action.get("id", "")).strip_edges()
+			if existing_id != "" and not existing_ids.has(existing_id):
+				existing_ids.append(existing_id)
 	for action in interactions:
 		result.append(action)
 		if not (action is Dictionary):
 			continue
 		var action_id := str(action.get("id", "")).strip_edges()
-		if location_id == "cafe" and current_interacting_npc_id == "ya" and action_id == "order":
+		if location_id == "cafe" and current_interacting_npc_id == "ya" and action_id == "order" and not existing_ids.has("work"):
 			result.append({"id": "work", "label": "打工"})
-		elif location_id == "library" and current_interacting_npc_id == "jing" and action_id == "study":
+		elif location_id == "library" and current_interacting_npc_id == "jing" and action_id == "study" and not existing_ids.has("self_study"):
 			result.append({"id": "self_study", "label": "自习"})
 	return result
 
@@ -992,27 +1006,39 @@ func _hide_npc_bubble(immediate: bool = false) -> void:
 
 func _play_bubble_tts(text: String) -> void:
 	if not GameDataManager or not GameDataManager.config:
+		print("[QuickLocationScene] NPC 气泡 TTS 跳过: config 不可用")
 		return
 	if not GameDataManager.config.voice_enabled:
+		print("[QuickLocationScene] NPC 气泡 TTS 跳过: voice_enabled=false")
 		return
-	var spoken_text := text.strip_edges()
+	var spoken_text := ChatSplitHelper.strip_parentheses(text).strip_edges()
 	if spoken_text == "":
+		print("[QuickLocationScene] NPC 气泡 TTS 跳过: 清理后文本为空 | raw=", text)
 		return
-	var options := {}
+	_bubble_current_tts_text = spoken_text
+	var options := {
+		"character_id": current_interacting_npc_id,
+		"request_source": "quick_location_bubble"
+	}
 	if GameDataManager.config.tts_character_speakers.has(current_interacting_npc_id):
 		options["speaker"] = GameDataManager.config.tts_character_speakers[current_interacting_npc_id]
+	print("[QuickLocationScene] NPC 气泡 TTS 请求: npc=", current_interacting_npc_id, " | text=", spoken_text)
 	TTSManager.synthesize(spoken_text, options)
 
 func _on_bubble_tts_success(audio_stream: AudioStream, text: String) -> void:
 	if text != _bubble_current_tts_text:
+		print("[QuickLocationScene] NPC 气泡 TTS 回调忽略: text=", text, " | expected=", _bubble_current_tts_text)
 		return
 	if _bubble_audio_player and audio_stream:
 		_bubble_audio_player.stream = audio_stream
 		_bubble_audio_player.play()
+		print("[QuickLocationScene] NPC 气泡 TTS 播放: text=", text)
 
-func _on_bubble_tts_failed(_error_msg: String, text: String) -> void:
+func _on_bubble_tts_failed(error_msg: String, text: String) -> void:
 	if text != _bubble_current_tts_text:
+		print("[QuickLocationScene] NPC 气泡 TTS 失败回调忽略: text=", text, " | expected=", _bubble_current_tts_text, " | error=", error_msg)
 		return
+	print("[QuickLocationScene] NPC 气泡 TTS 失败: ", error_msg, " | text=", text)
 
 func _on_bubble_audio_finished() -> void:
 	if speech_bubble and speech_bubble.visible:

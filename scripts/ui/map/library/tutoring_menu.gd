@@ -159,7 +159,7 @@ func _update_right_panel() -> void:
 	if is_empty:
 		detail_title.text = "课业指导安排"
 		detail_meta_label.text = "当前行动力 %d / %d" % [profile.current_energy, profile.max_energy]
-		desc_label.text = "[color=#63708a]点击左侧课程可追加指导次数。[/color]\n[color=#7b8496]支持重复安排或组合多门课程。[/color]"
+		desc_label.text = "点击左侧课程可追加指导次数。\n支持重复安排或组合多门课程。"
 		cost_label.text = "安排后将自动结算行动力消耗"
 		preview_label.text = ""
 		return
@@ -173,7 +173,7 @@ func _update_right_panel() -> void:
 		var count = _planned_counts[c_id]
 		total_count += count
 		var course = _get_course_by_id(c_id)
-		courses_summary += "• [b]%s[/b]  x%d\n" % [course.get("name", ""), count]
+		courses_summary += "• %s  x%d\n" % [course.get("name", ""), count]
 		
 		var rewards = course.get("rewards", {})
 		for stat_key in rewards.keys():
@@ -193,7 +193,7 @@ func _update_right_panel() -> void:
 	desc_label.text = courses_summary
 	cost_label.text = "预计消耗行动力：%d   |   剩余：%d / %d" % [total_cost, remaining_energy, profile.max_energy]
 	
-	var preview_str = "[color=#e08b35][b]属性提升预览[/b][/color]\n"
+	var preview_str = "属性提升预览\n"
 	if aggregate_rewards.size() > 0:
 		for stat_key in aggregate_rewards.keys():
 			var stat_name = STAT_NAME_MAP.get(stat_key, stat_key)

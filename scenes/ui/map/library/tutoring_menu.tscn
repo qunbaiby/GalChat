@@ -3,31 +3,33 @@
 [ext_resource type="Script" uid="uid://dbmnt3qmlkt8q" path="res://scripts/ui/map/library/tutoring_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MenuPanel"]
-bg_color = Color(0.825566, 0.86781, 0.919585, 0.8)
+bg_color = Color(0.965, 0.99, 0.986, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.73, 0.81, 0.88, 0.9)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0.18, 0.28, 0.33, 0.14)
-shadow_size = 24
-shadow_offset = Vector2(0, 6)
+border_color = Color(0.58, 0.86, 0.83, 0.92)
+border_blend = true
+corner_radius_top_left = 24
+corner_radius_top_right = 8
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 8
+shadow_color = Color(0.04, 0.1, 0.12, 0.22)
+shadow_size = 28
+shadow_offset = Vector2(0, 7)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SurfacePanel"]
-bg_color = Color(0.960784, 0.980392, 0.968627, 0.92)
+bg_color = Color(1, 1, 1, 0.72)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+border_color = Color(0.72, 0.92, 0.88, 0.78)
+border_blend = true
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
 shadow_color = Color(0.18, 0.28, 0.33, 0.08)
 shadow_size = 12
 shadow_offset = Vector2(0, 3)
@@ -38,49 +40,49 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.72, 0.9, 0.87, 0.88)
+corner_radius_top_left = 14
+corner_radius_top_right = 5
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonSecondaryHover"]
-bg_color = Color(0.95, 0.992, 0.989, 1)
+bg_color = Color(0.752941, 0.996078, 0.976471, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.52, 0.84, 0.81, 0.96)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.16, 0.76, 0.72, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 5
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimary"]
-bg_color = Color(0.57, 0.82, 0.76, 1)
+bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.72, 0.65, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.78, 0.98, 0.96, 0.68)
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
 shadow_color = Color(0.18, 0.52, 0.5, 0.2)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPrimaryHover"]
-bg_color = Color(0.49, 0.86, 0.8, 1)
+bg_color = Color(0.752941, 0.996078, 0.976471, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.41, 0.69, 0.63, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.16, 0.76, 0.72, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 6
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 6
 shadow_color = Color(0.18, 0.52, 0.5, 0.24)
 shadow_size = 12
 
@@ -128,13 +130,13 @@ theme_override_constants/separation = 2
 
 [node name="Title" type="Label" parent="MenuPanel/Header/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.14, 0.24, 0.27, 1)
+theme_override_font_sizes/font_size = 27
 text = "课业指导"
 
 [node name="SubTitle" type="Label" parent="MenuPanel/Header/HeaderVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.47, 0.57, 0.61, 1)
+theme_override_colors/font_color = Color(0.36, 0.52, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "安排补习课程，消耗行动力并预览本次提升。"
 
@@ -167,7 +169,7 @@ offset_right = -22.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 16
 
 [node name="LeftPanel" type="VBoxContainer" parent="MenuPanel/ContentHBox"]
 custom_minimum_size = Vector2(428, 0)
@@ -195,7 +197,7 @@ horizontal_scroll_mode = 0
 [node name="CourseVBox" type="VBoxContainer" parent="MenuPanel/ContentHBox/LeftPanel/CourseListPanel/ListMargin/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
 [node name="RightPanel" type="VBoxContainer" parent="MenuPanel/ContentHBox"]
 custom_minimum_size = Vector2(248, 0)
@@ -220,14 +222,14 @@ theme_override_constants/separation = 6
 
 [node name="DetailTitle" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.24, 0.28, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.14, 0.24, 0.27, 1)
+theme_override_font_sizes/font_size = 16
 text = "选择一个课程"
 autowrap_mode = 3
 
 [node name="DetailMetaLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.61, 0.67, 1)
+theme_override_colors/font_color = Color(0.36, 0.52, 0.55, 1)
 theme_override_font_sizes/font_size = 12
 text = "尚未安排指导内容"
 
@@ -261,7 +263,7 @@ horizontal_alignment = 1
 
 [node name="CostLabel" type="Label" parent="MenuPanel/ContentHBox/RightPanel/DetailPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
+theme_override_colors/font_color = Color(0.16, 0.62, 0.58, 1)
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 3
 
@@ -270,7 +272,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="ResetBtn" type="Button" parent="MenuPanel/ContentHBox/RightPanel/ActionHBox"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.36, 0.4, 0.46, 1)
@@ -280,7 +282,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_ButtonSecondaryHover")
 text = "重置"
 
 [node name="StartBtn" type="Button" parent="MenuPanel/ContentHBox/RightPanel/ActionHBox"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)

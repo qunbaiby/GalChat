@@ -4,41 +4,43 @@
 [ext_resource type="Texture2D" uid="uid://dodnvu50aoxom" path="res://assets/images/icons/ui/system/chat.svg" id="2_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
-content_margin_left = 22.0
-content_margin_top = 15.0
-content_margin_right = 22.0
-content_margin_bottom = 15.0
-bg_color = Color(0.985, 0.995, 0.998, 0.98)
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.985, 0.995, 0.998, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.76, 0.88, 0.9, 0.88)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
-shadow_color = Color(0.04, 0.1, 0.12, 0.12)
-shadow_size = 8
+border_color = Color(0.72, 0.91, 0.88, 0.72)
+border_blend = true
+corner_radius_top_left = 16
+corner_radius_top_right = 7
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 7
+shadow_color = Color(0.04, 0.1, 0.12, 0.14)
+shadow_size = 6
 shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButtonHover"]
-content_margin_left = 22.0
-content_margin_top = 15.0
-content_margin_right = 22.0
-content_margin_bottom = 15.0
-bg_color = Color(0.93, 0.987, 0.982, 1)
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.82, 0.98, 0.95, 0.95)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.52, 0.84, 0.81, 0.94)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
-shadow_color = Color(0.18, 0.52, 0.5, 0.16)
-shadow_size = 10
+border_color = Color(0.32, 0.78, 0.72, 0.95)
+border_blend = true
+corner_radius_top_left = 16
+corner_radius_top_right = 7
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 7
+shadow_color = Color(0.18, 0.52, 0.5, 0.18)
+shadow_size = 8
 shadow_offset = Vector2(0, 2)
 
 [node name="QuickActionButton" type="Button"]
@@ -63,13 +65,13 @@ theme_override_constants/separation = 0
 [node name="IconMargin" type="MarginContainer" parent="HBox"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 5
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_bottom = 6
 
 [node name="Icon" type="TextureRect" parent="HBox/IconMargin"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("2_icon")
@@ -79,13 +81,13 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.22, 0.31, 0.34, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.13, 0.31, 0.33, 1)
+theme_override_font_sizes/font_size = 18
 text = "对话"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Spacer" type="Control" parent="HBox"]
-custom_minimum_size = Vector2(48, 0)
+custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
 mouse_filter = 2
