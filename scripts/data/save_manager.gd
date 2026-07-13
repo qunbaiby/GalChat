@@ -5,6 +5,7 @@ const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 const DEFAULT_CHARACTER_ID := "luna"
 const META_FILE_NAME := "meta.json"
 const MAX_DISCOVERED_ARCHIVES := 300
+const LEGACY_IMPORT_DECISION_KEY := "legacy_archive_import_decided"
 
 var current_slot_id: String = ""
 
@@ -13,7 +14,7 @@ func _ready() -> void:
 
 func get_archive_slot_ids() -> Array[String]:
 	var slot_ids: Array[String] = []
-	var root_dir := GameDataManager.ARCHIVE_ROOT_DIR
+	var root_dir := GameDataManager.get_archive_collection_dir()
 	if not DirAccess.dir_exists_absolute(root_dir):
 		return slot_ids
 	var dir := DirAccess.open(root_dir)
@@ -39,15 +40,15 @@ func generate_archive_id() -> String:
 	return candidate
 
 func get_active_archive_id() -> String:
-	if GameDataManager and GameDataManager.config:
-		current_slot_id = str(GameDataManager.config.active_archive_id).strip_edges()
+	if GameDataManager:
+		current_slot_id = GameDataManager.get_active_archive_id()
 	return current_slot_id
 
 func get_archive_root(slot_id: String = "") -> String:
 	return GameDataManager.get_archive_root_dir(slot_id)
 
 func _get_archive_root_path(slot_id: String) -> String:
-	return "%s/%s" % [GameDataManager.ARCHIVE_ROOT_DIR, slot_id.strip_edges()]
+	return GameDataManager.get_archive_collection_dir().path_join(slot_id.strip_edges())
 
 func _archive_meta_exists(slot_id: String) -> bool:
 	return FileAccess.file_exists(_get_archive_root_path(slot_id).path_join(META_FILE_NAME))
@@ -65,6 +66,86 @@ func get_save_slots() -> Array:
 			slots.append(meta)
 	slots.sort_custom(func(a, b): return str(a.get("last_played_at", "")) > str(b.get("last_played_at", "")))
 	return slots
+
+func has_pending_legacy_archive_import() -> bool:
+	if bool(GameDataManager.config.get_custom_config(_get_legacy_import_config_key(), false)):
+		return false
+	return not get_legacy_archive_slot_ids().is_empty()
+
+func get_legacy_archive_slot_ids() -> Array[String]:
+	var slot_ids: Array[String] = []
+	var root_dir := GameDataManager.LEGACY_ARCHIVE_ROOT_DIR
+	if not DirAccess.dir_exists_absolute(root_dir):
+		return slot_ids
+	var dir := DirAccess.open(root_dir)
+	if dir == null:
+		return slot_ids
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "" and slot_ids.size() < MAX_DISCOVERED_ARCHIVES:
+		var archive_path := root_dir.path_join(entry)
+		if entry != "." and entry != ".." and dir.current_is_dir() and FileAccess.file_exists(archive_path.path_join(META_FILE_NAME)):
+			slot_ids.append(entry)
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return slot_ids
+
+func import_legacy_archives() -> int:
+	var imported_count := 0
+	for legacy_slot_id in get_legacy_archive_slot_ids():
+		var target_slot_id := _resolve_import_slot_id(legacy_slot_id)
+		var source_path := GameDataManager.LEGACY_ARCHIVE_ROOT_DIR.path_join(legacy_slot_id)
+		var target_path := _get_archive_root_path(target_slot_id)
+		if _copy_directory_recursive(source_path, target_path):
+			GameDataManager.import_legacy_archive_custom_config(legacy_slot_id, target_slot_id)
+			imported_count += 1
+	mark_legacy_archive_import_decided()
+	return imported_count
+
+func mark_legacy_archive_import_decided() -> void:
+	GameDataManager.config.set_custom_config(_get_legacy_import_config_key(), true)
+	GameDataManager.config.save_config()
+
+func reset_legacy_archive_import_decision() -> void:
+	GameDataManager.config.set_custom_config(_get_legacy_import_config_key(), false)
+	GameDataManager.config.save_config()
+
+func _get_legacy_import_config_key() -> String:
+	var user_id := OfficialAuthManager.get_user_id().validate_filename()
+	return "%s_%s" % [LEGACY_IMPORT_DECISION_KEY, user_id]
+
+func _resolve_import_slot_id(slot_id: String) -> String:
+	if not DirAccess.dir_exists_absolute(_get_archive_root_path(slot_id)):
+		return slot_id
+	var index := 2
+	var candidate := "%s_imported_%d" % [slot_id, index]
+	while DirAccess.dir_exists_absolute(_get_archive_root_path(candidate)):
+		index += 1
+		candidate = "%s_imported_%d" % [slot_id, index]
+	return candidate
+
+func _copy_directory_recursive(source_path: String, target_path: String) -> bool:
+	var source_dir := DirAccess.open(source_path)
+	if source_dir == null:
+		return false
+	if DirAccess.make_dir_recursive_absolute(target_path) != OK and not DirAccess.dir_exists_absolute(target_path):
+		return false
+	source_dir.list_dir_begin()
+	var entry := source_dir.get_next()
+	while entry != "":
+		if entry == "." or entry == "..":
+			entry = source_dir.get_next()
+			continue
+		var source_child := source_path.path_join(entry)
+		var target_child := target_path.path_join(entry)
+		var copied := _copy_directory_recursive(source_child, target_child) if source_dir.current_is_dir() else DirAccess.copy_absolute(source_child, target_child) == OK
+		if not copied:
+			source_dir.list_dir_end()
+			_remove_directory_recursive(target_path)
+			return false
+		entry = source_dir.get_next()
+	source_dir.list_dir_end()
+	return true
 
 func load_slot_meta(slot_id: String) -> Dictionary:
 	var meta_path := get_meta_path(slot_id)

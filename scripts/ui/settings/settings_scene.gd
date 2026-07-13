@@ -1,11 +1,19 @@
 extends Control
 
+const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_panel.tscn")
+
+@onready var ai_service_mode_option: OptionButton = %AIServiceModeOption
+@onready var official_ai_status_label: Label = %OfficialAIStatusLabel
+@onready var official_gateway_input: LineEdit = %OfficialGatewayInput
+@onready var official_connect_button: Button = %OfficialConnectButton
 @onready var api_key_input: LineEdit = %ApiKeyInput
 @onready var doubao_chat_key_input: LineEdit = %DoubaoChatKeyInput
 @onready var model_option: OptionButton = %ModelOption
 @onready var temp_slider: HSlider = %TempSlider
 @onready var tokens_spinbox: SpinBox = %TokensSpinBox
 @onready var ai_mode_check: CheckButton = %AIModeCheck
+@onready var test_connection_button: Button = %TestConnectionButton
+@onready var connection_test_result: Label = %ConnectionTestResult
 
 @onready var voice_mode_check: CheckButton = %VoiceModeCheck
 @onready var tts_backend_option: OptionButton = %TtsBackendOption
@@ -77,6 +85,10 @@ const POPUP_MIN_SIZE: Vector2 = Vector2(1120, 660)
 var _test_asr_client = null
 var _is_testing_asr: bool = false
 var _is_loading_ui: bool = false
+var _account_auth_panel_instance: Control = null
+var _connection_test_http: HTTPRequest = null
+var _connection_test_started_at: int = 0
+var _connection_test_uses_official: bool = false
 var _sidebar_buttons: Array[Button] = []
 var _tab_header_titles: Dictionary = {
 	"AI 设置": "设置 / AI",
@@ -103,6 +115,9 @@ func _ready() -> void:
 	bgm_slider.value_changed.connect(_on_bgm_changed)
 	voice_slider.value_changed.connect(_on_voice_changed)
 	model_option.item_selected.connect(_on_model_changed)
+	ai_service_mode_option.item_selected.connect(_on_ai_service_mode_changed)
+	official_connect_button.pressed.connect(_on_official_connect_pressed)
+	test_connection_button.pressed.connect(_on_test_connection_pressed)
 	image_provider_option.item_selected.connect(_on_image_provider_changed)
 	tts_backend_option.item_selected.connect(_on_tts_backend_changed)
 	image_gen_mode_check.toggled.connect(_on_image_gen_toggled)
@@ -124,6 +139,10 @@ func _ready() -> void:
 			button.pressed.connect(_select_tab.bind(i))
 	if tab_container:
 		tab_container.tab_changed.connect(_on_tab_changed)
+	if OfficialAuthManager:
+		OfficialAuthManager.auth_state_changed.connect(_on_official_auth_state_changed)
+		OfficialAuthManager.quota_updated.connect(_on_official_quota_updated)
+		OfficialAuthManager.session_state_changed.connect(_on_official_session_state_changed)
 	_load_ui_data()
 	_select_tab(tab_container.current_tab if tab_container else 0)
 
@@ -202,6 +221,8 @@ func _update_popup_layout() -> void:
 func _load_ui_data() -> void:
 	_is_loading_ui = true
 	var config = GameDataManager.config
+	ai_service_mode_option.selected = 0 if config.ai_service_mode == ConfigResource.AI_SERVICE_OFFICIAL else 1
+	official_gateway_input.text = config.official_ai_gateway_url
 	api_key_input.text = config.api_key
 	doubao_chat_key_input.text = config.doubao_chat_api_key
 	
@@ -271,6 +292,7 @@ func _load_ui_data() -> void:
 	enable_ai_illustration_check.button_pressed = config.enable_ai_diary_illustration
 	
 	_update_model_ui()
+	_update_ai_service_mode_ui()
 	_update_image_gen_ui()
 	_update_tts_ui()
 
@@ -321,6 +343,9 @@ func _create_voice_type_input(char_id: String, config, tag: String = "") -> void
 
 func _save_ui_data() -> void:
 	var config = GameDataManager.config
+	config.ai_service_mode = ConfigResource.AI_SERVICE_OFFICIAL if ai_service_mode_option.selected == 0 else ConfigResource.AI_SERVICE_PERSONAL
+	var gateway_url: String = official_gateway_input.text.strip_edges().trim_suffix("/")
+	config.official_ai_gateway_url = gateway_url if not gateway_url.is_empty() else ConfigResource.DEFAULT_OFFICIAL_AI_GATEWAY
 	config.api_key = api_key_input.text
 	config.doubao_chat_api_key = doubao_chat_key_input.text
 	if model_option.selected == 1:
@@ -404,6 +429,211 @@ func _on_voice_changed(value: float) -> void:
 func _on_model_changed(_idx: int) -> void:
 	_update_model_ui()
 
+func _on_ai_service_mode_changed(_idx: int) -> void:
+	_update_ai_service_mode_ui()
+	if ai_service_mode_option.selected == 0:
+		GameDataManager.config.ai_service_mode = ConfigResource.AI_SERVICE_OFFICIAL
+		var gateway_url: String = official_gateway_input.text.strip_edges().trim_suffix("/")
+		GameDataManager.config.official_ai_gateway_url = gateway_url if not gateway_url.is_empty() else ConfigResource.DEFAULT_OFFICIAL_AI_GATEWAY
+		OfficialAuthManager.ensure_authenticated()
+
+func _on_official_connect_pressed() -> void:
+	var gateway_url: String = official_gateway_input.text.strip_edges().trim_suffix("/")
+	GameDataManager.config.official_ai_gateway_url = gateway_url if not gateway_url.is_empty() else ConfigResource.DEFAULT_OFFICIAL_AI_GATEWAY
+	GameDataManager.config.ai_service_mode = ConfigResource.AI_SERVICE_OFFICIAL
+	GameDataManager.config.save_config()
+	if OfficialAuthManager.get_session_state() == OfficialAuthManager.SessionState.SIGNED_OUT:
+		_open_account_auth_panel()
+		return
+	official_ai_status_label.text = "正在连接并验证设备..."
+	official_ai_status_label.modulate = Color(0.376471, 0.470588, 0.470588, 1)
+	OfficialAuthManager.ensure_authenticated()
+
+func _on_test_connection_pressed() -> void:
+	if is_instance_valid(_connection_test_http):
+		return
+	_connection_test_uses_official = ai_service_mode_option.selected == 0
+	if _connection_test_uses_official:
+		var gateway_url: String = official_gateway_input.text.strip_edges().trim_suffix("/")
+		GameDataManager.config.official_ai_gateway_url = gateway_url if not gateway_url.is_empty() else ConfigResource.DEFAULT_OFFICIAL_AI_GATEWAY
+		if not await OfficialAuthManager.ensure_valid_access_token():
+			_show_connection_test_result("请先登录官方账号后再测试。", false)
+			return
+	elif api_key_input.text.strip_edges().is_empty():
+		_show_connection_test_result("请先填写 DeepSeek API Key。", false)
+		return
+	_start_connection_test_request()
+
+func _start_connection_test_request() -> void:
+	_connection_test_http = HTTPRequest.new()
+	_connection_test_http.timeout = 20.0
+	add_child(_connection_test_http)
+	_connection_test_http.request_completed.connect(_on_connection_test_completed)
+	test_connection_button.disabled = true
+	test_connection_button.text = "测试中..."
+	_show_connection_test_result("正在验证服务与模型...", true)
+	_connection_test_started_at = Time.get_ticks_msec()
+	var model_id: String = _get_selected_test_model()
+	var url: String = GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/chat/completions" if _connection_test_uses_official else "https://api.deepseek.com/v1/chat/completions"
+	var access_token: String = GameDataManager.config.official_access_token if _connection_test_uses_official else api_key_input.text.strip_edges()
+	var payload := {
+		"model": model_id,
+		"messages": [{"role": "user", "content": "Reply with OK."}],
+		"temperature": 0.0,
+		"max_tokens": 8,
+		"stream": false
+	}
+	var request_error := _connection_test_http.request(
+		url,
+		["Content-Type: application/json", "Authorization: Bearer " + access_token],
+		HTTPClient.METHOD_POST,
+		JSON.stringify(payload)
+	)
+	if request_error != OK:
+		_finish_connection_test("无法发起测试请求：%s" % error_string(request_error), false)
+
+func _on_connection_test_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	var elapsed_ms: int = Time.get_ticks_msec() - _connection_test_started_at
+	if result != HTTPRequest.RESULT_SUCCESS:
+		_finish_connection_test(_connection_test_network_error(result), false)
+		return
+	if response_code != 200:
+		_finish_connection_test(_connection_test_http_error(response_code, body), false)
+		return
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK or not (json.get_data() is Dictionary):
+		_finish_connection_test("服务已响应，但返回数据格式无效。", false)
+		return
+	var result_text: String = "连接成功 · %d ms · %s" % [elapsed_ms, _get_selected_test_model()]
+	if _connection_test_uses_official:
+		var remaining: String = _find_response_header(headers, "x-quota-remaining")
+		if not remaining.is_empty():
+			result_text += " · 今日剩余 %s 次" % remaining
+	_finish_connection_test(result_text, true)
+
+func _finish_connection_test(message: String, success: bool) -> void:
+	if is_instance_valid(_connection_test_http):
+		_connection_test_http.queue_free()
+	_connection_test_http = null
+	test_connection_button.disabled = false
+	test_connection_button.text = "测试连接"
+	_show_connection_test_result(message, success)
+
+func _show_connection_test_result(message: String, success: bool) -> void:
+	connection_test_result.text = message
+	connection_test_result.modulate = Color(0.176471, 0.647059, 0.588235, 1) if success else Color(0.78, 0.34, 0.38, 1)
+
+func _get_selected_test_model() -> String:
+	if _connection_test_uses_official and model_option.selected == 1:
+		return "deepseek-chat"
+	return str(model_option.get_item_metadata(model_option.selected))
+
+func _find_response_header(headers: PackedStringArray, header_name: String) -> String:
+	var prefix := header_name.to_lower() + ":"
+	for header in headers:
+		if header.to_lower().begins_with(prefix):
+			return header.substr(header.find(":") + 1).strip_edges()
+	return ""
+
+func _connection_test_network_error(result: int) -> String:
+	match result:
+		HTTPRequest.RESULT_CANT_RESOLVE:
+			return "无法解析服务地址，请检查网络或地址。"
+		HTTPRequest.RESULT_CANT_CONNECT:
+			return "无法连接服务，请确认后端已启动。"
+		HTTPRequest.RESULT_TIMEOUT:
+			return "连接测试超时，请稍后重试。"
+		HTTPRequest.RESULT_TLS_HANDSHAKE_ERROR:
+			return "HTTPS 证书校验失败。"
+		_:
+			return "连接测试失败（网络错误 %d）。" % result
+
+func _connection_test_http_error(response_code: int, body: PackedByteArray) -> String:
+	var detail: String = ""
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) == OK and json.get_data() is Dictionary:
+		var data: Dictionary = json.get_data()
+		detail = str(data.get("detail", "")).strip_edges()
+		if detail.is_empty() and data.get("error") is Dictionary:
+			detail = str(data["error"].get("message", "")).strip_edges()
+	match response_code:
+		400:
+			return "当前模型或参数不受服务支持。"
+		401:
+			return "认证失败，请重新登录或检查 API Key。"
+		402:
+			return "个人 API 账户余额不足。"
+		429:
+			return "今日额度已用完或请求过于频繁。"
+		503:
+			return "AI 服务暂不可用，请稍后重试。"
+		_:
+			return "测试失败（HTTP %d）%s" % [response_code, "：" + detail if not detail.is_empty() else ""]
+
+func _open_account_auth_panel() -> void:
+	if is_instance_valid(_account_auth_panel_instance):
+		return
+	_account_auth_panel_instance = ACCOUNT_AUTH_PANEL_SCENE.instantiate()
+	add_child(_account_auth_panel_instance)
+	_account_auth_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_account_auth_panel_instance.closed.connect(func() -> void: _account_auth_panel_instance = null)
+
+func _update_ai_service_mode_ui() -> void:
+	var uses_official: bool = ai_service_mode_option.selected == 0
+	var rows_vbox: VBoxContainer = ai_service_mode_option.get_parent().get_parent() as VBoxContainer
+	for row_name in ["OfficialStatusRow", "OfficialGatewayRow"]:
+		var official_row: Control = rows_vbox.get_node_or_null(row_name) as Control
+		if official_row:
+			official_row.visible = uses_official
+	for row_name in ["ApiKeyRow", "DoubaoChatKeyRow", "ModelRow", "TempRow", "TokenRow"]:
+		var personal_row: Control = rows_vbox.get_node_or_null(row_name) as Control
+		if personal_row:
+			personal_row.visible = not uses_official
+	if official_ai_status_label:
+		var authorized: bool = OfficialAuthManager.is_authenticated()
+		official_ai_status_label.text = "已授权" if authorized else "未登录 / 未授权"
+		official_ai_status_label.modulate = Color(0.176471, 0.647059, 0.588235, 1) if authorized else Color(0.78, 0.34, 0.38, 1)
+		official_connect_button.text = "重新连接" if authorized else "登录官方账号"
+		official_connect_button.disabled = OfficialAuthManager.get_session_state() == OfficialAuthManager.SessionState.RESTORING
+		if authorized:
+			OfficialAuthManager.refresh_quota()
+	_update_tts_ui()
+	var asr_key_row: Control = asr_cluster_input.get_parent() as Control
+	if asr_key_row:
+		asr_key_row.visible = not uses_official
+	for embedding_input in [embed_key_input, embed_model_input]:
+		var embedding_row: Control = embedding_input.get_parent() as Control
+		if embedding_row:
+			embedding_row.visible = not uses_official
+	for vision_input in [vision_key_input, vision_model_input, vision_base_url_input]:
+		var vision_row: Control = vision_input.get_parent() as Control
+		if vision_row:
+			vision_row.visible = not uses_official
+
+func _on_official_auth_state_changed(is_authenticated: bool, message: String) -> void:
+	if official_ai_status_label:
+		official_ai_status_label.text = message
+		official_ai_status_label.modulate = Color(0.176471, 0.647059, 0.588235, 1) if is_authenticated else Color(0.78, 0.34, 0.38, 1)
+		official_connect_button.text = "重新连接" if is_authenticated else "登录官方账号"
+
+func _on_official_session_state_changed(state: int, message: String) -> void:
+	if not official_ai_status_label or not official_connect_button:
+		return
+	official_connect_button.disabled = state == OfficialAuthManager.SessionState.RESTORING
+	match state:
+		OfficialAuthManager.SessionState.RESTORING:
+			official_ai_status_label.text = message
+			official_connect_button.text = "正在连接..."
+		OfficialAuthManager.SessionState.SIGNED_IN:
+			official_connect_button.text = "重新连接"
+		OfficialAuthManager.SessionState.SIGNED_OUT:
+			official_ai_status_label.text = message
+			official_connect_button.text = "登录官方账号"
+
+func _on_official_quota_updated(remaining: int, limit: int) -> void:
+	if official_ai_status_label:
+		official_ai_status_label.text = "已授权 · 今日 %d / %d" % [remaining, limit]
+
 func _on_tts_backend_changed(_idx: int) -> void:
 	_update_tts_ui()
 
@@ -420,7 +650,8 @@ func _update_tts_ui() -> void:
 	set_visibility.call(app_id_input, false)
 	set_visibility.call(cluster_input, false)
 	set_visibility.call(qwen_tts_key_input, false)
-	set_visibility.call(token_input, true)
+	var uses_official: bool = ai_service_mode_option.selected == 0
+	set_visibility.call(token_input, not uses_official)
 	var token_label: Label = token_input.get_parent().get_node_or_null("TokenInputLabel") as Label
 	if token_label:
 		token_label.text = "豆包 TTS 2.0 API Key"
@@ -450,7 +681,8 @@ func _on_image_gen_toggled(_toggled: bool) -> void:
 	_update_image_gen_ui()
 
 func _update_image_gen_ui() -> void:
-	var enabled = image_gen_mode_check.button_pressed
+	var enabled: bool = image_gen_mode_check.button_pressed
+	var uses_official: bool = ai_service_mode_option.selected == 0
 	
 	var set_visibility = func(node: Control, should_visible: bool):
 		node.visible = should_visible
@@ -459,9 +691,9 @@ func _update_image_gen_ui() -> void:
 		if label:
 			label.visible = should_visible
 	
-	set_visibility.call(image_provider_option, enabled)
+	set_visibility.call(image_provider_option, enabled and not uses_official)
 	
-	if not enabled:
+	if not enabled or uses_official:
 		set_visibility.call(image_key_input, false)
 		set_visibility.call(doubao_image_key_input, false)
 		set_visibility.call(doubao_image_model_input, false)
@@ -498,7 +730,11 @@ func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
 		_show_settings_toast("当前音色 ID 属于旧版体系，不能用于 TTS 2.0，请改用新版 speaker。", Color.RED)
 		return
 
-	if token_input.text.strip_edges() == "":
+	var uses_official: bool = ai_service_mode_option.selected == 0
+	if uses_official and not OfficialAuthManager.is_authenticated():
+		_show_settings_toast("请先登录官方账号后再试听音色。", Color.RED)
+		return
+	if not uses_official and token_input.text.strip_edges() == "":
 		_show_settings_toast("未填写豆包 TTS 2.0 API Key，无法试听。", Color.RED)
 		return
 		
@@ -525,10 +761,11 @@ func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
 		
 	var options: Dictionary = {
 		"speaker": voice_type,
-		"api_key": token_input.text.strip_edges(),
 		"character_id": char_id,
 		"request_source": "tts_preview"
 	}
+	if not uses_official:
+		options["api_key"] = token_input.text.strip_edges()
 	TTSManager.synthesize(test_text, options)
 
 func _on_tts_success(audio_stream: AudioStream, _text: String) -> void:
@@ -556,6 +793,13 @@ func _on_clear_history_pressed() -> void:
 
 func _on_asr_test_down() -> void:
 	if _is_testing_asr: return
+	var uses_official: bool = ai_service_mode_option.selected == 0
+	if uses_official and not OfficialAuthManager.is_authenticated():
+		_show_settings_toast("请先登录官方账号后再测试语音识别。", Color.RED)
+		return
+	if not uses_official and asr_cluster_input.text.strip_edges().is_empty():
+		_show_settings_toast("请先填写千问 ASR API Key。", Color.RED)
+		return
 	_is_testing_asr = true
 	asr_test_button.text = "松开结束"
 	asr_test_button.modulate = Color(0.8, 0.2, 0.2)
@@ -575,8 +819,8 @@ func _on_asr_test_down() -> void:
 				_test_asr_client.transcribe_completed.connect(_on_asr_test_success)
 				_test_asr_client.transcribe_failed.connect(_on_asr_test_failed)
 		if _test_asr_client:
-			# 应用当前输入框的配置，而不是只读 config 的，方便玩家不保存直接测
-			GameDataManager.config.qwen_asr_api_key = asr_cluster_input.text
+			if not uses_official:
+				GameDataManager.config.qwen_asr_api_key = asr_cluster_input.text.strip_edges()
 			_test_asr_client.start_recording()
 	else:
 		asr_test_output.placeholder_text = "请先开启流式语音识别开关"

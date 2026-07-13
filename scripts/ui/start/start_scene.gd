@@ -2,22 +2,33 @@ extends Control
 
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const BUG_FEEDBACK_PANEL_SCENE = preload("res://scenes/ui/start/bug_feedback_panel.tscn")
+const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_panel.tscn")
+const ACCOUNT_CENTER_PANEL_SCENE = preload("res://scenes/ui/start/account_center_panel.tscn")
 const ConfirmDialogScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
 const GUIDE_STATE_KEY := "guide_state_v1"
 
 @onready var start_button: Button = $ContentRoot/MenuGroup/MenuButtons/StartButton
 @onready var desktop_pet_button: Button = $ContentRoot/MenuGroup/MenuButtons/DesktopPetButton
+@onready var login_button: Button = $ContentRoot/MenuGroup/MenuButtons/LoginButton
 @onready var settings_button: Button = $ContentRoot/ActionGroup/TopRightBar/SettingsButton
 @onready var bug_feedback_button: Button = $ContentRoot/ActionGroup/TopRightBar/BugFeedbackButton
+@onready var account_button: Button = $ContentRoot/ActionGroup/TopRightBar/AccountButton
+@onready var account_status_label: Label = $ContentRoot/MenuGroup/MenuButtons/LoginStatusLabel
+@onready var menu_group: Control = $ContentRoot/MenuGroup
+@onready var menu_buttons: VBoxContainer = $ContentRoot/MenuGroup/MenuButtons
 
 var settings_panel_instance = null
 var archive_select_panel_instance = null
 var debug_panel_instance = null
 var bug_feedback_panel_instance = null
 var desktop_pet_instance: Window = null
+var account_auth_panel_instance: Control = null
+var account_center_panel_instance: Control = null
+var _pending_authenticated_action: Callable
 var _pending_new_archive_slot_id: String = ""
 var _pending_previous_archive_slot_id: String = ""
 var _opening_archive_panel: bool = false
+var _legacy_import_prompt_open: bool = false
 
 func _ready() -> void:
 	if GameDataManager.config:
@@ -46,6 +57,14 @@ func _ready() -> void:
 		desktop_pet_button.pressed.connect(_on_desktop_pet_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	bug_feedback_button.pressed.connect(_on_bug_feedback_pressed)
+	account_button.pressed.connect(_on_account_pressed)
+	login_button.pressed.connect(_on_account_pressed)
+	OfficialAuthManager.auth_state_changed.connect(_on_auth_state_changed)
+	OfficialAuthManager.session_state_changed.connect(_on_session_state_changed)
+	OfficialAuthManager.profile_updated.connect(_on_profile_updated)
+	_update_session_state(OfficialAuthManager.get_session_state())
+	if OfficialAuthManager.is_authenticated():
+		call_deferred("_offer_legacy_archive_import")
 	
 	# 动画：按钮点击弹性反馈
 	start_button.pivot_offset = start_button.size / 2
@@ -53,6 +72,8 @@ func _ready() -> void:
 		desktop_pet_button.pivot_offset = desktop_pet_button.size / 2
 	settings_button.pivot_offset = settings_button.size / 2
 	bug_feedback_button.pivot_offset = bug_feedback_button.size / 2
+	account_button.pivot_offset = account_button.size / 2
+	login_button.pivot_offset = login_button.size / 2
 
 func _on_close_requested() -> void:
 	_cleanup_pending_new_archive()
@@ -69,6 +90,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_open_debug_panel()
 
 func _on_start_pressed() -> void:
+	if not _require_authentication(_on_start_pressed):
+		return
 	if _opening_archive_panel:
 		return
 	_opening_archive_panel = true
@@ -191,6 +214,10 @@ func _apply_player_info_from_popup(player_info: Dictionary) -> void:
 	GameDataManager.profile.save_profile()
 
 func _enter_game_for_current_archive(force_play_intro: bool, ensure_guide_prompt: bool = true) -> void:
+	if not OfficialAuthManager.is_authenticated():
+		_pending_authenticated_action = func() -> void: await _enter_game_for_current_archive(force_play_intro, ensure_guide_prompt)
+		_open_account_panel()
+		return
 	var window = get_window()
 	GameDataManager.set_meta("last_window_pos", window.position)
 	if ensure_guide_prompt:
@@ -273,6 +300,8 @@ func _transition_to_scene(scene_path: String) -> void:
 		get_tree().change_scene_to_file(scene_path)
 
 func _on_desktop_pet_pressed() -> void:
+	if not _require_authentication(_on_desktop_pet_pressed):
+		return
 	_animate_button(desktop_pet_button)
 	
 	# 初始化 GameDataManager 的必要组件（如果没有的话）
@@ -311,6 +340,131 @@ func _on_bug_feedback_pressed() -> void:
 		add_child(bug_feedback_panel_instance)
 		bug_feedback_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bug_feedback_panel_instance.show_panel()
+
+func _on_account_pressed() -> void:
+	if OfficialAuthManager.is_authenticated():
+		_open_account_center()
+		return
+	_open_account_panel()
+
+func _on_logout_pressed() -> void:
+	_pending_authenticated_action = Callable()
+	OfficialAuthManager.logout()
+
+func _on_logout_all_pressed() -> void:
+	_pending_authenticated_action = Callable()
+	OfficialAuthManager.logout_all()
+
+func _open_account_center() -> void:
+	if is_instance_valid(account_center_panel_instance):
+		return
+	account_center_panel_instance = ACCOUNT_CENTER_PANEL_SCENE.instantiate()
+	add_child(account_center_panel_instance)
+	account_center_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	account_center_panel_instance.closed.connect(func() -> void: account_center_panel_instance = null)
+	account_center_panel_instance.logged_out.connect(func() -> void: _pending_authenticated_action = Callable())
+	account_center_panel_instance.legacy_import_requested.connect(func() -> void:
+		GameDataManager.save_manager.reset_legacy_archive_import_decision()
+		account_center_panel_instance.queue_free()
+		account_center_panel_instance = null
+		_offer_legacy_archive_import()
+	)
+
+func _open_account_panel(register_mode: bool = false) -> void:
+	if is_instance_valid(account_auth_panel_instance):
+		return
+	account_auth_panel_instance = ACCOUNT_AUTH_PANEL_SCENE.instantiate()
+	add_child(account_auth_panel_instance)
+	account_auth_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	account_auth_panel_instance.authenticated.connect(_on_account_authenticated)
+	account_auth_panel_instance.closed.connect(func() -> void: account_auth_panel_instance = null)
+	if register_mode:
+		account_auth_panel_instance.call_deferred("show_register")
+
+func _require_authentication(action: Callable) -> bool:
+	if OfficialAuthManager.is_authenticated():
+		return true
+	_pending_authenticated_action = action
+	_open_account_panel()
+	return false
+
+func _on_account_authenticated() -> void:
+	_update_account_status(true)
+	_offer_legacy_archive_import()
+	if _pending_authenticated_action.is_valid():
+		var action := _pending_authenticated_action
+		_pending_authenticated_action = Callable()
+		action.call_deferred()
+
+func _on_auth_state_changed(authenticated_state: bool, _message: String) -> void:
+	if not authenticated_state and GameDataManager.save_manager:
+		GameDataManager.save_manager.current_slot_id = ""
+	_update_account_status(authenticated_state)
+	if authenticated_state:
+		call_deferred("_offer_legacy_archive_import")
+
+func _update_account_status(authenticated_state: bool) -> void:
+	menu_group.visible = true
+	menu_buttons.position.y = 473.0
+	start_button.visible = authenticated_state
+	desktop_pet_button.visible = authenticated_state
+	login_button.visible = not authenticated_state
+	account_button.visible = authenticated_state
+	settings_button.visible = authenticated_state
+	bug_feedback_button.visible = authenticated_state
+	account_status_label.text = "云端身份已连接" if authenticated_state else "登录后开始陪伴"
+
+func _on_session_state_changed(state: int, _message: String) -> void:
+	_update_session_state(state)
+
+func _update_session_state(state: int) -> void:
+	var restoring := state == OfficialAuthManager.SessionState.RESTORING
+	menu_group.visible = true
+	menu_buttons.position.y = 473.0
+	start_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
+	desktop_pet_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
+	login_button.visible = state == OfficialAuthManager.SessionState.SIGNED_OUT
+	account_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
+	settings_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
+	bug_feedback_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
+	account_status_label.text = "正在验证账号..." if restoring else ("云端身份已连接" if state == OfficialAuthManager.SessionState.SIGNED_IN else "登录后开始陪伴")
+
+func _on_profile_updated(profile: Dictionary) -> void:
+	var username := str(profile.get("username", "")).strip_edges()
+	if not username.is_empty():
+		account_button.tooltip_text = "用户中心：%s" % username
+
+func _offer_legacy_archive_import() -> void:
+	if _legacy_import_prompt_open or not OfficialAuthManager.is_authenticated():
+		return
+	if GameDataManager.save_manager == null or not GameDataManager.save_manager.has_pending_legacy_archive_import():
+		return
+	var legacy_count: int = GameDataManager.save_manager.get_legacy_archive_slot_ids().size()
+	if legacy_count <= 0:
+		return
+	_legacy_import_prompt_open = true
+	var dialog = ConfirmDialogScene.instantiate()
+	add_child(dialog)
+	dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dialog.setup_advanced(
+		"发现旧版本存档",
+		"检测到 %d 个尚未归属账号的旧存档。是否将副本导入当前账号？" % legacy_count,
+		"原存档会保留，不会被移动或删除。",
+		"目标账号已有同名存档时，将自动使用新的存档编号。",
+		"导入存档",
+		"不导入且不再提示"
+	)
+	dialog.confirmed.connect(func() -> void:
+		var imported_count: int = GameDataManager.save_manager.import_legacy_archives()
+		_legacy_import_prompt_open = false
+		account_status_label.text = "已导入 %d 个旧存档" % imported_count
+		if archive_select_panel_instance and archive_select_panel_instance.has_method("refresh_slots"):
+			archive_select_panel_instance.refresh_slots()
+	)
+	dialog.canceled.connect(func() -> void:
+		GameDataManager.save_manager.mark_legacy_archive_import_decided()
+		_legacy_import_prompt_open = false
+	)
 
 func _open_debug_panel() -> void:
 	if debug_panel_instance == null:

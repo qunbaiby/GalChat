@@ -2652,27 +2652,24 @@ func _on_send_pressed() -> void:
 	if audio_player and audio_player.playing:
 		audio_player.stop()
 	
-	# Maintain history (max 10 items to prevent context window overflow)
-	if chat_history.size() > 10:
-		chat_history = chat_history.slice(-10)
-		
 	_load_prompt()
-	
-	# Add user message to history
-	# 桌宠特有逻辑：直接在发包前把话塞进去
-	# 我们不要再塞进全局的聊天历史里了，而是使用专门的桌宠历史
-	chat_history.append({"role": "user", "content": text})
 	_append_desktop_pet_history_message("玩家", raw_user_text, "", CHAT_ORIGIN_PLAYER)
 	
-	# 构建专门为桌宠发送的历史数组，避免混用
 	var pet_messages = [{"role": "system", "content": pet_prompt}]
-	for i in range(chat_history.size()):
-		var msg = chat_history[i].duplicate()
-		if i == chat_history.size() - 1 and msg["role"] == "user":
+	var shared_history: Array = GameDataManager.history.get_messages_by_type("desktop_pet")
+	var start_index := maxi(0, shared_history.size() - 10)
+	for i in range(start_index, shared_history.size()):
+		var record: Dictionary = shared_history[i]
+		var msg := {
+			"role": "assistant" if str(record.get("speaker", "")) == "char" else "user",
+			"content": str(record.get("text", ""))
+		}
+		if i == shared_history.size() - 1 and msg["role"] == "user":
 			# 将音乐指令的双向提醒一次性注入，防止大模型混淆或忘记
 			var injection = "\n(系统强制判定：若玩家要求放歌/播放音乐，你【必须】在回复最后加上 [CMD:PLAY_MUSIC]（随机）或 [CMD:PLAY_MUSIC:歌名]（指定）；若玩家要求停止，你【必须】加 [CMD:STOP_MUSIC]！如果不加，系统将无法执行操作！)"
 			msg["content"] = str(msg["content"]) + injection
 		pet_messages.append(msg)
+	chat_history.append({"role": "user", "content": text})
 		
 	deepseek_client.start_chat_stream_with_messages(pet_messages)
 

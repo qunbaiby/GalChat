@@ -140,7 +140,7 @@ func _start_vision_analysis(base64_image: String) -> void:
 	deepseek_client.vision_request_completed.connect(_current_drawing_success_cb)
 	deepseek_client.vision_request_failed.connect(_current_drawing_fail_cb)
 	
-	deepseek_client.send_vision_request(sys_prompt, user_prompt, base64_image)
+	deepseek_client.send_vision_request(sys_prompt, user_prompt, base64_image, "image/png")
 
 func _disconnect_drawing_vision_signals() -> void:
 	if _current_drawing_success_cb.is_valid() and deepseek_client.vision_request_completed.is_connected(_current_drawing_success_cb):

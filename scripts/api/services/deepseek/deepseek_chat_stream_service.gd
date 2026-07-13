@@ -1,8 +1,12 @@
 extends RefCounted
 
 func start_chat_stream(client, user_message: String, history_type: String = "all") -> void:
+	client._chat_stream_retry_count = 0
+	if client._uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
+		client.chat_request_failed.emit("登录状态已过期，请重新登录后重试。")
+		return
 	if not client.is_inside_tree() or client._is_api_key_empty():
-		client.chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+		client.chat_request_failed.emit(client._get_missing_credentials_message())
 		return
 	if client._chat_stream_active:
 		stop_chat_stream(client)
@@ -21,8 +25,12 @@ func start_chat_stream(client, user_message: String, history_type: String = "all
 	_start_stream_request(client, api_messages)
 
 func start_chat_stream_with_messages(client, api_messages: Array) -> void:
+	client._chat_stream_retry_count = 0
+	if client._uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
+		client.chat_request_failed.emit("登录状态已过期，请重新登录后重试。")
+		return
 	if not client.is_inside_tree() or client._is_api_key_empty():
-		client.chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+		client.chat_request_failed.emit(client._get_missing_credentials_message())
 		return
 	if client._chat_stream_active:
 		stop_chat_stream(client)
@@ -40,7 +48,14 @@ func _start_stream_request(client, api_messages: Array) -> void:
 	client._chat_stream_sse_buffer = ""
 	client._chat_stream_request_sent = false
 	client._chat_stream_body = JSON.stringify(body)
-	var host: String = client._get_stream_host()
+	_connect_stream_request(client)
+
+func _connect_stream_request(client) -> void:
+	var endpoint: Dictionary = client._get_stream_endpoint()
+	if endpoint.is_empty():
+		client.chat_request_failed.emit("AI 服务地址格式无效。")
+		return
+	var host: String = str(endpoint["host"])
 	client._chat_stream_headers = [
 		"Host: " + host,
 		"Content-Type: application/json",
@@ -49,8 +64,8 @@ func _start_stream_request(client, api_messages: Array) -> void:
 		"Connection: keep-alive"
 	]
 	client._chat_stream_client = HTTPClient.new()
-	var tls_options := TLSOptions.client()
-	var err: int = client._chat_stream_client.connect_to_host(host, 443, tls_options)
+	var tls_options: TLSOptions = TLSOptions.client() if bool(endpoint["tls"]) else null
+	var err: int = client._chat_stream_client.connect_to_host(host, int(endpoint["port"]), tls_options)
 	if err != OK:
 		stop_chat_stream(client)
 		client.chat_request_failed.emit("网络请求发送失败。")
@@ -64,7 +79,8 @@ func process_chat_stream(client) -> void:
 		return
 	client._chat_stream_client.poll()
 	var status = client._chat_stream_client.get_status()
-	var path: String = client._get_stream_path()
+	var endpoint: Dictionary = client._get_stream_endpoint()
+	var path: String = str(endpoint.get("path", "/"))
 	if status == HTTPClient.STATUS_CONNECTED and not client._chat_stream_request_sent:
 		var err: int = client._chat_stream_client.request(HTTPClient.METHOD_POST, path, client._chat_stream_headers, client._chat_stream_body)
 		if err != OK:
@@ -78,16 +94,15 @@ func process_chat_stream(client) -> void:
 			client._chat_stream_response_code = client._chat_stream_client.get_response_code()
 			if client._chat_stream_response_code != 200:
 				var err_body: String = _read_all_stream_body(client)
+				var response_code: int = client._chat_stream_response_code
+				var request_body: String = client._chat_stream_body
 				stop_chat_stream(client)
-				var err_msg: String = "API 请求错误，状态码: " + str(client._chat_stream_response_code)
-				var json := JSON.new()
-				if json.parse(err_body) == OK and json.get_data() is Dictionary and json.get_data().has("error"):
-					var api_error = json.get_data()["error"]
-					if api_error is Dictionary and api_error.has("message"):
-						err_msg += " - " + api_error["message"]
-				else:
-					err_msg += " Body: " + err_body
-				client.chat_request_failed.emit(err_msg)
+				if response_code == 401 and client._uses_official_ai() and client._chat_stream_retry_count == 0:
+					client._chat_stream_retry_count = 1
+					_retry_after_unauthorized(client, request_body)
+					return
+				client._chat_stream_retry_count = 0
+				client.chat_request_failed.emit(_get_http_error_message(response_code, err_body))
 				return
 		var chunk: PackedByteArray = client._chat_stream_client.read_response_body_chunk()
 		if chunk.size() > 0:
@@ -111,6 +126,41 @@ func _read_all_stream_body(client) -> String:
 			break
 		out += chunk.get_string_from_utf8()
 	return out
+
+func _retry_after_unauthorized(client, request_body: String) -> void:
+	if not await OfficialAuthManager.force_refresh_access_token():
+		client._chat_stream_retry_count = 0
+		client.chat_request_failed.emit("登录状态已过期，请重新登录后重试。")
+		return
+	client._chat_stream_body = request_body
+	client._chat_stream_full_text = ""
+	client._chat_stream_sse_buffer = ""
+	client._chat_stream_request_sent = false
+	_connect_stream_request(client)
+
+func _get_http_error_message(response_code: int, response_body: String) -> String:
+	var detail: String = ""
+	var json := JSON.new()
+	if json.parse(response_body) == OK and json.get_data() is Dictionary:
+		var data: Dictionary = json.get_data()
+		detail = str(data.get("detail", "")).strip_edges()
+		if detail.is_empty() and data.get("error") is Dictionary:
+			detail = str(data["error"].get("message", "")).strip_edges()
+	match response_code:
+		400:
+			if detail == "Requested model is not allowed.":
+				return "当前模型不受官方服务支持，请在设置中切换模型。"
+			return "AI 请求参数无效，请检查模型设置。"
+		401:
+			return "登录状态已过期，请重新登录后重试。"
+		429:
+			if detail == "Daily AI quota exceeded.":
+				return "今日官方 AI 额度已用完，请明天再试或切换个人 API。"
+			return "请求过于频繁，请稍后再试。"
+		503:
+			return "官方 AI 服务暂不可用，请稍后重试。"
+		_:
+			return "AI 服务请求失败（%d）。" % response_code
 
 func _consume_sse_buffer(client) -> void:
 	while true:
@@ -138,6 +188,14 @@ func _consume_sse_event(client, event_text: String) -> void:
 		var data: Variant = json.get_data()
 		if not (data is Dictionary):
 			continue
+		if data.has("error"):
+			var error_message: String = "AI 服务返回错误"
+			var api_error: Variant = data["error"]
+			if api_error is Dictionary:
+				error_message = str(api_error.get("message", error_message)).strip_edges()
+			stop_chat_stream(client)
+			client.chat_request_failed.emit(error_message)
+			return
 		var delta_text: String = ""
 		if data.has("choices") and data["choices"] is Array and data["choices"].size() > 0:
 			var c0 = data["choices"][0]
@@ -157,6 +215,7 @@ func _finish_chat_stream(client) -> void:
 		return
 	var final_text: String = client._chat_stream_full_text
 	stop_chat_stream(client)
+	client._chat_stream_retry_count = 0
 	client.chat_request_completed.emit({
 		"choices": [
 			{"message": {"content": final_text}}

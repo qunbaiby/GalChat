@@ -1,0 +1,63 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Test AI Gateway Auth",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"backend/ai_gateway/tests",
+				"-q"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Test AI Gateway Auth",
+			"type": "shell",
+			"command": "Set-Location",
+			"args": [
+				"'${workspaceFolder}\\backend\\ai_gateway';",
+				"&",
+				"'${workspaceFolder}\\.venv\\Scripts\\python.exe'",
+				"-m",
+				"pytest",
+				"tests",
+				"-q"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Validate Godot Auth UI",
+			"type": "shell",
+			"command": "d:\\godot\\Godot_v4.6.3-stable_mono_win64.exe",
+			"args": [
+				"--path",
+				"${workspaceFolder}",
+				"--editor",
+				"--headless",
+				"--quit"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Check Auth Diff Format",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"diff",
+				"--check"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		}
+	]
+}

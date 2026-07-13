@@ -21,7 +21,8 @@ var interaction_manager: Node
 var save_manager: Node
 var weather_manager: Node
 var app_database: Dictionary = {}
-const ARCHIVE_ROOT_DIR := "user://archives"
+const LEGACY_ARCHIVE_ROOT_DIR := "user://archives"
+const ACCOUNT_DATA_ROOT_DIR := "user://accounts"
 
 # 番茄钟与待办事项数据
 var pomodoro_data: Dictionary = {
@@ -130,7 +131,7 @@ func _ready() -> void:
 
 func get_active_archive_id() -> String:
 	if config:
-		return str(config.active_archive_id).strip_edges()
+		return str(config.get_custom_config(_get_account_archive_config_key(), "")).strip_edges()
 	return ""
 
 func has_active_archive() -> bool:
@@ -139,9 +140,13 @@ func has_active_archive() -> bool:
 func set_active_archive_id(archive_id: String, save_config: bool = true) -> void:
 	if config == null:
 		return
-	config.active_archive_id = archive_id.strip_edges()
+	config.set_custom_config(_get_account_archive_config_key(), archive_id.strip_edges())
 	if save_config:
 		config.save_config()
+
+func _get_account_archive_config_key() -> String:
+	var user_id := OfficialAuthManager.get_user_id()
+	return "active_archive_%s" % (user_id.validate_filename() if not user_id.is_empty() else "unauthenticated")
 
 func get_archive_root_dir(archive_id: String = "") -> String:
 	var final_archive_id := archive_id.strip_edges()
@@ -149,7 +154,17 @@ func get_archive_root_dir(archive_id: String = "") -> String:
 		final_archive_id = get_active_archive_id()
 	if final_archive_id == "":
 		final_archive_id = "default"
-	var dir_path := "%s/%s" % [ARCHIVE_ROOT_DIR, final_archive_id]
+	var dir_path := get_archive_collection_dir().path_join(final_archive_id)
+	if not DirAccess.dir_exists_absolute(dir_path):
+		DirAccess.make_dir_recursive_absolute(dir_path)
+	return dir_path
+
+func get_archive_collection_dir() -> String:
+	var user_id := OfficialAuthManager.get_user_id()
+	if user_id.is_empty():
+		return ACCOUNT_DATA_ROOT_DIR.path_join("unauthenticated").path_join("archives")
+	var safe_user_id := user_id.validate_filename()
+	var dir_path := ACCOUNT_DATA_ROOT_DIR.path_join(safe_user_id).path_join("archives")
 	if not DirAccess.dir_exists_absolute(dir_path):
 		DirAccess.make_dir_recursive_absolute(dir_path)
 	return dir_path
@@ -178,7 +193,7 @@ func get_archive_custom_config(key: String, default_value: Variant = null) -> Va
 	var archive_id := get_active_archive_id()
 	if archive_id == "":
 		return default_value
-	var bucket_key := "archive_%s" % archive_id
+	var bucket_key := _get_archive_config_bucket_key(archive_id)
 	var bucket = config.get_custom_config(bucket_key, {})
 	if bucket is Dictionary and bucket.has(key):
 		return bucket[key]
@@ -190,7 +205,7 @@ func set_archive_custom_config(key: String, value: Variant, save_now: bool = tru
 	var archive_id := get_active_archive_id()
 	if archive_id == "":
 		return
-	var bucket_key := "archive_%s" % archive_id
+	var bucket_key := _get_archive_config_bucket_key(archive_id)
 	var bucket = config.get_custom_config(bucket_key, {})
 	if not bucket is Dictionary:
 		bucket = {}
@@ -207,11 +222,24 @@ func clear_archive_custom_config(archive_id: String, save_now: bool = true) -> v
 		final_archive_id = get_active_archive_id()
 	if final_archive_id == "":
 		return
-	var bucket_key := "archive_%s" % final_archive_id
+	var bucket_key := _get_archive_config_bucket_key(final_archive_id)
 	if config.custom_configs.has(bucket_key):
 		config.custom_configs.erase(bucket_key)
 		if save_now:
 			config.save_config()
+
+func _get_archive_config_bucket_key(archive_id: String) -> String:
+	var user_id := OfficialAuthManager.get_user_id()
+	var account_key := user_id.validate_filename() if not user_id.is_empty() else "unauthenticated"
+	return "account_%s_archive_%s" % [account_key, archive_id]
+
+func import_legacy_archive_custom_config(legacy_archive_id: String, target_archive_id: String) -> void:
+	if config == null:
+		return
+	var legacy_key := "archive_%s" % legacy_archive_id
+	if not config.custom_configs.has(legacy_key):
+		return
+	config.set_custom_config(_get_archive_config_bucket_key(target_archive_id), config.custom_configs[legacy_key].duplicate(true))
 
 func sync_profile_to_config() -> void:
 	if config == null or profile == null:

@@ -27,6 +27,7 @@ var _playback_player: AudioStreamPlayer
 var _request_queue: Array[Dictionary] = []
 var _active_request: Dictionary = {}
 var _active_playback_request_id: String = ""
+var _preparing_request: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -52,6 +53,8 @@ func get_audio_format_options() -> Array[Dictionary]:
 	return options
 
 func is_configured() -> bool:
+	if _uses_official_ai():
+		return OfficialAuthManager.get_session_state() == OfficialAuthManager.SessionState.SIGNED_IN
 	return not _get_api_key().is_empty()
 
 func is_enabled() -> bool:
@@ -103,32 +106,49 @@ func synthesize_preview(sample_text: String = "", options: Dictionary = {}) -> S
 	return request_speech(preview_text, merged_options)
 
 func _try_start_next_request() -> void:
-	if not _active_request.is_empty() or _request_queue.is_empty():
+	if _preparing_request or not _active_request.is_empty() or _request_queue.is_empty():
+		return
+	_preparing_request = true
+	_prepare_and_start_next_request()
+
+func _prepare_and_start_next_request() -> void:
+	if _uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
+		var unauthorized_request: Dictionary = _request_queue.pop_front()
+		_preparing_request = false
+		_emit_failure(str(unauthorized_request.get("request_id", "")), "登录状态已失效，请重新登录后使用官方语音服务。", unauthorized_request)
+		_try_start_next_request()
 		return
 
 	var next_request: Dictionary = _request_queue.pop_front()
-	var headers: PackedStringArray = [
-		"Content-Type: application/json",
-		"X-Api-Key: %s" % str(next_request.get("api_key", "")).strip_edges(),
-		"X-Api-Resource-Id: %s" % str(next_request.get("resource_id", RESOURCE_ID_TTS_2)).strip_edges(),
-		"X-Api-Request-Id: %s" % str(next_request.get("request_id", "")).strip_edges(),
-		"X-Control-Require-Usage-Tokens-Return: *"
-	]
-	var request_body: Dictionary = _build_request_body(next_request)
+	var headers: PackedStringArray = ["Content-Type: application/json"]
+	var endpoint: String = HTTP_TTS_ENDPOINT
+	var request_body: Dictionary
+	if _uses_official_ai():
+		headers.append("Authorization: Bearer %s" % GameDataManager.config.official_access_token)
+		endpoint = GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/tts/speech"
+		request_body = _build_official_request_body(next_request)
+	else:
+		headers.append("X-Api-Key: %s" % str(next_request.get("api_key", "")).strip_edges())
+		headers.append("X-Api-Resource-Id: %s" % str(next_request.get("resource_id", RESOURCE_ID_TTS_2)).strip_edges())
+		headers.append("X-Api-Request-Id: %s" % str(next_request.get("request_id", "")).strip_edges())
+		headers.append("X-Control-Require-Usage-Tokens-Return: *")
+		request_body = _build_request_body(next_request)
 	_log_request_debug(next_request, request_body)
 	var error: Error = _http_request.request(
-		HTTP_TTS_ENDPOINT,
+		endpoint,
 		headers,
 		HTTPClient.METHOD_POST,
 		JSON.stringify(request_body)
 	)
 	if error != OK:
+		_preparing_request = false
 		var failed_request_id: String = str(next_request.get("request_id", "")).strip_edges()
 		_emit_failure(failed_request_id, "TTS 请求发送失败，错误码：%d" % error, next_request)
 		_try_start_next_request()
 		return
 
 	_active_request = next_request.duplicate(true)
+	_preparing_request = false
 	tts_request_started.emit(str(_active_request.get("request_id", "")), _build_context_payload(_active_request))
 
 func _log_request_debug(options: Dictionary, request_body: Dictionary) -> void:
@@ -166,7 +186,7 @@ func _build_request_options(text: String, options: Dictionary) -> Dictionary:
 	return merged
 
 func _validate_request_options(options: Dictionary) -> String:
-	if str(options.get("api_key", "")).strip_edges().is_empty():
+	if not _uses_official_ai() and str(options.get("api_key", "")).strip_edges().is_empty():
 		return "未配置豆包 TTS API Key。"
 	if str(options.get("speaker", "")).strip_edges().is_empty():
 		return "未配置豆包 TTS 音色 ID。"
@@ -204,6 +224,18 @@ func _build_request_body(options: Dictionary) -> Dictionary:
 		req_params["additions"] = additions
 	return {"req_params": req_params}
 
+func _build_official_request_body(options: Dictionary) -> Dictionary:
+	return {
+		"text": str(options.get("text", "")).strip_edges(),
+		"speaker": str(options.get("speaker", "")).strip_edges(),
+		"audio_format": str(options.get("audio_format", DEFAULT_AUDIO_FORMAT)).strip_edges(),
+		"sample_rate": int(options.get("sample_rate", DEFAULT_SAMPLE_RATE)),
+		"bit_rate": int(options.get("bit_rate", DEFAULT_BIT_RATE)),
+		"speech_rate": int(options.get("speech_rate", DEFAULT_SPEECH_RATE)),
+		"loudness_rate": int(options.get("loudness_rate", DEFAULT_LOUDNESS_RATE)),
+		"enable_subtitle": bool(options.get("enable_subtitle", false))
+	}
+
 func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	if _active_request.is_empty():
 		return
@@ -217,6 +249,10 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 	if result != HTTPRequest.RESULT_SUCCESS:
 		_emit_failure(request_id, _map_transport_error(result), request_info, log_id)
 		_try_start_next_request()
+		return
+	if response_code == 401 and _uses_official_ai() and not bool(request_info.get("official_auth_retried", false)):
+		request_info["official_auth_retried"] = true
+		_retry_official_request_after_refresh(request_info)
 		return
 
 	if response_code < 200 or response_code >= 300:
@@ -241,6 +277,13 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		_try_start_next_request()
 		return
 	_emit_success(request_info, save_path, audio_format, log_id)
+	_try_start_next_request()
+
+func _retry_official_request_after_refresh(request_info: Dictionary) -> void:
+	if await OfficialAuthManager.force_refresh_access_token():
+		_request_queue.push_front(request_info)
+	else:
+		_emit_failure(str(request_info.get("request_id", "")), "登录状态已失效，请重新登录后使用官方语音服务。", request_info)
 	_try_start_next_request()
 
 func _emit_success(request_info: Dictionary, audio_path: String, audio_format: String, log_id: String = "") -> void:
@@ -612,6 +655,9 @@ func _is_legacy_speaker_id(speaker_id: String) -> bool:
 
 func _get_api_key() -> String:
 	return str(_get_game_settings_value("tts_api_key", "")).strip_edges()
+
+func _uses_official_ai() -> bool:
+	return GameDataManager.config != null and GameDataManager.config.ai_service_mode == ConfigResource.AI_SERVICE_OFFICIAL
 
 func _get_game_settings_value(key: String, fallback: Variant) -> Variant:
 	var settings: Node = get_node_or_null("/root/GameSettings")

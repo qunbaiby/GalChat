@@ -131,7 +131,7 @@ func _build_effective_options(options: Dictionary = {}) -> Dictionary:
 		final_options["speaker"] = str(config.tts_character_speakers.get(char_id, "")).strip_edges()
 	final_options["speaker"] = _resolve_tts_2_speaker(str(final_options.get("speaker", "")).strip_edges(), char_id, config)
 
-	if not final_options.has("api_key") and config != null:
+	if not final_options.has("api_key") and config != null and config.ai_service_mode != ConfigResource.AI_SERVICE_OFFICIAL:
 		final_options["api_key"] = str(config.tts_api_key).strip_edges()
 	if not final_options.has("resource_id"):
 		final_options["resource_id"] = "seed-tts-2.0"

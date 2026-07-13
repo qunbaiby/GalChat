@@ -1,6 +1,14 @@
 class_name ConfigResource
 extends Resource
 
+const AI_SERVICE_OFFICIAL := "official"
+const AI_SERVICE_PERSONAL := "personal"
+const DEFAULT_OFFICIAL_AI_GATEWAY := "http://127.0.0.1:8787/v1/game"
+const LEGACY_PLACEHOLDER_AI_GATEWAY := "https://api.galchat.example/v1/game"
+
+var ai_service_mode: String = AI_SERVICE_OFFICIAL
+var official_ai_gateway_url: String = DEFAULT_OFFICIAL_AI_GATEWAY
+var official_access_token: String = ""
 var api_key: String = ""
 var model: String = "deepseek-chat"
 var temperature: float = 0.7
@@ -109,6 +117,12 @@ func get_custom_config(key: String, default_value: Variant = null) -> Variant:
         return custom_configs[key]
     return default_value
 
+func set_official_access_token(access_token: String) -> void:
+    official_access_token = access_token.strip_edges()
+
+func clear_official_access_token() -> void:
+    official_access_token = ""
+
 func is_main_background_unlocked(bg_id: String) -> bool:
     var final_id := bg_id.strip_edges()
     if final_id == "":
@@ -128,6 +142,8 @@ func unlock_main_background(bg_id: String, save_now: bool = true) -> bool:
 
 func save_config() -> void:
     var data = {
+        "ai_service_mode": ai_service_mode,
+        "official_ai_gateway_url": official_ai_gateway_url,
         "api_key": api_key,
         "doubao_chat_api_key": doubao_chat_api_key,
         "model": model,
@@ -294,6 +310,7 @@ func _apply_ai_voice_defaults(data: Dictionary) -> void:
     enable_ai_diary_illustration = bool(data.get("enable_ai_diary_illustration", enable_ai_diary_illustration))
 
 func load_config() -> void:
+    official_access_token = OS.get_environment("GALCHAT_OFFICIAL_ACCESS_TOKEN").strip_edges()
     if FileAccess.file_exists(CONFIG_PATH):
         var file = FileAccess.open(CONFIG_PATH, FileAccess.READ)
         var content = file.get_as_text()
@@ -304,6 +321,12 @@ func load_config() -> void:
         if error == OK:
             var data = json.get_data()
             if data is Dictionary:
+                ai_service_mode = str(data.get("ai_service_mode", ai_service_mode))
+                if ai_service_mode != AI_SERVICE_OFFICIAL:
+                    ai_service_mode = AI_SERVICE_PERSONAL
+                official_ai_gateway_url = str(data.get("official_ai_gateway_url", official_ai_gateway_url)).strip_edges()
+                if official_ai_gateway_url == LEGACY_PLACEHOLDER_AI_GATEWAY:
+                    official_ai_gateway_url = DEFAULT_OFFICIAL_AI_GATEWAY
                 api_key = data.get("api_key", api_key)
                 doubao_chat_api_key = data.get("doubao_chat_api_key", doubao_chat_api_key)
                 model = data.get("model", model)

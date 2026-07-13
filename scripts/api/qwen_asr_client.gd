@@ -59,8 +59,8 @@ func stop_recording() -> void:
 func _send_to_qwen(frames: PackedVector2Array) -> void:
     var config = GameDataManager.config
     var api_key = config.qwen_asr_api_key
-    
-    if api_key.is_empty():
+
+    if not _uses_official_ai() and api_key.is_empty():
         transcribe_failed.emit("请配置千问ASR的 API Key (DashScope)")
         return
     
@@ -103,43 +103,56 @@ func _send_to_qwen(frames: PackedVector2Array) -> void:
     
     var wav_bytes = FileAccess.get_file_as_bytes(temp_path)
     var base64_audio = Marshalls.raw_to_base64(wav_bytes)
-    
-    # 2. HTTP
+
+    _send_audio_request(base64_audio)
+
+func _send_audio_request(base64_audio: String, auth_retried: bool = false) -> void:
+    if _uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
+        transcribe_failed.emit("登录状态已失效，请重新登录后使用官方语音识别。")
+        return
+
     var http = HTTPRequest.new()
     add_child(http)
-    http.request_completed.connect(_on_http_completed.bind(http))
-    
-    var url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-    
-    var headers = [
-        "Content-Type: application/json",
-        "Authorization: Bearer " + api_key
-    ]
-    
-    var body = {
-        "model": "qwen3-asr-flash",
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "input_audio",
-                        "input_audio": "data:audio/wav;base64," + base64_audio
-                    }
-                ]
-            }
-        ]
-    }
-    
-    http.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+    http.timeout = 90.0
+    http.request_completed.connect(_on_http_completed.bind(http, base64_audio, auth_retried))
 
-func _on_http_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+    var url: String
+    var headers: PackedStringArray = ["Content-Type: application/json"]
+    var body: Dictionary
+    if _uses_official_ai():
+        url = GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/asr/transcriptions"
+        headers.append("Authorization: Bearer " + GameDataManager.config.official_access_token)
+        body = {"audio_base64": base64_audio}
+    else:
+        url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+        headers.append("Authorization: Bearer " + GameDataManager.config.qwen_asr_api_key)
+        body = {
+            "model": "qwen3-asr-flash",
+            "messages": [{
+                "role": "user",
+                "content": [{"type": "input_audio", "input_audio": "data:audio/wav;base64," + base64_audio}]
+            }]
+        }
+
+    var request_error: Error = http.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+    if request_error != OK:
+        http.queue_free()
+        transcribe_failed.emit("语音识别请求发送失败，错误码：%d" % request_error)
+
+func _on_http_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest, base64_audio: String, auth_retried: bool) -> void:
     http.queue_free()
-    
+
     if result != HTTPRequest.RESULT_SUCCESS:
         transcribe_failed.emit("网络请求失败")
         return
-        
+
+    if response_code == 401 and _uses_official_ai() and not auth_retried:
+        if await OfficialAuthManager.force_refresh_access_token():
+            _send_audio_request(base64_audio, true)
+        else:
+            transcribe_failed.emit("登录状态已失效，请重新登录后使用官方语音识别。")
+        return
+
     var body_str = body.get_string_from_utf8()
     print("[QwenASR] 最终返回: ", body_str)
     
@@ -160,3 +173,6 @@ func _on_http_completed(result: int, response_code: int, headers: PackedStringAr
             transcribe_completed.emit(text)
     else:
         transcribe_failed.emit("错误: 返回格式异常")
+
+func _uses_official_ai() -> bool:
+    return GameDataManager.config != null and GameDataManager.config.ai_service_mode == ConfigResource.AI_SERVICE_OFFICIAL

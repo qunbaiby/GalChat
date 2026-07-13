@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GalChat 管理控制台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172322;
+      --muted: #687573;
+      --line: #d9dfdc;
+      --paper: #f2f5f2;
+      --surface: #ffffff;
+      --surface-soft: #f8faf8;
+      --accent: #087d73;
+      --accent-strong: #05645d;
+      --warning: #b35c22;
+      --danger: #b23b45;
+      --shadow: 0 8px 24px rgba(28, 48, 45, 0.07);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(8, 125, 115, 0.035) 1px, transparent 1px),
+        linear-gradient(rgba(8, 125, 115, 0.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
+      letter-spacing: 0;
+    }
+    button, input, textarea { font: inherit; letter-spacing: 0; }
+    button { cursor: pointer; }
+    html { scroll-behavior: smooth; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      color: #eef8f5;
+      background: #123b38;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .brand { font-family: Georgia, "Songti SC", serif; font-size: 24px; }
+    .brand small { display: block; margin-top: 6px; color: #9ec1bb; font: 12px "Microsoft YaHei UI", sans-serif; }
+    nav { display: grid; gap: 4px; margin-top: 38px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 2px solid transparent; color: #c5d9d5; text-decoration: none; font-size: 13px; }
+    .nav-item:hover, .nav-item.active { border-left-color: #65c5b7; color: #fff; background: rgba(255,255,255,.08); }
+    .nav-mark { width: 6px; height: 6px; border: 1px solid #65c5b7; transform: rotate(45deg); }
+    .nav-item.active .nav-mark { background: #65c5b7; }
+    .side-status { margin-top: 28px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); color: #b8ceca; font-size: 13px; line-height: 1.8; }
+    main { width: 100%; max-width: 1440px; min-width: 0; padding: 30px clamp(24px, 4vw, 56px) 56px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    h1 { margin: 0; font: 34px Georgia, "Songti SC", serif; }
+    .subtitle { margin-top: 7px; color: var(--muted); font-size: 14px; }
+    .actions { display: flex; gap: 8px; }
+    .button { min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: var(--surface); }
+    .button:hover { border-color: var(--accent); color: var(--accent); }
+    .button.primary { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .button.primary:hover { background: var(--accent-strong); }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .metric { min-height: 108px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow); }
+    .metric-label { color: var(--muted); font-size: 13px; }
+    .metric-value { margin-top: 18px; font: 30px Georgia, serif; }
+    .metric-foot { margin-top: 5px; color: var(--accent); font-size: 12px; }
+    .section { scroll-margin-top: 18px; margin-top: 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 18px; border-bottom: 1px solid var(--line); background: var(--surface-soft); }
+    .section-head h2 { margin: 0; font-size: 17px; }
+    .section-note { color: var(--muted); font-size: 12px; }
+    .service-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .service-item { padding: 18px; border-right: 1px solid var(--line); }
+    .service-item:last-child { border-right: 0; }
+    .service-label { color: var(--muted); font-size: 12px; }
+    .service-value { margin-top: 8px; font-size: 14px; overflow-wrap: anywhere; }
+    .config-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 0; }
+    .config-form { padding: 20px; border-right: 1px solid var(--line); }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+    .field-grid .wide { grid-column: 1 / -1; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; }
+    .field input { width: 100%; height: 40px; padding: 0 11px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: #fbfcfa; }
+    .field input:focus { outline: 2px solid rgba(8,125,115,.18); border-color: var(--accent); }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .button.danger { border-color: #e4bfc2; color: var(--danger); }
+    .button.danger:hover { border-color: var(--danger); background: #fff7f7; }
+    .form-message { min-height: 20px; margin-top: 12px; color: var(--muted); font-size: 12px; }
+    .form-message.success { color: var(--accent); }
+    .form-message.error { color: var(--danger); }
+    .config-summary { padding: 20px; background: var(--surface-soft); }
+    .capability-grid { display: grid; gap: 0; }
+    .capability-form { min-width: 0; border-bottom: 1px solid var(--line); background: var(--surface); }
+    .capability-form:last-child { border-bottom: 0; }
+    .capability-form summary { display: grid; grid-template-columns: minmax(150px, .7fr) minmax(180px, 1.3fr) auto; align-items: center; gap: 18px; min-height: 64px; padding: 12px 18px; cursor: pointer; list-style: none; }
+    .capability-form summary::-webkit-details-marker { display: none; }
+    .capability-form summary:hover { background: var(--surface-soft); }
+    .capability-form[open] summary { border-bottom: 1px solid var(--line); background: #f4f9f7; }
+    .capability-title { font-size: 15px; font-weight: 700; }
+    .capability-meta { min-width: 0; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .capability-status { color: var(--muted); font-size: 11px; text-align: right; }
+    .capability-status::after { content: "＋"; display: inline-block; width: 22px; margin-left: 10px; color: var(--accent); font-size: 16px; text-align: center; }
+    .capability-form[open] .capability-status::after { content: "−"; }
+    .capability-body { padding: 18px; }
+    .summary-line { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .summary-line:last-child { border-bottom: 0; }
+    .summary-line span { display: block; color: var(--muted); font-size: 11px; }
+    .summary-line strong { display: block; margin-top: 5px; font-size: 13px; overflow-wrap: anywhere; }
+    .dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; background: var(--accent); }
+    .dot.off { background: var(--danger); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; }
+    th, td { padding: 13px 18px; border-bottom: 1px solid #e8ece9; text-align: left; font-size: 13px; }
+    th { color: var(--muted); background: #fafbf9; font-weight: 600; }
+    tbody tr:hover { background: #f4faf8; }
+    .mono { font-family: Consolas, monospace; font-size: 12px; }
+    .quota-detail { display: grid; gap: 3px; min-width: 170px; color: var(--muted); font-size: 11px; }
+    .quota-detail strong { color: var(--ink); font-weight: 600; }
+    .quota-editor { display: flex; align-items: center; gap: 6px; }
+    .quota-editor input { width: 86px; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 4px; }
+    .status-ok { color: var(--accent); }
+    .status-error { color: var(--danger); }
+    .pager { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 13px 18px; color: var(--muted); font-size: 12px; }
+    dialog { width: min(440px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--line); border-radius: 7px; box-shadow: 0 24px 80px rgba(15,35,32,.24); }
+    dialog::backdrop { background: rgba(13, 30, 28, .52); }
+    .login { padding: 26px; }
+    .login h2 { margin: 0; font: 26px Georgia, "Songti SC", serif; }
+    .login p { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .login input { width: 100%; height: 42px; margin: 8px 0 12px; padding: 0 12px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: #fbfcfa; }
+    .login input:focus { outline: 2px solid rgba(8,125,115,.18); border-color: var(--accent); }
+    .login-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .message { min-height: 20px; color: var(--danger); font-size: 12px; }
+    .empty { padding: 34px; color: var(--muted); text-align: center; }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; padding: 18px 20px; }
+      nav, .side-status { display: none; }
+      main { padding-top: 22px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .service-grid { grid-template-columns: 1fr; }
+      .config-grid { grid-template-columns: 1fr; }
+      .config-form { border-right: 0; border-bottom: 1px solid var(--line); }
+      .service-item { border-right: 0; border-bottom: 1px solid var(--line); }
+      .service-item:last-child { border-bottom: 0; }
+    }
+    @media (max-width: 560px) {
+      header { display: block; }
+      .actions { margin-top: 16px; }
+      .metrics { grid-template-columns: 1fr; }
+      .field-grid { grid-template-columns: 1fr; }
+      .field-grid .wide { grid-column: auto; }
+      .capability-form summary { grid-template-columns: 1fr auto; gap: 6px 12px; }
+      .capability-meta { grid-column: 1 / -1; grid-row: 2; }
+      .capability-status { grid-column: 2; grid-row: 1; }
+      .section-head { align-items: flex-start; flex-direction: column; gap: 5px; }
+      h1 { font-size: 29px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand">GalChat<small>AI GATEWAY CONSOLE</small></div>
+      <nav>
+        <a class="nav-item active" href="#overview"><span class="nav-mark"></span>运行总览</a>
+        <a class="nav-item" href="#usage"><span class="nav-mark"></span>能力用量</a>
+        <a class="nav-item" href="#chat-provider"><span class="nav-mark"></span>对话模型</a>
+        <a class="nav-item" href="#capabilities"><span class="nav-mark"></span>官方能力</a>
+        <a class="nav-item" href="#accounts"><span class="nav-mark"></span>账号与额度</a>
+        <a class="nav-item" href="#audit"><span class="nav-mark"></span>审计记录</a>
+      </nav>
+      <div class="side-status">管理凭证仅保存在当前标签页。<br>页面不会显示供应商完整密钥。</div>
+    </aside>
+    <main>
+      <header>
+        <div><h1>运行总览</h1><div class="subtitle" id="updatedAt">等待连接管理 API</div></div>
+        <div class="actions"><button class="button" id="logoutButton">锁定</button><button class="button primary" id="refreshButton">刷新</button></div>
+      </header>
+      <section class="metrics" id="overview">
+        <article class="metric"><div class="metric-label">注册账号</div><div class="metric-value" id="usersMetric">--</div><div class="metric-foot">累计账号</div></article>
+        <article class="metric"><div class="metric-label">有效会话</div><div class="metric-value" id="sessionsMetric">--</div><div class="metric-foot">未撤销且未过期</div></article>
+        <article class="metric"><div class="metric-label">今日 AI 请求</div><div class="metric-value" id="requestsMetric">--</div><div class="metric-foot" id="usageDate">UTC 日期</div></article>
+        <article class="metric"><div class="metric-label">今日活跃账号</div><div class="metric-value" id="activeMetric">--</div><div class="metric-foot">产生额度消耗</div></article>
+      </section>
+      <section class="section" id="service-status">
+        <div class="section-head"><h2>服务配置</h2><span class="section-note">只读状态，不回显密钥</span></div>
+        <div class="service-grid">
+          <div class="service-item"><div class="service-label">供应商</div><div class="service-value" id="providerState">--</div></div>
+          <div class="service-item"><div class="service-label">运行环境</div><div class="service-value" id="environmentState">--</div></div>
+          <div class="service-item"><div class="service-label">模型与限制</div><div class="service-value" id="modelState">--</div></div>
+        </div>
+      </section>
+      <section class="section" id="usage">
+        <div class="section-head"><h2>分能力用量</h2><span class="section-note">请求、成功率、负载单位与延迟</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>能力</th><th>今日额度</th><th>请求</th><th>成功</th><th>失败</th><th>额度拒绝</th><th>负载单位</th><th>平均延迟</th></tr></thead>
+            <tbody id="capabilityUsageRows"><tr><td colspan="8" class="empty">暂无调用数据</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="section" id="usage-events">
+        <div class="section-head"><h2>最近调用</h2><span class="section-note">不记录提示词、音频、图片或供应商密钥</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>时间</th><th>能力</th><th>状态</th><th>负载单位</th><th>延迟</th><th>HTTP</th><th>用户 ID</th></tr></thead>
+            <tbody id="usageEventRows"><tr><td colspan="7" class="empty">暂无调用记录</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="section" id="chat-provider">
+        <div class="section-head"><h2>对话模型</h2><span class="section-note">DeepSeek · 保存前测试连接 · 密钥永不回显</span></div>
+        <div class="config-grid">
+          <form class="config-form" id="providerForm">
+            <div class="field-grid">
+              <div class="field"><label for="providerKeyInput">DeepSeek API Key</label><input id="providerKeyInput" type="password" autocomplete="new-password" placeholder="输入新密钥以测试或替换" required></div>
+              <div class="field"><label for="providerUrlInput">Base URL</label><input id="providerUrlInput" type="url" placeholder="https://api.deepseek.com/v1" required></div>
+              <div class="field wide"><label for="providerModelsInput">允许模型（英文逗号分隔）</label><input id="providerModelsInput" type="text" placeholder="deepseek-chat, deepseek-reasoner" required></div>
+            </div>
+            <div class="form-actions">
+              <button class="button" type="button" id="testProviderButton">测试连接</button>
+              <button class="button primary" type="submit" id="saveProviderButton">测试并保存</button>
+              <button class="button danger" type="button" id="deleteProviderButton">删除加密配置</button>
+            </div>
+            <div class="form-message" id="providerMessage">输入新 Key 后可测试。当前 Key 不会发送到浏览器。</div>
+          </form>
+          <div class="config-summary">
+            <div class="summary-line"><span>配置来源</span><strong id="providerSource">--</strong></div>
+            <div class="summary-line"><span>密钥状态</span><strong id="providerKeyState">--</strong></div>
+            <div class="summary-line"><span>加密存储</span><strong id="providerStorageState">--</strong></div>
+            <div class="summary-line"><span>最近更新</span><strong id="providerUpdatedAt">--</strong></div>
+          </div>
+        </div>
+      </section>
+      <section class="section" id="capabilities">
+        <div class="section-head"><h2>官方能力配置</h2><span class="section-note">密钥加密保存；试听与生成仍在游戏内触发</span></div>
+        <div class="capability-grid" id="capabilityForms"></div>
+      </section>
+      <section class="section" id="accounts">
+        <div class="section-head"><h2>账号与额度</h2><span class="section-note" id="accountCount">--</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>用户名</th><th>邮箱</th><th>今日总量</th><th>分能力额度</th><th>有效会话</th><th>注册时间</th><th>用户 ID</th></tr></thead>
+            <tbody id="userRows"><tr><td colspan="7" class="empty">登录后加载账号数据</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pager"><button class="button" id="prevButton">上一页</button><span id="pageState">第 1 页</span><button class="button" id="nextButton">下一页</button></div>
+      </section>
+      <section class="section" id="audit">
+        <div class="section-head"><h2>审计记录</h2><span class="section-note">不记录 API Key 或管理员令牌</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>时间</th><th>操作</th><th>来源 IP</th></tr></thead>
+            <tbody id="auditRows"><tr><td colspan="3" class="empty">暂无审计记录</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <dialog id="loginDialog">
+    <form class="login" method="dialog" id="loginForm">
+      <h2>管理控制台</h2>
+      <p>输入服务器环境变量 <span class="mono">GALCHAT_ADMIN_TOKEN</span>。令牌只保存在当前浏览器标签页，关闭标签页后自动清除。</p>
+      <input id="tokenInput" type="password" autocomplete="current-password" placeholder="管理员令牌" required>
+      <div class="message" id="loginMessage"></div>
+      <div class="login-actions"><button class="button primary" type="submit">进入控制台</button></div>
+    </form>
+  </dialog>
+  <script>
+    const pageSize = 50;
+    let pageOffset = 0;
+    let totalUsers = 0;
+    const capabilityDefinitions = {
+      tts: { name: "TTS 语音合成", model: "模型", resource: "资源 ID" },
+      asr: { name: "ASR 语音识别", model: "模型", resource: "资源 ID（可选）" },
+      embedding: { name: "向量 Embedding", model: "模型 / Endpoint ID", resource: "资源 ID（可选）" },
+      image: { name: "图片生成", model: "模型", resource: "资源 ID（可选）" },
+      vision: { name: "多模态 Vision", model: "模型", resource: "资源 ID（可选）" }
+    };
+    const getToken = () => sessionStorage.getItem("galchatAdminToken") || "";
+    const authHeaders = () => ({ Authorization: `Bearer ${getToken()}` });
+    const escapeText = (value) => String(value ?? "");
+
+    async function api(path, options = {}) {
+      const headers = { ...authHeaders(), ...(options.body ? { "Content-Type": "application/json" } : {}) };
+      const response = await fetch(path, { ...options, headers, cache: "no-store" });
+      if (response.status === 401) {
+        sessionStorage.removeItem("galchatAdminToken");
+        showLogin("管理员令牌无效。", true);
+        throw new Error("Unauthorized");
+      }
+      if (!response.ok) {
+        let detail = `HTTP ${response.status}`;
+        try { detail = (await response.json()).detail || detail; } catch (_) {}
+        if (response.status === 503 && detail === "Admin console is not configured.") {
+          sessionStorage.removeItem("galchatAdminToken");
+          showLogin("服务器尚未配置管理员令牌。", true);
+          throw new Error("Unauthorized");
+        }
+        throw new Error(detail);
+      }
+      return response.status === 204 ? null : response.json();
+    }
+
+    async function refreshDashboard() {
+      document.getElementById("refreshButton").disabled = true;
+      try {
+        const [overview, users, provider, capabilityProviders, audit, usageEvents] = await Promise.all([
+          api("/admin/api/overview"),
+          api(`/admin/api/users?limit=${pageSize}&offset=${pageOffset}`),
+          api("/admin/api/provider"),
+          api("/admin/api/capability-providers"),
+          api("/admin/api/audit-logs?limit=50"),
+          api("/admin/api/usage-events?limit=100")
+        ]);
+        totalUsers = users.total;
+        renderOverview(overview);
+        renderCapabilityUsage(overview);
+        renderUsers(users.items);
+        renderProvider(provider);
+        renderCapabilityProviders(capabilityProviders);
+        renderAudit(audit.items);
+        renderUsageEvents(usageEvents.items);
+        renderPager();
+        document.getElementById("updatedAt").textContent = `最近刷新：${new Date().toLocaleString()}`;
+      } catch (error) {
+        if (error.message !== "Unauthorized") document.getElementById("updatedAt").textContent = `加载失败：${error.message}`;
+      } finally {
+        document.getElementById("refreshButton").disabled = false;
+      }
+    }
+
+    function renderOverview(data) {
+      document.getElementById("usersMetric").textContent = data.users;
+      document.getElementById("sessionsMetric").textContent = data.active_sessions;
+      document.getElementById("requestsMetric").textContent = data.requests_today;
+      document.getElementById("activeMetric").textContent = data.active_users_today;
+      document.getElementById("usageDate").textContent = `${data.usage_date} UTC`;
+      document.getElementById("providerState").innerHTML = `<span class="dot ${data.provider_configured ? "" : "off"}"></span>${data.provider_configured ? "已配置" : "未配置"}<br><span class="mono"></span>`;
+      document.querySelector("#providerState .mono").textContent = data.provider_base_url;
+      document.getElementById("environmentState").textContent = `${data.environment} · 每账号每日 ${data.daily_request_limit} 次`;
+      document.getElementById("modelState").textContent = `${data.allowed_models.join(", ")} · ${data.rate_limit_requests}/${data.rate_limit_window_seconds}s`;
+    }
+
+    function renderUsers(items) {
+      const body = document.getElementById("userRows");
+      body.replaceChildren();
+      if (!items.length) {
+        const row = body.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 7;
+        cell.className = "empty";
+        cell.textContent = "暂无账号";
+        return;
+      }
+      for (const user of items) {
+        const row = body.insertRow();
+        const values = [user.username, user.email, user.used_today, null, user.active_sessions, new Date(user.created_at).toLocaleString(), user.user_id];
+        values.forEach((value, index) => {
+          const cell = row.insertCell();
+          if (index === 3) {
+            cell.className = "quota-detail";
+            for (const [capability, quota] of Object.entries(user.capability_quotas || {})) {
+              const line = document.createElement("span");
+              const name = document.createElement("strong");
+              name.textContent = capability;
+              line.append(name, ` ${quota.used} / ${quota.limit}`);
+              cell.appendChild(line);
+            }
+          } else {
+            cell.textContent = escapeText(value);
+          }
+          if (index === 6) cell.className = "mono";
+        });
+      }
+      document.getElementById("accountCount").textContent = `共 ${totalUsers} 个账号`;
+    }
+
+    function renderCapabilityUsage(data) {
+      const body = document.getElementById("capabilityUsageRows");
+      body.replaceChildren();
+      const stats = Object.fromEntries((data.capability_stats || []).map(item => [item.capability, item]));
+      for (const [capability, limit] of Object.entries(data.capability_daily_limits || {})) {
+        const item = stats[capability] || { requests: 0, succeeded: 0, failed: 0, quota_rejected: 0, units: 0, average_latency_ms: 0 };
+        const row = body.insertRow();
+        row.insertCell().textContent = capability;
+        const quotaCell = row.insertCell();
+        quotaCell.className = "quota-editor";
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.max = "1000000";
+        input.value = limit;
+        input.setAttribute("aria-label", `${capability} 每日额度`);
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "button";
+        saveButton.textContent = "保存";
+        saveButton.addEventListener("click", async () => {
+          saveButton.disabled = true;
+          try {
+            await api(`/admin/api/capability-quotas/${capability}`, {
+              method: "PUT",
+              body: JSON.stringify({ daily_limit: Number(input.value) })
+            });
+            await refreshDashboard();
+          } catch (error) {
+            document.getElementById("updatedAt").textContent = `额度保存失败：${error.message}`;
+          } finally {
+            saveButton.disabled = false;
+          }
+        });
+        quotaCell.append(input, saveButton);
+        [item.requests, item.succeeded, item.failed, item.quota_rejected, item.units, `${item.average_latency_ms} ms`].forEach(value => {
+          row.insertCell().textContent = escapeText(value);
+        });
+      }
+    }
+
+    function renderUsageEvents(items) {
+      const body = document.getElementById("usageEventRows");
+      body.replaceChildren();
+      if (!items.length) {
+        const row = body.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 7;
+        cell.className = "empty";
+        cell.textContent = "暂无调用记录";
+        return;
+      }
+      for (const event of items) {
+        const row = body.insertRow();
+        const values = [new Date(event.created_at).toLocaleString(), event.capability, event.status, event.units, `${event.latency_ms} ms`, event.error_code || "--", event.user_id];
+        values.forEach((value, index) => {
+          const cell = row.insertCell();
+          cell.textContent = escapeText(value);
+          if (index === 2) cell.className = event.status === "succeeded" ? "status-ok" : "status-error";
+          if (index === 6) cell.className = "mono";
+        });
+      }
+    }
+
+    function renderProvider(data) {
+      document.getElementById("providerUrlInput").value = data.base_url;
+      document.getElementById("providerModelsInput").value = data.allowed_models.join(", ");
+      document.getElementById("providerSource").textContent = data.source === "encrypted_store" ? "控制台加密存储" : "服务器环境变量";
+      document.getElementById("providerKeyState").textContent = data.configured ? "已配置" : "未配置";
+      document.getElementById("providerStorageState").textContent = data.secret_storage_enabled ? "可用" : "未配置主密钥";
+      document.getElementById("providerUpdatedAt").textContent = data.updated_at ? new Date(data.updated_at).toLocaleString() : "尚未通过控制台保存";
+      document.getElementById("deleteProviderButton").disabled = data.source !== "encrypted_store";
+    }
+
+    function renderCapabilityProviders(data) {
+      const container = document.getElementById("capabilityForms");
+      container.replaceChildren();
+      for (const [capability, definition] of Object.entries(capabilityDefinitions)) {
+        const config = data.items[capability];
+        const details = document.createElement("details");
+        details.className = "capability-form";
+        details.dataset.capability = capability;
+        details.innerHTML = `
+          <summary><span class="capability-title"></span><span class="capability-meta"></span><span class="capability-status"></span></summary>
+          <form class="capability-body">
+            <div class="field-grid">
+              <div class="field"><label>API Key</label><input name="api_key" type="password" autocomplete="new-password" placeholder="输入新密钥以保存或替换" required></div>
+              <div class="field"><label>Base URL</label><input name="base_url" type="url" required></div>
+              <div class="field"><label class="model-label"></label><input name="model" type="text"></div>
+              <div class="field"><label class="resource-label"></label><input name="resource_id" type="text"></div>
+            </div>
+            <div class="form-actions"><button class="button primary" type="submit">加密保存</button><button class="button danger delete-capability" type="button">删除加密配置</button></div>
+            <div class="form-message">当前 Key 不会发送到浏览器。</div>
+          </form>`;
+        const form = details.querySelector("form");
+        details.querySelector(".capability-title").textContent = definition.name;
+        details.querySelector(".capability-meta").textContent = [config.model, config.base_url].filter(Boolean).join(" · ");
+        details.querySelector(".capability-status").textContent = `${config.configured ? "已配置" : "未配置"} · ${config.source === "encrypted_store" ? "控制台" : "环境变量"}`;
+        details.querySelector(".model-label").textContent = definition.model;
+        details.querySelector(".resource-label").textContent = definition.resource;
+        form.elements.base_url.value = config.base_url;
+        form.elements.model.value = config.model;
+        form.elements.resource_id.value = config.resource_id;
+        details.querySelector(".delete-capability").disabled = config.source !== "encrypted_store";
+        container.appendChild(details);
+      }
+    }
+
+    async function saveCapabilityProvider(form) {
+      const capability = form.closest(".capability-form").dataset.capability;
+      const message = form.querySelector(".form-message");
+      const payload = Object.fromEntries(new FormData(form).entries());
+      form.querySelectorAll("button, input").forEach(element => { element.disabled = true; });
+      message.textContent = "正在加密保存...";
+      message.className = "form-message";
+      try {
+        await api(`/admin/api/capability-providers/${capability}`, { method: "PUT", body: JSON.stringify(payload) });
+        form.elements.api_key.value = "";
+        message.textContent = "配置已加密保存并立即生效。";
+        message.className = "form-message success";
+        await refreshDashboard();
+      } catch (error) {
+        message.textContent = `保存失败：${error.message}`;
+        message.className = "form-message error";
+        form.querySelectorAll("button, input").forEach(element => { element.disabled = false; });
+      }
+    }
+
+    async function deleteCapabilityProvider(form) {
+      const capability = form.closest(".capability-form").dataset.capability;
+      if (!confirm(`删除 ${capabilityDefinitions[capability].name} 的控制台加密配置？`)) return;
+      const message = form.querySelector(".form-message");
+      try {
+        await api(`/admin/api/capability-providers/${capability}`, { method: "DELETE" });
+        message.textContent = "已删除并回退到服务器环境变量。";
+        message.className = "form-message success";
+        await refreshDashboard();
+      } catch (error) {
+        message.textContent = `删除失败：${error.message}`;
+        message.className = "form-message error";
+      }
+    }
+
+    function renderAudit(items) {
+      const body = document.getElementById("auditRows");
+      body.replaceChildren();
+      if (!items.length) {
+        const row = body.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 3;
+        cell.className = "empty";
+        cell.textContent = "暂无审计记录";
+        return;
+      }
+      for (const item of items) {
+        const row = body.insertRow();
+        [new Date(item.created_at).toLocaleString(), item.action, item.source_ip].forEach((value, index) => {
+          const cell = row.insertCell();
+          cell.textContent = escapeText(value);
+          if (index > 0) cell.className = "mono";
+        });
+      }
+    }
+
+    function providerPayload() {
+      return {
+        api_key: document.getElementById("providerKeyInput").value.trim(),
+        base_url: document.getElementById("providerUrlInput").value.trim(),
+        allowed_models: document.getElementById("providerModelsInput").value.split(",").map(value => value.trim()).filter(Boolean)
+      };
+    }
+
+    function setProviderBusy(busy) {
+      document.getElementById("testProviderButton").disabled = busy;
+      document.getElementById("saveProviderButton").disabled = busy;
+      document.getElementById("providerKeyInput").disabled = busy;
+    }
+
+    function setProviderMessage(message, state = "") {
+      const element = document.getElementById("providerMessage");
+      element.textContent = message;
+      element.className = `form-message ${state}`;
+    }
+
+    async function testProvider(save) {
+      const payload = providerPayload();
+      if (!payload.api_key || !payload.base_url || !payload.allowed_models.length) {
+        setProviderMessage("请完整填写 API Key、Base URL 和允许模型。", "error");
+        return;
+      }
+      setProviderBusy(true);
+      setProviderMessage(save ? "正在测试，成功后将加密保存..." : "正在由服务端测试供应商连接...");
+      try {
+        const result = await api(save ? "/admin/api/provider" : "/admin/api/provider/test",
+          { method: save ? "PUT" : "POST", body: JSON.stringify(payload) });
+        document.getElementById("providerKeyInput").value = "";
+        setProviderMessage(`${save ? "配置已加密保存" : "连接测试成功"} · ${result.latency_ms} ms`, "success");
+        await refreshDashboard();
+      } catch (error) {
+        setProviderMessage(`操作失败：${error.message}`, "error");
+      } finally {
+        setProviderBusy(false);
+      }
+    }
+
+    function renderPager() {
+      const current = Math.floor(pageOffset / pageSize) + 1;
+      const pages = Math.max(1, Math.ceil(totalUsers / pageSize));
+      document.getElementById("pageState").textContent = `第 ${current} / ${pages} 页`;
+      document.getElementById("prevButton").disabled = pageOffset === 0;
+      document.getElementById("nextButton").disabled = pageOffset + pageSize >= totalUsers;
+    }
+
+    function showLogin(message = "", force = false) {
+      const dialog = document.getElementById("loginDialog");
+      document.getElementById("loginMessage").textContent = message;
+      if (!dialog.open) dialog.showModal();
+      if (force) document.getElementById("tokenInput").value = "";
+      document.getElementById("tokenInput").focus();
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const token = document.getElementById("tokenInput").value.trim();
+      if (!token) return;
+      sessionStorage.setItem("galchatAdminToken", token);
+      document.getElementById("loginDialog").close();
+      refreshDashboard();
+    });
+    document.getElementById("refreshButton").addEventListener("click", refreshDashboard);
+    document.getElementById("logoutButton").addEventListener("click", () => { sessionStorage.removeItem("galchatAdminToken"); showLogin(); });
+    document.getElementById("prevButton").addEventListener("click", () => { pageOffset = Math.max(0, pageOffset - pageSize); refreshDashboard(); });
+    document.getElementById("nextButton").addEventListener("click", () => { pageOffset += pageSize; refreshDashboard(); });
+    document.getElementById("testProviderButton").addEventListener("click", () => testProvider(false));
+    document.getElementById("providerForm").addEventListener("submit", (event) => { event.preventDefault(); testProvider(true); });
+    document.getElementById("capabilityForms").addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveCapabilityProvider(event.target);
+    });
+    document.getElementById("capabilityForms").addEventListener("click", (event) => {
+      if (event.target.classList.contains("delete-capability")) deleteCapabilityProvider(event.target.closest("form"));
+    });
+    const navigationItems = [...document.querySelectorAll(".nav-item")];
+    const observedSections = navigationItems
+      .map(item => document.querySelector(item.getAttribute("href")))
+      .filter(Boolean);
+    const navigationObserver = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+      if (!visible) return;
+      navigationItems.forEach(item => item.classList.toggle("active", item.getAttribute("href") === `#${visible.target.id}`));
+    }, { rootMargin: "-15% 0px -65% 0px", threshold: [0, 0.25, 0.5] });
+    observedSections.forEach(section => navigationObserver.observe(section));
+    document.getElementById("deleteProviderButton").addEventListener("click", async () => {
+      if (!confirm("删除控制台保存的加密配置？删除后将回退到服务器环境变量。")) return;
+      setProviderBusy(true);
+      try {
+        await api("/admin/api/provider/key", { method: "DELETE" });
+        document.getElementById("providerKeyInput").value = "";
+        setProviderMessage("加密配置已删除，当前服务已回退到环境变量。", "success");
+        await refreshDashboard();
+      } catch (error) {
+        setProviderMessage(`删除失败：${error.message}`, "error");
+      } finally {
+        setProviderBusy(false);
+      }
+    });
+
+    if (getToken()) refreshDashboard(); else showLogin();
+  </script>
+</body>
+</html>

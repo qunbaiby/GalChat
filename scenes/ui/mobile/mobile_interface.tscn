@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://b7wg7y2wggjjq" path="res://assets/images/icons/ui/mobile/home/personality_traits.svg" id="18_personality_icon"]
 [ext_resource type="Texture2D" uid="uid://cfxiyuf71yewt" path="res://assets/images/icons/ui/mobile/home/memory_notes.svg" id="19_memory_icon"]
 [ext_resource type="Texture2D" uid="uid://bptp8gvy84hgx" path="res://assets/images/icons/ui/mobile/home/relationship_link.svg" id="20_relation_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/desktop_mode.svg" id="21_desktop_mode_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PlayerAvMask"]
 bg_color = Color(0.975, 0.988, 0.992, 1)
@@ -742,6 +743,42 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
 theme_override_font_sizes/font_size = 12
 text = "桌宠"
+horizontal_alignment = 1
+
+[node name="DesktopModeBtn" type="Button" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 2
+
+[node name="ContentVBox" type="VBoxContainer" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopModeBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopModeBtn/ContentVBox"]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("21_desktop_mode_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopModeBtn/ContentVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 12
+text = "桌面"
 horizontal_alignment = 1
 
 [node name="RightSidebar" type="PanelContainer" parent="PhonePanel/MainMargin/RootHBox" unique_id=664848222]

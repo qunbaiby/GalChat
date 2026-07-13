@@ -13,6 +13,7 @@ const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manage
 @onready var relation_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/RelationBtn
 @onready var album_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/AlbumBtn
 @onready var desktop_pet_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopPetBtn
+@onready var desktop_mode_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/BottomContentHBox/UtilityVBox/DesktopModeBtn
 @onready var settings_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/SettingsBtn
 @onready var mail_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/MailBtn
 @onready var tutorial_btn: Button = $PhonePanel/MainMargin/RootHBox/RightSidebar/SideVBox/TutorialBtn
@@ -81,6 +82,7 @@ func _ready() -> void:
 	memory_btn.pressed.connect(_on_memory_app_pressed)
 	relation_btn.pressed.connect(_on_relation_app_pressed)
 	desktop_pet_btn.pressed.connect(_on_desktop_pet_pressed)
+	desktop_mode_btn.pressed.connect(_on_desktop_mode_pressed)
 	settings_btn.pressed.connect(_on_settings_app_pressed)
 	mail_btn.pressed.connect(_on_mail_app_pressed)
 	tutorial_btn.pressed.connect(_on_tutorial_app_pressed)
@@ -418,6 +420,25 @@ func _on_relation_app_pressed() -> void:
 func _on_desktop_pet_pressed() -> void:
 	hide_phone()
 	app_opened.emit("desktop_pet")
+
+func _on_desktop_mode_pressed() -> void:
+	var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
+	if confirm_scene == null:
+		return
+	var confirm_dialog = confirm_scene.instantiate()
+	add_child(confirm_dialog)
+	confirm_dialog.setup_advanced(
+		"设置为电脑桌面",
+		"确认要将当前主场景设置为你的电脑桌面吗？",
+		"进入后将隐藏游戏界面，只保留音乐播放器和返回游戏按钮。",
+		"",
+		"设为桌面",
+		"取消"
+	)
+	confirm_dialog.confirmed.connect(func() -> void:
+		hide_phone()
+		app_opened.emit("desktop_mode")
+	)
 
 func _load_album_photos() -> void:
 	_album_photos.clear()

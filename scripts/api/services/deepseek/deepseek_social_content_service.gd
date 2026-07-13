@@ -16,6 +16,10 @@ func _save_diary_to_profile(diary_entry: Dictionary) -> void:
 			GameDataManager.profile.save_profile()
 
 func _create_image_client(client):
+	if GameDataManager.config and GameDataManager.config.ai_service_mode == ConfigResource.AI_SERVICE_OFFICIAL:
+		var official_image_client = preload("res://scripts/api/official_image_client.gd").new()
+		client.add_child(official_image_client)
+		return official_image_client
 	var provider: int = 0
 	if GameDataManager.config and "image_generation_provider" in GameDataManager.config:
 		provider = GameDataManager.config.image_generation_provider

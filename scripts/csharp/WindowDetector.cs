@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Collections.Generic;
 
 namespace GalChat.Scripts.CSharp
 {
@@ -18,17 +19,89 @@ namespace GalChat.Scripts.CSharp
     [DllImport("user32.dll")]
     private static extern bool IsWindowVisible(IntPtr hWnd);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr GetParent(IntPtr hWnd);
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmGetWindowAttribute(IntPtr hWnd, int attribute, out int value, int valueSize);
+
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string windowTitle);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr SetParent(IntPtr childHandle, IntPtr newParentHandle);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetWindow(IntPtr hWnd, uint command);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    private static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out IntPtr result);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int command);
+
+    [DllImport("user32.dll")]
+    private static extern bool RedrawWindow(IntPtr hWnd, IntPtr updateRect, IntPtr updateRegion, uint flags);
+
+    [DllImport("kernel32.dll")]
+    private static extern void SetLastError(uint errorCode);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
+    private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int index);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW", SetLastError = true)]
+    private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, int index);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+    private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int index, IntPtr newValue);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
+    private static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, int index, IntPtr newValue);
+
     // 定义委托
     private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
     private static int _currentGodotProcessId;
     private IntPtr _mainHwnd = IntPtr.Zero;
+    private IntPtr _desktopOriginalParent = IntPtr.Zero;
+    private IntPtr _desktopOriginalStyle = IntPtr.Zero;
+    private IntPtr _desktopOriginalExStyle = IntPtr.Zero;
+    private bool _desktopEmbedded;
+    private bool _desktopParented;
+    private IntPtr _desktopHost = IntPtr.Zero;
+
+    private const int GWL_STYLE = -16;
+    private const long WS_CHILD = 0x40000000L;
+    private const long WS_POPUP = unchecked((long)0x80000000L);
+    private const long WS_EX_TOPMOST = 0x00000008L;
+    private const uint WM_SPAWN_WORKER = 0x052C;
+    private const uint SMTO_NORMAL = 0x0000;
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
+    private const uint SWP_NOACTIVATE = 0x0010;
+    private const uint SWP_FRAMECHANGED = 0x0020;
+    private const uint SWP_SHOWWINDOW = 0x0040;
+    private const uint GW_HWNDPREV = 3;
+    private const int SW_HIDE = 0;
+    private const uint RDW_INVALIDATE = 0x0001;
+    private const uint RDW_ERASE = 0x0004;
+    private const uint RDW_ALLCHILDREN = 0x0080;
+    private const uint RDW_UPDATENOW = 0x0100;
+    private const uint RDW_FRAME = 0x0400;
+    private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+    private const int DWMWA_CLOAKED = 14;
 
     public override void _EnterTree()
     {
@@ -39,6 +112,303 @@ namespace GalChat.Scripts.CSharp
     public void SetMainHwnd(long hwnd)
     {
         _mainHwnd = new IntPtr(hwnd);
+    }
+
+    public bool IsMainWindowForeground()
+    {
+        return _mainHwnd != IntPtr.Zero && GetForegroundWindow() == _mainHwnd;
+    }
+
+    private static IntPtr GetWindowLongPointer(IntPtr hWnd, int index)
+    {
+        return IntPtr.Size == 8 ? GetWindowLongPtr64(hWnd, index) : GetWindowLongPtr32(hWnd, index);
+    }
+
+    private static IntPtr SetWindowLongPointer(IntPtr hWnd, int index, IntPtr value)
+    {
+        return IntPtr.Size == 8 ? SetWindowLongPtr64(hWnd, index, value) : SetWindowLongPtr32(hWnd, index, value);
+    }
+
+    private static string GetWindowClass(IntPtr hWnd)
+    {
+        StringBuilder className = new StringBuilder(256);
+        GetClassName(hWnd, className, className.Capacity);
+        return className.ToString();
+    }
+
+    private static string DescribeWindow(IntPtr hWnd)
+    {
+        if (hWnd == IntPtr.Zero)
+            return "HWND=0";
+        GetWindowRect(hWnd, out RECT rect);
+        int cloaked = 0;
+        DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, out cloaked, sizeof(int));
+        return $"HWND=0x{hWnd.ToInt64():X} class={GetWindowClass(hWnd)} parent=0x{GetParent(hWnd).ToInt64():X} visible={IsWindowVisible(hWnd)} cloaked={cloaked} rect=({rect.Left},{rect.Top})-({rect.Right},{rect.Bottom}) style=0x{GetWindowLongPointer(hWnd, GWL_STYLE).ToInt64():X} ex=0x{GetWindowLongPointer(hWnd, GWL_EXSTYLE).ToInt64():X}";
+    }
+
+    private static void WriteDesktopDebugLog(IEnumerable<string> lines)
+    {
+        try
+        {
+            string path = ProjectSettings.GlobalizePath("user://desktop_mode_debug.log");
+            File.AppendAllLines(path, lines);
+            GD.Print($"[DesktopMode] Diagnostic log: {path}");
+        }
+        catch (Exception error)
+        {
+            GD.PrintErr($"[DesktopMode] Failed to write diagnostics: {error.Message}");
+        }
+    }
+
+    public string GetDesktopModeDebugLogPath()
+    {
+        return ProjectSettings.GlobalizePath("user://desktop_mode_debug.log");
+    }
+
+    public void CaptureDesktopModeState(string stage)
+    {
+        (IntPtr desktopHost, IntPtr desktopIconView) = FindDesktopHostWindow();
+        WriteDesktopDebugLog(new[]
+        {
+            $"--- {stage} {DateTime.Now:O} ---",
+            $"main {DescribeWindow(_mainHwnd)}",
+            $"host {DescribeWindow(desktopHost)}",
+            $"icons {DescribeWindow(desktopIconView)}"
+        });
+    }
+
+    private static bool RectContains(RECT container, int x, int y, int width, int height)
+    {
+        return x >= container.Left && y >= container.Top && x + width <= container.Right && y + height <= container.Bottom;
+    }
+
+    private static List<(IntPtr Host, IntPtr IconView)> GetDesktopHostCandidates()
+    {
+        List<(IntPtr Host, IntPtr IconView)> candidates = new List<(IntPtr Host, IntPtr IconView)>();
+        EnumWindows((topWindow, _) =>
+        {
+            string className = GetWindowClass(topWindow);
+            if (className != "Progman" && className != "WorkerW")
+                return true;
+            candidates.Add((topWindow, FindWindowEx(topWindow, IntPtr.Zero, "SHELLDLL_DefView", null)));
+            return true;
+        }, IntPtr.Zero);
+        return candidates;
+    }
+
+    private static (IntPtr Host, IntPtr IconView) FindDesktopHostWindow(int screenX = int.MinValue, int screenY = int.MinValue, int width = 0, int height = 0)
+    {
+        IntPtr progman = FindWindow("Progman", null);
+        if (progman == IntPtr.Zero)
+            return (IntPtr.Zero, IntPtr.Zero);
+
+        SendMessageTimeout(progman, WM_SPAWN_WORKER, new IntPtr(0xD), IntPtr.Zero, SMTO_NORMAL, 1000, out _);
+        SendMessageTimeout(progman, WM_SPAWN_WORKER, new IntPtr(0xD), new IntPtr(1), SMTO_NORMAL, 1000, out _);
+
+        IntPtr desktopHost = IntPtr.Zero;
+        IntPtr desktopIconView = IntPtr.Zero;
+        foreach ((IntPtr host, IntPtr iconView) in GetDesktopHostCandidates())
+        {
+            if (screenX != int.MinValue && (!GetWindowRect(host, out RECT hostRect) || !RectContains(hostRect, screenX, screenY, width, height)))
+                continue;
+            if (desktopHost == IntPtr.Zero || iconView != IntPtr.Zero)
+            {
+                desktopHost = host;
+                desktopIconView = iconView;
+            }
+            if (iconView != IntPtr.Zero)
+                break;
+        }
+
+        if (desktopHost == IntPtr.Zero && screenX == int.MinValue)
+            return (progman, FindWindowEx(progman, IntPtr.Zero, "SHELLDLL_DefView", null));
+        return (desktopHost, desktopIconView);
+    }
+
+    private static IntPtr FindWallpaperHostWindow(int screenX, int screenY, int width, int height, IntPtr iconHost)
+    {
+        foreach ((IntPtr host, IntPtr iconView) in GetDesktopHostCandidates())
+        {
+            if (host == iconHost || iconView != IntPtr.Zero || !IsWindowVisible(host))
+                continue;
+            if (GetWindowClass(host) != "WorkerW" || !GetWindowRect(host, out RECT hostRect))
+                continue;
+            if (RectContains(hostRect, screenX, screenY, width, height))
+                return host;
+        }
+        return IntPtr.Zero;
+    }
+
+    public bool EmbedMainWindowInDesktop(int screenX, int screenY, int width, int height)
+    {
+        if (OS.GetName() != "Windows" || _mainHwnd == IntPtr.Zero)
+            return false;
+        if (_desktopEmbedded)
+            return true;
+
+        if (!GetWindowRect(_mainHwnd, out RECT mainRect))
+            return false;
+        int nativeScreenX = mainRect.Left;
+        int nativeScreenY = mainRect.Top;
+
+        (IntPtr iconHost, IntPtr desktopIconView) = FindDesktopHostWindow(nativeScreenX, nativeScreenY, width, height);
+        IntPtr desktopHost = FindWallpaperHostWindow(nativeScreenX, nativeScreenY, width, height, iconHost);
+        List<string> diagnostics = new List<string>
+        {
+            $"=== Desktop mode attempt {DateTime.Now:O} ===",
+            $"godot_target=({screenX},{screenY}) native_target=({nativeScreenX},{nativeScreenY}) size=({width},{height})",
+            $"main.before {DescribeWindow(_mainHwnd)}",
+            $"wallpaper_host {DescribeWindow(desktopHost)}",
+            $"icon_host {DescribeWindow(iconHost)}",
+            $"icons {DescribeWindow(desktopIconView)}"
+        };
+        foreach ((IntPtr candidateHost, IntPtr candidateIcons) in GetDesktopHostCandidates())
+            diagnostics.Add($"candidate host={DescribeWindow(candidateHost)} icons={DescribeWindow(candidateIcons)}");
+        if (desktopHost == IntPtr.Zero || !GetWindowRect(desktopHost, out RECT hostRect))
+        {
+            (IntPtr fallbackHost, _) = FindDesktopHostWindow();
+            if (fallbackHost == IntPtr.Zero)
+            {
+                diagnostics.Add("No Explorer desktop host is available for fallback Z-order placement.");
+                WriteDesktopDebugLog(diagnostics);
+                return false;
+            }
+            _desktopOriginalStyle = GetWindowLongPointer(_mainHwnd, GWL_STYLE);
+            _desktopOriginalExStyle = GetWindowLongPointer(_mainHwnd, GWL_EXSTYLE);
+            long fallbackExStyle = _desktopOriginalExStyle.ToInt64() & ~WS_EX_TOPMOST;
+            SetWindowLongPointer(_mainHwnd, GWL_EXSTYLE, new IntPtr(fallbackExStyle));
+            IntPtr windowAboveDesktop = GetWindow(fallbackHost, GW_HWNDPREV);
+            bool fallbackPositioned = SetWindowPos(
+                _mainHwnd,
+                windowAboveDesktop,
+                nativeScreenX,
+                nativeScreenY,
+                width,
+                height,
+                SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW
+            );
+            if (!fallbackPositioned)
+            {
+                diagnostics.Add($"Fallback SetWindowPos failed error={Marshal.GetLastWin32Error()}");
+                WriteDesktopDebugLog(diagnostics);
+                RestoreMainWindowFromDesktop();
+                return false;
+            }
+            _desktopEmbedded = true;
+            _desktopParented = false;
+            _desktopHost = fallbackHost;
+            diagnostics.Add("mode=z_order_fallback reason=selected_screen_outside_explorer_host");
+            diagnostics.Add($"main.after {DescribeWindow(_mainHwnd)}");
+            WriteDesktopDebugLog(diagnostics);
+            return true;
+        }
+
+        _desktopOriginalStyle = GetWindowLongPointer(_mainHwnd, GWL_STYLE);
+        _desktopOriginalExStyle = GetWindowLongPointer(_mainHwnd, GWL_EXSTYLE);
+        SetLastError(0);
+        _desktopOriginalParent = SetParent(_mainHwnd, desktopHost);
+        if (_desktopOriginalParent == IntPtr.Zero && Marshal.GetLastWin32Error() != 0)
+        {
+            diagnostics.Add($"SetParent failed error={Marshal.GetLastWin32Error()}");
+            WriteDesktopDebugLog(diagnostics);
+            GD.PrintErr($"[DesktopMode] SetParent failed: {Marshal.GetLastWin32Error()}");
+            return false;
+        }
+        long embeddedStyle = (_desktopOriginalStyle.ToInt64() & ~WS_POPUP) | WS_CHILD;
+        long embeddedExStyle = _desktopOriginalExStyle.ToInt64() & ~WS_EX_TOPMOST;
+        SetWindowLongPointer(_mainHwnd, GWL_STYLE, new IntPtr(embeddedStyle));
+        SetWindowLongPointer(_mainHwnd, GWL_EXSTYLE, new IntPtr(embeddedExStyle));
+        bool positioned = SetWindowPos(
+            _mainHwnd,
+            HWND_BOTTOM,
+            nativeScreenX - hostRect.Left,
+            nativeScreenY - hostRect.Top,
+            width,
+            height,
+            SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW
+        );
+        if (!positioned)
+        {
+            diagnostics.Add($"SetWindowPos failed error={Marshal.GetLastWin32Error()}");
+            WriteDesktopDebugLog(diagnostics);
+            RestoreMainWindowFromDesktop();
+            GD.PrintErr($"[DesktopMode] SetWindowPos failed: {Marshal.GetLastWin32Error()}");
+            return false;
+        }
+
+        _desktopEmbedded = true;
+        _desktopParented = true;
+        _desktopHost = desktopHost;
+        diagnostics.Add($"main.after {DescribeWindow(_mainHwnd)}");
+        diagnostics.Add($"parent.after {DescribeWindow(GetParent(_mainHwnd))}");
+        WriteDesktopDebugLog(diagnostics);
+        return true;
+    }
+
+    public void RestoreMainWindowFromDesktop()
+    {
+        if (_mainHwnd == IntPtr.Zero || (!_desktopEmbedded && _desktopOriginalStyle == IntPtr.Zero))
+            return;
+        if (_desktopParented)
+            SetParent(_mainHwnd, _desktopOriginalParent);
+        SetWindowLongPointer(_mainHwnd, GWL_STYLE, _desktopOriginalStyle);
+        SetWindowLongPointer(_mainHwnd, GWL_EXSTYLE, _desktopOriginalExStyle);
+        SetWindowPos(_mainHwnd, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+        _desktopEmbedded = false;
+        _desktopParented = false;
+        RedrawDesktopHosts(_desktopHost);
+        _desktopHost = IntPtr.Zero;
+        _desktopOriginalParent = IntPtr.Zero;
+        _desktopOriginalStyle = IntPtr.Zero;
+        _desktopOriginalExStyle = IntPtr.Zero;
+    }
+
+    public void PrepareDesktopWindowForProcessExit()
+    {
+        PrepareDesktopWindowForProcessExit("main_scene_shutdown");
+    }
+
+    private void PrepareDesktopWindowForProcessExit(string source)
+    {
+        if (_mainHwnd == IntPtr.Zero)
+            return;
+        IntPtr hostToRedraw = _desktopHost;
+        List<string> diagnostics = new List<string>
+        {
+            $"=== Desktop mode process exit {DateTime.Now:O} ===",
+            $"source={source}",
+            $"main.before_exit {DescribeWindow(_mainHwnd)}",
+            $"host.before_exit {DescribeWindow(hostToRedraw)}"
+        };
+        ShowWindow(_mainHwnd, SW_HIDE);
+        if (_desktopParented)
+            SetParent(_mainHwnd, _desktopOriginalParent);
+        _desktopEmbedded = false;
+        _desktopParented = false;
+        _desktopHost = IntPtr.Zero;
+        RedrawDesktopHosts(hostToRedraw);
+        diagnostics.Add($"main.after_exit_detach {DescribeWindow(_mainHwnd)}");
+        diagnostics.Add("Explorer desktop hosts redrawn.");
+        WriteDesktopDebugLog(diagnostics);
+    }
+
+    private static void RedrawDesktopHosts(IntPtr desktopHost)
+    {
+        const uint redrawFlags = RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_FRAME;
+        if (desktopHost != IntPtr.Zero)
+            RedrawWindow(desktopHost, IntPtr.Zero, IntPtr.Zero, redrawFlags);
+        IntPtr progman = FindWindow("Progman", null);
+        if (progman != IntPtr.Zero)
+            RedrawWindow(progman, IntPtr.Zero, IntPtr.Zero, redrawFlags);
+        (IntPtr iconHost, _) = FindDesktopHostWindow();
+        if (iconHost != IntPtr.Zero && iconHost != desktopHost)
+            RedrawWindow(iconHost, IntPtr.Zero, IntPtr.Zero, redrawFlags);
+    }
+
+    public override void _ExitTree()
+    {
+        if (_desktopEmbedded || _desktopParented)
+            PrepareDesktopWindowForProcessExit("window_detector_exit_tree");
     }
 
     /// <summary>

@@ -55,6 +55,9 @@ const MAIN_FEATURE_ALIASES := {
 @onready var wardrobe_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox/Label
 @onready var bg_switch_button: Button = $BgSwitchButton
 @onready var bg_transition_fade: ColorRect = $BgTransitionFade
+@onready var desktop_mode_overlay: Control = $DesktopModeOverlay
+@onready var desktop_controls_window: Window = $DesktopControlsWindow
+@onready var desktop_chat_window: Window = $DesktopChatWindow
 
 @onready var creation_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
 @onready var wechat_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton
@@ -523,7 +526,7 @@ func _resume_main_scene_bgm(reason: String) -> void:
 	_sync_main_scene_bgm_state()
 
 func _can_resume_main_scene_bgm() -> bool:
-	return is_instance_valid(bgm) and bgm.stream and not _is_afk and not _is_desktop_pet_afk_active() and _main_scene_bgm_pause_reasons.is_empty()
+	return is_instance_valid(bgm) and bgm.stream and (_desktop_mode_active or not _is_afk) and not _is_desktop_pet_afk_active() and _main_scene_bgm_pause_reasons.is_empty()
 
 func _clear_main_scene_bgm_fade_tween() -> void:
 	if _main_scene_bgm_fade_tween and _main_scene_bgm_fade_tween.is_valid():
@@ -2193,6 +2196,11 @@ var bg_setting_panel_instance = null
 var _main_bg_catalog: Array = []
 var _main_bg_catalog_by_id: Dictionary = {}
 var _phone_mode_active: bool = false
+var _desktop_mode_active: bool = false
+var _desktop_wallpaper_suspended: bool = false
+var _desktop_window_state: Dictionary = {}
+var _desktop_ui_visibility: Dictionary = {}
+var _desktop_music_state: Dictionary = {}
 var _bg_transition_active: bool = false
 
 func _load_main_bg_catalog() -> void:
@@ -2410,6 +2418,10 @@ func _ready() -> void:
 	hide_ui_button.pressed.connect(_on_hide_ui_pressed)
 	camera_button.pressed.connect(_on_camera_pressed)
 	phone_button.pressed.connect(_on_phone_pressed)
+	desktop_mode_overlay.screen_selected.connect(_on_desktop_screen_selected)
+	desktop_controls_window.return_requested.connect(_exit_desktop_mode)
+	desktop_controls_window.chat_requested.connect(_on_desktop_chat_requested)
+	desktop_chat_window.reply_completed.connect(_on_desktop_chat_reply_completed)
 	if bg_switch_button:
 		bg_switch_button.pressed.connect(_on_bg_switch_pressed)
 		bg_switch_button.visible = false
@@ -2570,6 +2582,7 @@ func _ready() -> void:
 	_afk_timer.timeout.connect(_check_afk_status)
 	add_child(_afk_timer)
 	_reset_idle_chatter_timer()
+	call_deferred("_restore_desktop_wallpaper_if_enabled")
 
 	# 先同步主按钮状态，避免下面的延迟逻辑执行期间仍保留旧文案和旧行为。
 	_update_button_states_by_time()
@@ -2589,11 +2602,21 @@ func _ready() -> void:
 		_trigger_proactive_greeting()
 		_reset_idle_chatter_timer()
 
+func _exit_tree() -> void:
+	if _desktop_mode_active:
+		_shutdown_desktop_mode_for_exit()
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if _desktop_mode_active and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		_exit_desktop_mode()
+
 	if GameDataManager.story_time_manager:
 		GameDataManager.story_time_manager.time_advanced.connect(_on_story_time_advanced)
 
 func _process(delta: float) -> void:
 	_check_afk_status()
+	_sync_desktop_wallpaper_suspension()
 	_update_main_scene_idle_chatter(delta)
 
 func _input(event: InputEvent) -> void:
@@ -2618,6 +2641,8 @@ func _note_main_scene_activity() -> void:
 	_reset_idle_chatter_timer()
 
 func _can_trigger_idle_chatter() -> bool:
+	if _desktop_mode_active and _desktop_wallpaper_suspended:
+		return false
 	if _is_afk or _story_mode_active or _bg_transition_active:
 		return false
 	if _phone_mode_active or (is_instance_valid(mobile_interface_instance) and mobile_interface_instance.visible):
@@ -3528,6 +3553,11 @@ func _start_neon_loop(btn: Button, color1: Color, color2: Color, duration: float
 		loop.parallel().tween_method(func(v): mat.set_shader_parameter("glow_color", v), color2, color1, duration)
 
 func _check_afk_status() -> void:
+	if _desktop_mode_active:
+		if _is_afk:
+			_is_afk = false
+			_on_exit_afk()
+		return
 	var window = get_window()
 	var is_minimized = window.mode == Window.MODE_MINIMIZED
 	
@@ -3726,6 +3756,229 @@ func _on_mobile_app_opened(app_name: String) -> void:
 	match app_name:
 		"desktop_pet":
 			_toggle_desktop_pet(false)
+		"desktop_mode":
+			_request_desktop_mode()
+
+func _request_desktop_mode() -> void:
+	if _desktop_mode_active:
+		return
+	var screen_count := DisplayServer.get_screen_count()
+	if screen_count <= 1:
+		_enter_desktop_mode(0)
+		return
+	var screen_names: Array[String] = []
+	for screen_index in range(screen_count):
+		var screen_size := DisplayServer.screen_get_size(screen_index)
+		screen_names.append("屏幕 %d · %d × %d" % [screen_index + 1, screen_size.x, screen_size.y])
+	desktop_mode_overlay.show()
+	desktop_mode_overlay.request_screen_selection(screen_names, DisplayServer.window_get_current_screen())
+
+func _restore_desktop_wallpaper_if_enabled() -> void:
+	if not GameDataManager.config or not bool(GameDataManager.config.get_custom_config("desktop_wallpaper_enabled", false)):
+		return
+	var screen_count := DisplayServer.get_screen_count()
+	if screen_count <= 0:
+		return
+	var saved_screen := int(GameDataManager.config.get_custom_config("desktop_wallpaper_screen", 0))
+	_enter_desktop_mode(clampi(saved_screen, 0, screen_count - 1))
+
+func _on_desktop_screen_selected(screen_index: int) -> void:
+	if screen_index < 0:
+		desktop_mode_overlay.hide_desktop_controls()
+		_on_phone_closing()
+		return
+	_enter_desktop_mode(screen_index)
+
+func _enter_desktop_mode(screen_index: int) -> void:
+	if _desktop_mode_active:
+		return
+	_desktop_mode_active = true
+	if _ui_tween:
+		_ui_tween.kill()
+	_phone_mode_active = false
+	bg_container.position.x = 0.0
+	_desktop_window_state = {
+		"screen": DisplayServer.window_get_current_screen(),
+		"mode": DisplayServer.window_get_mode(),
+		"position": DisplayServer.window_get_position(),
+		"size": DisplayServer.window_get_size(),
+		"borderless": DisplayServer.window_get_flag(DisplayServer.WINDOW_FLAG_BORDERLESS),
+		"always_on_top": DisplayServer.window_get_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP),
+		"target_screen": screen_index
+	}
+	_desktop_ui_visibility.clear()
+	for child in get_children():
+		if child is CanvasItem and child != bg_container and child != desktop_mode_overlay:
+			_desktop_ui_visibility[child] = child.visible
+			child.hide()
+	_move_music_player_to_desktop_dock()
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_desktop_bubble_mode"):
+		current_bg_scene.set_desktop_bubble_mode(true)
+	desktop_mode_overlay.hide_desktop_controls()
+	desktop_controls_window.show_on_screen(screen_index)
+	var screen_position := DisplayServer.screen_get_position(screen_index)
+	var screen_size := DisplayServer.screen_get_size(screen_index)
+	DisplayServer.window_set_current_screen(screen_index)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, false)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+	DisplayServer.window_set_position(screen_position)
+	DisplayServer.window_set_size(screen_size)
+	if not is_instance_valid(_window_detector) or not bool(_window_detector.call(
+		"EmbedMainWindowInDesktop",
+		screen_position.x,
+		screen_position.y,
+		screen_size.x,
+		screen_size.y
+	)):
+		_exit_desktop_mode()
+		_show_desktop_embedding_error()
+		return
+	_is_afk = false
+	_sync_main_scene_bgm_state()
+	GameDataManager.config.set_custom_config("desktop_wallpaper_enabled", true)
+	GameDataManager.config.set_custom_config("desktop_wallpaper_screen", screen_index)
+	GameDataManager.config.save_config()
+	_capture_desktop_mode_state_delayed()
+	_update_bg_switch_button_visibility()
+
+func _capture_desktop_mode_state_delayed() -> void:
+	await get_tree().create_timer(0.5).timeout
+	if _desktop_mode_active and is_instance_valid(_window_detector):
+		_window_detector.call("CaptureDesktopModeState", "after_explorer_reorder")
+
+func _show_desktop_embedding_error() -> void:
+	var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
+	if confirm_scene == null:
+		push_error("无法连接 Windows Explorer 桌面层。")
+		return
+	var error_dialog = confirm_scene.instantiate()
+	add_child(error_dialog)
+	error_dialog.setup_advanced(
+		"桌面模式启动失败",
+		"无法连接 Windows Explorer 桌面层，游戏窗口已恢复。",
+		"请确认 Windows Explorer 正常运行后重试。",
+		"",
+		"知道了",
+		""
+	)
+	if error_dialog.cancel_button:
+		error_dialog.cancel_button.hide()
+
+func _on_desktop_chat_requested() -> void:
+	if not _desktop_mode_active:
+		return
+	desktop_chat_window.toggle_on_screen(int(_desktop_window_state.get("target_screen", 0)))
+
+func _on_desktop_chat_reply_completed(reply: String) -> void:
+	if not _desktop_mode_active or _desktop_wallpaper_suspended or not is_instance_valid(current_bg_scene):
+		return
+	if current_bg_scene.has_method("show_idle_quote_text"):
+		current_bg_scene.show_idle_quote_text(reply, true, 2.2, true)
+
+func _sync_desktop_wallpaper_suspension() -> void:
+	if not _desktop_mode_active or not is_instance_valid(_window_detector):
+		if _desktop_wallpaper_suspended:
+			_set_desktop_wallpaper_suspended(false)
+		return
+	var should_suspend := bool(_window_detector.call("IsMainWindowForeground"))
+	if should_suspend != _desktop_wallpaper_suspended:
+		_set_desktop_wallpaper_suspended(should_suspend)
+
+func _set_desktop_wallpaper_suspended(suspended: bool) -> void:
+	_desktop_wallpaper_suspended = suspended
+	if suspended:
+		_pause_main_scene_bgm("desktop_game_foreground")
+	else:
+		_resume_main_scene_bgm("desktop_game_foreground")
+	if is_instance_valid(desktop_chat_window):
+		desktop_chat_window.set_suspended(suspended)
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_desktop_bubble_suspended"):
+		current_bg_scene.set_desktop_bubble_suspended(suspended)
+
+func _move_music_player_to_desktop_dock() -> void:
+	if not is_instance_valid(music_player) or not is_instance_valid(desktop_controls_window.music_host):
+		return
+	_desktop_music_state = {
+		"parent": music_player.get_parent(),
+		"index": music_player.get_index(),
+		"anchor_left": music_player.anchor_left,
+		"anchor_top": music_player.anchor_top,
+		"anchor_right": music_player.anchor_right,
+		"anchor_bottom": music_player.anchor_bottom,
+		"offset_left": music_player.offset_left,
+		"offset_top": music_player.offset_top,
+		"offset_right": music_player.offset_right,
+		"offset_bottom": music_player.offset_bottom
+	}
+	music_player.reparent(desktop_controls_window.music_host)
+	music_player.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	music_player.position = Vector2(0, 26)
+	music_player.size = Vector2(490, 64)
+	if music_player.has_method("set_desktop_mode"):
+		music_player.set_desktop_mode(true)
+	music_player.show()
+
+func _restore_music_player_from_desktop_dock() -> void:
+	var original_parent: Node = _desktop_music_state.get("parent")
+	if not is_instance_valid(music_player) or not is_instance_valid(original_parent):
+		_desktop_music_state.clear()
+		return
+	if music_player.has_method("set_desktop_mode"):
+		music_player.set_desktop_mode(false)
+	music_player.reparent(original_parent)
+	original_parent.move_child(music_player, mini(int(_desktop_music_state.get("index", 0)), original_parent.get_child_count() - 1))
+	music_player.anchor_left = float(_desktop_music_state.get("anchor_left", 0.0))
+	music_player.anchor_top = float(_desktop_music_state.get("anchor_top", 0.0))
+	music_player.anchor_right = float(_desktop_music_state.get("anchor_right", 0.0))
+	music_player.anchor_bottom = float(_desktop_music_state.get("anchor_bottom", 0.0))
+	music_player.offset_left = float(_desktop_music_state.get("offset_left", 0.0))
+	music_player.offset_top = float(_desktop_music_state.get("offset_top", 0.0))
+	music_player.offset_right = float(_desktop_music_state.get("offset_right", 0.0))
+	music_player.offset_bottom = float(_desktop_music_state.get("offset_bottom", 0.0))
+	_desktop_music_state.clear()
+
+func _exit_desktop_mode(disable_saved_wallpaper: bool = true) -> void:
+	if not _desktop_mode_active:
+		return
+	_desktop_mode_active = false
+	_set_desktop_wallpaper_suspended(false)
+	if disable_saved_wallpaper and GameDataManager.config:
+		GameDataManager.config.set_custom_config("desktop_wallpaper_enabled", false)
+		GameDataManager.config.save_config()
+	if is_instance_valid(_window_detector):
+		_window_detector.call("RestoreMainWindowFromDesktop")
+	desktop_mode_overlay.hide_desktop_controls()
+	desktop_controls_window.hide_controls()
+	desktop_chat_window.close_chat()
+	_restore_music_player_from_desktop_dock()
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_desktop_bubble_mode"):
+		current_bg_scene.set_desktop_bubble_mode(false)
+	for item in _desktop_ui_visibility:
+		if is_instance_valid(item):
+			item.visible = bool(_desktop_ui_visibility[item])
+	_desktop_ui_visibility.clear()
+	ui_panel.show()
+	ui_panel.modulate.a = 1.0
+	var original_mode := int(_desktop_window_state.get("mode", DisplayServer.WINDOW_MODE_WINDOWED))
+	var original_screen := int(_desktop_window_state.get("screen", 0))
+	var original_size: Vector2i = _desktop_window_state.get("size", Vector2i(1280, 720))
+	var original_position: Vector2i = _desktop_window_state.get("position", Vector2i.ZERO)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_current_screen(original_screen)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, bool(_desktop_window_state.get("borderless", false)))
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, bool(_desktop_window_state.get("always_on_top", false)))
+	if original_mode == DisplayServer.WINDOW_MODE_WINDOWED:
+		DisplayServer.window_set_size(original_size)
+		DisplayServer.window_set_position(original_position)
+		await get_tree().process_frame
+		DisplayServer.window_set_size(original_size)
+		DisplayServer.window_set_position(original_position)
+	else:
+		DisplayServer.window_set_mode(original_mode)
+	_desktop_window_state.clear()
+	_sync_main_scene_bgm_state()
+	_update_bg_switch_button_visibility()
 
 func _on_main_action_pressed() -> void:
 	if _is_ui_blocked(): return
@@ -3909,16 +4162,33 @@ func _play_cached_voice(cache_key: String) -> void:
 	print("未找到语音缓存: ", cache_key)
 
 func _on_close_requested() -> void:
-	pass
+	if _desktop_mode_active:
+		_shutdown_desktop_mode_for_exit()
+	get_tree().quit()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if _desktop_mode_active:
+			_shutdown_desktop_mode_for_exit()
+			get_tree().quit()
+			return
 		var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
 		if is_instance_valid(desktop_pet) and desktop_pet.visible:
 			# Godot 4 中，主场景是 Control 时，我们应该隐藏对应的 Window
 			get_tree().root.hide()
 		else:
 			get_tree().quit()
+
+func _shutdown_desktop_mode_for_exit() -> void:
+	if not _desktop_mode_active:
+		return
+	_desktop_mode_active = false
+	if is_instance_valid(_window_detector):
+		_window_detector.call("PrepareDesktopWindowForProcessExit")
+	if is_instance_valid(desktop_controls_window):
+		desktop_controls_window.hide_controls()
+	if is_instance_valid(desktop_chat_window):
+		desktop_chat_window.close_chat()
 
 var camera_panel_instance = null
 var affection_panel_instance = null

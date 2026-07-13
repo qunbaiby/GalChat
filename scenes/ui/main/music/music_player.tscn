@@ -106,6 +106,7 @@ icon_alignment = 1
 expand_icon = true
 
 [node name="InfoVBox" type="VBoxContainer" parent="Margin/VBox/TopHBox" unique_id=729192815]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -126,6 +127,7 @@ text = "Local Music"
 clip_text = true
 
 [node name="ControlsHBox" type="HBoxContainer" parent="Margin/VBox/TopHBox" unique_id=1689467035]
+custom_minimum_size = Vector2(155, 30)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 0

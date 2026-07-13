@@ -590,6 +590,92 @@ text = "API 设置"
 layout_mode = 2
 theme_override_constants/separation = 10
 
+[node name="ServiceModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ServiceModeLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ServiceModeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/font_size = 16
+text = "AI 服务来源"
+vertical_alignment = 1
+
+[node name="AIServiceModeOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ServiceModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(236, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_ChoiceNormal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ChoicePressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ChoiceHover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_ChoicePressed")
+item_count = 2
+popup/item_0/text = "官方托管"
+popup/item_0/id = 0
+popup/item_1/text = "个人 API"
+popup/item_1/id = 1
+
+[node name="OfficialStatusRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="OfficialStatusTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/OfficialStatusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/font_size = 16
+text = "官方服务状态"
+vertical_alignment = 1
+
+[node name="OfficialAIStatusLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/OfficialStatusRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(236, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.176471, 0.647059, 0.588235, 1)
+theme_override_font_sizes/font_size = 14
+text = "等待授权"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="OfficialGatewayRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="OfficialGatewayLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/OfficialGatewayRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/font_size = 16
+text = "官方服务地址"
+vertical_alignment = 1
+
+[node name="OfficialGatewayInput" type="LineEdit" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/OfficialGatewayRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(142, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_colors/font_placeholder_color = Color(0.46, 0.43, 0.38, 0.8)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
+placeholder_text = "https://your-gateway.example/v1/game"
+
+[node name="OfficialConnectButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/OfficialGatewayRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_wcs0v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/focus = SubResource("StyleBoxFlat_k741i")
+text = "连接 / 重试"
+
 [node name="ApiKeyRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=1473955110]
 layout_mode = 2
 theme_override_constants/separation = 16
@@ -725,6 +811,32 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
+
+[node name="ConnectionTestRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ConnectionTestResult" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ConnectionTestRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.46, 0.43, 0.38, 1)
+theme_override_font_sizes/font_size = 14
+text = "尚未测试当前连接"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="TestConnectionButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/ConnectionTestRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(126, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_wcs0v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k741i")
+theme_override_styles/focus = SubResource("StyleBoxFlat_k741i")
+text = "测试连接"
 
 [node name="HistoryRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox" unique_id=703347050]
 layout_mode = 2
@@ -915,21 +1027,6 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "sk-..."
 secret = true
-
-[node name="VoiceTypeSection" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=1542723479]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="VoiceTypeTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceTypeSection" unique_id=964882717]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
-theme_override_font_sizes/font_size = 16
-text = "角色音色"
-
-[node name="VoiceTypeContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox/VoiceTypeSection" unique_id=156243389]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 10
 
 [node name="AsrModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox/RowsVBox" unique_id=327144234]
 layout_mode = 2
@@ -1508,6 +1605,21 @@ custom_minimum_size = Vector2(240, 28)
 layout_mode = 2
 max_value = 1.0
 step = 0.01
+
+[node name="VoiceTypeSection" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox" unique_id=1542723479]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VoiceTypeTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/VoiceTypeSection" unique_id=964882717]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/font_size = 16
+text = "角色音色与试听"
+
+[node name="VoiceTypeContainer" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/声音设置/AudioCard/AudioMargin/VBoxContainer/RowsVBox/VoiceTypeSection" unique_id=156243389]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=430992550]
 

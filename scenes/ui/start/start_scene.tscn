@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://h30wh56c1e6u" path="res://assets/images/title/title.png" id="3_qukub"]
 [ext_resource type="Texture2D" uid="uid://cbyccnbopt5w0" path="res://assets/images/icons/ui/main/settings.png" id="4_qukub"]
 [ext_resource type="Texture2D" uid="uid://v38ek452wj5y" path="res://assets/images/icons/ui/main/bug-folder.png" id="5_6f613"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/mobile/home/archive_profile.svg" id="6_account"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopRightButton"]
 bg_color = Color(0.03, 0.05, 0.09, 0.46)
@@ -169,12 +170,13 @@ anchor_right = 1.0
 offset_left = -69.0
 offset_top = 24.0
 offset_right = -24.0
-offset_bottom = 132.0
+offset_bottom = 187.0
 grow_horizontal = 0
 theme_override_constants/separation = 10
 alignment = 1
 
 [node name="SettingsButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar" unique_id=368332294]
+visible = false
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 theme_override_constants/h_separation = 0
@@ -186,6 +188,7 @@ flat = true
 expand_icon = true
 
 [node name="BugFeedbackButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar" unique_id=669917170]
+visible = false
 custom_minimum_size = Vector2(45, 45)
 layout_mode = 2
 theme_override_constants/h_separation = 0
@@ -193,6 +196,19 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_TopRightButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_TopRightButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_TopRightButtonHover")
 icon = ExtResource("5_6f613")
+flat = true
+expand_icon = true
+
+[node name="AccountButton" type="Button" parent="ContentRoot/ActionGroup/TopRightBar"]
+visible = false
+custom_minimum_size = Vector2(45, 45)
+layout_mode = 2
+tooltip_text = "用户中心"
+theme_override_constants/h_separation = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_TopRightButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_TopRightButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_TopRightButtonHover")
+icon = ExtResource("6_account")
 flat = true
 expand_icon = true
 
@@ -235,6 +251,7 @@ offset_bottom = 539.0
 theme_override_constants/separation = 18
 
 [node name="StartButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons" unique_id=737325087]
+visible = false
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
@@ -250,6 +267,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "开始陪伴"
 
 [node name="DesktopPetButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons" unique_id=603154421]
+visible = false
 custom_minimum_size = Vector2(244, 66)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
@@ -261,3 +279,29 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
 text = "启动桌宠"
+
+[node name="LoginButton" type="Button" parent="ContentRoot/MenuGroup/MenuButtons"]
+custom_minimum_size = Vector2(244, 66)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.25, 0.28, 1)
+theme_override_colors/font_focus_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_pressed_color = Color(0.09, 0.24, 0.23, 1)
+theme_override_colors/font_hover_color = Color(0.11, 0.27, 0.26, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.2)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_MenuButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_MenuButtonPressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_MenuButtonHover")
+text = "登录 / 注册"
+
+[node name="LoginStatusLabel" type="Label" parent="ContentRoot/MenuGroup/MenuButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(244, 28)
+theme_override_colors/font_color = Color(0.93, 0.98, 0.97, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.35)
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "登录后开始陪伴"
+horizontal_alignment = 1
+vertical_alignment = 1

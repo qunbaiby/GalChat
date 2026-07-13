@@ -7,6 +7,8 @@ var _base_bubble_pos := Vector2.ZERO
 var _bubble_tween: Tween
 var _base_interact_pos := Vector2.ZERO
 var _interact_bubble_tween: Tween
+var _desktop_bubble_mode := false
+var _desktop_bubble_suspended := false
 var _ui_tween: Tween
 var _is_ui_hidden := false
 var _chat_button_available := true
@@ -185,7 +187,7 @@ func _on_character_clicked() -> void:
 	request_idle_quote()
 
 func request_idle_quote() -> bool:
-	if _is_idle_speaking or _is_ui_hidden:
+	if _desktop_bubble_suspended or _is_idle_speaking or (_is_ui_hidden and not _desktop_bubble_mode):
 		return false
 		
 	if not idle_bubble_panel or not idle_bubble_label:
@@ -208,6 +210,17 @@ func request_idle_quote() -> bool:
 
 func is_idle_quote_playing() -> bool:
 	return _is_idle_speaking
+
+func set_desktop_bubble_mode(enabled: bool) -> void:
+	_desktop_bubble_mode = enabled
+	if enabled and idle_bubble_panel:
+		idle_bubble_panel.modulate.a = 1.0
+
+func set_desktop_bubble_suspended(suspended: bool) -> void:
+	_desktop_bubble_suspended = suspended
+	if suspended and idle_bubble_panel:
+		idle_bubble_panel.hide()
+		_is_idle_speaking = false
 
 func _on_idle_quote_completed(quote: String) -> void:
 	var deepseek_client = DeepSeekClientLocator.find(self)

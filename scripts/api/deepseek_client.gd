@@ -79,10 +79,13 @@ var _chat_stream_headers: Array = []
 var _chat_stream_sse_buffer: String = ""
 var _chat_stream_full_text: String = ""
 var _chat_stream_response_code: int = 0
+var _chat_stream_retry_count: int = 0
 var _pending_memory_context: Dictionary = {}
 var _active_memory_context: Dictionary = {}
 var _pending_memory_manager_override = null
 var _active_memory_manager_override = null
+var _vision_request_context: Dictionary = {}
+var _vision_auth_retried: bool = false
 var _idle_quote_service = DeepSeekIdleQuoteService.new()
 var _scene_event_service = DeepSeekSceneEventService.new()
 var _social_content_service = DeepSeekSocialContentService.new()
@@ -134,7 +137,20 @@ func _reinitialize_http_nodes() -> void:
 	idle_quote_http = reset_node.call("IdleQuoteHTTP", 15.0, "request_completed", "_on_idle_quote_completed")
 
 func _is_api_key_empty() -> bool:
-	return GameDataManager.config.api_key.is_empty()
+	return not _has_chat_credentials()
+
+func _uses_official_ai() -> bool:
+	return GameDataManager.config.ai_service_mode == ConfigResource.AI_SERVICE_OFFICIAL
+
+func _has_chat_credentials() -> bool:
+	if _uses_official_ai():
+		return not GameDataManager.config.official_access_token.is_empty()
+	return not GameDataManager.config.api_key.is_empty()
+
+func _get_missing_credentials_message() -> String:
+	if _uses_official_ai():
+		return "官方 AI 服务尚未登录或授权，请先登录后重试。"
+	return "API Key 未设置，请在设置界面配置。"
 
 func _migrate_removed_chat_model() -> void:
 	if GameDataManager.config == null:
@@ -152,23 +168,38 @@ func get_chat_model_id() -> String:
 	var model_id := str(GameDataManager.config.model).strip_edges()
 	if model_id == "" or model_id.begins_with("doubao"):
 		return "deepseek-chat"
+	if _uses_official_ai() and model_id == "deepseek-coder":
+		return "deepseek-chat"
 	return model_id
 
 func _get_headers() -> Array:
-	var api_key = GameDataManager.config.api_key
+	var access_token: String = GameDataManager.config.official_access_token if _uses_official_ai() else GameDataManager.config.api_key
 	return [
 		"Content-Type: application/json",
-		"Authorization: Bearer " + api_key
+		"Authorization: Bearer " + access_token
 	]
 
 func _get_url() -> String:
+	if _uses_official_ai():
+		return GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/chat/completions"
 	return "https://api.deepseek.com/v1/chat/completions"
 
-func _get_stream_host() -> String:
-	return "api.deepseek.com"
-
-func _get_stream_path() -> String:
-	return "/v1/chat/completions"
+func _get_stream_endpoint() -> Dictionary:
+	var url: String = _get_url()
+	var regex := RegEx.new()
+	if regex.compile("^(https?)://([^/:]+)(?::([0-9]+))?(/.*)$") != OK:
+		return {}
+	var matched := regex.search(url)
+	if matched == null:
+		return {}
+	var scheme: String = matched.get_string(1)
+	var port_text: String = matched.get_string(3)
+	return {
+		"host": matched.get_string(2),
+		"port": int(port_text) if not port_text.is_empty() else (443 if scheme == "https" else 80),
+		"path": matched.get_string(4),
+		"tls": scheme == "https"
+	}
 
 func _get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
 	var api_messages = []
@@ -200,53 +231,82 @@ func send_chat_message_stream(user_message: String, history_type: String = "all"
 
 
 
-func send_vision_request(system_prompt: String, user_prompt: String, base64_image: String) -> void:
-	if not is_inside_tree() or GameDataManager.config.vision_api_key.is_empty():
+func send_vision_request(system_prompt: String, user_prompt: String, base64_image: String, image_media_type: String = "image/jpeg", auth_retried: bool = false) -> void:
+	if not is_inside_tree():
+		vision_request_failed.emit("Vision 服务尚未就绪。")
+		return
+	if image_media_type != "image/jpeg" and image_media_type != "image/png":
+		vision_request_failed.emit("Vision 仅支持 JPEG 或 PNG 图片。")
+		return
+	if _uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
+		vision_request_failed.emit("登录状态已失效，请重新登录后使用官方图像理解服务。")
+		return
+	if not _uses_official_ai() and GameDataManager.config.vision_api_key.is_empty():
 		vision_request_failed.emit("Vision API Key未设置，请在设置界面配置。")
 		return
-		
-	var url = GameDataManager.config.vision_base_url
-	if url.ends_with("/chat/completions"):
-		url = url.replace("/chat/completions", "/responses")
-	elif not url.ends_with("/responses"):
-		url += "/responses"
-		
-	var headers = [
-		"Content-Type: application/json",
-		"Authorization: Bearer " + GameDataManager.config.vision_api_key
-	]
-	
-	var combined_prompt = system_prompt + "\n\n" + user_prompt
-	
-	var model_name = GameDataManager.config.vision_model
-	if model_name.is_empty() or model_name == "ep-xxxxxx":
-		model_name = "doubao-seed-2-0-mini-260428"
-		
-	var body = {
-		"model": model_name,
-		"input": [
-			{
+
+	var url: String
+	var headers: PackedStringArray = ["Content-Type: application/json"]
+	var body: Dictionary
+	if _uses_official_ai():
+		url = GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/vision/responses"
+		headers.append("Authorization: Bearer " + GameDataManager.config.official_access_token)
+		body = {
+			"system_prompt": system_prompt,
+			"user_prompt": user_prompt,
+			"image_base64": base64_image,
+			"image_media_type": image_media_type
+		}
+	else:
+		url = GameDataManager.config.vision_base_url
+		if url.ends_with("/chat/completions"):
+			url = url.replace("/chat/completions", "/responses")
+		elif not url.ends_with("/responses"):
+			url += "/responses"
+		headers.append("Authorization: Bearer " + GameDataManager.config.vision_api_key)
+		var model_name: String = GameDataManager.config.vision_model
+		if model_name.is_empty() or model_name == "ep-xxxxxx":
+			model_name = "doubao-seed-2-0-mini-260428"
+		body = {
+			"model": model_name,
+			"input": [{
 				"role": "user",
 				"content": [
-					{
-						"type": "input_image",
-						"image_url": "data:image/jpeg;base64," + base64_image
-					},
-					{
-						"type": "input_text",
-						"text": combined_prompt
-					}
+					{"type": "input_image", "image_url": "data:%s;base64,%s" % [image_media_type, base64_image]},
+					{"type": "input_text", "text": system_prompt + "\n\n" + user_prompt}
 				]
-			}
-		]
+			}]
+		}
+
+	_vision_request_context = {
+		"system_prompt": system_prompt,
+		"user_prompt": user_prompt,
+		"base64_image": base64_image,
+		"image_media_type": image_media_type
 	}
+	_vision_auth_retried = auth_retried
 	
 	if vision_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		vision_http.cancel_request()
-		
-	vision_http.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+
+	var request_error: Error = vision_http.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	if request_error != OK:
+		vision_request_failed.emit("Vision 请求发送失败，错误码：%d" % request_error)
 
 func _on_vision_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if response_code == 401 and _uses_official_ai() and not _vision_auth_retried:
+		var request_context: Dictionary = _vision_request_context.duplicate(true)
+		if await OfficialAuthManager.force_refresh_access_token():
+			send_vision_request(
+				str(request_context.get("system_prompt", "")),
+				str(request_context.get("user_prompt", "")),
+				str(request_context.get("base64_image", "")),
+				str(request_context.get("image_media_type", "image/jpeg")),
+				true
+			)
+		else:
+			vision_request_failed.emit("登录状态已失效，请重新登录后使用官方图像理解服务。")
+		return
 	_handle_response(result, response_code, body, vision_request_completed, vision_request_failed)
 
 func _send_emotion_analysis(user_message: String) -> void:
@@ -285,7 +345,7 @@ func extract_memory_from_chat_with_manager(user_text: String, ai_reply: String, 
 func call_chat_api_non_stream(api_messages: Array) -> void:
 	_update_script()
 	if not is_inside_tree() or _is_api_key_empty():
-		chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+		chat_request_failed.emit(_get_missing_credentials_message())
 		return
 		
 	if chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
@@ -312,7 +372,7 @@ func get_history_messages(limit: int = 10, is_chat: bool = true, history_type: S
 func start_chat_stream_with_messages(api_messages: Array) -> void:
 	_update_script()
 	if not is_inside_tree() or _is_api_key_empty():
-		chat_request_failed.emit("API Key未设置，请在设置界面配置。")
+		chat_request_failed.emit(_get_missing_credentials_message())
 		return
 	_chat_stream_service.start_chat_stream_with_messages(self, api_messages)
 

@@ -22,6 +22,9 @@
 [ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
 [ext_resource type="Texture2D" uid="uid://cv303mddfg2o" path="res://assets/images/icons/ui/main/background_switch.svg" id="23_bg_switch_icon"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="24_love_icon"]
+[ext_resource type="PackedScene" path="res://scenes/ui/main/desktop_mode_overlay.tscn" id="25_desktop_mode"]
+[ext_resource type="PackedScene" path="res://scenes/ui/main/desktop_controls_window.tscn" id="26_desktop_controls"]
+[ext_resource type="PackedScene" path="res://scenes/ui/main/desktop_chat_window.tscn" id="27_desktop_chat"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
 shader = ExtResource("15_trapezoid_shader")
@@ -1052,6 +1055,13 @@ mouse_filter = 2
 texture = ExtResource("23_bg_switch_icon")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="DesktopModeOverlay" parent="." instance=ExtResource("25_desktop_mode")]
+layout_mode = 1
+
+[node name="DesktopControlsWindow" parent="." instance=ExtResource("26_desktop_controls")]
+
+[node name="DesktopChatWindow" parent="." instance=ExtResource("27_desktop_chat")]
 
 [node name="BgTransitionFade" type="ColorRect" parent="." unique_id=1776469405]
 visible = false

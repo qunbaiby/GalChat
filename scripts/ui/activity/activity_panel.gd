@@ -1151,11 +1151,8 @@ func _on_execute_pressed() -> void:
 			scheduled_activities[i] = null
 
 func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
-	var api_key = ""
-	if GameDataManager.config != null:
-		api_key = GameDataManager.config.api_key
-		
-	if api_key.is_empty():
+	var ai_client: Node = DeepSeekClientLocator.find(self)
+	if ai_client == null or not ai_client.has_method("_get_url") or ai_client._is_api_key_empty():
 		_fallback_all_descriptions()
 		return
 		
@@ -1164,14 +1161,8 @@ func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	add_child(http)
 	http.request_completed.connect(func(res, code, hdrs, body): _on_all_ai_descriptions_completed(res, code, hdrs, body, http))
 	
-	var url = "https://api.deepseek.com/v1/chat/completions" 
-	if "api_url" in GameDataManager.config and not GameDataManager.config.api_url.is_empty():
-		url = GameDataManager.config.api_url
-		
-	var headers = [
-		"Content-Type: application/json",
-		"Authorization: Bearer " + api_key
-	]
+	var url: String = ai_client._get_url()
+	var headers: Array = ai_client._get_headers()
 	
 	var course_list_str = ""
 	for i in range(courses_data.size()):
@@ -1191,13 +1182,8 @@ func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	prompt += "```json\n[\n  \"(针对第1节课的描述)\",\n  \"(针对第2节课的描述)\",\n  ... (共%d个元素)\n]\n```\n" % MAX_SLOTS
 	prompt += "以下是这周的课程列表：\n" + course_list_str
 	
-	var chat_model_id := "deepseek-chat"
-	if GameDataManager.config and "model" in GameDataManager.config:
-		var configured_model := str(GameDataManager.config.model).strip_edges()
-		if configured_model != "" and not configured_model.begins_with("doubao"):
-			chat_model_id = configured_model
 	var body = {
-		"model": chat_model_id,
+		"model": ai_client.get_chat_model_id(),
 		"messages": [{"role": "user", "content": prompt}],
 		"temperature": 0.7
 	}

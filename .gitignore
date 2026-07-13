@@ -13,3 +13,13 @@ GalChat_Release/
 # Whisper Models (too large for Git)
 addons/godot_whisper/models/*.bin
 *.bin
+
+# Python services and server-side secrets
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+backend/ai_gateway/data/
+backend/ai_gateway/*.db*

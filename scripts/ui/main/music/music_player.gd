@@ -45,6 +45,8 @@ var _is_hovering_volume: bool = false
 var _volume_hide_timer: Timer = null
 var playlist_popup_instance = null
 var _desktop_pet_mode: bool = false
+var _desktop_control_style: StyleBoxFlat = null
+var _desktop_control_hover_style: StyleBoxFlat = null
 
 func _ready() -> void:
 	play_pause_btn.pressed.connect(_on_play_pause_pressed)
@@ -88,6 +90,29 @@ func set_desktop_pet_mode(enabled: bool) -> void:
 	_desktop_pet_mode = enabled
 	if close_button != null:
 		close_button.visible = enabled
+
+func set_desktop_mode(enabled: bool) -> void:
+	var controls := [volume_btn, shuffle_btn, prev_btn, play_pause_btn, next_btn, repeat_btn, cover_btn]
+	if enabled and _desktop_control_style == null:
+		_desktop_control_style = StyleBoxFlat.new()
+		_desktop_control_style.bg_color = Color(0, 0, 0, 0)
+		_desktop_control_hover_style = StyleBoxFlat.new()
+		_desktop_control_hover_style.bg_color = Color(0.55, 0.9, 0.83, 0.2)
+		_desktop_control_hover_style.corner_radius_top_left = 10
+		_desktop_control_hover_style.corner_radius_top_right = 10
+		_desktop_control_hover_style.corner_radius_bottom_right = 10
+		_desktop_control_hover_style.corner_radius_bottom_left = 10
+	for control in controls:
+		if not is_instance_valid(control):
+			continue
+		if enabled:
+			control.add_theme_stylebox_override("normal", _desktop_control_style)
+			control.add_theme_stylebox_override("hover", _desktop_control_hover_style)
+			control.add_theme_stylebox_override("pressed", _desktop_control_hover_style)
+		else:
+			control.remove_theme_stylebox_override("normal")
+			control.remove_theme_stylebox_override("hover")
+			control.remove_theme_stylebox_override("pressed")
 
 func hide_panel() -> void:
 	if is_instance_valid(playlist_popup_instance):

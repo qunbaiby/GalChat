@@ -8,40 +8,44 @@ signal embedding_failed(error_msg: String)
 func get_embedding(text: String) -> Array:
 	if not GameDataManager.config.embedding_enabled:
 		return []
-		
+	return await _request_embedding(text, false)
+
+func _request_embedding(text: String, auth_retried: bool) -> Array:
 	var api_key = GameDataManager.config.doubao_embedding_api_key
 	var model = GameDataManager.config.doubao_embedding_model
-	
-	if model == "ep-xxxxxx" or model.is_empty():
+	var uses_official: bool = _uses_official_ai()
+
+	if uses_official and not await OfficialAuthManager.ensure_valid_access_token():
+		embedding_failed.emit("登录状态已失效，请重新登录后使用官方向量服务。")
+		return []
+	if not uses_official and (model == "ep-xxxxxx" or model.is_empty()):
 		print("[DoubaoEmbedding] 未配置模型接入点 (ep-xxxxxx)，跳过 Embedding 请求。请在设置中配置你的模型 Endpoint。")
 		return []
-	
-	if api_key.is_empty():
+	if not uses_official and api_key.is_empty():
 		print("[DoubaoEmbedding] API Key 为空，跳过 Embedding 请求。")
 		return []
-		
+
 	var http_request = HTTPRequest.new()
+	http_request.timeout = 90.0
 	add_child(http_request)
-	
-	var headers = [
-		"Content-Type: application/json",
-		"Authorization: Bearer " + api_key
-	]
-	
-	var body = {
-		"model": model,
-		"input": [
-			{
-				"type": "text",
-				"text": text
-			}
-		],
-		"encoding_format": "float"
-	}
-	
+
+	var url: String = EMBEDDING_URL
+	var headers: PackedStringArray = ["Content-Type: application/json"]
+	var body: Dictionary
+	if uses_official:
+		url = GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/embeddings"
+		headers.append("Authorization: Bearer " + GameDataManager.config.official_access_token)
+		body = {"text": text}
+	else:
+		headers.append("Authorization: Bearer " + api_key)
+		body = {
+			"model": model,
+			"input": [{"type": "text", "text": text}],
+			"encoding_format": "float"
+		}
+
 	var json_body = JSON.stringify(body)
-	
-	var error = http_request.request(EMBEDDING_URL, headers, HTTPClient.METHOD_POST, json_body)
+	var error = http_request.request(url, headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
 		push_error("HTTP Request failed to send.")
 		http_request.queue_free()
@@ -52,9 +56,14 @@ func get_embedding(text: String) -> Array:
 	var result_code = result[0]
 	var response_code = result[1]
 	var response_body = result[3]
-	
+
 	http_request.queue_free()
-	
+
+	if response_code == 401 and uses_official and not auth_retried:
+		if await OfficialAuthManager.force_refresh_access_token():
+			return await _request_embedding(text, true)
+		embedding_failed.emit("登录状态已失效，请重新登录后使用官方向量服务。")
+		return []
 	if result_code != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 		var err_body = response_body.get_string_from_utf8() if response_body != null else ""
 		push_error("HTTP Request failed: " + str(response_code) + " Body: " + err_body)
@@ -84,3 +93,6 @@ func get_embedding(text: String) -> Array:
 		push_error("Embedding API error: " + str(error_msg))
 		embedding_failed.emit("API错误：" + str(error_msg))
 		return []
+
+func _uses_official_ai() -> bool:
+	return GameDataManager.config != null and GameDataManager.config.ai_service_mode == ConfigResource.AI_SERVICE_OFFICIAL

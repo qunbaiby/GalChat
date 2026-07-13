@@ -1,0 +1,46 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      GALCHAT_ENVIRONMENT: production
+      GALCHAT_DATABASE_PATH: /data/ai_gateway.db
+      GALCHAT_EMAIL_MODE: smtp
+      GALCHAT_DEV_TEST_ACCOUNT_ENABLED: "false"
+      GALCHAT_JWT_SECRET: ${GALCHAT_JWT_SECRET:?required}
+      GALCHAT_ADMIN_TOKEN: ${GALCHAT_ADMIN_TOKEN:?required}
+      GALCHAT_SECRETS_MASTER_KEY: ${GALCHAT_SECRETS_MASTER_KEY:?required}
+      GALCHAT_SMTP_HOST: ${GALCHAT_SMTP_HOST:?required}
+      GALCHAT_SMTP_PORT: ${GALCHAT_SMTP_PORT:-587}
+      GALCHAT_SMTP_USERNAME: ${GALCHAT_SMTP_USERNAME:?required}
+      GALCHAT_SMTP_PASSWORD: ${GALCHAT_SMTP_PASSWORD:?required}
+      GALCHAT_EMAIL_FROM: ${GALCHAT_EMAIL_FROM:?required}
+      GALCHAT_SMTP_USE_TLS: ${GALCHAT_SMTP_USE_TLS:-true}
+      GALCHAT_USAGE_EVENT_RETENTION_DAYS: ${GALCHAT_USAGE_EVENT_RETENTION_DAYS:-90}
+      GALCHAT_CHAT_DAILY_LIMIT: ${GALCHAT_CHAT_DAILY_LIMIT:-100}
+      GALCHAT_TTS_DAILY_LIMIT: ${GALCHAT_TTS_DAILY_LIMIT:-100}
+      GALCHAT_ASR_DAILY_LIMIT: ${GALCHAT_ASR_DAILY_LIMIT:-100}
+      GALCHAT_EMBEDDING_DAILY_LIMIT: ${GALCHAT_EMBEDDING_DAILY_LIMIT:-100}
+      GALCHAT_VISION_DAILY_LIMIT: ${GALCHAT_VISION_DAILY_LIMIT:-100}
+      GALCHAT_IMAGE_DAILY_LIMIT: ${GALCHAT_IMAGE_DAILY_LIMIT:-20}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    volumes:
+      - gateway-data:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 1g
+    cpus: 2.0
+    pids_limit: 256
+
+volumes:
+  gateway-data:

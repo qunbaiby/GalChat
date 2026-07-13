@@ -1,0 +1,164 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/start/account_center_panel.gd" id="1_script"]
+[ext_resource type="Theme" path="res://assets/themes/common_0.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.965, 0.98, 0.975, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.58, 0.76, 0.72, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="InfoBand"]
+bg_color = Color(0.9, 0.95, 0.935, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+
+[node name="AccountCenterPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.045, 0.05, 0.56)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -260.0
+offset_right = 230.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 26
+
+[node name="Content" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.1, 0.22, 0.21, 1)
+theme_override_font_sizes/font_size = 25
+text = "账号中心"
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/Content/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "×"
+flat = true
+
+[node name="IdentityBand" type="PanelContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("InfoBand")
+
+[node name="Identity" type="VBoxContainer" parent="Panel/Margin/Content/IdentityBand"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="UsernameLabel" type="Label" parent="Panel/Margin/Content/IdentityBand/Identity"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.11, 0.3, 0.27, 1)
+theme_override_font_sizes/font_size = 21
+text = "正在读取账号资料..."
+
+[node name="EmailLabel" type="Label" parent="Panel/Margin/Content/IdentityBand/Identity"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.31, 0.41, 0.4, 1)
+text = ""
+
+[node name="CreatedLabel" type="Label" parent="Panel/Margin/Content/IdentityBand/Identity"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.49, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = ""
+
+[node name="StatsGrid" type="GridContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+columns = 2
+
+[node name="AiModeTitle" type="Label" parent="Panel/Margin/Content/StatsGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "AI 服务"
+
+[node name="AiModeLabel" type="Label" parent="Panel/Margin/Content/StatsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "官方托管"
+horizontal_alignment = 2
+
+[node name="QuotaTitle" type="Label" parent="Panel/Margin/Content/StatsGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "今日剩余额度"
+
+[node name="QuotaLabel" type="Label" parent="Panel/Margin/Content/StatsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "读取中"
+horizontal_alignment = 2
+
+[node name="ImportButton" type="Button" parent="Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "重新检查旧存档"
+
+[node name="LogoutButton" type="Button" parent="Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "退出当前设备"
+
+[node name="LogoutAllButton" type="Button" parent="Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "退出所有设备"
