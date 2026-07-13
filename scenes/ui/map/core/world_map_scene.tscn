@@ -152,7 +152,7 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_left = 22.0
 offset_top = 12.0
-offset_right = -796.0
+offset_right = -933.0
 offset_bottom = 74.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
@@ -169,18 +169,13 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="BackButton" type="Button" parent="TopBar/TopBarMargin/TopBarHBox" unique_id=488357669]
-custom_minimum_size = Vector2(124, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 1, 0.998, 1)
 theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BackButton")
-text = "< 返回工作室"
-
-[node name="TitleSpacerLeft" type="Control" parent="TopBar/TopBarMargin/TopBarHBox" unique_id=918791669]
-custom_minimum_size = Vector2(12, 0)
-layout_mode = 2
+text = "< 返回"
 
 [node name="TitleCenter" type="CenterContainer" parent="TopBar/TopBarMargin/TopBarHBox" unique_id=1054192171]
 layout_mode = 2

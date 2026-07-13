@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dww6kuayx0n4s"]
+[gd_scene load_steps=17 format=3 uid="uid://dww6kuayx0n4s"]
 
 [ext_resource type="Script" uid="uid://cmgqdvv0vypwy" path="res://scripts/ui/start/bug_feedback_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://v38ek452wj5y" path="res://assets/images/icons/ui/main/bug-folder.png" id="3_nnild"]
@@ -24,26 +24,26 @@ shader_parameter/mix_color = Color(0.08, 0.1, 0.12, 0.42)
 bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
-bg_color = Color(0.95, 0.98, 0.975, 0.96)
+bg_color = Color(0.956863, 0.968627, 0.964706, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.8, 0.9, 0.88, 0.95)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0.05, 0.12, 0.14, 0.16)
-shadow_size = 24
-shadow_offset = Vector2(0, 8)
+border_color = Color(0.721569, 0.815686, 0.8, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.05, 0.12, 0.14, 0.18)
+shadow_size = 16
+shadow_offset = Vector2(0, 6)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TopBar"]
-bg_color = Color(0.17, 0.2, 0.24, 0.92)
+bg_color = Color(0.0705882, 0.152941, 0.160784, 1)
 border_width_bottom = 1
 border_color = Color(1, 1, 1, 0.08)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
+corner_radius_top_left = 7
+corner_radius_top_right = 7
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButton"]
 bg_color = Color(1, 1, 1, 0.12)
@@ -52,10 +52,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 1, 1, 0.12)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CloseButtonHover"]
 bg_color = Color(1, 1, 1, 0.18)
@@ -64,57 +64,97 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.52, 0.84, 0.81, 0.38)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.78)
+bg_color = Color(1, 1, 1, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.92)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+border_color = Color(0.792157, 0.85098, 0.839216, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 shadow_color = Color(0.15, 0.24, 0.28, 0.06)
-shadow_size = 10
-shadow_offset = Vector2(0, 2)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputQuiet"]
 content_margin_left = 10.0
 content_margin_top = 7.0
 content_margin_right = 10.0
 content_margin_bottom = 7.0
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.976471, 0.984314, 0.980392, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
+content_margin_left = 10.0
+content_margin_top = 7.0
+content_margin_right = 10.0
+content_margin_bottom = 7.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.176471, 0.647059, 0.588235, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TextAreaQuiet"]
 content_margin_left = 12.0
 content_margin_top = 10.0
 content_margin_right = 12.0
 content_margin_bottom = 10.0
-bg_color = Color(1, 1, 1, 0.96)
+bg_color = Color(0.976471, 0.984314, 0.980392, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
+bg_color = Color(0.176471, 0.647059, 0.588235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.133333, 0.501961, 0.462745, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SecondaryButton"]
+bg_color = Color(0.909804, 0.945098, 0.937255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="BugFeedbackPanel" type="Control"]
 layout_mode = 3
@@ -145,7 +185,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(920, 600)
+custom_minimum_size = Vector2(940, 620)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_PanelRoot")
 
@@ -162,7 +202,7 @@ layout_mode = 2
 theme_override_constants/separation = 14
 
 [node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox"]
-custom_minimum_size = Vector2(0, 96)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_TopBar")
 
@@ -289,7 +329,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_colors/font_placeholder_color = Color(0.47, 0.57, 0.61, 0.82)
 theme_override_styles/normal = SubResource("StyleBoxFlat_InputQuiet")
-theme_override_styles/focus = SubResource("StyleBoxFlat_InputQuiet")
+theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "例如：开始界面按钮点击后无响应"
 
 [node name="StepsLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/FormCard/FormMargin/FormVBox"]
@@ -410,10 +450,17 @@ theme_override_constants/separation = 10
 [node name="CopyEnvButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/BottomBar/Actions"]
 custom_minimum_size = Vector2(136, 42)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.145098, 0.294118, 0.298039, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_InputFocus")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButton")
 text = "复制运行信息"
 
 [node name="CopyFeedbackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/ContentVBox/BodyScroll/BodyVBox/BottomBar/Actions"]
 custom_minimum_size = Vector2(160, 42)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_PrimaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_PrimaryButton")
 text = "复制完整反馈"

@@ -91,44 +91,42 @@ func _kill_panel_tween() -> void:
 
 func _prepare_styles() -> void:
 	_row_normal_style = StyleBoxFlat.new()
-	_row_normal_style.bg_color = Color(0.93, 0.94, 0.95, 0.98)
+	_row_normal_style.bg_color = Color(0.976471, 0.984314, 0.980392, 1)
 	_row_normal_style.border_width_left = 1
 	_row_normal_style.border_width_top = 1
 	_row_normal_style.border_width_right = 1
 	_row_normal_style.border_width_bottom = 1
-	_row_normal_style.border_color = Color(0.8, 0.82, 0.85, 0.98)
-	_row_normal_style.corner_radius_top_left = 12
-	_row_normal_style.corner_radius_top_right = 12
-	_row_normal_style.corner_radius_bottom_left = 12
-	_row_normal_style.corner_radius_bottom_right = 12
+	_row_normal_style.border_color = Color(0.792157, 0.85098, 0.839216, 1)
+	_row_normal_style.corner_radius_top_left = 6
+	_row_normal_style.corner_radius_top_right = 6
+	_row_normal_style.corner_radius_bottom_left = 6
+	_row_normal_style.corner_radius_bottom_right = 6
 
 	_row_selected_style = _row_normal_style.duplicate()
-	_row_selected_style.border_width_left = 2
-	_row_selected_style.border_width_top = 2
-	_row_selected_style.border_width_right = 2
-	_row_selected_style.border_width_bottom = 2
-	_row_selected_style.border_color = Color(0.96, 0.72, 0.28, 0.98)
-	_row_selected_style.shadow_color = Color(0.92, 0.62, 0.2, 0.14)
-	_row_selected_style.shadow_size = 8
+	_row_selected_style.bg_color = Color(0.752941, 0.933333, 0.890196, 1)
+	_row_selected_style.border_width_left = 3
+	_row_selected_style.border_color = Color(0.176471, 0.647059, 0.588235, 1)
+	_row_selected_style.shadow_color = Color(0.05, 0.12, 0.14, 0.08)
+	_row_selected_style.shadow_size = 4
 
 	_footer_button_style = StyleBoxFlat.new()
-	_footer_button_style.bg_color = Color(0.97, 0.97, 0.98, 1)
+	_footer_button_style.bg_color = Color(0.909804, 0.945098, 0.937255, 1)
 	_footer_button_style.border_width_left = 1
 	_footer_button_style.border_width_top = 1
 	_footer_button_style.border_width_right = 1
 	_footer_button_style.border_width_bottom = 1
-	_footer_button_style.border_color = Color(0.83, 0.85, 0.88, 1)
-	_footer_button_style.corner_radius_top_left = 12
-	_footer_button_style.corner_radius_top_right = 12
-	_footer_button_style.corner_radius_bottom_left = 12
-	_footer_button_style.corner_radius_bottom_right = 12
+	_footer_button_style.border_color = Color(0.721569, 0.815686, 0.8, 1)
+	_footer_button_style.corner_radius_top_left = 6
+	_footer_button_style.corner_radius_top_right = 6
+	_footer_button_style.corner_radius_bottom_left = 6
+	_footer_button_style.corner_radius_bottom_right = 6
 
 	_delete_button_style = StyleBoxFlat.new()
-	_delete_button_style.bg_color = Color(0.78, 0.34, 0.45, 1)
-	_delete_button_style.corner_radius_top_left = 18
-	_delete_button_style.corner_radius_top_right = 18
-	_delete_button_style.corner_radius_bottom_left = 18
-	_delete_button_style.corner_radius_bottom_right = 18
+	_delete_button_style.bg_color = Color(0.827451, 0.329412, 0.384314, 1)
+	_delete_button_style.corner_radius_top_left = 6
+	_delete_button_style.corner_radius_top_right = 6
+	_delete_button_style.corner_radius_bottom_left = 6
+	_delete_button_style.corner_radius_bottom_right = 6
 
 func _seed_mails() -> void:
 	_mails = [
@@ -216,11 +214,11 @@ func _build_mail_list() -> void:
 		var icon_panel := PanelContainer.new()
 		icon_panel.custom_minimum_size = Vector2(52, 52)
 		var icon_style := StyleBoxFlat.new()
-		icon_style.bg_color = Color(0.18, 0.18, 0.22, 0.96)
-		icon_style.corner_radius_top_left = 10
-		icon_style.corner_radius_top_right = 10
-		icon_style.corner_radius_bottom_left = 10
-		icon_style.corner_radius_bottom_right = 10
+		icon_style.bg_color = Color(0.0705882, 0.152941, 0.160784, 1)
+		icon_style.corner_radius_top_left = 6
+		icon_style.corner_radius_top_right = 6
+		icon_style.corner_radius_bottom_left = 6
+		icon_style.corner_radius_bottom_right = 6
 		icon_panel.add_theme_stylebox_override("panel", icon_style)
 		row.add_child(icon_panel)
 
@@ -241,13 +239,13 @@ func _build_mail_list() -> void:
 		var title := Label.new()
 		title.text = str(mail_data.get("title", "未命名邮件"))
 		title.add_theme_font_size_override("font_size", 18)
-		title.add_theme_color_override("font_color", Color(0.22, 0.22, 0.24, 1))
+		title.add_theme_color_override("font_color", Color(0.0705882, 0.152941, 0.160784, 1))
 		text_vbox.add_child(title)
 
 		var sender := Label.new()
 		sender.text = "寄件人：%s" % str(mail_data.get("sender", "未知寄件人"))
 		sender.add_theme_font_size_override("font_size", 13)
-		sender.add_theme_color_override("font_color", Color(0.52, 0.53, 0.56, 1))
+		sender.add_theme_color_override("font_color", Color(0.376471, 0.470588, 0.470588, 1))
 		text_vbox.add_child(sender)
 
 		var time_label := Label.new()
@@ -255,7 +253,7 @@ func _build_mail_list() -> void:
 		time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		time_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		time_label.add_theme_font_size_override("font_size", 13)
-		time_label.add_theme_color_override("font_color", Color(0.58, 0.6, 0.64, 1))
+		time_label.add_theme_color_override("font_color", Color(0.282353, 0.403922, 0.407843, 1))
 		time_label.custom_minimum_size = Vector2(92, 0)
 		row.add_child(time_label)
 
@@ -289,16 +287,16 @@ func _refresh_detail() -> void:
 		var card := PanelContainer.new()
 		card.custom_minimum_size = Vector2(96, 96)
 		var card_style := StyleBoxFlat.new()
-		card_style.bg_color = Color(0.97, 0.97, 0.98, 1)
+		card_style.bg_color = Color(1, 1, 1, 1)
 		card_style.border_width_left = 1
 		card_style.border_width_top = 1
 		card_style.border_width_right = 1
 		card_style.border_width_bottom = 1
-		card_style.border_color = Color(0.85, 0.86, 0.9, 1)
-		card_style.corner_radius_top_left = 12
-		card_style.corner_radius_top_right = 12
-		card_style.corner_radius_bottom_left = 12
-		card_style.corner_radius_bottom_right = 12
+		card_style.border_color = Color(0.721569, 0.815686, 0.8, 1)
+		card_style.corner_radius_top_left = 6
+		card_style.corner_radius_top_right = 6
+		card_style.corner_radius_bottom_left = 6
+		card_style.corner_radius_bottom_right = 6
 		card.add_theme_stylebox_override("panel", card_style)
 		attachment_grid.add_child(card)
 
@@ -323,7 +321,7 @@ func _refresh_detail() -> void:
 		var amount_label := Label.new()
 		amount_label.text = "x%s" % str(attachment_data.get("amount", 1))
 		amount_label.add_theme_font_size_override("font_size", 15)
-		amount_label.add_theme_color_override("font_color", Color(0.22, 0.22, 0.24, 1))
+		amount_label.add_theme_color_override("font_color", Color(0.145098, 0.294118, 0.298039, 1))
 		amount_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(amount_label)
 

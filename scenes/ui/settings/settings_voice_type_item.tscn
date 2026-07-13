@@ -1,80 +1,80 @@
 [gd_scene load_steps=6 format=3 uid="uid://bdn1el7qoy447"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FieldNormal"]
-content_margin_left = 10.0
+content_margin_left = 12.0
 content_margin_top = 6.0
-content_margin_right = 10.0
+content_margin_right = 12.0
 content_margin_bottom = 6.0
-bg_color = Color(0.985, 0.98, 0.965, 1)
+bg_color = Color(0.976471, 0.984314, 0.980392, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.84, 0.81, 0.75, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_FieldFocus"]
-content_margin_left = 10.0
+content_margin_left = 12.0
 content_margin_top = 6.0
-content_margin_right = 10.0
+content_margin_right = 12.0
 content_margin_bottom = 6.0
-bg_color = Color(1, 0.995, 0.985, 1)
+bg_color = Color(1, 1, 1, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.176471, 0.647059, 0.588235, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5xkn"]
-bg_color = Color(0.12941177, 0.7607843, 0.7019608, 1)
+bg_color = Color(0.176471, 0.647059, 0.588235, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.78, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.133333, 0.501961, 0.462745, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k741i"]
-bg_color = Color(0.42192078, 0.9854236, 0.92006475, 1)
+bg_color = Color(0.752941, 0.933333, 0.890196, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.78, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.176471, 0.647059, 0.588235, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonPressed"]
-bg_color = Color(0.83, 0.92, 0.89, 1)
+bg_color = Color(0.65098, 0.870588, 0.823529, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.45, 0.78, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="SettingsVoiceTypeItem" type="VBoxContainer"]
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_colors/font_color = Color(0.145098, 0.294118, 0.298039, 1)
 theme_override_font_sizes/font_size = 15
 text = "角色音色"
 
@@ -83,19 +83,21 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="InputDoubao" type="LineEdit" parent="DoubaoHBox"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
-theme_override_colors/font_placeholder_color = Color(0.46, 0.43, 0.38, 0.8)
+theme_override_colors/font_color = Color(0.109804, 0.207843, 0.211765, 1)
+theme_override_colors/font_placeholder_color = Color(0.376471, 0.470588, 0.470588, 0.76)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_FieldNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_FieldFocus")
 
 [node name="PreviewDoubaoButton" type="Button" parent="DoubaoHBox"]
-custom_minimum_size = Vector2(96, 34)
+custom_minimum_size = Vector2(88, 38)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.0705882, 0.152941, 0.160784, 1)
+theme_override_colors/font_pressed_color = Color(0.0705882, 0.152941, 0.160784, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_k741i")
@@ -108,19 +110,21 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="InputQwenTTS" type="LineEdit" parent="QwenTTSHBox"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
-theme_override_colors/font_placeholder_color = Color(0.46, 0.43, 0.38, 0.8)
+theme_override_colors/font_color = Color(0.109804, 0.207843, 0.211765, 1)
+theme_override_colors/font_placeholder_color = Color(0.376471, 0.470588, 0.470588, 0.76)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_FieldNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_FieldFocus")
 
 [node name="PreviewQwenButton" type="Button" parent="QwenTTSHBox"]
-custom_minimum_size = Vector2(96, 34)
+custom_minimum_size = Vector2(88, 38)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.0705882, 0.152941, 0.160784, 1)
+theme_override_colors/font_pressed_color = Color(0.0705882, 0.152941, 0.160784, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_x5xkn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_k741i")

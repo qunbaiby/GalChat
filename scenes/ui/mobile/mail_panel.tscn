@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://2nbtxar060nd"]
+[gd_scene load_steps=14 format=3 uid="uid://2nbtxar060nd"]
 
 [ext_resource type="Script" uid="uid://cqop1pdoue1ib" path="res://scripts/ui/mobile/mail_panel.gd" id="1_script"]
 
@@ -23,12 +23,12 @@ shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
 bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Root"]
-bg_color = Color(0.956, 0.974, 0.982, 0.992)
+bg_color = Color(0.92549, 0.94902, 0.945098, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.79, 0.88, 0.9, 0.82)
+border_color = Color(0.721569, 0.815686, 0.8, 0.82)
 corner_radius_top_left = 0
 corner_radius_top_right = 0
 corner_radius_bottom_right = 0
@@ -37,47 +37,78 @@ shadow_color = Color(0, 0, 0, 0)
 shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Header"]
-bg_color = Color(0.9, 0.95, 0.96, 0.94)
+bg_color = Color(0.0705882, 0.152941, 0.160784, 1)
 border_width_bottom = 1
-border_color = Color(0.79, 0.88, 0.89, 0.9)
+border_color = Color(0.262745, 0.494118, 0.482353, 0.5)
 corner_radius_top_left = 0
 corner_radius_top_right = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_LeftPane"]
-bg_color = Color(0.94, 0.945, 0.952, 0.98)
+bg_color = Color(0.941176, 0.960784, 0.956863, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.84, 0.88, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_RightPane"]
-bg_color = Color(0.985, 0.986, 0.99, 1)
+bg_color = Color(1, 1, 1, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.88, 0.89, 0.92, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+border_color = Color(0.792157, 0.85098, 0.839216, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AttachmentPanel"]
-bg_color = Color(0.965, 0.968, 0.973, 1)
+bg_color = Color(0.941176, 0.960784, 0.956863, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.86, 0.87, 0.9, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+border_color = Color(0.792157, 0.85098, 0.839216, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HeaderButton"]
+bg_color = Color(1, 1, 1, 0.1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.18)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
+bg_color = Color(0.909804, 0.945098, 0.937255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_DangerButton"]
+bg_color = Color(0.827451, 0.329412, 0.384314, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="MailPanel" type="Control"]
 visible = false
@@ -135,21 +166,25 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="BackBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
-custom_minimum_size = Vector2(96, 42)
+custom_minimum_size = Vector2(84, 42)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.94)
+theme_override_styles/normal = SubResource("StyleBoxFlat_HeaderButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_HeaderButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_HeaderButton")
 text = "关闭"
 
 [node name="Title" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.24, 0.25, 0.28, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.96)
 theme_override_font_sizes/font_size = 28
 text = "邮箱"
 
 [node name="CounterLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 custom_minimum_size = Vector2(88, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.74, 0.78, 1)
+theme_override_colors/font_color = Color(0.752941, 0.933333, 0.890196, 0.92)
 theme_override_font_sizes/font_size = 15
 text = "022 / 100"
 horizontal_alignment = 2
@@ -157,7 +192,7 @@ horizontal_alignment = 2
 [node name="HeaderAction" type="Label" parent="CenterContainer/PanelRoot/VBox/HeaderPanel/Margin/TopBar"]
 custom_minimum_size = Vector2(36, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.68, 0.72, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.55)
 theme_override_font_sizes/font_size = 18
 text = "X"
 horizontal_alignment = 2
@@ -173,10 +208,10 @@ theme_override_constants/margin_bottom = 28
 [node name="BodyHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 24
+theme_override_constants/separation = 20
 
 [node name="LeftPane" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
-custom_minimum_size = Vector2(420, 0)
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_LeftPane")
@@ -207,12 +242,18 @@ theme_override_constants/separation = 10
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.145098, 0.294118, 0.298039, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 text = "全部领取"
 
 [node name="DeleteReadBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/LeftPane/LeftVBox/FooterBar/FooterHBox"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.145098, 0.294118, 0.298039, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButton")
 text = "删除已读邮件"
 
 [node name="RightPane" type="PanelContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox"]
@@ -235,8 +276,8 @@ theme_override_constants/separation = 12
 
 [node name="DetailTitle" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.3, 0.32, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.0705882, 0.152941, 0.160784, 1)
+theme_override_font_sizes/font_size = 28
 text = "邮件标题"
 
 [node name="MetaHBox" type="HBoxContainer" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
@@ -246,21 +287,21 @@ theme_override_constants/separation = 12
 [node name="SenderLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/MetaHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.64, 0.68, 1)
+theme_override_colors/font_color = Color(0.376471, 0.470588, 0.470588, 1)
 theme_override_font_sizes/font_size = 15
 text = "寄件人：-"
 
 [node name="DateLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/MetaHBox"]
 custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.64, 0.68, 1)
+theme_override_colors/font_color = Color(0.376471, 0.470588, 0.470588, 1)
 theme_override_font_sizes/font_size = 15
 text = "2026-06-07 12:00"
 horizontal_alignment = 2
 
 [node name="ReceiverLabel" type="Label" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.42, 0.46, 1)
+theme_override_colors/font_color = Color(0.282353, 0.403922, 0.407843, 1)
 theme_override_font_sizes/font_size = 16
 text = "收件人：-"
 
@@ -268,7 +309,7 @@ text = "收件人：-"
 custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.34, 0.35, 0.38, 1)
+theme_override_colors/font_color = Color(0.145098, 0.294118, 0.298039, 1)
 theme_override_font_sizes/font_size = 17
 text = "暂无邮件内容。"
 autowrap_mode = 3
@@ -301,4 +342,8 @@ size_flags_horizontal = 3
 [node name="DeleteBtn" type="Button" parent="CenterContainer/PanelRoot/VBox/BodyMargin/BodyHBox/RightPane/RightMargin/RightVBox/BottomBar"]
 custom_minimum_size = Vector2(170, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_DangerButton")
+theme_override_styles/hover = SubResource("StyleBoxFlat_DangerButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_DangerButton")
 text = "删除"

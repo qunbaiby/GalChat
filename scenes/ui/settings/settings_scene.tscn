@@ -28,12 +28,7 @@ shader_parameter/mix_color = Color(0.160784, 0.141176, 0.121569, 0.588235)
 bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PanelRoot"]
-bg_color = Color(0.93333334, 0.9137255, 0.84705883, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.84, 0.8, 0.72, 1)
+bg_color = Color(0.92549, 0.94902, 0.945098, 1)
 corner_radius_top_left = 0
 corner_radius_top_right = 0
 corner_radius_bottom_right = 0
@@ -42,7 +37,9 @@ shadow_color = Color(0, 0, 0, 0)
 shadow_size = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SidePanel"]
-bg_color = Color(0.15686275, 0.14901961, 0.14901961, 1)
+bg_color = Color(0.0705882, 0.152941, 0.160784, 1)
+border_width_right = 1
+border_color = Color(0.262745, 0.494118, 0.482353, 0.35)
 corner_radius_top_left = 0
 corner_radius_bottom_left = 0
 
@@ -54,96 +51,84 @@ corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_TabPressed"]
-bg_color = Color(0.38, 0.82, 0.76, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+bg_color = Color(0.752941, 0.933333, 0.890196, 1)
+border_width_left = 3
+border_color = Color(0.176471, 0.647059, 0.588235, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_en6pb"]
-bg_color = Color(0.960784, 0.980392, 0.968627, 0.64)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.95)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.18, 0.28, 0.33, 0.08)
-shadow_size = 12
-shadow_offset = Vector2(0, 3)
+bg_color = Color(0.956863, 0.968627, 0.964706, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ContentTopBar"]
-bg_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
+bg_color = Color(0.984314, 0.988235, 0.984314, 1)
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.08)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.12)
-shadow_size = 8
-shadow_offset = Vector2(0, 2)
+border_color = Color(0.721569, 0.815686, 0.8, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButton"]
-bg_color = Color(1, 1, 1, 0.12)
+bg_color = Color(0.909804, 0.945098, 0.937255, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.12)
-corner_radius_top_left = 21
-corner_radius_top_right = 21
-corner_radius_bottom_right = 21
-corner_radius_bottom_left = 21
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BackButtonHover"]
-bg_color = Color(1, 1, 1, 0.18)
+bg_color = Color(0.752941, 0.933333, 0.890196, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.52, 0.84, 0.81, 0.4)
-corner_radius_top_left = 21
-corner_radius_top_right = 21
-corner_radius_bottom_right = 21
-corner_radius_bottom_left = 21
+border_color = Color(0.176471, 0.647059, 0.588235, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Card"]
-bg_color = Color(1, 1, 1, 0.5)
+bg_color = Color(1, 1, 1, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.82, 0.9, 0.88, 0.88)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0.18, 0.28, 0.33, 0.06)
-shadow_size = 8
-shadow_offset = Vector2(0, 2)
+border_color = Color(0.792157, 0.85098, 0.839216, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.0588235, 0.129412, 0.137255, 0.06)
+shadow_size = 4
+shadow_offset = Vector2(0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputNormal"]
-content_margin_left = 10.0
+content_margin_left = 12.0
 content_margin_top = 6.0
-content_margin_right = 10.0
+content_margin_right = 12.0
 content_margin_bottom = 6.0
-bg_color = Color(1, 1, 1, 0.9)
+bg_color = Color(0.976471, 0.984314, 0.980392, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.79, 0.86, 0.89, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.721569, 0.815686, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputFocus"]
 content_margin_left = 10.0
@@ -155,11 +140,11 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.52, 0.84, 0.81, 0.96)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.176471, 0.647059, 0.588235, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ChoiceNormal"]
 bg_color = Color(1, 1, 1, 0.92)
@@ -322,21 +307,21 @@ size_flags_vertical = 3
 theme_override_constants/separation = 0
 
 [node name="SidePanel" type="PanelContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox" unique_id=853475248]
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(112, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_SidePanel")
 
 [node name="SideMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel" unique_id=1795300894]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 28
 
 [node name="SideVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin" unique_id=93128478]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
 [node name="Icon" type="TextureRect" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=1916121491]
 custom_minimum_size = Vector2(45, 45)
@@ -346,7 +331,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="AiTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=1130641425]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_TabPressed")
@@ -388,7 +373,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DisplayTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=504267850]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_TabPressed")
@@ -429,7 +414,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="AudioTabButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/SidePanel/SideMargin/SideVBox" unique_id=224708727]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_TabNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_TabPressed")
@@ -482,19 +467,19 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_en6pb")
 
 [node name="ContentMargin" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel" unique_id=102122870]
 layout_mode = 2
-theme_override_constants/margin_left = 26
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 26
-theme_override_constants/margin_bottom = 26
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
 
 [node name="ContentVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin" unique_id=353397358]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 18
+theme_override_constants/separation = 20
 
 [node name="TopBar" type="Panel" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox" unique_id=1272713928]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ContentTopBar")
 
@@ -507,7 +492,7 @@ offset_top = 14.0
 offset_right = -126.0
 offset_bottom = 46.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.96)
+theme_override_colors/font_color = Color(0.0705882, 0.152941, 0.160784, 1)
 theme_override_font_sizes/font_size = 24
 text = "设置 / AI"
 vertical_alignment = 1
@@ -521,26 +506,26 @@ offset_top = 48.0
 offset_right = -126.0
 offset_bottom = 76.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.92, 0.95, 0.98, 0.62)
+theme_override_colors/font_color = Color(0.282353, 0.403922, 0.407843, 0.78)
 theme_override_font_sizes/font_size = 13
 text = "模型、接口、语音与图像等能力配置"
 vertical_alignment = 1
 
 [node name="BackButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/TopBar" unique_id=462621181]
-custom_minimum_size = Vector2(54, 54)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -70.0
-offset_top = 15.0
+offset_left = -64.0
+offset_top = 20.0
 offset_right = -16.0
-offset_bottom = 69.0
+offset_bottom = 68.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 1, 1, 0.92)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.145098, 0.294118, 0.298039, 0.9)
+theme_override_colors/font_pressed_color = Color(0.0705882, 0.152941, 0.160784, 1)
+theme_override_colors/font_hover_color = Color(0.0705882, 0.152941, 0.160784, 1)
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_BackButton")
 theme_override_styles/hover = SubResource("StyleBoxFlat_BackButtonHover")

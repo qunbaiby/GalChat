@@ -104,43 +104,43 @@ func _kill_panel_tween() -> void:
 func _prepare_styles() -> void:
     _category_button_normal_style = StyleBoxFlat.new()
     _category_button_normal_style.bg_color = Color(1, 1, 1, 0)
-    _category_button_normal_style.corner_radius_top_left = 12
-    _category_button_normal_style.corner_radius_top_right = 12
-    _category_button_normal_style.corner_radius_bottom_left = 12
-    _category_button_normal_style.corner_radius_bottom_right = 12
+    _category_button_normal_style.corner_radius_top_left = 6
+    _category_button_normal_style.corner_radius_top_right = 6
+    _category_button_normal_style.corner_radius_bottom_left = 6
+    _category_button_normal_style.corner_radius_bottom_right = 6
 
     _category_button_active_style = StyleBoxFlat.new()
-    _category_button_active_style.bg_color = Color(0.95, 0.97, 0.99, 1)
-    _category_button_active_style.border_width_left = 2
-    _category_button_active_style.border_color = Color(0.98, 0.74, 0.34, 0.95)
-    _category_button_active_style.corner_radius_top_left = 12
-    _category_button_active_style.corner_radius_top_right = 12
-    _category_button_active_style.corner_radius_bottom_left = 12
-    _category_button_active_style.corner_radius_bottom_right = 12
+    _category_button_active_style.bg_color = Color(0.752941, 0.933333, 0.890196, 1)
+    _category_button_active_style.border_width_left = 3
+    _category_button_active_style.border_color = Color(0.176471, 0.647059, 0.588235, 1)
+    _category_button_active_style.corner_radius_top_left = 6
+    _category_button_active_style.corner_radius_top_right = 6
+    _category_button_active_style.corner_radius_bottom_left = 6
+    _category_button_active_style.corner_radius_bottom_right = 6
 
     _lesson_button_normal_style = StyleBoxFlat.new()
-    _lesson_button_normal_style.bg_color = Color(0.965, 0.972, 0.978, 0.96)
+    _lesson_button_normal_style.bg_color = Color(0.976471, 0.984314, 0.980392, 1)
     _lesson_button_normal_style.border_width_left = 1
     _lesson_button_normal_style.border_width_top = 1
     _lesson_button_normal_style.border_width_right = 1
     _lesson_button_normal_style.border_width_bottom = 1
-    _lesson_button_normal_style.border_color = Color(0.89, 0.91, 0.94, 0.96)
-    _lesson_button_normal_style.corner_radius_top_left = 12
-    _lesson_button_normal_style.corner_radius_top_right = 12
-    _lesson_button_normal_style.corner_radius_bottom_left = 12
-    _lesson_button_normal_style.corner_radius_bottom_right = 12
+    _lesson_button_normal_style.border_color = Color(0.792157, 0.85098, 0.839216, 1)
+    _lesson_button_normal_style.corner_radius_top_left = 6
+    _lesson_button_normal_style.corner_radius_top_right = 6
+    _lesson_button_normal_style.corner_radius_bottom_left = 6
+    _lesson_button_normal_style.corner_radius_bottom_right = 6
 
     _lesson_button_active_style = StyleBoxFlat.new()
-    _lesson_button_active_style.bg_color = Color(1, 1, 1, 1)
+    _lesson_button_active_style.bg_color = Color(0.752941, 0.933333, 0.890196, 1)
     _lesson_button_active_style.border_width_left = 3
     _lesson_button_active_style.border_width_top = 1
     _lesson_button_active_style.border_width_right = 1
     _lesson_button_active_style.border_width_bottom = 1
-    _lesson_button_active_style.border_color = Color(0.97, 0.74, 0.36, 0.98)
-    _lesson_button_active_style.corner_radius_top_left = 12
-    _lesson_button_active_style.corner_radius_top_right = 12
-    _lesson_button_active_style.corner_radius_bottom_left = 12
-    _lesson_button_active_style.corner_radius_bottom_right = 12
+    _lesson_button_active_style.border_color = Color(0.176471, 0.647059, 0.588235, 1)
+    _lesson_button_active_style.corner_radius_top_left = 6
+    _lesson_button_active_style.corner_radius_top_right = 6
+    _lesson_button_active_style.corner_radius_bottom_left = 6
+    _lesson_button_active_style.corner_radius_bottom_right = 6
 
 func _load_tutorial_data() -> void:
     _tutorial_categories.clear()
@@ -218,7 +218,7 @@ func _build_category_buttons() -> void:
         button.add_theme_stylebox_override("hover", _category_button_active_style)
         button.add_theme_stylebox_override("pressed", _category_button_active_style)
         button.add_theme_font_size_override("font_size", 18)
-        button.add_theme_color_override("font_color", Color(0.58, 0.6, 0.64, 1))
+        button.add_theme_color_override("font_color", Color(0.376471, 0.470588, 0.470588, 1))
         button.pressed.connect(func(index := i): _on_category_selected(index))
         category_button_vbox.add_child(button)
         _category_buttons.append(button)
@@ -250,7 +250,7 @@ func _build_lesson_buttons() -> void:
         button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
         button.alignment = HORIZONTAL_ALIGNMENT_LEFT
         button.add_theme_font_size_override("font_size", 15)
-        button.add_theme_color_override("font_color", Color(0.48, 0.5, 0.54, 1))
+        button.add_theme_color_override("font_color", Color(0.282353, 0.403922, 0.407843, 1))
         button.add_theme_stylebox_override("normal", _lesson_button_normal_style)
         button.add_theme_stylebox_override("hover", _lesson_button_active_style)
         button.add_theme_stylebox_override("pressed", _lesson_button_active_style)
@@ -296,7 +296,7 @@ func _refresh_category_button_states() -> void:
         var button: Button = _category_buttons[i]
         var is_current: bool = i == _current_category_index
         button.add_theme_stylebox_override("normal", _category_button_active_style if is_current else _category_button_normal_style)
-        button.add_theme_color_override("font_color", Color(0.93, 0.64, 0.16, 1) if is_current else Color(0.58, 0.6, 0.64, 1))
+        button.add_theme_color_override("font_color", Color(0.0705882, 0.152941, 0.160784, 1) if is_current else Color(0.376471, 0.470588, 0.470588, 1))
 
 func _refresh_lesson() -> void:
     if _tutorial_categories.is_empty():
@@ -340,7 +340,7 @@ func _refresh_lesson_button_states() -> void:
         var button: Button = _lesson_buttons[i]
         var is_current: bool = i == _current_lesson_index
         button.add_theme_stylebox_override("normal", _lesson_button_active_style if is_current else _lesson_button_normal_style)
-        button.add_theme_color_override("font_color", Color(0.2, 0.21, 0.24, 1) if is_current else Color(0.48, 0.5, 0.54, 1))
+        button.add_theme_color_override("font_color", Color(0.0705882, 0.152941, 0.160784, 1) if is_current else Color(0.282353, 0.403922, 0.407843, 1))
 
 func _refresh_pager() -> void:
     var lesson_count: int = 0
