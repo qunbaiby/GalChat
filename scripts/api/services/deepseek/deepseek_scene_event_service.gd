@@ -15,7 +15,7 @@ func generate_date_story(client, context: Dictionary) -> void:
 	var body = {
 		"model": client.get_chat_model_id(),
 		"messages": api_messages,
-		"temperature": 0.3 if retry_count > 0 else 0.38,
+		"temperature": 0.3 if retry_count > 0 else 0.65,
 		"max_tokens": 1000 if retry_count > 0 else (1400 if single_segment_mode else 1500)
 	}
 	body["response_format"] = {"type": "json_object"}
@@ -23,7 +23,9 @@ func generate_date_story(client, context: Dictionary) -> void:
 		client.date_story_http.cancel_request()
 	var err: int = client.date_story_http.request(client._get_url(), client._get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 	if err != OK:
-		client.date_story_error.emit("约会剧情请求发送失败")
+		var error_message := "约会剧情请求发送失败"
+		client.date_story_error.emit(error_message)
+		client.date_story_error_detailed.emit(error_message, {"http_status": 0, "request_result": err})
 
 func generate_schedule_event(client, course_name: String, course_desc: String, context: Dictionary = {}) -> void:
 	while not client.is_inside_tree():
@@ -92,6 +94,45 @@ func _extract_json_object_from_response(body: PackedByteArray) -> Variant:
 		return null
 	return content_json.get_data()
 
+func extract_date_story_response(body: PackedByteArray, response_code: int, headers: PackedStringArray) -> Dictionary:
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK:
+		return {"ok": false, "metadata": _build_date_story_metadata({}, response_code, headers)}
+	var outer_data: Variant = json.get_data()
+	if not outer_data is Dictionary:
+		return {"ok": false, "metadata": _build_date_story_metadata({}, response_code, headers)}
+	var script_data: Variant = _extract_json_object_from_response(body)
+	return {
+		"ok": script_data is Dictionary,
+		"script_data": script_data if script_data is Dictionary else {},
+		"metadata": _build_date_story_metadata(outer_data as Dictionary, response_code, headers)
+	}
+
+func _build_date_story_metadata(outer_data: Dictionary, response_code: int, headers: PackedStringArray) -> Dictionary:
+	return {
+		"usage": (outer_data.get("usage", {}) as Dictionary).duplicate(true),
+		"model": str(outer_data.get("model", "")),
+		"response_id": str(outer_data.get("id", "")),
+		"http_status": response_code,
+		"quota": {
+			"capability": _get_header_value(headers, "x-quota-capability"),
+			"limit": _parse_header_integer(_get_header_value(headers, "x-quota-limit")),
+			"remaining": _parse_header_integer(_get_header_value(headers, "x-quota-remaining"))
+		}
+	}
+
+func _get_header_value(headers: PackedStringArray, target_name: String) -> String:
+	for header in headers:
+		var separator := header.find(":")
+		if separator <= 0:
+			continue
+		if header.substr(0, separator).strip_edges().to_lower() == target_name:
+			return header.substr(separator + 1).strip_edges()
+	return ""
+
+func _parse_header_integer(value: String) -> Variant:
+	return int(value) if value.is_valid_int() else -1
+
 func _inspect_json_object_from_response(body: PackedByteArray) -> Dictionary:
 	var result := {
 		"outer_ok": false,
@@ -144,22 +185,26 @@ func _extract_error_message(body: PackedByteArray) -> String:
 	if data is Dictionary:
 		var error_data: Variant = data.get("error", null)
 		if error_data is Dictionary:
-			var message := str(error_data.get("message", "")).strip_edges()
-			if message != "":
-				return message
+			var nested_message := str(error_data.get("message", "")).strip_edges()
+			if nested_message != "":
+				return nested_message
 		var message := str(data.get("message", "")).strip_edges()
 		if message != "":
 			return message
 	return raw_text.left(180)
 
-func handle_date_story_completed(client, result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+func handle_date_story_completed(client, result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == 200:
-		var script_data: Variant = _extract_json_object_from_response(body)
-		if script_data is Dictionary:
+		var parsed_response := extract_date_story_response(body, response_code, headers)
+		if parsed_response.get("ok", false):
+			var script_data := parsed_response.get("script_data", {}) as Dictionary
 			client.date_story_generated.emit(script_data)
+			client.date_story_generated_detailed.emit(script_data, parsed_response.get("metadata", {}) as Dictionary)
 			return
 		var raw_preview := body.get_string_from_utf8().strip_edges().left(240)
-		client.date_story_error.emit("约会剧情响应不是有效 JSON，可能是模型输出被截断或格式不符。响应片段：%s" % raw_preview)
+		var parse_error := "约会剧情响应不是有效 JSON，可能是模型输出被截断或格式不符。响应片段：%s" % raw_preview
+		client.date_story_error.emit(parse_error)
+		client.date_story_error_detailed.emit(parse_error, parsed_response.get("metadata", {}) as Dictionary)
 		return
 	var detail := _extract_error_message(body)
 	var message := "约会剧情生成失败 (HTTP %d)" % response_code
@@ -168,6 +213,9 @@ func handle_date_story_completed(client, result: int, response_code: int, _heade
 	if detail != "":
 		message += "：%s" % detail
 	client.date_story_error.emit(message)
+	var error_metadata := _build_date_story_metadata({}, response_code, headers)
+	error_metadata["request_result"] = result
+	client.date_story_error_detailed.emit(message, error_metadata)
 
 
 func _summarize_segment_line_counts(raw_segments: Variant) -> Array:

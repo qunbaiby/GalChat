@@ -3,6 +3,42 @@ extends Node
 const TTS_SERVICE_SCRIPT = preload("res://scripts/api/tts_service.gd")
 const ChatSplitHelper = preload("res://scripts/utils/chat_split_helper.gd")
 const COMPAT_CACHE_DIR := "user://tts_cache/by_key"
+const TTS_2_EXPRESSION_INSTRUCTIONS := {
+	"calm": "请用平静自然的语气说话，保持原本声线、音高和人物年龄感。",
+	"neutral": "请用自然克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"serious": "请用稍微认真但克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"worried": "请用略带担心但克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"shy": "请用略带害羞但自然的语气说话，保持原本声线、音高和人物年龄感。",
+	"happy": "请用略带开心但不过分夸张的语气说话，保持原本声线、音高和人物年龄感。",
+	"sad": "请用略带失落但克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"angry": "请用略带不满但保持平稳的语气说话，保持原本声线、音高和人物年龄感。",
+	"excited": "请用稍微兴奋但不过分夸张的语气说话，保持原本声线、音高和人物年龄感。",
+	"tender": "请用温柔自然的语气说话，保持原本声线、音高和人物年龄感。",
+	"surprise": "请用略带惊喜但不过分夸张的语气说话，保持原本声线、音高和人物年龄感。",
+	"expectant": "请用略带期待且自然的语气说话，保持原本声线、音高和人物年龄感。",
+	"nervous": "请用略带紧张但克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"down": "请用略带低落但克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"empty": "请用稍微慵懒放松的语气说话，保持原本声线、音高和人物年龄感。",
+	"tired": "请用略带疲惫并稍慢一点的语气说话，保持原本声线、音高和人物年龄感。",
+	"aggrieved": "请用略带委屈但不过分哭腔的语气说话，保持原本声线、音高和人物年龄感。",
+	"cry": "请用轻微哽咽但保持克制的语气说话，保持原本声线、音高和人物年龄感。",
+	"disgusted": "请用略带反感但保持平稳的语气说话，保持原本声线、音高和人物年龄感。",
+	"afraid": "请用略带害怕但不过分尖锐的语气说话，保持原本声线、音高和人物年龄感。",
+	"heartbeat": "请用略带心动且轻柔的语气说话，保持原本声线、音高和人物年龄感。",
+	"panic": "请用稍显慌张但不要尖叫的语气说话，保持原本声线、音高和人物年龄感。",
+	"helpless": "请用略显无奈但自然的语气说话，保持原本声线、音高和人物年龄感。",
+	"confused": "请用略带疑惑且自然的语气说话，保持原本声线、音高和人物年龄感。",
+	"ashamed": "请用略带羞愧并稍轻一点的语气说话，保持原本声线、音高和人物年龄感。",
+	"confident": "请用从容自信但不过分强势的语气说话，保持原本声线、音高和人物年龄感。",
+	"playful": "请用略带俏皮且轻快的语气说话，保持原本声线、音高和人物年龄感。"
+}
+const TTS_2_EXPRESSION_ALIASES := {
+	"平静": "calm", "平淡": "calm", "自然": "neutral", "严肃": "serious", "认真": "serious",
+	"担心": "worried", "焦虑": "worried", "害羞": "shy", "开心": "happy", "高兴": "happy",
+	"悲伤": "sad", "失落": "sad", "委屈": "sad", "生气": "angry", "愤怒": "angry",
+	"激动": "excited", "兴奋": "excited", "温柔": "tender"
+}
+const TTS_2_VOICE_IDENTITY_GUARD := "保持原本声线、音高和人物年龄感。"
 
 signal tts_success(audio_stream: AudioStream, text: String)
 signal tts_failed(error_msg: String, text: String)
@@ -63,11 +99,33 @@ func get_cache_key(text: String, options: Dictionary = {}) -> String:
 		"speech_rate": int(final_options.get("speech_rate", 0)),
 		"loudness_rate": int(final_options.get("loudness_rate", 0)),
 		"model": str(final_options.get("model", "")).strip_edges(),
-		"ssml": str(final_options.get("ssml", "")).strip_edges()
+		"ssml": str(final_options.get("ssml", "")).strip_edges(),
+		"context_texts": final_options.get("context_texts", [])
 	}
 	if final_options.has("additions") and final_options.get("additions", null) is Dictionary:
 		cache_payload["additions"] = (final_options.get("additions", {}) as Dictionary).duplicate(true)
 	return JSON.stringify(cache_payload, "", true).md5_text()
+
+func build_tts_2_expression_options(expression: String) -> Dictionary:
+	var normalized_expression: String = expression.strip_edges().to_lower()
+	if TTS_2_EXPRESSION_ALIASES.has(normalized_expression):
+		normalized_expression = str(TTS_2_EXPRESSION_ALIASES.get(normalized_expression, "")).strip_edges()
+	var instruction: String = str(TTS_2_EXPRESSION_INSTRUCTIONS.get(normalized_expression, "")).strip_edges()
+	if instruction.is_empty():
+		return {}
+	return {"context_texts": [instruction]}
+
+func build_tts_2_instruction_options(voice_instruction: String, fallback_expression: String = "") -> Dictionary:
+	var normalized_instruction: String = voice_instruction.strip_edges()
+	if normalized_instruction.is_empty():
+		return build_tts_2_expression_options(fallback_expression)
+	if normalized_instruction.length() > 80:
+		normalized_instruction = normalized_instruction.left(80).strip_edges()
+	if not normalized_instruction.ends_with("。") and not normalized_instruction.ends_with("？") and not normalized_instruction.ends_with("！"):
+		normalized_instruction += "。"
+	if not normalized_instruction.contains("保持原本声线"):
+		normalized_instruction += TTS_2_VOICE_IDENTITY_GUARD
+	return {"context_texts": [normalized_instruction]}
 
 func load_cached_audio_by_key(cache_key: String) -> AudioStream:
 	var normalized_key: String = cache_key.strip_edges()
@@ -170,6 +228,8 @@ func _is_legacy_tts_speaker(speaker_id: String) -> bool:
 	if normalized.begins_with("S_"):
 		return false
 	if normalized.find("_uranus_bigtts") >= 0 or normalized.find("_saturn_bigtts") >= 0:
+		return false
+	if normalized.begins_with("ICL_uranus_") and normalized.ends_with("_tob"):
 		return false
 	if normalized.begins_with("ICL_") or normalized.ends_with("_tob"):
 		return true

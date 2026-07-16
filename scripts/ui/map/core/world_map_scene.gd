@@ -376,6 +376,13 @@ func _play_location_entry_story(location_id: String, npc_id: String, story_confi
 		trigger_source_id = str(story_config.get("event_id", trigger_source_id)).strip_edges()
 	if trigger_source_id == "":
 		trigger_source_id = script_path.get_file().get_basename()
+	var debug_bridge := get_node_or_null("/root/StoryRuntimeDebugBridge")
+	if debug_bridge != null:
+		debug_bridge.prepare_story("scheduled_entry_story" if trigger_source_type == "scheduled_entry_story" else "event_registry", trigger_source_id, script_path, {
+			"location_id": location_id,
+			"npc_id": npc_id,
+			"priority": int(story_config.get("priority", 0))
+		})
 
 	GameDataManager.set_meta("pending_map_entry_trigger_completion", {
 		"source_type": trigger_source_type,

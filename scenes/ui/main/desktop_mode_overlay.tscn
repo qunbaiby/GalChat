@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://cxayt83m0bccg"]
 
-[ext_resource type="Script" path="res://scripts/ui/main/desktop_mode_overlay.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cxpwbfel0vtjo" path="res://scripts/ui/main/desktop_mode_overlay.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="2_theme"]
 
-[node name="DesktopModeOverlay" type="Control"]
+[node name="DesktopModeOverlay" type="Control" unique_id=623019556]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -15,15 +15,15 @@ mouse_filter = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="ScreenSelectionDialog" type="ConfirmationDialog" parent="."]
+[node name="ScreenSelectionDialog" type="ConfirmationDialog" parent="." unique_id=1709017777]
 title = "选择桌面屏幕"
 initial_position = 2
 size = Vector2i(430, 190)
 ok_button_text = "设为桌面"
-cancel_button_text = "取消"
 dialog_text = "检测到多个屏幕，请选择主场景显示的位置。"
+cancel_button_text = "取消"
 
-[node name="ScreenMargin" type="MarginContainer" parent="ScreenSelectionDialog"]
+[node name="ScreenMargin" type="MarginContainer" parent="ScreenSelectionDialog" unique_id=271818133]
 offset_left = 16.0
 offset_top = 62.0
 offset_right = 414.0
@@ -31,9 +31,9 @@ offset_bottom = 128.0
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_right = 8
 
-[node name="ScreenVBox" type="VBoxContainer" parent="ScreenSelectionDialog/ScreenMargin"]
+[node name="ScreenVBox" type="VBoxContainer" parent="ScreenSelectionDialog/ScreenMargin" unique_id=1599642055]
 layout_mode = 2
 
-[node name="ScreenOption" type="OptionButton" parent="ScreenSelectionDialog/ScreenMargin/ScreenVBox"]
+[node name="ScreenOption" type="OptionButton" parent="ScreenSelectionDialog/ScreenMargin/ScreenVBox" unique_id=1579016927]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2

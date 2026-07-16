@@ -8,11 +8,15 @@ const HISTORY_LIMIT := 10
 
 @onready var input: LineEdit = $Panel/Margin/InputRow/Input
 @onready var send_button: Button = $Panel/Margin/InputRow/SendButton
+@onready var voice_record_button: Button = $Panel/Margin/InputRow/VoiceRecordButton
 @onready var status_label: Label = $Panel/Margin/InputRow/StatusLabel
 @onready var deepseek_client: DeepSeekClient = $DeepSeekClient
+@onready var qwen_asr_client: QwenASRClient = $QwenASRClient
+@onready var mic_capture: AudioStreamPlayer = $MicCapture
 
 var _screen_index := 0
 var _request_in_flight := false
+var _is_recording := false
 var _response_buffer := ""
 
 func _ready() -> void:
@@ -26,11 +30,16 @@ func _ready() -> void:
 	size = WINDOW_SIZE
 	input.text_submitted.connect(_submit_chat)
 	send_button.pressed.connect(func() -> void: _submit_chat(input.text))
+	voice_record_button.button_down.connect(_on_voice_record_down)
+	voice_record_button.button_up.connect(_on_voice_record_up)
 	close_requested.connect(hide)
+	qwen_asr_client.transcribe_completed.connect(_on_asr_success)
+	qwen_asr_client.transcribe_failed.connect(_on_asr_failed)
 	deepseek_client.chat_stream_started.connect(_on_chat_started)
 	deepseek_client.chat_stream_delta.connect(_on_chat_delta)
 	deepseek_client.chat_request_completed.connect(_on_chat_completed)
 	deepseek_client.chat_request_failed.connect(_on_chat_failed)
+	_update_voice_button_state()
 
 func toggle_on_screen(screen_index: int) -> void:
 	_screen_index = screen_index
@@ -38,6 +47,7 @@ func toggle_on_screen(screen_index: int) -> void:
 		hide()
 		return
 	_reposition()
+	_update_voice_button_state()
 	show()
 	DisplayServer.window_set_mouse_passthrough(PackedVector2Array(), get_window_id())
 	input.grab_focus()
@@ -48,6 +58,7 @@ func close_chat() -> void:
 func set_suspended(suspended: bool) -> void:
 	input.editable = not suspended and not _request_in_flight
 	send_button.disabled = suspended or _request_in_flight
+	voice_record_button.disabled = suspended or _request_in_flight or not GameDataManager.config.qwen_asr_enabled
 	if suspended:
 		hide()
 
@@ -67,6 +78,7 @@ func _submit_chat(raw_text: String) -> void:
 	_request_in_flight = true
 	input.editable = false
 	send_button.disabled = true
+	voice_record_button.disabled = true
 	status_label.text = "Luna 正在回复..."
 	_append_history("玩家", text)
 	deepseek_client.start_chat_stream_with_messages(_build_messages())
@@ -124,4 +136,38 @@ func _finish_request() -> void:
 	_request_in_flight = false
 	input.editable = true
 	send_button.disabled = false
+	_update_voice_button_state()
 	status_label.text = ""
+
+func _on_voice_record_down() -> void:
+	if voice_record_button.disabled or _request_in_flight:
+		return
+	_is_recording = true
+	voice_record_button.modulate = Color(0.9, 0.38, 0.38)
+	status_label.text = "正在聆听..."
+	mic_capture.play()
+	qwen_asr_client.start_recording()
+
+func _on_voice_record_up() -> void:
+	if not _is_recording:
+		return
+	_is_recording = false
+	voice_record_button.modulate = Color.WHITE
+	status_label.text = "正在识别..."
+	mic_capture.stop()
+	qwen_asr_client.stop_recording()
+
+func _on_asr_success(text: String) -> void:
+	input.text = text.strip_edges()
+	input.caret_column = input.text.length()
+	status_label.text = ""
+	input.grab_focus()
+
+func _on_asr_failed(error_message: String) -> void:
+	status_label.text = "识别失败"
+	push_warning("桌面聊天语音识别失败: %s" % error_message)
+
+func _update_voice_button_state() -> void:
+	var asr_enabled := GameDataManager.config.qwen_asr_enabled
+	voice_record_button.disabled = _request_in_flight or not asr_enabled
+	voice_record_button.tooltip_text = "按住说话" if asr_enabled else "请先在设置中启用语音识别"

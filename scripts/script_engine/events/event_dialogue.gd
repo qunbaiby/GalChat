@@ -13,6 +13,7 @@ func _init(data: Dictionary) -> void:
     presentation = {
         "character": data.get("character", ""),
         "expression": data.get("expression", ""),
+		"voice_instruction": data.get("voice_instruction", ""),
         "focus": data.get("focus", null),
         "display_name": data.get("display_name", "")
     }

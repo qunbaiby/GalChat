@@ -3,12 +3,12 @@ extends Window
 signal return_requested
 signal chat_requested
 
-const WINDOW_SIZE := Vector2i(596, 116)
+const WINDOW_SIZE := Vector2i(380, 400)
 const SCREEN_MARGIN := 28
 
-@onready var return_button: Button = $DockPanel/DockMargin/DockHBox/ButtonsVBox/ReturnButton
-@onready var chat_button: Button = $DockPanel/DockMargin/DockHBox/ButtonsVBox/ChatButton
-@onready var music_host: Control = $DockPanel/DockMargin/DockHBox/MusicHost
+@onready var return_button: Button = $DockPanel/ReturnButton
+@onready var chat_button: Button = $DockPanel/ChatButton
+@onready var music_player: Control = $DockPanel/MusicPlayer
 
 func _ready() -> void:
 	borderless = true

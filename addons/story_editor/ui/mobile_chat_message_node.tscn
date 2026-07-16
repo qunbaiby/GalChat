@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/mobile_chat_message_node.gd" id="1_script"]
+
+[node name="MobileChatMessageNode" type="GraphNode"]
+custom_minimum_size = Vector2(250, 128)
+resizable = false
+script = ExtResource("1_script")
+
+[node name="Content" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(222, 78)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TypeAccent" type="ColorRect" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.31, 0.64, 0.82, 1)
+
+[node name="SpeakerLabel" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "消息角色"
+
+[node name="ContentLabel" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.78, 0.81, 0.84, 1)
+text = "消息内容"
+autowrap_mode = 2
+max_lines_visible = 3

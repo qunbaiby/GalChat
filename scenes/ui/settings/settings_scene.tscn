@@ -1425,26 +1425,6 @@ custom_minimum_size = Vector2(270, 38)
 layout_mode = 2
 text = "doubao-seedream-5-0-250828"
 
-[node name="IllustrationRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox" unique_id=285673036]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="EnableAiIllustrationCheckLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/IllustrationRow" unique_id=1980218503]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 16
-text = "启用 AI 日记插画"
-vertical_alignment = 1
-
-[node name="EnableAiIllustrationCheck" type="CheckButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox/RowsVBox/IllustrationRow" unique_id=1759496780]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 32)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_ToggleNormal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ToggleNormal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ToggleNormal")
-theme_override_styles/focus = SubResource("StyleBoxFlat_ToggleNormal")
-
 [node name="画面设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer" unique_id=1426387645]
 layout_mode = 2
 metadata/_tab_index = 1

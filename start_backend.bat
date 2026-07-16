@@ -37,11 +37,22 @@ if not defined GALCHAT_SECRETS_MASTER_KEY (
         set /p GALCHAT_SECRETS_MASTER_KEY=<"%MASTER_KEY_FILE%"
     ) else (
         if not exist "%GATEWAY_DIR%\data" mkdir "%GATEWAY_DIR%\data"
-        for /f "usebackq delims=" %%K in (`"%PYTHON_EXE%" -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`) do (
+        for /f "usebackq delims=" %%K in (`powershell.exe -NoProfile -Command "$bytes = New-Object byte[] 32; $rng = [Security.Cryptography.RandomNumberGenerator]::Create(); try { $rng.GetBytes($bytes) } finally { $rng.Dispose() }; [Convert]::ToBase64String($bytes).Replace('+', '-').Replace('/', '_')"`) do (
             set "GALCHAT_SECRETS_MASTER_KEY=%%K"
             >"%MASTER_KEY_FILE%" echo %%K
         )
     )
+)
+if not defined GALCHAT_SECRETS_MASTER_KEY (
+    echo [ERROR] Could not create or load the provider secrets master key.
+    pause
+    exit /b 1
+)
+"%PYTHON_EXE%" -c "import os; from cryptography.fernet import Fernet; Fernet(os.environ['GALCHAT_SECRETS_MASTER_KEY'].encode('ascii'))" >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] The provider secrets master key is invalid.
+    pause
+    exit /b 1
 )
 
 cd /d "%GATEWAY_DIR%"
@@ -58,7 +69,7 @@ echo Keep this window open while using GalChat.
 echo Press Ctrl+C to stop the backend.
 echo.
 
-"%PYTHON_EXE%" -m uvicorn app:app --host 127.0.0.1 --port 8787
+"%PYTHON_EXE%" -m uvicorn app:app --host 127.0.0.1 --port 8787 --no-access-log
 
 echo.
 echo GalChat AI Gateway has stopped.

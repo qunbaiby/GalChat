@@ -168,6 +168,8 @@ var _generated_image_panel: Panel = null
 var _waiting_for_chat_click: bool = false
 signal _chat_click_proceed
 var _skip_current_ai_chat_line_requested: bool = false
+var _main_chat_line_text_complete: bool = false
+var _main_chat_player_line_active: bool = false
 
 var pending_options_data = []
 var _rendered_quick_options: Array = []
@@ -175,6 +177,8 @@ var is_text_playback_finished = true
 var _awaiting_topic_selection: bool = false
 var _topic_greeting_playing: bool = false
 var _pending_topic_options: Array = []
+var _main_chat_session_client: DeepSeekClient = null
+var _main_chat_session_channel: String = ""
 const DAILY_HISTORY_MODULE := "daily"
 const MAIN_CHAT_SUBTYPE_DAILY := "daily_chat"
 const MAIN_CHAT_SUBTYPE_TOPIC := "daily_topic_chat"
@@ -193,6 +197,38 @@ func _set_main_chat_context(subtype: String, topic: String = "") -> void:
 
 func _reset_main_chat_context() -> void:
 	_set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY)
+
+func _start_main_chat_session(channel: String) -> DeepSeekClient:
+	_end_main_chat_session()
+	_main_chat_session_channel = channel
+	_main_chat_session_client = DeepSeekClient.new()
+	_main_chat_session_client.name = "MainChatClient_%s" % channel
+	add_child(_main_chat_session_client)
+	_main_chat_session_client.chat_stream_started.connect(_on_chat_stream_started.bind(_main_chat_session_client))
+	_main_chat_session_client.chat_stream_delta.connect(_on_chat_stream_delta.bind(_main_chat_session_client))
+	_main_chat_session_client.chat_request_completed.connect(_on_chat_response.bind(_main_chat_session_client))
+	_main_chat_session_client.options_request_completed.connect(_on_options_response.bind(_main_chat_session_client))
+	_main_chat_session_client.emotion_request_completed.connect(_on_emotion_response.bind(_main_chat_session_client))
+	return _main_chat_session_client
+
+func _end_main_chat_session() -> void:
+	if is_instance_valid(_main_chat_session_client):
+		_main_chat_session_client.cancel_chat_request()
+		_main_chat_session_client.queue_free()
+	_main_chat_session_client = null
+	_main_chat_session_channel = ""
+	pending_options_data.clear()
+	_rendered_quick_options.clear()
+	stream_live_queue.clear()
+	stream_live_buffer = ""
+	stream_live_active = false
+	stream_live_done = false
+
+func _get_main_chat_session_client() -> DeepSeekClient:
+	if is_instance_valid(_main_chat_session_client):
+		return _main_chat_session_client
+	var channel := "story" if _current_main_chat_subtype == MAIN_CHAT_SUBTYPE_STORY_TOPIC else "daily"
+	return _start_main_chat_session(channel)
 
 func _resolve_topic_chat_subtype(topic: String) -> String:
 	var normalized = topic.strip_edges()
@@ -873,9 +909,11 @@ func _show_dialogue_topic_selection() -> void:
 func _populate_topics() -> void:
 	_clear_topic_options()
 	if _prepare_story_topic_option_if_needed():
+		_start_main_chat_session("story")
 		if _awaiting_topic_selection and not _topic_greeting_playing:
 			_show_topic_options()
 		return
+	_start_main_chat_session("daily")
 	
 	# 请求 AI 动态生成话题
 	var profile = GameDataManager.profile
@@ -885,7 +923,10 @@ func _populate_topics() -> void:
 	
 	var prompt = "【系统指令】\n当前世界观与角色设定：%s\n\n请基于当前玩家作为少女【%s】的“指导人”身份，以及你们当前的情感阶段（当前阶段：%s），分别生成 3 个固定类别的话题选项：1 个学习话题、1 个生活话题、1 个情感话题。\n要求：\n1. 话题必须严格符合上述世界观设定，绝对禁止凭空捏造不符合设定的元素。\n2. 三个话题都要符合指导人身份，可以体现教导、关心、日常询问、鼓励或情感陪伴。\n3. 每个话题 20 字以内，自然简短，且必须是可以直接点击发送的玩家台词。\n4. 只输出 JSON，不要输出任何解释文字。\n5. JSON 格式必须严格如下：{\"study_topic\":\"...\",\"life_topic\":\"...\",\"emotion_topic\":\"...\"}" % [world_bg, profile.char_name, stage_title]
 	
-	deepseek_client.generate_dynamic_topics(prompt, func(text: String):
+	var session_client := _get_main_chat_session_client()
+	session_client.generate_dynamic_topics(prompt, func(text: String):
+		if session_client != _main_chat_session_client:
+			return
 		if not _awaiting_topic_selection:
 			return
 		if text.is_empty():
@@ -958,13 +999,14 @@ func _show_topic_options() -> void:
 	call_deferred("_refresh_guide_overlay_if_needed")
 
 func _request_topic_greeting() -> void:
-	if deepseek_client.is_connected("npc_event_dialogue_completed", _on_topic_greeting_generated):
-		deepseek_client.npc_event_dialogue_completed.disconnect(_on_topic_greeting_generated)
-	if deepseek_client.is_connected("npc_event_dialogue_failed", _on_topic_greeting_failed):
-		deepseek_client.npc_event_dialogue_failed.disconnect(_on_topic_greeting_failed)
+	var session_client := _get_main_chat_session_client()
+	if session_client.is_connected("npc_event_dialogue_completed", _on_topic_greeting_generated):
+		session_client.npc_event_dialogue_completed.disconnect(_on_topic_greeting_generated)
+	if session_client.is_connected("npc_event_dialogue_failed", _on_topic_greeting_failed):
+		session_client.npc_event_dialogue_failed.disconnect(_on_topic_greeting_failed)
 
-	deepseek_client.npc_event_dialogue_completed.connect(_on_topic_greeting_generated, CONNECT_ONE_SHOT)
-	deepseek_client.npc_event_dialogue_failed.connect(_on_topic_greeting_failed, CONNECT_ONE_SHOT)
+	session_client.npc_event_dialogue_completed.connect(_on_topic_greeting_generated.bind(session_client), CONNECT_ONE_SHOT)
+	session_client.npc_event_dialogue_failed.connect(_on_topic_greeting_failed.bind(session_client), CONNECT_ONE_SHOT)
 
 	var profile = GameDataManager.profile
 	var stage_conf = profile.get_current_stage_config()
@@ -981,9 +1023,11 @@ func _request_topic_greeting() -> void:
 		greeting_prompt = "请生成一句聊天开场问候，引导玩家聊你此刻最在意的一件事。要求：1. 结合你当前对%s的情感阶段与语气，当前阶段是%s。2. 必须符合你当前角色设定，用第一人称自然开口。3. 需要自然呼应这个主线相关话题：“%s”。4. 只输出一句简短台词，20字以内。5. 可以带一个简短括号动作描写。6. 不要输出多个选项，不要复述系统提示。补充背景：%s" % [player_name, stage_conf.get("stageTitle", "陌生人"), topic_text, prompt_hint]
 	else:
 		greeting_prompt = "请生成一句聊天开场问候，核心意思是“要聊点什么呢？”。要求：1. 结合你当前对%s的情感阶段与语气，当前阶段是%s。2. 必须符合你当前角色设定，用第一人称自然开口。3. 只输出一句简短台词，20字以内。4. 可以带一个简短括号动作描写。5. 不要输出多个选项，不要展开成长对话。" % [player_name, stage_conf.get("stageTitle", "陌生人")]
-	deepseek_client.generate_npc_event_dialogue(npc_id, greeting_prompt)
+	session_client.generate_npc_event_dialogue(npc_id, greeting_prompt)
 
-func _on_topic_greeting_generated(greeting_text: String) -> void:
+func _on_topic_greeting_generated(greeting_text: String, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	if not _awaiting_topic_selection:
 		return
 	if dialogue_panel.has_method("cancel_single_line"):
@@ -992,7 +1036,9 @@ func _on_topic_greeting_generated(greeting_text: String) -> void:
 		dialogue_panel.single_line_finished.connect(_on_topic_greeting_finished, CONNECT_ONE_SHOT)
 	dialogue_panel.play_single_line("luna", GameDataManager.profile.char_name, greeting_text, true, true, true)
 
-func _on_topic_greeting_failed(_error_msg: String) -> void:
+func _on_topic_greeting_failed(_error_msg: String, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	if not _awaiting_topic_selection:
 		return
 	if not _pending_main_story_topic.is_empty():
@@ -1059,7 +1105,7 @@ func _on_topic_selected(topic: String) -> void:
 		user_msg = "【系统提示】玩家主动选择了与你当前主线相关的话题：“" + topic + "” 与你聊天。玩家当前的身份是你的指导人，且你对玩家的称呼是“" + player_name + "”。当前你们的情感阶段是：" + stage_desc + "。补充背景：" + topic_prompt_hint + "。请你结合当前身份、情感阶段和刚刚发生的这段经历，以第一人称主动接住这个话题，明确承接这件事本身展开交流，不要转回泛泛的日常寒暄。不要复述系统提示，直接给出纯台词回复（必须包含括号动作描写）。"
 	else:
 		user_msg = "【系统提示】玩家主动选择了话题：“" + topic + "” 与你聊天。玩家当前的身份是你的指导人，且你对玩家的称呼是“" + player_name + "”。当前你们的情感阶段是：" + stage_desc + "。请你结合当前的身份、情感阶段和心情，以第一人称主动向玩家打招呼并展开这个话题。不要复述系统提示，直接给出纯台词回复（必须包含括号动作描写）。"
-	deepseek_client.send_chat_message_stream(user_msg, "main_chat")
+	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
 
 func _cancel_topic_selection() -> void:
 	_awaiting_topic_selection = false
@@ -1090,6 +1136,7 @@ func _cancel_topic_selection() -> void:
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
 		current_bg_scene.set_ui_hidden(false)
 	_set_interaction_ui_hidden_for_dialogue(false)
+	_end_main_chat_session()
 
 var is_ending_chat: bool = false
 
@@ -1152,6 +1199,8 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 		affection_panel_instance.restore_info_panel()
 	if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("update_ui"):
 		affection_panel_instance.update_ui(GameDataManager.profile)
+	_set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY, "gift_reaction")
+	_start_main_chat_session("daily")
 		
 	# 送礼后触发对话面板和特定话题
 	if _ui_tween:
@@ -1188,7 +1237,7 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 		player_name = "指导人"
 		
 	var user_msg = "【系统提示】玩家（当前身份：" + player_name + "）刚刚送给你一份礼物：【" + gift_name + "】。当前情感阶段是：" + stage_desc + "。请结合你的性格、心情和这份礼物的特点，主动对玩家说出你的感谢和反应（必须包含动作描写）。不要复述系统提示，直接给出台词。"
-	deepseek_client.send_chat_message_stream(user_msg, "main_chat")
+	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
 
 func _on_rest_pressed() -> void:
 	if _is_ui_blocked(): return
@@ -1543,6 +1592,7 @@ func _close_chat_panel(show_stats_toast: bool = true) -> void:
 		current_bg_scene.set_ui_hidden(false)
 
 	_set_interaction_ui_hidden_for_dialogue(false)
+	_end_main_chat_session()
 
 func _set_dialogue_input_waiting(char_name: String = "") -> void:
 	if dialogue_panel and dialogue_panel.has_method("set_input_waiting_state"):
@@ -1616,6 +1666,9 @@ func _on_send_pressed() -> void:
 	dialogue_text.bbcode_enabled = true
 	dialogue_text.text = display_text
 	dialogue_text.visible_ratio = 0.0
+	_main_chat_player_line_active = true
+	_main_chat_line_text_complete = false
+	_waiting_for_chat_click = true
 	
 	if _typewriter_tween:
 		_typewriter_tween.kill()
@@ -1629,19 +1682,27 @@ func _on_send_pressed() -> void:
 			
 	dialogue_text.visible_ratio = 1.0
 	dialogue_text.visible_characters = -1
+	_main_chat_line_text_complete = true
+	if _waiting_for_chat_click and is_inside_tree():
+		await _chat_click_proceed
+	_main_chat_player_line_active = false
 	
 	if is_proactive_greeting:
 		is_proactive_greeting = false
 		
-	deepseek_client.send_chat_message_stream(text, "main_chat")
+	_get_main_chat_session_client().send_chat_message_stream(text, "main_chat")
 
-func _on_chat_stream_started() -> void:
+func _on_chat_stream_started(source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	stream_live_active = true
 	stream_live_done = false
 	stream_live_buffer = ""
 	stream_live_queue.clear()
 	is_text_playback_finished = false
 	pending_options_data.clear()
+	_skip_current_ai_chat_line_requested = false
+	_main_chat_line_text_complete = false
 	
 	if _waiting_for_chat_click:
 		_waiting_for_chat_click = false
@@ -1649,32 +1710,38 @@ func _on_chat_stream_started() -> void:
 		
 	_try_start_stream_worker()
 
-func _on_chat_stream_delta(delta_text: String) -> void:
+func _on_chat_stream_delta(delta_text: String, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	if not stream_live_active:
 		return
 	stream_live_buffer += delta_text
 	_extract_stream_segments(false)
 	_try_start_stream_worker()
 
-func _on_chat_response(response: Dictionary) -> void:
+func _on_chat_response(response: Dictionary, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	if stream_live_active:
 		stream_live_done = true
 		_extract_stream_segments(true)
 		_try_start_stream_worker()
 		
 		# 我们不再在这里直接保存全量内容，因为 _stream_worker_loop 会逐句保存并附带语音缓存
-		var stream_reply: String = deepseek_client.get_chat_stream_full_text()
+		var session_client := _get_main_chat_session_client()
+		var stream_reply: String = session_client.get_chat_stream_full_text()
 		# GameDataManager.history.add_message("char", stream_reply, "", "main_chat")
-		deepseek_client.send_options_generation(stream_reply, "", "main_chat")
-		deepseek_client.send_emotion_generation(stream_reply)
+		session_client.send_options_generation(stream_reply, "", "main_chat", _current_main_chat_subtype)
+		session_client.send_emotion_generation(stream_reply)
 		return
 		
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
 		# 我们不再在这里直接保存全量内容，因为 _stream_worker_loop 会逐句保存并附带语音缓存
 		# GameDataManager.history.add_message("char", reply, "", "main_chat")
-		deepseek_client.send_options_generation(reply, "", "main_chat")
-		deepseek_client.send_emotion_generation(reply)
+		var session_client := _get_main_chat_session_client()
+		session_client.send_options_generation(reply, "", "main_chat", _current_main_chat_subtype)
+		session_client.send_emotion_generation(reply)
 			
 		dialogue_name_label.text = GameDataManager.profile.char_name
 		
@@ -1873,6 +1940,7 @@ func _stream_worker_loop() -> void:
 		if stream_live_queue.size() > 0:
 			var text = stream_live_queue.pop_front()
 			_skip_current_ai_chat_line_requested = false
+			_main_chat_line_text_complete = false
 			
 			# 清理情绪标签等
 			var mood_regex = RegEx.new()
@@ -1952,8 +2020,8 @@ func _stream_worker_loop() -> void:
 				
 			dialogue_text.visible_ratio = 1.0
 			dialogue_text.visible_characters = -1
-			
-			_waiting_for_chat_click = false
+			_main_chat_line_text_complete = true
+			_waiting_for_chat_click = true
 			if _skip_current_ai_chat_line_requested:
 				if current_line_tts_text != "":
 					_consume_pending_main_scene_tts(current_line_tts_text)
@@ -1985,25 +2053,14 @@ func _stream_worker_loop() -> void:
 					await get_tree().create_timer(0.05).timeout
 					wait_count += 1
 
-			if _skip_current_ai_chat_line_requested:
-				_skip_current_ai_chat_line_requested = false
-				continue
-					
-			if not is_ending_chat and not is_proactive_greeting and not is_memory_revisit_active and is_inside_tree():
-				var delay_steps := 20
-				while delay_steps > 0 and is_inside_tree():
-					if _skip_current_ai_chat_line_requested:
-						break
-					await get_tree().create_timer(0.05).timeout
-					delay_steps -= 1
-			if _skip_current_ai_chat_line_requested:
-				_skip_current_ai_chat_line_requested = false
-				if audio_player and audio_player.playing:
-					audio_player.stop()
-				continue
-				
+			while not _skip_current_ai_chat_line_requested and stream_live_active and is_inside_tree():
+				await get_tree().process_frame
+			_waiting_for_chat_click = false
+			if current_line_tts_text != "":
+				_consume_pending_main_scene_tts(current_line_tts_text)
 			if audio_player and audio_player.playing:
 				audio_player.stop()
+			_skip_current_ai_chat_line_requested = false
 				
 			if not stream_live_active:
 				break
@@ -2056,11 +2113,15 @@ func _on_dialogue_panel_gui_input(event: InputEvent) -> void:
 	if _story_mode_active:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if dialogue_text.visible_ratio < 1.0:
+		if not _main_chat_line_text_complete:
 			if _typewriter_tween:
 				_typewriter_tween.kill()
 			dialogue_text.visible_ratio = 1.0
 			dialogue_text.visible_characters = -1
+			_main_chat_line_text_complete = true
+		elif _main_chat_player_line_active:
+			_waiting_for_chat_click = false
+			_chat_click_proceed.emit()
 		elif stream_live_active and not is_text_playback_finished:
 			_skip_current_ai_chat_line_requested = true
 			if audio_player and audio_player.playing:
@@ -2084,7 +2145,9 @@ func _show_accumulated_stats() -> void:
 				ToastManager.show_stat_toast(key, display_keys[key] + " " + formatted_val)
 		_accumulated_stats[key] = 0.0 # reset for next time
 
-func _on_emotion_response(response: Dictionary) -> void:
+func _on_emotion_response(response: Dictionary, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
 		var regex = RegEx.new()
@@ -2138,7 +2201,9 @@ func _on_emotion_response(response: Dictionary) -> void:
 				top_status_panel._update_ui()
 			_update_affection_button_ui()
 
-func _on_options_response(response: Dictionary) -> void:
+func _on_options_response(response: Dictionary, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
 		var json = JSON.new()
@@ -2409,9 +2474,6 @@ func _ready() -> void:
 	var main_bg_path = _resolve_current_main_bg_path()
 	_load_bg_scene(main_bg_path)
 			
-	if GameDataManager.config:
-		GameDataManager.config.apply_settings()
-		
 	var window = get_window()
 	window.close_requested.connect(_on_close_requested)
 	
@@ -2490,12 +2552,6 @@ func _ready() -> void:
 		history_btn.pressed.connect(_on_history_pressed)
 	if send_btn:
 		send_btn.pressed.connect(_on_send_pressed)
-	
-	deepseek_client.chat_stream_started.connect(_on_chat_stream_started)
-	deepseek_client.chat_stream_delta.connect(_on_chat_stream_delta)
-	deepseek_client.chat_request_completed.connect(_on_chat_response)
-	deepseek_client.options_request_completed.connect(_on_options_response)
-	deepseek_client.emotion_request_completed.connect(_on_emotion_response)
 	
 	dialogue_panel.visible = false
 	dialogue_panel.modulate.a = 0.0
@@ -3272,6 +3328,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 		return
 	is_memory_revisit_active = true
 	_set_main_chat_context(MAIN_CHAT_SUBTYPE_MEMORY)
+	_start_main_chat_session("daily")
 	
 	if _ui_tween:
 		_ui_tween.kill()
@@ -3313,7 +3370,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 		quick_option_layer.hide()
 	
 	var user_msg = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, revisit_data.get("trigger_context", {}))
-	deepseek_client.send_chat_message_stream(user_msg, "main_chat")
+	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
 
 func start_proactive_greeting(prompt_type: String) -> void:
 	if _proactive_bubble_request_in_flight:
@@ -3347,8 +3404,9 @@ func start_farewell() -> void:
 	if is_ending_chat:
 		return
 		
-	if deepseek_client.is_chat_streaming():
-		deepseek_client.stop_chat_stream()
+	var session_client := _get_main_chat_session_client()
+	if session_client.is_chat_streaming():
+		session_client.stop_chat_stream()
 		
 	stream_live_active = false
 	stream_live_worker_running = false
@@ -3378,7 +3436,7 @@ func start_farewell() -> void:
 		quick_option_layer.hide()
 		
 	var prompt = "【系统提示：玩家想要结束对话。请结合你当前的身份、心情和性格，说一句简短的结束语作为告别（必须包含括号动作描写）。绝对不要提到你是AI。】"
-	deepseek_client.send_chat_message_stream(prompt, "main_chat")
+	session_client.send_chat_message_stream(prompt, "main_chat")
 
 func _add_neon_effect_to_button(btn: Button) -> void:
 	if btn.has_meta("neon_style"):
@@ -3816,14 +3874,12 @@ func _enter_desktop_mode(screen_index: int) -> void:
 		current_bg_scene.set_desktop_bubble_mode(true)
 	desktop_mode_overlay.hide_desktop_controls()
 	desktop_controls_window.show_on_screen(screen_index)
-	var screen_position := DisplayServer.screen_get_position(screen_index)
-	var screen_size := DisplayServer.screen_get_size(screen_index)
-	DisplayServer.window_set_current_screen(screen_index)
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, false)
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
-	DisplayServer.window_set_position(screen_position)
-	DisplayServer.window_set_size(screen_size)
+	_sync_desktop_wallpaper_rect(screen_index)
+	var screen_position := DisplayServer.screen_get_position(screen_index)
+	var screen_size := DisplayServer.screen_get_size(screen_index)
 	if not is_instance_valid(_window_detector) or not bool(_window_detector.call(
 		"EmbedMainWindowInDesktop",
 		screen_position.x,
@@ -3839,8 +3895,16 @@ func _enter_desktop_mode(screen_index: int) -> void:
 	GameDataManager.config.set_custom_config("desktop_wallpaper_enabled", true)
 	GameDataManager.config.set_custom_config("desktop_wallpaper_screen", screen_index)
 	GameDataManager.config.save_config()
+	call_deferred("_sync_desktop_wallpaper_rect", screen_index)
 	_capture_desktop_mode_state_delayed()
 	_update_bg_switch_button_visibility()
+
+func _sync_desktop_wallpaper_rect(screen_index: int) -> void:
+	if not _desktop_mode_active or screen_index < 0 or screen_index >= DisplayServer.get_screen_count():
+		return
+	DisplayServer.window_set_current_screen(screen_index)
+	DisplayServer.window_set_position(DisplayServer.screen_get_position(screen_index))
+	DisplayServer.window_set_size(DisplayServer.screen_get_size(screen_index))
 
 func _capture_desktop_mode_state_delayed() -> void:
 	await get_tree().create_timer(0.5).timeout
@@ -3897,45 +3961,29 @@ func _set_desktop_wallpaper_suspended(suspended: bool) -> void:
 		current_bg_scene.set_desktop_bubble_suspended(suspended)
 
 func _move_music_player_to_desktop_dock() -> void:
-	if not is_instance_valid(music_player) or not is_instance_valid(desktop_controls_window.music_host):
+	if not is_instance_valid(music_player) or not is_instance_valid(desktop_controls_window.music_player):
 		return
 	_desktop_music_state = {
-		"parent": music_player.get_parent(),
-		"index": music_player.get_index(),
-		"anchor_left": music_player.anchor_left,
-		"anchor_top": music_player.anchor_top,
-		"anchor_right": music_player.anchor_right,
-		"anchor_bottom": music_player.anchor_bottom,
-		"offset_left": music_player.offset_left,
-		"offset_top": music_player.offset_top,
-		"offset_right": music_player.offset_right,
-		"offset_bottom": music_player.offset_bottom
+		"visible": music_player.visible
 	}
-	music_player.reparent(desktop_controls_window.music_host)
-	music_player.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	music_player.position = Vector2(0, 26)
-	music_player.size = Vector2(490, 64)
-	if music_player.has_method("set_desktop_mode"):
-		music_player.set_desktop_mode(true)
-	music_player.show()
+	var desktop_music_player: Control = desktop_controls_window.music_player
+	if desktop_music_player.has_method("set_audio_player"):
+		desktop_music_player.set_audio_player(bgm)
+	if desktop_music_player.has_method("set_desktop_mode"):
+		desktop_music_player.set_desktop_mode(true)
+	desktop_music_player.show()
+	music_player.hide()
 
 func _restore_music_player_from_desktop_dock() -> void:
-	var original_parent: Node = _desktop_music_state.get("parent")
-	if not is_instance_valid(music_player) or not is_instance_valid(original_parent):
+	if not is_instance_valid(music_player):
 		_desktop_music_state.clear()
 		return
-	if music_player.has_method("set_desktop_mode"):
-		music_player.set_desktop_mode(false)
-	music_player.reparent(original_parent)
-	original_parent.move_child(music_player, mini(int(_desktop_music_state.get("index", 0)), original_parent.get_child_count() - 1))
-	music_player.anchor_left = float(_desktop_music_state.get("anchor_left", 0.0))
-	music_player.anchor_top = float(_desktop_music_state.get("anchor_top", 0.0))
-	music_player.anchor_right = float(_desktop_music_state.get("anchor_right", 0.0))
-	music_player.anchor_bottom = float(_desktop_music_state.get("anchor_bottom", 0.0))
-	music_player.offset_left = float(_desktop_music_state.get("offset_left", 0.0))
-	music_player.offset_top = float(_desktop_music_state.get("offset_top", 0.0))
-	music_player.offset_right = float(_desktop_music_state.get("offset_right", 0.0))
-	music_player.offset_bottom = float(_desktop_music_state.get("offset_bottom", 0.0))
+	if is_instance_valid(desktop_controls_window.music_player):
+		var desktop_music_player: Control = desktop_controls_window.music_player
+		if desktop_music_player.has_method("set_desktop_mode"):
+			desktop_music_player.set_desktop_mode(false)
+		desktop_music_player.hide()
+	music_player.visible = bool(_desktop_music_state.get("visible", true))
 	_desktop_music_state.clear()
 
 func _exit_desktop_mode(disable_saved_wallpaper: bool = true) -> void:
@@ -4051,7 +4099,10 @@ func _on_interact_trigger_pressed() -> void:
 	_on_scene_chat_button_pressed()
 
 func _start_story_concern_flow(animate_target: Button = null) -> void:
-	if _is_ui_blocked(): return
+	if _is_ui_blocked() or _story_mode_active:
+		return
+	if is_instance_valid(chat_scene_instance) and chat_scene_instance.visible:
+		return
 	if is_instance_valid(animate_target):
 		_animate_button(animate_target)
 
@@ -4081,12 +4132,17 @@ func _start_story_concern_flow(animate_target: Button = null) -> void:
 		chat_scene_instance.visible = false
 		chat_scene_instance.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		chat_scene_instance.set_script(load("res://scripts/dialogue/dialogue_manager.gd"))
+		var concern_client := DeepSeekClient.new()
+		concern_client.name = "DeepSeekClient"
+		chat_scene_instance.add_child(concern_client)
 		chat_scene_instance.ui_panel_path = NodePath("../DialoguePanel")
 		chat_scene_instance.dialogue_panel_path = NodePath("../DialoguePanel")
+		chat_scene_instance.deepseek_client_path = NodePath("DeepSeekClient")
 		chat_scene_instance.audio_player_path = NodePath("../MainTTSPlayer")
 		chat_scene_instance.click_blocker_path = NodePath("")
 		chat_scene_instance.character_layer_path = NodePath("")
 		chat_scene_instance.free_chat_info_layer_path = NodePath("")
+		chat_scene_instance.conversation_subtype = MAIN_CHAT_SUBTYPE_CONCERN
 		add_child(chat_scene_instance)
 		move_child(chat_scene_instance, -1)
 		chat_scene_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

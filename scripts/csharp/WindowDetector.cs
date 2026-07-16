@@ -81,6 +81,7 @@ namespace GalChat.Scripts.CSharp
     private bool _desktopEmbedded;
     private bool _desktopParented;
     private IntPtr _desktopHost = IntPtr.Zero;
+    private bool _desktopExitWatcherStarted;
 
     private const int GWL_STYLE = -16;
     private const long WS_CHILD = 0x40000000L;
@@ -266,41 +267,9 @@ namespace GalChat.Scripts.CSharp
             diagnostics.Add($"candidate host={DescribeWindow(candidateHost)} icons={DescribeWindow(candidateIcons)}");
         if (desktopHost == IntPtr.Zero || !GetWindowRect(desktopHost, out RECT hostRect))
         {
-            (IntPtr fallbackHost, _) = FindDesktopHostWindow();
-            if (fallbackHost == IntPtr.Zero)
-            {
-                diagnostics.Add("No Explorer desktop host is available for fallback Z-order placement.");
-                WriteDesktopDebugLog(diagnostics);
-                return false;
-            }
-            _desktopOriginalStyle = GetWindowLongPointer(_mainHwnd, GWL_STYLE);
-            _desktopOriginalExStyle = GetWindowLongPointer(_mainHwnd, GWL_EXSTYLE);
-            long fallbackExStyle = _desktopOriginalExStyle.ToInt64() & ~WS_EX_TOPMOST;
-            SetWindowLongPointer(_mainHwnd, GWL_EXSTYLE, new IntPtr(fallbackExStyle));
-            IntPtr windowAboveDesktop = GetWindow(fallbackHost, GW_HWNDPREV);
-            bool fallbackPositioned = SetWindowPos(
-                _mainHwnd,
-                windowAboveDesktop,
-                nativeScreenX,
-                nativeScreenY,
-                width,
-                height,
-                SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW
-            );
-            if (!fallbackPositioned)
-            {
-                diagnostics.Add($"Fallback SetWindowPos failed error={Marshal.GetLastWin32Error()}");
-                WriteDesktopDebugLog(diagnostics);
-                RestoreMainWindowFromDesktop();
-                return false;
-            }
-            _desktopEmbedded = true;
-            _desktopParented = false;
-            _desktopHost = fallbackHost;
-            diagnostics.Add("mode=z_order_fallback reason=selected_screen_outside_explorer_host");
-            diagnostics.Add($"main.after {DescribeWindow(_mainHwnd)}");
+            diagnostics.Add("No safe wallpaper host contains the native target rectangle; refusing top-level fallback.");
             WriteDesktopDebugLog(diagnostics);
-            return true;
+            return false;
         }
 
         _desktopOriginalStyle = GetWindowLongPointer(_mainHwnd, GWL_STYLE);
@@ -339,10 +308,79 @@ namespace GalChat.Scripts.CSharp
         _desktopEmbedded = true;
         _desktopParented = true;
         _desktopHost = desktopHost;
+        WriteDesktopHostMarker(desktopHost);
+        EnsureDesktopExitWatcher(desktopHost);
         diagnostics.Add($"main.after {DescribeWindow(_mainHwnd)}");
         diagnostics.Add($"parent.after {DescribeWindow(GetParent(_mainHwnd))}");
         WriteDesktopDebugLog(diagnostics);
         return true;
+    }
+
+    private void EnsureDesktopExitWatcher(IntPtr desktopHost)
+    {
+        if (_desktopExitWatcherStarted)
+            return;
+
+        int processId = Process.GetCurrentProcess().Id;
+        string watcherPath = ProjectSettings.GlobalizePath("res://tools/desktop_wallpaper_exit_watcher.ps1");
+        string logPath = ProjectSettings.GlobalizePath("user://desktop_wallpaper_exit_watcher.log");
+        try
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            startInfo.ArgumentList.Add("-NoProfile");
+            startInfo.ArgumentList.Add("-NonInteractive");
+            startInfo.ArgumentList.Add("-WindowStyle");
+            startInfo.ArgumentList.Add("Hidden");
+            startInfo.ArgumentList.Add("-ExecutionPolicy");
+            startInfo.ArgumentList.Add("Bypass");
+            startInfo.ArgumentList.Add("-File");
+            startInfo.ArgumentList.Add(watcherPath);
+            startInfo.ArgumentList.Add("-GameProcessId");
+            startInfo.ArgumentList.Add(processId.ToString());
+            startInfo.ArgumentList.Add("-DesktopHost");
+            startInfo.ArgumentList.Add(desktopHost.ToInt64().ToString());
+            startInfo.ArgumentList.Add("-LogPath");
+            startInfo.ArgumentList.Add(logPath);
+            Process.Start(startInfo);
+            _desktopExitWatcherStarted = true;
+        }
+        catch (Exception error)
+        {
+            GD.PrintErr($"[DesktopMode] Failed to start exit watcher: {error.Message}");
+        }
+    }
+
+    private static void WriteDesktopHostMarker(IntPtr desktopHost)
+    {
+        try
+        {
+            string markerPath = ProjectSettings.GlobalizePath("user://desktop_wallpaper_host.txt");
+            File.WriteAllText(markerPath, desktopHost.ToInt64().ToString());
+        }
+        catch (Exception error)
+        {
+            GD.PrintErr($"[DesktopMode] Failed to write desktop host marker: {error.Message}");
+        }
+    }
+
+    private static void ClearDesktopHostMarker()
+    {
+        try
+        {
+            string markerPath = ProjectSettings.GlobalizePath("user://desktop_wallpaper_host.txt");
+            if (File.Exists(markerPath))
+                File.Delete(markerPath);
+        }
+        catch (Exception error)
+        {
+            GD.PrintErr($"[DesktopMode] Failed to clear desktop host marker: {error.Message}");
+        }
     }
 
     public void RestoreMainWindowFromDesktop()
@@ -361,6 +399,7 @@ namespace GalChat.Scripts.CSharp
         _desktopOriginalParent = IntPtr.Zero;
         _desktopOriginalStyle = IntPtr.Zero;
         _desktopOriginalExStyle = IntPtr.Zero;
+        ClearDesktopHostMarker();
     }
 
     public void PrepareDesktopWindowForProcessExit()

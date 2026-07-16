@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_choice_options_editor.gd" id="1_script"]
+
+[node name="StoryChoiceOptionsEditor" type="VBoxContainer"]
+custom_minimum_size = Vector2(0, 180)
+theme_override_constants/separation = 8
+script = ExtResource("1_script")
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "玩家选项"
+
+[node name="AddButton" type="Button" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新增选项"
+
+[node name="Hint" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "每个选项都可指向不同剧情节点。可在下方选择目标，也可从选项节点端口拖线到章节入口；两者会自动同步。"
+autowrap_mode = 2
+
+[node name="Rows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10

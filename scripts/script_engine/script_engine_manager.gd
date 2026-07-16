@@ -2,6 +2,7 @@ class_name ScriptEngineManager
 extends Node
 
 signal on_dialogue_requested(speaker: String, content: String, mood: String, presentation: Dictionary)
+signal on_choice_requested(options: Array)
 signal on_bgm_requested(audio_path: String, fade_time: float)
 signal on_background_requested(bg_path: String, duration: float, transition_type: String)
 signal on_period_card_requested(period_label: String, location_name: String, bg_path: String, hold_duration: float)
@@ -26,8 +27,10 @@ var is_running: bool = false
 var is_waiting_for_resume: bool = false
 
 func load_script(script_path: String) -> bool:
+    _debug_record("story.load.started", "info", {"script_path": script_path})
     if not FileAccess.file_exists(script_path):
         printerr("[ScriptEngine] Script file not found: ", script_path)
+        _debug_error("story.load.failed", "file_not_found", "Script file not found.", {"script_path": script_path})
         return false
         
     var file = FileAccess.open(script_path, FileAccess.READ)
@@ -38,12 +41,14 @@ func load_script(script_path: String) -> bool:
     var err = json.parse(content)
     if err != OK:
         printerr("[ScriptEngine] Failed to parse script JSON: ", json.get_error_message())
+        _debug_error("story.load.failed", "json_parse_failed", json.get_error_message(), {"script_path": script_path})
         return false
     return load_script_data(json.data, script_path)
 
 func load_script_data(data: Variant, source_path: String = "") -> bool:
     if not data is Dictionary:
         printerr("[ScriptEngine] Invalid runtime script data.")
+        _debug_error("story.load.failed", "invalid_root", "Runtime script root must be a Dictionary.", {"script_path": source_path})
         return false
 
     var script_data: Dictionary = data
@@ -85,31 +90,42 @@ func load_script_data(data: Variant, source_path: String = "") -> bool:
         chapters[c_id] = ScriptChapter.new(c_id, chapters_data[c_id])
 
     print("[ScriptEngine] Loaded script: ", current_script_id, " with ", chapters.size(), " chapters.")
+    _debug_record("story.load.succeeded")
     return true
 
 func start_script(start_chapter_id: String = "start") -> void:
     if not chapters.has(start_chapter_id):
         printerr("[ScriptEngine] Start chapter not found: ", start_chapter_id)
+        _debug_error("story.start.failed", "missing_start_chapter", "Start chapter not found: %s" % start_chapter_id)
         return
         
     is_running = true
     is_waiting_for_resume = false
     current_chapter_id = start_chapter_id
     current_event_index = 0
+    var bridge := _debug_bridge()
+    if bridge != null:
+        bridge.begin_story(current_script_id, current_script_path, bool(current_script_meta.get("runtime_generated", false)))
+    _debug_record("story.chapter.entered")
     _process_next_event()
 
 func jump_to_chapter(target_chapter_id: String) -> void:
+    _debug_record("story.jump.requested", "info", {}, {"target_chapter": target_chapter_id})
     if target_chapter_id == "end" or not chapters.has(target_chapter_id):
+        if target_chapter_id != "end":
+            _debug_record("story.warning", "warning", {}, {"code": "missing_jump_target", "target_chapter": target_chapter_id})
         _end_script()
         return
         
     current_chapter_id = target_chapter_id
     current_event_index = 0
+    _debug_record("story.chapter.entered")
 
 func resume() -> void:
     if not is_running or not is_waiting_for_resume:
         return
     is_waiting_for_resume = false
+    _debug_record("story.resumed")
     current_event_index += 1
     _process_next_event()
 
@@ -121,12 +137,22 @@ func _process_next_event() -> void:
     
     # 循环处理非阻塞事件，直到遇到阻塞事件或章节结束
     while current_event_index < current_chapter.events.size():
+        var processed_chapter_id := current_chapter_id
         var ev = current_chapter.events[current_event_index]
+        _debug_record("story.event.started", "info", {"event_type": str(ev.type)}, {"event": ev.raw_data})
         var is_blocking = ev.process_event(self)
         
         if is_blocking:
             is_waiting_for_resume = true
+            _debug_record("story.event.blocked", "info", {"event_type": str(ev.type)})
             return # 退出循环，等待外部调用 resume()
+
+        if not is_running:
+            return
+
+        if current_chapter_id != processed_chapter_id:
+            current_chapter = chapters[current_chapter_id]
+            continue
             
         current_event_index += 1
         
@@ -135,6 +161,7 @@ func _process_next_event() -> void:
 
 func _end_script() -> void:
     print("[ScriptEngine] Script finished: ", current_script_id)
+    _debug_record("story.engine.finished")
     is_running = false
     is_waiting_for_resume = false
     script_finished.emit(current_script_id)
@@ -153,3 +180,39 @@ func _sanitize_memory_records(raw_records: Variant) -> Array:
         if item is Dictionary:
             results.append(item.duplicate(true))
     return results
+
+func _debug_bridge() -> Node:
+    return get_node_or_null("/root/StoryRuntimeDebugBridge")
+
+func _debug_story() -> Dictionary:
+    return {
+        "script_id": current_script_id,
+        "script_path": current_script_path,
+        "runtime_generated": bool(current_script_meta.get("runtime_generated", false))
+    }
+
+func _debug_cursor(extra: Dictionary = {}) -> Dictionary:
+    var cursor := {
+        "chapter_id": current_chapter_id,
+        "event_index": current_event_index,
+        "running": is_running,
+        "waiting": is_waiting_for_resume
+    }
+    cursor.merge(extra, true)
+    return cursor
+
+func _debug_record(event_name: String, severity: String = "info", story_extra: Dictionary = {}, data: Dictionary = {}) -> void:
+    var bridge := _debug_bridge()
+    if bridge == null or not bool(bridge.get("enabled")):
+        return
+    var story := _debug_story()
+    story.merge(story_extra, true)
+    bridge.record(event_name, severity, story, _debug_cursor(), data)
+
+func _debug_error(event_name: String, code: String, message: String, story_extra: Dictionary = {}) -> void:
+    var bridge := _debug_bridge()
+    if bridge == null or not bool(bridge.get("enabled")):
+        return
+    var story := _debug_story()
+    story.merge(story_extra, true)
+    bridge.record_error(event_name, code, message, story, _debug_cursor())

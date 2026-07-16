@@ -5,10 +5,14 @@
 # Export artifacts and large files
 *.tpz
 *.dll
+*.TMP
 export_presets.cfg
 GalChat_Release/
 /Luna/
 /data_*/
+
+# JavaScript dependencies
+node_modules/
 
 # Whisper Models (too large for Git)
 addons/godot_whisper/models/*.bin

@@ -1,0 +1,759 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_editor_main.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_event_inspector.tscn" id="2_inspector"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/date_ai_workbench.tscn" id="3_ai_workbench"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/mobile_chat_catalog_window.tscn" id="4_mobile_catalog"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/fixed_voice_call_catalog_window.tscn" id="5_call_catalog"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/mobile_ai_workbench.tscn" id="6_mobile_ai"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_reference_catalog_window.tscn" id="7_story_references"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/guide_flow_editor_window.tscn" id="8_guide_editor"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_schedule_entry_editor_window.tscn" id="9_schedule_editor"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_schema_migration_window.tscn" id="10_schema_migration"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_runtime_debug_window.tscn" id="11_runtime_debug"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_node_template_library_window.tscn" id="12_node_templates"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_coverage_report_window.tscn" id="13_coverage_report"]
+
+[node name="StoryEditorMain" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="Toolbar" type="HFlowContainer" parent="Root"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Root/Toolbar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "GalChat 剧情编辑器"
+
+[node name="DocumentTitle" type="Label" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.45, 0.85, 0.69, 1)
+text = "未打开剧情"
+
+[node name="DocumentState" type="Label" parent="Root/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(88, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.7, 0.74, 1)
+text = "等待选择"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FileSeparator" type="VSeparator" parent="Root/Toolbar"]
+layout_mode = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "重新扫描剧情文件"
+text = "刷新"
+
+[node name="SaveButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(78, 0)
+layout_mode = 2
+disabled = true
+tooltip_text = "保存当前剧情 JSON"
+text = "保存剧情"
+
+[node name="EditSeparator" type="VSeparator" parent="Root/Toolbar"]
+layout_mode = 2
+
+[node name="UndoButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "撤销最近一次编辑"
+text = "↶"
+
+[node name="RedoButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "重做最近一次撤销"
+text = "↷"
+
+[node name="ToolSeparator" type="VSeparator" parent="Root/Toolbar"]
+layout_mode = 2
+
+[node name="ValidateButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "校验当前剧情"
+text = "校验"
+
+[node name="SimulateButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "模拟所有 Choice 分支"
+text = "分支模拟"
+
+[node name="AIWorkbenchButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "打开 AI 约会模板、Prompt 与清洗工作台"
+text = "AI 约会"
+
+[node name="MobileChatButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "查看手机固定聊天、剧情引用和消息图校验"
+text = "手机消息"
+
+[node name="FixedCallButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "编辑固定来电台词并检查剧情 call_id 引用"
+text = "固定来电"
+
+[node name="MobileAIButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "离线预览手机文字与 AI 通话 Prompt、历史和响应清洗"
+text = "手机 AI"
+
+[node name="StoryReferencesButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "分析 Event Registry、Guide Flow 与目标剧情的反向引用"
+text = "剧情引用"
+
+[node name="GuideFlowButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "编辑 Guide Flow 步骤顺序与 play_story 引用"
+text = "Guide Flow"
+
+[node name="ScheduleEntriesButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "编辑剧情日程与地图定时入口"
+text = "入口调度"
+
+[node name="SchemaMigrationButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "扫描剧情数据版本并预览有备份的 Schema 迁移"
+text = "Schema 迁移"
+
+[node name="RuntimeDebugButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "监视游戏调试进程中的剧情来源、章节、事件和错误"
+text = "运行时监视"
+
+[node name="NodeTemplatesButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "搜索、预览和实例化项目级剧情节点模板"
+text = "节点模板"
+
+[node name="CoverageReportButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "分析固定剧情可达性、分支模拟、运行时命中与资源引用"
+text = "覆盖报告"
+
+[node name="ToolMenuBar" type="HBoxContainer" parent="Root"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SectionLabel" type="Label" parent="Root/ToolMenuBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.7, 0.74, 1)
+text = "工作区"
+vertical_alignment = 1
+
+[node name="StoryToolsMenu" type="MenuButton" parent="Root/ToolMenuBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+tooltip_text = "校验、分支模拟、节点模板和覆盖率"
+text = "剧情工具  ▾"
+
+[node name="ContentToolsMenu" type="MenuButton" parent="Root/ToolMenuBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+tooltip_text = "手机内容、AI 工具、引用、引导和入口调度"
+text = "内容库  ▾"
+
+[node name="SystemToolsMenu" type="MenuButton" parent="Root/ToolMenuBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+tooltip_text = "Schema 迁移和运行时监视"
+text = "系统工具  ▾"
+
+[node name="MenuHint" type="Label" parent="Root/ToolMenuBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.54, 0.58, 1)
+text = "固定内容可从左侧分类直接打开"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 240
+
+[node name="LibraryPanel" type="VBoxContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LibraryTitle" type="Label" parent="Root/Body/LibraryPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "1  选择剧情"
+
+[node name="CreateContentButton" type="Button" parent="Root/Body/LibraryPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+  新建固定内容"
+
+[node name="LibrarySummary" type="Label" parent="Root/Body/LibraryPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "正在扫描剧情资源..."
+
+[node name="SearchEdit" type="LineEdit" parent="Root/Body/LibraryPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "搜索 ID 或路径"
+clear_button_enabled = true
+
+[node name="StoryTree" type="Tree" parent="Root/Body/LibraryPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+
+[node name="WorkspaceSplit" type="HSplitContainer" parent="Root/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+split_offset = 760
+
+[node name="MobileChatEmbed" type="MarginContainer" parent="Root/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="FixedCallEmbed" type="MarginContainer" parent="Root/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Workspace" type="VBoxContainer" parent="Root/Body/WorkspaceSplit"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DocumentBar" type="VBoxContainer" parent="Root/Body/WorkspaceSplit/Workspace"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ChapterBar" type="HFlowContainer" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StepLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "2  选择章节"
+
+[node name="DocumentPath" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "选择左侧剧情文件"
+text_overrun_behavior = 3
+
+[node name="ChapterLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+layout_mode = 2
+text = "章节"
+
+[node name="ChapterSelect" type="OptionButton" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="AddChapterButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "新增章节"
+text = "新增章节"
+
+[node name="RenameChapterButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "重命名当前章节"
+text = "改名"
+
+[node name="DeleteChapterButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "删除当前章节"
+text = "删除章节"
+
+[node name="EventSearchBar" type="HFlowContainer" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SearchLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventSearchBar"]
+layout_mode = 2
+text = "事件搜索"
+
+[node name="EventSearchEdit" type="LineEdit" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventSearchBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "角色、对白、类型、资源 ID、选项或扩展字段"
+clear_button_enabled = true
+
+[node name="EventSearchStatus" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventSearchBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "输入关键词"
+horizontal_alignment = 2
+
+[node name="PreviousEventMatchButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventSearchBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "跳转到上一个匹配事件"
+text = "上一个"
+
+[node name="NextEventMatchButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventSearchBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "跳转到下一个匹配事件（Enter）"
+text = "下一个"
+
+[node name="EventBar" type="HFlowContainer" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="EventStepLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "3  编排事件"
+
+[node name="EventTypeSelect" type="OptionButton" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+tooltip_text = "选择要新增的事件类型"
+
+[node name="AddEventButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "在当前节点后新增事件"
+text = "新增事件"
+
+[node name="EventTemplateMenu" type="MenuButton" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "在当前事件后插入一组常用剧情事件"
+text = "组合模板"
+
+[node name="CopyEventButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "复制当前事件及其全部扩展字段（Ctrl+C）"
+text = "复制"
+
+[node name="PasteEventButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "将已复制事件粘贴到当前事件之后（Ctrl+V）"
+text = "粘贴"
+
+[node name="DuplicateEventButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "在当前事件之后创建完整副本（Ctrl+D）"
+text = "重复"
+
+[node name="MoveUpButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "向前移动当前事件"
+text = "上移"
+
+[node name="MoveDownButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "向后移动当前事件"
+text = "下移"
+
+[node name="DeleteEventButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "删除当前事件"
+text = "删除事件"
+
+[node name="EventBarSpacer" type="Control" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChapterEntryFilter" type="LineEdit" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+placeholder_text = "筛选章节入口"
+clear_button_enabled = true
+
+[node name="FocusSelectionButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "将当前选中的事件移动到画布中央"
+text = "定位选中"
+
+[node name="ArrangeButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "自动排列当前节点"
+text = "整理画布"
+
+[node name="CanvasGuide" type="PanelContainer" parent="Root/Body/WorkspaceSplit/Workspace"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GuideRow" type="HFlowContainer" parent="Root/Body/WorkspaceSplit/Workspace/CanvasGuide"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GuideTitle" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/CanvasGuide/GuideRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.71, 0.82, 0.86, 1)
+text = "从左侧选择剧情，开始编排事件"
+
+[node name="GuideSpacer" type="Control" parent="Root/Body/WorkspaceSplit/Workspace/CanvasGuide/GuideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FlowLegend" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/CanvasGuide/GuideRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "顺序线：事件流程    分支线：连接章节入口    双击入口：进入章节"
+
+[node name="GraphEdit" type="GraphEdit" parent="Root/Body/WorkspaceSplit/Workspace"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+minimap_enabled = true
+show_arrange_button = false
+show_zoom_label = true
+snapping_enabled = true
+connection_lines_thickness = 3.0
+
+[node name="DiagnosticsHeader" type="HBoxContainer" parent="Root/Body/WorkspaceSplit/Workspace"]
+layout_mode = 2
+
+[node name="DiagnosticsTitle" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DiagnosticsHeader"]
+layout_mode = 2
+text = "4  校验结果"
+
+[node name="DiagnosticsSummary" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DiagnosticsHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "打开剧情后自动校验"
+horizontal_alignment = 2
+
+[node name="DiagnosticsTree" type="Tree" parent="Root/Body/WorkspaceSplit/Workspace"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 135)
+layout_mode = 2
+columns = 3
+column_titles_visible = true
+hide_root = true
+
+[node name="Inspector" type="VBoxContainer" parent="Root/Body/WorkspaceSplit"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InspectorTitle" type="Label" parent="Root/Body/WorkspaceSplit/Inspector"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "事件 Inspector"
+
+[node name="InspectorHint" type="Label" parent="Root/Body/WorkspaceSplit/Inspector"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "选择画布节点后，在这里编辑内容并应用。高级 JSON 适合处理未建模字段。"
+autowrap_mode = 2
+
+[node name="EventInspector" parent="Root/Body/WorkspaceSplit/Inspector" instance=ExtResource("2_inspector")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatusBar" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="StatusRow" type="HBoxContainer" parent="Root/StatusBar"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusLabel" type="Label" parent="Root/StatusBar/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "正在初始化剧情编辑器..."
+
+[node name="ContextStatus" type="Label" parent="Root/StatusBar/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "未打开文件 | 未选择章节 | 0 个事件"
+horizontal_alignment = 2
+
+[node name="ChapterNameDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "章节"
+size = Vector2i(420, 130)
+
+[node name="ChapterNameEdit" type="LineEdit" parent="ChapterNameDialog"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 36)
+placeholder_text = "章节 ID"
+
+[node name="CreateContentDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "新建固定内容"
+size = Vector2i(500, 330)
+
+[node name="Form" type="VBoxContainer" parent="CreateContentDialog"]
+custom_minimum_size = Vector2(460, 250)
+theme_override_constants/separation = 8
+
+[node name="TypeLabel" type="Label" parent="CreateContentDialog/Form"]
+layout_mode = 2
+text = "类型"
+
+[node name="CreateContentType" type="OptionButton" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="IdLabel" type="Label" parent="CreateContentDialog/Form"]
+layout_mode = 2
+text = "内容 ID"
+
+[node name="CreateContentId" type="LineEdit" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "例如 chapter_01"
+
+[node name="NameLabel" type="Label" parent="CreateContentDialog/Form"]
+layout_mode = 2
+text = "显示名称（可选）"
+
+[node name="CreateContentName" type="LineEdit" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "用于剧情摘要"
+
+[node name="CharacterLabel" type="Label" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "角色 ID"
+
+[node name="CreateContentCharacter" type="LineEdit" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "手机消息和固定来电必填"
+
+[node name="CreateContentPath" type="Label" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+autowrap_mode = 2
+
+[node name="CreateContentError" type="Label" parent="CreateContentDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5, 0.47, 1)
+autowrap_mode = 2
+
+[node name="DeleteChapterDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "删除章节"
+dialog_text = "确定删除当前章节及其全部事件吗？"
+
+[node name="SaveEventTemplateDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "保存为自定义模板"
+size = Vector2i(440, 140)
+
+[node name="TemplateNameEdit" type="LineEdit" parent="SaveEventTemplateDialog"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 36)
+placeholder_text = "模板名称"
+
+[node name="DeleteEventTemplateDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "删除自定义模板"
+dialog_text = "选择要从项目模板库删除的模板。"
+size = Vector2i(440, 170)
+
+[node name="DeleteTemplateSelect" type="OptionButton" parent="DeleteEventTemplateDialog"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 36)
+
+[node name="DateAIWorkbench" parent="." instance=ExtResource("3_ai_workbench")]
+unique_name_in_owner = true
+
+[node name="MobileChatCatalogWindow" parent="." instance=ExtResource("4_mobile_catalog")]
+unique_name_in_owner = true
+
+[node name="FixedVoiceCallCatalogWindow" parent="." instance=ExtResource("5_call_catalog")]
+unique_name_in_owner = true
+
+[node name="MobileAIWorkbench" parent="." instance=ExtResource("6_mobile_ai")]
+unique_name_in_owner = true
+
+[node name="StoryReferenceCatalogWindow" parent="." instance=ExtResource("7_story_references")]
+unique_name_in_owner = true
+
+[node name="GuideFlowEditorWindow" parent="." instance=ExtResource("8_guide_editor")]
+unique_name_in_owner = true
+
+[node name="StoryScheduleEntryEditorWindow" parent="." instance=ExtResource("9_schedule_editor")]
+unique_name_in_owner = true
+
+[node name="StorySchemaMigrationWindow" parent="." instance=ExtResource("10_schema_migration")]
+unique_name_in_owner = true
+
+[node name="StoryRuntimeDebugWindow" parent="." instance=ExtResource("11_runtime_debug")]
+unique_name_in_owner = true
+
+[node name="StoryNodeTemplateLibraryWindow" parent="." instance=ExtResource("12_node_templates")]
+unique_name_in_owner = true
+
+[node name="StoryCoverageReportWindow" parent="." instance=ExtResource("13_coverage_report")]
+unique_name_in_owner = true
+
+[node name="BranchSimulationWindow" type="Window" parent="."]
+unique_name_in_owner = true
+title = "全分支模拟"
+initial_position = 1
+size = Vector2i(900, 620)
+min_size = Vector2i(700, 480)
+visible = false
+wrap_controls = true
+
+[node name="Root" type="VBoxContainer" parent="BranchSimulationWindow"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="BranchSimulationWindow/Root"]
+layout_mode = 2
+
+[node name="InitialVariablesLabel" type="Label" parent="BranchSimulationWindow/Root/Header"]
+layout_mode = 2
+text = "初始变量 JSON"
+
+[node name="InitialVariablesEdit" type="LineEdit" parent="BranchSimulationWindow/Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "{}"
+placeholder_text = "{\"relationship_stage\": 1}"
+
+[node name="RunSimulationButton" type="Button" parent="BranchSimulationWindow/Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "运行"
+
+[node name="CloseSimulationButton" type="Button" parent="BranchSimulationWindow/Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "关闭"
+
+[node name="SimulationSummary" type="Label" parent="BranchSimulationWindow/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "尚未运行模拟。"
+
+[node name="SimulationResults" type="Tree" parent="BranchSimulationWindow/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 6
+column_titles_visible = true
+hide_root = true
+
+[node name="ConditionNotice" type="Label" parent="BranchSimulationWindow/Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.64, 0.35, 1)
+text = "当前运行时尚未定义 Condition 事件；模拟器只执行现有 set_variable、Choice effects、Choice target_chapter 与 Jump 协议。"
+autowrap_mode = 2

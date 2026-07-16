@@ -6,7 +6,9 @@ import binascii
 import ipaddress
 import json
 import logging
+import logging.handlers
 import os
+import queue
 import re
 import secrets
 import sys
@@ -74,7 +76,7 @@ class Settings:
             "tts": {
                 "api_key": os.getenv("GALCHAT_TTS_API_KEY", "").strip(),
                 "base_url": os.getenv("GALCHAT_TTS_BASE_URL", "https://openspeech.bytedance.com/api/v3/tts/unidirectional").strip(),
-                "model": os.getenv("GALCHAT_TTS_MODEL", "seed-tts-2.0").strip(),
+                "model": os.getenv("GALCHAT_TTS_MODEL", "").strip(),
                 "resource_id": os.getenv("GALCHAT_TTS_RESOURCE_ID", "seed-tts-2.0").strip(),
             },
             "asr": {
@@ -154,6 +156,15 @@ class TtsSpeechRequest(BaseModel):
     speech_rate: int = Field(default=0, ge=-50, le=100)
     loudness_rate: int = Field(default=0, ge=-50, le=100)
     enable_subtitle: bool = False
+    context_texts: list[str] = Field(default_factory=list, max_length=2)
+
+    @field_validator("context_texts")
+    @classmethod
+    def validate_context_texts(cls, value: list[str]) -> list[str]:
+        normalized = [entry.strip() for entry in value if entry.strip()]
+        if any(len(entry) > 120 for entry in normalized):
+            raise ValueError("TTS context instructions must not exceed 120 characters.")
+        return normalized
 
 
 class AsrTranscriptionRequest(BaseModel):
@@ -327,17 +338,23 @@ if settings.environment == "development" and settings.development_test_account_e
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     storage.cleanup_usage_events(settings.usage_event_retention_days)
     app.state.http = httpx.AsyncClient(timeout=settings.request_timeout_seconds)
+    access_log_listener.start()
     yield
+    access_log_listener.stop()
     await app.state.http.aclose()
 
 
 app = FastAPI(title="GalChat AI Gateway", version="0.1.0", lifespan=lifespan)
 
 access_logger = logging.getLogger("galchat.access")
-if not access_logger.handlers:
+access_log_listener = getattr(access_logger, "_galchat_queue_listener", None)
+if access_log_listener is None:
+    access_log_queue: queue.SimpleQueue[logging.LogRecord] = queue.SimpleQueue()
     access_handler = logging.StreamHandler(sys.stdout)
     access_handler.setFormatter(logging.Formatter("%(message)s"))
-    access_logger.addHandler(access_handler)
+    access_logger.addHandler(logging.handlers.QueueHandler(access_log_queue))
+    access_log_listener = logging.handlers.QueueListener(access_log_queue, access_handler)
+    access_logger._galchat_queue_listener = access_log_listener
 access_logger.setLevel(logging.INFO)
 access_logger.propagate = False
 
@@ -777,9 +794,12 @@ async def admin_delete_capability_provider(capability: str, request: Request) ->
 async def admin_users(
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    query: str = Query(default="", max_length=200),
+    sort_by: str = Query(default="created_at", pattern="^(username|created_at|used_today|active_sessions)$"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
 ) -> dict[str, Any]:
     usage_date = datetime.now(UTC).date().isoformat()
-    users, total = storage.list_admin_users(usage_date, limit, offset)
+    users, total = storage.list_admin_users(usage_date, limit, offset, query, sort_by, sort_order)
     return {
         "items": [
             {
@@ -795,12 +815,48 @@ async def admin_users(
         "total": total,
         "limit": limit,
         "offset": offset,
+        "query": query,
+        "sort_by": sort_by,
+        "sort_order": sort_order,
     }
 
 
 @app.get("/admin/api/usage-events", dependencies=[Depends(authorize_admin)])
-async def admin_usage_events(limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
-    return {"items": storage.list_usage_events(limit)}
+async def admin_usage_events(
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    capability: str = Query(default="", pattern="^(|chat|tts|asr|embedding|vision|image)$"),
+    event_status: str = Query(
+        default="",
+        pattern="^(|succeeded|failed|quota_rejected|provider_error|timeout|cancelled)$",
+    ),
+    user_query: str = Query(default="", max_length=200),
+    sort_by: str = Query(
+        default="created_at",
+        pattern="^(created_at|capability|status|units|latency_ms|error_code|user_id)$",
+    ),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
+) -> dict[str, Any]:
+    items, total = storage.query_usage_events(
+        limit,
+        offset,
+        capability,
+        event_status,
+        user_query,
+        sort_by,
+        sort_order,
+    )
+    return {
+        "items": items,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "capability": capability,
+        "event_status": event_status,
+        "user_query": user_query,
+        "sort_by": sort_by,
+        "sort_order": sort_order,
+    }
 
 
 @app.put("/admin/api/capability-quotas/{capability}", dependencies=[Depends(authorize_admin)])
@@ -1080,7 +1136,13 @@ async def tts_speech(
         "speaker": payload.speaker,
         "audio_params": audio_params,
     }
-    if provider["model"]:
+    if payload.context_texts:
+        req_params["additions"] = json.dumps(
+            {"context_texts": payload.context_texts},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+    if provider["model"] and provider["model"] != "seed-tts-2.0":
         req_params["model"] = provider["model"]
 
     provider_headers = {

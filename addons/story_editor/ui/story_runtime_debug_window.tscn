@@ -1,0 +1,74 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_runtime_debug_window.gd" id="1_script"]
+
+[node name="StoryRuntimeDebugWindow" type="Window"]
+title = "剧情运行时监视"
+initial_position = 0
+size = Vector2i(1180, 720)
+min_size = Vector2i(780, 520)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Toolbar" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Toolbar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "剧情运行时监视"
+
+[node name="SessionSelect" type="OptionButton" parent="Root/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="FilterEdit" type="LineEdit" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "筛选事件、剧情、来源或错误"
+
+[node name="ClearButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "清空当前 Session"
+
+[node name="Status" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "等待游戏调试进程发送剧情事件"
+
+[node name="Body" type="VSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 430
+
+[node name="EventTree" type="Tree" parent="Root/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 5
+column_titles_visible = true
+hide_root = true
+
+[node name="DetailText" type="TextEdit" parent="Root/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+editable = false
+wrap_mode = 1
+placeholder_text = "选择事件查看完整结构化数据"

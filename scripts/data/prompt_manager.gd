@@ -808,6 +808,11 @@ func build_date_story_prompt(context: Dictionary) -> String:
 		prompt += "   模板大纲：%s\n" % str(segment.get("template_outline", ""))
 		prompt += "   必须桥段：%s\n" % JSON.stringify(segment.get("must_have_beats", []))
 		prompt += "   情绪标签：%s\n" % JSON.stringify(segment.get("mood_tags", []))
+		prompt += "   本次共同任务：%s\n" % str(segment.get("interaction_hook", ""))
+		prompt += "   本次微小意外：%s\n" % str(segment.get("micro_incident", ""))
+		prompt += "   本次谈话主题：%s\n" % str(segment.get("conversation_topic", ""))
+		prompt += "   本次收束方式：%s\n" % str(segment.get("closing_style", ""))
+	prompt += "本次创意种子：%s。它只用于提醒你这是一次全新的创作，不要复刻以前常见的台词与情节。\n" % str(context.get("creative_seed", 0))
 
 	var retry_count: int = int(context.get("date_story_retry_count", 0))
 	var segment_index: int = int(context.get("date_story_segment_index", -1))
@@ -826,6 +831,10 @@ func build_date_story_prompt(context: Dictionary) -> String:
 	prompt += "3. 每个 segment 都必须同时包含：可见的共同动作、地点相关的环境细节、双方情绪变化、一次更靠近彼此的交流推进、一个带余韵的小收束。\n"
 	prompt += "4. 每段都要像真正发生过一小段完整约会，而不是提纲扩写；角色说话要有微妙试探、回应、停顿、转折和在意感。\n"
 	prompt += "5. 地点必须真的参与剧情，不只是挂名。要把地点特色、天气、时段氛围写进互动本身。\n"
+	prompt += "6. 当前地点必须决定这一段的核心事件和互动方式。换成其他地点后剧情就不应成立；禁止复用与地点无关的通用约会桥段来填充篇幅。\n"
+	prompt += "7. 若提供了前情摘要，不得重复前段已经发生的事件、情感结论、关键句式或收束方式；新片段必须带来新的共同体验和关系变化。\n"
+	prompt += "8. 动作描述只能写在 content 句首，每行最多一个中文全角括号动作；同一 segment 内不要重复眨眼、攥衣角、低头、轻笑、看向对方等相同或近似动作。\n"
+	prompt += "9. 必须把给定的共同任务、微小意外、谈话主题和收束方式编织成同一条因果连贯的剧情，不得忽略、替换成泛化桥段，也不要逐项机械复述。\n"
 	prompt += "【输出要求】\n"
 	prompt += "1. 输出必须是纯 JSON 对象，不要输出解释、不要输出 Markdown 代码块。\n"
 	prompt += "2. 你只负责产出剧情内容本身，不要生成 script_id、story_location_id、story_period、memory_records、chapters、events、bg_id 这些外壳字段，这些会由本地系统补全。\n"
@@ -836,13 +845,15 @@ func build_date_story_prompt(context: Dictionary) -> String:
 	else:
 		prompt += "5. 每个 segment 写 10 到 12 行；每行都要有有效信息量，建议单行 24 到 60 个汉字，必须形成完整的起承转合，包含见面、共同体验、情绪靠近和余韵收束，优先保证 JSON 严格合法且完整。\n"
 	prompt += "6. 每个 segment 至少包含 3 行女主对白、2 行玩家对白、2 行旁白；不能全部都是抒情旁白，也不能全靠对白硬聊。\n"
-	prompt += "7. 每一行只允许出现 speaker 和 content 两个字段。\n"
+	prompt += "7. 每一行必须包含 speaker 和 content；角色对白还可以包含 expression 和 voice_instruction，旁白与玩家对白不要添加这两个字段。\n"
 	prompt += "8. speaker 只能使用：旁白、player、%s。\n" % character_id
-	prompt += "9. 不要输出任何 BBCode、RichText 或 Markdown 标记，动作和表情请直接写在自然语言括号里。\n"
+	prompt += "9. 不要输出任何 BBCode、RichText 或 Markdown 标记；需要动作时使用句首中文全角括号，例如“（避开迎面的人群）这里比刚才热闹多了。”，没有必要时不要强行添加动作。\n"
 	prompt += "10. 不要输出像“【上午 · 咖啡厅】”这样的时段地点标题，本地系统会自动插入。\n"
 	prompt += "11. 女主台词要符合当前关系阶段、人设和心情，不能突然越界告白，也不能生硬疏离，更不能像模板台词复读机。\n"
 	prompt += "12. 如果这是中段或末段，要承接前情，让感情递进明显，但这一段本身也必须足够完整，不能只写成几句提要。\n"
 	prompt += "13. 所有字符串都必须是合法 JSON 字符串，内部双引号要正确转义，绝对不要输出未闭合的字符串或未写完的对象。\n"
+	prompt += "14. 角色对白的 expression 只能使用：surprise、expectant、happy、calm、nervous、down、empty、tired、aggrieved、angry、shy、serious、worried。\n"
+	prompt += "15. voice_instruction 是可选的豆包 TTS 2.0 语音指令，最多 40 个汉字，只描述当前句的情绪、语速、语气或音量，例如“略带害羞地慢一点说”；不要要求改变年龄、性别、身份或音色。普通台词可以省略，由 expression 自动决定语气。\n"
 	prompt += "【JSON 格式】\n"
 	prompt += "{\n"
 	prompt += "  \"summary\": \"40到90字的约会摘要，点出这一段真正发生了什么和情感推进\",\n"
@@ -850,7 +861,7 @@ func build_date_story_prompt(context: Dictionary) -> String:
 	prompt += "    {\n"
 	prompt += "      \"lines\": [\n"
 	prompt += "        {\"speaker\": \"旁白\", \"content\": \"...\"},\n"
-	prompt += "        {\"speaker\": \"%s\", \"content\": \"...\"},\n" % character_id
+	prompt += "        {\"speaker\": \"%s\", \"content\": \"...\", \"expression\": \"shy\", \"voice_instruction\": \"略带害羞地慢一点说\"},\n" % character_id
 	prompt += "        {\"speaker\": \"player\", \"content\": \"...\"}\n"
 	prompt += "      ]\n"
 	prompt += "    }\n"

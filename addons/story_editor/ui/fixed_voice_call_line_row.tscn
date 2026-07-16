@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/fixed_voice_call_line_row.gd" id="1_script"]
+
+[node name="FixedVoiceCallLineRow" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 72)
+theme_override_constants/separation = 6
+script = ExtResource("1_script")
+
+[node name="IndexLabel" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+text = "01"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LineEdit" type="TextEdit" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+wrap_mode = 1
+
+[node name="Actions" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="MoveUpButton" type="Button" parent="Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "上移台词"
+text = "↑"
+
+[node name="MoveDownButton" type="Button" parent="Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "下移台词"
+text = "↓"
+
+[node name="DeleteButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "删除台词"
+text = "删除"

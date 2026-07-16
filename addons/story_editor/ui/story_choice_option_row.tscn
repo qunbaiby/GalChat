@@ -1,0 +1,80 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_choice_option_row.gd" id="1_script"]
+
+[node name="StoryChoiceOptionRow" type="VBoxContainer"]
+custom_minimum_size = Vector2(0, 128)
+theme_override_constants/separation = 6
+script = ExtResource("1_script")
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="IndexLabel" type="Label" parent="Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "选项 #1"
+
+[node name="IdEdit" type="LineEdit" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "选项 ID"
+
+[node name="MoveUpButton" type="Button" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "上移"
+
+[node name="MoveDownButton" type="Button" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "下移"
+
+[node name="DeleteButton" type="Button" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "删除"
+
+[node name="TextEdit" type="LineEdit" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "玩家看到的选项文本"
+
+[node name="Details" type="HFlowContainer" parent="."]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+
+[node name="TargetLabel" type="Label" parent="Details"]
+layout_mode = 2
+text = "指向剧情节点"
+
+[node name="TargetSelect" type="OptionButton" parent="Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+tooltip_text = "选择该玩家选项将进入的剧情节点"
+
+[node name="IntimacyLabel" type="Label" parent="Details"]
+layout_mode = 2
+text = "亲密度"
+
+[node name="IntimacySpin" type="SpinBox" parent="Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+min_value = -100.0
+max_value = 100.0
+
+[node name="TrustLabel" type="Label" parent="Details"]
+layout_mode = 2
+text = "信任度"
+
+[node name="TrustSpin" type="SpinBox" parent="Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+min_value = -100.0
+max_value = 100.0

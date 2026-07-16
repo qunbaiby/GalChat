@@ -1,0 +1,85 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_schema_migration_window.gd" id="1_script"]
+
+[node name="StorySchemaMigrationWindow" type="Window"]
+title = "剧情 Schema 迁移"
+initial_position = 0
+size = Vector2i(1100, 700)
+min_size = Vector2i(760, 520)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Schema 版本与迁移"
+
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "尚未扫描"
+horizontal_alignment = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重新扫描"
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 680
+
+[node name="MigrationTree" type="Tree" parent="Root/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 4
+column_titles_visible = true
+hide_root = true
+
+[node name="PreviewPanel" type="VBoxContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PreviewTitle" type="Label" parent="Root/Body/PreviewPanel"]
+layout_mode = 2
+text = "迁移预览"
+
+[node name="PreviewText" type="TextEdit" parent="Root/Body/PreviewPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+editable = false
+wrap_mode = 1
+text = "选择文档查看迁移预览。"
+
+[node name="ApplyButton" type="Button" parent="Root/Body/PreviewPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "应用所选迁移"
+
+[node name="ApplyDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "确认 Schema 迁移"
+dialog_text = "将为原文件创建永久备份，然后应用所选迁移。"

@@ -93,7 +93,7 @@ func refresh_chat_button_state() -> void:
 	if not is_instance_valid(chat_button):
 		return
 	_concern_mode_available = _compute_concern_mode_available()
-	if _is_ui_hidden or not _chat_button_available:
+	if _desktop_bubble_mode or _is_ui_hidden or not _chat_button_available:
 		chat_button.visible = false
 		_update_chat_button_status_badge("normal")
 		return
@@ -213,6 +213,7 @@ func is_idle_quote_playing() -> bool:
 
 func set_desktop_bubble_mode(enabled: bool) -> void:
 	_desktop_bubble_mode = enabled
+	refresh_chat_button_state()
 	if enabled and idle_bubble_panel:
 		idle_bubble_panel.modulate.a = 1.0
 
@@ -393,7 +394,7 @@ func _on_time_advanced(_days: int, _current_period: String) -> void:
 func _check_story_button_visibility() -> void:
 	_concern_mode_available = _compute_concern_mode_available()
 	refresh_chat_button_state()
-	if _bubble_tween and _bubble_tween.is_valid() and (not _chat_button_available or _is_ui_hidden):
+	if _bubble_tween and _bubble_tween.is_valid() and (_desktop_bubble_mode or not _chat_button_available or _is_ui_hidden):
 		_bubble_tween.kill()
 	
 func set_ui_hidden(is_hidden: bool) -> void:

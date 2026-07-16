@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cy8xxa3qqt3k0"]
+[gd_scene format=3 uid="uid://cy8xxa3qqt3k0"]
 
 [ext_resource type="Script" uid="uid://dyyfj2pvhqsgc" path="res://scripts/ui/main/music/music_player.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cjla5swe4uuyl" path="res://assets/images/icons/ui/music/mv-ai-fill.png" id="2_cover_icon"]
@@ -121,7 +121,7 @@ clip_text = true
 
 [node name="ArtistLabel" type="Label" parent="Margin/VBox/TopHBox/InfoVBox" unique_id=1440067961]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.23865935, 0.2603993, 0.30131692, 1)
+theme_override_colors/font_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
 theme_override_font_sizes/font_size = 10
 text = "Local Music"
 clip_text = true
@@ -217,15 +217,7 @@ value = 1.0
 [node name="CloseButton" type="Button" parent="." unique_id=1549824263]
 visible = false
 custom_minimum_size = Vector2(32, 32)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -38.0
-offset_top = 14.0
-offset_right = -6.0
-offset_bottom = 46.0
-grow_horizontal = 0
+layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.27, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_CloseBtn")

@@ -167,6 +167,13 @@ func _trigger_registry_event(event_data: Dictionary, context: Dictionary = {}) -
 	
 	var script_path = event_data.get("trigger_script", "")
 	if script_path != "" and ResourceLoader.exists(script_path):
+		var debug_bridge := get_node_or_null("/root/StoryRuntimeDebugBridge")
+		if debug_bridge != null:
+			debug_bridge.prepare_story("event_registry", str(event_id), str(script_path), {
+				"context": context.duplicate(true),
+				"conditions": (event_data.get("conditions", []) as Array).duplicate(true),
+				"event_type": str(event_data.get("event_type", ""))
+			})
 		var matched_location_id := _extract_location_id_from_conditions(event_data.get("conditions", []))
 		var effective_location_id := str(context.get("location_id", matched_location_id)).strip_edges()
 		if effective_location_id != "":

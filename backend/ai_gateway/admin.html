@@ -33,7 +33,7 @@
       font-family: "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
       letter-spacing: 0;
     }
-    button, input, textarea { font: inherit; letter-spacing: 0; }
+    button, input, select, textarea { font: inherit; letter-spacing: 0; }
     button { cursor: pointer; }
     html { scroll-behavior: smooth; }
     .shell { min-height: 100vh; display: grid; grid-template-columns: 224px minmax(0, 1fr); }
@@ -112,6 +112,15 @@
     .dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; background: var(--accent); }
     .dot.off { background: var(--danger); }
     .table-wrap { overflow-x: auto; }
+    .table-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: #fbfcfa; }
+    .table-filter { display: grid; gap: 5px; min-width: 150px; }
+    .table-filter.grow { flex: 1 1 220px; }
+    .table-filter label { color: var(--muted); font-size: 11px; }
+    .table-filter input, .table-filter select { height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: var(--surface); }
+    .table-filter input:focus, .table-filter select:focus { outline: 2px solid rgba(8,125,115,.18); border-color: var(--accent); }
+    .sort-button { display: inline-flex; align-items: center; gap: 5px; padding: 0; border: 0; color: inherit; background: transparent; font-weight: inherit; }
+    .sort-button::after { content: "↕"; color: #9aa5a2; font-size: 11px; }
+    .sort-button.active::after { content: attr(data-direction-mark); color: var(--accent); }
     table { width: 100%; min-width: 760px; border-collapse: collapse; }
     th, td { padding: 13px 18px; border-bottom: 1px solid #e8ece9; text-align: left; font-size: 13px; }
     th { color: var(--muted); background: #fafbf9; font-weight: 600; }
@@ -204,12 +213,19 @@
       </section>
       <section class="section" id="usage-events">
         <div class="section-head"><h2>最近调用</h2><span class="section-note">不记录提示词、音频、图片或供应商密钥</span></div>
+        <form class="table-toolbar" id="usageFilterForm">
+          <div class="table-filter"><label for="usageCapabilityFilter">能力</label><select id="usageCapabilityFilter"><option value="">全部能力</option><option value="chat">Chat</option><option value="tts">TTS</option><option value="asr">ASR</option><option value="embedding">Embedding</option><option value="vision">Vision</option><option value="image">Image</option></select></div>
+          <div class="table-filter"><label for="usageStatusFilter">状态</label><select id="usageStatusFilter"><option value="">全部状态</option><option value="succeeded">成功</option><option value="provider_error">供应商错误</option><option value="failed">失败</option><option value="quota_rejected">额度拒绝</option><option value="timeout">超时</option><option value="cancelled">已取消</option></select></div>
+          <div class="table-filter grow"><label for="usageUserFilter">用户 ID</label><input id="usageUserFilter" type="search" maxlength="200" placeholder="输入完整或部分用户 ID"></div>
+          <button class="button primary" type="submit">查询</button><button class="button" type="button" id="resetUsageFilters">重置</button>
+        </form>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>时间</th><th>能力</th><th>状态</th><th>负载单位</th><th>延迟</th><th>HTTP</th><th>用户 ID</th></tr></thead>
+            <thead><tr><th><button class="sort-button active" data-usage-sort="created_at" data-direction-mark="↓">时间</button></th><th><button class="sort-button" data-usage-sort="capability">能力</button></th><th><button class="sort-button" data-usage-sort="status">状态</button></th><th><button class="sort-button" data-usage-sort="units">负载单位</button></th><th><button class="sort-button" data-usage-sort="latency_ms">延迟</button></th><th><button class="sort-button" data-usage-sort="error_code">HTTP</button></th><th><button class="sort-button" data-usage-sort="user_id">用户 ID</button></th></tr></thead>
             <tbody id="usageEventRows"><tr><td colspan="7" class="empty">暂无调用记录</td></tr></tbody>
           </table>
         </div>
+        <div class="pager"><span id="usageResultCount">共 0 条</span><button class="button" id="usagePrevButton" type="button">上一页</button><span id="usagePageState">第 1 页</span><button class="button" id="usageNextButton" type="button">下一页</button></div>
       </section>
       <section class="section" id="chat-provider">
         <div class="section-head"><h2>对话模型</h2><span class="section-note">DeepSeek · 保存前测试连接 · 密钥永不回显</span></div>
@@ -241,9 +257,13 @@
       </section>
       <section class="section" id="accounts">
         <div class="section-head"><h2>账号与额度</h2><span class="section-note" id="accountCount">--</span></div>
+        <form class="table-toolbar" id="accountFilterForm">
+          <div class="table-filter grow"><label for="accountQueryInput">账号查询</label><input id="accountQueryInput" type="search" maxlength="200" placeholder="用户名、邮箱或用户 ID"></div>
+          <button class="button primary" type="submit">查询</button><button class="button" type="button" id="resetAccountFilters">重置</button>
+        </form>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>用户名</th><th>邮箱</th><th>今日总量</th><th>分能力额度</th><th>有效会话</th><th>注册时间</th><th>用户 ID</th></tr></thead>
+            <thead><tr><th><button class="sort-button" data-account-sort="username">用户名</button></th><th>邮箱</th><th><button class="sort-button" data-account-sort="used_today">今日总量</button></th><th>分能力额度</th><th><button class="sort-button" data-account-sort="active_sessions">有效会话</button></th><th><button class="sort-button active" data-account-sort="created_at" data-direction-mark="↓">注册时间</button></th><th>用户 ID</th></tr></thead>
             <tbody id="userRows"><tr><td colspan="7" class="empty">登录后加载账号数据</td></tr></tbody>
           </table>
         </div>
@@ -273,6 +293,17 @@
     const pageSize = 50;
     let pageOffset = 0;
     let totalUsers = 0;
+    let accountQuery = "";
+    let accountSortBy = "created_at";
+    let accountSortOrder = "desc";
+    const usagePageSize = 50;
+    let usageOffset = 0;
+    let totalUsageEvents = 0;
+    let usageCapability = "";
+    let usageStatus = "";
+    let usageUserQuery = "";
+    let usageSortBy = "created_at";
+    let usageSortOrder = "desc";
     const capabilityDefinitions = {
       tts: { name: "TTS 语音合成", model: "模型", resource: "资源 ID" },
       asr: { name: "ASR 语音识别", model: "模型", resource: "资源 ID（可选）" },
@@ -284,6 +315,18 @@
     const authHeaders = () => ({ Authorization: `Bearer ${getToken()}` });
     const escapeText = (value) => String(value ?? "");
 
+    function formatApiErrorDetail(detail, fallback) {
+      if (typeof detail === "string") return detail;
+      if (Array.isArray(detail)) {
+        return detail.map(item => {
+          const field = Array.isArray(item.loc) ? item.loc.filter(part => part !== "body").join(".") : "请求";
+          return `${field || "请求"}：${item.msg || "格式无效"}`;
+        }).join("；");
+      }
+      if (detail && typeof detail === "object") return detail.message || JSON.stringify(detail);
+      return fallback;
+    }
+
     async function api(path, options = {}) {
       const headers = { ...authHeaders(), ...(options.body ? { "Content-Type": "application/json" } : {}) };
       const response = await fetch(path, { ...options, headers, cache: "no-store" });
@@ -294,7 +337,10 @@
       }
       if (!response.ok) {
         let detail = `HTTP ${response.status}`;
-        try { detail = (await response.json()).detail || detail; } catch (_) {}
+        try {
+          const body = await response.json();
+          detail = formatApiErrorDetail(body.detail, detail);
+        } catch (_) {}
         if (response.status === 503 && detail === "Admin console is not configured.") {
           sessionStorage.removeItem("galchatAdminToken");
           showLogin("服务器尚未配置管理员令牌。", true);
@@ -308,29 +354,71 @@
     async function refreshDashboard() {
       document.getElementById("refreshButton").disabled = true;
       try {
-        const [overview, users, provider, capabilityProviders, audit, usageEvents] = await Promise.all([
-          api("/admin/api/overview"),
-          api(`/admin/api/users?limit=${pageSize}&offset=${pageOffset}`),
-          api("/admin/api/provider"),
-          api("/admin/api/capability-providers"),
-          api("/admin/api/audit-logs?limit=50"),
-          api("/admin/api/usage-events?limit=100")
-        ]);
-        totalUsers = users.total;
-        renderOverview(overview);
-        renderCapabilityUsage(overview);
-        renderUsers(users.items);
-        renderProvider(provider);
-        renderCapabilityProviders(capabilityProviders);
-        renderAudit(audit.items);
-        renderUsageEvents(usageEvents.items);
-        renderPager();
-        document.getElementById("updatedAt").textContent = `最近刷新：${new Date().toLocaleString()}`;
+        const requests = [
+          ["运行总览", api("/admin/api/overview"), data => { renderOverview(data); renderCapabilityUsage(data); }],
+          ["账号与额度", loadUsers(), () => {}],
+          ["对话模型", api("/admin/api/provider"), renderProvider],
+          ["官方能力", api("/admin/api/capability-providers"), renderCapabilityProviders],
+          ["审计记录", api("/admin/api/audit-logs?limit=50"), data => renderAudit(data.items)],
+          ["最近调用", loadUsageEvents(), () => {}]
+        ];
+        const results = await Promise.allSettled(requests.map(([, request]) => request));
+        const failures = [];
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            requests[index][2](result.value);
+          } else if (result.reason.message !== "Unauthorized") {
+            failures.push(`${requests[index][0]}：${result.reason.message}`);
+          }
+        });
+        document.getElementById("updatedAt").textContent = failures.length
+          ? `部分加载失败：${failures.join("；")}`
+          : `最近刷新：${new Date().toLocaleString()}`;
       } catch (error) {
         if (error.message !== "Unauthorized") document.getElementById("updatedAt").textContent = `加载失败：${error.message}`;
       } finally {
         document.getElementById("refreshButton").disabled = false;
       }
+    }
+
+    async function loadUsers() {
+      const params = new URLSearchParams({
+        limit: pageSize,
+        offset: pageOffset,
+        query: accountQuery,
+        sort_by: accountSortBy,
+        sort_order: accountSortOrder
+      });
+      const data = await api(`/admin/api/users?${params}`);
+      totalUsers = data.total;
+      renderUsers(data.items);
+      renderPager();
+      updateSortButtons("account", accountSortBy, accountSortOrder);
+    }
+
+    async function loadUsageEvents() {
+      const params = new URLSearchParams({
+        limit: usagePageSize,
+        offset: usageOffset,
+        capability: usageCapability,
+        event_status: usageStatus,
+        user_query: usageUserQuery,
+        sort_by: usageSortBy,
+        sort_order: usageSortOrder
+      });
+      const data = await api(`/admin/api/usage-events?${params}`);
+      totalUsageEvents = data.total;
+      renderUsageEvents(data.items);
+      renderUsagePager();
+      updateSortButtons("usage", usageSortBy, usageSortOrder);
+    }
+
+    function updateSortButtons(group, activeSort, sortOrder) {
+      document.querySelectorAll(`[data-${group}-sort]`).forEach(button => {
+        const active = button.dataset[`${group}Sort`] === activeSort;
+        button.classList.toggle("active", active);
+        button.dataset.directionMark = active ? (sortOrder === "asc" ? "↑" : "↓") : "";
+      });
     }
 
     function renderOverview(data) {
@@ -592,6 +680,15 @@
       document.getElementById("nextButton").disabled = pageOffset + pageSize >= totalUsers;
     }
 
+    function renderUsagePager() {
+      const current = Math.floor(usageOffset / usagePageSize) + 1;
+      const pages = Math.max(1, Math.ceil(totalUsageEvents / usagePageSize));
+      document.getElementById("usageResultCount").textContent = `共 ${totalUsageEvents} 条`;
+      document.getElementById("usagePageState").textContent = `第 ${current} / ${pages} 页`;
+      document.getElementById("usagePrevButton").disabled = usageOffset === 0;
+      document.getElementById("usageNextButton").disabled = usageOffset + usagePageSize >= totalUsageEvents;
+    }
+
     function showLogin(message = "", force = false) {
       const dialog = document.getElementById("loginDialog");
       document.getElementById("loginMessage").textContent = message;
@@ -610,8 +707,62 @@
     });
     document.getElementById("refreshButton").addEventListener("click", refreshDashboard);
     document.getElementById("logoutButton").addEventListener("click", () => { sessionStorage.removeItem("galchatAdminToken"); showLogin(); });
-    document.getElementById("prevButton").addEventListener("click", () => { pageOffset = Math.max(0, pageOffset - pageSize); refreshDashboard(); });
-    document.getElementById("nextButton").addEventListener("click", () => { pageOffset += pageSize; refreshDashboard(); });
+    async function refreshTable(loader, label) {
+      try {
+        await loader();
+        document.getElementById("updatedAt").textContent = `${label}已更新：${new Date().toLocaleString()}`;
+      } catch (error) {
+        if (error.message !== "Unauthorized") document.getElementById("updatedAt").textContent = `${label}加载失败：${error.message}`;
+      }
+    }
+    document.getElementById("prevButton").addEventListener("click", () => { pageOffset = Math.max(0, pageOffset - pageSize); refreshTable(loadUsers, "账号列表"); });
+    document.getElementById("nextButton").addEventListener("click", () => { pageOffset += pageSize; refreshTable(loadUsers, "账号列表"); });
+    document.getElementById("usagePrevButton").addEventListener("click", () => { usageOffset = Math.max(0, usageOffset - usagePageSize); refreshTable(loadUsageEvents, "调用记录"); });
+    document.getElementById("usageNextButton").addEventListener("click", () => { usageOffset += usagePageSize; refreshTable(loadUsageEvents, "调用记录"); });
+    document.getElementById("accountFilterForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      accountQuery = document.getElementById("accountQueryInput").value.trim();
+      pageOffset = 0;
+      refreshTable(loadUsers, "账号列表");
+    });
+    document.getElementById("resetAccountFilters").addEventListener("click", () => {
+      document.getElementById("accountQueryInput").value = "";
+      accountQuery = "";
+      pageOffset = 0;
+      refreshTable(loadUsers, "账号列表");
+    });
+    document.getElementById("usageFilterForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      usageCapability = document.getElementById("usageCapabilityFilter").value;
+      usageStatus = document.getElementById("usageStatusFilter").value;
+      usageUserQuery = document.getElementById("usageUserFilter").value.trim();
+      usageOffset = 0;
+      refreshTable(loadUsageEvents, "调用记录");
+    });
+    document.getElementById("resetUsageFilters").addEventListener("click", () => {
+      document.getElementById("usageCapabilityFilter").value = "";
+      document.getElementById("usageStatusFilter").value = "";
+      document.getElementById("usageUserFilter").value = "";
+      usageCapability = "";
+      usageStatus = "";
+      usageUserQuery = "";
+      usageOffset = 0;
+      refreshTable(loadUsageEvents, "调用记录");
+    });
+    document.querySelectorAll("[data-account-sort]").forEach(button => button.addEventListener("click", () => {
+      const sortBy = button.dataset.accountSort;
+      accountSortOrder = accountSortBy === sortBy && accountSortOrder === "desc" ? "asc" : "desc";
+      accountSortBy = sortBy;
+      pageOffset = 0;
+      refreshTable(loadUsers, "账号列表");
+    }));
+    document.querySelectorAll("[data-usage-sort]").forEach(button => button.addEventListener("click", () => {
+      const sortBy = button.dataset.usageSort;
+      usageSortOrder = usageSortBy === sortBy && usageSortOrder === "desc" ? "asc" : "desc";
+      usageSortBy = sortBy;
+      usageOffset = 0;
+      refreshTable(loadUsageEvents, "调用记录");
+    }));
     document.getElementById("testProviderButton").addEventListener("click", () => testProvider(false));
     document.getElementById("providerForm").addEventListener("submit", (event) => { event.preventDefault(); testProvider(true); });
     document.getElementById("capabilityForms").addEventListener("submit", (event) => {

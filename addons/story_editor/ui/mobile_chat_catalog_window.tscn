@@ -1,0 +1,220 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/mobile_chat_catalog_window.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/mobile_chat_message_inspector.tscn" id="2_inspector"]
+
+[node name="MobileChatCatalogWindow" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "手机固定消息"
+
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "正在扫描资源..."
+horizontal_alignment = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "重新扫描固定聊天与剧情引用"
+text = "刷新"
+
+[node name="Hint" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.7, 0.74, 1)
+text = "左侧选择固定聊天，右侧查看消息顺序和玩家选项分支。灰色线为数组顺序，绿色线为选项 next。"
+autowrap_mode = 2
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 260
+
+[node name="ChatTree" type="Tree" parent="Root/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+columns = 1
+column_titles_visible = true
+hide_root = true
+allow_reselect = true
+
+[node name="Editor" type="VBoxContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="EditorBar" type="HFlowContainer" parent="Root/Body/Editor"]
+layout_mode = 2
+
+[node name="CurrentChat" type="Label" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "尚未选择固定聊天"
+
+[node name="AddMessageButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "在当前消息后新增消息"
+text = "新增"
+
+[node name="DeleteMessageButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "删除当前消息"
+text = "删除"
+
+[node name="MoveUpButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "将当前消息提前"
+text = "上移"
+
+[node name="MoveDownButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "将当前消息延后"
+text = "下移"
+
+[node name="UndoButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "撤销最近一次编辑"
+text = "撤销"
+
+[node name="RedoButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "重做最近一次编辑"
+text = "重做"
+
+[node name="SaveButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "校验并保存当前固定聊天"
+text = "保存"
+
+[node name="ArrangeButton" type="Button" parent="Root/Body/Editor/EditorBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "自动整理消息节点"
+text = "整理画布"
+
+[node name="VerticalWorkspace" type="VSplitContainer" parent="Root/Body/Editor"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 360
+
+[node name="Workspace" type="HSplitContainer" parent="Root/Body/Editor/VerticalWorkspace"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 520
+
+[node name="MessageGraph" type="GraphEdit" parent="Root/Body/Editor/VerticalWorkspace/Workspace"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 220)
+layout_mode = 2
+size_flags_vertical = 3
+minimap_enabled = true
+show_arrange_button = false
+show_zoom_label = true
+snapping_enabled = true
+connection_lines_thickness = 3.0
+
+[node name="InspectorScroll" type="ScrollContainer" parent="Root/Body/Editor/VerticalWorkspace/Workspace"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Inspector" parent="Root/Body/Editor/VerticalWorkspace/Workspace/InspectorScroll" instance=ExtResource("2_inspector")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailsTabs" type="TabContainer" parent="Root/Body/Editor/VerticalWorkspace"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="完成动作" type="VBoxContainer" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CompletionHeader" type="HFlowContainer" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作"]
+layout_mode = 2
+
+[node name="CompletionTitle" type="Label" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/CompletionHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "聊天完成动作"
+
+[node name="ApplyCompletionButton" type="Button" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/CompletionHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "解析并应用完成动作 JSON"
+text = "应用动作"
+
+[node name="CompletionEventsEdit" type="TextEdit" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "on_complete_events JSON 数组"
+wrap_mode = 1
+
+[node name="校验" type="VBoxContainer" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DiagnosticsTitle" type="Label" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/校验"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "选中资源校验"
+
+[node name="DiagnosticsTree" type="Tree" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/校验"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 3
+column_titles_visible = true
+hide_root = true

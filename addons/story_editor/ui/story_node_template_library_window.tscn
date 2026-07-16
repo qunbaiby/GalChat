@@ -1,0 +1,113 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_node_template_library_window.gd" id="1_script"]
+
+[node name="StoryNodeTemplateLibraryWindow" type="Window"]
+title = "剧情节点模板库"
+initial_position = 0
+size = Vector2i(1040, 680)
+min_size = Vector2i(760, 520)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "节点模板库"
+[node name="Status" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "尚未加载"
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷新"
+
+[node name="Filters" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+[node name="SearchEdit" type="LineEdit" parent="Root/Filters"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "搜索名称、说明或类型"
+[node name="KindFilter" type="OptionButton" parent="Root/Filters"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 330
+[node name="TemplateList" type="ItemList" parent="Root/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+[node name="Details" type="VBoxContainer" parent="Root/Body"]
+layout_mode = 2
+theme_override_constants/separation = 8
+[node name="TemplateName" type="Label" parent="Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "选择模板"
+[node name="Description" type="Label" parent="Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+[node name="PayloadLabel" type="Label" parent="Root/Body/Details"]
+layout_mode = 2
+text = "模板结构预览"
+[node name="PayloadPreview" type="TextEdit" parent="Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+editable = false
+wrap_mode = 1
+[node name="ParametersLabel" type="Label" parent="Root/Body/Details"]
+layout_mode = 2
+text = "实例化参数（JSON）"
+[node name="ParametersEdit" type="TextEdit" parent="Root/Body/Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+text = "{}"
+[node name="Actions" type="HFlowContainer" parent="Root/Body/Details"]
+layout_mode = 2
+[node name="RenameEdit" type="LineEdit" parent="Root/Body/Details/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "模板名称"
+[node name="RenameButton" type="Button" parent="Root/Body/Details/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "重命名"
+[node name="DeleteButton" type="Button" parent="Root/Body/Details/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "删除"
+[node name="InsertButton" type="Button" parent="Root/Body/Details/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "插入当前章节"

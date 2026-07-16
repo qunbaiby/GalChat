@@ -3,6 +3,7 @@ extends Control
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 const STORY_PERIOD_CARD_SCENE = preload("res://scenes/ui/story/story_period_card.tscn")
+const ChatSplitHelperScript = preload("res://scripts/utils/chat_split_helper.gd")
 
 signal chat_closed
 
@@ -13,6 +14,7 @@ signal chat_closed
 @export var click_blocker_path: NodePath = NodePath("ClickBlocker")
 @export var character_layer_path: NodePath = NodePath("CharacterLayer")
 @export var free_chat_info_layer_path: NodePath = NodePath("UIPanel/FreeChatInfoLayer")
+@export var conversation_subtype: String = "story_ai_chat"
 
 var ui_panel: Control = null
 var hide_ui_btn: Button = null
@@ -46,6 +48,9 @@ var mobile_interface_instance = null
 var _intro_playing: bool = false
 var _intro_waiting_for_click: bool = false
 var _waiting_for_chat_click: bool = false
+var _line_text_complete: bool = false
+var _line_advance_requested: bool = false
+var _active_line_tts_text: String = ""
 var _current_story_speaker_id: String = ""
 var _return_to_main_on_story_finish: bool = false
 
@@ -192,7 +197,7 @@ func _ready() -> void:
 		dialogue_panel.panel_clicked.connect(_on_click_blocker_input)
 	
 	if GameDataManager.config:
-		GameDataManager.config.apply_settings()
+		GameDataManager.config.apply_runtime_settings()
 		
 	if hide_ui_btn: hide_ui_btn.pressed.connect(_on_hide_ui_pressed)
 	if camera_btn: camera_btn.pressed.connect(_on_camera_pressed)
@@ -242,6 +247,7 @@ func _ready() -> void:
 	script_engine = ScriptEngineManager.new()
 	add_child(script_engine)
 	script_engine.on_dialogue_requested.connect(_on_script_dialogue_requested)
+	script_engine.on_choice_requested.connect(_on_script_choice_requested)
 	script_engine.on_character_show_requested.connect(_on_script_show_character)
 	script_engine.on_character_move_requested.connect(_on_script_move_character)
 	script_engine.on_character_hide_requested.connect(_on_script_hide_character)
@@ -387,7 +393,11 @@ func _on_script_dialogue_requested(speaker: String, content: String, mood: Strin
 		character_layer.focus_story_speaker(portrait_speaker, char_name, mood, presentation)
 		
 	dialogue_panel.set_story_mode(true)
-	await _show_message_async(actual_content, char_name, true)
+	var tts_expression: String = str(presentation.get("expression", mood)).strip_edges()
+	if tts_expression.is_empty():
+		tts_expression = mood.strip_edges()
+	var voice_instruction: String = str(presentation.get("voice_instruction", "")).strip_edges()
+	await _show_message_async(actual_content, char_name, true, "", tts_expression, voice_instruction)
 	script_engine.resume()
 
 func _resolve_story_speaker_name(speaker: String) -> String:
@@ -1133,9 +1143,13 @@ func _send_player_message(text: String, is_system_event: bool = false) -> void:
 			
 	send_btn.disabled = true
 	input_field.editable = false
+	if dialogue_panel and dialogue_panel.has_method("set_input_waiting_state"):
+		dialogue_panel.set_input_waiting_state(GameDataManager.profile.char_name)
 	
 	# 发起请求前清除之前的选项
 	pending_options_data.clear()
+	if quick_options_container and quick_options_container.get_parent():
+		quick_options_container.get_parent().hide()
 	for child in quick_options_container.get_children():
 		child.queue_free()
 		
@@ -1378,28 +1392,30 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 			_ui_tween = create_tween()
 			_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
 		else:
-			if dialogue_text.visible_ratio < 1.0:
+			if not _line_text_complete:
 				get_viewport().set_input_as_handled()
 				if _typewriter_tween:
 					_typewriter_tween.kill()
 				dialogue_text.visible_ratio = 1.0
 				dialogue_text.visible_characters = -1
-				
-				# Make sure we finish the tween's intended outcome immediately if we killed it
-				# We don't emit finished here, but we can wait briefly and then if it's intro we wait for next click
-				
-				# ADDED: If we just finished the text, we should NOT emit proceed immediately,
-				# the next click should emit proceed.
-			elif _intro_playing and _intro_waiting_for_click:
+				_line_text_complete = true
+			elif _intro_playing:
 				get_viewport().set_input_as_handled()
+				_line_advance_requested = true
 				_intro_waiting_for_click = false
+				_cancel_active_line_audio()
 				_intro_click_proceed.emit()
-				print("[Debug] _intro_click_proceed signal emitted")
-			elif _waiting_for_chat_click:
+			else:
 				get_viewport().set_input_as_handled()
+				_line_advance_requested = true
 				_waiting_for_chat_click = false
+				_cancel_active_line_audio()
 				_chat_click_proceed.emit()
-				print("[Debug] _chat_click_proceed signal emitted")
+
+func _cancel_active_line_audio() -> void:
+	_active_line_tts_text = ""
+	if is_instance_valid(audio_player) and audio_player.playing:
+		audio_player.stop()
 
 func _gui_input(event: InputEvent) -> void:
 	pass
@@ -1635,7 +1651,7 @@ var pending_status_changes = []
 func _request_ai_response(text: String, is_system_event: bool) -> void:
 	if not is_system_event:
 		# Save player message
-		GameDataManager.history.add_message("我", text, "", "story_chat")
+		GameDataManager.history.add_message("我", text, "", "story_chat", {"subtype": conversation_subtype})
 		
 	# Clear the flag for playback finish
 	is_text_playback_finished = false
@@ -1695,10 +1711,12 @@ func _on_chat_response(response: Dictionary) -> void:
 		# 当流式接收彻底完毕时，因为此时历史记录中还没有保存AI刚刚说的这句话，我们需要手动将它传给选项生成器
 		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit:
 			var ai_reply = deepseek_client.get_chat_stream_full_text()
-			deepseek_client.send_options_generation(ai_reply, free_chat_strategy if is_free_chat_mode else "")
+			deepseek_client.send_options_generation(ai_reply, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
 			
 			# 触发记忆提取
-			var messages = GameDataManager.history.get_messages_by_type("story_chat")
+			var messages = GameDataManager.history.get_messages_by_type("story_chat").filter(func(message: Dictionary) -> bool:
+				return str(message.get("subtype", "")) == conversation_subtype
+			)
 			if messages.size() > 0:
 				var last_msg = messages[messages.size() - 1]
 				if last_msg["speaker"] == "我" and GameDataManager.memory_manager.add_turn():
@@ -1712,10 +1730,12 @@ func _on_chat_response(response: Dictionary) -> void:
 		
 		# 非流式模式下，收到完整回复后也立刻提前触发选项生成，并手动传入最新回复
 		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit:
-			deepseek_client.send_options_generation(reply, free_chat_strategy if is_free_chat_mode else "")
+			deepseek_client.send_options_generation(reply, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
 			
 			# 触发记忆提取
-			var messages = GameDataManager.history.get_messages_by_type("story_chat")
+			var messages = GameDataManager.history.get_messages_by_type("story_chat").filter(func(message: Dictionary) -> bool:
+				return str(message.get("subtype", "")) == conversation_subtype
+			)
 			if messages.size() > 0:
 				var last_msg = messages[messages.size() - 1]
 				if last_msg["speaker"] == "我" and GameDataManager.memory_manager.add_turn():
@@ -1835,7 +1855,56 @@ func _on_memory_error(error_msg: String) -> void:
 
 var pending_options_data = []
 var _rendered_quick_options: Array = []
+var _story_choice_options: Array = []
+var _story_choice_active: bool = false
 var is_text_playback_finished = true
+
+func _on_script_choice_requested(options: Array) -> void:
+	_story_choice_options = QuickOptionListHelper.normalize_dialogue_choice_options(options)
+	if _story_choice_options.is_empty():
+		script_engine.resume()
+		return
+	_story_choice_active = true
+	if input_layer:
+		input_layer.hide()
+	if quick_options_container and quick_options_container.get_parent():
+		quick_options_container.get_parent().show()
+	QuickOptionListHelper.populate_option_items_with_index(
+		quick_options_container,
+		_story_choice_options,
+		_on_story_choice_selected,
+		74.0
+	)
+
+func _on_story_choice_selected(_text: String, index: int = -1) -> void:
+	if not _story_choice_active or index < 0 or index >= _story_choice_options.size():
+		return
+	_story_choice_active = false
+	var option_data := _story_choice_options[index] as Dictionary
+	var effects: Dictionary = option_data.get("effects", {})
+	var intimacy_delta := clampf(float(effects.get("intimacy", 0.0)), 0.0, 10.0)
+	var trust_delta := clampf(float(effects.get("trust", 0.0)), 0.0, 10.0)
+	if intimacy_delta > 0.0:
+		GameDataManager.profile.update_intimacy(intimacy_delta)
+		ToastManager.show_stat_toast("intimacy", "亲密 +%.1f" % intimacy_delta)
+	if trust_delta > 0.0:
+		GameDataManager.profile.update_trust(trust_delta)
+		ToastManager.show_stat_toast("trust", "信任 +%.1f" % trust_delta)
+	GameDataManager.profile.save_profile()
+	var response_text := str(option_data.get("response", option_data.get("text", ""))).strip_edges()
+	QuickOptionListHelper.clear_container(quick_options_container)
+	if quick_options_container and quick_options_container.get_parent():
+		quick_options_container.get_parent().hide()
+	_story_choice_options.clear()
+	if response_text != "":
+		await _show_message_async(response_text, "我", true)
+	var target_chapter := str(option_data.get("target_chapter", "")).strip_edges()
+	if target_chapter.is_empty():
+		script_engine.resume()
+	else:
+		script_engine.is_waiting_for_resume = false
+		script_engine.jump_to_chapter(target_chapter)
+		script_engine.call("_process_next_event")
 
 func _on_options_response(response: Dictionary) -> void:
 	if response.has("choices") and response["choices"].size() > 0:
@@ -1879,6 +1948,8 @@ func _on_options_error(error_msg: String) -> void:
 	print("Options Agent Failed: ", error_msg)
 
 func _populate_quick_options(options: Array) -> void:
+	if quick_options_container and quick_options_container.get_parent():
+		quick_options_container.get_parent().show()
 	_rendered_quick_options = QuickOptionListHelper.normalize_dialogue_choice_options(options)
 	QuickOptionListHelper.populate_option_items_with_index(
 		quick_options_container,
@@ -2181,11 +2252,21 @@ func _async_analyze_and_update_mood(line: String) -> void:
 func _process_single_message_line_async(raw_line: String, char_name: String) -> void:
 	var regex = RegEx.new()
 	regex.compile("(?i)(?:<|\\<|《|\\[|【)\\s*(mood|心情)\\s*[:：]\\s*([^>\\>》\\]】]+)\\s*(?:>|\\>|》|\\]|】)")
+	var voice_regex = RegEx.new()
+	voice_regex.compile("(?i)(?:<|\\<|《|\\[|【)\\s*(voice|语音指令)\\s*[:：]\\s*([^>\\>》\\]】]+)\\s*(?:>|\\>|》|\\]|】)")
 	
 	var clean_text = raw_line
 	var matches = regex.search_all(raw_line)
+	var tts_expression: String = ""
 	for m in matches:
+		if tts_expression.is_empty():
+			tts_expression = m.get_string(2).strip_edges()
 		clean_text = clean_text.replace(m.get_string(0), "")
+	var voice_instruction: String = ""
+	var voice_match = voice_regex.search(raw_line)
+	if voice_match:
+		voice_instruction = voice_match.get_string(2).strip_edges()
+		clean_text = clean_text.replace(voice_match.get_string(0), "")
 			
 	var any_tag_regex = RegEx.new()
 	any_tag_regex.compile("(?i)(?:<|\\<|《|\\[|【)[^>\\>》\\]】]*?[:：][^>\\>》\\]】]*?(?:>|\\>|》|\\]|】)")
@@ -2194,31 +2275,15 @@ func _process_single_message_line_async(raw_line: String, char_name: String) -> 
 		
 	clean_text = clean_text.strip_edges()
 	
-	# 强制清理：只保留最开头的一个动作描述，移除其余所有动作描述
-	var extract_regex = RegEx.new()
-	extract_regex.compile("（.*?）|\\(.*?\\)")
-	var extract_matches = extract_regex.search_all(clean_text)
-	if extract_matches.size() > 0:
-		var first_action = extract_matches[0].get_string()
-		var no_action_text = extract_regex.sub(clean_text, "", true).strip_edges()
-		clean_text = first_action + " " + no_action_text
-	
 	var tts_text = ChatSplitHelper.strip_parentheses(clean_text)
+	var display_text = ChatSplitHelperScript.format_leading_action(clean_text)
 	
-	var display_text = clean_text
-	var color_regex_zh = RegEx.new()
-	color_regex_zh.compile("（(.*?)）")
-	display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
-	var color_regex_en = RegEx.new()
-	color_regex_en.compile("\\((.*?)\\)")
-	display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
-	
-	await _show_message_async(display_text, char_name, false, tts_text)
+	await _show_message_async(display_text, char_name, false, tts_text, tts_expression, voice_instruction)
 
 func _show_message(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "") -> void:
 	_show_message_async(text, speaker_name, is_restore, tts_text)
 
-func _show_message_async(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "") -> void:
+func _show_message_async(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "", tts_expression: String = "", voice_instruction: String = "") -> void:
 	if speaker_name == "":
 		speaker_name = GameDataManager.profile.char_name
 		
@@ -2239,6 +2304,8 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	dialogue_text.bbcode_enabled = true
 	dialogue_text.text = text
 	dialogue_text.visible_ratio = 0.0
+	_line_text_complete = false
+	_line_advance_requested = false
 	
 	# 简单的打字机效果
 	if _typewriter_tween:
@@ -2250,6 +2317,7 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	
 	var cache_key = ""
 	var is_tts_started = false
+	_active_line_tts_text = ""
 	
 	# 触发TTS语音合成 (仅对 角色 发声)，如果是恢复记录则不发声
 	# 在固定剧情模式下，判断 speaker_name 是不是玩家或旁白，都不是的话说明是配音角色，也可以发声
@@ -2270,6 +2338,7 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		regex.compile("[a-zA-Z0-9\u4e00-\u9fa5]")
 		if regex.search(text_to_speak) != null:
 			is_tts_started = true
+			_active_line_tts_text = text_to_speak.strip_edges()
 			
 			# 如果是固定剧情的配音，优先尝试用 speaker_name 作为角色 ID 查找音色
 			# 否则使用当前全局角色的音色
@@ -2280,16 +2349,17 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 			var options = {}
 			if GameDataManager.config.tts_character_speakers.has(char_id):
 				options["speaker"] = GameDataManager.config.tts_character_speakers[char_id]
+			options.merge(TTSManager.build_tts_2_instruction_options(voice_instruction, tts_expression), true)
 				
 			cache_key = TTSManager.get_cache_key(text_to_speak, options)
 			TTSManager.synthesize(text_to_speak, options)
 		
 	# 保存记录到历史管理器 (只有在非恢复模式时保存)
 	if not is_restore:
-		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat")
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat", {"subtype": conversation_subtype})
 	elif _intro_playing and text != "":
 		# 因为 _intro_playing 调用时是 is_restore=true 专门为了避开 normal 的保存
-		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story")
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story", {"subtype": "fixed_story"})
 
 	# 等待打字机效果完成
 	if is_inside_tree():
@@ -2302,40 +2372,45 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	# If we killed the tween, make sure the text is fully shown
 	dialogue_text.visible_ratio = 1.0
 	dialogue_text.visible_characters = -1
+	_line_text_complete = true
 	
-	# For regular AI chat, disable click to skip and auto-play
-	if not _intro_playing:
-		_waiting_for_chat_click = false
-	else:
+	if _line_advance_requested:
+		_cancel_active_line_audio()
+	elif _intro_playing:
 		_intro_waiting_for_click = true
+	else:
+		_waiting_for_chat_click = true
 	
 	# Wait for TTS if playing
-	if is_tts_started and is_inside_tree():
+	if is_tts_started and is_inside_tree() and not _line_advance_requested:
 		var wait_count = 0
 		while not audio_player.playing and wait_count < 10:
-			if _intro_playing and not _intro_waiting_for_click:
+			if (_intro_playing and not _intro_waiting_for_click) or (not _intro_playing and not _waiting_for_chat_click):
 				break
 			await get_tree().create_timer(0.05).timeout
 			wait_count += 1
 			
 		wait_count = 0
-		var max_wait_count = 1200 if _intro_playing else 24
+		var max_wait_count = 1200
 		while audio_player.playing and is_inside_tree() and wait_count < max_wait_count:
-			if _intro_playing and not _intro_waiting_for_click:
-				audio_player.stop()
+			if (_intro_playing and not _intro_waiting_for_click) or (not _intro_playing and not _waiting_for_chat_click):
+				_cancel_active_line_audio()
 				break
 			await get_tree().create_timer(0.05).timeout
 			wait_count += 1
 			
-	if _intro_playing:
+	if _line_advance_requested:
+		pass
+	elif _intro_playing:
 		if is_inside_tree() and _intro_waiting_for_click:
 			await _intro_click_proceed
 	else:
-		if is_inside_tree():
-			await get_tree().create_timer(1.0).timeout
+		if is_inside_tree() and _waiting_for_chat_click:
+			await _chat_click_proceed
+	_active_line_tts_text = ""
 
 func _on_tts_success(audio_stream: AudioStream, text: String) -> void:
-	if audio_player:
+	if audio_player and text.strip_edges() == _active_line_tts_text:
 		audio_player.stream = audio_stream
 		audio_player.play()
 

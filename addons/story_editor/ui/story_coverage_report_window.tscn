@@ -1,0 +1,65 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_coverage_report_window.gd" id="1_script"]
+
+[node name="StoryCoverageReportWindow" type="Window"]
+title = "剧情覆盖率与资源使用报告"
+initial_position = 0
+size = Vector2i(1180, 740)
+min_size = Vector2i(800, 540)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "剧情覆盖率与资源使用"
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "尚未生成"
+[node name="IncludeDynamic" type="CheckButton" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "合并运行时"
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷新"
+[node name="Tabs" type="TabContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+[node name="CoverageTree" type="Tree" parent="Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 5
+column_titles_visible = true
+hide_root = true
+[node name="ResourceTree" type="Tree" parent="Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 4
+column_titles_visible = true
+hide_root = true
+[node name="DiagnosticsTree" type="Tree" parent="Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 4
+column_titles_visible = true
+hide_root = true

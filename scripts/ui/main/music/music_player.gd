@@ -368,7 +368,7 @@ func _on_volume_hide_timer_timeout() -> void:
 
 func _on_volume_slider_changed(value: float) -> void:
 	GameDataManager.config.bgm_volume = value
-	GameDataManager.config.apply_settings()
+	GameDataManager.config.apply_runtime_settings()
 	_update_volume_icon(value)
 
 func _update_volume_icon(value: float) -> void:

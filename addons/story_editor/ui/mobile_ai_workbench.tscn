@@ -1,0 +1,272 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/mobile_ai_workbench.gd" id="1_script"]
+
+[node name="MobileAIWorkbench" type="Window"]
+title = "手机 AI 交互测试台"
+initial_position = 1
+size = Vector2i(1360, 820)
+min_size = Vector2i(1040, 650)
+visible = false
+wrap_controls = true
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Toolbar" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Toolbar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "手机 AI 交互测试台"
+
+[node name="Safety" type="Label" parent="Root/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.45, 0.85, 0.69, 1)
+text = "离线预览 · 不请求 API · 不写角色存档"
+horizontal_alignment = 1
+
+[node name="PreviewButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "构建并审核"
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 430
+
+[node name="InputScroll" type="ScrollContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Inputs" type="VBoxContainer" parent="Root/Body/InputScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ModeTitle" type="Label" parent="Root/Body/InputScroll/Inputs"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "1  交互模式"
+
+[node name="ModeSelect" type="OptionButton" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 3
+selected = 0
+popup/item_0/text = "自由文字消息"
+popup/item_0/id = 0
+popup/item_0/metadata = "text"
+popup/item_1/text = "AI 通话首句"
+popup/item_1/id = 1
+popup/item_1/metadata = "call_proactive"
+popup/item_2/text = "AI 通话后续"
+popup/item_2/id = 2
+popup/item_2/metadata = "call_followup"
+
+[node name="ContextTitle" type="Label" parent="Root/Body/InputScroll/Inputs"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "2  角色与关系上下文"
+
+[node name="ContextGrid" type="GridContainer" parent="Root/Body/InputScroll/Inputs"]
+layout_mode = 2
+columns = 2
+
+[node name="CharacterLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "角色"
+[node name="CharacterSelect" type="OptionButton" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="PlayerLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "玩家称呼"
+[node name="PlayerEdit" type="LineEdit" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "老师"
+[node name="StageLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "关系阶段"
+[node name="StageSpin" type="SpinBox" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+value = 1.0
+[node name="IntimacyLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "亲密度"
+[node name="IntimacySpin" type="SpinBox" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 9999.0
+value = 20.0
+[node name="TrustLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "信任度"
+[node name="TrustSpin" type="SpinBox" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 9999.0
+value = 20.0
+[node name="FlavorLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "情感风味"
+[node name="FlavorEdit" type="LineEdit" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "逐渐熟悉"
+[node name="TimeLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "剧情时间"
+[node name="TimeEdit" type="LineEdit" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2026年7月16日 星期四，下午，时间：15:00"
+[node name="MoodLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "当前心情"
+[node name="MoodEdit" type="LineEdit" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "平静"
+[node name="LocationLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "测试地点补充"
+[node name="LocationEdit" type="LineEdit" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "生产 Prompt 默认没有独立地点字段"
+[node name="StyleLabel" type="Label" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+layout_mode = 2
+text = "回复节奏"
+[node name="StyleSelect" type="OptionButton" parent="Root/Body/InputScroll/Inputs/ContextGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 2
+selected = 0
+popup/item_0/text = "单段手机回复"
+popup/item_0/id = 0
+popup/item_1/text = "双段手机连续"
+popup/item_1/id = 1
+
+[node name="MemoryLabel" type="Label" parent="Root/Body/InputScroll/Inputs"]
+layout_mode = 2
+text = "测试记忆"
+[node name="MemoryEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+placeholder_text = "仅注入本次预览，不读取或写入角色记忆"
+wrap_mode = 1
+
+[node name="HistoryTitle" type="Label" parent="Root/Body/InputScroll/Inputs"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "3  内存历史与玩家输入"
+[node name="PlayerTextEdit" type="LineEdit" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "今天练琴还顺利吗？"
+placeholder_text = "本轮玩家消息"
+[node name="HistoryEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+text = "[\n    {\"speaker\": \"player\", \"text\": \"在忙吗？\"},\n    {\"speaker\": \"char\", \"text\": \"刚练完一遍曲子。\"}\n]"
+wrap_mode = 1
+
+[node name="ResponseTitle" type="Label" parent="Root/Body/InputScroll/Inputs"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "4  原始响应"
+[node name="ResponseEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+text = "{\n    \"choices\": [{\n        \"message\": {\"content\": \"刚练完，有一点累。[SPLIT]不过比昨天顺多了。\"}\n    }]\n}"
+wrap_mode = 1
+
+[node name="Results" type="VBoxContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="StatusLabel" type="Label" parent="Root/Body/Results"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.85, 0.69, 1)
+text = "等待构建预览"
+
+[node name="NetworkControls" type="HFlowContainer" parent="Root/Body/Results"]
+layout_mode = 2
+
+[node name="NetworkWarning" type="Label" parent="Root/Body/Results/NetworkControls"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.72, 0.28, 1)
+text = "显式联网操作 · 会消耗 API 配额 · 不写角色存档"
+
+[node name="RealRequestButton" type="Button" parent="Root/Body/Results/NetworkControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "发送真实请求"
+
+[node name="CancelRequestButton" type="Button" parent="Root/Body/Results/NetworkControls"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "取消请求"
+
+[node name="ResultTabs" type="TabContainer" parent="Root/Body/Results"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="最终Prompt" type="TextEdit" parent="Root/Body/Results/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="请求Messages" type="TextEdit" parent="Root/Body/Results/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="请求元数据" type="TextEdit" parent="Root/Body/Results/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+text = "{\n    \"status\": \"offline\",\n    \"note\": \"尚未执行真实请求\"\n}"
+wrap_mode = 1
+
+[node name="清洗结果" type="TextEdit" parent="Root/Body/Results/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="审核诊断" type="Tree" parent="Root/Body/Results/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+column_titles_visible = true
+hide_root = true

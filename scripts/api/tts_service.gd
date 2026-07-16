@@ -181,6 +181,14 @@ func _build_request_options(text: String, options: Dictionary) -> Dictionary:
 		merged["model"] = str(options.get("model", "")).strip_edges()
 	if options.has("ssml"):
 		merged["ssml"] = str(options.get("ssml", "")).strip_edges()
+	if options.has("context_texts") and options.get("context_texts", null) is Array:
+		var context_texts: Array[String] = []
+		for entry in options.get("context_texts", []):
+			var instruction: String = str(entry).strip_edges()
+			if not instruction.is_empty() and instruction.length() <= 120 and context_texts.size() < 2:
+				context_texts.append(instruction)
+		if not context_texts.is_empty():
+			merged["context_texts"] = context_texts
 	if options.has("additions") and options.get("additions", null) is Dictionary:
 		merged["additions"] = (options.get("additions", {}) as Dictionary).duplicate(true)
 	return merged
@@ -220,12 +228,14 @@ func _build_request_body(options: Dictionary) -> Dictionary:
 	if format_id == "mp3":
 		(req_params["audio_params"] as Dictionary)["bit_rate"] = int(options.get("bit_rate", DEFAULT_BIT_RATE))
 	var additions: Dictionary = (options.get("additions", {}) as Dictionary).duplicate(true) if options.get("additions", null) is Dictionary else {}
+	if options.has("context_texts") and options.get("context_texts", null) is Array:
+		additions["context_texts"] = (options.get("context_texts", []) as Array).duplicate()
 	if not additions.is_empty():
-		req_params["additions"] = additions
+		req_params["additions"] = JSON.stringify(additions)
 	return {"req_params": req_params}
 
 func _build_official_request_body(options: Dictionary) -> Dictionary:
-	return {
+	var request_body: Dictionary = {
 		"text": str(options.get("text", "")).strip_edges(),
 		"speaker": str(options.get("speaker", "")).strip_edges(),
 		"audio_format": str(options.get("audio_format", DEFAULT_AUDIO_FORMAT)).strip_edges(),
@@ -235,6 +245,9 @@ func _build_official_request_body(options: Dictionary) -> Dictionary:
 		"loudness_rate": int(options.get("loudness_rate", DEFAULT_LOUDNESS_RATE)),
 		"enable_subtitle": bool(options.get("enable_subtitle", false))
 	}
+	if options.has("context_texts") and options.get("context_texts", null) is Array:
+		request_body["context_texts"] = (options.get("context_texts", []) as Array).duplicate()
+	return request_body
 
 func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	if _active_request.is_empty():
@@ -434,6 +447,8 @@ func _build_http_error_message(response_code: int, body: PackedByteArray, log_id
 	var remote_message: String = str(parsed_error.get("message", parsed_error.get("msg", ""))).strip_edges()
 	if remote_message.is_empty():
 		remote_message = str(parsed_error.get("error", "")).strip_edges()
+	if remote_message.is_empty():
+		remote_message = str(parsed_error.get("detail", "")).strip_edges()
 	match response_code:
 		400:
 			return "TTS 请求参数错误：%s%s" % [remote_message if not remote_message.is_empty() else "请检查文本、音色和音频参数。", suffix]
@@ -640,6 +655,8 @@ func _is_legacy_speaker_id(speaker_id: String) -> bool:
 	if normalized.begins_with("S_"):
 		return false
 	if normalized.find("_uranus_bigtts") >= 0 or normalized.find("_saturn_bigtts") >= 0:
+		return false
+	if normalized.begins_with("ICL_uranus_") and normalized.ends_with("_tob"):
 		return false
 	if normalized.begins_with("ICL_"):
 		return true

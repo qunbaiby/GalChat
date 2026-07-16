@@ -873,6 +873,15 @@ func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
 		_last_processed_course_index = max(_last_processed_course_index, course_index)
 		_finish_slot_move()
 		return
+	var debug_bridge := get_node_or_null("/root/StoryRuntimeDebugBridge")
+	if debug_bridge != null:
+		debug_bridge.prepare_story("story_time", str(story_entry.get("event_id", script_path.get_file().get_basename())), script_path, {
+			"period": str(story_entry.get("period", "")),
+			"course_index": course_index,
+			"day_offset": _schedule_start_day_offset + course_index,
+			"day_label": _get_day_label(course_index),
+			"course_id": str(course_data.get("id", ""))
+		})
 		
 	# 实例化故事场景作为子节点
 	# 黑屏过渡

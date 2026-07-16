@@ -285,6 +285,12 @@ def test_admin_console_page_is_public_but_api_requires_admin_token(tmp_path):
         unauthorized = client.get("/admin/api/overview")
     assert page.status_code == 200
     assert "GalChat" in page.text
+    assert "官方能力配置" in page.text
+    assert 'api("/admin/api/capability-providers")' in page.text
+    assert "Promise.allSettled" in page.text
+    assert "usageCapabilityFilter" in page.text
+    assert "accountQueryInput" in page.text
+    assert "data-usage-sort" in page.text
     assert unauthorized.status_code == 401
 
 
@@ -298,6 +304,44 @@ def test_admin_api_returns_overview_without_provider_secret(tmp_path):
     assert payload["provider_configured"] is True
     assert payload["users"] == 1
     assert "test-provider-key" not in response.text
+
+
+def test_admin_lists_support_server_side_filtering_sorting_and_pagination(tmp_path):
+    module = load_app(tmp_path)
+    headers = {"Authorization": "Bearer test-admin-token-with-at-least-32-characters"}
+    module.storage.record_usage_event("usr_filter_alpha", "tts", "provider_error", 40, "503", 2)
+    module.storage.record_usage_event("usr_filter_beta", "tts", "succeeded", 10, "200", 1)
+    module.storage.record_usage_event("usr_filter_alpha", "chat", "succeeded", 5, "200", 3)
+
+    with TestClient(module.app) as client:
+        usage = client.get(
+            "/admin/api/usage-events",
+            headers=headers,
+            params={
+                "limit": 10,
+                "offset": 0,
+                "capability": "tts",
+                "event_status": "provider_error",
+                "user_query": "filter_alpha",
+                "sort_by": "latency_ms",
+                "sort_order": "desc",
+            },
+        )
+        users = client.get(
+            "/admin/api/users",
+            headers=headers,
+            params={"query": "galchat_test", "sort_by": "username", "sort_order": "asc"},
+        )
+
+    assert usage.status_code == 200
+    assert usage.json()["total"] == 1
+    assert usage.json()["items"][0]["capability"] == "tts"
+    assert usage.json()["items"][0]["status"] == "provider_error"
+    assert usage.json()["sort_by"] == "latency_ms"
+    assert users.status_code == 200
+    assert users.json()["total"] == 1
+    assert users.json()["items"][0]["username"] == "galchat_test"
+    assert users.json()["sort_order"] == "asc"
 
 
 def test_admin_user_list_masks_email_and_rejects_player_token(tmp_path):
@@ -745,6 +789,10 @@ def test_official_tts_injects_server_config_and_returns_audio(tmp_path):
         assert body["req_params"]["speaker"] == "S_voice_001"
         assert body["req_params"]["model"] == "seed-tts-model"
         assert body["req_params"]["audio_params"]["format"] == "mp3"
+        additions = __import__("json").loads(body["req_params"]["additions"])
+        assert additions == {
+            "context_texts": ["请用略带担心但克制的语气说话，保持原本声线和音高。"]
+        }
         return httpx.Response(
             200,
             content=b"ID3\x04mock-audio",
@@ -756,7 +804,12 @@ def test_official_tts_injects_server_config_and_returns_audio(tmp_path):
         response = client.post(
             "/v1/game/tts/speech",
             headers={"Authorization": "Bearer test-player-token"},
-            json={"text": "hello", "speaker": "S_voice_001", "audio_format": "mp3"},
+            json={
+                "text": "hello",
+                "speaker": "S_voice_001",
+                "audio_format": "mp3",
+                "context_texts": ["请用略带担心但克制的语气说话，保持原本声线和音高。"],
+            },
         )
 
     assert response.status_code == 200
@@ -783,6 +836,31 @@ def test_official_tts_rejects_unconfigured_provider_and_extra_fields(tmp_path):
 
     assert unconfigured.status_code == 503
     assert injected.status_code == 422
+
+
+def test_official_tts_does_not_forward_resource_id_as_model(tmp_path):
+    module = load_app(tmp_path)
+    module.settings.capability_providers["tts"] = {
+        "api_key": "server-tts-secret",
+        "base_url": "https://tts.example/v3/speech",
+        "model": "seed-tts-2.0",
+        "resource_id": "seed-tts-2.0",
+    }
+
+    def provider_response(request: httpx.Request) -> httpx.Response:
+        body = __import__("json").loads(request.content)
+        assert "model" not in body["req_params"]
+        return httpx.Response(200, content=b"ID3\x04mock-audio", headers={"Content-Type": "audio/mpeg"})
+
+    with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(transport=httpx.MockTransport(provider_response))
+        response = client.post(
+            "/v1/game/tts/speech",
+            headers={"Authorization": "Bearer test-player-token"},
+            json={"text": "hello", "speaker": "S_voice_001"},
+        )
+
+    assert response.status_code == 200
 
 
 def test_official_tts_maps_provider_timeout(tmp_path):

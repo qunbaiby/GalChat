@@ -1,0 +1,249 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_reference_catalog_window.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_event_condition_row.tscn" id="2_condition_row"]
+
+[node name="StoryReferenceCatalogWindow" type="Window"]
+title = "剧情入口与反向引用"
+initial_position = 0
+size = Vector2i(1180, 760)
+min_size = Vector2i(820, 520)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "剧情入口与反向引用"
+
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "正在扫描入口..."
+horizontal_alignment = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重新扫描"
+
+[node name="UndoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "撤销 Event Registry 编辑"
+text = "↶"
+
+[node name="RedoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "重做 Event Registry 编辑"
+text = "↷"
+
+[node name="SaveButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "保存 Registry"
+
+[node name="Hint" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.7, 0.74, 1)
+text = "只读分析 Event Registry、Guide Flow、剧情日程与地图定时入口；目标聚合区用于定位同一剧情的全部入口。"
+autowrap_mode = 2
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 390
+
+[node name="ReferenceTree" type="Tree" parent="Root/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+columns = 2
+column_titles_visible = true
+hide_root = true
+
+[node name="Details" type="VBoxContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="DetailsScroll" type="ScrollContainer" parent="Root/Body/Details"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Root/Body/Details/DetailsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="SelectionTitle" type="Label" parent="Root/Body/Details/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "尚未选择入口"
+
+[node name="Metadata" type="GridContainer" parent="Root/Body/Details/DetailsScroll/Content"]
+layout_mode = 2
+columns = 2
+
+[node name="SourceLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/Metadata"]
+layout_mode = 2
+text = "来源"
+
+[node name="SourceValue" type="LineEdit" parent="Root/Body/Details/DetailsScroll/Content/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="LocationLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/Metadata"]
+layout_mode = 2
+text = "位置"
+
+[node name="LocationValue" type="LineEdit" parent="Root/Body/Details/DetailsScroll/Content/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+
+[node name="TargetLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/Metadata"]
+layout_mode = 2
+text = "目标剧情"
+
+[node name="TargetValue" type="LineEdit" parent="Root/Body/Details/DetailsScroll/Content/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+
+[node name="ConditionsTitle" type="Label" parent="Root/Body/Details/DetailsScroll/Content"]
+layout_mode = 2
+text = "触发条件"
+
+[node name="ConditionsValue" type="TextEdit" parent="Root/Body/Details/DetailsScroll/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 105)
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="EventEditor" type="VBoxContainer" parent="Root/Body/Details/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Metadata" type="GridContainer" parent="Root/Body/Details/DetailsScroll/Content/EventEditor"]
+layout_mode = 2
+columns = 2
+
+[node name="EventIdLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+layout_mode = 2
+text = "事件 ID"
+
+[node name="EventIdEdit" type="LineEdit" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EventTypeLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+layout_mode = 2
+text = "触发类型"
+
+[node name="EventTypeSelect" type="OptionButton" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TargetEditLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+layout_mode = 2
+text = "目标剧情"
+
+[node name="TargetPathEdit" type="LineEdit" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RepeatableLabel" type="Label" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+layout_mode = 2
+text = "可重复触发"
+
+[node name="RepeatableCheck" type="CheckBox" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ConditionsToolbar" type="HFlowContainer" parent="Root/Body/Details/DetailsScroll/Content/EventEditor"]
+layout_mode = 2
+
+[node name="EditorConditionsTitle" type="Label" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/ConditionsToolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Event Registry 条件"
+
+[node name="AddConditionButton" type="Button" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/ConditionsToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新增条件"
+
+[node name="ApplyEventButton" type="Button" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/ConditionsToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用修改"
+
+[node name="ConditionsScroll" type="ScrollContainer" parent="Root/Body/Details/DetailsScroll/Content/EventEditor"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="ConditionRows" type="VBoxContainer" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/ConditionsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="ConditionRowPrototype" parent="Root/Body/Details/DetailsScroll/Content/EventEditor/ConditionsScroll/ConditionRows" instance=ExtResource("2_condition_row")]
+visible = false
+
+[node name="BacklinksTitle" type="Label" parent="Root/Body/Details/DetailsScroll/Content"]
+layout_mode = 2
+text = "同一目标的全部入口"
+
+[node name="BacklinksTree" type="Tree" parent="Root/Body/Details/DetailsScroll/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_vertical = 3
+columns = 3
+column_titles_visible = true
+hide_root = true
+
+[node name="DiagnosticsTitle" type="Label" parent="Root"]
+layout_mode = 2
+text = "全局诊断"
+
+[node name="DiagnosticsTree" type="Tree" parent="Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+columns = 3
+column_titles_visible = true
+hide_root = true

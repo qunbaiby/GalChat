@@ -1,0 +1,501 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/date_ai_workbench.gd" id="1_script"]
+
+[node name="DateAIWorkbench" type="Window"]
+title = "AI 约会工作台"
+initial_position = 1
+size = Vector2i(1280, 760)
+min_size = Vector2i(980, 620)
+visible = false
+wrap_controls = true
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Toolbar" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/Toolbar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "AI 约会工作台"
+
+[node name="StatusLabel" type="Label" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "先选择模板，再调整本次约会参数。"
+horizontal_alignment = 1
+
+[node name="SaveTemplateButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "保存模板"
+
+[node name="PreviewButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "预览并审核"
+
+[node name="BatchAnalyzeButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "分析批量响应的重复度并排序"
+text = "审核候选"
+
+[node name="WorkflowBar" type="PanelContainer" parent="Root"]
+layout_mode = 2
+
+[node name="WorkflowSteps" type="HFlowContainer" parent="Root/WorkflowBar"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Step1" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.85, 0.69, 1)
+text = "1  选择模板与参数"
+
+[node name="Arrow1" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+text = ">"
+
+[node name="Step2" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+text = "2  生成候选"
+
+[node name="Arrow2" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+text = ">"
+
+[node name="Step3" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+text = "3  审核与比较"
+
+[node name="Arrow3" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+text = ">"
+
+[node name="Step4" type="Label" parent="Root/WorkflowBar/WorkflowSteps"]
+layout_mode = 2
+text = "4  保存可复用模板"
+
+[node name="QueueBar" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="QueueStepLabel" type="Label" parent="Root/QueueBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.4, 1)
+text = "真实 AI 请求"
+
+[node name="CountLabel" type="Label" parent="Root/QueueBar"]
+layout_mode = 2
+text = "生成数量"
+
+[node name="GenerationCountSpin" type="SpinBox" parent="Root/QueueBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+min_value = 1.0
+max_value = 20.0
+value = 3.0
+
+[node name="RetryLabel" type="Label" parent="Root/QueueBar"]
+layout_mode = 2
+text = "失败重试"
+
+[node name="RetrySpin" type="SpinBox" parent="Root/QueueBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+max_value = 3.0
+value = 1.0
+
+[node name="StartGenerationButton" type="Button" parent="Root/QueueBar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "使用当前 AI 配置逐个生成响应，会产生真实 API 请求"
+text = "生成候选"
+
+[node name="PauseGenerationButton" type="Button" parent="Root/QueueBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "暂停"
+
+[node name="CancelGenerationButton" type="Button" parent="Root/QueueBar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "取消"
+
+[node name="QueueStatusLabel" type="Label" parent="Root/QueueBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "队列未启动"
+horizontal_alignment = 2
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 250
+
+[node name="TemplatePanel" type="VBoxContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+
+[node name="TemplateHeader" type="HFlowContainer" parent="Root/Body/TemplatePanel"]
+layout_mode = 2
+
+[node name="TemplateTitle" type="Label" parent="Root/Body/TemplatePanel/TemplateHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "1  约会模板"
+
+[node name="CreateTemplateButton" type="Button" parent="Root/Body/TemplatePanel/TemplateHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "创建新的通用类型模板或地点专属模板"
+text = "+  新建"
+
+[node name="TemplateSummary" type="Label" parent="Root/Body/TemplatePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "选择模板后显示用途和约束"
+autowrap_mode = 2
+
+[node name="TemplateSearch" type="LineEdit" parent="Root/Body/TemplatePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "搜索模板 / 地点 / 类型"
+clear_button_enabled = true
+
+[node name="TemplateList" type="ItemList" parent="Root/Body/TemplatePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InputAndResults" type="VSplitContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+split_offset = 270
+
+[node name="InputTabs" type="TabContainer" parent="Root/Body/InputAndResults"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="生成输入" type="VBoxContainer" parent="Root/Body/InputAndResults/InputTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PlanningScroll" type="ScrollContainer" parent="Root/Body/InputAndResults/InputTabs/生成输入"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlanningContent" type="VBoxContainer" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="PlanningTitle" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "本次约会设定"
+
+[node name="PlanningHint" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "先确定环境和关系边界，再填写共同任务、意外、话题和收束。"
+autowrap_mode = 2
+
+[node name="Grid" type="GridContainer" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 4
+
+[node name="LocationLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "地点 ID"
+[node name="LocationEdit" type="LineEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "sakura_avenue"
+[node name="PeriodLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "时段"
+[node name="PeriodSelect" type="OptionButton" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 3
+selected = 1
+popup/item_0/text = "上午"
+popup/item_0/id = 0
+popup/item_0/metadata = "morning"
+popup/item_1/text = "下午"
+popup/item_1/id = 1
+popup/item_1/metadata = "afternoon"
+popup/item_2/text = "夜晚"
+popup/item_2/id = 2
+popup/item_2/metadata = "evening"
+[node name="WeatherLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "天气 ID"
+[node name="WeatherEdit" type="LineEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "sunny"
+[node name="WeatherDescLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "天气描述"
+[node name="WeatherDescEdit" type="LineEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "晴天"
+[node name="StageLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "关系阶段"
+[node name="StageSpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+value = 1.0
+[node name="IntimacyLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "亲密度"
+[node name="IntimacySpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+value = 20.0
+[node name="TrustLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "信任度"
+[node name="TrustSpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+value = 20.0
+[node name="SeedLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+layout_mode = 2
+text = "创意种子"
+[node name="SeedSpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 2147483647.0
+value = 1.0
+
+[node name="CreativeGrid" type="VBoxContainer" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent"]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+[node name="TaskLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+layout_mode = 2
+text = "共同任务"
+[node name="TaskEdit" type="TextEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "一起寻找最适合留影的角度"
+wrap_mode = 1
+[node name="IncidentLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+layout_mode = 2
+text = "微小意外"
+[node name="IncidentEdit" type="TextEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "计划中出现一个需要两人临场配合的小意外"
+wrap_mode = 1
+[node name="TopicLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+layout_mode = 2
+text = "谈话主题"
+[node name="TopicEdit" type="TextEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "彼此最近才注意到的变化"
+wrap_mode = 1
+[node name="ClosingLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+layout_mode = 2
+text = "收束方式"
+[node name="ClosingEdit" type="TextEdit" parent="Root/Body/InputAndResults/InputTabs/生成输入/PlanningScroll/PlanningContent/CreativeGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "留下一个下次再继续的小约定"
+wrap_mode = 1
+
+[node name="TemplateJson" type="CodeEdit" parent="Root/Body/InputAndResults/InputTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RawJson" type="CodeEdit" parent="Root/Body/InputAndResults/InputTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BatchJson" type="CodeEdit" parent="Root/Body/InputAndResults/InputTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ResultTabs" type="TabContainer" parent="Root/Body/InputAndResults"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="QualitySummary" type="VBoxContainer" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SummaryTitle" type="Label" parent="Root/Body/InputAndResults/ResultTabs/QualitySummary"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "质量总览"
+
+[node name="SummaryState" type="Label" parent="Root/Body/InputAndResults/ResultTabs/QualitySummary"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "等待预览"
+
+[node name="SummaryMetrics" type="Label" parent="Root/Body/InputAndResults/ResultTabs/QualitySummary"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.71, 0.82, 0.86, 1)
+text = "审核错误 0 · 警告 0 · 候选 0"
+
+[node name="SummaryNextAction" type="Label" parent="Root/Body/InputAndResults/ResultTabs/QualitySummary"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "选择左侧模板并调整上方参数。"
+autowrap_mode = 2
+
+[node name="PromptPreview" type="CodeEdit" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+
+[node name="SanitizedPreview" type="CodeEdit" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+
+[node name="FallbackPreview" type="CodeEdit" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+
+[node name="AuditTree" type="Tree" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+column_titles_visible = true
+hide_root = true
+
+[node name="BatchResults" type="Tree" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 9
+column_titles_visible = true
+hide_root = true
+
+[node name="QueueResults" type="Tree" parent="Root/Body/InputAndResults/ResultTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 10
+column_titles_visible = true
+hide_root = true
+
+[node name="CreateTemplateDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "新建 AI 约会模板"
+size = Vector2i(560, 490)
+
+[node name="Form" type="VBoxContainer" parent="CreateTemplateDialog"]
+custom_minimum_size = Vector2(520, 400)
+theme_override_constants/separation = 7
+
+[node name="SourceLabel" type="Label" parent="CreateTemplateDialog/Form"]
+layout_mode = 2
+text = "模板范围"
+
+[node name="CreateTemplateSource" type="OptionButton" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 2
+popup/item_0/text = "通用约会类型"
+popup/item_0/id = 0
+popup/item_0/metadata = "type"
+popup/item_1/text = "指定地点专属"
+popup/item_1/id = 1
+popup/item_1/metadata = "location"
+
+[node name="TargetLabel" type="Label" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "所属约会类型"
+
+[node name="CreateTemplateTarget" type="OptionButton" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="IdLabel" type="Label" parent="CreateTemplateDialog/Form"]
+layout_mode = 2
+text = "模板 ID"
+
+[node name="CreateTemplateId" type="LineEdit" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "例如 stroll_evening_memory"
+
+[node name="TitleLabel" type="Label" parent="CreateTemplateDialog/Form"]
+layout_mode = 2
+text = "模板标题"
+
+[node name="CreateTemplateTitle" type="LineEdit" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "策划可读的约会标题"
+
+[node name="OutlineLabel" type="Label" parent="CreateTemplateDialog/Form"]
+layout_mode = 2
+text = "剧情大纲"
+
+[node name="CreateTemplateOutline" type="TextEdit" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+placeholder_text = "描述约会的核心体验、情绪推进和收束方式"
+wrap_mode = 1
+
+[node name="CreateTemplateError" type="Label" parent="CreateTemplateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5, 0.47, 1)
+autowrap_mode = 2

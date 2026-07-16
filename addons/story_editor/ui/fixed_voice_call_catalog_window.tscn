@@ -1,0 +1,190 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/fixed_voice_call_catalog_window.gd" id="1_script"]
+
+[node name="FixedVoiceCallCatalogWindow" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "固定来电"
+
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "正在加载资源..."
+horizontal_alignment = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重新加载"
+
+[node name="Hint" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.7, 0.74, 1)
+text = "固定来电按台词数组顺序自动播放；[SPLIT] 可在单条台词中拆分消息块，括号舞台说明不会送入 TTS。"
+autowrap_mode = 2
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 330
+
+[node name="Library" type="VBoxContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LibraryToolbar" type="HFlowContainer" parent="Root/Body/Library"]
+layout_mode = 2
+
+[node name="LibraryTitle" type="Label" parent="Root/Body/Library/LibraryToolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "通话资源"
+
+[node name="AddCallButton" type="Button" parent="Root/Body/Library/LibraryToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新增"
+
+[node name="DeleteCallButton" type="Button" parent="Root/Body/Library/LibraryToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "删除"
+
+[node name="CallTree" type="Tree" parent="Root/Body/Library"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 4
+column_titles_visible = true
+hide_root = true
+
+[node name="Editor" type="VBoxContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="EditorToolbar" type="HFlowContainer" parent="Root/Body/Editor"]
+layout_mode = 2
+
+[node name="DocumentState" type="Label" parent="Root/Body/Editor/EditorToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "尚未选择通话"
+
+[node name="UndoButton" type="Button" parent="Root/Body/Editor/EditorToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "撤销最近一次编辑"
+text = "↶"
+
+[node name="RedoButton" type="Button" parent="Root/Body/Editor/EditorToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "重做最近一次编辑"
+text = "↷"
+
+[node name="SaveButton" type="Button" parent="Root/Body/Editor/EditorToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "保存"
+
+[node name="Metadata" type="GridContainer" parent="Root/Body/Editor"]
+layout_mode = 2
+columns = 2
+
+[node name="IdLabel" type="Label" parent="Root/Body/Editor/Metadata"]
+layout_mode = 2
+text = "通话 ID"
+
+[node name="IdEdit" type="LineEdit" parent="Root/Body/Editor/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CharacterLabel" type="Label" parent="Root/Body/Editor/Metadata"]
+layout_mode = 2
+text = "来电角色"
+
+[node name="CharacterSelect" type="OptionButton" parent="Root/Body/Editor/Metadata"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ApplyMetadataButton" type="Button" parent="Root/Body/Editor"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用通话信息"
+
+[node name="LinesHeader" type="HFlowContainer" parent="Root/Body/Editor"]
+layout_mode = 2
+
+[node name="LinesTitle" type="Label" parent="Root/Body/Editor/LinesHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "通话台词"
+
+[node name="AddLineButton" type="Button" parent="Root/Body/Editor/LinesHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新增台词"
+
+[node name="ApplyLinesButton" type="Button" parent="Root/Body/Editor/LinesHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用台词修改"
+
+[node name="LinesScroll" type="ScrollContainer" parent="Root/Body/Editor"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LineRows" type="VBoxContainer" parent="Root/Body/Editor/LinesScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="DiagnosticsTitle" type="Label" parent="Root/Body/Editor"]
+layout_mode = 2
+text = "校验结果"
+
+[node name="DiagnosticsTree" type="Tree" parent="Root/Body/Editor"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+columns = 3
+column_titles_visible = true
+hide_root = true

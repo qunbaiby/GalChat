@@ -1,0 +1,254 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/guide_flow_editor_window.gd" id="1_script"]
+
+[node name="GuideFlowEditorWindow" type="Window"]
+title = "Guide Flow 编辑器"
+initial_position = 0
+size = Vector2i(1220, 780)
+min_size = Vector2i(900, 580)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Guide Flow 编辑器"
+
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "正在加载..."
+horizontal_alignment = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重新加载"
+
+[node name="UndoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "撤销最近一次 Guide 编辑"
+text = "↶"
+
+[node name="RedoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+tooltip_text = "重做最近一次 Guide 编辑"
+text = "↷"
+
+[node name="SaveButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "保存 Guide"
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 260
+
+[node name="GuidePanel" type="VBoxContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+
+[node name="GuideTitle" type="Label" parent="Root/Body/GuidePanel"]
+layout_mode = 2
+text = "Guide"
+
+[node name="GuideTree" type="Tree" parent="Root/Body/GuidePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+
+[node name="Workspace" type="HSplitContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+split_offset = 330
+
+[node name="StepPanel" type="VBoxContainer" parent="Root/Body/Workspace"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="StepToolbar" type="HFlowContainer" parent="Root/Body/Workspace/StepPanel"]
+layout_mode = 2
+
+[node name="StepTitle" type="Label" parent="Root/Body/Workspace/StepPanel/StepToolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "步骤顺序"
+
+[node name="AddStepButton" type="Button" parent="Root/Body/Workspace/StepPanel/StepToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新增"
+
+[node name="MoveUpButton" type="Button" parent="Root/Body/Workspace/StepPanel/StepToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "上移步骤"
+text = "↑"
+
+[node name="MoveDownButton" type="Button" parent="Root/Body/Workspace/StepPanel/StepToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "下移步骤"
+text = "↓"
+
+[node name="DeleteStepButton" type="Button" parent="Root/Body/Workspace/StepPanel/StepToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "删除"
+
+[node name="StepTree" type="Tree" parent="Root/Body/Workspace/StepPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 2
+column_titles_visible = true
+hide_root = true
+
+[node name="InspectorScroll" type="ScrollContainer" parent="Root/Body/Workspace"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="Inspector" type="VBoxContainer" parent="Root/Body/Workspace/InspectorScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="InspectorTitle" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "尚未选择步骤"
+
+[node name="Fields" type="GridContainer" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+layout_mode = 2
+columns = 2
+
+[node name="IdLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/Fields"]
+layout_mode = 2
+text = "步骤 ID"
+
+[node name="StepIdEdit" type="LineEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector/Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TypeLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/Fields"]
+layout_mode = 2
+text = "步骤类型"
+
+[node name="StepTypeSelect" type="OptionButton" parent="Root/Body/Workspace/InspectorScroll/Inspector/Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/Fields"]
+layout_mode = 2
+text = "标题"
+
+[node name="StepTitleEdit" type="LineEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector/Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TextLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+layout_mode = 2
+text = "显示文本"
+
+[node name="StepTextEdit" type="TextEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 105)
+layout_mode = 2
+wrap_mode = 1
+
+[node name="ActionFields" type="GridContainer" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+
+[node name="WaitActionLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/ActionFields"]
+layout_mode = 2
+text = "等待动作"
+
+[node name="WaitActionEdit" type="LineEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector/ActionFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TargetSceneLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/ActionFields"]
+layout_mode = 2
+text = "目标场景"
+
+[node name="TargetSceneEdit" type="LineEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector/ActionFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StoryFields" type="GridContainer" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+
+[node name="StoryPathLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/StoryFields"]
+layout_mode = 2
+text = "剧情路径"
+
+[node name="StoryPathEdit" type="LineEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector/StoryFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ScriptIdLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/StoryFields"]
+layout_mode = 2
+text = "Script ID"
+
+[node name="ScriptIdEdit" type="LineEdit" parent="Root/Body/Workspace/InspectorScroll/Inspector/StoryFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ReturnLabel" type="Label" parent="Root/Body/Workspace/InspectorScroll/Inspector/StoryFields"]
+layout_mode = 2
+text = "结束后回主场景"
+
+[node name="ReturnToMainCheck" type="CheckBox" parent="Root/Body/Workspace/InspectorScroll/Inspector/StoryFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ApplyStepButton" type="Button" parent="Root/Body/Workspace/InspectorScroll/Inspector"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用步骤修改"
+
+[node name="DiagnosticsTitle" type="Label" parent="Root"]
+layout_mode = 2
+text = "Guide 诊断"
+
+[node name="DiagnosticsTree" type="Tree" parent="Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+columns = 3
+column_titles_visible = true
+hide_root = true

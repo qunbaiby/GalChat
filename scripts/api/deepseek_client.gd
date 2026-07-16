@@ -41,6 +41,8 @@ signal schedule_event_resolved(result_data: Dictionary)
 signal schedule_event_resolve_error(error_msg: String)
 signal date_story_generated(script_data: Dictionary)
 signal date_story_error(error_msg: String)
+signal date_story_generated_detailed(script_data: Dictionary, metadata: Dictionary)
+signal date_story_error_detailed(error_msg: String, metadata: Dictionary)
 
 signal idle_quote_completed(quote: String)
 signal idle_quote_failed(error_msg: String)
@@ -396,7 +398,7 @@ func cancel_chat_request() -> void:
 	if chat_http and chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		chat_http.cancel_request()
 
-func send_options_generation(last_ai_reply: String = "", free_chat_strategy: String = "", history_type: String = "all") -> void:
+func send_options_generation(last_ai_reply: String = "", free_chat_strategy: String = "", history_type: String = "all", history_subtype: String = "") -> void:
 	_update_script()
 	if _is_api_key_empty():
 		return
@@ -411,6 +413,10 @@ func send_options_generation(last_ai_reply: String = "", free_chat_strategy: Str
 		
 	var history_text = ""
 	var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
+	if history_subtype != "":
+		history_msgs = history_msgs.filter(func(message: Dictionary) -> bool:
+			return str(message.get("subtype", "")) == history_subtype
+		)
 	var start_idx = max(0, history_msgs.size() - 10) # 仅取最近10条，避免长上下文导致AI转移话题
 	
 	# 提取所有包含“玩家”和角色的有效对话文本，去掉 BBCode
@@ -591,7 +597,9 @@ func _on_moment_reply_request_completed(result: int, response_code: int, _header
 func generate_date_story(context: Dictionary) -> void:
 	_update_script()
 	if _is_api_key_empty():
-		date_story_error.emit("API Key未设置")
+		var error_message := _get_missing_credentials_message()
+		date_story_error.emit(error_message)
+		date_story_error_detailed.emit(error_message, {"http_status": 0, "request_result": -1})
 		return
 	_scene_event_service.generate_date_story(self, context)
 

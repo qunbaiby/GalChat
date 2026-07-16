@@ -1,7 +1,7 @@
 {
     "script_id": "ling_concert_hall_first_meet",
     "story_location_id": "concert_hall",
-    "day_offset": 1,
+    "day_offset": 1.0,
     "story_period": "上午",
     "memory_enabled": true,
     "memory_records": [
@@ -10,7 +10,10 @@
             "layer": "bond",
             "scope": "player_shared",
             "visibility": "prompt",
-            "participants": ["player", "ling"],
+            "participants": [
+                "player",
+                "ling"
+            ],
             "player_involved": true,
             "player_witnessed": true,
             "is_bond_mark": true,
@@ -25,131 +28,235 @@
                     "type": "background",
                     "bg_id": "bg_concert_hall",
                     "transition_type": "fade",
-                    "duration": 0.4
+                    "duration": 0.4,
+                    "_editor_position": {
+                        "x": -40.0,
+                        "y": 20.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "清晨的音乐馆里空旷安静，光从高处的窗格斜斜落下来，照得地板边缘泛着一层温冷的白。比起正式上课的时候，这里更像是谁偷偷留给练习者的私人时段。"
+                    "content": "清晨的音乐馆里空旷安静，光从高处的窗格斜斜落下来，照得地板边缘泛着一层温冷的白。比起正式上课的时候，这里更像是谁偷偷留给练习者的私人时段。",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 80.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "我刚走进厅内，就听见不远处传来一小段利落的试弦声。音色清亮，带着点不服输的锋利，像是在提醒旁人，这里已经有人先到了。"
+                    "content": "我刚走进厅内，就听见不远处传来一小段利落的试弦声。音色清亮，带着点不服输的锋利，像是在提醒旁人，这里已经有人先到了。",
+                    "_editor_position": {
+                        "x": 680.0,
+                        "y": 80.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "等一下。你不是音乐系的人吧？之前没在这里见过你。"
+                    "content": "等一下。你不是音乐系的人吧？之前没在这里见过你。",
+                    "_editor_position": {
+                        "x": 980.0,
+                        "y": 80.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "说话的女孩背着小提琴盒，正站在离舞台不远的地方看着我。她眉眼清秀，神情却带着一点天然的戒备，像是已经先一步替谁把边界划好了。"
+                    "content": "说话的女孩背着小提琴盒，正站在离舞台不远的地方看着我。她眉眼清秀，神情却带着一点天然的戒备，像是已经先一步替谁把边界划好了。",
+                    "_editor_position": {
+                        "x": 80.0,
+                        "y": 270.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "player",
-                    "content": "确实不是。我是来看看Luna平时练习的地方。"
+                    "content": "确实不是。我是来看看Luna平时练习的地方。",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 270.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "……你就是她最近常提到的那位前辈？"
+                    "content": "……你就是她最近常提到的那位前辈？",
+                    "_editor_position": {
+                        "x": 680.0,
+                        "y": 270.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她把我从头到脚打量了一遍，像是在确认什么。那目光算不上失礼，却也绝不是第一次见面就会轻易放下的客气。"
+                    "content": "她把我从头到脚打量了一遍，像是在确认什么。那目光算不上失礼，却也绝不是第一次见面就会轻易放下的客气。",
+                    "_editor_position": {
+                        "x": 980.0,
+                        "y": 270.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "player",
-                    "content": "如果她提过一位在工作室指导她的人，那应该就是我。"
+                    "content": "如果她提过一位在工作室指导她的人，那应该就是我。",
+                    "_editor_position": {
+                        "x": 80.0,
+                        "y": 460.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "行吧，那就对上了。我叫铃，和Luna同级，也是她朋友。"
+                    "content": "行吧，那就对上了。我叫铃，和Luna同级，也是她朋友。",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 460.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "先说好，我不是在替她查岗。我只是见你突然出现在音乐馆，想先确认一下你是谁。"
+                    "content": "先说好，我不是在替她查岗。我只是见你突然出现在音乐馆，想先确认一下你是谁。",
+                    "_editor_position": {
+                        "x": 680.0,
+                        "y": 460.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "player",
-                    "content": "你很在意她。"
+                    "content": "你很在意她。",
+                    "_editor_position": {
+                        "x": 980.0,
+                        "y": 460.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "……这不是废话吗？她那种性子，越紧张越喜欢一个人硬撑。要是没人盯着，她能在这儿对着同一段谱子耗上一整个上午。"
+                    "content": "……这不是废话吗？她那种性子，越紧张越喜欢一个人硬撑。要是没人盯着，她能在这儿对着同一段谱子耗上一整个上午。",
+                    "_editor_position": {
+                        "x": 80.0,
+                        "y": 650.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她说这话时语速很快，像是怕慢一点就显得自己太过关心。可偏偏每个字都落在最实在的地方，半点不像随口抱怨。"
+                    "content": "她说这话时语速很快，像是怕慢一点就显得自己太过关心。可偏偏每个字都落在最实在的地方，半点不像随口抱怨。",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 650.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "Luna平时最常在上午来这边练。要是你之后找她，来音乐馆基本不会扑空。她最近一直在磨比赛用的曲子，状态起伏有点大。"
+                    "content": "Luna平时最常在上午来这边练。要是你之后找她，来音乐馆基本不会扑空。她最近一直在磨比赛用的曲子，状态起伏有点大。",
+                    "_editor_position": {
+                        "x": 680.0,
+                        "y": 650.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "player",
-                    "content": "谢谢，我记住了。"
+                    "content": "谢谢，我记住了。",
+                    "_editor_position": {
+                        "x": 980.0,
+                        "y": 650.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "别只记在脑子里。要是真碰上她练到钻牛角尖，你至少得有人能联系上。"
+                    "content": "别只记在脑子里。要是真碰上她练到钻牛角尖，你至少得有人能联系上。",
+                    "_editor_position": {
+                        "x": 80.0,
+                        "y": 840.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "铃从口袋里摸出手机，低头点开了二维码界面，动作利落得像早就想好了这一套流程，只是嘴上还要维持一点别扭的余地。"
+                    "content": "铃从口袋里摸出手机，低头点开了二维码界面，动作利落得像早就想好了这一套流程，只是嘴上还要维持一点别扭的余地。",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 840.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "加个联系方式吧。不是为了别的，单纯是和Luna有关的时候，消息传来传去太麻烦。"
+                    "content": "加个联系方式吧。不是为了别的，单纯是和Luna有关的时候，消息传来传去太麻烦。",
+                    "_editor_position": {
+                        "x": 680.0,
+                        "y": 840.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "player",
-                    "content": "好。"
+                    "content": "好。",
+                    "_editor_position": {
+                        "x": 980.0,
+                        "y": 840.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她看着我点下添加，明显松了一口气，却又很快把表情收了回去，重新摆出那副“我只是顺手”的样子。"
+                    "content": "她看着我点下添加，明显松了一口气，却又很快把表情收了回去，重新摆出那副“我只是顺手”的样子。",
+                    "_editor_position": {
+                        "x": 80.0,
+                        "y": 1030.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "先说清楚，我不是在把Luna扔给你。只是她愿意信你，那我也会先看着信一半。剩下那一半，等以后再说。"
+                    "content": "先说清楚，我不是在把Luna扔给你。只是她愿意信你，那我也会先看着信一半。剩下那一半，等以后再说。",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 1030.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "player",
-                    "content": "够坦率。"
+                    "content": "够坦率。",
+                    "_editor_position": {
+                        "x": 680.0,
+                        "y": 1030.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "ling",
-                    "content": "少拿这种语气评价我。总之，你来都来了，就先随便看看吧。我还得去把今天的练习过一遍。"
+                    "content": "少拿这种语气评价我。总之，你来都来了，就先随便看看吧。我还得去把今天的练习过一遍。",
+                    "_editor_position": {
+                        "x": 980.0,
+                        "y": 1030.0
+                    }
                 },
                 {
                     "type": "dialogue",
                     "speaker": "旁白",
-                    "content": "她说完转身走向排练区，背影干脆利落，琴盒随着步伐轻轻晃动。那股嘴硬心软的意味，却已经在短短几句话里显得再清楚不过。"
+                    "content": "她说完转身走向排练区，背影干脆利落，琴盒随着步伐轻轻晃动。那股嘴硬心软的意味，却已经在短短几句话里显得再清楚不过。",
+                    "_editor_position": {
+                        "x": 80.0,
+                        "y": 1220.0
+                    }
                 },
                 {
                     "type": "jump",
-                    "target_chapter": "end"
+                    "target_chapter": "end",
+                    "_editor_position": {
+                        "x": 380.0,
+                        "y": 1220.0
+                    }
                 }
             ]
         }

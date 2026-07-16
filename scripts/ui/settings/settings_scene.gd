@@ -42,7 +42,6 @@ const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_pan
 @onready var image_key_input: LineEdit = %ImageKeyInput
 @onready var doubao_image_key_input: LineEdit = %DoubaoImageKeyInput
 @onready var doubao_image_model_input: LineEdit = %DoubaoImageModelInput
-@onready var enable_ai_illustration_check: CheckButton = %EnableAiIllustrationCheck
 
 @onready var pet_global_cooldown_slider: HSlider = get_node_or_null("%PetGlobalCooldownSlider") as HSlider
 @onready var pet_global_cooldown_label: Label = get_node_or_null("%PetGlobalCooldownLabel") as Label
@@ -289,7 +288,6 @@ func _load_ui_data() -> void:
 	image_key_input.text = config.openai_image_api_key
 	doubao_image_key_input.text = config.doubao_image_api_key
 	doubao_image_model_input.text = config.doubao_image_model
-	enable_ai_illustration_check.button_pressed = config.enable_ai_diary_illustration
 	
 	_update_model_ui()
 	_update_ai_service_mode_ui()
@@ -388,7 +386,7 @@ func _save_ui_data() -> void:
 	config.openai_image_api_key = image_key_input.text
 	config.doubao_image_api_key = doubao_image_key_input.text
 	config.doubao_image_model = doubao_image_model_input.text
-	config.enable_ai_diary_illustration = enable_ai_illustration_check.button_pressed
+	config.enable_ai_diary_illustration = true
 	
 	config.resolution_idx = resolution_option.selected
 	config.fps_idx = fps_option.selected
@@ -397,33 +395,39 @@ func _save_ui_data() -> void:
 	config.voice_volume = voice_slider.value
 	
 	config.save_config()
-	config.apply_settings()
+	config.apply_runtime_settings()
 	
 	TTSManager.refresh_from_settings()
 
 func _on_resolution_changed(idx: int) -> void:
+	if _is_loading_ui:
+		return
 	GameDataManager.config.resolution_idx = idx
 	GameDataManager.config.apply_settings()
 	GameDataManager.config.save_config()
 
 func _on_fps_changed(idx: int) -> void:
+	if _is_loading_ui:
+		return
 	GameDataManager.config.fps_idx = idx
-	GameDataManager.config.apply_settings()
+	GameDataManager.config.apply_runtime_settings()
 	GameDataManager.config.save_config()
 
 func _on_vsync_changed(toggled: bool) -> void:
+	if _is_loading_ui:
+		return
 	GameDataManager.config.vsync_enabled = toggled
-	GameDataManager.config.apply_settings()
+	GameDataManager.config.apply_runtime_settings()
 	GameDataManager.config.save_config()
 
 func _on_bgm_changed(value: float) -> void:
 	GameDataManager.config.bgm_volume = value
-	GameDataManager.config.apply_settings()
+	GameDataManager.config.apply_runtime_settings()
 	GameDataManager.config.save_config()
 
 func _on_voice_changed(value: float) -> void:
 	GameDataManager.config.voice_volume = value
-	GameDataManager.config.apply_settings()
+	GameDataManager.config.apply_runtime_settings()
 	GameDataManager.config.save_config()
 
 func _on_model_changed(_idx: int) -> void:
@@ -431,6 +435,7 @@ func _on_model_changed(_idx: int) -> void:
 
 func _on_ai_service_mode_changed(_idx: int) -> void:
 	_update_ai_service_mode_ui()
+	_update_image_gen_ui()
 	if ai_service_mode_option.selected == 0:
 		GameDataManager.config.ai_service_mode = ConfigResource.AI_SERVICE_OFFICIAL
 		var gateway_url: String = official_gateway_input.text.strip_edges().trim_suffix("/")
@@ -718,7 +723,7 @@ func _on_save_pressed() -> void:
 	hide_panel()
 
 func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
-	var voice_type = ""
+	var voice_type: String = ""
 	if input_node is LineEdit:
 		voice_type = input_node.text.strip_edges()
 		
@@ -726,7 +731,8 @@ func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
 		_show_settings_toast("音色配置为空，无法试听", Color.RED)
 		return
 
-	if voice_type.begins_with("ICL_") or voice_type.ends_with("_tob") or voice_type == "BV001_streaming":
+	var is_icl_uranus_2: bool = voice_type.begins_with("ICL_uranus_") and voice_type.ends_with("_tob")
+	if (not is_icl_uranus_2 and (voice_type.begins_with("ICL_") or voice_type.ends_with("_tob"))) or voice_type == "BV001_streaming" or voice_type.contains("_moon_bigtts") or voice_type.contains("_mars_bigtts") or voice_type.contains("_emo_v2_"):
 		_show_settings_toast("当前音色 ID 属于旧版体系，不能用于 TTS 2.0，请改用新版 speaker。", Color.RED)
 		return
 

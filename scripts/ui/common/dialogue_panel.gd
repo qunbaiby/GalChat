@@ -100,6 +100,7 @@ func _is_waiting_prompt_text(text: String) -> bool:
 func set_input_waiting_state(char_name: String = "角色") -> void:
 	if input_layer:
 		input_layer.show()
+		input_layer.mouse_filter = Control.MOUSE_FILTER_PASS
 	var final_name := char_name.strip_edges()
 	if final_name == "":
 		final_name = "角色"
@@ -107,6 +108,7 @@ func set_input_waiting_state(char_name: String = "角色") -> void:
 		input_field.placeholder_text = DEFAULT_INPUT_PLACEHOLDER
 		input_field.text = "【%s】%s" % [final_name, INPUT_WAITING_SUFFIX]
 		input_field.editable = false
+		input_field.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		input_field.set_caret_line(0)
 		input_field.set_caret_column(0)
 		input_field.add_theme_color_override("font_color", INPUT_WAITING_FONT_COLOR)
@@ -115,22 +117,28 @@ func set_input_waiting_state(char_name: String = "角色") -> void:
 		char_count_label.add_theme_color_override("font_color", CHAR_COUNT_WAITING_COLOR)
 	if send_btn:
 		send_btn.disabled = true
+		send_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if voice_btn:
 		voice_btn.disabled = true
+		voice_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func set_input_ready_state(clear_text: bool = true) -> void:
 	if input_layer:
 		input_layer.show()
+		input_layer.mouse_filter = Control.MOUSE_FILTER_STOP
 	if input_field:
 		input_field.placeholder_text = DEFAULT_INPUT_PLACEHOLDER
 		if clear_text or _is_waiting_prompt_text(input_field.text):
 			input_field.text = ""
 		input_field.editable = true
+		input_field.mouse_filter = Control.MOUSE_FILTER_STOP
 		input_field.add_theme_color_override("font_color", INPUT_READY_FONT_COLOR)
 	if send_btn:
 		send_btn.disabled = false
+		send_btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	if voice_btn:
 		voice_btn.disabled = false
+		voice_btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	_update_char_count()
 
 func set_story_mode(enabled: bool) -> void:
@@ -404,21 +412,10 @@ func _on_gui_input(event: InputEvent):
 			panel_clicked.emit(event)
 
 func _advance_dialogue():
-	if _auto_finish_single_line:
-		if _typewriter_tween and _typewriter_tween.is_running():
-			_typewriter_tween.kill()
-			_typewriter_finished = true
-			if rich_text_label:
-				rich_text_label.visible_ratio = 1.0
-		if audio_player:
-			audio_player.stop()
-		_tts_pending = false
-		_tts_playing = false
-		_finish_single_line()
-		return
 	if _typewriter_tween and _typewriter_tween.is_running():
 		_typewriter_tween.kill()
 		_typewriter_finished = true
+		_auto_finish_single_line = false
 		if rich_text_label:
 			rich_text_label.visible_ratio = 1.0
 	else:

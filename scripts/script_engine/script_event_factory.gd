@@ -8,6 +8,8 @@ static func create_event(data: Dictionary): # 返回 ScriptEvent
     match type:
         "dialogue":
             return preload("res://scripts/script_engine/events/event_dialogue.gd").new(data)
+        "choice":
+            return preload("res://scripts/script_engine/events/event_choice.gd").new(data)
         "bgm":
             return preload("res://scripts/script_engine/events/event_bgm.gd").new(data)
         "audio":

@@ -1313,7 +1313,7 @@ func _on_embedded_music_volume_changed(value: float) -> void:
 	if GameDataManager == null or GameDataManager.config == null:
 		return
 	GameDataManager.config.bgm_volume = value
-	GameDataManager.config.apply_settings()
+	GameDataManager.config.apply_runtime_settings()
 	_refresh_music_panel_state()
 
 func _on_embedded_music_shuffle_pressed() -> void:
@@ -1441,7 +1441,7 @@ func _append_desktop_pet_history_message(speaker: String, text: String, voice_ca
 		return
 	GameDataManager.history.add_message(speaker, clean_text, voice_cache_key, "desktop_pet", _build_desktop_pet_history_meta(origin))
 
-func _get_desktop_pet_tts_options() -> Dictionary:
+func _get_desktop_pet_tts_options(voice_instruction: String = "") -> Dictionary:
 	var options: Dictionary = {}
 	if GameDataManager == null or GameDataManager.config == null:
 		return options
@@ -1450,6 +1450,7 @@ func _get_desktop_pet_tts_options() -> Dictionary:
 	if GameDataManager.config.tts_character_speakers.has(char_id):
 		speaker_id = GameDataManager.config.tts_character_speakers[char_id]
 	options["speaker"] = speaker_id
+	options.merge(TTSManager.build_tts_2_instruction_options(voice_instruction), true)
 	return options
 
 func _build_desktop_pet_voice_cache_key(text: String) -> String:
@@ -1457,10 +1458,11 @@ func _build_desktop_pet_voice_cache_key(text: String) -> String:
 		return ""
 	if not GameDataManager.config.voice_enabled:
 		return ""
-	var tts_text := _extract_dialogue_text(text)
+	var parsed_chunk := _parse_desktop_pet_voice_chunk(text)
+	var tts_text := _extract_dialogue_text(str(parsed_chunk.get("text", "")))
 	if not _has_readable_text(tts_text):
 		return ""
-	return TTSManager.get_cache_key(tts_text, _get_desktop_pet_tts_options())
+	return TTSManager.get_cache_key(tts_text, _get_desktop_pet_tts_options(str(parsed_chunk.get("voice_instruction", ""))))
 
 func _on_pet_history_play_voice_requested(cache_key: String) -> void:
 	if cache_key.strip_edges() == "":
@@ -1723,7 +1725,7 @@ func _load_prompt() -> void:
 	# 强制在每次生成时都使用最新的系统提示词
 	pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet", "", [], GameDataManager.desktop_pet_memory_manager)
 	if pet_prompt.is_empty():
-		pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。"
+		pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。每段最前面必须添加一个不超过20个汉字的 <voice:...> 标签，只描述当前句的情绪、语速、语气或音量，不得改变年龄、性别、身份或音色。"
 		var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
 		pet_prompt = pet_prompt.replace("{name}", char_name)
 
@@ -2928,13 +2930,17 @@ func display_bubble(text: String) -> void:
 			
 	var chunks = ChatSplitHelper.merge_incomplete_parentheses(processed_text.split("[SPLIT]"))
 	for chunk in chunks:
-		var c = chunk.strip_edges()
+		var parsed_chunk := _parse_desktop_pet_voice_chunk(str(chunk))
+		var c: String = str(parsed_chunk.get("text", ""))
 		if not c.is_empty():
 			# 为每一小段兜底：如果这小段只有括号，没有台词，也补上省略号
 			var pure = _extract_dialogue_text(c)
 			if pure.is_empty():
 				c += " ……"
-			bubble_queue.append(c)
+			bubble_queue.append({
+				"text": c,
+				"voice_instruction": str(parsed_chunk.get("voice_instruction", ""))
+			})
 			
 	if not is_processing_bubbles:
 		_process_next_bubble()
@@ -2945,7 +2951,10 @@ func _process_next_bubble() -> void:
 		return
 		
 	is_processing_bubbles = true
-	var chunk = _normalize_bubble_chunk_text(bubble_queue.pop_front())
+	var queued_chunk: Variant = bubble_queue.pop_front()
+	var chunk_data: Dictionary = queued_chunk as Dictionary if queued_chunk is Dictionary else {"text": str(queued_chunk)}
+	var chunk := _normalize_bubble_chunk_text(str(chunk_data.get("text", "")))
+	var voice_instruction := str(chunk_data.get("voice_instruction", ""))
 	
 	# Parse green action text and pure dialogue for TTS
 	var display_text = _format_action_text(chunk)
@@ -2961,6 +2970,7 @@ func _process_next_bubble() -> void:
 			speaker_id = GameDataManager.config.tts_character_speakers[char_id]
 			
 		var options = {"speaker": speaker_id}
+		options.merge(TTSManager.build_tts_2_instruction_options(voice_instruction), true)
 		
 		# 移除有垃圾回收风险的 Lambda 和本地数组，使用成员变量控制
 		_tts_finished = false
@@ -3029,6 +3039,23 @@ func _normalize_bubble_chunk_text(text: String) -> String:
 	if regex.search(normalized):
 		normalized = regex.sub(normalized, "$1 ", false)
 	return normalized
+
+func _parse_desktop_pet_voice_chunk(text: String) -> Dictionary:
+	var clean_text := text.strip_edges()
+	var voice_instruction := ""
+	var voice_regex = RegEx.new()
+	voice_regex.compile("(?i)(?:<|\\<|《|\\[|【)\\s*(voice|语音指令)\\s*[:：]\\s*([^>\\>》\\]】]+)\\s*(?:>|\\>|》|\\]|】)")
+	var voice_match := voice_regex.search(clean_text)
+	if voice_match:
+		voice_instruction = voice_match.get_string(2).strip_edges().left(80)
+		clean_text = clean_text.replace(voice_match.get_string(0), "")
+	var any_tag_regex = RegEx.new()
+	any_tag_regex.compile("(?i)(?:<|\\<|《|\\[|【)[^>\\>》\\]】]*?[:：][^>\\>》\\]】]*?(?:>|\\>|》|\\]|】)")
+	clean_text = any_tag_regex.sub(clean_text, "", true).strip_edges()
+	return {
+		"text": clean_text,
+		"voice_instruction": voice_instruction
+	}
 
 func _extract_dialogue_text(text: String) -> String:
 	var regex = RegEx.new()

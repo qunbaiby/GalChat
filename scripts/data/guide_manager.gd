@@ -450,6 +450,16 @@ func _play_story_step(step_data: Dictionary) -> void:
 		push_warning("引导剧情不存在：%s" % story_path)
 		call_deferred("_advance_step")
 		return
+	var debug_bridge := get_node_or_null("/root/StoryRuntimeDebugBridge")
+	if debug_bridge != null:
+		var guide_id := get_active_guide_id()
+		var step_id := str(step_data.get("id", ""))
+		debug_bridge.prepare_story("guide_flow", "%s/%s" % [guide_id, step_id], story_path, {
+			"guide_id": guide_id,
+			"step_id": step_id,
+			"step_index": int(_state.get("current_step_index", 0)),
+			"return_to_main": bool(step_data.get("return_to_main", true))
+		})
 	GameDataManager.set_meta("play_specific_story", story_path)
 	GameDataManager.set_meta("story_scene_return_to_main_on_finish", bool(step_data.get("return_to_main", true)))
 	_hide_overlay()

@@ -3,6 +3,13 @@ extends RefCounted
 
 const TEMPLATE_PATH := "res://assets/data/interaction/date_story_templates.json"
 const DATE_CONFIG_PATH := "res://assets/data/interaction/date_config.json"
+const ChatSplitHelperScript = preload("res://scripts/utils/chat_split_helper.gd")
+const DATE_TTS_EXPRESSION_IDS := {
+	"surprise": true, "expectant": true, "happy": true, "calm": true,
+	"nervous": true, "down": true, "empty": true, "tired": true,
+	"aggrieved": true, "angry": true, "shy": true, "serious": true,
+	"worried": true
+}
 const ALLOWED_EVENT_TYPES := {
 	"background": true,
 	"audio": true,
@@ -22,11 +29,31 @@ const DATE_TYPE_NAMES := {
 	"exhibition": "观影看展",
 	"dining": "餐饮小聚"
 }
-const DATE_MIN_DIALOGUE_CHARS := 1500
-const DATE_MIN_SEGMENT_DIALOGUE_CHARS := 320
 const DATE_ACTION_COLOR_TAG := "#8fbc8f"
 const DATE_FIXED_CHARACTER_ID := "luna"
 const DATE_FIXED_CHARACTER_NAME := "Luna"
+const DATE_INTERACTION_HOOKS := {
+	"stroll": ["一起寻找最适合留影的角度", "临时绕一条没走过的小路", "交换各自注意到的三个细节", "为路边偶遇的小事停下脚步"],
+	"shopping": ["替对方挑一件意外合适的小物", "用有限预算完成一次默契挑战", "比较彼此完全不同的审美选择", "寻找一件能代表今天的纪念品"],
+	"exhibition": ["各自选出最想分享的一件作品", "猜测对方会在哪件作品前停留", "为同一段画面写下不同解读", "在散场前交换最触动自己的瞬间"],
+	"dining": ["各自替对方选择一道想尝试的食物", "分享一道味道勾起的私人记忆", "共同决定一份只在今天尝试的搭配", "从菜单里找出最像对方的一道菜"]
+}
+const DATE_MICRO_INCIDENTS := [
+	"计划中出现一个需要两人临场配合的小意外",
+	"一个环境细节让原本轻松的话题突然变得认真",
+	"两人的判断短暂不同，随后用各自方式达成默契",
+	"一次无心的误会带来短暂尴尬和自然化解",
+	"偶遇的人或事打断节奏，却让彼此看见新的一面"
+]
+const DATE_CONVERSATION_TOPICS := [
+	"最近一次改变看法的经历",
+	"各自不太擅长表达的关心方式",
+	"未来想一起完成的一件小事",
+	"对安全感和陪伴的不同理解",
+	"一段看似普通却一直记得的回忆",
+	"彼此身上最近才注意到的变化"
+]
+const DATE_CLOSING_STYLES := ["留下一个下次再继续的小约定", "用没有说透的默契收束", "以交换纪念物或照片收束", "以一句轻松玩笑化开认真情绪", "让环境变化自然提醒两人该离开"]
 
 var _rng := RandomNumberGenerator.new()
 var _template_config: Dictionary = {}
@@ -125,7 +152,8 @@ func prepare_date_story_request(plan_list: Array) -> Dictionary:
 		"important_notes": important_notes,
 		"date_plan": plan_segments,
 		"location_names": location_names,
-		"summary_hint": "、".join(location_names)
+		"summary_hint": "、".join(location_names),
+		"creative_seed": _rng.randi()
 	}
 
 	return {
@@ -236,7 +264,7 @@ func build_fallback_story(context: Dictionary) -> Dictionary:
 				% [outline_prompt, location_name, location_name]
 		})
 
-	var events := _polish_date_story_events(_ensure_minimum_story_length_raw(raw_events, context), context)
+	var events := _insert_date_choice(_polish_date_story_events(raw_events, context), context)
 
 	var summary: String = "和%s一起度过了一场%s约会。" % [
 		char_name,
@@ -309,7 +337,7 @@ func sanitize_generated_story(raw_script: Variant, context: Dictionary, fallback
 	if not _has_expected_date_coverage(sanitized_events, context):
 		push_warning("[DateStoryManager] sanitize_generated_story: AI 剧情没有覆盖全部已选地点/时段，改用保底剧情")
 		return fallback_script.duplicate(true)
-	sanitized_events = _polish_date_story_events(_ensure_minimum_story_length_raw(sanitized_events, context), context)
+	sanitized_events = _polish_date_story_events(sanitized_events, context)
 
 	safe_script["chapters"] = {
 		"start": {
@@ -350,6 +378,7 @@ func combine_generated_segment_scripts(segment_scripts: Array, context: Dictiona
 			combined_events.append(event_copy)
 	if combined_events.is_empty():
 		return fallback_script.duplicate(true)
+	combined_events = _insert_date_choice(combined_events, context)
 
 	var summary_text: String = "和%s一起度过了一场%s约会。" % [
 		str(context.get("character_name", "Luna")),
@@ -439,6 +468,7 @@ func _build_plan_segment(slot: Dictionary, weather_id: String) -> Dictionary:
 	var variant_info: Dictionary = _select_template_variant(type_id, location_id, period_id, weather_id)
 	var variant: Dictionary = variant_info.get("variant", {})
 	var loading_hints: Array[String] = _resolve_loading_hints(location_conf, type_conf, weather_id, period_id)
+	var interaction_hooks: Array = DATE_INTERACTION_HOOKS.get(type_id, DATE_INTERACTION_HOOKS["stroll"])
 
 	return {
 		"period_id": period_id,
@@ -454,11 +484,94 @@ func _build_plan_segment(slot: Dictionary, weather_id: String) -> Dictionary:
 		"template_outline": str(variant.get("outline_prompt", "围绕这个地点生成一段自然细腻的约会片段。")),
 		"must_have_beats": variant.get("must_have_beats", []),
 		"mood_tags": variant.get("mood_tags", []),
+		"interaction_hook": _pick_random_text(interaction_hooks),
+		"micro_incident": _pick_random_text(DATE_MICRO_INCIDENTS),
+		"conversation_topic": _pick_random_text(DATE_CONVERSATION_TOPICS),
+		"closing_style": _pick_random_text(DATE_CLOSING_STYLES),
 		"loading_hints": loading_hints,
 		"loading_hint": loading_hints[0] if loading_hints.size() > 0 else "",
 		"settlement": _normalize_settlement_config(variant.get("settlement", {})),
 		"template_source": str(variant_info.get("source", "fallback"))
 	}
+
+
+func _pick_random_text(candidates: Array) -> String:
+	if candidates.is_empty():
+		return ""
+	return str(candidates[_rng.randi_range(0, candidates.size() - 1)])
+
+
+func _insert_date_choice(events: Array, context: Dictionary) -> Array:
+	var result: Array = []
+	for event_data in events:
+		if event_data is Dictionary and str(event_data.get("type", "")) != "choice":
+			result.append((event_data as Dictionary).duplicate(true))
+	if result.is_empty():
+		return result
+
+	var dialogue_indices: Array[int] = []
+	for index in range(result.size()):
+		if str(result[index].get("type", "")) == "dialogue":
+			dialogue_indices.append(index)
+	if dialogue_indices.size() < 3:
+		return result
+
+	var plan_segments: Array = context.get("date_plan", [])
+	var choice_segment: Dictionary = plan_segments[plan_segments.size() / 2] if not plan_segments.is_empty() else {}
+	var location_name := str(choice_segment.get("location_name", "这里"))
+	var type_id := str(choice_segment.get("type_id", "stroll"))
+	var options := _build_date_choice_options(type_id, location_name)
+	var target_dialogue_position := clampi(int(dialogue_indices.size() * 0.6), 1, dialogue_indices.size() - 1)
+	var insert_index := dialogue_indices[target_dialogue_position]
+	result.insert(insert_index, {
+		"type": "choice",
+		"options": options
+	})
+	return result
+
+
+func _build_date_choice_options(type_id: String, location_name: String) -> Array:
+	var intimacy_text := "主动靠近她，坦率说出此刻的心意"
+	var intimacy_response := "（向她靠近一些）和地点相比，我更在意的是今天陪在我身边的人。"
+	var trust_text := "认真接住她的话，让她按自己的节奏表达"
+	var trust_response := "不用急着给出答案，我会陪你慢慢想，也会认真听你说完。"
+	match type_id:
+		"shopping":
+			intimacy_text = "选一件小礼物，告诉她为什么很适合她"
+			intimacy_response = "（把挑好的小物递给她）看到它的时候，我第一时间想到的就是你。"
+			trust_text = "尊重她的选择，陪她慢慢比较喜欢的东西"
+			trust_response = "不用迎合我的眼光，选你真正喜欢的就好，我想知道你的想法。"
+		"exhibition":
+			intimacy_text = "借眼前的作品，说出只有她能听懂的感受"
+			intimacy_response = "（与她并肩停下）这件作品让我想到你，也想到我们现在站在这里的样子。"
+			trust_text = "先听她完整讲完，再分享自己的理解"
+			trust_response = "我想先听听你看见了什么，你可以慢慢说，我不会打断。"
+		"dining":
+			intimacy_text = "把最喜欢的一口留给她，顺势拉近距离"
+			intimacy_response = "（把盘子轻轻推向她）这一口想留给你，因为我觉得你会喜欢。"
+			trust_text = "留意她的习惯，让这顿饭更自在安心"
+			trust_response = "按你舒服的节奏来就好，有什么不喜欢的也可以直接告诉我。"
+		_:
+			intimacy_text = "放慢脚步靠近她，让这一段路更像两人的约会"
+			trust_text = "配合她的步调，认真回应她刚才的心情"
+	return [
+		{
+			"id": "date_intimacy",
+			"text": intimacy_text,
+			"kind": "intimacy",
+			"response": intimacy_response,
+			"effects": {"intimacy": 6.0, "trust": 2.0},
+			"location_name": location_name
+		},
+		{
+			"id": "date_trust",
+			"text": trust_text,
+			"kind": "trust",
+			"response": trust_response,
+			"effects": {"intimacy": 2.0, "trust": 6.0},
+			"location_name": location_name
+		}
+	]
 
 
 func _resolve_loading_hints(location_conf: Dictionary, type_conf: Dictionary, weather_id: String, period_id: String) -> Array[String]:
@@ -636,7 +749,6 @@ func _build_events_from_story_segments(raw_segments: Variant, context: Dictionar
 			dialogue_events = _sanitize_segment_lines((segments[i] as Dictionary).get("lines", []), context)
 		if dialogue_events.is_empty():
 			dialogue_events = _build_segment_fallback_lines(plan_segment, context)
-		dialogue_events = _ensure_segment_story_depth(dialogue_events, plan_segment, context)
 		built_events.append_array(dialogue_events)
 	return built_events
 
@@ -655,11 +767,19 @@ func _sanitize_segment_lines(raw_lines: Variant, context: Dictionary) -> Array:
 		var content: String = str(line_data.get("content", "")).strip_edges()
 		if speaker == "" or content == "":
 			continue
-		results.append({
+		var dialogue_event: Dictionary = {
 			"type": "dialogue",
 			"speaker": speaker,
 			"content": content
-		})
+		}
+		if speaker == char_id:
+			var expression: String = str(line_data.get("expression", "")).strip_edges().to_lower()
+			if DATE_TTS_EXPRESSION_IDS.has(expression):
+				dialogue_event["expression"] = expression
+			var voice_instruction: String = str(line_data.get("voice_instruction", "")).strip_edges()
+			if not voice_instruction.is_empty():
+				dialogue_event["voice_instruction"] = voice_instruction.left(80).strip_edges()
+		results.append(dialogue_event)
 	return results
 
 
@@ -709,47 +829,6 @@ func _build_segment_fallback_lines(segment: Dictionary, context: Dictionary) -> 
 			"content": "所以我才会越来越期待这种时候啊。（声音轻了下来）因为只有待在你身边，我才会觉得这些心情真的被认真接住了。"
 		}
 	]
-
-
-func _ensure_segment_story_depth(events: Array, segment: Dictionary, context: Dictionary) -> Array:
-	var result: Array = events.duplicate(true)
-	var char_id: String = str(context.get("character_id", "luna")).to_lower()
-	var player_title: String = str(context.get("player_title", "老师")).strip_edges()
-	var location_name: String = str(segment.get("location_name", "今天的约会地点")).strip_edges()
-	var type_name: String = str(segment.get("type_name", "约会")).strip_edges()
-	var outline_prompt: String = str(segment.get("template_outline", "你们慢慢把今天的心事说开了。")).strip_edges()
-	while _count_dialogue_characters(result) < DATE_MIN_SEGMENT_DIALOGUE_CHARS:
-		result.append_array([
-			{
-				"type": "dialogue",
-				"speaker": "旁白",
-				"content": "围绕着%s的细碎话题被一点点展开，你们没有刻意追赶时间，只是顺着当下的气氛继续往前走。"
-					% location_name
-			},
-			{
-				"type": "dialogue",
-				"speaker": char_id,
-				"content": "%s，其实像这样和你待在%s里，我会很自然地想把平时不会轻易说出口的话告诉你。"
-					% [player_title, location_name]
-			},
-			{
-				"type": "dialogue",
-				"speaker": "player",
-				"content": "那就继续说吧，我在听。只要是和你有关的心情，我都想认真记住。"
-			},
-			{
-				"type": "dialogue",
-				"speaker": char_id,
-				"content": "你总是会把一句很普通的话，说得让人完全放下戒心。（眼神柔和下来）所以这次%s，才会让我越来越舍不得太快结束。"
-					% type_name
-			},
-			{
-				"type": "dialogue",
-				"speaker": "旁白",
-				"content": outline_prompt if outline_prompt != "" else "你们的对话顺着眼前的景色慢慢延展开来，气氛也一点点变得柔和。"
-			}
-		])
-	return result
 
 
 func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_script: Dictionary) -> Array:
@@ -829,82 +908,7 @@ func _sanitize_story_events(raw_events: Array, context: Dictionary, fallback_scr
 
 
 func _colorize_action_descriptions(text: String) -> String:
-	var result := text
-	var cn_regex := RegEx.new()
-	if cn_regex.compile("（[^（）]+）") == OK:
-		var matches := cn_regex.search_all(result)
-		for i in range(matches.size() - 1, -1, -1):
-			var original := matches[i].get_string()
-			var colored := "[color=%s]%s[/color]" % [DATE_ACTION_COLOR_TAG, original]
-			result = result.substr(0, matches[i].get_start()) + colored + result.substr(matches[i].get_end())
-
-	var en_regex := RegEx.new()
-	if en_regex.compile("\\([^()]+\\)") == OK:
-		var en_matches := en_regex.search_all(result)
-		for i in range(en_matches.size() - 1, -1, -1):
-			var original := en_matches[i].get_string()
-			if original.find("[/color]") != -1:
-				continue
-			var colored := "[color=%s]%s[/color]" % [DATE_ACTION_COLOR_TAG, original]
-			result = result.substr(0, en_matches[i].get_start()) + colored + result.substr(en_matches[i].get_end())
-	return result
-
-
-func _ensure_minimum_story_length_raw(events: Array, context: Dictionary) -> Array:
-	var result: Array = events.duplicate(true)
-	var char_id := str(context.get("character_id", "luna"))
-	var player_title := str(context.get("player_title", "老师"))
-	var plan_segments: Array = context.get("date_plan", [])
-	var last_segment: Dictionary = plan_segments[plan_segments.size() - 1] if not plan_segments.is_empty() else {}
-	var location_name := str(last_segment.get("location_name", "今天的约会地点"))
-	var type_name := str(last_segment.get("type_name", "约会"))
-
-	while _count_dialogue_characters(result) < DATE_MIN_DIALOGUE_CHARS:
-		result.append({
-			"type": "dialogue",
-			"speaker": "旁白",
-			"content": "时间像是被故意放慢了一点，你们没有谁急着把这段相处推向终点，只是在%s的气氛里，把那些原本藏得很深的话也一点点说了出来。"
-				% location_name
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": char_id,
-			"content": "%s，你有没有发现，只要像这样和你待久一点，我就会开始舍不得让今天太快结束。（轻轻眨了眨眼）明明只是一次%s，可我已经在偷偷把它当成很重要的回忆了。"
-				% [player_title, type_name]
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": "player",
-			"content": "那就别急着结束。今天剩下的时间，我都愿意继续陪你慢慢走、慢慢聊。"
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": char_id,
-			"content": "你总是能把很普通的话，说得让人一下子安心下来。（指尖轻轻攥住衣角）所以我才会越来越想依赖这种感觉，想把更多真实的心情交给你。"
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": "旁白",
-			"content": "你们的话题从眼前的景色、今天发生的小事，慢慢延伸到更久以后会不会再一起出门、会不会在下一次见面时继续记得彼此此刻的语气与神情。"
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": char_id,
-			"content": "如果下次还能和你一起出来，我想我大概会提前很多天就开始期待吧。（唇边带着一点不好意思的笑）因为像今天这样被你认真对待的感觉，真的很容易让人上瘾。"
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": "player",
-			"content": "那就把这份期待留到下次。等你想好了，我们再把想去的地方一个个走完。"
-		})
-		result.append({
-			"type": "dialogue",
-			"speaker": char_id,
-			"content": "%s，那你可不准反悔。（目光柔软了下来）因为我已经开始认真地把“和你一起去做很多事”这件事，放进以后的计划里了。"
-				% player_title
-		})
-
-	return result
+	return ChatSplitHelperScript.format_leading_action(text, DATE_ACTION_COLOR_TAG)
 
 
 func _count_dialogue_characters(events: Array) -> int:

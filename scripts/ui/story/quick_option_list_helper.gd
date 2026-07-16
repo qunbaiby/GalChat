@@ -67,7 +67,12 @@ static func normalize_dialogue_choice_options(options: Array) -> Array:
 			text = str(option_data).strip_edges()
 		if text == "":
 			continue
-		normalized.append(build_dialogue_choice_item(text, focus))
+		var normalized_item := build_dialogue_choice_item(text, focus)
+		if option_data is Dictionary:
+			for key in ["id", "effects", "response", "target_chapter"]:
+				if option_data.has(key):
+					normalized_item[key] = option_data[key]
+		normalized.append(normalized_item)
 	return normalized
 
 static func _pick_option_text(option_data: Dictionary) -> String:

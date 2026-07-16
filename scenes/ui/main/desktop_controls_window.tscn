@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://cfpj8moaoaiy1"]
 
 [ext_resource type="Script" uid="uid://bup4m8ex3ujq4" path="res://scripts/ui/main/desktop_controls_window.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/images/icons/ui/main/desktop_return.svg" id="2_return"]
-[ext_resource type="Texture2D" path="res://assets/images/icons/ui/main/desktop_chat.svg" id="3_chat"]
+[ext_resource type="Texture2D" uid="uid://bu8vnxsk8quf2" path="res://assets/images/icons/ui/main/desktop_return.svg" id="2_return"]
+[ext_resource type="Texture2D" uid="uid://df6d0vs4ld1e8" path="res://assets/images/icons/ui/main/desktop_chat.svg" id="3_chat"]
+[ext_resource type="PackedScene" uid="uid://cy8xxa3qqt3k0" path="res://scenes/ui/main/music/music_player.tscn" id="4_gti2t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_Window"]
 bg_color = Color(0, 0, 0, 0)
@@ -38,14 +39,14 @@ shadow_size = 6
 [node name="DesktopControlsWindow" type="Window" unique_id=1923014197]
 transparent_bg = true
 oversampling_override = 1.0
-size = Vector2i(596, 116)
+size = Vector2i(380, 400)
 visible = false
 unresizable = true
 borderless = true
 transparent = true
 script = ExtResource("1_script")
 
-[node name="DockPanel" type="PanelContainer" parent="." unique_id=1537558972]
+[node name="DockPanel" type="Panel" parent="." unique_id=2130666262]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -53,30 +54,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBox_Window")
 
-[node name="DockMargin" type="MarginContainer" parent="DockPanel" unique_id=1451830145]
-layout_mode = 2
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 0
-
-[node name="DockHBox" type="HBoxContainer" parent="DockPanel/DockMargin" unique_id=838637962]
-layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="MusicHost" type="Control" parent="DockPanel/DockMargin/DockHBox" unique_id=240879017]
-custom_minimum_size = Vector2(490, 116)
-layout_mode = 2
-
-[node name="ButtonsVBox" type="VBoxContainer" parent="DockPanel/DockMargin/DockHBox" unique_id=1843961340]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="ReturnButton" type="Button" parent="DockPanel/DockMargin/DockHBox/ButtonsVBox" unique_id=1295380693]
+[node name="ReturnButton" type="Button" parent="DockPanel" unique_id=1295380693]
 custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
+layout_mode = 0
+offset_left = 250.0
+offset_top = 223.0
+offset_right = 298.0
+offset_bottom = 271.0
 tooltip_text = "返回游戏"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("StyleButton")
@@ -84,11 +68,14 @@ theme_override_styles/pressed = SubResource("StyleButtonHover")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 icon = ExtResource("2_return")
 expand_icon = true
-icon_max_width = 22
 
-[node name="ChatButton" type="Button" parent="DockPanel/DockMargin/DockHBox/ButtonsVBox" unique_id=1326993206]
+[node name="ChatButton" type="Button" parent="DockPanel" unique_id=1326993206]
 custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
+layout_mode = 0
+offset_left = 315.0
+offset_top = 270.0
+offset_right = 363.0
+offset_bottom = 318.0
 tooltip_text = "和 Luna 聊天"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("StyleButton")
@@ -96,4 +83,10 @@ theme_override_styles/pressed = SubResource("StyleButtonHover")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 icon = ExtResource("3_chat")
 expand_icon = true
-icon_max_width = 22
+
+[node name="MusicPlayer" parent="DockPanel" unique_id=340743195 instance=ExtResource("4_gti2t")]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 328.0
+offset_right = 363.0
+offset_bottom = 388.0

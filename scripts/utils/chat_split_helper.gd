@@ -64,3 +64,25 @@ static func strip_parentheses(text: String) -> String:
     # 去除多余的空格，避免标点之间留下空格
     return result.strip_edges().replace("  ", " ")
 
+static func format_leading_action(text: String, color: String = "green") -> String:
+    var clean_text := text.strip_edges()
+    var color_tag_regex := RegEx.new()
+    if color_tag_regex.compile("\\[/?color(?:=[^\\]]+)?\\]") == OK:
+        clean_text = color_tag_regex.sub(clean_text, "", true)
+
+    var action_regex := RegEx.new()
+    if action_regex.compile("（[^（）]*）|\\([^()]*\\)") != OK:
+        return clean_text
+
+    var first_action_match := action_regex.search(clean_text)
+    if first_action_match == null:
+        return clean_text
+
+    var first_action := first_action_match.get_string()
+    var dialogue_text := action_regex.sub(clean_text, "", true).strip_edges()
+    dialogue_text = dialogue_text.replace("  ", " ")
+    var formatted_action := "[color=%s]%s[/color]" % [color, first_action]
+    if dialogue_text == "":
+        return formatted_action
+    return formatted_action + " " + dialogue_text
+

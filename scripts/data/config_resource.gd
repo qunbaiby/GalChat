@@ -243,6 +243,8 @@ func _is_legacy_tts_speaker(speaker_id: String) -> bool:
         return false
     if normalized.find("_uranus_bigtts") >= 0 or normalized.find("_saturn_bigtts") >= 0:
         return false
+    if normalized.begins_with("ICL_uranus_") and normalized.ends_with("_tob"):
+        return false
     if normalized.begins_with("ICL_"):
         return true
     if normalized.ends_with("_tob"):
@@ -307,7 +309,7 @@ func _apply_ai_voice_defaults(data: Dictionary) -> void:
     openai_image_api_key = str(data.get("openai_image_api_key", openai_image_api_key))
     doubao_image_api_key = str(data.get("doubao_image_api_key", doubao_image_api_key))
     doubao_image_model = str(data.get("doubao_image_model", doubao_image_model))
-    enable_ai_diary_illustration = bool(data.get("enable_ai_diary_illustration", enable_ai_diary_illustration))
+    enable_ai_diary_illustration = true
 
 func load_config() -> void:
     official_access_token = OS.get_environment("GALCHAT_OFFICIAL_ACCESS_TOKEN").strip_edges()
@@ -371,7 +373,7 @@ func load_config() -> void:
                 image_generation_provider = int(data.get("image_generation_provider", image_generation_provider))
                 doubao_image_api_key = data.get("doubao_image_api_key", doubao_image_api_key)
                 doubao_image_model = data.get("doubao_image_model", doubao_image_model)
-                enable_ai_diary_illustration = data.get("enable_ai_diary_illustration", enable_ai_diary_illustration)
+                enable_ai_diary_illustration = true
                 current_character_id = data.get("current_character_id", current_character_id)
                 active_archive_id = data.get("active_archive_id", active_archive_id)
                 current_main_bg_id = data.get("current_main_bg_id", current_main_bg_id)
@@ -397,7 +399,10 @@ func load_config() -> void:
     apply_settings()
 
 func apply_settings() -> void:
-    # Resolution
+    apply_resolution()
+    apply_runtime_settings()
+
+func apply_resolution() -> void:
     var tree = Engine.get_main_loop() as SceneTree
     if tree and is_instance_valid(tree.root):
         var window = tree.root
@@ -413,7 +418,8 @@ func apply_settings() -> void:
                 window.size = Vector2i(1920, 1080)
             3:
                 window.mode = Window.MODE_FULLSCREEN
-            
+
+func apply_runtime_settings() -> void:
     # FPS
     match fps_idx:
         0:

@@ -1,0 +1,442 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_schedule_entry_editor_window.gd" id="1_script"]
+
+[node name="StoryScheduleEntryEditorWindow" type="Window"]
+title = "剧情入口调度编辑器"
+initial_position = 0
+size = Vector2i(1240, 800)
+min_size = Vector2i(920, 600)
+visible = false
+wrap_controls = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HFlowContainer" parent="Root"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "剧情入口调度编辑器"
+
+[node name="Summary" type="Label" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "正在加载..."
+horizontal_alignment = 2
+
+[node name="RefreshButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重新加载"
+
+[node name="UndoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "↶"
+
+[node name="RedoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "↷"
+
+[node name="SaveButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "保存两个数据源"
+
+[node name="Tabs" type="TabContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="剧情日程" type="HSplitContainer" parent="Root/Tabs"]
+layout_mode = 2
+split_offset = 330
+
+[node name="DayTree" type="Tree" parent="Root/Tabs/剧情日程"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+columns = 2
+column_titles_visible = true
+hide_root = true
+
+[node name="DayEditor" type="VBoxContainer" parent="Root/Tabs/剧情日程"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="DayTitle" type="Label" parent="Root/Tabs/剧情日程/DayEditor"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "尚未选择日程"
+
+[node name="DayFields" type="GridContainer" parent="Root/Tabs/剧情日程/DayEditor"]
+layout_mode = 2
+columns = 2
+
+[node name="DayOffsetLabel" type="Label" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+layout_mode = 2
+text = "Day Offset"
+
+[node name="DayOffsetSpin" type="SpinBox" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 9999.0
+
+[node name="AllDayLabel" type="Label" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+layout_mode = 2
+text = "全天剧情"
+
+[node name="AllDayEdit" type="LineEdit" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "event_id, event_id"
+
+[node name="MorningLabel" type="Label" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+layout_mode = 2
+text = "上午剧情"
+
+[node name="MorningEdit" type="LineEdit" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AfternoonLabel" type="Label" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+layout_mode = 2
+text = "下午剧情"
+
+[node name="AfternoonEdit" type="LineEdit" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="EveningLabel" type="Label" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+layout_mode = 2
+text = "傍晚剧情"
+
+[node name="EveningEdit" type="LineEdit" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NightLabel" type="Label" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+layout_mode = 2
+text = "夜晚剧情"
+
+[node name="NightEdit" type="LineEdit" parent="Root/Tabs/剧情日程/DayEditor/DayFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ApplyDayButton" type="Button" parent="Root/Tabs/剧情日程/DayEditor"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用日程修改"
+
+[node name="地图入口" type="HSplitContainer" parent="Root/Tabs"]
+layout_mode = 2
+split_offset = 390
+
+[node name="MapTree" type="Tree" parent="Root/Tabs/地图入口"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+columns = 2
+column_titles_visible = true
+hide_root = true
+
+[node name="MapEditorScroll" type="ScrollContainer" parent="Root/Tabs/地图入口"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="MapEditor" type="VBoxContainer" parent="Root/Tabs/地图入口/MapEditorScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="MapTitle" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "尚未选择地图入口"
+
+[node name="MapFields" type="GridContainer" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor"]
+layout_mode = 2
+columns = 2
+
+[node name="IdLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "入口 ID"
+
+[node name="MapIdEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PathLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "剧情路径"
+
+[node name="MapPathEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="OffsetsLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "Day Offsets"
+
+[node name="MapOffsetsEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="EventsLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "激活事件"
+
+[node name="MapEventsEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="WeatherLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "天气"
+
+[node name="MapWeatherEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PeriodsLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "时段"
+
+[node name="MapPeriodsEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MinStageLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "最低阶段"
+
+[node name="MinStageSpin" type="SpinBox" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 999.0
+
+[node name="MaxStageLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "最高阶段（-1 不限制）"
+
+[node name="MaxStageSpin" type="SpinBox" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -1.0
+max_value = 999.0
+value = -1.0
+
+[node name="PriorityLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "优先级"
+
+[node name="PrioritySpin" type="SpinBox" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -9999.0
+max_value = 9999.0
+
+[node name="BadgeNpcsLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "徽标 NPC"
+
+[node name="BadgeNpcsEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BadgeTextLabel" type="Label" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+layout_mode = 2
+text = "徽标文本"
+
+[node name="BadgeTextEdit" type="LineEdit" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MapActions" type="HFlowContainer" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor"]
+layout_mode = 2
+
+[node name="AddMapEntryButton" type="Button" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "同地点新增"
+
+[node name="DeleteMapEntryButton" type="Button" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "删除入口"
+
+[node name="ApplyMapButton" type="Button" parent="Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用地图入口修改"
+
+[node name="触发模拟" type="VBoxContainer" parent="Root/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ContextFields" type="GridContainer" parent="Root/Tabs/触发模拟"]
+layout_mode = 2
+columns = 4
+
+[node name="DayLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "Day Offset"
+
+[node name="SimDaySpin" type="SpinBox" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 9999.0
+
+[node name="PeriodLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "时段"
+
+[node name="SimPeriodSelect" type="OptionButton" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HourLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "小时"
+
+[node name="SimHourSpin" type="SpinBox" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 23.0
+value = 9.0
+
+[node name="WeatherLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "天气"
+
+[node name="SimWeatherEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "sunny"
+
+[node name="LocationLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "地点 ID"
+
+[node name="SimLocationEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "library"
+
+[node name="StageLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "主关系阶段"
+
+[node name="SimStageSpin" type="SpinBox" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 999.0
+
+[node name="NpcStagesLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "NPC 阶段"
+
+[node name="SimNpcStagesEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "jing=2, shuo=3"
+
+[node name="StatsLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "属性"
+
+[node name="SimStatsEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "stat_aesthetics=15"
+
+[node name="TriggeredLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "已触发事件"
+
+[node name="SimTriggeredEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "event_id, event_id"
+
+[node name="ConsumedMapLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "今日地图入口"
+
+[node name="SimConsumedMapEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "entry_id, entry_id"
+
+[node name="ConsumedLocationLabel" type="Label" parent="Root/Tabs/触发模拟/ContextFields"]
+layout_mode = 2
+text = "今日地点事件"
+
+[node name="SimConsumedLocationEdit" type="LineEdit" parent="Root/Tabs/触发模拟/ContextFields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "event_id, event_id"
+
+[node name="RunSimulationButton" type="Button" parent="Root/Tabs/触发模拟"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "运行触发模拟"
+
+[node name="SimulationSummary" type="Label" parent="Root/Tabs/触发模拟"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "尚未运行模拟"
+autowrap_mode = 2
+
+[node name="ActiveEvents" type="Label" parent="Root/Tabs/触发模拟"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.7, 0.74, 1)
+text = "激活日程事件："
+autowrap_mode = 2
+
+[node name="SimulationResults" type="Tree" parent="Root/Tabs/触发模拟"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 5
+column_titles_visible = true
+hide_root = true
+
+[node name="DiagnosticsTitle" type="Label" parent="Root"]
+layout_mode = 2
+text = "调度诊断"
+
+[node name="DiagnosticsTree" type="Tree" parent="Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+columns = 3
+column_titles_visible = true
+hide_root = true

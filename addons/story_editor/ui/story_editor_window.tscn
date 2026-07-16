@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_editor_main.tscn" id="1_main"]
+
+[node name="StoryEditorWindow" type="Window"]
+title = "GalChat 剧情编辑器"
+initial_position = 1
+size = Vector2i(1500, 900)
+min_size = Vector2i(1100, 700)
+visible = false
+wrap_controls = true
+
+[node name="StoryEditorMain" parent="." instance=ExtResource("1_main")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

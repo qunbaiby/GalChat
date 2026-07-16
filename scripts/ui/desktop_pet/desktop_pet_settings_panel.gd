@@ -82,7 +82,7 @@ func save_settings() -> void:
     config.pet_enable_afk_greeting = pet_enable_afk_greeting_check.button_pressed
     config.pet_global_cooldown = int(pet_global_cooldown_spin_box.value)
     config.save_config()
-    config.apply_settings()
+    config.apply_runtime_settings()
     _notify_pet_runtime_config_changed()
 
 func _on_back_pressed() -> void:
@@ -95,7 +95,7 @@ func _on_pet_cooldown_changed(_value: float) -> void:
         return
     var config = GameDataManager.config
     config.pet_global_cooldown = int(pet_global_cooldown_spin_box.value)
-    config.apply_settings()
+    config.apply_runtime_settings()
     _notify_pet_runtime_config_changed()
     save_settings()
 

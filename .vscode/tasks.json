@@ -33,15 +33,334 @@
 			"group": "test"
 		},
 		{
-			"label": "Validate Godot Auth UI",
+			"label": "Validate Story Editor Plugin",
 			"type": "shell",
-			"command": "d:\\godot\\Godot_v4.6.3-stable_mono_win64.exe",
+			"command": "powershell.exe",
 			"args": [
-				"--path",
-				"${workspaceFolder}",
-				"--editor",
-				"--headless",
-				"--quit"
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\validate_story_editor_plugin.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Editor",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_editor_smoke.gd",
+				"-SuccessMarker",
+				"STORY_EDITOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Branch Runtime",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_branch_runtime_smoke.gd",
+				"-SuccessMarker",
+				"STORY_BRANCH_RUNTIME_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Mobile Chat Editor",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/mobile_chat_editor_smoke.gd",
+				"-SuccessMarker",
+				"MOBILE_CHAT_EDITOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Fixed Voice Call Editor",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/fixed_voice_call_editor_smoke.gd",
+				"-SuccessMarker",
+				"FIXED_VOICE_CALL_EDITOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Mobile AI Workbench",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/mobile_ai_workbench_smoke.gd",
+				"-SuccessMarker",
+				"MOBILE_AI_WORKBENCH_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Mobile AI Requester",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/mobile_ai_requester_smoke.gd",
+				"-SuccessMarker",
+				"MOBILE_AI_REQUESTER_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Branch Simulator",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_branch_simulator_smoke.gd",
+				"-SuccessMarker",
+				"STORY_BRANCH_SIMULATOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Date AI Workbench",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/date_ai_workbench_smoke.gd",
+				"-SuccessMarker",
+				"DATE_AI_WORKBENCH_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Editor Window",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_editor_window_smoke.gd",
+				"-SuccessMarker",
+				"STORY_EDITOR_WINDOW_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Validate Story Repository",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_repository_validator_smoke.gd",
+				"-SuccessMarker",
+				"STORY_REPOSITORY_VALIDATOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Schema Migration",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_schema_migration_smoke.gd",
+				"-SuccessMarker",
+				"STORY_SCHEMA_MIGRATION_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Schema Migration Window",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_schema_migration_window_smoke.gd",
+				"-SuccessMarker",
+				"STORY_SCHEMA_MIGRATION_WINDOW_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Runtime Debug Bridge",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_runtime_debug_bridge_smoke.gd",
+				"-SuccessMarker",
+				"STORY_RUNTIME_DEBUG_BRIDGE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Story Runtime Debug Monitor",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/story_runtime_debug_monitor_smoke.gd",
+				"-SuccessMarker",
+				"STORY_RUNTIME_DEBUG_MONITOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Date AI Generation Queue",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/date_ai_generation_queue_smoke.gd",
+				"-SuccessMarker",
+				"DATE_AI_GENERATION_QUEUE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Date AI Response Metadata",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/date_ai_response_metadata_smoke.gd",
+				"-SuccessMarker",
+				"DATE_AI_RESPONSE_METADATA_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Validate GDCubism Windows Export",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\tools\\gd_cubism\\validate_windows_export.ps1"
 			],
 			"isBackground": false,
 			"problemMatcher": [],
@@ -58,6 +377,35 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "test"
+		},
+		{
+			"label": "Validate Story Editor Stage",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"Smoke Test Story Editor",
+				"Smoke Test Mobile Chat Editor",
+				"Smoke Test Fixed Voice Call Editor",
+				"Smoke Test Mobile AI Workbench",
+				"Smoke Test Mobile AI Requester",
+				"Smoke Test Story Branch Runtime",
+				"Smoke Test Story Branch Simulator",
+				"Smoke Test Date AI Workbench",
+				"Smoke Test Date AI Generation Queue",
+				"Smoke Test Date AI Response Metadata",
+				"Smoke Test Story Editor Window",
+				"Validate Story Repository",
+				"Smoke Test Story Schema Migration",
+				"Smoke Test Story Schema Migration Window",
+				"Smoke Test Story Runtime Debug Bridge",
+				"Smoke Test Story Runtime Debug Monitor",
+				"Validate Story Editor Plugin",
+				"Check Auth Diff Format"
+			],
+			"problemMatcher": [],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
 		}
 	]
 }

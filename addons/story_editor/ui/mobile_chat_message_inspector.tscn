@@ -1,0 +1,137 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/mobile_chat_message_inspector.gd" id="1_script"]
+
+[node name="MobileChatMessageInspector" type="VBoxContainer"]
+custom_minimum_size = Vector2(210, 0)
+theme_override_constants/separation = 8
+script = ExtResource("1_script")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "消息 Inspector"
+
+[node name="EmptyHint" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "选择消息节点后编辑内容。"
+autowrap_mode = 2
+
+[node name="Fields" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 7
+
+[node name="IdLabel" type="Label" parent="Fields"]
+layout_mode = 2
+text = "消息 ID"
+
+[node name="IdEdit" type="LineEdit" parent="Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="Fields"]
+layout_mode = 2
+text = "发送者"
+
+[node name="SpeakerEdit" type="LineEdit" parent="Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "角色 ID / player_options / system"
+
+[node name="ContentFields" type="VBoxContainer" parent="Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="TextLabel" type="Label" parent="Fields/ContentFields"]
+layout_mode = 2
+text = "消息文本"
+
+[node name="TextEdit" type="TextEdit" parent="Fields/ContentFields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+wrap_mode = 1
+
+[node name="ImageLabel" type="Label" parent="Fields/ContentFields"]
+layout_mode = 2
+text = "图片资源 ID"
+
+[node name="ImageEdit" type="LineEdit" parent="Fields/ContentFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TimingRow" type="HBoxContainer" parent="Fields/ContentFields"]
+layout_mode = 2
+
+[node name="DelayLabel" type="Label" parent="Fields/ContentFields/TimingRow"]
+layout_mode = 2
+text = "延迟"
+
+[node name="DelaySpin" type="SpinBox" parent="Fields/ContentFields/TimingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 120.0
+step = 0.1
+
+[node name="VoiceCheck" type="CheckBox" parent="Fields/ContentFields/TimingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "语音消息"
+
+[node name="DurationRow" type="HBoxContainer" parent="Fields/ContentFields"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DurationLabel" type="Label" parent="Fields/ContentFields/DurationRow"]
+layout_mode = 2
+text = "语音时长"
+
+[node name="DurationSpin" type="SpinBox" parent="Fields/ContentFields/DurationRow"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.1
+max_value = 600.0
+step = 0.1
+suffix = " 秒"
+
+[node name="OptionsSection" type="VBoxContainer" parent="Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="OptionsHeader" type="HBoxContainer" parent="Fields/OptionsSection"]
+layout_mode = 2
+
+[node name="OptionsLabel" type="Label" parent="Fields/OptionsSection/OptionsHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "玩家回复选项"
+
+[node name="AddOptionButton" type="Button" parent="Fields/OptionsSection/OptionsHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新增选项"
+
+[node name="OptionsScroll" type="ScrollContainer" parent="Fields/OptionsSection"]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="OptionRows" type="VBoxContainer" parent="Fields/OptionsSection/OptionsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="ApplyButton" type="Button" parent="Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用消息修改"

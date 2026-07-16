@@ -87,6 +87,10 @@ class GatewayStorage:
                     ON usage_events(created_at, capability);
                 CREATE INDEX IF NOT EXISTS idx_usage_events_user_date
                     ON usage_events(user_id, created_at);
+                CREATE INDEX IF NOT EXISTS idx_usage_events_created_at
+                    ON usage_events(created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_usage_events_capability_status_date
+                    ON usage_events(capability, status, created_at DESC);
                 CREATE TABLE IF NOT EXISTS users (
                     user_id TEXT PRIMARY KEY,
                     username TEXT NOT NULL UNIQUE,
@@ -433,11 +437,36 @@ class GatewayStorage:
             "active_users_today": int(usage_row[1]),
         }
 
-    def list_admin_users(self, usage_date: str, limit: int, offset: int) -> tuple[list[dict[str, object]], int]:
+    def list_admin_users(
+        self,
+        usage_date: str,
+        limit: int,
+        offset: int,
+        query: str = "",
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
+    ) -> tuple[list[dict[str, object]], int]:
+        sort_columns = {
+            "username": "users.username",
+            "created_at": "users.created_at",
+            "used_today": "used_today",
+            "active_sessions": "active_sessions",
+        }
+        order_column = sort_columns.get(sort_by, "users.created_at")
+        order_direction = "ASC" if sort_order == "asc" else "DESC"
+        normalized_query = query.strip()
+        search_pattern = f"%{normalized_query}%"
+        where_clause = "WHERE users.username LIKE ? OR users.email LIKE ? OR users.user_id LIKE ?" if normalized_query else ""
+        search_parameters = (search_pattern, search_pattern, search_pattern) if normalized_query else ()
         with self._connect() as connection:
-            total = int(connection.execute("SELECT COUNT(*) FROM users").fetchone()[0])
+            total = int(
+                connection.execute(
+                    f"SELECT COUNT(*) FROM users {where_clause}",
+                    search_parameters,
+                ).fetchone()[0]
+            )
             rows = connection.execute(
-                """
+                f"""
                 SELECT
                     users.user_id,
                     users.username,
@@ -449,11 +478,12 @@ class GatewayStorage:
                 LEFT JOIN daily_usage
                     ON daily_usage.user_id = users.user_id AND daily_usage.usage_date = ?
                 LEFT JOIN sessions ON sessions.user_id = users.user_id
+                {where_clause}
                 GROUP BY users.user_id
-                ORDER BY users.created_at DESC
+                ORDER BY {order_column} {order_direction}, users.user_id ASC
                 LIMIT ? OFFSET ?
                 """,
-                (datetime.now(UTC).isoformat(), usage_date, limit, offset),
+                (datetime.now(UTC).isoformat(), usage_date, *search_parameters, limit, offset),
             ).fetchall()
         return (
             [
@@ -798,14 +828,57 @@ class GatewayStorage:
         return updated_at
 
     def list_usage_events(self, limit: int) -> list[dict[str, object]]:
+        items, _ = self.query_usage_events(limit=limit)
+        return items
+
+    def query_usage_events(
+        self,
+        limit: int,
+        offset: int = 0,
+        capability: str = "",
+        event_status: str = "",
+        user_query: str = "",
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
+    ) -> tuple[list[dict[str, object]], int]:
+        sort_columns = {
+            "created_at": "created_at",
+            "capability": "capability",
+            "status": "status",
+            "units": "units",
+            "latency_ms": "latency_ms",
+            "error_code": "error_code",
+            "user_id": "user_id",
+        }
+        order_column = sort_columns.get(sort_by, "created_at")
+        order_direction = "ASC" if sort_order == "asc" else "DESC"
+        conditions: list[str] = []
+        parameters: list[object] = []
+        if capability:
+            conditions.append("capability = ?")
+            parameters.append(capability)
+        if event_status:
+            conditions.append("status = ?")
+            parameters.append(event_status)
+        if user_query.strip():
+            conditions.append("user_id LIKE ?")
+            parameters.append(f"%{user_query.strip()}%")
+        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
         with self._connect() as connection:
+            total = int(
+                connection.execute(
+                    f"SELECT COUNT(*) FROM usage_events {where_clause}",
+                    parameters,
+                ).fetchone()[0]
+            )
             rows = connection.execute(
-                """
+                f"""
                 SELECT event_id, user_id, capability, status, units, latency_ms, error_code, created_at
                 FROM usage_events
-                ORDER BY created_at DESC
-                LIMIT ?
+                {where_clause}
+                ORDER BY {order_column} {order_direction}, event_id ASC
+                LIMIT ? OFFSET ?
                 """,
-                (limit,),
+                (*parameters, limit, offset),
             ).fetchall()
-        return [dict(row) for row in rows]
+        return [dict(row) for row in rows], total

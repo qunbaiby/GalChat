@@ -44,6 +44,7 @@ StoryPostEventManager="*res://scripts/data/story_post_event_manager.gd"
 MainChatTopicManager="*res://scripts/data/main_chat_topic_manager.gd"
 GoalManager="*res://scripts/data/goal_manager.gd"
 OfficialAuthManager="*res://scripts/api/official_auth_manager.gd"
+StoryRuntimeDebugBridge="*res://scripts/debug/story_runtime_debug_bridge.gd"
 
 [display]
 
@@ -61,7 +62,7 @@ project/assembly_name="GalChat"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg", "res://addons/story_editor/plugin.cfg")
 
 [file_customization]
 
