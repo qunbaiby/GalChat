@@ -160,8 +160,8 @@ func _load_state() -> void:
 		_state["viewed_ids"] = data.get("viewed_ids", [])
 		_state["custom_titles"] = data.get("custom_titles", {})
 
-func _save_state() -> void:
-	SafeFileAccess.store_string(_get_state_path(), JSON.stringify(_state, "\t"))
+func _save_state() -> bool:
+	return SafeFileAccess.store_string(_get_state_path(), JSON.stringify(_state, "\t"))
 
 func _apply_entry_state(entry: Dictionary) -> Dictionary:
 	var result = entry.duplicate(true)

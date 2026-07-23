@@ -8,7 +8,7 @@ const ChoiceOptionsEditorScene = preload("res://addons/story_editor/ui/story_cho
 const EVENT_TYPES := [
 	"dialogue", "background", "audio", "bgm", "show_character",
 	"move_character", "hide_character", "period_card", "choice", "jump",
-	"set_variable", "ai_chat", "start_free_chat", "voice_call",
+	"set_variable", "ai_chat", "guided_ai_chat", "start_free_chat", "voice_call",
 	"show_player_call_name_popup"
 ]
 
@@ -25,6 +25,7 @@ const EVENT_TYPE_INFO := {
 	"jump": ["跳转章节", "结束当前顺序流并跳转到目标章节。"],
 	"set_variable": ["设置变量", "写入剧情变量供后续条件和分支使用。"],
 	"ai_chat": ["AI 对话", "启动受 Prompt 控制的 AI 对话事件。"],
+	"guided_ai_chat": ["引导式 AI 主线对话", "在作者设定的剧情锚点、必达信息和回合预算内进行自然语言对话，并由角色自动收束。"],
 	"start_free_chat": ["自由聊天", "进入限定轮数的自由聊天流程。"],
 	"voice_call": ["语音通话", "播放一个已注册的固定语音通话。"],
 	"show_player_call_name_popup": ["称呼设置弹窗", "请求玩家设置角色对自己的称呼。"]
@@ -73,6 +74,23 @@ const EVENT_SCHEMAS := {
 	"jump": [["target_chapter", "目标章节", "chapter"]],
 	"set_variable": [["var_name", "变量名", "string"], ["var_value", "变量值", "json"]],
 	"ai_chat": [["prompt_override", "Prompt 覆盖", "multiline"]],
+	"guided_ai_chat": [
+		["session_id", "会话 ID", "string"],
+		["narrative_anchor", "剧情锚点", "multiline"],
+		["scene_objective", "场景目标", "multiline"],
+		["allowed_topics", "允许讨论范围", "json"],
+		["forbidden_facts", "禁止改写事实", "json"],
+		["required_beats", "必达剧情点", "json"],
+		["redirect_instruction", "偏题回拉策略", "multiline"],
+		["max_player_rounds", "最大玩家回合", "integer"],
+		["game_minutes", "完成后推进分钟", "integer"],
+		["action_cost", "进入所需行动力", "integer"],
+		["allow_early_completion", "允许达标后提前收束", "bool"],
+		["hide_manual_end", "隐藏主动结束", "bool"],
+		["closing_instruction", "自然收束指令", "multiline"],
+		["fallback_closing_text", "失败兜底收束台词", "multiline"],
+		["outcome_branches", "结果章节映射", "json"]
+	],
 	"start_free_chat": [["strategy", "对话策略", "multiline"], ["max_rounds", "最大轮数", "integer"]],
 	"voice_call": [["call_id", "固定通话 ID", "resource", "call"]],
 	"show_player_call_name_popup": []

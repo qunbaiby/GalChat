@@ -4,6 +4,7 @@ extends Control
 const JsonService = preload("res://addons/story_editor/core/story_json_service.gd")
 const MobileChatScanner = preload("res://addons/story_editor/core/mobile_fixed_chat_scanner.gd")
 const MobileChatValidator = preload("res://addons/story_editor/core/mobile_chat_validator.gd")
+const StoryScanner = preload("res://addons/story_editor/core/story_scanner.gd")
 const MessageNodeScene = preload("res://addons/story_editor/ui/mobile_chat_message_node.tscn")
 const WINDOW_LAYOUT_PATH := "res://addons/story_editor/core/editor_window_layout.gd"
 
@@ -43,6 +44,9 @@ func _ready() -> void:
 	%RedoButton.pressed.connect(redo)
 	%SaveButton.pressed.connect(save_current_chat)
 	%ApplyCompletionButton.pressed.connect(apply_completion_events)
+	%MainTopicEventSelect.item_selected.connect(_on_main_topic_event_selected)
+	%StoryScriptSelect.item_selected.connect(_on_story_script_selected)
+	%ClearStoryScriptButton.pressed.connect(_clear_story_script_path)
 	_ensure_chat_tree_connections()
 	graph_edit.connection_request.connect(_on_connection_request)
 	graph_edit.disconnection_request.connect(_on_disconnection_request)
@@ -204,6 +208,7 @@ func load_chat(path: String, data: Dictionary) -> void:
 	_update_title()
 	_update_history_buttons()
 	%CompletionEventsEdit.text = JSON.stringify(current_data.get("on_complete_events", []), "    ")
+	_refresh_main_story_binding()
 	_rebuild_graph()
 	_show_diagnostics(MobileChatValidator.validate(current_data))
 	if is_instance_valid(inspector) and inspector.has_method("clear"):
@@ -466,6 +471,7 @@ func apply_completion_events() -> bool:
 		return false
 	_record_history()
 	current_data["on_complete_events"] = (parsed as Array).duplicate(true)
+	_refresh_main_story_binding()
 	_refresh_dirty_state()
 	_show_diagnostics(MobileChatValidator.validate(current_data))
 	return true
@@ -489,6 +495,7 @@ func _restore_snapshot(snapshot: Dictionary) -> void:
 	current_data = (snapshot.get("data", {}) as Dictionary).duplicate(true)
 	selected_message_index = int(snapshot.get("message_index", -1))
 	%CompletionEventsEdit.text = JSON.stringify(current_data.get("on_complete_events", []), "    ")
+	_refresh_main_story_binding()
 	_rebuild_graph()
 	select_message(selected_message_index)
 	_refresh_dirty_state()
@@ -507,6 +514,108 @@ func _refresh_dirty_state() -> void:
 	dirty = current_data != saved_data
 	_update_title()
 	_update_history_buttons()
+
+
+func _refresh_main_story_binding(selected_event_index: int = -1) -> void:
+	%MainTopicEventSelect.clear()
+	var completion_events := current_data.get("on_complete_events", []) as Array
+	for event_index in completion_events.size():
+		var event_value: Variant = completion_events[event_index]
+		if not event_value is Dictionary or str((event_value as Dictionary).get("type", "")) != "activate_main_chat_topic":
+			continue
+		var event := event_value as Dictionary
+		var label := str(event.get("event_id", "主线话题 #%d" % (event_index + 1)))
+		var topic_text := str(event.get("topic_text", "")).strip_edges()
+		if topic_text != "":
+			label += " · %s" % topic_text
+		%MainTopicEventSelect.add_item(label)
+		%MainTopicEventSelect.set_item_metadata(%MainTopicEventSelect.item_count - 1, event_index)
+	var has_topic_events: bool = %MainTopicEventSelect.item_count > 0
+	%MainTopicEventSelect.disabled = not has_topic_events
+	if not has_topic_events:
+		%MainTopicEventSelect.add_item("没有主线话题完成动作")
+		_populate_story_script_select("")
+		%StoryScriptSelect.disabled = true
+		%ClearStoryScriptButton.disabled = true
+		return
+	var selected_item := 0
+	if selected_event_index >= 0:
+		for item_index in %MainTopicEventSelect.item_count:
+			if int(%MainTopicEventSelect.get_item_metadata(item_index)) == selected_event_index:
+				selected_item = item_index
+				break
+	%MainTopicEventSelect.select(selected_item)
+	_on_main_topic_event_selected(selected_item)
+
+
+func _on_main_topic_event_selected(item_index: int) -> void:
+	if item_index < 0 or item_index >= %MainTopicEventSelect.item_count or %MainTopicEventSelect.disabled:
+		return
+	var event_index := int(%MainTopicEventSelect.get_item_metadata(item_index))
+	var completion_events := current_data.get("on_complete_events", []) as Array
+	if event_index < 0 or event_index >= completion_events.size() or not completion_events[event_index] is Dictionary:
+		return
+	var script_path := str((completion_events[event_index] as Dictionary).get("story_script_path", "")).strip_edges()
+	_populate_story_script_select(script_path)
+	%StoryScriptSelect.disabled = false
+	%ClearStoryScriptButton.disabled = script_path == ""
+
+
+func _populate_story_script_select(selected_path: String) -> void:
+	%StoryScriptSelect.clear()
+	%StoryScriptSelect.add_item("不指定后续主线")
+	%StoryScriptSelect.set_item_metadata(0, "")
+	var selected_item := 0
+	for story in StoryScanner.scan():
+		var path := str(story.get("path", ""))
+		if not path.begins_with("res://assets/data/story/scripts/main/"):
+			continue
+		%StoryScriptSelect.add_item(str(story.get("name", path.get_file())))
+		var item_index: int = %StoryScriptSelect.item_count - 1
+		%StoryScriptSelect.set_item_metadata(item_index, path)
+		%StoryScriptSelect.set_item_tooltip(item_index, path)
+		if path == selected_path:
+			selected_item = item_index
+	if selected_path != "" and selected_item == 0:
+		%StoryScriptSelect.add_item("缺失：%s" % selected_path.get_file())
+		selected_item = %StoryScriptSelect.item_count - 1
+		%StoryScriptSelect.set_item_metadata(selected_item, selected_path)
+		%StoryScriptSelect.set_item_tooltip(selected_item, selected_path)
+	%StoryScriptSelect.select(selected_item)
+
+
+func _on_story_script_selected(item_index: int) -> void:
+	if %StoryScriptSelect.disabled or item_index < 0 or item_index >= %StoryScriptSelect.item_count:
+		return
+	_set_selected_story_script_path(str(%StoryScriptSelect.get_item_metadata(item_index)))
+
+
+func _clear_story_script_path() -> void:
+	_set_selected_story_script_path("")
+
+
+func _set_selected_story_script_path(script_path: String) -> bool:
+	if %MainTopicEventSelect.disabled or %MainTopicEventSelect.selected < 0:
+		return false
+	var event_index := int(%MainTopicEventSelect.get_item_metadata(%MainTopicEventSelect.selected))
+	var completion_events := current_data.get("on_complete_events", []) as Array
+	if event_index < 0 or event_index >= completion_events.size() or not completion_events[event_index] is Dictionary:
+		return false
+	var event := (completion_events[event_index] as Dictionary).duplicate(true)
+	if str(event.get("story_script_path", "")) == script_path:
+		return false
+	_record_history()
+	if script_path == "":
+		event.erase("story_script_path")
+	else:
+		event["story_script_path"] = script_path
+	completion_events[event_index] = event
+	current_data["on_complete_events"] = completion_events
+	%CompletionEventsEdit.text = JSON.stringify(completion_events, "    ")
+	_refresh_main_story_binding(event_index)
+	_refresh_dirty_state()
+	_show_diagnostics(MobileChatValidator.validate(current_data))
+	return true
 
 
 func _update_title() -> void:

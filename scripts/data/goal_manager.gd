@@ -155,19 +155,21 @@ func _load_state() -> void:
 	_active_goal_ids = _normalize_goal_id_list((data as Dictionary).get("active_goal_ids", []), false)
 	_completed_goal_ids = _normalize_goal_id_list((data as Dictionary).get("completed_goal_ids", []), true)
 
-func _save_state() -> void:
+func _save_state() -> bool:
 	var save_path: String = _get_save_path()
 	var save_dir: String = save_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(save_dir):
 		DirAccess.make_dir_recursive_absolute(save_dir)
 	var file: FileAccess = FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
-		return
+		return false
 	file.store_string(JSON.stringify({
 		"active_goal_ids": _active_goal_ids,
 		"completed_goal_ids": _completed_goal_ids
 	}, "\t"))
+	var write_error := file.get_error()
 	file.close()
+	return write_error == OK
 
 func _normalize_goal_id_list(raw_list: Variant, allow_missing_defs: bool) -> Array[String]:
 	var normalized: Array[String] = []

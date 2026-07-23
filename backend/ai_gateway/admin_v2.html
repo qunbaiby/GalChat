@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GalChat AI 控制台</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css">
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-sign">G</span><div><strong>GalChat</strong><span>AI Gateway</span></div></div>
+      <nav class="nav" aria-label="管理页面">
+        <button class="nav-item active" data-page="overview"><i data-lucide="layout-dashboard"></i><span>运行总览</span></button>
+        <button class="nav-item" data-page="usage"><i data-lucide="chart-no-axes-combined"></i><span>用量与调用</span></button>
+        <button class="nav-item" data-page="models"><i data-lucide="cpu"></i><span>模型配置</span></button>
+        <button class="nav-item" data-page="accounts"><i data-lucide="users"></i><span>账号管理</span></button>
+        <button class="nav-item" data-page="audit"><i data-lucide="scroll-text"></i><span>审计记录</span></button>
+      </nav>
+      <div class="sidebar-foot"><span class="security-dot"></span>管理凭证仅保存在当前标签页</div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div><p class="eyebrow">ADMIN CONSOLE</p><h1 id="pageTitle">运行总览</h1><p class="page-subtitle" id="pageSubtitle">查看网关状态与今日能力消耗</p></div>
+        <div class="topbar-actions"><span id="updatedAt">等待连接</span><button class="icon-button" id="refreshButton" title="刷新当前页面"><i data-lucide="refresh-cw"></i></button><button class="icon-button" id="logoutButton" title="锁定控制台"><i data-lucide="lock-keyhole"></i></button></div>
+      </header>
+
+      <section class="page active" data-page-panel="overview">
+        <div class="metric-strip">
+          <article><span>今日请求</span><strong id="requestsMetric">--</strong><small id="usageDate">UTC</small></article>
+          <article><span>今日 Token</span><strong id="tokensMetric">--</strong><small>供应商已返回的总量</small></article>
+          <article><span>活跃账号</span><strong id="activeMetric">--</strong><small>今日产生调用</small></article>
+          <article><span>有效会话</span><strong id="sessionsMetric">--</strong><small id="usersMetric">-- 个注册账号</small></article>
+        </div>
+        <section class="panel">
+          <div class="panel-head"><div><h2>能力运行概览</h2><p>每种能力的调用结果、真实 Token 与服务状态</p></div><span class="date-badge" id="overviewDate">今日</span></div>
+          <div class="capability-overview" id="capabilityOverview"></div>
+        </section>
+      </section>
+
+      <section class="page" data-page-panel="usage">
+        <section class="panel">
+          <div class="panel-head"><div><h2>分能力用量</h2><p>额度暂不限制；Token 仅统计供应商明确返回的数据</p></div></div>
+          <div class="table-scroll"><table><thead><tr><th>能力</th><th>请求</th><th>成功率</th><th>输入 Token</th><th>输出 Token</th><th>总 Token</th><th>负载单位</th><th>平均延迟</th></tr></thead><tbody id="capabilityUsageRows"></tbody></table></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>调用记录</h2><p>用于排查失败、延迟异常和调用来源；不保存提示词、图片、音频或密钥</p></div></div>
+          <form class="filterbar" id="usageFilterForm"><label>能力<select id="usageCapabilityFilter"><option value="">全部</option><option value="chat">Chat</option><option value="tts">TTS</option><option value="asr">ASR</option><option value="embedding">Embedding</option><option value="vision">Vision</option><option value="image">Image</option></select></label><label>状态<select id="usageStatusFilter"><option value="">全部</option><option value="succeeded">成功</option><option value="provider_error">供应商错误</option><option value="failed">失败</option><option value="timeout">超时</option><option value="cancelled">已取消</option></select></label><label class="grow">用户 ID<input id="usageUserFilter" type="search" placeholder="输入完整或部分用户 ID"></label><button class="button primary" type="submit">查询</button><button class="button" type="button" id="resetUsageFilters">重置</button></form>
+          <div class="table-scroll"><table><thead><tr><th>时间</th><th>能力</th><th>状态</th><th>Token</th><th>负载</th><th>延迟</th><th>HTTP</th><th>用户 ID</th></tr></thead><tbody id="usageEventRows"></tbody></table></div>
+          <div class="pager"><span id="usageResultCount">共 0 条</span><button class="button" id="usagePrevButton">上一页</button><span id="usagePageState">第 1 页</span><button class="button" id="usageNextButton">下一页</button></div>
+        </section>
+      </section>
+
+      <section class="page" data-page-panel="models">
+        <div class="model-intro"><div><h2>统一模型与能力配置</h2><p>此处控制官方服务模式。个人 API 模式仍使用玩家本地设置。</p></div><span><i data-lucide="shield-check"></i>密钥加密存储且永不回显</span></div>
+        <div class="model-list" id="modelConfigList"></div>
+      </section>
+
+      <section class="page" data-page-panel="accounts">
+        <section class="panel">
+          <div class="panel-head"><div><h2>账号管理</h2><p id="accountCount">注册账号与有效会话</p></div></div>
+          <form class="filterbar" id="accountFilterForm"><label class="grow">账号查询<input id="accountQueryInput" type="search" placeholder="用户名、邮箱或用户 ID"></label><button class="button primary" type="submit">查询</button><button class="button" type="button" id="resetAccountFilters">重置</button></form>
+          <div class="table-scroll"><table><thead><tr><th>用户名</th><th>邮箱</th><th>今日调用</th><th>有效会话</th><th>注册时间</th><th>用户 ID</th></tr></thead><tbody id="userRows"></tbody></table></div>
+          <div class="pager"><button class="button" id="prevButton">上一页</button><span id="pageState">第 1 页</span><button class="button" id="nextButton">下一页</button></div>
+        </section>
+      </section>
+
+      <section class="page" data-page-panel="audit">
+        <section class="panel"><div class="panel-head"><div><h2>审计记录</h2><p>追踪后台配置修改；不记录 API Key 或管理员令牌</p></div></div><div class="table-scroll"><table><thead><tr><th>时间</th><th>操作</th><th>来源 IP</th></tr></thead><tbody id="auditRows"></tbody></table></div></section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="loginDialog"><form class="login" id="loginForm"><div class="login-mark">G</div><h2>进入管理控制台</h2><p>输入服务器配置的管理员令牌。凭证仅保存在当前浏览器标签页。</p><label>管理员令牌<input id="tokenInput" type="password" autocomplete="current-password" required></label><div class="form-message error" id="loginMessage"></div><button class="button primary full" type="submit">验证并进入</button></form></dialog>
+  <div class="toast" id="toast" role="status"></div>
+</body>
+</html>

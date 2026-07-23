@@ -9,6 +9,7 @@ signal on_period_card_requested(period_label: String, location_name: String, bg_
 signal on_audio_requested(audio_type: String, action: String, audio_id: String, fade_time: float, loop: bool)
 signal on_variable_set(var_name: String, var_value: Variant)
 signal on_ai_chat_requested(prompt_override: String)
+signal on_guided_ai_chat_requested(policy: Dictionary)
 signal on_character_show_requested(animation: String, presentation: Dictionary)
 signal on_character_move_requested(animation: String, presentation: Dictionary)
 signal on_character_hide_requested(animation: String, presentation: Dictionary)
@@ -16,9 +17,11 @@ signal on_player_call_name_requested()
 signal on_voice_call_requested(call_id: String)
 signal on_start_free_chat_requested(strategy: String, max_rounds: int)
 signal script_finished(script_id: String)
+signal checkpoint_changed(state: Dictionary)
 
 var current_script_id: String = ""
 var current_script_path: String = ""
+var current_script_data: Dictionary = {}
 var current_script_meta: Dictionary = {}
 var chapters: Dictionary = {} # chapter_id -> ScriptChapter
 var current_chapter_id: String = ""
@@ -52,6 +55,7 @@ func load_script_data(data: Variant, source_path: String = "") -> bool:
         return false
 
     var script_data: Dictionary = data
+    current_script_data = script_data.duplicate(true)
     current_script_id = script_data.get("script_id", "unknown")
     current_script_path = source_path
     current_script_meta = {
@@ -109,6 +113,37 @@ func start_script(start_chapter_id: String = "start") -> void:
     _debug_record("story.chapter.entered")
     _process_next_event()
 
+func restore_checkpoint(state: Dictionary) -> bool:
+    var chapter_id := str(state.get("chapter_id", "")).strip_edges()
+    var event_index := int(state.get("event_index", -1))
+    if str(state.get("script_id", "")) != current_script_id:
+        return false
+    if not chapters.has(chapter_id):
+        return false
+    var chapter: ScriptChapter = chapters[chapter_id]
+    if event_index < 0 or event_index >= chapter.events.size():
+        return false
+    is_running = true
+    is_waiting_for_resume = false
+    current_chapter_id = chapter_id
+    current_event_index = event_index
+    _debug_record("story.checkpoint.restored")
+    _process_next_event()
+    return true
+
+func get_checkpoint() -> Dictionary:
+    if not is_running or not is_waiting_for_resume:
+        return {}
+    var state := {
+        "script_id": current_script_id,
+        "script_path": current_script_path,
+        "chapter_id": current_chapter_id,
+        "event_index": current_event_index
+    }
+    if current_script_path.is_empty():
+        state["script_data"] = current_script_data.duplicate(true)
+    return state
+
 func jump_to_chapter(target_chapter_id: String) -> void:
     _debug_record("story.jump.requested", "info", {}, {"target_chapter": target_chapter_id})
     if target_chapter_id == "end" or not chapters.has(target_chapter_id):
@@ -145,6 +180,7 @@ func _process_next_event() -> void:
         if is_blocking:
             is_waiting_for_resume = true
             _debug_record("story.event.blocked", "info", {"event_type": str(ev.type)})
+            checkpoint_changed.emit(get_checkpoint())
             return # 退出循环，等待外部调用 resume()
 
         if not is_running:

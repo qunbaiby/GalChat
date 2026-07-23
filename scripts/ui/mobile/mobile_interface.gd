@@ -2,6 +2,7 @@ extends Control
 
 signal app_opened(app_name: String)
 signal phone_closing
+signal wechat_closed
 
 const MemoryAlbumManagerScript = preload("res://scripts/data/memory_album_manager.gd")
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
@@ -600,8 +601,10 @@ func _on_wechat_panel_back() -> void:
 		phone_panel.hide()
 		color_rect.color.a = 0.0
 		hide()
+		wechat_closed.emit()
 		phone_closing.emit()
 		return
+	wechat_closed.emit()
 	hide_phone()
 
 func _on_moments_cover_pick_requested() -> void:

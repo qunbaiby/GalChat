@@ -335,12 +335,12 @@ func load_memory() -> void:
 					var revisited_ids = loaded_revisit.get("revisited_memory_ids", [])
 					revisit_state["revisited_memory_ids"] = revisited_ids if revisited_ids is Array else []
 
-func save_memory() -> void:
+func save_memory() -> bool:
 	var data = memories.duplicate(true)
 	data["_turns_since_last_extract"] = turns_since_last_extract
 	data["_revisit_state"] = revisit_state.duplicate(true)
 	var content = JSON.stringify(data, "\t")
-	SafeFileAccess.store_string(get_memory_file_path(), content)
+	return SafeFileAccess.store_string(get_memory_file_path(), content)
 
 func _generate_id() -> String:
 	return str(Time.get_unix_time_from_system() * 1000 + randi() % 1000)

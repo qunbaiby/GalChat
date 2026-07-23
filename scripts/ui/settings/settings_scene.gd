@@ -57,6 +57,7 @@ const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_pan
 @onready var pet_sensitive_window_input: TextEdit = get_node_or_null("%PetSensitiveWindowInput") as TextEdit
 
 @onready var resolution_option: OptionButton = %ResolutionOption
+@onready var window_mode_option: OptionButton = %WindowModeOption
 @onready var fps_option: OptionButton = %FPSOption
 @onready var vsync_check: CheckButton = %VsyncCheck
 
@@ -108,6 +109,7 @@ func _ready() -> void:
 	TTSManager.tts_failed.connect(_on_tts_failed)
 	
 	# 动态连接设置变化
+	window_mode_option.item_selected.connect(_on_window_mode_changed)
 	resolution_option.item_selected.connect(_on_resolution_changed)
 	fps_option.item_selected.connect(_on_fps_changed)
 	vsync_check.toggled.connect(_on_vsync_changed)
@@ -148,7 +150,7 @@ func _ready() -> void:
 func show_panel() -> void:
 	_load_ui_data()
 	_update_popup_layout()
-	_select_tab(tab_container.current_tab if tab_container else 0)
+	_select_tab(1 if ai_service_mode_option.selected == 0 else 0)
 	show()
 	modulate.a = 0.0
 	if background_panel:
@@ -295,7 +297,9 @@ func _load_ui_data() -> void:
 	_update_tts_ui()
 
 	# 加载音画设置
+	window_mode_option.selected = config.window_mode_idx
 	resolution_option.selected = config.resolution_idx
+	_update_resolution_option_state()
 	fps_option.selected = config.fps_idx
 	vsync_check.button_pressed = config.vsync_enabled
 	bgm_slider.value = config.bgm_volume
@@ -388,6 +392,7 @@ func _save_ui_data() -> void:
 	config.doubao_image_model = doubao_image_model_input.text
 	config.enable_ai_diary_illustration = true
 	
+	config.window_mode_idx = window_mode_option.selected
 	config.resolution_idx = resolution_option.selected
 	config.fps_idx = fps_option.selected
 	config.vsync_enabled = vsync_check.button_pressed
@@ -405,6 +410,18 @@ func _on_resolution_changed(idx: int) -> void:
 	GameDataManager.config.resolution_idx = idx
 	GameDataManager.config.apply_settings()
 	GameDataManager.config.save_config()
+
+func _on_window_mode_changed(idx: int) -> void:
+	if _is_loading_ui:
+		return
+	GameDataManager.config.window_mode_idx = idx
+	_update_resolution_option_state()
+	GameDataManager.config.apply_settings()
+	GameDataManager.config.save_config()
+
+func _update_resolution_option_state() -> void:
+	resolution_option.disabled = window_mode_option.selected != 0
+	resolution_option.tooltip_text = "仅窗口模式可调整窗口尺寸" if resolution_option.disabled else "设置窗口客户区尺寸"
 
 func _on_fps_changed(idx: int) -> void:
 	if _is_loading_ui:
@@ -585,12 +602,18 @@ func _open_account_auth_panel() -> void:
 
 func _update_ai_service_mode_ui() -> void:
 	var uses_official: bool = ai_service_mode_option.selected == 0
+	if tab_container:
+		tab_container.set_tab_hidden(0, uses_official)
+	if ai_tab_button:
+		ai_tab_button.visible = not uses_official
+	if uses_official and tab_container and tab_container.current_tab == 0:
+		_select_tab(1)
 	var rows_vbox: VBoxContainer = ai_service_mode_option.get_parent().get_parent() as VBoxContainer
 	for row_name in ["OfficialStatusRow", "OfficialGatewayRow"]:
 		var official_row: Control = rows_vbox.get_node_or_null(row_name) as Control
 		if official_row:
 			official_row.visible = uses_official
-	for row_name in ["ApiKeyRow", "DoubaoChatKeyRow", "ModelRow", "TempRow", "TokenRow"]:
+	for row_name in ["ApiKeyRow", "DoubaoChatKeyRow", "ModelRow", "TempRow", "TokenRow", "AiModeRow"]:
 		var personal_row: Control = rows_vbox.get_node_or_null(row_name) as Control
 		if personal_row:
 			personal_row.visible = not uses_official
@@ -610,10 +633,19 @@ func _update_ai_service_mode_ui() -> void:
 		var embedding_row: Control = embedding_input.get_parent() as Control
 		if embedding_row:
 			embedding_row.visible = not uses_official
+	var embedding_mode_row: Control = embed_mode_check.get_parent() as Control
+	if embedding_mode_row:
+		embedding_mode_row.visible = not uses_official
 	for vision_input in [vision_key_input, vision_model_input, vision_base_url_input]:
 		var vision_row: Control = vision_input.get_parent() as Control
 		if vision_row:
 			vision_row.visible = not uses_official
+	var vision_mode_row: Control = vision_mode_check.get_parent() as Control
+	if vision_mode_row:
+		vision_mode_row.visible = not uses_official
+	var image_mode_row: Control = image_gen_mode_check.get_parent() as Control
+	if image_mode_row:
+		image_mode_row.visible = not uses_official
 
 func _on_official_auth_state_changed(is_authenticated: bool, message: String) -> void:
 	if official_ai_status_label:
@@ -635,9 +667,9 @@ func _on_official_session_state_changed(state: int, message: String) -> void:
 			official_ai_status_label.text = message
 			official_connect_button.text = "登录官方账号"
 
-func _on_official_quota_updated(remaining: int, limit: int) -> void:
+func _on_official_quota_updated(_remaining: int, _limit: int) -> void:
 	if official_ai_status_label:
-		official_ai_status_label.text = "已授权 · 今日 %d / %d" % [remaining, limit]
+		official_ai_status_label.text = "已授权 · 能力用量不限额"
 
 func _on_tts_backend_changed(_idx: int) -> void:
 	_update_tts_ui()

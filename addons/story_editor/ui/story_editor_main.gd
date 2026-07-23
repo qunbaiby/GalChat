@@ -20,7 +20,7 @@ const ChapterEntryNodeScene = preload("res://addons/story_editor/ui/story_chapte
 const CREATE_EVENT_TYPES := [
 	"dialogue", "background", "audio", "bgm", "show_character",
 	"move_character", "hide_character", "period_card", "choice", "jump",
-	"set_variable", "ai_chat", "start_free_chat", "voice_call",
+	"set_variable", "ai_chat", "guided_ai_chat", "start_free_chat", "voice_call",
 	"show_player_call_name_popup"
 ]
 
@@ -37,6 +37,7 @@ const EVENT_TYPE_LABELS := {
 	"jump": "跳转章节",
 	"set_variable": "设置变量",
 	"ai_chat": "AI 对话",
+	"guided_ai_chat": "引导式 AI 主线对话",
 	"start_free_chat": "自由聊天",
 	"voice_call": "语音通话",
 	"show_player_call_name_popup": "称呼设置弹窗"
@@ -55,6 +56,24 @@ const EVENT_DEFAULTS := {
 	"jump": {"type": "jump", "target_chapter": "end"},
 	"set_variable": {"type": "set_variable", "var_name": "", "var_value": true},
 	"ai_chat": {"type": "ai_chat", "prompt_override": ""},
+	"guided_ai_chat": {
+		"type": "guided_ai_chat",
+		"session_id": "guided_story_chat",
+		"narrative_anchor": "描述本轮不可被改写的剧情事实。",
+		"scene_objective": "描述本轮对话需要达成的剧情目标。",
+		"allowed_topics": [],
+		"forbidden_facts": [],
+		"required_beats": [],
+		"redirect_instruction": "玩家偏题时先简短回应，再自然拉回当前主线。",
+		"max_player_rounds": 4,
+		"game_minutes": 30,
+		"action_cost": 0,
+		"allow_early_completion": false,
+		"hide_manual_end": true,
+		"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。",
+		"fallback_closing_text": "（轻轻点头）那今天就先聊到这里吧。",
+		"outcome_branches": {}
+	},
 	"start_free_chat": {"type": "start_free_chat", "strategy": "", "max_rounds": 3},
 	"voice_call": {"type": "voice_call", "call_id": ""},
 	"show_player_call_name_popup": {"type": "show_player_call_name_popup"}
@@ -87,6 +106,28 @@ const EVENT_TEMPLATES := {
 		{"type": "ai_chat", "prompt_override": "围绕刚才发生的事件进行一次克制、连贯且不偏离当前关系阶段的交流。"},
 		{"type": "dialogue", "speaker": "旁白", "content": "交流结束后，故事继续。"}
 	],
+	"引导式 AI 主线": [
+		{"type": "dialogue", "speaker": "旁白", "content": "描述进入本轮主线对话前的场景。"},
+		{
+			"type": "guided_ai_chat",
+			"session_id": "guided_story_chat",
+			"narrative_anchor": "描述本轮不可被改写的剧情事实。",
+			"scene_objective": "描述本轮对话需要达成的剧情目标。",
+			"allowed_topics": [],
+			"forbidden_facts": [],
+			"required_beats": [{"id": "beat_1", "instruction": "描述角色必须自然表达的第一个剧情点。"}],
+			"redirect_instruction": "玩家偏题时先简短回应，再自然拉回当前主线。",
+			"max_player_rounds": 4,
+			"game_minutes": 30,
+			"action_cost": 0,
+			"allow_early_completion": false,
+			"hide_manual_end": true,
+			"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。",
+			"fallback_closing_text": "（轻轻点头）那今天就先聊到这里吧。",
+			"outcome_branches": {"complete": "end", "incomplete": "end"}
+		},
+		{"type": "dialogue", "speaker": "旁白", "content": "描述本轮交流结束后的余韵。"}
+	],
 	"章节收束与结算": [
 		{"type": "hide_character", "character": "", "animation": "fade_out"},
 		{"type": "audio", "audio_id": "", "audio_type": "bgs", "action": "stop", "fade_time": 0.5, "loop": false},
@@ -101,6 +142,7 @@ const EVENT_TEMPLATE_NAMES := [
 	"双人会面",
 	"回应型玩家选择",
 	"固定剧情 AI 插曲",
+	"引导式 AI 主线",
 	"章节收束与结算"
 ]
 
@@ -118,6 +160,7 @@ const CONTENT_MOBILE_AI := 13
 const CONTENT_REFERENCES := 14
 const CONTENT_GUIDE_FLOW := 15
 const CONTENT_SCHEDULE := 16
+const CONTENT_CONCERN_AI := 17
 const SYSTEM_SCHEMA_MIGRATION := 20
 const SYSTEM_RUNTIME_DEBUG := 21
 const CREATE_CONTENT_TYPES := [
@@ -207,6 +250,7 @@ func _ready() -> void:
 	%ValidateButton.pressed.connect(_refresh_diagnostics)
 	%SimulateButton.pressed.connect(_open_branch_simulation)
 	%AIWorkbenchButton.pressed.connect(%DateAIWorkbench.open_workbench)
+	%ConcernAIButton.pressed.connect(%ConcernAIWorkbench.open_workbench)
 	%MobileChatButton.pressed.connect(%MobileChatCatalogWindow.open_catalog)
 	%FixedCallButton.pressed.connect(%FixedVoiceCallCatalogWindow.open_catalog)
 	%MobileAIButton.pressed.connect(%MobileAIWorkbench.open_workbench)
@@ -598,7 +642,7 @@ func _setup_toolbar_menus() -> void:
 	_add_menu_items(story_popup, [[TOOL_VALIDATE, "校验当前剧情"], [TOOL_SIMULATE, "分支模拟"], [TOOL_NODE_TEMPLATES, "节点模板库"], [TOOL_COVERAGE_REPORT, "覆盖率报告"]])
 	story_popup.id_pressed.connect(_on_toolbar_menu_selected)
 	var content_popup: PopupMenu = %ContentToolsMenu.get_popup()
-	_add_menu_items(content_popup, [[CONTENT_AI_WORKBENCH, "AI 约会"], [CONTENT_MOBILE_AI, "手机 AI"], [CONTENT_REFERENCES, "剧情引用"], [CONTENT_GUIDE_FLOW, "Guide Flow"], [CONTENT_SCHEDULE, "入口调度"]])
+	_add_menu_items(content_popup, [[CONTENT_AI_WORKBENCH, "AI 约会"], [CONTENT_CONCERN_AI, "AI 心事"], [CONTENT_MOBILE_AI, "手机 AI"], [CONTENT_REFERENCES, "剧情引用"], [CONTENT_GUIDE_FLOW, "Guide Flow"], [CONTENT_SCHEDULE, "入口调度"]])
 	content_popup.id_pressed.connect(_on_toolbar_menu_selected)
 	var system_popup: PopupMenu = %SystemToolsMenu.get_popup()
 	_add_menu_items(system_popup, [[SYSTEM_SCHEMA_MIGRATION, "Schema 迁移"], [SYSTEM_RUNTIME_DEBUG, "运行时监视"]])
@@ -624,6 +668,7 @@ func _on_toolbar_menu_selected(id: int) -> void:
 			_show_workspace("fixed_call")
 			%FixedVoiceCallCatalogWindow.refresh_catalog()
 		CONTENT_AI_WORKBENCH: %DateAIWorkbench.open_workbench()
+		CONTENT_CONCERN_AI: %ConcernAIWorkbench.open_workbench()
 		CONTENT_MOBILE_AI: %MobileAIWorkbench.open_workbench()
 		CONTENT_REFERENCES: %StoryReferenceCatalogWindow.open_catalog()
 		CONTENT_GUIDE_FLOW: %GuideFlowEditorWindow.open_editor()

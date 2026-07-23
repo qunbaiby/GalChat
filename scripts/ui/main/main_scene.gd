@@ -1,6 +1,8 @@
 extends Control
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
+const ConcernTemplateRepository = preload("res://scripts/data/concern_template_repository.gd")
+const ConcernTemplateCompiler = preload("res://scripts/data/concern_template_compiler.gd")
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const AffectionPanelScene = preload("res://scenes/ui/main/affection_panel.tscn")
 const BackgroundSettingPanelScene = preload("res://scenes/ui/main/background_setting_panel.tscn")
@@ -64,7 +66,6 @@ const MAIN_FEATURE_ALIASES := {
 @onready var wechat_unread_badge: Label = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton/UnreadBadge
 @onready var main_action_button: Button = $UIPanel/BottomBarHBox/ActionHBox/MainActionButton
 
-var _photo_manager = PhotoMemoryManagerScript.new()
 @onready var stats_panel = $UIPanel/StatsPanelAnchor/StatsPanel
 @onready var top_status_panel = $UIPanel/TopStatusPanel
 @onready var weather_panel: Control = $UIPanel/WeatherPanel
@@ -91,7 +92,6 @@ var _photo_manager = PhotoMemoryManagerScript.new()
 var activity_panel_instance = null
 var drawing_board_instance = null
 
-var _chat_tween: Tween = null
 var _typewriter_tween: Tween = null
 var stream_live_buffer: String = ""
 var stream_live_active: bool = false
@@ -146,16 +146,6 @@ var _main_scene_idle_chat_interval: float = MAIN_SCENE_IDLE_CHAT_MIN_SECONDS
 var map_scene_instance = null
 var creation_music_panel_instance = null
 
-const TOPIC_LIST = [
-	"最近在忙些什么呢？",
-	"今天天气真不错，对吧？",
-	"有什么心事想和我聊聊吗？",
-	"推荐一本你喜欢的书或电影吧。",
-	"聊聊你的兴趣爱好吧！",
-	"最近有遇到什么有趣的事吗？",
-	"周末通常是怎么过的呢？"
-]
-
 var stream_live_queue: Array = []
 var stream_live_worker_running: bool = false
 var stream_live_done: bool = false
@@ -174,11 +164,7 @@ var _main_chat_player_line_active: bool = false
 var pending_options_data = []
 var _rendered_quick_options: Array = []
 var is_text_playback_finished = true
-var _awaiting_topic_selection: bool = false
-var _topic_greeting_playing: bool = false
-var _pending_topic_options: Array = []
 var _main_chat_session_client: DeepSeekClient = null
-var _main_chat_session_channel: String = ""
 const DAILY_HISTORY_MODULE := "daily"
 const MAIN_CHAT_SUBTYPE_DAILY := "daily_chat"
 const MAIN_CHAT_SUBTYPE_TOPIC := "daily_topic_chat"
@@ -188,8 +174,11 @@ const MAIN_CHAT_SUBTYPE_MEMORY := "daily_memory_revisit"
 const MAIN_CHAT_SUBTYPE_PROACTIVE := "daily_proactive"
 var _current_main_chat_subtype: String = MAIN_CHAT_SUBTYPE_DAILY
 var _current_main_chat_topic: String = ""
-var _pending_main_story_topic: Dictionary = {}
 var _selected_main_story_topic: Dictionary = {}
+var _pending_auto_main_story_after_wechat_close: bool = false
+var _pending_auto_main_story_character_id: String = ""
+var _active_embedded_main_story_topic: Dictionary = {}
+var _resolved_concern_template: Dictionary = {}
 
 func _set_main_chat_context(subtype: String, topic: String = "") -> void:
 	_current_main_chat_subtype = subtype
@@ -200,7 +189,6 @@ func _reset_main_chat_context() -> void:
 
 func _start_main_chat_session(channel: String) -> DeepSeekClient:
 	_end_main_chat_session()
-	_main_chat_session_channel = channel
 	_main_chat_session_client = DeepSeekClient.new()
 	_main_chat_session_client.name = "MainChatClient_%s" % channel
 	add_child(_main_chat_session_client)
@@ -216,7 +204,6 @@ func _end_main_chat_session() -> void:
 		_main_chat_session_client.cancel_chat_request()
 		_main_chat_session_client.queue_free()
 	_main_chat_session_client = null
-	_main_chat_session_channel = ""
 	pending_options_data.clear()
 	_rendered_quick_options.clear()
 	stream_live_queue.clear()
@@ -230,12 +217,7 @@ func _get_main_chat_session_client() -> DeepSeekClient:
 	var channel := "story" if _current_main_chat_subtype == MAIN_CHAT_SUBTYPE_STORY_TOPIC else "daily"
 	return _start_main_chat_session(channel)
 
-func _resolve_topic_chat_subtype(topic: String) -> String:
-	var normalized = topic.strip_edges()
-	var concern_keywords = ["心事", "烦恼", "难过", "委屈", "伤心", "不开心"]
-	for keyword in concern_keywords:
-		if normalized.find(keyword) != -1:
-			return MAIN_CHAT_SUBTYPE_CONCERN
+func _resolve_topic_chat_subtype(_topic: String) -> String:
 	return MAIN_CHAT_SUBTYPE_TOPIC
 
 func _build_main_chat_meta(extra_data: Dictionary = {}) -> Dictionary:
@@ -269,6 +251,45 @@ func _get_current_main_chat_character_id() -> String:
 		return str(GameDataManager.config.current_character_id).strip_edges().to_lower()
 	return ""
 
+func _build_concern_template_context() -> Dictionary:
+	var story_time_manager = GameDataManager.story_time_manager
+	var date_dict: Dictionary = story_time_manager.get_current_date_dict() if story_time_manager else {}
+	return {
+		"character_id": _get_current_main_chat_character_id(),
+		"character_name": str(GameDataManager.profile.char_name) if GameDataManager.profile else "角色",
+		"weekday": int(date_dict.get("weekday", -1)),
+		"time_period": str(story_time_manager.current_period) if story_time_manager else "",
+		"day_offset": int(story_time_manager.current_day_offset) if story_time_manager else 0,
+		"stage": int(GameDataManager.profile.current_stage) if GameDataManager.profile else 0,
+		"intimacy": float(GameDataManager.profile.intimacy) if GameDataManager.profile else 0.0,
+		"trust": float(GameDataManager.profile.trust) if GameDataManager.profile else 0.0
+	}
+
+func resolve_available_concern_template() -> Dictionary:
+	var state: Dictionary = GameDataManager.profile.concern_template_state if GameDataManager.profile else {}
+	_resolved_concern_template = ConcernTemplateRepository.resolve_for_context(_build_concern_template_context(), state)
+	return _resolved_concern_template.duplicate(true)
+
+func has_available_concern_template() -> bool:
+	return not resolve_available_concern_template().is_empty()
+
+func _record_concern_template_started(template_id: String, day_offset: int) -> void:
+	if not GameDataManager.profile or template_id == "":
+		return
+	var template_state: Dictionary = GameDataManager.profile.concern_template_state.get(template_id, {})
+	template_state["last_started_day"] = day_offset
+	GameDataManager.profile.concern_template_state[template_id] = template_state
+	GameDataManager.profile.save_profile()
+
+func _record_concern_template_completed(template_id: String, day_offset: int) -> void:
+	if not GameDataManager.profile or template_id == "":
+		return
+	var template_state: Dictionary = GameDataManager.profile.concern_template_state.get(template_id, {})
+	template_state["completion_count"] = int(template_state.get("completion_count", 0)) + 1
+	template_state["last_completed_day"] = day_offset
+	GameDataManager.profile.concern_template_state[template_id] = template_state
+	GameDataManager.profile.save_profile()
+
 func _clear_expired_main_chat_topics() -> void:
 	var manager := _get_main_chat_topic_manager()
 	if manager == null or not manager.has_method("clear_expired_topics"):
@@ -290,26 +311,6 @@ func _get_active_story_topic_for_current_character() -> Dictionary:
 		return (topic_data as Dictionary).duplicate(true)
 	return {}
 
-func _prepare_story_topic_option_if_needed() -> bool:
-	_clear_expired_main_chat_topics()
-	_pending_main_story_topic = _get_active_story_topic_for_current_character()
-	if _pending_main_story_topic.is_empty():
-		return false
-	var topic_text := str(_pending_main_story_topic.get("topic_text", "")).strip_edges()
-	if topic_text == "":
-		_pending_main_story_topic.clear()
-		return false
-	_pending_topic_options = [
-		QuickOptionListHelper.build_topic_option_item(topic_text, "story")
-	]
-	return true
-
-func _clear_story_topic_tracking(clear_pending: bool = true, clear_selected: bool = true) -> void:
-	if clear_pending:
-		_pending_main_story_topic.clear()
-	if clear_selected:
-		_selected_main_story_topic.clear()
-
 func _consume_selected_story_topic_if_needed() -> void:
 	if _selected_main_story_topic.is_empty():
 		return
@@ -319,6 +320,32 @@ func _consume_selected_story_topic_if_needed() -> void:
 		if char_id != "":
 			manager.consume_active_topic(char_id)
 	_selected_main_story_topic.clear()
+
+func _on_wechat_closed() -> void:
+	_pending_auto_main_story_after_wechat_close = true
+	_pending_auto_main_story_character_id = _get_current_main_chat_character_id()
+
+func _try_start_auto_main_story_after_wechat_close() -> bool:
+	if not _pending_auto_main_story_after_wechat_close:
+		return false
+	_pending_auto_main_story_after_wechat_close = false
+	var closed_for_character_id := _pending_auto_main_story_character_id
+	_pending_auto_main_story_character_id = ""
+	if closed_for_character_id == "" or closed_for_character_id != _get_current_main_chat_character_id():
+		return false
+	_clear_expired_main_chat_topics()
+	var manager := _get_main_chat_topic_manager()
+	if manager == null or not manager.has_method("claim_pending_auto_start_topic"):
+		return false
+	var char_id := closed_for_character_id
+	var topic_data: Variant = manager.claim_pending_auto_start_topic(char_id, "fixed_chat_close")
+	if not (topic_data is Dictionary) or (topic_data as Dictionary).is_empty():
+		return false
+	if _start_embedded_main_story(topic_data as Dictionary):
+		return true
+	if manager.has_method("release_claimed_auto_start_topic"):
+		manager.release_claimed_auto_start_topic(char_id, str((topic_data as Dictionary).get("event_id", "")))
+	return false
 
 func _update_affection_button_ui() -> void:
 	if not is_instance_valid(affection_button) or not GameDataManager.profile:
@@ -848,108 +875,255 @@ func _is_scene_chat_entry_allowed_by_time() -> bool:
 	var current_hour = GameDataManager.story_time_manager.current_hour
 	return weekday == 0 or weekday == 6 or (weekday == 5 and current_hour >= 20)
 
-func _start_main_chat_flow(animate_target: Button = null, report_action: bool = true) -> void:
-	if _is_ui_blocked(): return
+func _on_scene_chat_button_pressed() -> void:
+	var chat_btn := _get_scene_chat_button()
+	if _is_scene_concern_chat_available():
+		_start_embedded_concern_chat(chat_btn)
+		return
+	_start_embedded_daily_chat(chat_btn)
+
+func _set_main_scene_dialogue_panel_handlers_enabled(enabled: bool) -> void:
+	var bindings := [
+		[end_chat_btn, Callable(self, "_on_end_chat_pressed")],
+		[history_btn, Callable(self, "_on_history_pressed")],
+		[send_btn, Callable(self, "_on_send_pressed")]
+	]
+	for binding in bindings:
+		var button := binding[0] as Button
+		var callback := binding[1] as Callable
+		if not is_instance_valid(button):
+			continue
+		if enabled and not button.pressed.is_connected(callback):
+			button.pressed.connect(callback)
+		elif not enabled and button.pressed.is_connected(callback):
+			button.pressed.disconnect(callback)
+
+func _ensure_embedded_dialogue_manager() -> Control:
+	if is_instance_valid(chat_scene_instance):
+		return chat_scene_instance
+	_set_main_scene_dialogue_panel_handlers_enabled(false)
+	if dialogue_panel.has_signal("panel_clicked") and dialogue_panel.panel_clicked.is_connected(_on_dialogue_panel_gui_input):
+		dialogue_panel.panel_clicked.disconnect(_on_dialogue_panel_gui_input)
+	chat_scene_instance = Control.new()
+	chat_scene_instance.name = "EmbeddedDialogueManager"
+	chat_scene_instance.visible = false
+	chat_scene_instance.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chat_scene_instance.set_script(load("res://scripts/dialogue/dialogue_manager.gd"))
+	var session_client := DeepSeekClient.new()
+	session_client.name = "DeepSeekClient"
+	chat_scene_instance.add_child(session_client)
+	chat_scene_instance.ui_panel_path = NodePath("../DialoguePanel")
+	chat_scene_instance.dialogue_panel_path = NodePath("../DialoguePanel")
+	chat_scene_instance.deepseek_client_path = NodePath("DeepSeekClient")
+	chat_scene_instance.audio_player_path = NodePath("../MainTTSPlayer")
+	chat_scene_instance.click_blocker_path = NodePath("")
+	chat_scene_instance.character_layer_path = NodePath("")
+	chat_scene_instance.free_chat_info_layer_path = NodePath("")
+	chat_scene_instance.external_session_controlled = true
+	add_child(chat_scene_instance)
+	move_child(chat_scene_instance, -1)
+	chat_scene_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	chat_scene_instance.chat_closed.connect(_on_chat_closed)
+	chat_scene_instance.embedded_topic_selected.connect(_on_embedded_topic_selected)
+	chat_scene_instance.embedded_topic_options_ready.connect(_on_embedded_topic_options_ready)
+	chat_scene_instance.embedded_story_choice_ready.connect(_on_embedded_story_choice_ready)
+	chat_scene_instance.embedded_story_choice_selected.connect(_on_embedded_story_choice_selected)
+	chat_scene_instance.embedded_session_completed.connect(_on_embedded_session_completed)
+	return chat_scene_instance
+
+func _start_embedded_dialogue_session(request: Dictionary, animate_target: Button = null) -> bool:
+	if _is_ui_blocked() or _story_mode_active:
+		return false
 	if is_instance_valid(animate_target):
 		_animate_button(animate_target)
-	if report_action:
-		_report_guide_action("open_main_chat")
-	
+	_story_mode_active = true
 	if _ui_tween:
 		_ui_tween.kill()
 	_ui_tween = create_tween()
 	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
 	_ui_tween.tween_callback(func(): ui_panel.visible = false)
-	
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
 		current_bg_scene.set_ui_hidden(true)
-
-	_begin_topic_selection_flow()
-
-func _on_main_chat_pressed() -> void:
-	_start_main_chat_flow()
-
-func _on_scene_chat_button_pressed() -> void:
-	var chat_btn := _get_scene_chat_button()
-	if has_scene_chat_mainline_available():
-		_start_main_chat_flow(chat_btn, true)
-		return
-	if _is_scene_concern_chat_available():
-		_start_story_concern_flow(chat_btn)
-		return
-	_start_main_chat_flow(chat_btn, true)
-
-func _begin_topic_selection_flow() -> void:
-	_awaiting_topic_selection = true
-	_topic_greeting_playing = true
-	_pending_topic_options.clear()
-	_clear_story_topic_tracking()
-	_show_dialogue_topic_selection()
-	_populate_topics()
-	_request_topic_greeting()
-
-func _show_dialogue_topic_selection() -> void:
 	_set_interaction_ui_hidden_for_dialogue(true)
-	dialogue_panel.visible = true
-	dialogue_panel.visible = true
-	dialogue_panel.modulate.a = 0.0
-	var d_tween = create_tween()
-	d_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
+	var session_manager := _ensure_embedded_dialogue_manager()
+	session_manager.start_embedded_topic_session(request)
+	if bgm.playing:
+		bgm.stop()
+	return true
 
-	dialogue_name_label.text = GameDataManager.profile.char_name
-	dialogue_text.bbcode_enabled = true
-	dialogue_text.visible_ratio = 1.0
-	dialogue_text.visible_characters = -1
+func _start_embedded_main_story(topic_data: Dictionary) -> bool:
+	_active_embedded_main_story_topic = topic_data.duplicate(true)
+	var story_script_path := str(topic_data.get("story_script_path", "")).strip_edges()
+	if _story_script_exists(story_script_path):
+		var scripted_request := {
+			"session_id": str(topic_data.get("event_id", "main_story")),
+			"mode": "main_story",
+			"subtype": MAIN_CHAT_SUBTYPE_STORY_TOPIC,
+			"story_topic": topic_data.duplicate(true)
+		}
+		if _start_embedded_story_dialogue_session(scripted_request, story_script_path):
+			return true
+		_active_embedded_main_story_topic.clear()
+		return false
+	var topic_text := str(topic_data.get("topic_text", "")).strip_edges()
+	var prompt_hint := str(topic_data.get("topic_prompt_hint", "")).strip_edges()
+	var intro_events: Array = topic_data.get("intro_events", [])
+	if intro_events.is_empty():
+		intro_events = [
+			{"speaker": "旁白", "content": "她似乎正等着和你谈谈刚刚发生的事。"},
+			{"speaker": GameDataManager.profile.char_name, "content": "（轻轻看向你）有件事，我正想和你说。"}
+		]
+	var fallback_request := {
+		"session_id": str(topic_data.get("event_id", "main_story")),
+		"mode": "main_story",
+		"subtype": MAIN_CHAT_SUBTYPE_STORY_TOPIC,
+		"intro_events": intro_events,
+		"topic_options": [QuickOptionListHelper.build_topic_option_item(topic_text, "story")],
+		"ai_context": prompt_hint,
+		"topic_prompt_template": "【系统提示】玩家选择了主线话题：{topic}。请结合以下剧情背景自然承接，不要复述提示，直接以角色第一人称回复并包含括号动作描写。剧情背景：%s" % prompt_hint,
+		"cost_action": "",
+		"story_topic": topic_data.duplicate(true)
+	}
+	if _start_embedded_dialogue_session(fallback_request):
+		return true
+	_active_embedded_main_story_topic.clear()
+	return false
 
-	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
-	_set_dialogue_toolbar_visible(true, true, true)
-	if quick_option_layer:
-		quick_option_layer.hide()
+static func _story_script_exists(script_path: String) -> bool:
+	return script_path != "" and FileAccess.file_exists(script_path)
 
-func _populate_topics() -> void:
-	_clear_topic_options()
-	if _prepare_story_topic_option_if_needed():
-		_start_main_chat_session("story")
-		if _awaiting_topic_selection and not _topic_greeting_playing:
-			_show_topic_options()
+func _start_embedded_story_dialogue_session(request: Dictionary, script_path: String) -> bool:
+	if _is_ui_blocked() or _story_mode_active:
+		return false
+	_story_mode_active = true
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(true)
+	_set_interaction_ui_hidden_for_dialogue(true)
+	var session_manager := _ensure_embedded_dialogue_manager()
+	session_manager.start_embedded_story_session(request, script_path)
+	if bgm.playing:
+		bgm.stop()
+	return true
+
+func _start_embedded_concern_chat(animate_target: Button = null) -> void:
+	var template := resolve_available_concern_template()
+	if template.is_empty():
+		_start_embedded_daily_chat(animate_target)
 		return
-	_start_main_chat_session("daily")
-	
-	# 请求 AI 动态生成话题
+	var context := _build_concern_template_context()
+	var request := {
+		"session_id": "concern_%s_%d" % [str(template.get("template_id", "concern")), int(context.get("day_offset", 0))],
+		"mode": "concern",
+		"subtype": MAIN_CHAT_SUBTYPE_CONCERN,
+		"concern_template_id": str(template.get("template_id", "")),
+		"concern_started_day": int(context.get("day_offset", 0))
+	}
+	if _is_ui_blocked() or _story_mode_active:
+		return
+	if is_instance_valid(animate_target):
+		_animate_button(animate_target)
+	_story_mode_active = true
+	if _ui_tween:
+		_ui_tween.kill()
+	_ui_tween = create_tween()
+	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
+	_ui_tween.tween_callback(func(): ui_panel.visible = false)
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(true)
+	_set_interaction_ui_hidden_for_dialogue(true)
+	var session_manager := _ensure_embedded_dialogue_manager()
+	session_manager.start_embedded_story_data_session(request, ConcernTemplateCompiler.compile(template, context))
+	_record_concern_template_started(str(template.get("template_id", "")), int(context.get("day_offset", 0)))
+	if bgm.playing:
+		bgm.stop()
+
+func _start_embedded_daily_chat(animate_target: Button = null) -> void:
+	if _is_ui_blocked() or _story_mode_active:
+		return
+	if is_instance_valid(animate_target):
+		_animate_button(animate_target)
 	var profile = GameDataManager.profile
 	var stage_conf = profile.get_current_stage_config()
-	var stage_title = stage_conf.get("stageTitle", "陌生人")
-	var world_bg = profile.description.replace("{char_name}", profile.char_name)
-	
-	var prompt = "【系统指令】\n当前世界观与角色设定：%s\n\n请基于当前玩家作为少女【%s】的“指导人”身份，以及你们当前的情感阶段（当前阶段：%s），分别生成 3 个固定类别的话题选项：1 个学习话题、1 个生活话题、1 个情感话题。\n要求：\n1. 话题必须严格符合上述世界观设定，绝对禁止凭空捏造不符合设定的元素。\n2. 三个话题都要符合指导人身份，可以体现教导、关心、日常询问、鼓励或情感陪伴。\n3. 每个话题 20 字以内，自然简短，且必须是可以直接点击发送的玩家台词。\n4. 只输出 JSON，不要输出任何解释文字。\n5. JSON 格式必须严格如下：{\"study_topic\":\"...\",\"life_topic\":\"...\",\"emotion_topic\":\"...\"}" % [world_bg, profile.char_name, stage_title]
-	
-	var session_client := _get_main_chat_session_client()
-	session_client.generate_dynamic_topics(prompt, func(text: String):
-		if session_client != _main_chat_session_client:
+	var prompt = "请基于角色设定和当前情感阶段，生成学习、生活、感受各一个20字以内、可由玩家直接发送的轻松日常话题，不要生成正式心事剧情。只输出JSON：{\"study_topic\":\"...\",\"life_topic\":\"...\",\"emotion_topic\":\"...\"}。当前阶段：%s。角色设定：%s" % [stage_conf.get("stageTitle", "陌生人"), profile.description]
+	var topic_client := _start_main_chat_session("embedded_daily_topics")
+	topic_client.generate_dynamic_topics(prompt, func(text: String):
+		if topic_client != _main_chat_session_client:
 			return
-		if not _awaiting_topic_selection:
-			return
-		if text.is_empty():
-			_render_dynamic_topics("最近在忙些什么呢？\n今天天气真不错，对吧？\n有什么心事想和我聊聊吗？")
-		else:
-			_render_dynamic_topics(text)
+		var topic_map := _parse_topic_topic_map(text)
+		_end_main_chat_session()
+		var request := {
+			"session_id": "daily_%d" % Time.get_unix_time_from_system(),
+			"mode": "daily",
+			"subtype": MAIN_CHAT_SUBTYPE_TOPIC,
+			"intro_events": [
+				{"speaker": "旁白", "content": "周末的片刻显得格外安静。"},
+				{"speaker": profile.char_name, "content": "（放松地看向你）今天想聊些什么？"},
+				{"speaker": "旁白", "content": "她把选择交给了你。"}
+			],
+			"topic_options": [
+				QuickOptionListHelper.build_topic_option_item(str(topic_map.get("study", "最近学习进度还顺利吗？")), "study"),
+				QuickOptionListHelper.build_topic_option_item(str(topic_map.get("life", "今天过得怎么样？")), "life"),
+				QuickOptionListHelper.build_topic_option_item(str(topic_map.get("emotion", "最近有什么感受想分享？")), "emotion")
+			],
+			"ai_context": "请围绕玩家选择的日常话题自然交流。",
+			"topic_prompt_template": "【系统提示】玩家选择了日常话题：{topic}。请自然承接，直接以角色第一人称回复并包含括号动作描写。",
+			"cost_action": "chat_luna_topic"
+		}
+		_start_embedded_dialogue_session(request)
 	)
 
-func _render_dynamic_topics(raw_text: String) -> void:
-	var topic_map := _parse_topic_topic_map(raw_text)
-	_pending_topic_options = [
-		QuickOptionListHelper.build_topic_option_item(str(topic_map.get("study", "最近学习进度还顺利吗？")), "study"),
-		QuickOptionListHelper.build_topic_option_item(str(topic_map.get("life", "今天过得怎么样？")), "life"),
-		QuickOptionListHelper.build_topic_option_item(str(topic_map.get("emotion", "最近有没有什么心事想和我说？")), "emotion")
-	]
-	if _awaiting_topic_selection and not _topic_greeting_playing:
-		_show_topic_options()
+func _on_embedded_topic_options_ready(request: Dictionary) -> void:
+	if str(request.get("mode", "")) == "main_story":
+		_report_guide_action("first_main_story_auto_opened")
+	_refresh_guide_overlay_if_needed()
+
+func _on_embedded_story_choice_ready(request: Dictionary) -> void:
+	if str(request.get("mode", "")) == "main_story":
+		_report_guide_action("first_main_story_auto_opened")
+	_refresh_guide_overlay_if_needed()
+
+func _on_embedded_story_choice_selected(topic: String, request: Dictionary) -> void:
+	if str(request.get("mode", "")) != "main_story":
+		return
+	_selected_main_story_topic = _active_embedded_main_story_topic.duplicate(true)
+	_set_main_chat_context(MAIN_CHAT_SUBTYPE_STORY_TOPIC, topic)
+	_report_guide_action("select_main_chat_topic")
+
+func _on_embedded_topic_selected(topic: String, _metadata: Dictionary) -> void:
+	if not _active_embedded_main_story_topic.is_empty():
+		_selected_main_story_topic = _active_embedded_main_story_topic.duplicate(true)
+		_set_main_chat_context(MAIN_CHAT_SUBTYPE_STORY_TOPIC, topic)
+		_report_guide_action("select_main_chat_topic")
+		return
+	_set_main_chat_context(_resolve_topic_chat_subtype(topic), topic)
+
+func _on_embedded_session_completed(request: Dictionary) -> void:
+	if str(request.get("mode", "")) == "main_story":
+		var completed_topic: Variant = request.get("story_topic", {})
+		if completed_topic is Dictionary and not (completed_topic as Dictionary).is_empty():
+			_selected_main_story_topic = (completed_topic as Dictionary).duplicate(true)
+		elif _selected_main_story_topic.is_empty():
+			_selected_main_story_topic = _active_embedded_main_story_topic.duplicate(true)
+		_consume_selected_story_topic_if_needed()
+		_report_guide_action("finish_first_main_chat_after_goal")
+	elif str(request.get("mode", "")) == "concern":
+		_record_concern_template_completed(
+			str(request.get("concern_template_id", "")),
+			int(request.get("concern_started_day", 0))
+		)
+	_active_embedded_main_story_topic.clear()
+	_reset_main_chat_context()
 
 func _parse_topic_topic_map(raw_text: String) -> Dictionary:
 	var fallback := {
 		"study": "最近学习进度还顺利吗？",
 		"life": "今天过得怎么样？",
-		"emotion": "最近有没有什么心事想和我说？"
+		"emotion": "最近有什么感受想分享？"
 	}
 	var json_text := raw_text.strip_edges()
 	var regex := RegEx.new()
@@ -983,168 +1157,13 @@ func _parse_topic_topic_map(raw_text: String) -> Dictionary:
 		"emotion": str(topics[2] if topics.size() > 2 else fallback["emotion"])
 	}
 
-func _clear_topic_options() -> void:
-	for child in quick_options_container.get_children():
-		child.queue_free()
-
-func _show_topic_options() -> void:
-	_clear_topic_options()
-	if quick_option_layer:
-		quick_option_layer.show()
-	if _pending_topic_options.is_empty():
-		QuickOptionListHelper.show_loading_item(quick_options_container)
-		call_deferred("_refresh_guide_overlay_if_needed")
-		return
-	QuickOptionListHelper.populate_option_items(quick_options_container, _pending_topic_options, _on_topic_selected, 74.0)
-	call_deferred("_refresh_guide_overlay_if_needed")
-
-func _request_topic_greeting() -> void:
-	var session_client := _get_main_chat_session_client()
-	if session_client.is_connected("npc_event_dialogue_completed", _on_topic_greeting_generated):
-		session_client.npc_event_dialogue_completed.disconnect(_on_topic_greeting_generated)
-	if session_client.is_connected("npc_event_dialogue_failed", _on_topic_greeting_failed):
-		session_client.npc_event_dialogue_failed.disconnect(_on_topic_greeting_failed)
-
-	session_client.npc_event_dialogue_completed.connect(_on_topic_greeting_generated.bind(session_client), CONNECT_ONE_SHOT)
-	session_client.npc_event_dialogue_failed.connect(_on_topic_greeting_failed.bind(session_client), CONNECT_ONE_SHOT)
-
-	var profile = GameDataManager.profile
-	var stage_conf = profile.get_current_stage_config()
-	var player_name = profile.player_title
-	if player_name.is_empty():
-		player_name = "指导人"
-	var npc_id := _get_current_main_chat_character_id()
-	if npc_id == "":
-		npc_id = "luna"
-	var greeting_prompt: String = ""
-	if not _pending_main_story_topic.is_empty():
-		var topic_text := str(_pending_main_story_topic.get("topic_text", "")).strip_edges()
-		var prompt_hint := str(_pending_main_story_topic.get("topic_prompt_hint", "")).strip_edges()
-		greeting_prompt = "请生成一句聊天开场问候，引导玩家聊你此刻最在意的一件事。要求：1. 结合你当前对%s的情感阶段与语气，当前阶段是%s。2. 必须符合你当前角色设定，用第一人称自然开口。3. 需要自然呼应这个主线相关话题：“%s”。4. 只输出一句简短台词，20字以内。5. 可以带一个简短括号动作描写。6. 不要输出多个选项，不要复述系统提示。补充背景：%s" % [player_name, stage_conf.get("stageTitle", "陌生人"), topic_text, prompt_hint]
-	else:
-		greeting_prompt = "请生成一句聊天开场问候，核心意思是“要聊点什么呢？”。要求：1. 结合你当前对%s的情感阶段与语气，当前阶段是%s。2. 必须符合你当前角色设定，用第一人称自然开口。3. 只输出一句简短台词，20字以内。4. 可以带一个简短括号动作描写。5. 不要输出多个选项，不要展开成长对话。" % [player_name, stage_conf.get("stageTitle", "陌生人")]
-	session_client.generate_npc_event_dialogue(npc_id, greeting_prompt)
-
-func _on_topic_greeting_generated(greeting_text: String, source_client: DeepSeekClient = null) -> void:
-	if source_client != null and source_client != _main_chat_session_client:
-		return
-	if not _awaiting_topic_selection:
-		return
-	if dialogue_panel.has_method("cancel_single_line"):
-		dialogue_panel.cancel_single_line(false)
-	if dialogue_panel.has_signal("single_line_finished"):
-		dialogue_panel.single_line_finished.connect(_on_topic_greeting_finished, CONNECT_ONE_SHOT)
-	dialogue_panel.play_single_line("luna", GameDataManager.profile.char_name, greeting_text, true, true, true)
-
-func _on_topic_greeting_failed(_error_msg: String, source_client: DeepSeekClient = null) -> void:
-	if source_client != null and source_client != _main_chat_session_client:
-		return
-	if not _awaiting_topic_selection:
-		return
-	if not _pending_main_story_topic.is_empty():
-		_on_topic_greeting_generated("（指尖轻轻收紧）我正想和你说说那首曲子的事。")
-		return
-	_on_topic_greeting_generated("（轻轻看向你）这次想聊点什么呢？")
-
-func _on_topic_greeting_finished() -> void:
-	if not _awaiting_topic_selection:
-		return
-	_topic_greeting_playing = false
-	_set_dialogue_toolbar_visible(true, true, true)
-	_show_topic_options()
-
-func _on_topic_selected(topic: String) -> void:
-	# 执行互动开销（行动力、金币、经验、心情、时间等）
-	if GameDataManager.interaction_manager:
-		if not GameDataManager.interaction_manager.execute_interaction("chat_luna_topic"):
-			return
-	else:
-		if not GameDataManager.profile.consume_energy(5):
-			ToastManager.show_system_toast("行动力不足，需要5点行动力", Color.RED)
-			return
-		
-	if top_status_panel and top_status_panel.has_method("_update_ui"):
-		top_status_panel._update_ui()
-
-	_awaiting_topic_selection = false
-	_report_guide_action("select_main_chat_topic")
-	var selected_story_topic: Dictionary = {}
-	var normalized_topic := topic.strip_edges()
-	if not _pending_main_story_topic.is_empty():
-		var story_topic_text := str(_pending_main_story_topic.get("topic_text", "")).strip_edges()
-		if story_topic_text != "" and story_topic_text == normalized_topic:
-			selected_story_topic = _pending_main_story_topic.duplicate(true)
-	if selected_story_topic is Dictionary and not (selected_story_topic as Dictionary).is_empty():
-		_selected_main_story_topic = (selected_story_topic as Dictionary).duplicate(true)
-		_set_main_chat_context(MAIN_CHAT_SUBTYPE_STORY_TOPIC, topic)
-	else:
-		_selected_main_story_topic.clear()
-		_set_main_chat_context(_resolve_topic_chat_subtype(topic), topic)
-	_pending_main_story_topic.clear()
-	dialogue_name_label.text = GameDataManager.profile.char_name
-	dialogue_text.text = "..."
-	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
-
-	if input_layer:
-		input_layer.show()
-	_set_dialogue_toolbar_visible(true, true, true)
-
-	for child in quick_options_container.get_children():
-		child.queue_free()
-	if quick_option_layer:
-		quick_option_layer.hide()
-		
-	var stage_conf = GameDataManager.profile.get_current_stage_config()
-	var stage_desc = stage_conf.get("stageDesc", "")
-	var player_name = GameDataManager.profile.player_title
-	if player_name.is_empty():
-		player_name = "指导人"
-	var user_msg: String = ""
-	if not _selected_main_story_topic.is_empty():
-		var topic_prompt_hint := str(_selected_main_story_topic.get("topic_prompt_hint", "")).strip_edges()
-		user_msg = "【系统提示】玩家主动选择了与你当前主线相关的话题：“" + topic + "” 与你聊天。玩家当前的身份是你的指导人，且你对玩家的称呼是“" + player_name + "”。当前你们的情感阶段是：" + stage_desc + "。补充背景：" + topic_prompt_hint + "。请你结合当前身份、情感阶段和刚刚发生的这段经历，以第一人称主动接住这个话题，明确承接这件事本身展开交流，不要转回泛泛的日常寒暄。不要复述系统提示，直接给出纯台词回复（必须包含括号动作描写）。"
-	else:
-		user_msg = "【系统提示】玩家主动选择了话题：“" + topic + "” 与你聊天。玩家当前的身份是你的指导人，且你对玩家的称呼是“" + player_name + "”。当前你们的情感阶段是：" + stage_desc + "。请你结合当前的身份、情感阶段和心情，以第一人称主动向玩家打招呼并展开这个话题。不要复述系统提示，直接给出纯台词回复（必须包含括号动作描写）。"
-	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
-
-func _cancel_topic_selection() -> void:
-	_awaiting_topic_selection = false
-	_topic_greeting_playing = false
-	_pending_topic_options.clear()
-	_clear_story_topic_tracking()
-	_clear_topic_options()
-	if dialogue_panel.has_method("cancel_single_line"):
-		dialogue_panel.cancel_single_line(false)
-	if quick_option_layer:
-		quick_option_layer.hide()
-	if input_layer:
-		input_layer.hide()
-	if history_btn:
-		history_btn.hide()
-
-	var d_tween = create_tween()
-	d_tween.tween_property(dialogue_panel, "modulate:a", 0.0, 0.3)
-	d_tween.tween_callback(func(): dialogue_panel.visible = false)
-
-	ui_panel.visible = true
-	ui_panel.modulate.a = 0.0
-	if _ui_tween:
-		_ui_tween.kill()
-	_ui_tween = create_tween()
-	_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
-
-	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-		current_bg_scene.set_ui_hidden(false)
-	_set_interaction_ui_hidden_for_dialogue(false)
-	_end_main_chat_session()
-
 var is_ending_chat: bool = false
 
 func _on_date_pressed() -> void:
 	if _is_ui_blocked(): return
 	if is_instance_valid(date_button):
 		_animate_button(date_button)
-		
+
 	var date_scene_path = "res://scenes/ui/date/date_scene.tscn"
 	if FileAccess.file_exists(date_scene_path):
 		var date_scene_res = load(date_scene_path)
@@ -1178,21 +1197,19 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 	var gift_id = gift_data.get("id", "")
 	if gift_id == "":
 		return
-		
-	# 委托 GiftManager 处理，它内部会调用 interaction_manager 扣除行动力/时间等，并处理亲密和信任加成
-	var res = GameDataManager.gift_manager.send_gift(GameDataManager.profile, gift_id)
-	if not res.success:
-		ToastManager.show_system_toast(res.msg, Color.RED)
+
+	var result = GameDataManager.gift_manager.send_gift(GameDataManager.profile, gift_id)
+	if not result.success:
+		ToastManager.show_system_toast(result.msg, Color.RED)
 		return
 	_report_guide_action("send_gift")
-		
-	# 显示Toast
+
 	ToastManager.show_toast("送出了 [%s]" % gift_data.get("name", "礼物"), Color(0.6, 0.4, 0.8, 0.9))
-	if res.gained_intimacy > 0:
-		ToastManager.show_stat_toast("intimacy", "亲密 +%.1f" % res.gained_intimacy)
-	if res.gained_trust > 0:
-		ToastManager.show_stat_toast("trust", "信任 +%.1f" % res.gained_trust)
-		
+	if result.gained_intimacy > 0:
+		ToastManager.show_stat_toast("intimacy", "亲密 +%.1f" % result.gained_intimacy)
+	if result.gained_trust > 0:
+		ToastManager.show_stat_toast("trust", "信任 +%.1f" % result.gained_trust)
+
 	if top_status_panel and top_status_panel.has_method("_update_ui"):
 		top_status_panel._update_ui()
 	if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("restore_info_panel"):
@@ -1201,41 +1218,40 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 		affection_panel_instance.update_ui(GameDataManager.profile)
 	_set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY, "gift_reaction")
 	_start_main_chat_session("daily")
-		
-	# 送礼后触发对话面板和特定话题
+
 	if _ui_tween:
 		_ui_tween.kill()
 	_ui_tween = create_tween()
 	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
 	_ui_tween.tween_callback(func(): ui_panel.visible = false)
-	
+
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
 		current_bg_scene.set_ui_hidden(true)
-	
+
 	dialogue_panel.visible = true
 	dialogue_panel.modulate.a = 0.0
-	var d_tween = create_tween()
-	d_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
-	
+	var dialogue_tween = create_tween()
+	dialogue_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
+
 	dialogue_name_label.text = GameDataManager.profile.char_name
 	dialogue_text.text = "..."
 	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
-	
+
 	if end_chat_btn:
 		end_chat_btn.show()
 	if history_btn:
 		history_btn.show()
-	
+
 	for child in quick_options_container.get_children():
 		child.queue_free()
-		
+
 	var gift_name = gift_data.get("name", "礼物")
 	var stage_conf = GameDataManager.profile.get_current_stage_config()
 	var stage_desc = stage_conf.get("stageDesc", "")
 	var player_name = GameDataManager.profile.player_title
 	if player_name.is_empty():
 		player_name = "指导人"
-		
+
 	var user_msg = "【系统提示】玩家（当前身份：" + player_name + "）刚刚送给你一份礼物：【" + gift_name + "】。当前情感阶段是：" + stage_desc + "。请结合你的性格、心情和这份礼物的特点，主动对玩家说出你的感谢和反应（必须包含动作描写）。不要复述系统提示，直接给出台词。"
 	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
 
@@ -1314,7 +1330,7 @@ func _execute_rest_transition(dialog: Node) -> void:
 		
 		GameDataManager.profile.save_profile()
 		GameDataManager.story_time_manager.save_data()
-		GameDataManager.save_manager.auto_save()
+		GameDataManager.save_manager.auto_save("day_advanced", GameDataManager.get_active_archive_id())
 
 	await get_tree().create_timer(1.0).timeout
 
@@ -1543,9 +1559,6 @@ func _show_generated_image_and_dialogue(image_path: String) -> void:
 func _on_end_chat_pressed() -> void:
 	if _story_mode_active:
 		return
-	if _awaiting_topic_selection:
-		_cancel_topic_selection()
-		return
 	var event_manager = get_node_or_null("/root/EventManager")
 	if event_manager and event_manager.has_method("execute_event"):
 		event_manager.execute_event("farewell")
@@ -1557,7 +1570,7 @@ func _close_chat_panel(show_stats_toast: bool = true) -> void:
 	is_memory_revisit_active = false
 	_consume_selected_story_topic_if_needed()
 	_reset_main_chat_context()
-	_clear_story_topic_tracking(false, true)
+	_selected_main_story_topic.clear()
 
 	if show_stats_toast:
 		_show_accumulated_stats()
@@ -1609,10 +1622,10 @@ func _set_dialogue_input_waiting(char_name: String = "") -> void:
 	if send_btn:
 		send_btn.disabled = true
 
-func _set_dialogue_toolbar_visible(visible: bool, show_end: bool = true, show_history: bool = true) -> void:
+func _set_dialogue_toolbar_visible(toolbar_visible: bool, show_end: bool = true, show_history: bool = true) -> void:
 	if dialogue_toolbar_container:
-		dialogue_toolbar_container.visible = visible
-	if not visible:
+		dialogue_toolbar_container.visible = toolbar_visible
+	if not toolbar_visible:
 		return
 	if end_chat_btn:
 		end_chat_btn.visible = show_end
@@ -1637,9 +1650,6 @@ func _on_send_pressed() -> void:
 		return
 	var text = input_field.text.strip_edges()
 	if text.is_empty():
-		return
-	if _awaiting_topic_selection:
-		_on_topic_selected(text)
 		return
 	if _current_main_chat_subtype == MAIN_CHAT_SUBTYPE_MEMORY or _current_main_chat_subtype == MAIN_CHAT_SUBTYPE_PROACTIVE:
 		_set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY)
@@ -2090,9 +2100,6 @@ func _stream_worker_loop() -> void:
 	
 	_set_dialogue_input_ready()
 
-func _on_chat_click_proceed_handler() -> void:
-	pass
-
 func _on_tts_success(audio_stream: AudioStream, text: String) -> void:
 	if _story_mode_active:
 		return
@@ -2457,7 +2464,7 @@ func _apply_main_background(bg_id: String) -> void:
 		GameDataManager.profile.current_main_bg_id = final_id
 		GameDataManager.profile.save_profile()
 	if GameDataManager.save_manager and GameDataManager.save_manager.has_method("auto_save"):
-		GameDataManager.save_manager.auto_save()
+		GameDataManager.save_manager.auto_save("main_background_changed", GameDataManager.get_active_archive_id())
 
 	var fade_out := create_tween()
 	fade_out.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -2476,6 +2483,8 @@ func _ready() -> void:
 			
 	var window = get_window()
 	window.close_requested.connect(_on_close_requested)
+	if GameDataManager.story_time_manager and not GameDataManager.story_time_manager.time_advanced.is_connected(_on_story_time_advanced):
+		GameDataManager.story_time_manager.time_advanced.connect(_on_story_time_advanced)
 	
 	hide_ui_button.pressed.connect(_on_hide_ui_pressed)
 	camera_button.pressed.connect(_on_camera_pressed)
@@ -2631,6 +2640,8 @@ func _ready() -> void:
 			var hwnd = DisplayServer.window_get_native_handle(DisplayServer.WINDOW_HANDLE, win_id)
 			if hwnd:
 				_window_detector.call("SetMainHwnd", hwnd)
+			if is_instance_valid(desktop_controls_window):
+				desktop_controls_window.set_window_detector(_window_detector)
 			
 	_afk_timer = Timer.new()
 	_afk_timer.wait_time = 1.0
@@ -2666,9 +2677,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if _desktop_mode_active and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		get_viewport().set_input_as_handled()
 		_exit_desktop_mode()
-
-	if GameDataManager.story_time_manager:
-		GameDataManager.story_time_manager.time_advanced.connect(_on_story_time_advanced)
 
 func _process(delta: float) -> void:
 	_check_afk_status()
@@ -2816,8 +2824,8 @@ func _ensure_compound_button_lock_view(button: Button, label_node: Label) -> Dic
 		icon.custom_minimum_size = Vector2(12, 12)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon.texture = FEATURE_LOCK_ICON
-		icon.expand_mode = 1
-		icon.stretch_mode = 5
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.visible = false
 		row.add_child(icon)
 	return {
@@ -2860,8 +2868,8 @@ func _ensure_text_button_lock_view(button: Button) -> Dictionary:
 		icon.custom_minimum_size = Vector2(14, 14)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon.texture = FEATURE_LOCK_ICON
-		icon.expand_mode = 1
-		icon.stretch_mode = 5
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.visible = false
 		row.add_child(icon)
 	var original_text := button.text
@@ -2949,6 +2957,8 @@ func _on_guide_feature_states_changed() -> void:
 	_refresh_guide_overlay_if_needed()
 
 func _on_main_ui_restored_after_chat_closed() -> void:
+	if _try_start_auto_main_story_after_wechat_close():
+		return
 	_try_reveal_affection_button_if_pending()
 	_try_reveal_goal_panel_if_pending()
 	_refresh_guide_overlay_if_needed()
@@ -3152,7 +3162,7 @@ func get_main_chat_topic_options_focus_entry() -> Dictionary:
 func _get_preferred_topic_option_target() -> Control:
 	if not is_instance_valid(quick_options_container):
 		return null
-	var preferred_story_text := str(_pending_main_story_topic.get("topic_text", _selected_main_story_topic.get("topic_text", ""))).strip_edges()
+	var preferred_story_text := str(_selected_main_story_topic.get("topic_text", "")).strip_edges()
 	for child in quick_options_container.get_children():
 		if not (child is Control) or not is_instance_valid(child):
 			continue
@@ -3203,9 +3213,9 @@ func _update_button_states_by_time() -> void:
 		if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_chat_button_available"):
 			current_bg_scene.set_chat_button_available(true)
 		_refresh_scene_chat_button_state()
-		var guide_manager := _get_guide_manager()
-		if guide_manager and guide_manager.has_method("apply_main_scene_feature_states"):
-			guide_manager.apply_main_scene_feature_states(self)
+		var fallback_guide_manager := _get_guide_manager()
+		if fallback_guide_manager and fallback_guide_manager.has_method("apply_main_scene_feature_states"):
+			fallback_guide_manager.apply_main_scene_feature_states(self)
 		_update_main_feature_lock_states()
 		return
 	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
@@ -3218,9 +3228,9 @@ func _update_button_states_by_time() -> void:
 		if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_chat_button_available"):
 			current_bg_scene.set_chat_button_available(false)
 		_refresh_scene_chat_button_state()
-		var guide_manager := _get_guide_manager()
-		if guide_manager and guide_manager.has_method("apply_main_scene_feature_states"):
-			guide_manager.apply_main_scene_feature_states(self)
+		var locked_ui_guide_manager := _get_guide_manager()
+		if locked_ui_guide_manager and locked_ui_guide_manager.has_method("apply_main_scene_feature_states"):
+			locked_ui_guide_manager.apply_main_scene_feature_states(self)
 		_update_main_feature_lock_states()
 		return
 	
@@ -3264,12 +3274,12 @@ func _update_button_states_by_time() -> void:
 		guide_manager.apply_main_scene_feature_states(self)
 	_update_main_feature_lock_states()
 
-func _set_interaction_ui_hidden_for_dialogue(hidden: bool) -> void:
-	_interaction_ui_locked_by_dialogue = hidden
+func _set_interaction_ui_hidden_for_dialogue(should_hide: bool) -> void:
+	_interaction_ui_locked_by_dialogue = should_hide
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_chat_button_available"):
-		current_bg_scene.set_chat_button_available(not hidden and _is_scene_chat_entry_allowed_by_time())
+		current_bg_scene.set_chat_button_available(not should_hide and _is_scene_chat_entry_allowed_by_time())
 	_refresh_scene_chat_button_state()
-	if not hidden:
+	if not should_hide:
 		_update_button_states_by_time()
 
 func _on_story_time_advanced(_days: int, _current_period: String) -> void:
@@ -3517,8 +3527,8 @@ func _add_neon_effect_to_button(btn: Button) -> void:
 
 func _on_neon_btn_hover(btn: Button, is_hover: bool) -> void:
 	if btn.has_meta("neon_tween"):
-		var tween = btn.get_meta("neon_tween") as Tween
-		if tween: tween.kill()
+		var active_tween = btn.get_meta("neon_tween") as Tween
+		if active_tween: active_tween.kill()
 	if btn.has_meta("neon_loop"):
 		var loop = btn.get_meta("neon_loop") as Tween
 		if loop: loop.kill()
@@ -3562,8 +3572,8 @@ func _on_neon_btn_hover(btn: Button, is_hover: bool) -> void:
 
 func _on_neon_btn_press(btn: Button, is_pressed: bool) -> void:
 	if btn.has_meta("neon_tween"):
-		var tween = btn.get_meta("neon_tween") as Tween
-		if tween: tween.kill()
+		var active_tween = btn.get_meta("neon_tween") as Tween
+		if active_tween: active_tween.kill()
 	if btn.has_meta("neon_loop"):
 		var loop = btn.get_meta("neon_loop") as Tween
 		if loop: loop.kill()
@@ -3697,7 +3707,7 @@ func _on_wechat_pressed() -> void:
 
 var _wechat_shake_tween: Tween = null
 
-func _on_wechat_unread_changed(char_id: String = "", unread_count: int = 0) -> void:
+func _on_wechat_unread_changed(_char_id: String = "", _unread_count: int = 0) -> void:
 	var total_unread = MobileFixedChatManager.get_total_unread_count()
 	if wechat_unread_badge:
 		if total_unread > 0:
@@ -3765,6 +3775,7 @@ func _ensure_mobile_interface() -> void:
 		mobile_interface_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		mobile_interface_instance.app_opened.connect(_on_mobile_app_opened)
 		mobile_interface_instance.phone_closing.connect(_on_phone_closing)
+		mobile_interface_instance.wechat_closed.connect(_on_wechat_closed)
 	
 	if is_instance_valid(chat_scene_instance) and chat_scene_instance.visible:
 		mobile_interface_instance.get_parent().remove_child(mobile_interface_instance)
@@ -3832,12 +3843,12 @@ func _request_desktop_mode() -> void:
 	desktop_mode_overlay.request_screen_selection(screen_names, DisplayServer.window_get_current_screen())
 
 func _restore_desktop_wallpaper_if_enabled() -> void:
-	if not GameDataManager.config or not bool(GameDataManager.config.get_custom_config("desktop_wallpaper_enabled", false)):
+	if not bool(GameDataManager.get_archive_custom_config("desktop_wallpaper_enabled", false)):
 		return
 	var screen_count := DisplayServer.get_screen_count()
 	if screen_count <= 0:
 		return
-	var saved_screen := int(GameDataManager.config.get_custom_config("desktop_wallpaper_screen", 0))
+	var saved_screen := int(GameDataManager.get_archive_custom_config("desktop_wallpaper_screen", 0))
 	_enter_desktop_mode(clampi(saved_screen, 0, screen_count - 1))
 
 func _on_desktop_screen_selected(screen_index: int) -> void:
@@ -3851,6 +3862,7 @@ func _enter_desktop_mode(screen_index: int) -> void:
 	if _desktop_mode_active:
 		return
 	_desktop_mode_active = true
+	GameDataManager.set_meta("desktop_wallpaper_runtime_active", true)
 	if _ui_tween:
 		_ui_tween.kill()
 	_phone_mode_active = false
@@ -3892,9 +3904,8 @@ func _enter_desktop_mode(screen_index: int) -> void:
 		return
 	_is_afk = false
 	_sync_main_scene_bgm_state()
-	GameDataManager.config.set_custom_config("desktop_wallpaper_enabled", true)
-	GameDataManager.config.set_custom_config("desktop_wallpaper_screen", screen_index)
-	GameDataManager.config.save_config()
+	GameDataManager.set_archive_custom_config("desktop_wallpaper_enabled", true)
+	GameDataManager.set_archive_custom_config("desktop_wallpaper_screen", screen_index)
 	call_deferred("_sync_desktop_wallpaper_rect", screen_index)
 	_capture_desktop_mode_state_delayed()
 	_update_bg_switch_button_visibility()
@@ -3951,10 +3962,7 @@ func _sync_desktop_wallpaper_suspension() -> void:
 
 func _set_desktop_wallpaper_suspended(suspended: bool) -> void:
 	_desktop_wallpaper_suspended = suspended
-	if suspended:
-		_pause_main_scene_bgm("desktop_game_foreground")
-	else:
-		_resume_main_scene_bgm("desktop_game_foreground")
+	_resume_main_scene_bgm("desktop_game_foreground")
 	if is_instance_valid(desktop_chat_window):
 		desktop_chat_window.set_suspended(suspended)
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_desktop_bubble_suspended"):
@@ -3990,10 +3998,10 @@ func _exit_desktop_mode(disable_saved_wallpaper: bool = true) -> void:
 	if not _desktop_mode_active:
 		return
 	_desktop_mode_active = false
+	GameDataManager.remove_meta("desktop_wallpaper_runtime_active")
 	_set_desktop_wallpaper_suspended(false)
 	if disable_saved_wallpaper and GameDataManager.config:
-		GameDataManager.config.set_custom_config("desktop_wallpaper_enabled", false)
-		GameDataManager.config.save_config()
+		GameDataManager.set_archive_custom_config("desktop_wallpaper_enabled", false)
 	if is_instance_valid(_window_detector):
 		_window_detector.call("RestoreMainWindowFromDesktop")
 	desktop_mode_overlay.hide_desktop_controls()
@@ -4008,24 +4016,32 @@ func _exit_desktop_mode(disable_saved_wallpaper: bool = true) -> void:
 	_desktop_ui_visibility.clear()
 	ui_panel.show()
 	ui_panel.modulate.a = 1.0
+	await _restore_window_state_after_desktop()
+	_desktop_window_state.clear()
+	_sync_main_scene_bgm_state()
+
+func _restore_window_state_after_desktop() -> void:
 	var original_mode := int(_desktop_window_state.get("mode", DisplayServer.WINDOW_MODE_WINDOWED))
 	var original_screen := int(_desktop_window_state.get("screen", 0))
 	var original_size: Vector2i = _desktop_window_state.get("size", Vector2i(1280, 720))
 	var original_position: Vector2i = _desktop_window_state.get("position", Vector2i.ZERO)
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_current_screen(original_screen)
-	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, bool(_desktop_window_state.get("borderless", false)))
-	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, bool(_desktop_window_state.get("always_on_top", false)))
+	var original_borderless := bool(_desktop_window_state.get("borderless", false))
+	var original_always_on_top := bool(_desktop_window_state.get("always_on_top", false))
+	await get_tree().process_frame
 	if original_mode == DisplayServer.WINDOW_MODE_WINDOWED:
-		DisplayServer.window_set_size(original_size)
-		DisplayServer.window_set_position(original_position)
-		await get_tree().process_frame
-		DisplayServer.window_set_size(original_size)
-		DisplayServer.window_set_position(original_position)
+		for restore_attempt in range(2):
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			DisplayServer.window_set_current_screen(original_screen)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, original_borderless)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, original_always_on_top)
+			DisplayServer.window_set_size(original_size)
+			DisplayServer.window_set_position(original_position)
+			await get_tree().process_frame
 	else:
+		DisplayServer.window_set_current_screen(original_screen)
+		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, original_borderless)
+		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, original_always_on_top)
 		DisplayServer.window_set_mode(original_mode)
-	_desktop_window_state.clear()
-	_sync_main_scene_bgm_state()
 	_update_bg_switch_button_visibility()
 
 func _on_main_action_pressed() -> void:
@@ -4108,13 +4124,6 @@ func _start_story_concern_flow(animate_target: Button = null) -> void:
 
 	_story_mode_active = true
 	
-	if _awaiting_topic_selection:
-		_awaiting_topic_selection = false
-		for child in quick_options_container.get_children():
-			child.queue_free()
-		if quick_option_layer:
-			quick_option_layer.hide()
-	
 	if _ui_tween:
 		_ui_tween.kill()
 	_ui_tween = create_tween()
@@ -4153,7 +4162,7 @@ func _start_story_concern_flow(animate_target: Button = null) -> void:
 		bgm.stop()
 
 func _on_galchat_pressed() -> void:
-	_start_story_concern_flow()
+	_start_embedded_concern_chat()
 
 func _on_chat_closed() -> void:
 	_story_mode_active = false
@@ -4220,12 +4229,16 @@ func _play_cached_voice(cache_key: String) -> void:
 func _on_close_requested() -> void:
 	if _desktop_mode_active:
 		_shutdown_desktop_mode_for_exit()
+	if GameDataManager.save_manager:
+		GameDataManager.save_manager.save_before_exit()
 	get_tree().quit()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if _desktop_mode_active:
 			_shutdown_desktop_mode_for_exit()
+			if GameDataManager.save_manager:
+				GameDataManager.save_manager.save_before_exit()
 			get_tree().quit()
 			return
 		var desktop_pet = get_tree().root.get_node_or_null("DesktopPet")
@@ -4233,12 +4246,15 @@ func _notification(what: int) -> void:
 			# Godot 4 中，主场景是 Control 时，我们应该隐藏对应的 Window
 			get_tree().root.hide()
 		else:
+			if GameDataManager.save_manager:
+				GameDataManager.save_manager.save_before_exit()
 			get_tree().quit()
 
 func _shutdown_desktop_mode_for_exit() -> void:
 	if not _desktop_mode_active:
 		return
 	_desktop_mode_active = false
+	GameDataManager.remove_meta("desktop_wallpaper_runtime_active")
 	if is_instance_valid(_window_detector):
 		_window_detector.call("PrepareDesktopWindowForProcessExit")
 	if is_instance_valid(desktop_controls_window):
@@ -4356,7 +4372,6 @@ func _apply_saved_outfit() -> void:
 func _on_outfit_changed(new_id: String) -> void:
 	print("[MainScene] 换装完成，当前服装 ID: ", new_id)
 	# 替换背景里的立绘
-	var bg_container = $BackgroundContainer
 	if bg_container.get_child_count() > 0:
 		var bg = bg_container.get_child(0)
 		if bg and bg.has_node("LunaAni"):
@@ -4463,11 +4478,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
 				current_bg_scene.set_ui_hidden(false)
 			
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		if _awaiting_topic_selection:
-			get_viewport().set_input_as_handled()
-			_cancel_topic_selection()
-func _on_character_switched(char_id: String) -> void:
+func _on_character_switched(_char_id: String) -> void:
+	_pending_auto_main_story_after_wechat_close = false
+	_pending_auto_main_story_character_id = ""
 	# 角色切换后更新主界面的面板（特别是数值显示）
 	_bind_profile_signals()
 	if stats_panel and stats_panel.has_method("_update_ui"):

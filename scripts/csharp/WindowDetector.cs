@@ -86,6 +86,7 @@ namespace GalChat.Scripts.CSharp
     private const int GWL_STYLE = -16;
     private const long WS_CHILD = 0x40000000L;
     private const long WS_POPUP = unchecked((long)0x80000000L);
+    private const long WS_EX_NOACTIVATE = 0x08000000L;
     private const long WS_EX_TOPMOST = 0x00000008L;
     private const uint WM_SPAWN_WORKER = 0x052C;
     private const uint SMTO_NORMAL = 0x0000;
@@ -118,6 +119,30 @@ namespace GalChat.Scripts.CSharp
     public bool IsMainWindowForeground()
     {
         return _mainHwnd != IntPtr.Zero && GetForegroundWindow() == _mainHwnd;
+    }
+
+    public bool KeepWindowBehindApplications(long hwnd)
+    {
+        if (!OperatingSystem.IsWindows() || hwnd == 0)
+            return false;
+
+        IntPtr windowHandle = new IntPtr(hwnd);
+        long extendedStyle = GetWindowLongPointer(windowHandle, GWL_EXSTYLE).ToInt64();
+        extendedStyle = (extendedStyle | WS_EX_NOACTIVATE) & ~WS_EX_TOPMOST;
+        SetLastError(0);
+        SetWindowLongPointer(windowHandle, GWL_EXSTYLE, new IntPtr(extendedStyle));
+        if (Marshal.GetLastWin32Error() != 0)
+            return false;
+
+        return SetWindowPos(
+            windowHandle,
+            HWND_BOTTOM,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_FRAMECHANGED
+        );
     }
 
     private static IntPtr GetWindowLongPointer(IntPtr hWnd, int index)

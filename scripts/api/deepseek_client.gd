@@ -5,6 +5,8 @@ signal chat_request_completed(response: Dictionary)
 signal chat_request_failed(error_message: String)
 signal chat_stream_delta(delta_text: String)
 signal chat_stream_started()
+signal structured_chat_request_completed(response: Dictionary, request_context: Dictionary)
+signal structured_chat_request_failed(error_message: String, request_context: Dictionary)
 
 signal emotion_request_completed(response: Dictionary)
 signal emotion_request_failed(error_message: String)
@@ -82,6 +84,8 @@ var _chat_stream_sse_buffer: String = ""
 var _chat_stream_full_text: String = ""
 var _chat_stream_response_code: int = 0
 var _chat_stream_retry_count: int = 0
+var _structured_chat_request_id: int = 0
+var _structured_chat_requests: Dictionary = {}
 var _pending_memory_context: Dictionary = {}
 var _active_memory_context: Dictionary = {}
 var _pending_memory_manager_override = null
@@ -231,6 +235,76 @@ func send_chat_message_stream(user_message: String, history_type: String = "all"
 	_chat_stream_service.start_chat_stream(self, user_message, history_type)
 	_send_emotion_analysis(user_message)
 
+func send_chat_message_structured(user_message: String, history_type: String = "all", request_context: Dictionary = {}) -> int:
+	_update_script()
+	_structured_chat_request_id += 1
+	var context := request_context.duplicate(true)
+	context["request_id"] = _structured_chat_request_id
+	var system_prompt: String = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, [])
+	var api_messages: Array = [{"role": "system", "content": system_prompt}]
+	api_messages.append_array(_get_history_messages(10, true, history_type))
+	api_messages.append({"role": "user", "content": user_message})
+	_start_structured_chat_request(api_messages, context)
+	_send_emotion_analysis(user_message)
+	return _structured_chat_request_id
+
+func _start_structured_chat_request(api_messages: Array, request_context: Dictionary) -> void:
+	if not is_inside_tree() or _is_api_key_empty():
+		structured_chat_request_failed.emit.call_deferred(_get_missing_credentials_message(), request_context)
+		return
+	var request := HTTPRequest.new()
+	request.timeout = 60.0
+	add_child(request)
+	var request_id := int(request_context.get("request_id", 0))
+	_structured_chat_requests[request_id] = request
+	request.request_completed.connect(_on_structured_chat_completed.bind(request, request_context), CONNECT_ONE_SHOT)
+	var body := {
+		"model": get_chat_model_id(),
+		"messages": api_messages,
+		"temperature": GameDataManager.config.temperature,
+		"max_tokens": GameDataManager.config.max_tokens,
+		"stream": false,
+		"response_format": {"type": "json_object"}
+	}
+	var error := request.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
+	if error != OK:
+		_cleanup_structured_chat_request(request_id, request)
+		structured_chat_request_failed.emit.call_deferred("网络请求发送失败: %s" % error, request_context)
+
+func _on_structured_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, request: HTTPRequest, request_context: Dictionary) -> void:
+	var request_id := int(request_context.get("request_id", 0))
+	_cleanup_structured_chat_request(request_id, request)
+	if result == HTTPRequest.RESULT_TIMEOUT:
+		structured_chat_request_failed.emit(GameDataManager.profile.char_name + " 似乎走神了...", request_context)
+		return
+	if response_code != 200:
+		structured_chat_request_failed.emit("API 请求错误，状态码: %d" % response_code, request_context)
+		return
+	var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
+	if parsed is Dictionary:
+		structured_chat_request_completed.emit(parsed, request_context)
+	else:
+		structured_chat_request_failed.emit("返回数据解析失败", request_context)
+
+func _cleanup_structured_chat_request(request_id: int, request: HTTPRequest) -> void:
+	_structured_chat_requests.erase(request_id)
+	if is_instance_valid(request):
+		request.queue_free()
+
+func cancel_structured_chat_requests() -> void:
+	for request_value in _structured_chat_requests.values():
+		if request_value is HTTPRequest and is_instance_valid(request_value):
+			(request_value as HTTPRequest).cancel_request()
+			(request_value as HTTPRequest).queue_free()
+	_structured_chat_requests.clear()
+
+func cancel_structured_chat_request(request_id: int) -> void:
+	var request_value: Variant = _structured_chat_requests.get(request_id)
+	if request_value is HTTPRequest and is_instance_valid(request_value):
+		(request_value as HTTPRequest).cancel_request()
+		(request_value as HTTPRequest).queue_free()
+	_structured_chat_requests.erase(request_id)
+
 
 
 func send_vision_request(system_prompt: String, user_prompt: String, base64_image: String, image_media_type: String = "image/jpeg", auth_retried: bool = false) -> void:
@@ -268,7 +342,7 @@ func send_vision_request(system_prompt: String, user_prompt: String, base64_imag
 		headers.append("Authorization: Bearer " + GameDataManager.config.vision_api_key)
 		var model_name: String = GameDataManager.config.vision_model
 		if model_name.is_empty() or model_name == "ep-xxxxxx":
-			model_name = "doubao-seed-2-0-mini-260428"
+			model_name = "doubao-seed-2-0-lite-260428"
 		body = {
 			"model": model_name,
 			"input": [{
@@ -344,7 +418,7 @@ func extract_memory_from_chat_with_manager(user_text: String, ai_reply: String, 
 	_memory_emotion_service.extract_memory_from_chat(self, user_text, ai_reply, memory_context, memory_manager_override)
 
 
-func call_chat_api_non_stream(api_messages: Array) -> void:
+func call_chat_api_non_stream(api_messages: Array, response_format: Dictionary = {}) -> void:
 	_update_script()
 	if not is_inside_tree() or _is_api_key_empty():
 		chat_request_failed.emit(_get_missing_credentials_message())
@@ -360,6 +434,8 @@ func call_chat_api_non_stream(api_messages: Array) -> void:
 		"max_tokens": GameDataManager.config.max_tokens,
 		"stream": false
 	}
+	if not response_format.is_empty():
+		body["response_format"] = response_format.duplicate(true)
 	
 	if chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		chat_http.cancel_request()

@@ -71,7 +71,8 @@ func _run() -> void:
 		var content_labels: Array[String] = []
 		for menu_index in content_popup.item_count:
 			content_labels.append(content_popup.get_item_text(menu_index))
-		_expect(content_labels == ["AI 约会", "手机 AI", "剧情引用", "Guide Flow", "入口调度"], "内容库仍包含重复入口或菜单顺序异常。")
+		_expect(content_labels == ["AI 约会", "AI 心事", "手机 AI", "剧情引用", "Guide Flow", "入口调度"], "内容库仍包含重复入口或菜单顺序异常。")
+		_expect(editor.get_node_or_null("ConcernAIWorkbench") is Window, "主编辑器没有实例化 AI 心事工作台。")
 		_expect(not (editor.get_node("Root/Toolbar/ValidateButton") as Button).visible, "旧平铺工具按钮仍在顶部占用空间。")
 		editor.call("_open_create_content_dialog")
 		var create_type := editor.get_node("CreateContentDialog/Form/CreateContentType") as OptionButton

@@ -145,12 +145,6 @@ layout_mode = 2
 text = "读取中"
 horizontal_alignment = 2
 
-[node name="ImportButton" type="Button" parent="Panel/Margin/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-text = "重新检查旧存档"
-
 [node name="LogoutButton" type="Button" parent="Panel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)

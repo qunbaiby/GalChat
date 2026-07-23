@@ -824,7 +824,7 @@ func _sync_profile_controls() -> void:
 	macro_mood_option.select(mood_idx)
 
 	if GameDataManager.config:
-		free_chat_toggle.button_pressed = GameDataManager.config.get_custom_config("free_chat_enabled", false)
+		free_chat_toggle.button_pressed = GameDataManager.config.free_chat_enabled
 
 	_refresh_core_stats_label()
 
@@ -1018,13 +1018,13 @@ func _commit_profile_changes(status_text: String) -> void:
 	profile.save_profile()
 	profile.profile_updated.emit()
 	if GameDataManager.save_manager:
-		GameDataManager.save_manager.call_deferred("auto_save")
+		GameDataManager.save_manager.call_deferred("auto_save", "debug_profile_changed", GameDataManager.get_active_archive_id())
 	_refresh_all_views()
 	_update_status(status_text)
 
 func _trigger_global_auto_save() -> void:
 	if GameDataManager.save_manager:
-		GameDataManager.save_manager.call_deferred("auto_save")
+		GameDataManager.save_manager.call_deferred("auto_save", "debug_state_changed", GameDataManager.get_active_archive_id())
 
 func _update_personality_display(profile: CharacterProfile) -> void:
 	if profile == null or not is_instance_valid(personality_text):
@@ -1633,7 +1633,7 @@ func _on_settle_personality_pressed() -> void:
 
 func _on_free_chat_toggled(toggled_on: bool) -> void:
 	if GameDataManager.config:
-		GameDataManager.config.set_custom_config("free_chat_enabled", toggled_on)
+		GameDataManager.config.free_chat_enabled = toggled_on
 		GameDataManager.config.save_config()
 	_update_status("自由聊天已%s" % ("开启" if toggled_on else "关闭"))
 

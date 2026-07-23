@@ -86,6 +86,25 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Guided AI Chat",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/guided_ai_chat_smoke.gd",
+				"-SuccessMarker",
+				"GUIDED_AI_CHAT_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Smoke Test Mobile Chat Editor",
 			"type": "shell",
 			"command": "powershell.exe",
@@ -352,6 +371,25 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Archive Isolation",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/archive_isolation_smoke.gd",
+				"-SuccessMarker",
+				"ARCHIVE_ISOLATION_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Validate GDCubism Windows Export",
 			"type": "shell",
 			"command": "powershell.exe",
@@ -388,6 +426,7 @@
 				"Smoke Test Mobile AI Workbench",
 				"Smoke Test Mobile AI Requester",
 				"Smoke Test Story Branch Runtime",
+				"Smoke Test Guided AI Chat",
 				"Smoke Test Story Branch Simulator",
 				"Smoke Test Date AI Workbench",
 				"Smoke Test Date AI Generation Queue",

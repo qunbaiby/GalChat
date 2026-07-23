@@ -163,6 +163,9 @@ static func _validate_completion_events(events_value: Variant, catalogs: Diction
 			for required_field in ["character_id", "event_id", "topic_text", "topic_prompt_hint"]:
 				if str(event.get(required_field, "")).strip_edges().is_empty():
 					_add(diagnostics, "error", location, "主聊天话题缺少 %s。" % required_field)
+			var story_script_path := str(event.get("story_script_path", "")).strip_edges()
+			if story_script_path != "" and not FileAccess.file_exists(story_script_path):
+				_add(diagnostics, "warning", location, "后续主线不存在，将回退到话题 AI：%s" % story_script_path)
 
 
 static func _add(diagnostics: Array[Dictionary], severity: String, location: String, message: String) -> void:

@@ -78,7 +78,7 @@ func load_data(char_id: String = "") -> void:
                     if override_value is Dictionary:
                         debug_weather_overrides[override_key] = override_value
 
-func save_data() -> void:
+func save_data() -> bool:
     var data = {
         "current_day_offset": current_day_offset,
         "current_period": current_period,
@@ -91,9 +91,12 @@ func save_data() -> void:
         char_id = GameDataManager.config.current_character_id
     var path = GameDataManager.get_character_save_path("story_time_save.json", char_id)
     var file = FileAccess.open(path, FileAccess.WRITE)
-    if file:
-        file.store_string(JSON.stringify(data, "\t"))
-        file.close()
+    if file == null:
+        return false
+    file.store_string(JSON.stringify(data, "\t"))
+    var write_error := file.get_error()
+    file.close()
+    return write_error == OK
 
 # 推进时间（天数）
 func advance_day(days: int = 1) -> void:

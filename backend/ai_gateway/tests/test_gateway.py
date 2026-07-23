@@ -282,15 +282,22 @@ def test_admin_console_page_is_public_but_api_requires_admin_token(tmp_path):
     module = load_app(tmp_path)
     with TestClient(module.app) as client:
         page = client.get("/admin")
+        stylesheet = client.get("/admin/assets/admin.css")
+        script = client.get("/admin/assets/admin.js")
         unauthorized = client.get("/admin/api/overview")
     assert page.status_code == 200
     assert "GalChat" in page.text
-    assert "官方能力配置" in page.text
-    assert 'api("/admin/api/capability-providers")' in page.text
-    assert "Promise.allSettled" in page.text
+    assert "模型配置" in page.text
+    assert 'data-page-panel="overview"' in page.text
+    assert 'data-page-panel="models"' in page.text
+    assert "/admin/assets/admin.css" in page.text
+    assert "/admin/assets/admin.js" in page.text
     assert "usageCapabilityFilter" in page.text
     assert "accountQueryInput" in page.text
-    assert "data-usage-sort" in page.text
+    assert stylesheet.status_code == 200
+    assert ".page.active" in stylesheet.text
+    assert script.status_code == 200
+    assert "setPage" in script.text
     assert unauthorized.status_code == 401
 
 
@@ -379,6 +386,10 @@ def test_admin_can_test_and_save_encrypted_provider_config(tmp_path):
         "api_key": "new-provider-secret-key",
         "base_url": "https://provider.example/v1",
         "allowed_models": ["deepseek-chat", "deepseek-reasoner"],
+        "default_model": "deepseek-reasoner",
+        "enabled": True,
+        "temperature": 0.35,
+        "max_tokens": 1536,
     }
 
     def provider_response(request: httpx.Request) -> httpx.Response:
@@ -396,12 +407,39 @@ def test_admin_can_test_and_save_encrypted_provider_config(tmp_path):
     assert saved.status_code == 200
     assert provider.json()["source"] == "encrypted_store"
     assert provider.json()["configured"] is True
+    assert provider.json()["default_model"] == "deepseek-reasoner"
+    assert provider.json()["temperature"] == 0.35
+    assert provider.json()["max_tokens"] == 1536
     assert module.settings.provider_api_key == "new-provider-secret-key"
     stored = module.storage.get_provider_config()
     assert stored is not None
     assert stored["encrypted_api_key"] != "new-provider-secret-key"
     assert "new-provider-secret-key" not in audit.text
     assert audit.json()["items"][0]["action"] == "provider.config_updated"
+
+
+def test_disabled_official_capabilities_are_rejected_before_provider_call(tmp_path):
+    module = load_app(tmp_path)
+    module.settings.chat_enabled = False
+    module.settings.capability_providers["vision"]["enabled"] = False
+    with TestClient(module.app) as client:
+        headers = {"Authorization": "Bearer test-player-token"}
+        chat = client.post(
+            "/v1/game/chat/completions",
+            headers=headers,
+            json={"model": "deepseek-chat", "messages": [{"role": "user", "content": "hello"}]},
+        )
+        vision = client.post(
+            "/v1/game/vision/responses",
+            headers=headers,
+            json={
+                "system_prompt": "Describe.",
+                "user_prompt": "What is visible?",
+                "image_base64": "A" * 16,
+            },
+        )
+    assert chat.status_code == 503
+    assert vision.status_code == 503
 
 
 def test_admin_rejects_invalid_provider_key_without_saving(tmp_path):
@@ -533,26 +571,101 @@ def test_chat_rejects_unknown_fields(tmp_path):
     assert response.status_code == 422
 
 
-def test_chat_rejects_unapproved_model(tmp_path):
+def test_chat_accepts_json_object_response_format(tmp_path):
+    module = load_app(tmp_path)
+    captured_payload = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured_payload.update(json.loads(request.content))
+        return httpx.Response(200, json={"choices": [{"message": {"content": "{}"}}]})
+
+    with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        response = client.post(
+            "/v1/game/chat/completions",
+            headers={"Authorization": "Bearer test-player-token"},
+            json={
+                "model": "deepseek-chat",
+                "messages": [{"role": "user", "content": "Return JSON."}],
+                "response_format": {"type": "json_object"},
+            },
+        )
+    assert response.status_code == 200
+    assert captured_payload["response_format"] == {"type": "json_object"}
+
+
+def test_chat_rejects_unknown_response_format(tmp_path):
     module = load_app(tmp_path)
     with TestClient(module.app) as client:
         response = client.post(
             "/v1/game/chat/completions",
             headers={"Authorization": "Bearer test-player-token"},
-            json={"model": "unapproved-model", "messages": [{"role": "user", "content": "hello"}]},
+            json={
+                "model": "deepseek-chat",
+                "messages": [{"role": "user", "content": "hello"}],
+                "response_format": {"type": "xml"},
+            },
         )
-    assert response.status_code == 400
+    assert response.status_code == 422
+
+
+def test_chat_uses_admin_model_and_generation_defaults(tmp_path):
+    module = load_app(tmp_path)
+    module.settings.default_chat_model = "deepseek-reasoner"
+    module.settings.chat_temperature = 0.25
+    module.settings.chat_max_tokens = 1024
+    captured_payload = {}
+
+    def provider_response(request: httpx.Request) -> httpx.Response:
+        captured_payload.update(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "choices": [{"message": {"content": "ok"}}],
+                "usage": {"prompt_tokens": 12, "completion_tokens": 5, "total_tokens": 17},
+            },
+        )
+
+    with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(transport=httpx.MockTransport(provider_response))
+        response = client.post(
+            "/v1/game/chat/completions",
+            headers={"Authorization": "Bearer test-player-token"},
+            json={
+                "model": "client-selected-model",
+                "messages": [{"role": "user", "content": "hello"}],
+                "temperature": 1.2,
+                "max_tokens": 4096,
+            },
+        )
+        overview = client.get(
+            "/admin/api/overview",
+            headers={"Authorization": "Bearer test-admin-token-with-at-least-32-characters"},
+        ).json()
+    assert response.status_code == 200
+    assert captured_payload["model"] == "deepseek-reasoner"
+    assert captured_payload["temperature"] == 0.25
+    assert captured_payload["max_tokens"] == 1024
+    chat_stats = next(item for item in overview["capability_stats"] if item["capability"] == "chat")
+    assert chat_stats["input_tokens"] == 12
+    assert chat_stats["output_tokens"] == 5
+    assert chat_stats["total_tokens"] == 17
 
 
 def test_rate_limiter_rejects_excess_requests(tmp_path):
     module = load_app(tmp_path)
     module.limiter = module.SlidingWindowLimiter(limit=1, window_seconds=60)
     with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(
+            transport=httpx.MockTransport(
+                lambda _request: httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+            )
+        )
         headers = {"Authorization": "Bearer test-player-token"}
-        payload = {"model": "unapproved-model", "messages": [{"role": "user", "content": "hello"}]}
+        payload = {"model": "client-model", "messages": [{"role": "user", "content": "hello"}]}
         first_response = client.post("/v1/game/chat/completions", headers=headers, json=payload)
         second_response = client.post("/v1/game/chat/completions", headers=headers, json=payload)
-    assert first_response.status_code == 400
+    assert first_response.status_code == 200
     assert second_response.status_code == 429
 
 
@@ -588,7 +701,7 @@ def test_device_login_rejects_wrong_secret(tmp_path):
         assert client.post("/v1/auth/device/login", json=credentials).status_code == 401
 
 
-def test_daily_quota_is_enforced_before_provider_call(tmp_path):
+def test_legacy_daily_quota_does_not_reject_capability_calls(tmp_path):
     module = load_app(tmp_path)
     module.settings.daily_request_limit = 1
     module.settings.capability_daily_limits["chat"] = 1
@@ -596,9 +709,6 @@ def test_daily_quota_is_enforced_before_provider_call(tmp_path):
     with TestClient(module.app) as client:
         tokens = client.post("/v1/auth/device/register", json=credentials).json()
         headers = {"Authorization": f"Bearer {tokens['access_token']}"}
-        payload = {"model": "unapproved-model", "messages": [{"role": "user", "content": "hello"}]}
-        assert client.post("/v1/game/chat/completions", headers=headers, json=payload).status_code == 400
-
         valid_payload = {"model": "deepseek-chat", "messages": [{"role": "user", "content": "hello"}]}
         provider_calls = 0
 
@@ -611,10 +721,10 @@ def test_daily_quota_is_enforced_before_provider_call(tmp_path):
         successful = client.post("/v1/game/chat/completions", headers=headers, json=valid_payload)
         assert successful.status_code == 200
         quota = client.get("/v1/account/quota", headers=headers).json()
-        assert quota["remaining"] == 0
-        exceeded = client.post("/v1/game/chat/completions", headers=headers, json=valid_payload)
-        assert exceeded.status_code == 429
-        assert provider_calls == 1
+        assert quota["remaining"] == 1
+        second = client.post("/v1/game/chat/completions", headers=headers, json=valid_payload)
+        assert second.status_code == 200
+        assert provider_calls == 2
 
 
 def test_chat_timeout_releases_quota_and_records_timeout(tmp_path):
@@ -694,11 +804,12 @@ def test_streaming_chat_provider_error_records_final_status(tmp_path):
     assert not any(event["status"] == "succeeded" for event in events)
 
 
-def test_capability_quotas_are_isolated_and_reported(tmp_path):
+def test_capability_usage_is_unlimited_and_reported(tmp_path):
     module = load_app(tmp_path)
     module.settings.capability_daily_limits["chat"] = 1
     module.settings.capability_daily_limits["embedding"] = 2
     module.settings.capability_providers["embedding"] = {
+        "enabled": True,
         "api_key": "server-embedding-secret",
         "base_url": "https://embedding.example/v3/embeddings",
         "model": "embedding-model",
@@ -717,14 +828,15 @@ def test_capability_quotas_are_isolated_and_reported(tmp_path):
         module.app.state.http = httpx.AsyncClient(transport=httpx.MockTransport(provider_response))
         chat_payload = {"model": "deepseek-chat", "messages": [{"role": "user", "content": "hello"}]}
         assert client.post("/v1/game/chat/completions", headers=headers, json=chat_payload).status_code == 200
-        assert client.post("/v1/game/chat/completions", headers=headers, json=chat_payload).status_code == 429
+        assert client.post("/v1/game/chat/completions", headers=headers, json=chat_payload).status_code == 200
         embedding = client.post("/v1/game/embeddings", headers=headers, json={"text": "memory"})
         quota = client.get("/v1/account/quota", headers=headers).json()
 
     assert embedding.status_code == 200
     assert embedding.headers["x-quota-capability"] == "embedding"
-    assert quota["capabilities"]["chat"] == {"limit": 1, "used": 1, "remaining": 0}
-    assert quota["capabilities"]["embedding"] == {"limit": 2, "used": 1, "remaining": 1}
+    assert embedding.headers["x-quota-policy"] == "unlimited"
+    assert quota["capabilities"]["chat"]["used"] == 0
+    assert quota["capabilities"]["embedding"]["used"] == 0
 
 
 def test_admin_overview_reports_capability_usage_events(tmp_path):
@@ -746,6 +858,9 @@ def test_admin_overview_reports_capability_usage_events(tmp_path):
         "failed": 1,
         "quota_rejected": 0,
         "units": 50,
+        "input_tokens": None,
+        "output_tokens": None,
+        "total_tokens": None,
         "average_latency_ms": 510,
     }
 
@@ -1036,6 +1151,12 @@ def test_official_embedding_timeout_releases_quota(tmp_path):
 
     assert response.status_code == 504
     assert quota.json()["used"] == 0
+
+
+def test_official_vision_defaults_to_doubao_seed_2_lite(tmp_path):
+    module = load_app(tmp_path)
+
+    assert module.settings.capability_providers["vision"]["model"] == "doubao-seed-2-0-lite-260428"
 
 
 def test_official_vision_injects_server_config_and_preserves_image_type(tmp_path):

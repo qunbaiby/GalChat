@@ -29,7 +29,7 @@ func _get_state_path(char_id: String = "") -> String:
 func reload_for_current_character(char_id: String = "") -> void:
 	_load_state(char_id)
 
-func save_state() -> void:
+func save_state() -> bool:
 	var state_path = _get_state_path()
 	var dir_path = state_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(dir_path):
@@ -42,11 +42,14 @@ func save_state() -> void:
 		if now - int(record.get("time", 0)) <= DECAY_WINDOW_SEC:
 			valid_recent.append(record)
 	var file = FileAccess.open(state_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify({
-			"recent_gifts": valid_recent
-		}, "\t"))
-		file.close()
+	if file == null:
+		return false
+	file.store_string(JSON.stringify({
+		"recent_gifts": valid_recent
+	}, "\t"))
+	var write_error := file.get_error()
+	file.close()
+	return write_error == OK
 
 func _load_state(char_id: String = "") -> void:
 	_recent_gifts = []

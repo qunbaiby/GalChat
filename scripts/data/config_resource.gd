@@ -4,7 +4,28 @@ extends Resource
 const AI_SERVICE_OFFICIAL := "official"
 const AI_SERVICE_PERSONAL := "personal"
 const DEFAULT_OFFICIAL_AI_GATEWAY := "http://127.0.0.1:8787/v1/game"
-const LEGACY_PLACEHOLDER_AI_GATEWAY := "https://api.galchat.example/v1/game"
+const GLOBAL_SETTING_KEYS: PackedStringArray = [
+    "ai_service_mode", "official_ai_gateway_url", "api_key", "doubao_chat_api_key",
+    "model", "temperature", "max_tokens", "ai_mode_enabled", "tts_api_key",
+    "tts_audio_format", "tts_sample_rate", "tts_speech_rate", "tts_loudness_rate",
+    "tts_autoplay_ai_chat", "qwen_asr_enabled", "qwen_asr_api_key",
+    "tts_character_speakers", "voice_enabled", "embedding_enabled",
+    "doubao_embedding_api_key", "doubao_embedding_model", "vision_use_count",
+    "vision_last_recovery_time", "vision_enabled", "vision_api_key",
+    "vision_model", "vision_base_url", "pet_global_cooldown", "pet_scale_multiplier",
+    "pet_enable_app_observe", "pet_enable_hourly_chime", "pet_enable_afk_greeting",
+    "pet_disturbance_mode", "pet_quiet_time_ranges", "pet_observe_allow_list",
+    "pet_never_capture_list", "pet_sensitive_window_list", "image_generation_enabled",
+    "default_image_path", "openai_image_api_key", "image_generation_provider",
+    "doubao_image_api_key", "doubao_image_model", "enable_ai_diary_illustration",
+    "window_mode_idx", "resolution_idx", "fps_idx", "vsync_enabled", "bgm_volume", "voice_volume",
+    "free_chat_enabled"
+]
+const ARCHIVE_SETTING_KEYS: PackedStringArray = [
+    "current_character_id", "current_main_bg_id", "unlocked_main_bg_ids",
+    "unlocked_area_ids", "player_name", "player_nickname", "player_bio",
+    "moments_cover_path", "player_level", "player_eq_level"
+]
 
 var ai_service_mode: String = AI_SERVICE_OFFICIAL
 var official_ai_gateway_url: String = DEFAULT_OFFICIAL_AI_GATEWAY
@@ -59,7 +80,7 @@ var vision_last_recovery_time: int = 0 # 上次恢复多模态次数的时间戳
 var player_nickname: String = "哥哥"
 var vision_enabled: bool = true
 var vision_api_key: String = ""
-var vision_model: String = "doubao-seed-2-0-mini-260428"
+var vision_model: String = "doubao-seed-2-0-lite-260428"
 var vision_base_url: String = "https://ark.cn-beijing.volces.com/api/v3"
 
 # 桌宠交互配置
@@ -91,11 +112,13 @@ var unlocked_main_bg_ids: Array = []
 var unlocked_area_ids: Array = []
 
 # 音画配置
+var window_mode_idx: int = 0
 var resolution_idx: int = 0
 var fps_idx: int = 1
 var vsync_enabled: bool = true
 var bgm_volume: float = 1.0
 var voice_volume: float = 1.0
+var free_chat_enabled: bool = false
 
 # 玩家基本信息
 var player_name: String = "玩家"
@@ -140,74 +163,57 @@ func unlock_main_background(bg_id: String, save_now: bool = true) -> bool:
         save_config()
     return true
 
-func save_config() -> void:
-    var data = {
-        "ai_service_mode": ai_service_mode,
-        "official_ai_gateway_url": official_ai_gateway_url,
-        "api_key": api_key,
-        "doubao_chat_api_key": doubao_chat_api_key,
-        "model": model,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "ai_mode_enabled": ai_mode_enabled,
-        "tts_api_key": tts_api_key,
-        "tts_audio_format": tts_audio_format,
-        "tts_sample_rate": tts_sample_rate,
-        "tts_speech_rate": tts_speech_rate,
-        "tts_loudness_rate": tts_loudness_rate,
-        "tts_autoplay_ai_chat": tts_autoplay_ai_chat,
-        "qwen_asr_enabled": qwen_asr_enabled,
-        "qwen_asr_api_key": qwen_asr_api_key,
-        "tts_character_speakers": tts_character_speakers,
-        "voice_enabled": voice_enabled,
-        "embedding_enabled": embedding_enabled,
-        "doubao_embedding_api_key": doubao_embedding_api_key,
-        "doubao_embedding_model": doubao_embedding_model,
-        "vision_use_count": vision_use_count,
-        "vision_last_recovery_time": vision_last_recovery_time,
-        "player_nickname": player_nickname,
-        "vision_enabled": vision_enabled,
-        "vision_api_key": vision_api_key,
-        "vision_model": vision_model,
-        "vision_base_url": vision_base_url,
-        "pet_global_cooldown": pet_global_cooldown,
-        "pet_scale_multiplier": pet_scale_multiplier,
-        "pet_enable_app_observe": pet_enable_app_observe,
-        "pet_enable_hourly_chime": pet_enable_hourly_chime,
-        "pet_enable_afk_greeting": pet_enable_afk_greeting,
-        "pet_disturbance_mode": pet_disturbance_mode,
-        "pet_quiet_time_ranges": pet_quiet_time_ranges,
-        "pet_observe_allow_list": pet_observe_allow_list,
-        "pet_never_capture_list": pet_never_capture_list,
-        "pet_sensitive_window_list": pet_sensitive_window_list,
-        "image_generation_enabled": image_generation_enabled,
-        "default_image_path": default_image_path,
-        "openai_image_api_key": openai_image_api_key,
-        "image_generation_provider": image_generation_provider,
-        "doubao_image_api_key": doubao_image_api_key,
-        "doubao_image_model": doubao_image_model,
-        "enable_ai_diary_illustration": enable_ai_diary_illustration,
-        "current_character_id": current_character_id,
-        "active_archive_id": active_archive_id,
-        "current_main_bg_id": current_main_bg_id,
-        "unlocked_main_bg_ids": unlocked_main_bg_ids,
-        "unlocked_area_ids": unlocked_area_ids,
-        "resolution_idx": resolution_idx,
-        "fps_idx": fps_idx,
-        "vsync_enabled": vsync_enabled,
-        "bgm_volume": bgm_volume,
-        "voice_volume": voice_volume,
-        "player_name": player_name,
-        "player_bio": player_bio,
-        "moments_cover_path": moments_cover_path,
-        "player_level": player_level,
-        "player_eq_level": player_eq_level,
-        "custom_configs": custom_configs
+func get_archive_settings_data() -> Dictionary:
+    return _get_settings_data(ARCHIVE_SETTING_KEYS)
+
+func get_global_settings_data() -> Dictionary:
+    return _get_settings_data(GLOBAL_SETTING_KEYS)
+
+func _get_settings_data(keys: PackedStringArray) -> Dictionary:
+    var data: Dictionary = {}
+    for key in keys:
+        var value: Variant = get(key)
+        data[key] = value.duplicate(true) if value is Array or value is Dictionary else value
+    return data
+
+func apply_archive_settings_data(data: Dictionary) -> void:
+    _apply_settings_data(data, ARCHIVE_SETTING_KEYS)
+
+func apply_global_settings_data(data: Dictionary) -> void:
+    _apply_settings_data(data, GLOBAL_SETTING_KEYS)
+
+func _apply_settings_data(data: Dictionary, keys: PackedStringArray) -> void:
+    for key in keys:
+        if not data.has(key):
+            continue
+        var value: Variant = data[key]
+        set(key, value.duplicate(true) if value is Array or value is Dictionary else value)
+    tts_audio_format = _normalize_tts_audio_format(tts_audio_format)
+    tts_character_speakers = _sanitize_tts_character_speakers(tts_character_speakers)
+    if ai_service_mode != AI_SERVICE_OFFICIAL:
+        ai_service_mode = AI_SERVICE_PERSONAL
+
+func reset_archive_settings() -> void:
+    var defaults := ConfigResource.new()
+    apply_archive_settings_data(defaults.get_archive_settings_data())
+
+func save_config() -> bool:
+    var data := {
+        "custom_configs": custom_configs,
+        "settings": get_global_settings_data()
     }
     var file = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
-    if file:
-        file.store_string(JSON.stringify(data, "\t"))
-        file.close()
+    if file == null:
+        return false
+    file.store_string(JSON.stringify(data, "\t"))
+    var write_error := file.get_error()
+    file.close()
+    if write_error != OK:
+        return false
+    if GameDataManager and GameDataManager.has_method("save_active_archive_settings"):
+        var archive_result: Variant = GameDataManager.call("save_active_archive_settings")
+        return archive_result is bool and bool(archive_result)
+    return true
 
 func _read_json_dict(file_path: String) -> Dictionary:
     if not FileAccess.file_exists(file_path):
@@ -313,6 +319,7 @@ func _apply_ai_voice_defaults(data: Dictionary) -> void:
 
 func load_config() -> void:
     official_access_token = OS.get_environment("GALCHAT_OFFICIAL_ACCESS_TOKEN").strip_edges()
+    reset_archive_settings()
     if FileAccess.file_exists(CONFIG_PATH):
         var file = FileAccess.open(CONFIG_PATH, FileAccess.READ)
         var content = file.get_as_text()
@@ -323,78 +330,12 @@ func load_config() -> void:
         if error == OK:
             var data = json.get_data()
             if data is Dictionary:
-                ai_service_mode = str(data.get("ai_service_mode", ai_service_mode))
-                if ai_service_mode != AI_SERVICE_OFFICIAL:
-                    ai_service_mode = AI_SERVICE_PERSONAL
-                official_ai_gateway_url = str(data.get("official_ai_gateway_url", official_ai_gateway_url)).strip_edges()
-                if official_ai_gateway_url == LEGACY_PLACEHOLDER_AI_GATEWAY:
-                    official_ai_gateway_url = DEFAULT_OFFICIAL_AI_GATEWAY
-                api_key = data.get("api_key", api_key)
-                doubao_chat_api_key = data.get("doubao_chat_api_key", doubao_chat_api_key)
-                model = data.get("model", model)
-                temperature = data.get("temperature", temperature)
-                max_tokens = data.get("max_tokens", max_tokens)
-                ai_mode_enabled = data.get("ai_mode_enabled", ai_mode_enabled)
-                _apply_tts_defaults_from_data(data)
-                qwen_asr_enabled = data.get("qwen_asr_enabled", qwen_asr_enabled)
-                qwen_asr_api_key = data.get("qwen_asr_api_key", qwen_asr_api_key)
-                voice_enabled = data.get("voice_enabled", voice_enabled)
-                embedding_enabled = data.get("embedding_enabled", embedding_enabled)
-                doubao_embedding_api_key = data.get("doubao_embedding_api_key", doubao_embedding_api_key)
-                doubao_embedding_model = data.get("doubao_embedding_model", doubao_embedding_model)
-                vision_use_count = data.get("vision_use_count", vision_use_count)
-                vision_last_recovery_time = data.get("vision_last_recovery_time", vision_last_recovery_time)
-                player_nickname = data.get("player_nickname", player_nickname)
-                vision_enabled = data.get("vision_enabled", vision_enabled)
-                vision_api_key = data.get("vision_api_key", vision_api_key)
-                vision_model = data.get("vision_model", vision_model)
-                vision_base_url = data.get("vision_base_url", vision_base_url)
-                
-                pet_global_cooldown = data.get("pet_global_cooldown", pet_global_cooldown)
-                pet_scale_multiplier = data.get("pet_scale_multiplier", pet_scale_multiplier)
-                pet_enable_app_observe = data.get("pet_enable_app_observe", pet_enable_app_observe)
-                pet_enable_hourly_chime = data.get("pet_enable_hourly_chime", pet_enable_hourly_chime)
-                pet_enable_afk_greeting = data.get("pet_enable_afk_greeting", pet_enable_afk_greeting)
-                pet_disturbance_mode = str(data.get("pet_disturbance_mode", pet_disturbance_mode))
-                pet_quiet_time_ranges = str(data.get("pet_quiet_time_ranges", pet_quiet_time_ranges))
-                pet_observe_allow_list = str(data.get("pet_observe_allow_list", pet_observe_allow_list)).strip_edges()
-                pet_never_capture_list = str(data.get("pet_never_capture_list", pet_never_capture_list)).strip_edges()
-                pet_sensitive_window_list = str(data.get("pet_sensitive_window_list", pet_sensitive_window_list)).strip_edges()
-
-                # 将历史默认值迁移为空，避免旧版本预填内容持续误导当前策略。
-                if pet_never_capture_list == "银行,支付,密码,验证码,登录,后台,控制台":
-                    pet_never_capture_list = ""
-                if pet_sensitive_window_list == "微信,wechat,qq,discord,telegram,飞书,钉钉,企业微信,outlook,mail,邮箱":
-                    pet_sensitive_window_list = ""
-                
-                image_generation_enabled = data.get("image_generation_enabled", image_generation_enabled)
-                default_image_path = data.get("default_image_path", default_image_path)
-                openai_image_api_key = data.get("openai_image_api_key", openai_image_api_key)
-                image_generation_provider = int(data.get("image_generation_provider", image_generation_provider))
-                doubao_image_api_key = data.get("doubao_image_api_key", doubao_image_api_key)
-                doubao_image_model = data.get("doubao_image_model", doubao_image_model)
-                enable_ai_diary_illustration = true
-                current_character_id = data.get("current_character_id", current_character_id)
-                active_archive_id = data.get("active_archive_id", active_archive_id)
-                current_main_bg_id = data.get("current_main_bg_id", current_main_bg_id)
-                if data.has("unlocked_main_bg_ids") and data["unlocked_main_bg_ids"] is Array:
-                    unlocked_main_bg_ids = data["unlocked_main_bg_ids"]
-                if data.has("unlocked_area_ids") and data["unlocked_area_ids"] is Array:
-                    unlocked_area_ids = data["unlocked_area_ids"]
-                resolution_idx = data.get("resolution_idx", resolution_idx)
-                fps_idx = data.get("fps_idx", fps_idx)
-                vsync_enabled = data.get("vsync_enabled", vsync_enabled)
-                bgm_volume = data.get("bgm_volume", bgm_volume)
-                voice_volume = data.get("voice_volume", voice_volume)
-                player_name = data.get("player_name", player_name)
-                player_bio = data.get("player_bio", player_bio)
-                moments_cover_path = data.get("moments_cover_path", moments_cover_path)
-                player_level = data.get("player_level", player_level)
-                player_eq_level = data.get("player_eq_level", player_eq_level)
-                
                 var custom = data.get("custom_configs", {})
                 if typeof(custom) == TYPE_DICTIONARY:
                     custom_configs = custom
+                var persisted_settings: Variant = data.get("settings", {})
+                if persisted_settings is Dictionary and not persisted_settings.is_empty():
+                    apply_global_settings_data(persisted_settings)
     
     apply_settings()
 
@@ -403,21 +344,69 @@ func apply_settings() -> void:
     apply_runtime_settings()
 
 func apply_resolution() -> void:
+    if GameDataManager and GameDataManager.has_meta("desktop_wallpaper_runtime_active"):
+        return
     var tree = Engine.get_main_loop() as SceneTree
-    if tree and is_instance_valid(tree.root):
-        var window = tree.root
-        match resolution_idx:
-            0:
-                window.mode = Window.MODE_WINDOWED
-                window.size = Vector2i(1280, 720)
-            1:
-                window.mode = Window.MODE_WINDOWED
-                window.size = Vector2i(1600, 900)
-            2:
-                window.mode = Window.MODE_WINDOWED
-                window.size = Vector2i(1920, 1080)
-            3:
-                window.mode = Window.MODE_FULLSCREEN
+    if not tree or not is_instance_valid(tree.root):
+        return
+    var screen_index := DisplayServer.window_get_current_screen()
+    if screen_index < 0 or screen_index >= DisplayServer.get_screen_count():
+        screen_index = DisplayServer.get_primary_screen()
+    match clampi(window_mode_idx, 0, 2):
+        0:
+            DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+            DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+            DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_RESIZE_DISABLED, false)
+            var target_size := get_window_resolution_size(resolution_idx)
+            var usable_rect := DisplayServer.screen_get_usable_rect(screen_index)
+            target_size.x = mini(target_size.x, usable_rect.size.x)
+            target_size.y = mini(target_size.y, usable_rect.size.y)
+            DisplayServer.window_set_size(target_size)
+            DisplayServer.window_set_position(get_centered_window_position(target_size, usable_rect))
+            call_deferred("_stabilize_windowed_geometry", target_size, screen_index)
+        1:
+            DisplayServer.window_set_current_screen(screen_index)
+            DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+        2:
+            DisplayServer.window_set_current_screen(screen_index)
+            DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+
+func get_window_resolution_size(index: int) -> Vector2i:
+    const WINDOW_RESOLUTIONS: Array[Vector2i] = [
+        Vector2i(1280, 720),
+        Vector2i(1600, 900),
+        Vector2i(1920, 1080),
+        Vector2i(2560, 1440)
+    ]
+    return WINDOW_RESOLUTIONS[clampi(index, 0, WINDOW_RESOLUTIONS.size() - 1)]
+
+func _stabilize_windowed_geometry(target_size: Vector2i, screen_index: int) -> void:
+    var tree = Engine.get_main_loop() as SceneTree
+    if not tree:
+        return
+    await tree.process_frame
+    if window_mode_idx != 0 or GameDataManager.has_meta("desktop_wallpaper_runtime_active"):
+        return
+    var usable_rect := DisplayServer.screen_get_usable_rect(screen_index)
+    target_size.x = mini(target_size.x, usable_rect.size.x)
+    target_size.y = mini(target_size.y, usable_rect.size.y)
+    DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+    DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+    DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_RESIZE_DISABLED, false)
+    DisplayServer.window_set_size(target_size)
+    DisplayServer.window_set_position(get_centered_window_position(target_size, usable_rect))
+
+func get_centered_window_position(window_size: Vector2i, usable_rect: Rect2i) -> Vector2i:
+    var remaining_space := usable_rect.size - window_size
+    var centered := usable_rect.position + Vector2i(
+        floori(float(remaining_space.x) * 0.5),
+        floori(float(remaining_space.y) * 0.5)
+    )
+    var maximum := usable_rect.end - window_size
+    return Vector2i(
+        clampi(centered.x, usable_rect.position.x, maximum.x),
+        clampi(centered.y, usable_rect.position.y, maximum.y)
+    )
 
 func apply_runtime_settings() -> void:
     # FPS

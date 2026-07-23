@@ -28,7 +28,6 @@ var _pending_authenticated_action: Callable
 var _pending_new_archive_slot_id: String = ""
 var _pending_previous_archive_slot_id: String = ""
 var _opening_archive_panel: bool = false
-var _legacy_import_prompt_open: bool = false
 
 func _ready() -> void:
 	if GameDataManager.config:
@@ -63,9 +62,6 @@ func _ready() -> void:
 	OfficialAuthManager.session_state_changed.connect(_on_session_state_changed)
 	OfficialAuthManager.profile_updated.connect(_on_profile_updated)
 	_update_session_state(OfficialAuthManager.get_session_state())
-	if OfficialAuthManager.is_authenticated():
-		call_deferred("_offer_legacy_archive_import")
-	
 	# 动画：按钮点击弹性反馈
 	start_button.pivot_offset = start_button.size / 2
 	if desktop_pet_button:
@@ -77,11 +73,15 @@ func _ready() -> void:
 
 func _on_close_requested() -> void:
 	_cleanup_pending_new_archive()
+	if GameDataManager.save_manager:
+		GameDataManager.save_manager.save_before_exit()
 	get_tree().quit()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_cleanup_pending_new_archive()
+		if GameDataManager.save_manager:
+			GameDataManager.save_manager.save_before_exit()
 		get_tree().quit()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -91,6 +91,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_start_pressed() -> void:
 	if not _require_authentication(_on_start_pressed):
+		return
+	if not _require_local_chat_api():
 		return
 	if _opening_archive_panel:
 		return
@@ -164,7 +166,7 @@ func _create_new_archive(slot_id: String, archive_name: String = "") -> void:
 	_apply_player_info_from_popup(popup.player_info)
 	popup.queue_free()
 	await _ensure_guide_opt_in_choice(true)
-	var saved_ok: bool = GameDataManager.save_manager.auto_save()
+	var saved_ok: bool = GameDataManager.save_manager.auto_save("archive_initialized", GameDataManager.get_active_archive_id())
 	if not saved_ok:
 		push_error("StartScene 新建档案后自动存档失败。")
 		_cleanup_pending_new_archive()
@@ -214,14 +216,25 @@ func _apply_player_info_from_popup(player_info: Dictionary) -> void:
 	GameDataManager.profile.save_profile()
 
 func _enter_game_for_current_archive(force_play_intro: bool, ensure_guide_prompt: bool = true) -> void:
-	if not OfficialAuthManager.is_authenticated():
+	if _uses_official_ai() and not OfficialAuthManager.is_authenticated():
 		_pending_authenticated_action = func() -> void: await _enter_game_for_current_archive(force_play_intro, ensure_guide_prompt)
 		_open_account_panel()
+		return
+	if not _require_local_chat_api():
 		return
 	var window = get_window()
 	GameDataManager.set_meta("last_window_pos", window.position)
 	if ensure_guide_prompt:
 		await _ensure_guide_opt_in_choice()
+	if force_play_intro:
+		GameDataManager.save_active_story_checkpoint({})
+	var story_checkpoint := GameDataManager.load_active_story_checkpoint()
+	var checkpoint_script_path := str(story_checkpoint.get("script_path", "")).strip_edges()
+	var checkpoint_script_data: Variant = story_checkpoint.get("script_data", {})
+	var has_file_checkpoint: bool = not checkpoint_script_path.is_empty() and FileAccess.file_exists(checkpoint_script_path)
+	var has_runtime_checkpoint: bool = checkpoint_script_data is Dictionary and not checkpoint_script_data.is_empty()
+	if not story_checkpoint.is_empty() and not has_file_checkpoint and not has_runtime_checkpoint:
+		GameDataManager.save_active_story_checkpoint({})
 	var need_play_intro := force_play_intro
 	if not need_play_intro and GameDataManager.profile and not GameDataManager.profile.has_finished_story("intro_story"):
 		need_play_intro = true
@@ -236,6 +249,14 @@ func _enter_game_for_current_archive(force_play_intro: bool, ensure_guide_prompt
 	tween.tween_property(overlay, "color:a", 1.0, 1.0)
 	await tween.finished
 
+	if not force_play_intro and has_file_checkpoint:
+		GameDataManager.set_meta("play_specific_story", checkpoint_script_path)
+		_transition_to_scene("res://scenes/ui/story/story_scene.tscn")
+		return
+	if not force_play_intro and has_runtime_checkpoint:
+		GameDataManager.set_meta("play_runtime_story_data", checkpoint_script_data)
+		_transition_to_scene("res://scenes/ui/story/story_scene.tscn")
+		return
 	if need_play_intro:
 		if GameDataManager.history:
 			GameDataManager.history.clear_history()
@@ -363,12 +384,6 @@ func _open_account_center() -> void:
 	account_center_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	account_center_panel_instance.closed.connect(func() -> void: account_center_panel_instance = null)
 	account_center_panel_instance.logged_out.connect(func() -> void: _pending_authenticated_action = Callable())
-	account_center_panel_instance.legacy_import_requested.connect(func() -> void:
-		GameDataManager.save_manager.reset_legacy_archive_import_decision()
-		account_center_panel_instance.queue_free()
-		account_center_panel_instance = null
-		_offer_legacy_archive_import()
-	)
 
 func _open_account_panel(register_mode: bool = false) -> void:
 	if is_instance_valid(account_auth_panel_instance):
@@ -377,20 +392,51 @@ func _open_account_panel(register_mode: bool = false) -> void:
 	add_child(account_auth_panel_instance)
 	account_auth_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	account_auth_panel_instance.authenticated.connect(_on_account_authenticated)
+	account_auth_panel_instance.local_mode_requested.connect(_on_local_mode_requested)
 	account_auth_panel_instance.closed.connect(func() -> void: account_auth_panel_instance = null)
 	if register_mode:
 		account_auth_panel_instance.call_deferred("show_register")
 
 func _require_authentication(action: Callable) -> bool:
-	if OfficialAuthManager.is_authenticated():
+	if not _uses_official_ai() or OfficialAuthManager.is_authenticated():
 		return true
 	_pending_authenticated_action = action
 	_open_account_panel()
 	return false
 
+func _on_local_mode_requested() -> void:
+	if GameDataManager.config == null:
+		return
+	GameDataManager.config.ai_service_mode = GameDataManager.config.AI_SERVICE_PERSONAL
+	GameDataManager.config.save_config()
+	_pending_authenticated_action = Callable()
+	if is_instance_valid(account_auth_panel_instance):
+		account_auth_panel_instance.queue_free()
+		account_auth_panel_instance = null
+	_update_account_status(OfficialAuthManager.is_authenticated())
+
+func _uses_official_ai() -> bool:
+	return GameDataManager.config == null or GameDataManager.config.ai_service_mode == GameDataManager.config.AI_SERVICE_OFFICIAL
+
+func _require_local_chat_api() -> bool:
+	if _uses_official_ai() or (GameDataManager.config and not GameDataManager.config.api_key.strip_edges().is_empty()):
+		return true
+	var dialog = ConfirmDialogScene.instantiate()
+	get_tree().root.add_child(dialog)
+	dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dialog.setup_advanced(
+		"需要配置对话模型",
+		"本地模式需要先配置对话模型 API Key，才能开始陪伴。其他语音、视觉和图像能力均为可选配置。",
+		"",
+		"配置保存在本机。",
+		"前往设置",
+		"取消"
+	)
+	dialog.confirmed.connect(_on_settings_pressed)
+	return false
+
 func _on_account_authenticated() -> void:
 	_update_account_status(true)
-	_offer_legacy_archive_import()
 	if _pending_authenticated_action.is_valid():
 		var action := _pending_authenticated_action
 		_pending_authenticated_action = Callable()
@@ -400,71 +446,42 @@ func _on_auth_state_changed(authenticated_state: bool, _message: String) -> void
 	if not authenticated_state and GameDataManager.save_manager:
 		GameDataManager.save_manager.current_slot_id = ""
 	_update_account_status(authenticated_state)
-	if authenticated_state:
-		call_deferred("_offer_legacy_archive_import")
 
 func _update_account_status(authenticated_state: bool) -> void:
+	var local_mode := not _uses_official_ai()
+	var can_enter := local_mode or authenticated_state
 	menu_group.visible = true
 	menu_buttons.position.y = 473.0
-	start_button.visible = authenticated_state
-	desktop_pet_button.visible = authenticated_state
-	login_button.visible = not authenticated_state
-	account_button.visible = authenticated_state
-	settings_button.visible = authenticated_state
-	bug_feedback_button.visible = authenticated_state
-	account_status_label.text = "云端身份已连接" if authenticated_state else "登录后开始陪伴"
+	start_button.visible = can_enter
+	desktop_pet_button.visible = can_enter
+	login_button.visible = not can_enter
+	account_button.visible = authenticated_state and not local_mode
+	settings_button.visible = can_enter
+	bug_feedback_button.visible = can_enter
+	account_status_label.text = "本地模式" if local_mode else ("云端身份已连接" if authenticated_state else "登录后开始陪伴")
 
 func _on_session_state_changed(state: int, _message: String) -> void:
 	_update_session_state(state)
 
 func _update_session_state(state: int) -> void:
 	var restoring := state == OfficialAuthManager.SessionState.RESTORING
+	var local_mode := not _uses_official_ai()
+	var signed_in := state == OfficialAuthManager.SessionState.SIGNED_IN
+	var can_enter := local_mode or signed_in
 	menu_group.visible = true
 	menu_buttons.position.y = 473.0
-	start_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
-	desktop_pet_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
-	login_button.visible = state == OfficialAuthManager.SessionState.SIGNED_OUT
-	account_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
-	settings_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
-	bug_feedback_button.visible = state == OfficialAuthManager.SessionState.SIGNED_IN
-	account_status_label.text = "正在验证账号..." if restoring else ("云端身份已连接" if state == OfficialAuthManager.SessionState.SIGNED_IN else "登录后开始陪伴")
+	start_button.visible = can_enter
+	desktop_pet_button.visible = can_enter
+	login_button.visible = not can_enter and state == OfficialAuthManager.SessionState.SIGNED_OUT
+	account_button.visible = signed_in and not local_mode
+	settings_button.visible = can_enter
+	bug_feedback_button.visible = can_enter
+	account_status_label.text = "本地模式" if local_mode else ("正在验证账号..." if restoring else ("云端身份已连接" if signed_in else "登录后开始陪伴"))
 
 func _on_profile_updated(profile: Dictionary) -> void:
 	var username := str(profile.get("username", "")).strip_edges()
 	if not username.is_empty():
 		account_button.tooltip_text = "用户中心：%s" % username
-
-func _offer_legacy_archive_import() -> void:
-	if _legacy_import_prompt_open or not OfficialAuthManager.is_authenticated():
-		return
-	if GameDataManager.save_manager == null or not GameDataManager.save_manager.has_pending_legacy_archive_import():
-		return
-	var legacy_count: int = GameDataManager.save_manager.get_legacy_archive_slot_ids().size()
-	if legacy_count <= 0:
-		return
-	_legacy_import_prompt_open = true
-	var dialog = ConfirmDialogScene.instantiate()
-	add_child(dialog)
-	dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dialog.setup_advanced(
-		"发现旧版本存档",
-		"检测到 %d 个尚未归属账号的旧存档。是否将副本导入当前账号？" % legacy_count,
-		"原存档会保留，不会被移动或删除。",
-		"目标账号已有同名存档时，将自动使用新的存档编号。",
-		"导入存档",
-		"不导入且不再提示"
-	)
-	dialog.confirmed.connect(func() -> void:
-		var imported_count: int = GameDataManager.save_manager.import_legacy_archives()
-		_legacy_import_prompt_open = false
-		account_status_label.text = "已导入 %d 个旧存档" % imported_count
-		if archive_select_panel_instance and archive_select_panel_instance.has_method("refresh_slots"):
-			archive_select_panel_instance.refresh_slots()
-	)
-	dialog.canceled.connect(func() -> void:
-		GameDataManager.save_manager.mark_legacy_archive_import_decided()
-		_legacy_import_prompt_open = false
-	)
 
 func _open_debug_panel() -> void:
 	if debug_panel_instance == null:

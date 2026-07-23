@@ -1,0 +1,118 @@
+{
+    "script_id": "jing_piano_practice_followup",
+    "summary": "静老师发来周六专项辅导邀约后，Luna 与指导人谈论自己的期待和顾虑。",
+    "use_portraits": false,
+    "memory_enabled": true,
+    "memory_layer": "bond",
+    "memory_scope": "player_shared",
+    "memory_title": "周六专项辅导的约定",
+    "memory_summary": "静老师约好周六进行专项辅导。Luna向指导人表达了期待与顾虑，并决定认真参加。",
+    "chapters": {
+        "start": {
+            "events": [
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "关闭微聊后，房间重新安静下来。",
+                    "_editor_position": {
+                        "x": -140.0,
+                        "y": 60.0
+                    }
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "Luna",
+                    "content": "（轻轻捏着衣角）没想到静老师会提出单独辅导……",
+                    "_editor_position": {
+                        "x": 260.0,
+                        "y": 260.0
+                    }
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "她看向你，神情里既有期待，也藏着一点不安。",
+                    "_editor_position": {
+                        "x": 580.0,
+                        "y": -100.0
+                    }
+                },
+                {
+                    "type": "choice",
+                    "options": [
+                        {
+                            "id": "talk_about_guidance",
+                            "text": "聊聊周六的专项辅导",
+                            "kind": "trust",
+                            "response": "我们聊聊周六的专项辅导吧。",
+                            "effects": {
+                                "intimacy": 0.0,
+                                "trust": 0.0
+                            }
+                        }
+                    ],
+                    "_editor_position": {
+                        "x": 920.0,
+                        "y": 260.0
+                    }
+                },
+                {
+                    "type": "guided_ai_chat",
+                    "session_id": "jing_piano_practice_followup_chat",
+                    "narrative_anchor": "静老师今天听了 Luna 弹《星空下的祈愿》，了解了她现在的状态，并已经约好周六在学校图书馆进行单独专项辅导。Luna 已经知道邀约内容。",
+                    "scene_objective": "让 Luna 表达对专项辅导的期待和至少一个具体顾虑，并确认她愿意参加周六辅导。",
+                    "allowed_topics": [
+                        "周六专项辅导",
+                        "最近的钢琴练习",
+                        "Luna 对辅导的期待",
+                        "Luna 对表现不好的担忧"
+                    ],
+                    "forbidden_facts": [
+                        "不得否认静老师已经发出邀约",
+                        "不得改变周六和学校图书馆的安排",
+                        "不得提前知道尚未发生的辅导结果",
+                        "不得虚构新的老师、地点或课程安排"
+                    ],
+                    "required_beats": [
+                        {
+                            "id": "expectation",
+                            "instruction": "自然表达对专项辅导可能带来进步的期待"
+                        },
+                        {
+                            "id": "concern",
+                            "instruction": "自然表达至少一个具体顾虑，例如担心表现不好或让静老师失望"
+                        },
+                        {
+                            "id": "confirmation",
+                            "instruction": "明确确认自己会参加周六的专项辅导"
+                        }
+                    ],
+                    "redirect_instruction": "玩家偏题时先用一句话自然回应，再把话题带回周六专项辅导、练习状态或 Luna 的真实感受。",
+                    "max_player_rounds": 4.0,
+                    "game_minutes": 30.0,
+                    "action_cost": 0.0,
+                    "allow_early_completion": false,
+                    "hide_manual_end": true,
+                    "closing_instruction": "以需要为周六辅导做好准备为理由自然结束交流，语气应体现她已经得到玩家陪伴后的安心。",
+                    "fallback_closing_text": "（轻轻抱住琴谱）我会去参加周六的辅导。虽然还有点紧张……但我想认真试试看。",
+                    "outcome_branches": {
+
+                    },
+                    "_editor_position": {
+                        "x": 1280.0,
+                        "y": 40.0
+                    }
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "旁白",
+                    "content": "说出心里的顾虑后，她的神情终于放松了一些。",
+                    "_editor_position": {
+                        "x": 1720.0,
+                        "y": 300.0
+                    }
+                }
+            ]
+        }
+    }
+}

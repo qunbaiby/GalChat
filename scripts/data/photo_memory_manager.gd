@@ -3,8 +3,6 @@ extends RefCounted
 
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 
-const LEGACY_GLOBAL_PHOTO_DIR := "user://saves/photos"
-const LEGACY_GLOBAL_METADATA_FILE := "user://saves/photos/photo_metadata.json"
 const PHOTO_SUBDIR := "photos"
 const METADATA_FILE_NAME := "photo_metadata.json"
 const STORY_SCRIPT_DIR := "res://assets/data/story/scripts"
@@ -782,8 +780,6 @@ func _load_all_metadata() -> Dictionary:
 		DirAccess.make_dir_recursive_absolute(photo_dir)
 	var metadata_file = get_metadata_file()
 	if not FileAccess.file_exists(metadata_file):
-		_migrate_legacy_global_photo_storage()
-	if not FileAccess.file_exists(metadata_file):
 		return {}
 	var file = FileAccess.open(metadata_file, FileAccess.READ)
 	if file == null:
@@ -802,43 +798,3 @@ func _save_all_metadata(all_data: Dictionary) -> void:
 		DirAccess.make_dir_recursive_absolute(photo_dir)
 	SafeFileAccess.store_string(get_metadata_file(), JSON.stringify(all_data, "\t"))
 
-func _migrate_legacy_global_photo_storage() -> void:
-	var metadata_file = get_metadata_file()
-	if FileAccess.file_exists(metadata_file) or not FileAccess.file_exists(LEGACY_GLOBAL_METADATA_FILE):
-		return
-	var legacy_file = FileAccess.open(LEGACY_GLOBAL_METADATA_FILE, FileAccess.READ)
-	if legacy_file == null:
-		return
-	var legacy_content = legacy_file.get_as_text()
-	legacy_file.close()
-	var json = JSON.new()
-	if json.parse(legacy_content) != OK or not json.data is Dictionary:
-		return
-	var current_char_id = _get_current_char_id()
-	var migrated: Dictionary = {}
-	var target_dir = get_photo_dir()
-	if not DirAccess.dir_exists_absolute(target_dir):
-		DirAccess.make_dir_recursive_absolute(target_dir)
-	var target_dir_access = DirAccess.open(target_dir)
-	if target_dir_access == null:
-		return
-	for legacy_key in json.data.keys():
-		var raw_record = json.data[legacy_key]
-		if not raw_record is Dictionary:
-			continue
-		var record = _enrich_record(raw_record, str(legacy_key))
-		if not _is_record_visible_for_char(record, current_char_id):
-			continue
-		var migrated_record = record.duplicate(true)
-		var old_path = str(migrated_record.get("photo_path", ""))
-		if old_path.begins_with(LEGACY_GLOBAL_PHOTO_DIR):
-			var new_path = target_dir.path_join(old_path.get_file())
-			if FileAccess.file_exists(old_path) and not FileAccess.file_exists(new_path):
-				target_dir_access.copy(old_path, new_path)
-			migrated_record["photo_path"] = new_path
-			migrated_record["record_key"] = new_path
-			migrated[str(new_path)] = migrated_record
-		else:
-			migrated[str(migrated_record.get("record_key", old_path))] = migrated_record
-	if not migrated.is_empty():
-		_save_all_metadata(migrated)

@@ -5,7 +5,6 @@
 [node name="StoryChapterEntryNode" type="GraphNode"]
 custom_minimum_size = Vector2(190, 72)
 resizable = false
-selectable = false
 script = ExtResource("1_script")
 
 [node name="ChapterLabel" type="Label" parent="."]

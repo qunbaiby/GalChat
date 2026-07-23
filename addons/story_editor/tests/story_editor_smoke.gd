@@ -100,6 +100,15 @@ func _test_mobile_chat_catalog() -> void:
 		{"id": "b", "speaker": "player_options", "options": [{"id": "to_a", "text": "A", "next": "a"}]}
 	], "on_complete_events": []}
 	_expect(_has_diagnostic(MobileChatValidator.validate(cyclic), "无出口循环"), "手机消息校验器没有识别无出口循环。")
+	var missing_story := data.duplicate(true)
+	var completion_events := (missing_story.get("on_complete_events", []) as Array).duplicate(true)
+	for event_index in completion_events.size():
+		if completion_events[event_index] is Dictionary and str((completion_events[event_index] as Dictionary).get("type", "")) == "activate_main_chat_topic":
+			var completion_event := (completion_events[event_index] as Dictionary).duplicate(true)
+			completion_event["story_script_path"] = "res://assets/data/story/scripts/main/missing_story.json"
+			completion_events[event_index] = completion_event
+	missing_story["on_complete_events"] = completion_events
+	_expect(_has_diagnostic(MobileChatValidator.validate(missing_story), "后续主线不存在"), "手机消息校验器没有提示缺失的后续主线。")
 
 
 func _test_fixed_call_catalog() -> void:
@@ -298,6 +307,10 @@ func _test_editor_scene(fixture: Dictionary) -> void:
 	editor.call("_filter_chapter_entries", chapter_entry_filter.text)
 	var matched_entry_name := "chapter_entry_%s" % filter_chapter_id.validate_node_name()
 	var hidden_entry_name := "chapter_entry_%s" % hidden_chapter_id.validate_node_name()
+	var matched_entry := graph_edit.get_node(matched_entry_name) as GraphNode
+	var end_entry := graph_edit.get_node("chapter_entry_end") as GraphNode
+	_expect(matched_entry.selectable, "章节入口节点不可选中。")
+	_expect(end_entry.selectable, "剧情结束节点不可选中。")
 	_expect(graph_edit.get_node(matched_entry_name).visible, "章节入口筛选隐藏了匹配章节。")
 	_expect(not graph_edit.get_node(hidden_entry_name).visible, "章节入口筛选没有隐藏不匹配章节。")
 	chapter_entry_filter.text = ""

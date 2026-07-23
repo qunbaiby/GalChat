@@ -195,6 +195,30 @@ disabled = true
 tooltip_text = "解析并应用完成动作 JSON"
 text = "应用动作"
 
+[node name="MainStoryBinding" type="HBoxContainer" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MainTopicEventSelect" type="OptionButton" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/MainStoryBinding"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 36)
+layout_mode = 2
+tooltip_text = "选择要配置后续主线的主线话题完成动作"
+
+[node name="StoryScriptSelect" type="OptionButton" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/MainStoryBinding"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "选择固定微聊关闭后自动触发的主线剧情"
+
+[node name="ClearStoryScriptButton" type="Button" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/MainStoryBinding"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "清除后续主线，恢复话题 AI 回退"
+text = "×"
+
 [node name="CompletionEventsEdit" type="TextEdit" parent="Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作"]
 unique_name_in_owner = true
 layout_mode = 2

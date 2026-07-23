@@ -99,18 +99,21 @@ func _load_states() -> void:
 	if state_changed:
 		_save_states()
 
-func _save_states() -> void:
+func _save_states() -> bool:
 	var file = FileAccess.open(_get_state_path(), FileAccess.WRITE)
-	if file:
-		var data = {
-			"states": _chat_states,
-			"unreads": _unread_counts,
-			"added_contacts": _added_contacts,
-			"pending_triggers": _pending_trigger_queue
-		}
-		var json_string = JSON.stringify(data, "\t")
-		file.store_string(json_string)
-		file.close()
+	if file == null:
+		return false
+	var data = {
+		"states": _chat_states,
+		"unreads": _unread_counts,
+		"added_contacts": _added_contacts,
+		"pending_triggers": _pending_trigger_queue
+	}
+	var json_string = JSON.stringify(data, "\t")
+	file.store_string(json_string)
+	var write_error := file.get_error()
+	file.close()
+	return write_error == OK
 
 func _ensure_default_added_contacts() -> void:
 	var normalized: Array = []

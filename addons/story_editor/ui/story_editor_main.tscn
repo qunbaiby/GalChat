@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://addons/story_editor/ui/story_editor_main.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_event_inspector.tscn" id="2_inspector"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_runtime_debug_window.tscn" id="11_runtime_debug"]
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_node_template_library_window.tscn" id="12_node_templates"]
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_coverage_report_window.tscn" id="13_coverage_report"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/concern_ai_workbench.tscn" id="14_concern_ai"]
 
 [node name="StoryEditorMain" type="Control"]
 layout_mode = 3
@@ -115,6 +116,13 @@ visible = false
 layout_mode = 2
 tooltip_text = "打开 AI 约会模板、Prompt 与清洗工作台"
 text = "AI 约会"
+
+[node name="ConcernAIButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "配置确定性心事模板、触发条件和引导式 AI 对话"
+text = "AI 心事"
 
 [node name="MobileChatButton" type="Button" parent="Root/Toolbar"]
 unique_name_in_owner = true
@@ -662,6 +670,9 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 36)
 
 [node name="DateAIWorkbench" parent="." instance=ExtResource("3_ai_workbench")]
+unique_name_in_owner = true
+
+[node name="ConcernAIWorkbench" parent="." instance=ExtResource("14_concern_ai")]
 unique_name_in_owner = true
 
 [node name="MobileChatCatalogWindow" parent="." instance=ExtResource("4_mobile_catalog")]

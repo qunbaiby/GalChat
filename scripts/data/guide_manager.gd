@@ -118,8 +118,9 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 	normalized["guide_opt_in"] = guide_opt_in
 	return normalized
 
-func _save_state() -> void:
-	GameDataManager.set_archive_custom_config(GUIDE_STATE_KEY, _state.duplicate(true), true)
+func _save_state() -> bool:
+	var result: Variant = GameDataManager.call("set_archive_custom_config", GUIDE_STATE_KEY, _state.duplicate(true), true)
+	return result is bool and bool(result)
 
 func _ensure_overlay() -> bool:
 	if not is_instance_valid(_overlay):
@@ -516,6 +517,9 @@ func _complete_active_guide() -> void:
 	guide_completed.emit(active_guide_id)
 
 func _show_step_overlay(guide_data: Dictionary, step_data: Dictionary, step_index: int, total_steps: int) -> void:
+	if bool(step_data.get("hide_overlay", false)):
+		_hide_overlay()
+		return
 	var overlay_ready := _ensure_overlay()
 	var scene_ready := _is_step_scene_ready(step_data)
 	var show_before_scene_ready := bool(step_data.get("show_before_scene_ready", false))
@@ -1097,8 +1101,6 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 			return interaction_id == "wechat.close"
 		"explain_main_goal_panel":
 			return interaction_id == "main.goal_panel"
-		"open_chat_after_goal":
-			return interaction_id == "main.chat"
 		"choose_topic_after_goal":
 			return interaction_id == "main.chat_topic_options"
 		"explain_main_affection_button":
@@ -1109,7 +1111,7 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 func _is_step_focus_interaction_allowed(step_data: Dictionary) -> bool:
 	var step_id := str(step_data.get("id", "")).strip_edges()
 	match step_id:
-		"explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "execute_schedule_plan", "explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel", "close_schedule_result_popup", "explain_post_schedule_stats", "open_wechat_after_schedule", "explain_wechat_recent_chats", "explain_wechat_chat_session", "explain_wechat_fixed_options", "explain_wechat_fixed_conversation", "close_wechat_after_read", "explain_main_goal_panel", "open_interact_group_after_goal", "open_chat_after_goal", "choose_topic_after_goal", "explain_main_affection_button", "explain_main_affection_panel":
+		"explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "execute_schedule_plan", "explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel", "close_schedule_result_popup", "explain_post_schedule_stats", "open_wechat_after_schedule", "explain_wechat_recent_chats", "explain_wechat_chat_session", "explain_wechat_fixed_options", "explain_wechat_fixed_conversation", "close_wechat_after_read", "explain_main_goal_panel", "open_interact_group_after_goal", "choose_topic_after_goal", "explain_main_affection_button", "explain_main_affection_panel":
 			return true
 		_:
 			return false

@@ -114,6 +114,19 @@ func _run() -> void:
 		var undone_options := (((catalog.current_data.get("messages", []) as Array)[1] as Dictionary).get("options", []) as Array)
 		_expect(str((undone_options[0] as Dictionary).get("next", "")) == "m3", "撤销没有恢复原 next。")
 		_expect(catalog.redo(), "连接修改无法重做。")
+		var topic_event_select := catalog.get_node("Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/MainStoryBinding/MainTopicEventSelect") as OptionButton
+		var story_script_select := catalog.get_node("Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/MainStoryBinding/StoryScriptSelect") as OptionButton
+		_expect(not topic_event_select.disabled and topic_event_select.item_count == 1, "真实固定聊天的主线话题动作没有进入可视化选择器。")
+		var expected_story_path := "res://assets/data/story/scripts/main/jing_piano_practice_followup.json"
+		_expect(str(story_script_select.get_item_metadata(story_script_select.selected)) == expected_story_path, "真实固定聊天的后续主线没有正确选中。")
+		var topic_event_index := int(topic_event_select.get_item_metadata(topic_event_select.selected))
+		_expect(catalog.call("_set_selected_story_script_path", ""), "无法通过可视化绑定清除后续主线。")
+		var topic_event := ((catalog.current_data.get("on_complete_events", []) as Array)[topic_event_index] as Dictionary)
+		_expect(not topic_event.has("story_script_path"), "清除后续主线后 story_script_path 仍然存在。")
+		_expect(topic_event.has("auto_start_source_type") and topic_event.has("expire_on_next_day"), "可视化绑定修改丢失完成动作扩展字段。")
+		_expect(catalog.undo(), "后续主线绑定修改无法撤销。")
+		topic_event = ((catalog.current_data.get("on_complete_events", []) as Array)[topic_event_index] as Dictionary)
+		_expect(str(topic_event.get("story_script_path", "")) == expected_story_path, "撤销没有恢复后续主线路径。")
 		var completion_edit := catalog.get_node("Root/Body/Editor/VerticalWorkspace/DetailsTabs/完成动作/CompletionEventsEdit") as TextEdit
 		completion_edit.text = JSON.stringify([{"type": "activate_goal", "goal_id": "smoke_goal", "unknown": true}])
 		_expect(catalog.apply_completion_events(), "有效完成动作 JSON 无法应用。")

@@ -1,5 +1,7 @@
 extends Node
 
+const SafeFileAccessUtil = preload("res://scripts/utils/safe_file_access.gd")
+
 var config: ConfigResource
 var profile: CharacterProfile # character profile
 var history: ChatHistoryManager
@@ -21,8 +23,11 @@ var interaction_manager: Node
 var save_manager: Node
 var weather_manager: Node
 var app_database: Dictionary = {}
-const LEGACY_ARCHIVE_ROOT_DIR := "user://archives"
 const ACCOUNT_DATA_ROOT_DIR := "user://accounts"
+const ARCHIVE_SETTINGS_FILE_NAME := "settings.json"
+const ARCHIVE_CUSTOM_STATE_FILE_NAME := "custom_state.json"
+const ACTIVE_STORY_STATE_FILE_NAME := "active_story_state.json"
+const ARCHIVE_SCHEMA_VERSION := 1
 
 # 番茄钟与待办事项数据
 var pomodoro_data: Dictionary = {
@@ -33,6 +38,8 @@ var pomodoro_data: Dictionary = {
 }
 
 signal character_switched(char_id: String)
+signal archive_will_change(old_archive_id: String, new_archive_id: String)
+signal archive_changed(archive_id: String)
 
 # 用于记录上一个场景的路径，以便设置界面返回时知道该回到哪里
 var previous_scene_path: String = ""
@@ -102,6 +109,12 @@ func _ready() -> void:
 	
 	config = ConfigResource.new()
 	config.load_config()
+	var startup_archive_id := get_active_archive_id()
+	if startup_archive_id != "" and save_manager and save_manager.has_method("recover_archive_if_interrupted"):
+		if not save_manager.recover_archive_if_interrupted(startup_archive_id):
+			push_error("GameDataManager 无法恢复活动档案：%s" % startup_archive_id)
+			set_active_archive_id("", true)
+	load_active_archive_settings()
 	
 	profile = CharacterProfile.new()
 	profile.load_profile()
@@ -187,59 +200,143 @@ func get_character_save_path(file_name: String, char_id: String = "", archive_id
 func get_archive_state_path(file_name: String, archive_id: String = "") -> String:
 	return get_archive_root_dir(archive_id).path_join(file_name)
 
-func get_archive_custom_config(key: String, default_value: Variant = null) -> Variant:
+func save_active_story_checkpoint(state: Dictionary) -> void:
+	save_story_checkpoint_for_archive(state, get_active_archive_id())
+
+func save_story_checkpoint_for_archive(state: Dictionary, expected_archive_id: String) -> void:
+	if not has_active_archive():
+		return
+	if not expected_archive_id.is_empty() and expected_archive_id != get_active_archive_id():
+		return
+	var path := get_archive_state_path(ACTIVE_STORY_STATE_FILE_NAME)
+	if state.is_empty():
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(path)
+		return
+	var checkpoint := state.duplicate(true)
+	checkpoint["schema_version"] = ARCHIVE_SCHEMA_VERSION
+	checkpoint["archive_id"] = get_active_archive_id()
+	checkpoint["character_id"] = str(config.current_character_id) if config else ""
+	SafeFileAccessUtil.store_string(path, JSON.stringify(checkpoint, "\t"))
+
+func load_active_story_checkpoint() -> Dictionary:
+	if not has_active_archive():
+		return {}
+	var checkpoint := _read_archive_state(ACTIVE_STORY_STATE_FILE_NAME)
+	if int(checkpoint.get("schema_version", 0)) != ARCHIVE_SCHEMA_VERSION:
+		return {}
+	if str(checkpoint.get("archive_id", "")) != get_active_archive_id():
+		return {}
+	if config and str(checkpoint.get("character_id", "")) != str(config.current_character_id):
+		return {}
+	return checkpoint
+
+func _read_archive_state(file_name: String) -> Dictionary:
+	var path := get_archive_state_path(file_name)
+	if not FileAccess.file_exists(path):
+		return {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var json := JSON.new()
+	var parse_result := json.parse(file.get_as_text())
+	file.close()
+	return json.data if parse_result == OK and json.data is Dictionary else {}
+
+func save_active_archive_settings() -> bool:
+	if config == null or not has_active_archive():
+		return true
+	return SafeFileAccessUtil.store_string(
+		get_archive_state_path(ARCHIVE_SETTINGS_FILE_NAME),
+		JSON.stringify({
+			"schema_version": ARCHIVE_SCHEMA_VERSION,
+			"archive_id": get_active_archive_id(),
+			"settings": config.get_archive_settings_data()
+		}, "\t")
+	)
+
+func load_active_archive_settings() -> void:
 	if config == null:
+		return
+	config.reset_archive_settings()
+	if not has_active_archive():
+		return
+	var path := get_archive_state_path(ARCHIVE_SETTINGS_FILE_NAME)
+	if not FileAccess.file_exists(path):
+		return
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return
+	var json := JSON.new()
+	var parse_result := json.parse(file.get_as_text())
+	file.close()
+	if parse_result != OK or not json.data is Dictionary:
+		return
+	var envelope: Dictionary = json.data
+	if int(envelope.get("schema_version", 0)) != ARCHIVE_SCHEMA_VERSION:
+		return
+	if str(envelope.get("archive_id", "")) != get_active_archive_id():
+		return
+	var settings: Variant = envelope.get("settings", {})
+	if settings is Dictionary:
+		config.apply_archive_settings_data(settings)
+
+func get_archive_custom_config(key: String, default_value: Variant = null) -> Variant:
+	if not has_active_archive():
 		return default_value
-	var archive_id := get_active_archive_id()
-	if archive_id == "":
-		return default_value
-	var bucket_key := _get_archive_config_bucket_key(archive_id)
-	var bucket = config.get_custom_config(bucket_key, {})
-	if bucket is Dictionary and bucket.has(key):
-		return bucket[key]
+	var state := _load_archive_custom_state()
+	if state.has(key):
+		return state[key]
 	return default_value
 
-func set_archive_custom_config(key: String, value: Variant, save_now: bool = true) -> void:
-	if config == null:
-		return
-	var archive_id := get_active_archive_id()
-	if archive_id == "":
-		return
-	var bucket_key := _get_archive_config_bucket_key(archive_id)
-	var bucket = config.get_custom_config(bucket_key, {})
-	if not bucket is Dictionary:
-		bucket = {}
-	bucket[key] = value
-	config.set_custom_config(bucket_key, bucket)
+func set_archive_custom_config(key: String, value: Variant, save_now: bool = true) -> bool:
+	if not has_active_archive():
+		return false
+	var state := _load_archive_custom_state()
+	state[key] = value
 	if save_now:
-		config.save_config()
+		return _save_archive_custom_state(state)
+	return true
 
 func clear_archive_custom_config(archive_id: String, save_now: bool = true) -> void:
-	if config == null:
-		return
 	var final_archive_id := archive_id.strip_edges()
 	if final_archive_id == "":
 		final_archive_id = get_active_archive_id()
 	if final_archive_id == "":
 		return
-	var bucket_key := _get_archive_config_bucket_key(final_archive_id)
-	if config.custom_configs.has(bucket_key):
-		config.custom_configs.erase(bucket_key)
-		if save_now:
-			config.save_config()
+	var path := get_archive_collection_dir().path_join(final_archive_id).path_join(ARCHIVE_CUSTOM_STATE_FILE_NAME)
+	if save_now and FileAccess.file_exists(path):
+		DirAccess.remove_absolute(path)
 
-func _get_archive_config_bucket_key(archive_id: String) -> String:
-	var user_id := OfficialAuthManager.get_user_id()
-	var account_key := user_id.validate_filename() if not user_id.is_empty() else "unauthenticated"
-	return "account_%s_archive_%s" % [account_key, archive_id]
+func _load_archive_custom_state() -> Dictionary:
+	var path := get_archive_state_path(ARCHIVE_CUSTOM_STATE_FILE_NAME)
+	if not FileAccess.file_exists(path):
+		return {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var json := JSON.new()
+	var parse_result := json.parse(file.get_as_text())
+	file.close()
+	if parse_result != OK or not json.data is Dictionary:
+		return {}
+	var envelope: Dictionary = json.data
+	if int(envelope.get("schema_version", 0)) != ARCHIVE_SCHEMA_VERSION:
+		return {}
+	if str(envelope.get("archive_id", "")) != get_active_archive_id():
+		return {}
+	var state: Variant = envelope.get("state", {})
+	return state if state is Dictionary else {}
 
-func import_legacy_archive_custom_config(legacy_archive_id: String, target_archive_id: String) -> void:
-	if config == null:
-		return
-	var legacy_key := "archive_%s" % legacy_archive_id
-	if not config.custom_configs.has(legacy_key):
-		return
-	config.set_custom_config(_get_archive_config_bucket_key(target_archive_id), config.custom_configs[legacy_key].duplicate(true))
+func _save_archive_custom_state(state: Dictionary) -> bool:
+	return SafeFileAccessUtil.store_string(
+		get_archive_state_path(ARCHIVE_CUSTOM_STATE_FILE_NAME),
+		JSON.stringify({
+			"schema_version": ARCHIVE_SCHEMA_VERSION,
+			"archive_id": get_active_archive_id(),
+			"state": state
+		}, "\t")
+	)
 
 func sync_profile_to_config() -> void:
 	if config == null or profile == null:
@@ -249,6 +346,9 @@ func sync_profile_to_config() -> void:
 	config.current_main_bg_id = str(profile.current_main_bg_id).strip_edges()
 
 func reload_active_archive_data() -> void:
+	load_active_archive_settings()
+	if config and str(config.current_character_id).strip_edges() == "":
+		config.current_character_id = "luna"
 	if profile:
 		profile.load_profile()
 	if history:
@@ -281,11 +381,20 @@ func reload_active_archive_data() -> void:
 	var event_manager = get_node_or_null("/root/EventManager")
 	if event_manager and event_manager.has_method("reload_for_current_character"):
 		event_manager.reload_for_current_character()
+	if is_instance_valid(MapDataManager) and MapDataManager.has_method("reload_for_current_character"):
+		MapDataManager.reload_for_current_character()
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("reload_for_current_archive"):
+		guide_manager.reload_for_current_archive()
+	_load_pomodoro_data()
 	sync_profile_to_config()
 	if config:
+		config.apply_settings()
 		config.save_config()
+	archive_changed.emit(get_active_archive_id())
 
 func _load_pomodoro_data() -> void:
+	pomodoro_data = _build_default_pomodoro_data()
 	var path = get_archive_state_path("pomodoro_data.json")
 	if FileAccess.file_exists(path):
 		var file = FileAccess.open(path, FileAccess.READ)
@@ -297,12 +406,31 @@ func _load_pomodoro_data() -> void:
 			if typeof(data) == TYPE_DICTIONARY:
 				for key in data.keys():
 					pomodoro_data[key] = data[key]
+
+func _build_default_pomodoro_data() -> Dictionary:
+	return {
+		"work_duration": 25,
+		"break_duration": 5,
+		"total_focus_time": 0,
+		"todos": []
+	}
+
+func begin_archive_change(new_archive_id: String) -> void:
+	var old_archive_id := get_active_archive_id()
+	archive_will_change.emit(old_archive_id, new_archive_id)
+	var desktop_pet := get_tree().root.get_node_or_null("DesktopPet")
+	if is_instance_valid(desktop_pet):
+		desktop_pet.queue_free()
 					
-func save_pomodoro_data() -> void:
+func save_pomodoro_data() -> bool:
 	var path = get_archive_state_path("pomodoro_data.json")
 	var file = FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return false
 	file.store_string(JSON.stringify(pomodoro_data))
+	var write_error := file.get_error()
 	file.close()
+	return write_error == OK
 
 func _load_app_database() -> void:
 	var path = "res://assets/data/interaction/app_database.json"
@@ -379,5 +507,6 @@ func switch_character(char_id: String) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		# 用户从任务栏强制关闭隐藏的Root窗口，直接退出程序
+		if save_manager and save_manager.has_method("save_before_exit"):
+			save_manager.save_before_exit()
 		get_tree().quit()

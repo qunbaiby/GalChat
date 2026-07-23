@@ -2,8 +2,6 @@ class_name ChatHistoryManager
 extends Resource
 
 const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
-const HISTORY_PATH = "user://chat_history.json"
-
 # 每个记录包含: type (String), speaker (String), text (String), time (String), voice_cache_key (String, 可选)
 # 额外可附带: module/subtype/topic/is_choice 等扩展字段
 # type 当前主要包含:
@@ -31,9 +29,9 @@ func add_message(speaker: String, text: String, voice_cache_key: String = "", ty
 	messages.append(record)
 	save_history()
 
-func save_history() -> void:
+func save_history() -> bool:
 	var content = JSON.stringify(messages, "\t")
-	SafeFileAccess.store_string(get_history_path(), content)
+	return SafeFileAccess.store_string(get_history_path(), content)
 
 func load_history() -> void:
 	var path = get_history_path()
@@ -50,14 +48,6 @@ func load_history() -> void:
 			var data = json.get_data()
 			if data is Array:
 				messages = data
-	else:
-		# 尝试迁移旧的历史记录
-		var old_path = "user://chat_history.json"
-		if FileAccess.file_exists(old_path):
-			var dir = DirAccess.open("user://")
-			dir.copy(old_path, path)
-			load_history()
-
 func clear_history() -> void:
 	messages.clear()
 	save_history()

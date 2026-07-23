@@ -542,11 +542,10 @@ self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-current_tab = 1
+current_tab = 0
 tabs_visible = false
 
 [node name="AI 设置" type="MarginContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer" unique_id=1761581115]
-visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 0
@@ -883,6 +882,13 @@ theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "语音设置"
 
+[node name="OptionalHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.47, 0.46, 1)
+theme_override_font_sizes/font_size = 13
+text = "可选：不配置语音合成时，对话仍可正常显示文字，但不会生成角色语音；不配置语音识别时，将无法使用语音输入。"
+autowrap_mode = 3
+
 [node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/语音设置Panel/Margin/VBox" unique_id=1073579326]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -1141,6 +1147,13 @@ theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "向量记忆设置"
 
+[node name="OptionalHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.47, 0.46, 1)
+theme_override_font_sizes/font_size = 13
+text = "可选：不配置时不会影响基本对话，但语义记忆检索将不可用，角色对较早经历的关联回忆会减弱。"
+autowrap_mode = 3
+
 [node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/向量记忆设置Panel/Margin/VBox" unique_id=1423485351]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -1219,6 +1232,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "多模态视觉设置"
+
+[node name="OptionalHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.47, 0.46, 1)
+theme_override_font_sizes/font_size = 13
+text = "可选：不配置时不会影响文字对话，但角色无法理解你提供的图片或屏幕画面。"
+autowrap_mode = 3
 
 [node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/多模态视觉设置Panel/Margin/VBox" unique_id=617157150]
 layout_mode = 2
@@ -1315,6 +1335,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.31, 0.34, 1)
 theme_override_font_sizes/font_size = 18
 text = "图像生成设置"
+
+[node name="OptionalHint" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.47, 0.46, 1)
+theme_override_font_sizes/font_size = 13
+text = "可选：不配置时不会生成 AI 日记或内容插图，已有图片与默认图片仍可正常显示。"
+autowrap_mode = 3
 
 [node name="RowsVBox" type="VBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/图像生成设置Panel/Margin/VBox" unique_id=969537807]
 layout_mode = 2
@@ -1453,6 +1480,30 @@ text = "图像"
 layout_mode = 2
 theme_override_constants/separation = 10
 
+[node name="WindowModeRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="WindowModeOptionLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/WindowModeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "显示模式"
+vertical_alignment = 1
+
+[node name="WindowModeOption" type="OptionButton" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox/WindowModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 38)
+layout_mode = 2
+tooltip_text = "窗口模式可自由拖动；无边框全屏切换更快；独占全屏延迟更低"
+item_count = 3
+popup/item_0/text = "窗口"
+popup/item_0/id = 0
+popup/item_1/text = "无边框全屏"
+popup/item_1/id = 1
+popup/item_2/text = "独占全屏"
+popup/item_2/id = 2
+
 [node name="ResolutionRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox" unique_id=1262724452]
 layout_mode = 2
 theme_override_constants/separation = 16
@@ -1475,7 +1526,7 @@ popup/item_1/text = "1600x900"
 popup/item_1/id = 1
 popup/item_2/text = "1920x1080"
 popup/item_2/id = 2
-popup/item_3/text = "全屏幕"
+popup/item_3/text = "2560x1440"
 popup/item_3/id = 3
 
 [node name="FPSRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/画面设置/DisplayCard/DisplayMargin/VBoxContainer/RowsVBox" unique_id=711674503]

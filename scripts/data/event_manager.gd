@@ -40,9 +40,8 @@ func _load_triggered_events() -> void:
 			triggered_events = json.get_data()
 		file.close()
 
-func _save_triggered_events() -> void:
-	var SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
-	SafeFileAccess.store_string(get_triggered_events_save_path(), JSON.stringify(triggered_events))
+func _save_triggered_events() -> bool:
+	return SafeFileAccess.store_string(get_triggered_events_save_path(), JSON.stringify(triggered_events))
 
 func reload_for_current_character() -> void:
 	_load_triggered_events()

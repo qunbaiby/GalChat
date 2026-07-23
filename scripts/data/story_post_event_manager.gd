@@ -261,16 +261,18 @@ func _load_state() -> void:
 				normalized_queue.append(normalized_event)
 		_pending_events_by_timing[timing] = normalized_queue
 
-func _save_state() -> void:
+func _save_state() -> bool:
 	var save_path := _get_save_path()
 	var save_dir := save_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(save_dir):
 		DirAccess.make_dir_recursive_absolute(save_dir)
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
-		return
+		return false
 	var data := {
 		"pending_events_by_timing": _pending_events_by_timing
 	}
 	file.store_string(JSON.stringify(data, "\t"))
+	var write_error := file.get_error()
 	file.close()
+	return write_error == OK

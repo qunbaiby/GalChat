@@ -36,11 +36,12 @@ func _load_entry_trigger_history() -> void:
 		_entry_trigger_history = json.data
 	file.close()
 
-func _save_entry_trigger_history() -> void:
-	var SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
-	SafeFileAccess.store_string(get_entry_trigger_state_path(), JSON.stringify(_entry_trigger_history))
+func _save_entry_trigger_history() -> bool:
+	return SafeFileAccess.store_string(get_entry_trigger_state_path(), JSON.stringify(_entry_trigger_history))
 
 func reload_for_current_character() -> void:
+	_last_visited_area = ""
+	_last_visited_location = ""
 	_load_entry_trigger_history()
 
 func _get_current_story_day_offset() -> int:

@@ -1,0 +1,46 @@
+{
+	"schema_version": 1,
+	"template_id": "default_weekend_concern",
+	"title": "周末的欲言又止",
+	"character_id": "*",
+	"enabled": true,
+	"priority": 10,
+	"conditions": {
+		"weekdays": [5, 6, 0],
+		"time_periods": [],
+		"min_stage": 0,
+		"max_stage": 0,
+		"min_intimacy": 0,
+		"min_trust": 0
+	},
+	"availability": {
+		"cooldown_days": 1,
+		"once": false,
+		"max_completions": 0
+	},
+	"intro_events": [
+		{"speaker": "旁白", "content": "安静的空气里，她似乎有些欲言又止。"},
+		{"speaker": "{character_name}", "content": "（目光轻轻移开）其实……我有些话想和你说。"}
+	],
+	"guided_ai_policy": {
+		"narrative_anchor": "角色最近有一件难以直接说出口的心事。不得凭空制造会改变世界状态的重大事实。",
+		"scene_objective": "让角色自然说清此刻困扰自己的具体感受，并感受到玩家愿意倾听。",
+		"allowed_topics": ["近期压力", "难以表达的情绪", "希望得到的陪伴"],
+		"forbidden_facts": ["不得虚构重大事故", "不得虚构角色已经做出的重大决定"],
+		"required_beats": [
+			{"id": "concern_source", "instruction": "自然说明至少一个具体困扰或压力来源。"},
+			{"id": "emotional_need", "instruction": "表达此刻希望玩家如何陪伴或回应。"}
+		],
+		"redirect_instruction": "简短回应玩家的偏题，再自然回到角色当前的心事。",
+		"max_player_rounds": 4,
+		"game_minutes": 20,
+		"action_cost": 0,
+		"allow_early_completion": true,
+		"hide_manual_end": true,
+		"show_entry_line": false,
+		"closing_instruction": "以角色情绪稍微放松为落点，自然结束这次谈话。",
+		"fallback_closing_text": "（慢慢呼出一口气）谢谢你愿意听我说这些。"
+	},
+	"memory_enabled": true,
+	"memory_summary": "角色向玩家说出了一件近期难以启齿的心事。"
+}

@@ -70,17 +70,8 @@ func _has_main_story_available() -> bool:
 	return false
 
 func _compute_concern_mode_available() -> bool:
-	if not GameDataManager.story_time_manager:
-		return false
-	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
-	var weekday = date_dict.weekday
-	var current_hour = GameDataManager.story_time_manager.current_hour
-	if not (weekday == 0 or weekday == 6 or (weekday == 5 and current_hour >= 20)):
-		return false
-	var current_day_offset = GameDataManager.story_time_manager.current_day_offset
-	var rng = RandomNumberGenerator.new()
-	rng.seed = hash(str(current_day_offset) + "_story_button")
-	return rng.randf() < 0.6
+	var main_scene := _get_main_scene()
+	return main_scene != null and main_scene.has_method("has_available_concern_template") and bool(main_scene.has_available_concern_template())
 
 func is_concern_mode_available() -> bool:
 	return _concern_mode_available and _chat_button_available and not _is_ui_hidden
@@ -99,9 +90,7 @@ func refresh_chat_button_state() -> void:
 		return
 	chat_button.visible = true
 	chat_button.modulate.a = 1.0
-	if _has_main_story_available():
-		_update_chat_button_status_badge("main_story")
-	elif _concern_mode_available:
+	if _concern_mode_available:
 		_update_chat_button_status_badge("concern")
 	else:
 		_update_chat_button_status_badge("normal")

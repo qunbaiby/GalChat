@@ -2,7 +2,6 @@ extends Control
 
 signal closed
 signal logged_out
-signal legacy_import_requested
 
 @onready var username_label: Label = %UsernameLabel
 @onready var email_label: Label = %EmailLabel
@@ -10,18 +9,15 @@ signal legacy_import_requested
 @onready var ai_mode_label: Label = %AiModeLabel
 @onready var quota_label: Label = %QuotaLabel
 @onready var close_button: Button = %CloseButton
-@onready var import_button: Button = %ImportButton
 @onready var logout_button: Button = %LogoutButton
 @onready var logout_all_button: Button = %LogoutAllButton
 
 func _ready() -> void:
 	close_button.pressed.connect(_close)
-	import_button.pressed.connect(func() -> void: legacy_import_requested.emit())
 	logout_button.pressed.connect(_logout)
 	logout_all_button.pressed.connect(_logout_all)
 	OfficialAuthManager.profile_updated.connect(_apply_profile)
 	_apply_profile(OfficialAuthManager.get_profile())
-	_update_legacy_import_button()
 	OfficialAuthManager.refresh_profile()
 
 func _apply_profile(profile: Dictionary) -> void:
@@ -36,13 +32,6 @@ func _apply_profile(profile: Dictionary) -> void:
 		quota_label.text = "%d / %d" % [int(quota.get("remaining", 0)), int(quota.get("limit", 0))]
 	else:
 		quota_label.text = "读取中"
-
-func _update_legacy_import_button() -> void:
-	var legacy_count := 0
-	if GameDataManager.save_manager:
-		legacy_count = GameDataManager.save_manager.get_legacy_archive_slot_ids().size()
-	import_button.disabled = legacy_count <= 0
-	import_button.text = "重新检查旧存档（%d）" % legacy_count if legacy_count > 0 else "没有可导入的旧存档"
 
 func _logout() -> void:
 	OfficialAuthManager.logout()

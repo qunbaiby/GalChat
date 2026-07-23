@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# pyright: reportAny=false, reportCallInDefaultInitializer=false, reportExplicitAny=false, reportImplicitRelativeImport=false, reportImplicitStringConcatenation=false, reportMissingParameterType=false, reportUnannotatedClassAttribute=false, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownParameterType=false, reportUnknownVariableType=false, reportUnusedCallResult=false
+
 import asyncio
 import base64
 import binascii
@@ -14,16 +16,17 @@ import secrets
 import sys
 import time
 from collections import defaultdict, deque
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlparse
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from auth import TokenService
@@ -46,6 +49,10 @@ class Settings:
             for model in os.getenv("GALCHAT_ALLOWED_MODELS", "deepseek-chat,deepseek-reasoner").split(",")
             if model.strip()
         }
+        self.chat_enabled = os.getenv("GALCHAT_CHAT_ENABLED", "true").lower() == "true"
+        self.default_chat_model = os.getenv("GALCHAT_DEFAULT_CHAT_MODEL", "deepseek-chat").strip()
+        self.chat_temperature = float(os.getenv("GALCHAT_CHAT_TEMPERATURE", "0.7"))
+        self.chat_max_tokens = int(os.getenv("GALCHAT_CHAT_MAX_TOKENS", "2048"))
         self.rate_limit_requests = int(os.getenv("GALCHAT_RATE_LIMIT_REQUESTS", "30"))
         self.rate_limit_window_seconds = int(os.getenv("GALCHAT_RATE_LIMIT_WINDOW_SECONDS", "60"))
         self.request_timeout_seconds = float(os.getenv("GALCHAT_REQUEST_TIMEOUT_SECONDS", "90"))
@@ -74,33 +81,38 @@ class Settings:
         self.secrets_master_key = os.getenv("GALCHAT_SECRETS_MASTER_KEY", "").strip()
         self.capability_providers = {
             "tts": {
+                "enabled": os.getenv("GALCHAT_TTS_ENABLED", "true").lower() == "true",
                 "api_key": os.getenv("GALCHAT_TTS_API_KEY", "").strip(),
                 "base_url": os.getenv("GALCHAT_TTS_BASE_URL", "https://openspeech.bytedance.com/api/v3/tts/unidirectional").strip(),
                 "model": os.getenv("GALCHAT_TTS_MODEL", "").strip(),
                 "resource_id": os.getenv("GALCHAT_TTS_RESOURCE_ID", "seed-tts-2.0").strip(),
             },
             "asr": {
+                "enabled": os.getenv("GALCHAT_ASR_ENABLED", "true").lower() == "true",
                 "api_key": os.getenv("GALCHAT_ASR_API_KEY", "").strip(),
                 "base_url": os.getenv("GALCHAT_ASR_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions").strip(),
                 "model": os.getenv("GALCHAT_ASR_MODEL", "qwen3-asr-flash").strip(),
                 "resource_id": "",
             },
             "embedding": {
+                "enabled": os.getenv("GALCHAT_EMBEDDING_ENABLED", "true").lower() == "true",
                 "api_key": os.getenv("GALCHAT_EMBEDDING_API_KEY", "").strip(),
                 "base_url": os.getenv("GALCHAT_EMBEDDING_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/embeddings/multimodal").strip(),
                 "model": os.getenv("GALCHAT_EMBEDDING_MODEL", "").strip(),
                 "resource_id": "",
             },
             "image": {
+                "enabled": os.getenv("GALCHAT_IMAGE_ENABLED", "true").lower() == "true",
                 "api_key": os.getenv("GALCHAT_IMAGE_API_KEY", "").strip(),
                 "base_url": os.getenv("GALCHAT_IMAGE_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/images/generations").strip(),
                 "model": os.getenv("GALCHAT_IMAGE_MODEL", "doubao-seedream-5-0-260128").strip(),
                 "resource_id": "",
             },
             "vision": {
+                "enabled": os.getenv("GALCHAT_VISION_ENABLED", "true").lower() == "true",
                 "api_key": os.getenv("GALCHAT_VISION_API_KEY", "").strip(),
                 "base_url": os.getenv("GALCHAT_VISION_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/responses").strip(),
-                "model": os.getenv("GALCHAT_VISION_MODEL", "doubao-seed-2-0-mini-260428").strip(),
+                "model": os.getenv("GALCHAT_VISION_MODEL", "doubao-seed-2-0-lite-260428").strip(),
                 "resource_id": "",
             },
         }
@@ -135,6 +147,12 @@ class ChatMessage(BaseModel):
     content: str = Field(min_length=1, max_length=20_000)
 
 
+class ChatResponseFormat(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: str = Field(pattern="^(text|json_object)$")
+
+
 class ChatCompletionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -143,6 +161,7 @@ class ChatCompletionRequest(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=1.5)
     max_tokens: int = Field(default=2048, ge=1, le=4096)
     stream: bool = False
+    response_format: ChatResponseFormat | None = None
 
 
 class TtsSpeechRequest(BaseModel):
@@ -234,9 +253,13 @@ class PasswordResetRequest(EmailCodeRequest):
 class ProviderConfigRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    api_key: str = Field(min_length=8, max_length=512)
+    api_key: str = Field(default="", max_length=512)
     base_url: str = Field(min_length=10, max_length=500)
     allowed_models: list[str] = Field(min_length=1, max_length=20)
+    default_model: str = Field(default="deepseek-chat", min_length=1, max_length=200)
+    enabled: bool = True
+    temperature: float = Field(default=0.7, ge=0.0, le=1.5)
+    max_tokens: int = Field(default=2048, ge=1, le=4096)
 
     @field_validator("base_url")
     @classmethod
@@ -254,14 +277,23 @@ class ProviderConfigRequest(BaseModel):
             raise ValueError("Provider model identifiers are invalid.")
         return normalized
 
+    @field_validator("default_model")
+    @classmethod
+    def validate_default_model(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized.replace("-", "").replace("_", "").isalnum():
+            raise ValueError("Default provider model identifier is invalid.")
+        return normalized
+
 
 class CapabilityProviderRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    api_key: str = Field(min_length=8, max_length=512)
+    api_key: str = Field(default="", max_length=512)
     base_url: str = Field(min_length=10, max_length=500)
     model: str = Field(default="", max_length=200)
     resource_id: str = Field(default="", max_length=200)
+    enabled: bool = True
 
     @field_validator("base_url")
     @classmethod
@@ -305,26 +337,31 @@ storage = GatewayStorage(settings.database_path, settings.refresh_token_days)
 stored_quota_limits = storage.list_capability_quota_limits()
 for capability, stored_limit in stored_quota_limits.items():
     if capability in settings.capability_daily_limits:
-        settings.capability_daily_limits[capability] = int(stored_limit["daily_limit"])
+        settings.capability_daily_limits[capability] = cast(int, stored_limit["daily_limit"])
 provider_secret_cipher = ProviderSecretCipher(settings.secrets_master_key)
 email_service = EmailService()
 stored_provider_config = storage.get_provider_config()
 if stored_provider_config is not None and provider_secret_cipher.is_configured:
-    settings.provider_api_key = provider_secret_cipher.decrypt(stored_provider_config["encrypted_api_key"])
-    settings.provider_base_url = stored_provider_config["base_url"]
+    settings.provider_api_key = provider_secret_cipher.decrypt(str(stored_provider_config["encrypted_api_key"]))
+    settings.provider_base_url = str(stored_provider_config["base_url"])
     settings.allowed_models = {
-        model for model in stored_provider_config["allowed_models"].split(",") if model
+        model for model in str(stored_provider_config["allowed_models"]).split(",") if model
     }
+    settings.default_chat_model = str(stored_provider_config["default_model"])
+    settings.chat_enabled = bool(stored_provider_config["enabled"])
+    settings.chat_temperature = float(cast(float, stored_provider_config["temperature"]))
+    settings.chat_max_tokens = int(cast(int, stored_provider_config["max_tokens"]))
 stored_capability_configs = storage.list_capability_provider_configs()
 if provider_secret_cipher.is_configured:
     for capability, stored_config in stored_capability_configs.items():
         if capability not in settings.capability_providers:
             continue
         settings.capability_providers[capability] = {
-            "api_key": provider_secret_cipher.decrypt(stored_config["encrypted_api_key"]),
-            "base_url": stored_config["base_url"],
-            "model": stored_config["model"],
-            "resource_id": stored_config["resource_id"],
+            "api_key": provider_secret_cipher.decrypt(str(stored_config["encrypted_api_key"])),
+            "base_url": str(stored_config["base_url"]),
+            "model": str(stored_config["model"]),
+            "resource_id": str(stored_config["resource_id"]),
+            "enabled": bool(stored_config["enabled"]),
         }
 if settings.environment == "development" and settings.development_test_account_enabled:
     storage.ensure_development_user(
@@ -335,7 +372,7 @@ if settings.environment == "development" and settings.development_test_account_e
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     storage.cleanup_usage_events(settings.usage_event_retention_days)
     app.state.http = httpx.AsyncClient(timeout=settings.request_timeout_seconds)
     access_log_listener.start()
@@ -345,16 +382,23 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="GalChat AI Gateway", version="0.1.0", lifespan=lifespan)
+app.mount(
+    "/admin/assets",
+    StaticFiles(directory=Path(__file__).with_name("admin_assets")),
+    name="admin-assets",
+)
 
 access_logger = logging.getLogger("galchat.access")
-access_log_listener = getattr(access_logger, "_galchat_queue_listener", None)
-if access_log_listener is None:
+existing_access_log_listener = getattr(access_logger, "_galchat_queue_listener", None)
+if isinstance(existing_access_log_listener, logging.handlers.QueueListener):
+    access_log_listener = existing_access_log_listener
+else:
     access_log_queue: queue.SimpleQueue[logging.LogRecord] = queue.SimpleQueue()
     access_handler = logging.StreamHandler(sys.stdout)
     access_handler.setFormatter(logging.Formatter("%(message)s"))
     access_logger.addHandler(logging.handlers.QueueHandler(access_log_queue))
     access_log_listener = logging.handlers.QueueListener(access_log_queue, access_handler)
-    access_logger._galchat_queue_listener = access_log_listener
+    setattr(access_logger, "_galchat_queue_listener", access_log_listener)
 access_logger.setLevel(logging.INFO)
 access_logger.propagate = False
 
@@ -446,6 +490,9 @@ async def record_game_usage(request: Request, call_next):
             int((time.monotonic() - started_at) * 1000),
             str(response.status_code),
             int(getattr(request.state, "usage_units", 1)),
+            getattr(request.state, "input_tokens", None),
+            getattr(request.state, "output_tokens", None),
+            getattr(request.state, "total_tokens", None),
         )
     return response
 
@@ -512,9 +559,15 @@ def _mask_email(email: str) -> str:
 
 
 def _validated_payload(payload: ChatCompletionRequest) -> dict[str, Any]:
-    if payload.model not in settings.allowed_models:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Requested model is not allowed.")
-    return payload.model_dump()
+    if not settings.chat_enabled:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Official Chat is disabled.")
+    if settings.default_chat_model not in settings.allowed_models:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Default Chat model is not allowed.")
+    provider_payload = payload.model_dump(exclude_none=True)
+    provider_payload["model"] = settings.default_chat_model
+    provider_payload["temperature"] = settings.chat_temperature
+    provider_payload["max_tokens"] = settings.chat_max_tokens
+    return provider_payload
 
 
 async def _test_provider_config(payload: ProviderConfigRequest) -> int:
@@ -546,41 +599,58 @@ async def _test_provider_config(payload: ProviderConfigRequest) -> int:
     return int((time.monotonic() - started_at) * 1000)
 
 
+def _provider_payload_with_effective_key(payload: ProviderConfigRequest) -> ProviderConfigRequest:
+    effective_key = payload.api_key.strip() or settings.provider_api_key
+    if len(effective_key) < 8:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="AI provider API key is required.")
+    return payload.model_copy(update={"api_key": effective_key})
+
+
 def _admin_source_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def _get_capability_provider(capability: str) -> dict[str, str]:
+def _get_capability_provider(capability: str) -> dict[str, str | bool]:
     provider = settings.capability_providers.get(capability)
     if provider is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown provider capability.")
+    if not provider.get("enabled", True):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Official {capability} capability is disabled.",
+        )
     return provider
 
 
 def _consume_quota(user_id: str, capability: str) -> int:
-    daily_limit = settings.capability_daily_limits[capability]
-    if user_id.startswith("legacy:"):
-        return daily_limit
-    remaining = storage.consume_capability_quota(user_id, capability, daily_limit)
-    if remaining is None:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Daily {capability} quota exceeded.",
-        )
-    return remaining
+    _ = (user_id, capability)
+    return -1
 
 
 def _release_quota(user_id: str, capability: str) -> None:
-    if not user_id.startswith("legacy:"):
-        storage.release_capability_quota(user_id, capability)
+    _ = (user_id, capability)
 
 
 def _quota_headers(capability: str, remaining: int) -> dict[str, str]:
-    return {
-        "X-Quota-Capability": capability,
-        "X-Quota-Limit": str(settings.capability_daily_limits[capability]),
-        "X-Quota-Remaining": str(remaining),
-    }
+    _ = remaining
+    return {"X-Quota-Capability": capability, "X-Quota-Policy": "unlimited"}
+
+
+def _capture_usage_tokens(request: Request, body: Any) -> None:
+    if not isinstance(body, dict):
+        return
+    usage = body.get("usage")
+    if not isinstance(usage, dict):
+        return
+    input_tokens = usage.get("prompt_tokens", usage.get("input_tokens"))
+    output_tokens = usage.get("completion_tokens", usage.get("output_tokens"))
+    total_tokens = usage.get("total_tokens")
+    request.state.input_tokens = int(input_tokens) if isinstance(input_tokens, (int, float)) else None
+    request.state.output_tokens = int(output_tokens) if isinstance(output_tokens, (int, float)) else None
+    if isinstance(total_tokens, (int, float)):
+        request.state.total_tokens = int(total_tokens)
+    elif request.state.input_tokens is not None or request.state.output_tokens is not None:
+        request.state.total_tokens = int(request.state.input_tokens or 0) + int(request.state.output_tokens or 0)
 
 
 def _quota_payload(user_id: str) -> dict[str, Any]:
@@ -650,7 +720,7 @@ async def readiness(request: Request) -> dict[str, Any]:
 
 @app.get("/admin", response_class=HTMLResponse, include_in_schema=False)
 async def admin_console() -> HTMLResponse:
-    page_path = Path(__file__).with_name("admin.html")
+    page_path = Path(__file__).with_name("admin_v2.html")
     if not page_path.is_file():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Admin console is unavailable.")
     return HTMLResponse(page_path.read_text(encoding="utf-8"))
@@ -666,6 +736,12 @@ async def admin_overview() -> dict[str, Any]:
         "provider_configured": bool(settings.provider_api_key),
         "provider_base_url": settings.provider_base_url,
         "allowed_models": sorted(settings.allowed_models),
+        "chat_enabled": settings.chat_enabled,
+        "default_chat_model": settings.default_chat_model,
+        "capability_enabled": {
+            capability: bool(provider.get("enabled", True))
+            for capability, provider in settings.capability_providers.items()
+        },
         "daily_request_limit": settings.daily_request_limit,
         "capability_daily_limits": settings.capability_daily_limits,
         "capability_stats": storage.get_capability_stats(usage_date),
@@ -684,6 +760,10 @@ async def admin_provider_config() -> dict[str, Any]:
         "configured": bool(settings.provider_api_key),
         "base_url": settings.provider_base_url,
         "allowed_models": sorted(settings.allowed_models),
+        "default_model": settings.default_chat_model,
+        "enabled": settings.chat_enabled,
+        "temperature": settings.chat_temperature,
+        "max_tokens": settings.chat_max_tokens,
         "updated_at": stored["updated_at"] if stored else None,
         "secret_storage_enabled": provider_secret_cipher.is_configured,
         "source": "encrypted_store" if stored else "environment",
@@ -692,7 +772,8 @@ async def admin_provider_config() -> dict[str, Any]:
 
 @app.post("/admin/api/provider/test", dependencies=[Depends(authorize_admin)])
 async def admin_test_provider(payload: ProviderConfigRequest, request: Request) -> dict[str, Any]:
-    latency_ms = await _test_provider_config(payload)
+    tested_payload = _provider_payload_with_effective_key(payload)
+    latency_ms = await _test_provider_config(tested_payload)
     storage.add_admin_audit_log("provider.test_succeeded", _admin_source_ip(request))
     return {"success": True, "latency_ms": latency_ms, "model": payload.allowed_models[0]}
 
@@ -701,16 +782,25 @@ async def admin_test_provider(payload: ProviderConfigRequest, request: Request) 
 async def admin_save_provider(payload: ProviderConfigRequest, request: Request) -> dict[str, Any]:
     if not provider_secret_cipher.is_configured:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Provider secret storage is not configured.")
-    latency_ms = await _test_provider_config(payload)
-    encrypted_api_key = provider_secret_cipher.encrypt(payload.api_key)
+    tested_payload = _provider_payload_with_effective_key(payload)
+    latency_ms = await _test_provider_config(tested_payload) if payload.enabled else 0
+    encrypted_api_key = provider_secret_cipher.encrypt(tested_payload.api_key)
     updated_at = storage.save_provider_config(
         encrypted_api_key,
         payload.base_url,
         ",".join(payload.allowed_models),
+        payload.default_model,
+        payload.enabled,
+        payload.temperature,
+        payload.max_tokens,
     )
-    settings.provider_api_key = payload.api_key
+    settings.provider_api_key = tested_payload.api_key
     settings.provider_base_url = payload.base_url
     settings.allowed_models = set(payload.allowed_models)
+    settings.default_chat_model = payload.default_model
+    settings.chat_enabled = payload.enabled
+    settings.chat_temperature = payload.temperature
+    settings.chat_max_tokens = payload.max_tokens
     storage.add_admin_audit_log("provider.config_updated", _admin_source_ip(request))
     return {"success": True, "latency_ms": latency_ms, "updated_at": updated_at}
 
@@ -725,6 +815,10 @@ async def admin_delete_provider(request: Request) -> dict[str, bool]:
         for model in os.getenv("GALCHAT_ALLOWED_MODELS", "deepseek-chat,deepseek-reasoner").split(",")
         if model.strip()
     }
+    settings.default_chat_model = os.getenv("GALCHAT_DEFAULT_CHAT_MODEL", "deepseek-chat").strip()
+    settings.chat_enabled = os.getenv("GALCHAT_CHAT_ENABLED", "true").lower() == "true"
+    settings.chat_temperature = float(os.getenv("GALCHAT_CHAT_TEMPERATURE", "0.7"))
+    settings.chat_max_tokens = int(os.getenv("GALCHAT_CHAT_MAX_TOKENS", "2048"))
     storage.add_admin_audit_log("provider.encrypted_config_deleted", _admin_source_ip(request))
     return {"success": True}
 
@@ -744,6 +838,7 @@ async def admin_capability_providers() -> dict[str, Any]:
                 "base_url": provider["base_url"],
                 "model": provider["model"],
                 "resource_id": provider["resource_id"],
+                "enabled": bool(provider.get("enabled", True)),
                 "source": "encrypted_store" if capability in stored else "environment",
                 "updated_at": stored.get(capability, {}).get("updated_at"),
             }
@@ -762,19 +857,25 @@ async def admin_save_capability_provider(
     _get_capability_provider(capability)
     if not provider_secret_cipher.is_configured:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Provider secret storage is not configured.")
-    encrypted_api_key = provider_secret_cipher.encrypt(payload.api_key)
+    current_provider = settings.capability_providers[capability]
+    effective_key = payload.api_key.strip() or str(current_provider.get("api_key", ""))
+    if len(effective_key) < 8:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Capability API key is required.")
+    encrypted_api_key = provider_secret_cipher.encrypt(effective_key)
     updated_at = storage.save_capability_provider_config(
         capability,
         encrypted_api_key,
         payload.base_url,
         payload.model.strip(),
         payload.resource_id.strip(),
+        payload.enabled,
     )
     settings.capability_providers[capability] = {
-        "api_key": payload.api_key,
+        "api_key": effective_key,
         "base_url": payload.base_url,
         "model": payload.model.strip(),
         "resource_id": payload.resource_id.strip(),
+        "enabled": payload.enabled,
     }
     storage.add_admin_audit_log(f"provider.{capability}_config_updated", _admin_source_ip(request))
     return {"success": True, "updated_at": updated_at}
@@ -805,7 +906,7 @@ async def admin_users(
             {
                 **user,
                 "email": _mask_email(str(user["email"])),
-                "remaining_today": max(0, settings.daily_request_limit - int(user["used_today"])),
+                "remaining_today": max(0, settings.daily_request_limit - cast(int, user["used_today"])),
                 "capability_quotas": storage.get_capability_quotas(
                     str(user["user_id"]), settings.capability_daily_limits
                 ),
@@ -1048,6 +1149,7 @@ async def chat_completions(
                 content={"error": {"message": _safe_provider_error(response.content)}},
                 headers=quota_headers,
             )
+        _capture_usage_tokens(request, response.json())
         return _json_response(response, quota_headers)
 
     request.state.defer_usage_recording = True
@@ -1074,6 +1176,13 @@ async def chat_completions(
                     yield b"data: [DONE]\n\n"
                     return
                 async for chunk in response.aiter_raw():
+                    for raw_line in chunk.splitlines():
+                        if not raw_line.startswith(b"data: ") or raw_line == b"data: [DONE]":
+                            continue
+                        try:
+                            _capture_usage_tokens(request, json.loads(raw_line.removeprefix(b"data: ")))
+                        except (ValueError, UnicodeDecodeError):
+                            pass
                     yield chunk
         except httpx.TimeoutException:
             event_status = "timeout"
@@ -1103,6 +1212,9 @@ async def chat_completions(
                 int((time.monotonic() - started_at) * 1000),
                 error_code,
                 int(request.state.usage_units),
+                getattr(request.state, "input_tokens", None),
+                getattr(request.state, "output_tokens", None),
+                getattr(request.state, "total_tokens", None),
             )
 
     return StreamingResponse(stream_provider(), media_type="text/event-stream", headers=quota_headers)
@@ -1228,6 +1340,7 @@ async def asr_transcription(
             content={"error": {"message": _safe_provider_error(response.content)}},
             headers=quota_headers,
         )
+    _capture_usage_tokens(request, response.json())
     return _json_response(response, quota_headers)
 
 
@@ -1270,6 +1383,7 @@ async def embeddings(
             content={"error": {"message": _safe_provider_error(response.content)}},
             headers=quota_headers,
         )
+    _capture_usage_tokens(request, response.json())
     return _json_response(response, quota_headers)
 
 
@@ -1325,6 +1439,7 @@ async def vision_responses(
             content={"error": {"message": _safe_provider_error(response.content)}},
             headers=quota_headers,
         )
+    _capture_usage_tokens(request, response.json())
     return _json_response(response, quota_headers)
 
 
@@ -1378,6 +1493,7 @@ async def image_generations(
 
     try:
         provider_body = response.json()
+        _capture_usage_tokens(request, provider_body)
         image_item = provider_body["data"][0]
         encoded_image = image_item.get("b64_json") or image_item.get("image_base64")
         if encoded_image:

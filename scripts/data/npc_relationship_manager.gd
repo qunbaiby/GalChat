@@ -39,10 +39,10 @@ func load_relationships() -> void:
                     npc_data.erase("interaction_exp")
                 relationships = data
                 
-func save_relationships() -> void:
+func save_relationships() -> bool:
     var path = get_save_path()
     var content = JSON.stringify(relationships, "\t")
-    SafeFileAccess.store_string(path, content)
+    return SafeFileAccess.store_string(path, content)
 
 func get_intimacy(npc_id: String) -> float:
     if relationships.has(npc_id):

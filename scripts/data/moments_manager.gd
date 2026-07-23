@@ -1,6 +1,5 @@
 extends Node
 
-const LEGACY_SAVE_PATH = "user://data/moments_data.json"
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 
@@ -64,7 +63,6 @@ func _on_ai_reply_generated(post_id: String, reply_text: String) -> void:
 func load_data(char_id: String = "") -> void:
 	moments_data = []
 	var save_path = _get_save_path(char_id)
-	_migrate_legacy_data_if_needed(save_path)
 	if not FileAccess.file_exists(save_path):
 		_create_default_data()
 		return
@@ -86,42 +84,28 @@ func load_data(char_id: String = "") -> void:
 			push_error("Failed to parse moments data: ", json.get_error_message())
 			_create_default_data()
 
-func save_data() -> void:
+func save_data() -> bool:
 	var save_path = _get_save_path()
 	var save_dir = save_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(save_dir):
 		DirAccess.make_dir_recursive_absolute(save_dir)
 		
 	var file = FileAccess.open(save_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(moments_data, "\t"))
-		file.close()
-		moments_updated.emit()
-	else:
+	if file == null:
 		push_error("Failed to save moments data")
+		return false
+	file.store_string(JSON.stringify(moments_data, "\t"))
+	var write_error := file.get_error()
+	file.close()
+	if write_error != OK:
+		push_error("Failed to write moments data")
+		return false
+	moments_updated.emit()
+	return true
 
 func _create_default_data() -> void:
 	moments_data = []
 	save_data()
-
-func _migrate_legacy_data_if_needed(save_path: String) -> void:
-	if FileAccess.file_exists(save_path) or not FileAccess.file_exists(LEGACY_SAVE_PATH):
-		return
-	var legacy_file = FileAccess.open(LEGACY_SAVE_PATH, FileAccess.READ)
-	if legacy_file == null:
-		return
-	var legacy_content = legacy_file.get_as_text()
-	legacy_file.close()
-	var json = JSON.new()
-	if json.parse(legacy_content) != OK or not json.data is Array:
-		return
-	var save_dir = save_path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(save_dir):
-		DirAccess.make_dir_recursive_absolute(save_dir)
-	var target_file = FileAccess.open(save_path, FileAccess.WRITE)
-	if target_file:
-		target_file.store_string(JSON.stringify(json.data, "\t"))
-		target_file.close()
 
 func get_all_moments() -> Array:
 	return moments_data

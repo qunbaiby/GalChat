@@ -1,25 +1,39 @@
 extends RefCounted
 class_name MusicLibrary
 
+const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
 const AUDIO_DATA_PATH: String = "res://assets/data/audio/audio_data.json"
+const ARCHIVE_AUDIO_DATA_FILE_NAME: String = "music_library.json"
 const IMPORTED_MUSIC_DIR: String = "user://imported_music"
 const DEFAULT_PLAYLIST_TRACK_ID: String = "luna_bgm"
 
 static func load_tracks() -> Array:
+	var archive_path := _get_archive_audio_data_path()
+	if archive_path != "" and FileAccess.file_exists(archive_path):
+		var archive_tracks := _load_tracks_from_path(archive_path)
+		if not archive_tracks.is_empty():
+			return _ensure_default_playlist_track(archive_tracks)
+	return _load_default_tracks()
+
+static func _load_default_tracks() -> Array:
 	var tracks: Array = []
-	if FileAccess.file_exists(AUDIO_DATA_PATH):
-		var file: FileAccess = FileAccess.open(AUDIO_DATA_PATH, FileAccess.READ)
-		if file != null:
-			var content: String = file.get_as_text()
-			file.close()
-			var json = JSON.parse_string(content)
-			if json is Dictionary and json.has("bgm") and json["bgm"] is Array:
-				for raw_track in json["bgm"]:
-					if raw_track is Dictionary and raw_track.has("path"):
-						tracks.append(_normalize_track(raw_track))
+	tracks = _load_tracks_from_path(AUDIO_DATA_PATH)
 	if tracks.is_empty():
 		tracks = _load_fallback_tracks()
 	return _ensure_default_playlist_track(tracks)
+
+static func _load_tracks_from_path(path: String) -> Array:
+	var tracks: Array = []
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return tracks
+	var json = JSON.parse_string(file.get_as_text())
+	file.close()
+	if json is Dictionary and json.has("bgm") and json["bgm"] is Array:
+		for raw_track in json["bgm"]:
+			if raw_track is Dictionary and raw_track.has("path"):
+				tracks.append(_normalize_track(raw_track))
+	return tracks
 
 static func load_playlist_tracks() -> Array:
 	var tracks: Array = []
@@ -29,28 +43,27 @@ static func load_playlist_tracks() -> Array:
 	return tracks
 
 static func save_tracks(tracks: Array) -> void:
+	var archive_path := _get_archive_audio_data_path()
+	if archive_path == "":
+		return
 	tracks = _ensure_default_playlist_track(tracks)
 	var json_data: Dictionary = {
 		"bgm": [],
 		"bgs": [],
 		"se": []
 	}
-	if FileAccess.file_exists(AUDIO_DATA_PATH):
-		var file: FileAccess = FileAccess.open(AUDIO_DATA_PATH, FileAccess.READ)
-		if file != null:
-			var old_json = JSON.parse_string(file.get_as_text())
-			file.close()
-			if old_json is Dictionary:
-				if old_json.has("bgs"):
-					json_data["bgs"] = old_json["bgs"]
-				if old_json.has("se"):
-					json_data["se"] = old_json["se"]
 	for track in tracks:
 		json_data["bgm"].append(_serialize_track(track))
-	var write_file: FileAccess = FileAccess.open(AUDIO_DATA_PATH, FileAccess.WRITE)
-	if write_file != null:
-		write_file.store_string(JSON.stringify(json_data, "  "))
-		write_file.close()
+	SafeFileAccess.store_string(archive_path, JSON.stringify(json_data, "  "))
+
+static func _get_archive_audio_data_path() -> String:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return ""
+	var game_data_manager := tree.root.get_node_or_null("GameDataManager")
+	if game_data_manager == null or not game_data_manager.has_active_archive():
+		return ""
+	return game_data_manager.get_archive_state_path(ARCHIVE_AUDIO_DATA_FILE_NAME)
 
 static func update_track_fields(track_id: String, updates: Dictionary) -> Array:
 	if track_id.strip_edges() == "":

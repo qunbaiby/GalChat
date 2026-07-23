@@ -2,6 +2,9 @@ extends Control
 
 signal authenticated
 signal closed
+signal local_mode_requested
+
+const LOCAL_MODE_CLICK_THRESHOLD := 7
 
 @onready var login_tab: Button = %LoginTab
 @onready var register_tab: Button = %RegisterTab
@@ -16,12 +19,14 @@ signal closed
 @onready var submit_button: Button = %SubmitButton
 @onready var status_label: Label = %StatusLabel
 @onready var close_button: Button = %CloseButton
+@onready var version_button: Button = %VersionButton
 
 enum AuthMode { LOGIN, REGISTER, RESET }
 
 var _mode := AuthMode.LOGIN
 var _code_cooldown_remaining := 0
 var _code_cooldown_timer: Timer
+var _version_click_count := 0
 
 func _ready() -> void:
 	login_tab.pressed.connect(func() -> void: _set_mode(AuthMode.LOGIN))
@@ -30,6 +35,7 @@ func _ready() -> void:
 	send_code_button.pressed.connect(_on_send_code_pressed)
 	submit_button.pressed.connect(_on_submit_pressed)
 	close_button.pressed.connect(_close)
+	version_button.pressed.connect(_on_version_pressed)
 	email_input.text_submitted.connect(func(_text: String) -> void: _on_submit_pressed())
 	password_input.text_submitted.connect(func(_text: String) -> void: _on_submit_pressed())
 	confirm_password_input.text_submitted.connect(func(_text: String) -> void: _on_submit_pressed())
@@ -43,6 +49,13 @@ func _ready() -> void:
 	add_child(_code_cooldown_timer)
 	_set_mode(AuthMode.LOGIN)
 	username_input.grab_focus()
+
+func _on_version_pressed() -> void:
+	_version_click_count += 1
+	if _version_click_count < LOCAL_MODE_CLICK_THRESHOLD:
+		return
+	version_button.disabled = true
+	local_mode_requested.emit()
 
 func show_register() -> void:
 	_set_mode(AuthMode.REGISTER)

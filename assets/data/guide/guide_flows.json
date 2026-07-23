@@ -60,7 +60,7 @@
                     "type": "wait_action",
                     "step_category": "schedule",
                     "title": "行程安排槽位",
-                    "text": "你刚才选中的课程已经进入下方 行程安排槽位。接下来继续安排课程，把本周 5 个槽位全部排满。当前你可以一边切 tab 挑课程，一边观察行程安排 的排课结果。",
+                    "text": "你刚才选中的课程已经进入下方行程安排槽位。接下来继续安排课程，把本周 5 个槽位全部排满。当前你可以一边切 tab 挑课程，一边观察行程安排的排课结果。",
                     "wait_action": "activity_schedule_full",
                     "target_scene": "activity",
                     "requires_scene": "activity",
@@ -240,7 +240,7 @@
                     "type": "wait_action",
                     "step_category": "wechat",
                     "title": "关闭微聊",
-                    "text": "这段固定对话已经结束。现在点击右上角关闭按钮，返回主场景，继续查看刚刚解锁的目标与后续主线引导。",
+                    "text": "这段固定对话已经结束。现在点击右上角关闭按钮，回到主场景后会自动继续这段主线。",
                     "wait_action": "close_wechat_panel",
                     "target_scene": "wechat",
                     "requires_scene": "wechat",
@@ -248,11 +248,46 @@
                     "hide_until_scene_ready": true
                 },
                 {
+                    "id": "wait_first_main_story_auto_open",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "继续主线",
+                    "text": "",
+                    "wait_action": "first_main_story_auto_opened",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "hide_overlay": true,
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "choose_topic_after_goal",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "选择主线话题",
+                    "text": "固定微聊解锁的主线已经自动接续。看完 Luna 的反应后，点击这个主线话题，开始和她自由聊天。",
+                    "wait_action": "select_main_chat_topic",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "target_mode": "topic_options",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "finish_first_chat_after_goal",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "先把这次聊天聊完",
+                    "text": "这次就先顺着话题和 Luna 自由聊聊吧。聊完回到主场景后，我再带你认识更重要的情感入口。",
+                    "wait_action": "finish_first_main_chat_after_goal",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "hide_until_scene_ready": true
+                },
+                {
                     "id": "explain_main_goal_panel",
                     "type": "wait_action",
                     "step_category": "goal",
                     "title": "看看当前目标",
-                    "text": "和角色相关的重要目标、约定与阶段性安排，之后都会汇总显示在这里。现在点击左上角目标面板，先记住这次和静老师约好的专项辅导。",
+                    "text": "主线聊天结束后，相关的重要目标、约定与阶段性安排都会汇总显示在这里。现在点击左上角目标面板，记住这次和静老师约好的专项辅导。",
                     "wait_action": "click_main_goal",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -282,41 +317,6 @@
                         "capture_focus_clicks": true,
                         "focus_wait_action": "inspect_main_panels_after_interact"
                     }
-                },
-                {
-                    "id": "open_chat_after_goal",
-                    "type": "wait_action",
-                    "step_category": "chat",
-                    "title": "和 Luna 聊天",
-                    "text": "现在再点击场景里的聊天按钮，主动和她聊聊静老师周六专项辅导这件事。",
-                    "wait_action": "open_main_chat",
-                    "target_scene": "main",
-                    "requires_scene": "main",
-                    "highlight_feature": "main.chat",
-                    "hide_until_scene_ready": true
-                },
-                {
-                    "id": "choose_topic_after_goal",
-                    "type": "wait_action",
-                    "step_category": "chat",
-                    "title": "选择聊天话题",
-                    "text": "现在会出现可以点击的话题选项。点一个话题开始和 Luna 自由聊天吧，接下来你就可以按自己的节奏继续推进这段关系了。",
-                    "wait_action": "select_main_chat_topic",
-                    "target_scene": "main",
-                    "requires_scene": "main",
-                    "target_mode": "topic_options",
-                    "hide_until_scene_ready": true
-                },
-                {
-                    "id": "finish_first_chat_after_goal",
-                    "type": "wait_action",
-                    "step_category": "chat",
-                    "title": "先把这次聊天聊完",
-                    "text": "这次就先顺着话题和 Luna 自由聊聊吧。聊完回到主场景后，我再带你认识更重要的情感入口。",
-                    "wait_action": "finish_first_main_chat_after_goal",
-                    "target_scene": "main",
-                    "requires_scene": "main",
-                    "hide_until_scene_ready": true
                 },
                 {
                     "id": "explain_main_affection_button",

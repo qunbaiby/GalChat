@@ -19,6 +19,7 @@ const EVENT_TYPE_INFO := {
 	"jump": ["跳转章节", Color("#58c99b")],
 	"set_variable": ["设置变量", Color("#7f8b96")],
 	"ai_chat": ["AI 对话", Color("#4fa3d1")],
+	"guided_ai_chat": ["引导式 AI 主线对话", Color("#35b8a0")],
 	"start_free_chat": ["自由聊天", Color("#4fa3d1")],
 	"voice_call": ["语音通话", Color("#a978c4")],
 	"show_player_call_name_popup": ["称呼设置弹窗", Color("#7f8b96")]
@@ -154,6 +155,8 @@ func _event_details(event_type: String) -> String:
 			details = "%s = %s" % [str(event_data.get("var_name", "未命名变量")), str(event_data.get("var_value", ""))]
 		"ai_chat":
 			details = str(event_data.get("prompt_override", "使用默认 AI 提示词"))
+		"guided_ai_chat":
+			details = "%s · 最多 %d 轮" % [str(event_data.get("scene_objective", "未设置场景目标")), int(event_data.get("max_player_rounds", 4))]
 		"start_free_chat":
 			details = "%s · 最多 %d 轮" % [str(event_data.get("strategy", "默认策略")), int(event_data.get("max_rounds", 3))]
 		"voice_call":

@@ -44,6 +44,42 @@ func consume_active_topic(char_id: String) -> bool:
 	_save_state()
 	return true
 
+func claim_pending_auto_start_topic(char_id: String, source_type: String, source_id: String = "") -> Dictionary:
+	var normalized_char_id: String = str(char_id).strip_edges().to_lower()
+	if normalized_char_id == "" or not _active_topics_by_character.has(normalized_char_id):
+		return {}
+	var topic_data: Variant = _active_topics_by_character.get(normalized_char_id, {})
+	if not (topic_data is Dictionary):
+		return {}
+	var topic_dict: Dictionary = topic_data as Dictionary
+	if str(topic_dict.get("auto_start_state", "")) != "pending":
+		return {}
+	if str(topic_dict.get("auto_start_source_type", "")) != source_type:
+		return {}
+	if source_id != "" and str(topic_dict.get("source_id", "")) != source_id:
+		return {}
+	topic_dict["auto_start_state"] = "claimed"
+	_active_topics_by_character[normalized_char_id] = topic_dict
+	_save_state()
+	return topic_dict.duplicate(true)
+
+func release_claimed_auto_start_topic(char_id: String, event_id: String) -> bool:
+	var normalized_char_id: String = str(char_id).strip_edges().to_lower()
+	if normalized_char_id == "" or not _active_topics_by_character.has(normalized_char_id):
+		return false
+	var topic_data: Variant = _active_topics_by_character.get(normalized_char_id, {})
+	if not (topic_data is Dictionary):
+		return false
+	var topic_dict: Dictionary = topic_data as Dictionary
+	if str(topic_dict.get("auto_start_state", "")) != "claimed":
+		return false
+	if str(topic_dict.get("event_id", "")) != str(event_id).strip_edges():
+		return false
+	topic_dict["auto_start_state"] = "pending"
+	_active_topics_by_character[normalized_char_id] = topic_dict
+	_save_state()
+	return true
+
 func clear_expired_topics(current_day_offset: int) -> Array[String]:
 	var removed: Array[String] = []
 	for raw_char_id in _active_topics_by_character.keys():
@@ -84,6 +120,13 @@ func _normalize_topic_event(event_data: Dictionary) -> Dictionary:
 	normalized["expire_on_next_day"] = bool(normalized.get("expire_on_next_day", true))
 	normalized["source_type"] = str(normalized.get("source_type", "")).strip_edges()
 	normalized["source_id"] = str(normalized.get("source_id", "")).strip_edges()
+	normalized["auto_start_source_type"] = str(normalized.get("auto_start_source_type", "")).strip_edges()
+	var auto_start_state := str(normalized.get("auto_start_state", "")).strip_edges()
+	if normalized["auto_start_source_type"] == "":
+		auto_start_state = ""
+	elif not auto_start_state in ["pending", "claimed"]:
+		auto_start_state = "pending"
+	normalized["auto_start_state"] = auto_start_state
 	return normalized
 
 func _get_current_day_offset() -> int:
@@ -129,15 +172,17 @@ func _load_state() -> void:
 			continue
 		_active_topics_by_character[char_id] = normalized
 
-func _save_state() -> void:
+func _save_state() -> bool:
 	var save_path: String = _get_save_path()
 	var save_dir: String = save_path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(save_dir):
 		DirAccess.make_dir_recursive_absolute(save_dir)
 	var file: FileAccess = FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
-		return
+		return false
 	file.store_string(JSON.stringify({
 		"active_topics_by_character": _active_topics_by_character
 	}, "\t"))
+	var write_error := file.get_error()
 	file.close()
+	return write_error == OK

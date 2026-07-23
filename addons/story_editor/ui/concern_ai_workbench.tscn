@@ -1,0 +1,487 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/concern_ai_workbench.gd" id="1_script"]
+
+[node name="ConcernAIWorkbench" type="Window"]
+title = "AI 心事工作台"
+initial_position = 2
+size = Vector2i(1280, 760)
+visible = false
+script = ExtResource("1_script")
+
+[node name="Root" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Toolbar" type="HBoxContainer" parent="Root"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "AI 心事工作台"
+
+[node name="RefreshButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷新"
+
+[node name="CreateButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "新建模板"
+
+[node name="PreviewButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "命中预览"
+
+[node name="SaveButton" type="Button" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "保存模板"
+
+[node name="Body" type="HSplitContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 245
+
+[node name="Library" type="VBoxContainer" parent="Root/Body"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="LibraryLabel" type="Label" parent="Root/Body/Library"]
+layout_mode = 2
+text = "心事模板"
+
+[node name="TemplateSearch" type="LineEdit" parent="Root/Body/Library"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "搜索 ID、标题或角色"
+
+[node name="TemplateList" type="ItemList" parent="Root/Body/Library"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EditorSplit" type="HSplitContainer" parent="Root/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+split_offset = 505
+
+[node name="TemplatePanel" type="VBoxContainer" parent="Root/Body/EditorSplit"]
+custom_minimum_size = Vector2(540, 0)
+layout_mode = 2
+
+[node name="TemplateLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel"]
+layout_mode = 2
+text = "模板配置"
+
+[node name="TemplateTabs" type="TabContainer" parent="Root/Body/EditorSplit/TemplatePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VisualConfig" type="ScrollContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Form" type="VBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BasicTitle" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "基础信息"
+
+[node name="BasicGrid" type="GridContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+columns = 2
+
+[node name="TemplateIdLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "模板 ID"
+[node name="TemplateIdEdit" type="LineEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="TitleLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "策划标题"
+[node name="TitleEdit" type="LineEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="CharacterLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "角色 ID（* 为通用）"
+[node name="CharacterEdit" type="LineEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="PriorityLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "优先级"
+[node name="PrioritySpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -999.0
+max_value = 999.0
+[node name="EnabledLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "启用模板"
+[node name="EnabledCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+
+[node name="TriggerTitle" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "触发条件"
+[node name="WeekdaysLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "可触发星期（不选表示不限）"
+[node name="Weekdays" type="HBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+[node name="MondayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "一"
+[node name="TuesdayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "二"
+[node name="WednesdayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "三"
+[node name="ThursdayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "四"
+[node name="FridayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "五"
+[node name="SaturdayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "六"
+[node name="SundayCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Weekdays"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "日"
+[node name="PeriodsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "可触发时段（不选表示不限）"
+[node name="Periods" type="HBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+[node name="MorningCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "早晨"
+[node name="AfternoonCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "下午"
+[node name="EveningCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "傍晚"
+[node name="NightCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "夜晚"
+[node name="ConditionGrid" type="GridContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+columns = 4
+[node name="MinStageLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "最低阶段"
+[node name="MinStageSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 99.0
+[node name="MaxStageLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "最高阶段（0 不限）"
+[node name="MaxStageSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 99.0
+[node name="MinIntimacyLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "最低亲密度"
+[node name="MinIntimacySpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 9999.0
+[node name="MinTrustLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "最低信任度"
+[node name="MinTrustSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 9999.0
+[node name="CooldownLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "冷却天数"
+[node name="CooldownSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 999.0
+[node name="MaxCompletionsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "最多完成次数（0 不限）"
+[node name="MaxCompletionsSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 999.0
+[node name="OnceLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+layout_mode = 2
+text = "仅触发一次"
+[node name="OnceCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/ConditionGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="IntroTitle" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "开场演出"
+[node name="NarrationLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "旁白"
+[node name="NarrationEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+wrap_mode = 1
+[node name="CharacterLineLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "角色开场台词"
+[node name="CharacterLineEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+wrap_mode = 1
+
+[node name="GuidanceTitle" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "AI 剧情引导"
+[node name="AnchorLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "不可改写的剧情事实"
+[node name="AnchorEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+wrap_mode = 1
+[node name="ObjectiveLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "本次对话目标"
+[node name="ObjectiveEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+wrap_mode = 1
+[node name="AllowedTopicsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "允许话题（每行一个）"
+[node name="AllowedTopicsEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+[node name="ForbiddenFactsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "禁止虚构事实（每行一个）"
+[node name="ForbiddenFactsEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+[node name="BeatsHeader" type="HBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+[node name="BeatsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BeatsHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "必经剧情点"
+[node name="AddBeatButton" type="Button" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/BeatsHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ 添加剧情点"
+[node name="RequiredBeats" type="VBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+[node name="RedirectLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "玩家偏题时如何拉回"
+[node name="RedirectEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+[node name="PolicyGrid" type="GridContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+columns = 4
+[node name="RoundsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+layout_mode = 2
+text = "玩家最多轮数"
+[node name="RoundsSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 20.0
+[node name="MinutesLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+layout_mode = 2
+text = "消耗游戏分钟"
+[node name="MinutesSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1440.0
+[node name="CostLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+layout_mode = 2
+text = "行动力消耗"
+[node name="ActionCostSpin" type="SpinBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 999.0
+[node name="EarlyLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+layout_mode = 2
+text = "剧情点完成后可提前结束"
+[node name="EarlyCompletionCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="HideEndLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+layout_mode = 2
+text = "隐藏主动结束按钮"
+[node name="HideManualEndCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="ShowEntryLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+layout_mode = 2
+text = "额外显示统一开场"
+[node name="ShowEntryLineCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/PolicyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="ClosingLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "自然收束要求"
+[node name="ClosingEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+[node name="FallbackClosingLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+text = "AI 失败时的收束台词"
+[node name="FallbackClosingEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+[node name="MemoryTitle" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "记忆沉淀"
+[node name="MemoryEnabledCheck" type="CheckBox" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "对话结束后写入角色记忆"
+[node name="MemorySummaryEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+placeholder_text = "用一句话描述角色会记住什么"
+
+[node name="AdvancedJson" type="VBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs"]
+layout_mode = 2
+[node name="AdvancedHint" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
+layout_mode = 2
+text = "高级模式：用于编辑尚未映射到表单的扩展字段。"
+[node name="ApplyJsonButton" type="Button" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用 JSON 到可视化表单"
+[node name="TemplateJson" type="CodeEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+
+[node name="PreviewPanel" type="VBoxContainer" parent="Root/Body/EditorSplit"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+
+[node name="PreviewTabs" type="TabContainer" parent="Root/Body/EditorSplit/PreviewPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContextJson" type="CodeEdit" parent="Root/Body/EditorSplit/PreviewPanel/PreviewTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+wrap_mode = 1
+
+[node name="CompiledJson" type="CodeEdit" parent="Root/Body/EditorSplit/PreviewPanel/PreviewTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="Diagnostics" type="RichTextLabel" parent="Root/Body/EditorSplit/PreviewPanel/PreviewTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="StatusLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "等待操作"
+
+[node name="CreateDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "新建心事模板"
+size = Vector2i(480, 280)
+
+[node name="Form" type="VBoxContainer" parent="CreateDialog"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 468.0
+offset_bottom = 220.0
+theme_override_constants/separation = 8
+
+[node name="IdLabel" type="Label" parent="CreateDialog/Form"]
+layout_mode = 2
+text = "模板 ID"
+
+[node name="CreateId" type="LineEdit" parent="CreateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "luna_practice_anxiety"
+
+[node name="TitleLabel" type="Label" parent="CreateDialog/Form"]
+layout_mode = 2
+text = "显示标题"
+
+[node name="CreateTitle" type="LineEdit" parent="CreateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CharacterLabel" type="Label" parent="CreateDialog/Form"]
+layout_mode = 2
+text = "角色 ID"
+
+[node name="CreateCharacter" type="LineEdit" parent="CreateDialog/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "luna"

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+# pyright: reportAny=false, reportExplicitAny=false, reportImplicitRelativeImport=false, reportImplicitStringConcatenation=false, reportMissingParameterType=false, reportUnannotatedClassAttribute=false, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownParameterType=false, reportUnknownVariableType=false, reportUnusedCallResult=false
+
 import secrets
 import shutil
 import sqlite3
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from contextlib import closing
+from types import TracebackType
+from typing import Literal, override
 
 from auth import generate_refresh_token, hash_secret, verify_secret
 from argon2 import PasswordHasher
@@ -13,7 +17,13 @@ from argon2.exceptions import VerifyMismatchError
 
 
 class ClosingConnection(sqlite3.Connection):
-    def __exit__(self, exc_type, exc_value, traceback) -> bool:
+    @override
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> Literal[False]:
         try:
             return super().__exit__(exc_type, exc_value, traceback)
         finally:
@@ -21,7 +31,7 @@ class ClosingConnection(sqlite3.Connection):
 
 
 class GatewayStorage:
-    SCHEMA_VERSION = 2
+    SCHEMA_VERSION = 3
 
     def __init__(self, database_path: str, refresh_days: int) -> None:
         self.database_path = database_path
@@ -79,6 +89,9 @@ class GatewayStorage:
                     capability TEXT NOT NULL,
                     status TEXT NOT NULL,
                     units INTEGER NOT NULL DEFAULT 1,
+                    input_tokens INTEGER,
+                    output_tokens INTEGER,
+                    total_tokens INTEGER,
                     latency_ms INTEGER NOT NULL DEFAULT 0,
                     error_code TEXT,
                     created_at TEXT NOT NULL
@@ -124,6 +137,10 @@ class GatewayStorage:
                     encrypted_api_key TEXT NOT NULL,
                     base_url TEXT NOT NULL,
                     allowed_models TEXT NOT NULL,
+                    default_model TEXT NOT NULL DEFAULT 'deepseek-chat',
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    temperature REAL NOT NULL DEFAULT 0.7,
+                    max_tokens INTEGER NOT NULL DEFAULT 2048,
                     updated_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS admin_audit_logs (
@@ -138,6 +155,7 @@ class GatewayStorage:
                     base_url TEXT NOT NULL,
                     model TEXT NOT NULL,
                     resource_id TEXT NOT NULL DEFAULT '',
+                    enabled INTEGER NOT NULL DEFAULT 1,
                     updated_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS capability_quota_limits (
@@ -160,6 +178,31 @@ class GatewayStorage:
             email_code_columns = {row["name"] for row in connection.execute("PRAGMA table_info(email_codes)").fetchall()}
             if "failed_attempts" not in email_code_columns:
                 connection.execute("ALTER TABLE email_codes ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0")
+            usage_event_columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(usage_events)").fetchall()
+            }
+            for column_name in ("input_tokens", "output_tokens", "total_tokens"):
+                if column_name not in usage_event_columns:
+                    connection.execute(f"ALTER TABLE usage_events ADD COLUMN {column_name} INTEGER")
+            provider_columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(provider_config)").fetchall()
+            }
+            provider_migrations = {
+                "default_model": "TEXT NOT NULL DEFAULT 'deepseek-chat'",
+                "enabled": "INTEGER NOT NULL DEFAULT 1",
+                "temperature": "REAL NOT NULL DEFAULT 0.7",
+                "max_tokens": "INTEGER NOT NULL DEFAULT 2048",
+            }
+            for column_name, definition in provider_migrations.items():
+                if column_name not in provider_columns:
+                    connection.execute(f"ALTER TABLE provider_config ADD COLUMN {column_name} {definition}")
+            capability_provider_columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(capability_provider_config)").fetchall()
+            }
+            if "enabled" not in capability_provider_columns:
+                connection.execute(
+                    "ALTER TABLE capability_provider_config ADD COLUMN enabled INTEGER NOT NULL DEFAULT 1"
+                )
             schema_row = connection.execute(
                 "SELECT metadata_value FROM schema_metadata WHERE metadata_key = 'schema_version'"
             ).fetchone()
@@ -389,7 +432,7 @@ class GatewayStorage:
                 password_valid = self.password_hasher.verify(row["password_hash"], password)
             except VerifyMismatchError:
                 pass
-        if password_valid:
+        if row is not None and password_valid:
             with self._connect() as connection:
                 connection.execute("DELETE FROM login_attempts WHERE identity = ?", (identity,))
             return str(row["user_id"]), False
@@ -427,7 +470,7 @@ class GatewayStorage:
                 ).fetchone()[0]
             )
             usage_row = connection.execute(
-                "SELECT COALESCE(SUM(used), 0), COUNT(*) FROM daily_usage WHERE usage_date = ?",
+                "SELECT COUNT(*), COUNT(DISTINCT user_id) FROM usage_events WHERE substr(created_at, 1, 10) = ?",
                 (usage_date,),
             ).fetchone()
         return {
@@ -500,10 +543,10 @@ class GatewayStorage:
             total,
         )
 
-    def get_provider_config(self) -> dict[str, str] | None:
+    def get_provider_config(self) -> dict[str, object] | None:
         with self._connect() as connection:
             row = connection.execute(
-                "SELECT encrypted_api_key, base_url, allowed_models, updated_at FROM provider_config WHERE config_id = 1"
+                "SELECT encrypted_api_key, base_url, allowed_models, default_model, enabled, temperature, max_tokens, updated_at FROM provider_config WHERE config_id = 1"
             ).fetchone()
         if row is None:
             return None
@@ -511,16 +554,29 @@ class GatewayStorage:
             "encrypted_api_key": str(row["encrypted_api_key"]),
             "base_url": str(row["base_url"]),
             "allowed_models": str(row["allowed_models"]),
+            "default_model": str(row["default_model"]),
+            "enabled": bool(row["enabled"]),
+            "temperature": float(row["temperature"]),
+            "max_tokens": int(row["max_tokens"]),
             "updated_at": str(row["updated_at"]),
         }
 
-    def save_provider_config(self, encrypted_api_key: str, base_url: str, allowed_models: str) -> str:
+    def save_provider_config(
+        self,
+        encrypted_api_key: str,
+        base_url: str,
+        allowed_models: str,
+        default_model: str = "deepseek-chat",
+        enabled: bool = True,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+    ) -> str:
         updated_at = datetime.now(UTC).isoformat()
         with self._connect() as connection:
             connection.execute(
-                "INSERT INTO provider_config (config_id, encrypted_api_key, base_url, allowed_models, updated_at) VALUES (1, ?, ?, ?, ?) "
-                "ON CONFLICT(config_id) DO UPDATE SET encrypted_api_key = excluded.encrypted_api_key, base_url = excluded.base_url, allowed_models = excluded.allowed_models, updated_at = excluded.updated_at",
-                (encrypted_api_key, base_url, allowed_models, updated_at),
+                "INSERT INTO provider_config (config_id, encrypted_api_key, base_url, allowed_models, default_model, enabled, temperature, max_tokens, updated_at) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(config_id) DO UPDATE SET encrypted_api_key = excluded.encrypted_api_key, base_url = excluded.base_url, allowed_models = excluded.allowed_models, default_model = excluded.default_model, enabled = excluded.enabled, temperature = excluded.temperature, max_tokens = excluded.max_tokens, updated_at = excluded.updated_at",
+                (encrypted_api_key, base_url, allowed_models, default_model, int(enabled), temperature, max_tokens, updated_at),
             )
         return updated_at
 
@@ -528,10 +584,10 @@ class GatewayStorage:
         with self._connect() as connection:
             connection.execute("DELETE FROM provider_config WHERE config_id = 1")
 
-    def list_capability_provider_configs(self) -> dict[str, dict[str, str]]:
+    def list_capability_provider_configs(self) -> dict[str, dict[str, str | bool]]:
         with self._connect() as connection:
             rows = connection.execute(
-                "SELECT capability, encrypted_api_key, base_url, model, resource_id, updated_at FROM capability_provider_config"
+                "SELECT capability, encrypted_api_key, base_url, model, resource_id, enabled, updated_at FROM capability_provider_config"
             ).fetchall()
         return {
             str(row["capability"]): {
@@ -539,6 +595,7 @@ class GatewayStorage:
                 "base_url": str(row["base_url"]),
                 "model": str(row["model"]),
                 "resource_id": str(row["resource_id"]),
+                "enabled": bool(row["enabled"]),
                 "updated_at": str(row["updated_at"]),
             }
             for row in rows
@@ -551,13 +608,14 @@ class GatewayStorage:
         base_url: str,
         model: str,
         resource_id: str,
+        enabled: bool = True,
     ) -> str:
         updated_at = datetime.now(UTC).isoformat()
         with self._connect() as connection:
             connection.execute(
-                "INSERT INTO capability_provider_config (capability, encrypted_api_key, base_url, model, resource_id, updated_at) VALUES (?, ?, ?, ?, ?, ?) "
-                "ON CONFLICT(capability) DO UPDATE SET encrypted_api_key = excluded.encrypted_api_key, base_url = excluded.base_url, model = excluded.model, resource_id = excluded.resource_id, updated_at = excluded.updated_at",
-                (capability, encrypted_api_key, base_url, model, resource_id, updated_at),
+                "INSERT INTO capability_provider_config (capability, encrypted_api_key, base_url, model, resource_id, enabled, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(capability) DO UPDATE SET encrypted_api_key = excluded.encrypted_api_key, base_url = excluded.base_url, model = excluded.model, resource_id = excluded.resource_id, enabled = excluded.enabled, updated_at = excluded.updated_at",
+                (capability, encrypted_api_key, base_url, model, resource_id, int(enabled), updated_at),
             )
         return updated_at
 
@@ -767,17 +825,23 @@ class GatewayStorage:
         latency_ms: int,
         error_code: str | None = None,
         units: int = 1,
+        input_tokens: int | None = None,
+        output_tokens: int | None = None,
+        total_tokens: int | None = None,
     ) -> None:
         with self._connect() as connection:
             connection.execute(
-                "INSERT INTO usage_events (event_id, user_id, capability, status, units, latency_ms, error_code, created_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO usage_events (event_id, user_id, capability, status, units, input_tokens, output_tokens, total_tokens, latency_ms, error_code, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     f"evt_{secrets.token_hex(16)}",
                     user_id,
                     capability,
                     event_status,
                     max(0, units),
+                    max(0, input_tokens) if input_tokens is not None else None,
+                    max(0, output_tokens) if output_tokens is not None else None,
+                    max(0, total_tokens) if total_tokens is not None else None,
                     max(0, latency_ms),
                     error_code[:100] if error_code else None,
                     datetime.now(UTC).isoformat(),
@@ -794,6 +858,9 @@ class GatewayStorage:
                        SUM(CASE WHEN status NOT IN ('succeeded', 'quota_rejected') THEN 1 ELSE 0 END) AS failed,
                        SUM(CASE WHEN status = 'quota_rejected' THEN 1 ELSE 0 END) AS quota_rejected,
                        COALESCE(SUM(units), 0) AS units,
+                       SUM(input_tokens) AS input_tokens,
+                       SUM(output_tokens) AS output_tokens,
+                       SUM(total_tokens) AS total_tokens,
                        COALESCE(ROUND(AVG(latency_ms)), 0) AS average_latency_ms
                 FROM usage_events
                 WHERE substr(created_at, 1, 10) = ?
@@ -873,7 +940,7 @@ class GatewayStorage:
             )
             rows = connection.execute(
                 f"""
-                SELECT event_id, user_id, capability, status, units, latency_ms, error_code, created_at
+                SELECT event_id, user_id, capability, status, units, input_tokens, output_tokens, total_tokens, latency_ms, error_code, created_at
                 FROM usage_events
                 {where_clause}
                 ORDER BY {order_column} {order_direction}, event_id ASC

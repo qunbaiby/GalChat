@@ -180,7 +180,7 @@ var _latest_fixed_chat_unread_count: int = 0
 func _check_fixed_chat_state() -> void:
 	var is_free_chat_enabled = true
 	if GameDataManager.config:
-		is_free_chat_enabled = GameDataManager.config.get_custom_config("free_chat_enabled", false)
+		is_free_chat_enabled = GameDataManager.config.free_chat_enabled
 
 	var active_script = MobileFixedChatManager.get_active_script_for_char(current_char_id)
 	if active_script != "":

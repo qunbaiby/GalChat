@@ -1378,7 +1378,7 @@ func _on_end_button_pressed() -> void:
 	profile.save_profile()
 	if GameDataManager.story_time_manager:
 		GameDataManager.story_time_manager.save_data()
-	GameDataManager.save_manager.auto_save()
+	GameDataManager.save_manager.auto_save("schedule_completed", GameDataManager.get_active_archive_id())
 
 	schedule_finished.emit()
 	if SceneTransitionManager and SceneTransitionManager.has_method("transition_to_scene_with_mid_callback"):

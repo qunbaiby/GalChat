@@ -166,7 +166,7 @@ $token = ([BitConverter]::ToString($bytes) -replace '-', '').ToLowerInvariant()
 
 管理接口：
 
-- `GET /admin/api/overview`：服务配置与总体运行统计。
+- `GET /admin/api/overview`：账号、调用、能力状态与分能力 Token 运行统计。
 - `GET /admin/api/users?limit=50&offset=0`：分页账号和额度摘要。
 - `GET /admin/api/provider`：供应商配置状态，不返回 API Key。
 - `POST /admin/api/provider/test`：测试候选供应商配置，不保存。

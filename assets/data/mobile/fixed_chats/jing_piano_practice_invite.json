@@ -113,6 +113,8 @@
       "event_id": "jing_piano_practice_followup",
       "topic_text": "静约你周六进行专项辅导",
       "topic_prompt_hint": "静老师今天听了Luna弹《星空下的祈愿》，了解了她现在的状态，也已经约好周六在学校图书馆给她做单独辅导。玩家现在主动来和Luna聊这次周六辅导的约定，请自然承接这件事本身展开对话，包括她现在的心情、顾虑或期待。",
+      "story_script_path": "res://assets/data/story/scripts/main/jing_piano_practice_followup.json",
+      "auto_start_source_type": "fixed_chat_close",
       "expire_on_next_day": true
     }
   ]

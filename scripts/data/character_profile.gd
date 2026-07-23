@@ -1,7 +1,7 @@
 class_name CharacterProfile
 extends Resource
 
-const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
+const SafeFileAccessUtil = preload("res://scripts/utils/safe_file_access.gd")
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 
 var char_name: String = ""
@@ -89,11 +89,11 @@ var course_progress: Dictionary = {}
 
 var diaries: Array = []
 var finished_stories: Array = []
+var concern_template_state: Dictionary = {}
 
 signal stage_upgraded(new_stage: int)
 signal profile_updated()
 
-const PROFILE_PATH = "user://character_profile.json"
 const DEFAULT_PLAYER_AVATAR_MALE = "res://assets/images/ui/player/avatar_male.svg"
 const DEFAULT_PLAYER_AVATAR_FEMALE = "res://assets/images/ui/player/avatar_female.svg"
 const DEFAULT_PLAYER_AVATAR_OTHER = "res://assets/images/ui/player/avatar_other.svg"
@@ -307,16 +307,8 @@ func load_profile(force_char_id: String = "") -> void:
 				course_progress = data.get("course_progress", {})
 				diaries = data.get("diaries", [])
 				finished_stories = data.get("finished_stories", [])
+				concern_template_state = data.get("concern_template_state", {})
 	else:
-		# 尝试迁移旧存档
-		var old_path = "user://character_profile.json"
-		if FileAccess.file_exists(old_path):
-			var dir = DirAccess.open("user://")
-			dir.copy(old_path, path)
-			dir.rename(old_path, "user://character_profile_migrated.json")
-			load_profile(force_char_id)
-			return
-		
 		openness = float(str(base_personality.get("openness", 50.0)))
 		conscientiousness = float(str(base_personality.get("conscientiousness", 50.0)))
 		extraversion = float(str(base_personality.get("extraversion", 50.0)))
@@ -536,8 +528,8 @@ func _build_tension_summary(prefix: String, pressure_data: Dictionary) -> String
 		var value = float(pressure_data.get(trait_name, 0.0))
 		if abs(value) < 0.05:
 			continue
-		var sign = "+" if value > 0 else ""
-		parts.append("%s %s%.2f" % [_get_personality_trait_short_name(str(trait_name)), sign, value])
+		var value_prefix = "+" if value > 0 else ""
+		parts.append("%s %s%.2f" % [_get_personality_trait_short_name(str(trait_name)), value_prefix, value])
 	if parts.is_empty():
 		return "%s：当前平稳" % prefix
 	return "%s：%s" % [prefix, " / ".join(parts)]
@@ -772,7 +764,7 @@ func _load_texture_from_path(path: String) -> Texture2D:
 
 	return null
 
-func save_profile() -> void:
+func save_profile() -> bool:
 	var data = {
 		"player_name": player_name,
 		"player_title": player_title,
@@ -820,10 +812,11 @@ func save_profile() -> void:
 		"gold": gold,
 		"course_progress": course_progress,
 		"diaries": diaries,
-		"finished_stories": finished_stories
+		"finished_stories": finished_stories,
+		"concern_template_state": concern_template_state
 	}
 	var content = JSON.stringify(data, "\t")
-	SafeFileAccess.store_string(get_profile_path(), content)
+	return SafeFileAccessUtil.store_string(get_profile_path(), content)
 
 func _update_companion_streak(previous_date: String, current_date: String) -> void:
 	if current_date.strip_edges() == "":

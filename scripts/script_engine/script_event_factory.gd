@@ -20,6 +20,8 @@ static func create_event(data: Dictionary): # 返回 ScriptEvent
             return preload("res://scripts/script_engine/events/event_set_variable.gd").new(data)
         "ai_chat":
             return preload("res://scripts/script_engine/events/event_ai_chat.gd").new(data)
+        "guided_ai_chat":
+            return load("res://scripts/script_engine/events/event_guided_ai_chat.gd").new(data)
         "background":
             return preload("res://scripts/script_engine/events/event_background.gd").new(data)
         "period_card":

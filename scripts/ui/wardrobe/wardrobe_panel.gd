@@ -229,7 +229,7 @@ func _on_wear_pressed() -> void:
 		GameDataManager.profile.current_outfit = current_outfit_id
 		GameDataManager.profile.save_profile()
 		if GameDataManager.save_manager:
-			GameDataManager.save_manager.auto_save()
+			GameDataManager.save_manager.auto_save("outfit_changed", GameDataManager.get_active_archive_id())
 
 	for child in items_grid.get_children():
 		if child.has_method("update_wearing_status"):
