@@ -105,6 +105,138 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Cognition Task Queue",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/cognition_task_queue_smoke.tscn",
+				"-SuccessMarker",
+				"COGNITION_TASK_QUEUE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Conversation Summary Conflict",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/conversation_summary_conflict_smoke.tscn",
+				"-SuccessMarker",
+				"CONVERSATION_SUMMARY_CONFLICT_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Cognition Management Panel",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/cognition_management_panel_smoke.tscn",
+				"-SuccessMarker",
+				"COGNITION_MANAGEMENT_PANEL_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Memory Governance Detail",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/memory_governance_detail_smoke.tscn",
+				"-SuccessMarker",
+				"MEMORY_GOVERNANCE_DETAIL_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Memory Retrieval",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/memory_retrieval_smoke.tscn",
+				"-SuccessMarker",
+				"MEMORY_RETRIEVAL_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Memory Retrieval Trace",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/memory_retrieval_trace_smoke.tscn",
+				"-SuccessMarker",
+				"MEMORY_RETRIEVAL_TRACE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Player Emotion State",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/player_emotion_state_smoke.tscn",
+				"-SuccessMarker",
+				"PLAYER_EMOTION_STATE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"group": "test"
+		},
+		{
 			"label": "Smoke Test Mobile Chat Editor",
 			"type": "shell",
 			"command": "powershell.exe",
@@ -427,6 +559,13 @@
 				"Smoke Test Mobile AI Requester",
 				"Smoke Test Story Branch Runtime",
 				"Smoke Test Guided AI Chat",
+				"Smoke Test Cognition Task Queue",
+				"Smoke Test Conversation Summary Conflict",
+				"Smoke Test Cognition Management Panel",
+				"Smoke Test Memory Governance Detail",
+				"Smoke Test Memory Retrieval",
+				"Smoke Test Memory Retrieval Trace",
+				"Smoke Test Player Emotion State",
 				"Smoke Test Story Branch Simulator",
 				"Smoke Test Date AI Workbench",
 				"Smoke Test Date AI Generation Queue",

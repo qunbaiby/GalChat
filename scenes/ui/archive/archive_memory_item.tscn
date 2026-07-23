@@ -101,6 +101,179 @@ text = "记忆内容"
 fit_content = true
 scroll_active = false
 
+[node name="GovernanceRow" type="HBoxContainer" parent="Margin/ItemVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ConfidenceLabel" type="Label" parent="Margin/ItemVBox/GovernanceRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.47, 0.48, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "可信度 45%"
+
+[node name="EvidenceLabel" type="Label" parent="Margin/ItemVBox/GovernanceRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "证据 1 次"
+
+[node name="EmbeddingLabel" type="Label" parent="Margin/ItemVBox/GovernanceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.42, 0.5, 0.56, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "向量 未生成"
+horizontal_alignment = 2
+
+[node name="ClusterProposalPanel" type="PanelContainer" parent="Margin/ItemVBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SourceTag")
+
+[node name="ProposalMargin" type="MarginContainer" parent="Margin/ItemVBox/ClusterProposalPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="ProposalVBox" type="VBoxContainer" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ProposalTitle" type="Label" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.47, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "待审核的习惯摘要"
+
+[node name="ProposalText" type="Label" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.24, 0.24, 1)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+
+[node name="ProposalActions" type="HBoxContainer" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ProposalSpacer" type="Control" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RejectProposalButton" type="Button" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalActions"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "拒绝"
+tooltip_text = "保留原始习惯，不使用本次摘要"
+
+[node name="AcceptProposalButton" type="Button" parent="Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalActions"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "接受"
+tooltip_text = "审核通过后，摘要才会用于对话检索"
+
+[node name="ClusterSummaryPanel" type="PanelContainer" parent="Margin/ItemVBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SourceTag")
+
+[node name="SummaryMargin" type="MarginContainer" parent="Margin/ItemVBox/ClusterSummaryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="SummaryVBox" type="VBoxContainer" parent="Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SummaryStatusLabel" type="Label" parent="Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.47, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "习惯摘要状态"
+autowrap_mode = 3
+
+[node name="SummaryActions" type="HBoxContainer" parent="Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SummarySpacer" type="Control" parent="Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox/SummaryActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DisableSummaryButton" type="Button" parent="Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox/SummaryActions"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "停用"
+tooltip_text = "停用后恢复使用原始习惯记忆"
+
+[node name="RebuildSummaryButton" type="Button" parent="Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox/SummaryActions"]
+custom_minimum_size = Vector2(88, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "重新生成"
+tooltip_text = "基于当前原始成员重新生成待审核摘要"
+
+[node name="ActionRow" type="HBoxContainer" parent="Margin/ItemVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ActionSpacer" type="Control" parent="Margin/ItemVBox/ActionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PinButton" type="Button" parent="Margin/ItemVBox/ActionRow"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "固定"
+tooltip_text = "固定后优先用于对话记忆"
+
+[node name="ConfirmButton" type="Button" parent="Margin/ItemVBox/ActionRow"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "确认"
+tooltip_text = "确认这条记忆准确，并增加可信度"
+
+[node name="EditButton" type="Button" parent="Margin/ItemVBox/ActionRow"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "纠正"
+tooltip_text = "纠正内容并保留原文和来源"
+
+[node name="DetailButton" type="Button" parent="Margin/ItemVBox/ActionRow"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "详情"
+tooltip_text = "查看证据来源和修订历史"
+
+[node name="DeleteButton" type="Button" parent="Margin/ItemVBox/ActionRow"]
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.24, 0.28, 1)
+theme_override_font_sizes/font_size = 12
+text = "删除"
+tooltip_text = "移入可恢复的已删除状态"
+
+[node name="RestoreButton" type="Button" parent="Margin/ItemVBox/ActionRow"]
+visible = false
+custom_minimum_size = Vector2(72, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "恢复"
+tooltip_text = "恢复后将重新参与记忆检索"
+
 [node name="MetaLabel" type="Label" parent="Margin/ItemVBox" unique_id=1259002810]
 visible = false
 layout_mode = 2

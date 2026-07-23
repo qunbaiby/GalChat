@@ -489,6 +489,20 @@ func _get_current_story_character_id() -> String:
 		return ""
 	return str(GameDataManager.config.current_character_id).strip_edges().to_lower()
 
+func _build_story_knowledge_access_context() -> Dictionary:
+	var character_id := _current_story_speaker_id.strip_edges().to_lower()
+	if character_id.is_empty():
+		character_id = _get_current_story_character_id()
+	var finished_story_ids: Array = []
+	if GameDataManager.profile and GameDataManager.profile.finished_stories is Array:
+		finished_story_ids = GameDataManager.profile.finished_stories.duplicate()
+	return {
+		"channel": "story_chat",
+		"allow_story_knowledge": not character_id.is_empty(),
+		"character_id": character_id,
+		"finished_story_ids": finished_story_ids
+	}
+
 func _get_current_story_character_name() -> String:
 	if GameDataManager.profile == null:
 		return ""
@@ -1428,8 +1442,13 @@ func _trigger_character_continue() -> void:
 	var continue_prompt = "【系统提示：%s。注意：绝对不要输出这段系统提示，直接以%s的口吻说话。】" % [greeting_strategy, char_name]
 	
 	if GameDataManager.config.ai_mode_enabled:
-		# 续聊首句优先开口，避免 embedding 阻塞重逢问候。
-		var system_prompt = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, continue_prompt, [])
+		var system_prompt: String = await GameDataManager.memory_retrieval_service.build_chat_prompt(
+			GameDataManager.profile,
+			continue_prompt,
+			null,
+			"story_chat",
+			_build_story_knowledge_access_context()
+		)
 		var api_messages = [{"role": "system", "content": system_prompt}]
 		api_messages.append_array(deepseek_client.get_history_messages(10))
 		api_messages.append({"role": "user", "content": continue_prompt})
@@ -1769,7 +1788,7 @@ func _on_end_chat_pressed() -> void:
 	var prompt = GameDataManager.prompt_manager.build_end_chat_prompt(GameDataManager.profile, recent_history)
 	
 	# 发送隐藏系统消息来获取告别回复
-	deepseek_client.send_chat_message(prompt, "story_chat")
+	deepseek_client.send_chat_message(prompt, "story_chat", _build_story_knowledge_access_context())
 	
 	# 设定一个特殊标记，表示 AI 下一句话结束后应该退出面板
 	_waiting_for_chat_exit = true
@@ -1959,9 +1978,9 @@ func _request_ai_response(text: String, is_system_event: bool, history_text: Str
 				"request_kind": "closing" if _guided_ai_closing_started else "normal",
 				"candidate_beat_ids": _guided_ai_candidate_beat_ids.duplicate()
 			}
-			_guided_ai_active_request_id = deepseek_client.send_chat_message_structured(text, "story_chat", request_context)
+			_guided_ai_active_request_id = deepseek_client.send_chat_message_structured(text, "story_chat", request_context, _build_story_knowledge_access_context())
 		else:
-			deepseek_client.send_chat_message(text, "story_chat")
+			deepseek_client.send_chat_message(text, "story_chat", _build_story_knowledge_access_context())
 	else:
 		if _guided_ai_chat_active:
 			await _finish_guided_ai_chat_with_fallback()
@@ -2722,7 +2741,10 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		
 	# 保存记录到历史管理器 (只有在非恢复模式时保存)
 	if not is_restore:
-		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat", {"subtype": conversation_subtype})
+		var response_meta := {"subtype": conversation_subtype}
+		if speaker_name != "玩家" and speaker_name != "我":
+			response_meta.merge(deepseek_client.mark_chat_response_adopted(text), true)
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat", response_meta)
 	elif _intro_playing and text != "":
 		# 因为 _intro_playing 调用时是 is_restore=true 专门为了避开 normal 的保存
 		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story", {"subtype": "fixed_story"})

@@ -71,6 +71,9 @@ func _test_settings_tabs(config) -> void:
 	_expect(not local_tabs.is_tab_hidden(0), "本地模式没有显示 AI 配置标签。")
 	_expect(local_settings.ai_tab_button.visible, "本地模式没有显示 AI 配置侧栏按钮。")
 	_expect(local_tabs.current_tab == 0, "本地模式没有默认选中 AI 配置。")
+	var cognition_status_label := local_settings.get_node_or_null("%CognitionStatusLabel") as Label
+	_expect(cognition_status_label != null, "AI 设置没有显示认知后台状态。")
+	_expect(cognition_status_label != null and not cognition_status_label.text.strip_edges().is_empty(), "认知后台状态文本为空。")
 	local_settings.queue_free()
 	await get_tree().process_frame
 

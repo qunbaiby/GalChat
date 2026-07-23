@@ -1,0 +1,87 @@
+{
+	"schema_version": 1,
+	"memories": {
+		"core": [
+			{
+				"id": "core-no-spoilers",
+				"content": "玩家不喜欢被剧透",
+				"embedding": [0.0, 0.0, 0.0]
+			}
+		],
+		"emotion": [],
+		"habit": [
+			{
+				"id": "habit-hot-milk",
+				"content": "玩家喜欢睡前喝热牛奶",
+				"embedding": [1.0, 0.0, 0.0]
+			},
+			{
+				"id": "habit-bitter-coffee",
+				"content": "玩家讨厌苦咖啡",
+				"embedding": [0.0, 1.0, 0.0]
+			},
+			{
+				"id": "habit-recent-tea",
+				"content": "玩家最近开始喝花茶",
+				"embedding": [],
+				"day_offset": 3
+			}
+		],
+		"bond": [
+			{
+				"id": "bond-weekend-movie",
+				"content": "玩家和角色约定周末一起看电影",
+				"embedding": [0.0, 0.0, 1.0]
+			}
+		]
+	},
+	"cases": [
+		{
+			"name": "饮品偏好语义召回",
+			"query_embedding": [1.0, 0.0, 0.0],
+			"expected_memory_ids": ["core-no-spoilers", "habit-hot-milk"],
+			"forbidden_memory_ids": ["habit-bitter-coffee"]
+		},
+		{
+			"name": "约定语义召回",
+			"query_embedding": [0.0, 0.0, 1.0],
+			"expected_memory_ids": ["core-no-spoilers", "bond-weekend-movie"],
+			"forbidden_memory_ids": []
+		},
+		{
+			"name": "关闭向量时治理降级",
+			"query_embedding": [],
+			"expected_memory_ids": ["core-no-spoilers", "habit-recent-tea"],
+			"forbidden_memory_ids": []
+		}
+	],
+	"story_memories": [
+		{"id": "story-luna-shared", "content": "露娜和玩家一起发现了秘密花园", "source_id": "story-garden", "memory_participants": ["luna"], "memory_player_involved": true, "memory_player_witnessed": true},
+		{"id": "story-mio-private", "content": "米奥独自藏起了一封信", "source_id": "story-garden", "memory_participants": ["mio"], "memory_player_involved": false, "memory_player_witnessed": false},
+		{"id": "story-luna-future", "content": "露娜将在未来剧情中离开小镇", "source_id": "story-future", "memory_participants": ["luna"], "memory_player_involved": true, "memory_player_witnessed": true},
+		{"id": "story-legacy-unknown", "content": "旧记录中没有明确知情者", "source_id": "story-garden", "memory_participants": [], "memory_player_involved": true, "memory_player_witnessed": true}
+	],
+	"story_cases": [
+		{
+			"name": "露娜故事对话权限",
+			"access_context": {"channel": "story_chat", "allow_story_knowledge": true, "character_id": "luna", "finished_story_ids": ["story-garden"]},
+			"expected_memory_ids": ["story-luna-shared"],
+			"forbidden_memory_ids": ["story-mio-private", "story-luna-future", "story-legacy-unknown"]
+		},
+		{
+			"name": "普通聊天故事隔离",
+			"access_context": {"channel": "main_chat", "allow_story_knowledge": true, "character_id": "luna", "finished_story_ids": ["story-garden"]},
+			"expected_memory_ids": [],
+			"forbidden_memory_ids": ["story-luna-shared", "story-mio-private", "story-luna-future", "story-legacy-unknown"]
+		}
+	],
+	"emotion_memories": [
+		{"id": "emotion-low-support", "content": "低落时适合安静陪伴", "embedding": [1.0, 0.0], "emotion_tags": ["low"]},
+		{"id": "emotion-pleasant-share", "content": "愉悦时适合分享好消息", "embedding": [1.0, 0.0], "emotion_tags": ["pleasant"]}
+	],
+	"emotion_cases": [
+		{"name": "低落情绪亲和", "macro_mood_id": "low", "first_memory_id": "emotion-low-support"},
+		{"name": "愉悦情绪亲和", "macro_mood_id": "pleasant", "first_memory_id": "emotion-pleasant-share"},
+		{"name": "无情绪上下文兼容", "macro_mood_id": "", "first_memory_id": "emotion-low-support"}
+	]
+}

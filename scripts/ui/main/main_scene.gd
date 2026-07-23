@@ -1,8 +1,8 @@
 extends Control
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
-const ConcernTemplateRepository = preload("res://scripts/data/concern_template_repository.gd")
-const ConcernTemplateCompiler = preload("res://scripts/data/concern_template_compiler.gd")
+const ConcernTemplateRepositoryScript = preload("res://scripts/data/concern_template_repository.gd")
+const ConcernTemplateCompilerScript = preload("res://scripts/data/concern_template_compiler.gd")
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const AffectionPanelScene = preload("res://scenes/ui/main/affection_panel.tscn")
 const BackgroundSettingPanelScene = preload("res://scenes/ui/main/background_setting_panel.tscn")
@@ -149,10 +149,12 @@ var creation_music_panel_instance = null
 var stream_live_queue: Array = []
 var stream_live_worker_running: bool = false
 var stream_live_done: bool = false
+var _stream_response_segment_index: int = 0
 
 var is_proactive_greeting: bool = false
 var proactive_greeting_step: int = 0
 var is_memory_revisit_active: bool = false
+var _active_memory_revisit: Dictionary = {}
 var _generated_image_panel: Panel = null
 
 var _waiting_for_chat_click: bool = false
@@ -267,7 +269,7 @@ func _build_concern_template_context() -> Dictionary:
 
 func resolve_available_concern_template() -> Dictionary:
 	var state: Dictionary = GameDataManager.profile.concern_template_state if GameDataManager.profile else {}
-	_resolved_concern_template = ConcernTemplateRepository.resolve_for_context(_build_concern_template_context(), state)
+	_resolved_concern_template = ConcernTemplateRepositoryScript.resolve_for_context(_build_concern_template_context(), state)
 	return _resolved_concern_template.duplicate(true)
 
 func has_available_concern_template() -> bool:
@@ -1037,7 +1039,7 @@ func _start_embedded_concern_chat(animate_target: Button = null) -> void:
 		current_bg_scene.set_ui_hidden(true)
 	_set_interaction_ui_hidden_for_dialogue(true)
 	var session_manager := _ensure_embedded_dialogue_manager()
-	session_manager.start_embedded_story_data_session(request, ConcernTemplateCompiler.compile(template, context))
+	session_manager.start_embedded_story_data_session(request, ConcernTemplateCompilerScript.compile(template, context))
 	_record_concern_template_started(str(template.get("template_id", "")), int(context.get("day_offset", 0)))
 	if bgm.playing:
 		bgm.stop()
@@ -1568,6 +1570,7 @@ func _close_chat_panel(show_stats_toast: bool = true) -> void:
 		_generated_image_panel.queue_free()
 	_generated_image_panel = null
 	is_memory_revisit_active = false
+	_active_memory_revisit.clear()
 	_consume_selected_story_topic_if_needed()
 	_reset_main_chat_context()
 	_selected_main_story_topic.clear()
@@ -1709,6 +1712,7 @@ func _on_chat_stream_started(source_client: DeepSeekClient = null) -> void:
 	stream_live_done = false
 	stream_live_buffer = ""
 	stream_live_queue.clear()
+	_stream_response_segment_index = 0
 	is_text_playback_finished = false
 	pending_options_data.clear()
 	_skip_current_ai_chat_line_requested = false
@@ -2014,7 +2018,10 @@ func _stream_worker_loop() -> void:
 			await get_tree().process_frame
 			
 			# 将该条切分后的消息存入历史记录中
-			GameDataManager.history.add_message("char", pure_text, current_cache_key, "main_chat", _build_main_chat_meta())
+			var response_meta := _build_main_chat_meta()
+			response_meta.merge(deepseek_client.mark_chat_response_adopted(pure_text, _stream_response_segment_index), true)
+			GameDataManager.history.add_message("char", pure_text, current_cache_key, "main_chat", response_meta)
+			_stream_response_segment_index += 1
 			
 			if is_inside_tree():
 				while _typewriter_tween and _typewriter_tween.is_valid() and _typewriter_tween.is_running():
@@ -2096,6 +2103,12 @@ func _stream_worker_loop() -> void:
 		is_memory_revisit_active = false
 		return
 		
+	if is_memory_revisit_active and not _active_memory_revisit.is_empty():
+		pending_options_data = [
+			{"id": "revisit_confirmed", "text": "嗯，我记得这件事", "focus": "intimacy"},
+			{"id": "revisit_engaged", "text": "有些地方和现在不一样了", "focus": "trust"},
+			{"id": "revisit_dismissed", "text": "这件事暂时别再提了", "focus": "trust"}
+		]
 	_try_show_options()
 	
 	_set_dialogue_input_ready()
@@ -2251,6 +2264,12 @@ func _try_show_options() -> void:
 func _on_quick_option_selected(text: String, index: int = -1) -> void:
 	if index >= 0 and index < _rendered_quick_options.size():
 		var option_data := _rendered_quick_options[index] as Dictionary
+		var option_id := str(option_data.get("id", ""))
+		if option_id.begins_with("revisit_"):
+			_submit_memory_revisit_feedback(option_id.trim_prefix("revisit_"))
+			input_field.text = text
+			_on_send_pressed()
+			return
 		var kind := str(option_data.get("kind", "")).strip_edges()
 		if kind == "trust":
 			GameDataManager.profile.update_intimacy(2)
@@ -2261,6 +2280,17 @@ func _on_quick_option_selected(text: String, index: int = -1) -> void:
 		
 	input_field.text = text
 	_on_send_pressed()
+
+func _submit_memory_revisit_feedback(outcome: String) -> void:
+	if _active_memory_revisit.is_empty() or GameDataManager.memory_manager == null:
+		return
+	GameDataManager.memory_manager.record_revisit_feedback(
+		str(_active_memory_revisit.get("layer", "")),
+		str(_active_memory_revisit.get("memory_id", "")),
+		str(_active_memory_revisit.get("revisit_event_id", "")),
+		outcome
+	)
+	_active_memory_revisit.clear()
 
 @onready var bg_container: Control = $BackgroundContainer
 var current_bg_scene: Node = null
@@ -3328,7 +3358,8 @@ func _try_trigger_memory_revisit() -> void:
 	var revisit_data = GameDataManager.memory_manager.get_revisit_event_candidate(trigger_context)
 	if revisit_data.is_empty():
 		return
-	GameDataManager.memory_manager.mark_memory_revisited(revisit_data.get("memory_id", ""), trigger_context)
+	var revisit_event_id := GameDataManager.memory_manager.mark_memory_revisited(revisit_data.get("memory_id", ""), trigger_context)
+	revisit_data["revisit_event_id"] = revisit_event_id
 	var event_manager = get_node_or_null("/root/EventManager")
 	if event_manager and event_manager.has_method("execute_event"):
 		event_manager.execute_event("memory_revisit", revisit_data)
@@ -3337,6 +3368,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 	if revisit_data.is_empty():
 		return
 	is_memory_revisit_active = true
+	_active_memory_revisit = revisit_data.duplicate(true)
 	_set_main_chat_context(MAIN_CHAT_SUBTYPE_MEMORY)
 	_start_main_chat_session("daily")
 	
@@ -3380,7 +3412,12 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 		quick_option_layer.hide()
 	
 	var user_msg = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, revisit_data.get("trigger_context", {}))
-	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
+	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat", {
+		"revisit_event_id": str(revisit_data.get("revisit_event_id", "")),
+		"revisit_memory_id": str(revisit_data.get("memory_id", "")),
+		"revisit_layer": str(revisit_data.get("layer", "")),
+		"revisit_context_domain": str(revisit_data.get("context_domain", ""))
+	})
 
 func start_proactive_greeting(prompt_type: String) -> void:
 	if _proactive_bubble_request_in_flight:

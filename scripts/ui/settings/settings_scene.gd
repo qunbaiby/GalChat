@@ -1,9 +1,12 @@
 extends Control
 
 const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_panel.tscn")
+const COGNITION_MANAGEMENT_PANEL_SCENE = preload("res://scenes/ui/settings/cognition_management_panel.tscn")
 
 @onready var ai_service_mode_option: OptionButton = %AIServiceModeOption
 @onready var official_ai_status_label: Label = %OfficialAIStatusLabel
+@onready var cognition_status_label: Label = %CognitionStatusLabel
+@onready var cognition_manage_button: Button = %CognitionManageButton
 @onready var official_gateway_input: LineEdit = %OfficialGatewayInput
 @onready var official_connect_button: Button = %OfficialConnectButton
 @onready var api_key_input: LineEdit = %ApiKeyInput
@@ -105,6 +108,7 @@ func _ready() -> void:
 	if back_button: back_button.pressed.connect(_on_back_pressed)
 	if save_button: save_button.hide()
 	if clear_history_btn: clear_history_btn.pressed.connect(_on_clear_history_pressed)
+	if cognition_manage_button: cognition_manage_button.pressed.connect(_on_cognition_manage_pressed)
 	TTSManager.tts_success.connect(_on_tts_success)
 	TTSManager.tts_failed.connect(_on_tts_failed)
 	
@@ -144,11 +148,15 @@ func _ready() -> void:
 		OfficialAuthManager.auth_state_changed.connect(_on_official_auth_state_changed)
 		OfficialAuthManager.quota_updated.connect(_on_official_quota_updated)
 		OfficialAuthManager.session_state_changed.connect(_on_official_session_state_changed)
+	if GameDataManager.cognition_task_queue:
+		GameDataManager.cognition_task_queue.queue_changed.connect(_refresh_cognition_status)
 	_load_ui_data()
+	_refresh_cognition_status()
 	_select_tab(tab_container.current_tab if tab_container else 0)
 
 func show_panel() -> void:
 	_load_ui_data()
+	_refresh_cognition_status()
 	_update_popup_layout()
 	_select_tab(1 if ai_service_mode_option.selected == 0 else 0)
 	show()
@@ -168,6 +176,25 @@ func show_panel() -> void:
 	if panel_root:
 		tween.tween_property(panel_root, "modulate:a", 1.0, 0.28)
 		tween.tween_property(panel_root, "scale", Vector2.ONE, 0.28)
+
+func _refresh_cognition_status() -> void:
+	if cognition_status_label == null or GameDataManager.cognition_task_queue == null:
+		return
+	var counts: Dictionary = GameDataManager.cognition_task_queue.get_status_counts()
+	var pending := int(counts.get("pending", 0))
+	var processing := int(counts.get("processing", 0))
+	var failed := int(counts.get("failed", 0))
+	var summaries: int = int(GameDataManager.conversation_summary_manager.get_completed_summary_count()) if GameDataManager.conversation_summary_manager else 0
+	if pending == 0 and processing == 0 and failed == 0:
+		cognition_status_label.text = "队列空闲 · 摘要 %d" % summaries
+		cognition_status_label.modulate = Color(0.176471, 0.647059, 0.588235, 1)
+		return
+	cognition_status_label.text = "待处理 %d · 处理中 %d · 失败 %d · 摘要 %d" % [pending, processing, failed, summaries]
+	cognition_status_label.modulate = Color(0.78, 0.34, 0.38, 1) if failed > 0 else Color(0.72, 0.52, 0.16, 1)
+
+func _on_cognition_manage_pressed() -> void:
+	var panel: Control = COGNITION_MANAGEMENT_PANEL_SCENE.instantiate() as Control
+	get_tree().root.add_child(panel)
 
 func hide_panel() -> void:
 	var tween: Tween = create_tween()

@@ -14,6 +14,11 @@ var expression_system: Node
 var memory_manager: MemoryManager
 var desktop_pet_memory_manager: MemoryManager
 var story_memory_manager: MemoryManager
+var memory_retrieval_service: Node
+var memory_retrieval_trace_service
+var cognition_task_queue
+var conversation_summary_manager
+var player_emotion_state_manager
 var personality_system: Node
 var stats_system: Node
 var activity_manager: Node
@@ -77,6 +82,26 @@ func _ready() -> void:
 	story_memory_manager = preload("res://scripts/data/story_memory_manager.gd").new()
 	story_memory_manager.name = "StoryMemoryManager"
 	add_child(story_memory_manager)
+
+	memory_retrieval_service = preload("res://scripts/data/memory_retrieval_service.gd").new()
+	memory_retrieval_service.name = "MemoryRetrievalService"
+	add_child(memory_retrieval_service)
+
+	memory_retrieval_trace_service = preload("res://scripts/data/memory_retrieval_trace_service.gd").new()
+	memory_retrieval_trace_service.name = "MemoryRetrievalTraceService"
+	add_child(memory_retrieval_trace_service)
+
+	cognition_task_queue = preload("res://scripts/data/cognition_task_queue.gd").new()
+	cognition_task_queue.name = "CognitionTaskQueue"
+	add_child(cognition_task_queue)
+
+	conversation_summary_manager = preload("res://scripts/data/conversation_summary_manager.gd").new()
+	conversation_summary_manager.name = "ConversationSummaryManager"
+	add_child(conversation_summary_manager)
+
+	player_emotion_state_manager = preload("res://scripts/data/player_emotion_state_manager.gd").new()
+	player_emotion_state_manager.name = "PlayerEmotionStateManager"
+	add_child(player_emotion_state_manager)
 	
 	personality_system = preload("res://scripts/data/personality_system.gd").new()
 	add_child(personality_system)
@@ -125,9 +150,14 @@ func _ready() -> void:
 	
 	history = ChatHistoryManager.new()
 	history.load_history()
+	cognition_task_queue.load_queue()
+	conversation_summary_manager.load_summaries()
+	player_emotion_state_manager.load_state()
+	memory_retrieval_trace_service.load_traces()
 	memory_manager.load_memory()
 	desktop_pet_memory_manager.load_memory()
 	story_memory_manager.load_memory()
+	memory_manager.queue_habit_cluster_summary_tasks()
 	
 	npc_relationship_manager = preload("res://scripts/data/npc_relationship_manager.gd").new()
 	add_child(npc_relationship_manager)
@@ -359,6 +389,8 @@ func reload_active_archive_data() -> void:
 		desktop_pet_memory_manager.load_memory()
 	if story_memory_manager:
 		story_memory_manager.load_memory()
+	if player_emotion_state_manager:
+		player_emotion_state_manager.load_state()
 	if npc_relationship_manager:
 		npc_relationship_manager.load_relationships()
 	if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
@@ -383,6 +415,14 @@ func reload_active_archive_data() -> void:
 		event_manager.reload_for_current_character()
 	if is_instance_valid(MapDataManager) and MapDataManager.has_method("reload_for_current_character"):
 		MapDataManager.reload_for_current_character()
+	if cognition_task_queue:
+		cognition_task_queue.load_queue()
+	if memory_manager:
+		memory_manager.queue_habit_cluster_summary_tasks()
+	if conversation_summary_manager:
+		conversation_summary_manager.load_summaries()
+	if memory_retrieval_trace_service:
+		memory_retrieval_trace_service.load_traces()
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("reload_for_current_archive"):
 		guide_manager.reload_for_current_archive()
@@ -479,6 +519,14 @@ func switch_character(char_id: String) -> void:
 		desktop_pet_memory_manager.load_memory()
 	if story_memory_manager:
 		story_memory_manager.load_memory()
+	if cognition_task_queue:
+		cognition_task_queue.load_queue()
+	if memory_manager:
+		memory_manager.queue_habit_cluster_summary_tasks()
+	if conversation_summary_manager:
+		conversation_summary_manager.load_summaries()
+	if memory_retrieval_trace_service:
+		memory_retrieval_trace_service.load_traces()
 	if npc_relationship_manager: npc_relationship_manager.load_relationships()
 	if story_time_manager and story_time_manager.has_method("reload_for_current_character"):
 		story_time_manager.reload_for_current_character(char_id)

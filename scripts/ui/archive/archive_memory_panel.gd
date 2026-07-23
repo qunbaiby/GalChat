@@ -24,6 +24,9 @@ extends Control
 @onready var empty_state_desc: Label = $CenterContainer/Panel/VBoxContainer/BodyMargin/BodyHBox/RightContent/ContentScroll/ContentVBox/EmptyStateCard/EmptyStateMargin/EmptyStateVBox/EmptyStateDesc
 
 const MEMORY_ITEM_SCENE: PackedScene = preload("res://scenes/ui/archive/archive_memory_item.tscn")
+const CONFIRM_DIALOG_SCENE: PackedScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
+const MEMORY_EDIT_DIALOG_SCENE: PackedScene = preload("res://scenes/ui/archive/memory_edit_dialog.tscn")
+const MEMORY_GOVERNANCE_DETAIL_DIALOG_SCENE: PackedScene = preload("res://scenes/ui/archive/memory_governance_detail_dialog.tscn")
 const POPUP_VIEWPORT_MARGIN: Vector2 = Vector2(72, 72)
 const BASE_MEMORY_CATEGORY_ORDER: Array[String] = ["core", "emotion", "habit", "bond"]
 const STORY_MEMORY_CATEGORY_KEY := "story"
@@ -81,6 +84,7 @@ var _desktop_pet_mode: bool = false
 var _panel_design_size: Vector2 = Vector2(960, 540)
 var _memory_data: Dictionary = {"core": [], "emotion": [], "habit": [], "bond": [], "story": []}
 var _current_memory_tab: String = "core"
+var _loaded_character_id: String = ""
 var _category_button_normal_styles: Dictionary = {}
 var _category_button_active_styles: Dictionary = {}
 
@@ -148,6 +152,7 @@ func show_desktop_pet_panel() -> void:
 
 
 func _load_memory_archive(char_id: String) -> void:
+	_loaded_character_id = char_id
 	var mem_path = GameDataManager.get_character_save_path("player_memory.json", char_id)
 	var mems = {"core": [], "emotion": [], "habit": [], "bond": [], "story": []}
 	if FileAccess.file_exists(mem_path):
@@ -205,6 +210,7 @@ func _refresh_memory_view() -> void:
 		empty_state_desc.text = str(config.get("empty_desc", "继续聊天、推进剧情或触发关键互动后，这里会按分类整理角色对你的记忆。"))
 
 func _load_desktop_pet_memory_archive() -> void:
+	_loaded_character_id = ""
 	var mems := {"core": [], "emotion": [], "habit": [], "bond": [], "story": []}
 	var pet_memory_manager = GameDataManager.desktop_pet_memory_manager if GameDataManager else null
 	if pet_memory_manager != null and pet_memory_manager.memories is Dictionary:
@@ -224,6 +230,26 @@ func _create_memory_item(item_data, accent_color: Color, category_key: String) -
 	var source_value_label: Label = item.get_node_or_null("Margin/ItemVBox/HeaderRow/SourceVBox/SourceTagPanel/SourceTagMargin/SourceValue") as Label
 	var source_tag_panel: PanelContainer = item.get_node_or_null("Margin/ItemVBox/HeaderRow/SourceVBox/SourceTagPanel") as PanelContainer
 	var content_label: RichTextLabel = item.get_node_or_null("Margin/ItemVBox/ContentLabel") as RichTextLabel
+	var governance_row: HBoxContainer = item.get_node_or_null("Margin/ItemVBox/GovernanceRow") as HBoxContainer
+	var confidence_label: Label = item.get_node_or_null("Margin/ItemVBox/GovernanceRow/ConfidenceLabel") as Label
+	var evidence_label: Label = item.get_node_or_null("Margin/ItemVBox/GovernanceRow/EvidenceLabel") as Label
+	var embedding_label: Label = item.get_node_or_null("Margin/ItemVBox/GovernanceRow/EmbeddingLabel") as Label
+	var cluster_proposal_panel: PanelContainer = item.get_node_or_null("Margin/ItemVBox/ClusterProposalPanel") as PanelContainer
+	var cluster_proposal_title: Label = item.get_node_or_null("Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalTitle") as Label
+	var cluster_proposal_text: Label = item.get_node_or_null("Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalText") as Label
+	var accept_proposal_button: Button = item.get_node_or_null("Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalActions/AcceptProposalButton") as Button
+	var reject_proposal_button: Button = item.get_node_or_null("Margin/ItemVBox/ClusterProposalPanel/ProposalMargin/ProposalVBox/ProposalActions/RejectProposalButton") as Button
+	var cluster_summary_panel: PanelContainer = item.get_node_or_null("Margin/ItemVBox/ClusterSummaryPanel") as PanelContainer
+	var cluster_summary_status_label: Label = item.get_node_or_null("Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox/SummaryStatusLabel") as Label
+	var disable_summary_button: Button = item.get_node_or_null("Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox/SummaryActions/DisableSummaryButton") as Button
+	var rebuild_summary_button: Button = item.get_node_or_null("Margin/ItemVBox/ClusterSummaryPanel/SummaryMargin/SummaryVBox/SummaryActions/RebuildSummaryButton") as Button
+	var action_row: HBoxContainer = item.get_node_or_null("Margin/ItemVBox/ActionRow") as HBoxContainer
+	var pin_button: Button = item.get_node_or_null("Margin/ItemVBox/ActionRow/PinButton") as Button
+	var confirm_button: Button = item.get_node_or_null("Margin/ItemVBox/ActionRow/ConfirmButton") as Button
+	var edit_button: Button = item.get_node_or_null("Margin/ItemVBox/ActionRow/EditButton") as Button
+	var detail_button: Button = item.get_node_or_null("Margin/ItemVBox/ActionRow/DetailButton") as Button
+	var delete_button: Button = item.get_node_or_null("Margin/ItemVBox/ActionRow/DeleteButton") as Button
+	var restore_button: Button = item.get_node_or_null("Margin/ItemVBox/ActionRow/RestoreButton") as Button
 	var meta_label: Label = item.get_node_or_null("Margin/ItemVBox/MetaLabel") as Label
 	_apply_memory_item_style(item, accent_color, false)
 	_apply_source_tag_style(source_tag_panel, accent_color)
@@ -235,6 +261,8 @@ func _create_memory_item(item_data, accent_color: Color, category_key: String) -
 	var decay: float = 0.0
 
 	if item_data is Dictionary:
+		var memory_status := str(item_data.get("status", MemoryManager.MEMORY_STATUS_ACTIVE))
+		var is_deleted := memory_status == MemoryManager.MEMORY_STATUS_DELETED
 		text = str(item_data.get("content", ""))
 		timestamp = str(item_data.get("story_time", ""))
 		if timestamp == "":
@@ -242,6 +270,81 @@ func _create_memory_item(item_data, accent_color: Color, category_key: String) -
 		is_bond = bool(item_data.get("is_bond_mark", false))
 		source_text = _build_memory_source(item_data, category_key)
 		decay = float(item_data.get("decay", 0.0))
+		var has_governance_data: bool = item_data.has("confidence") or item_data.has("evidence_count")
+		if governance_row != null:
+			governance_row.visible = has_governance_data
+		if has_governance_data:
+			if confidence_label != null:
+				confidence_label.text = "可信度 %d%%" % roundi(clampf(float(item_data.get("confidence", MemoryManager.DEFAULT_MEMORY_CONFIDENCE)), 0.0, 1.0) * 100.0)
+				confidence_label.add_theme_color_override("font_color", accent_color.darkened(0.2))
+			if evidence_label != null:
+				evidence_label.text = "证据 %d 次" % maxi(1, int(item_data.get("evidence_count", 1)))
+			if embedding_label != null:
+				embedding_label.text = "向量 %s" % _format_embedding_status(str(item_data.get("embedding_status", "missing")))
+		var can_manage := _can_manage_memory(item_data, category_key)
+		var cluster_id := str(item_data.get("cluster_id", ""))
+		var proposal_member_ids: Array = _get_cluster_member_ids(cluster_id, category_key, "proposed")
+		var shows_cluster_proposal := can_manage \
+			and str(item_data.get("cluster_summary_status", "")) == "proposed" \
+			and not proposal_member_ids.is_empty() \
+			and str(item_data.get("id", "")) == str(proposal_member_ids[0])
+		if cluster_proposal_panel != null:
+			cluster_proposal_panel.visible = shows_cluster_proposal
+		if shows_cluster_proposal:
+			if cluster_proposal_title != null:
+				cluster_proposal_title.text = "待审核的习惯摘要 · %d 条原始记忆" % proposal_member_ids.size()
+			if cluster_proposal_text != null:
+				cluster_proposal_text.text = str(item_data.get("cluster_summary_proposal", ""))
+			if accept_proposal_button != null:
+				accept_proposal_button.pressed.connect(_on_accept_cluster_summary_pressed.bind(cluster_id))
+			if reject_proposal_button != null:
+				reject_proposal_button.pressed.connect(_on_reject_cluster_summary_pressed.bind(cluster_id))
+		var summary_status := str(item_data.get("cluster_summary_status", ""))
+		var summary_member_ids := _get_cluster_member_ids(cluster_id, category_key)
+		var shows_cluster_summary := can_manage \
+			and summary_status in ["active", "stale", "rejected", "disabled"] \
+			and not summary_member_ids.is_empty() \
+			and str(item_data.get("id", "")) == str(summary_member_ids[0])
+		if cluster_summary_panel != null:
+			cluster_summary_panel.visible = shows_cluster_summary
+		if shows_cluster_summary:
+			if cluster_summary_status_label != null:
+				cluster_summary_status_label.text = _format_cluster_summary_archive_status(item_data, summary_member_ids.size())
+			if disable_summary_button != null:
+				disable_summary_button.visible = summary_status == "active"
+				if summary_status == "active":
+					disable_summary_button.pressed.connect(_on_disable_cluster_summary_pressed.bind(cluster_id))
+			if rebuild_summary_button != null:
+				rebuild_summary_button.visible = summary_status != "active"
+				if summary_status != "active":
+					rebuild_summary_button.pressed.connect(_on_rebuild_cluster_summary_pressed.bind(cluster_id))
+		if action_row != null:
+			action_row.visible = can_manage
+		if can_manage:
+			var memory_id := str(item_data.get("id", ""))
+			if pin_button != null:
+				pin_button.visible = not is_deleted
+			if confirm_button != null:
+				confirm_button.visible = not is_deleted
+			if edit_button != null:
+				edit_button.visible = not is_deleted
+			if delete_button != null:
+				delete_button.visible = not is_deleted
+			if restore_button != null:
+				restore_button.visible = is_deleted
+			if pin_button != null:
+				pin_button.text = "取消固定" if bool(item_data.get("is_pinned", false)) else "固定"
+				pin_button.pressed.connect(_on_pin_memory_pressed.bind(category_key, memory_id, not bool(item_data.get("is_pinned", false))))
+			if confirm_button != null:
+				confirm_button.pressed.connect(_on_confirm_memory_pressed.bind(category_key, memory_id))
+			if edit_button != null:
+				edit_button.pressed.connect(_on_edit_memory_pressed.bind(category_key, memory_id, text))
+			if detail_button != null:
+				detail_button.pressed.connect(_on_memory_detail_pressed.bind(item_data))
+			if delete_button != null:
+				delete_button.pressed.connect(_on_delete_memory_pressed.bind(category_key, memory_id, text))
+			if restore_button != null:
+				restore_button.pressed.connect(_on_restore_memory_pressed.bind(category_key, memory_id))
 	elif item_data is String:
 		source_text = _get_default_memory_source(category_key)
 		text = item_data
@@ -257,17 +360,150 @@ func _create_memory_item(item_data, accent_color: Color, category_key: String) -
 	if meta_label != null:
 		meta_label.hide()
 
-	if meta_label != null and is_bond:
+	var revision_count: int = item_data.get("revision_history", []).size() if item_data is Dictionary and item_data.get("revision_history", []) is Array else 0
+	var item_status := str(item_data.get("status", MemoryManager.MEMORY_STATUS_ACTIVE)) if item_data is Dictionary else MemoryManager.MEMORY_STATUS_ACTIVE
+	if meta_label != null and item_status == MemoryManager.MEMORY_STATUS_DELETED:
+		meta_label.text = _format_deleted_memory_status(item_data)
+		meta_label.add_theme_color_override("font_color", Color("#9a6268"))
+		meta_label.show()
+	elif meta_label != null and is_bond:
 		meta_label.text = "关键剧情记忆" if category_key == STORY_MEMORY_CATEGORY_KEY else "关键羁绊记忆"
+		if revision_count > 0:
+			meta_label.text += " · 已修订 %d 次" % revision_count
 		meta_label.add_theme_color_override("font_color", accent_color.darkened(0.22))
 		meta_label.show()
 		_apply_memory_item_style(item, accent_color, true)
 	elif meta_label != null and decay > 0.0:
 		meta_label.text = "遗忘 %d%% · 该记忆正在缓慢衰减，可以通过互动重新加深印象。" % int(decay)
+		if revision_count > 0:
+			meta_label.text += " · 已修订 %d 次" % revision_count
 		meta_label.add_theme_color_override("font_color", Color("#b97a6d"))
+		meta_label.show()
+	elif meta_label != null and revision_count > 0:
+		meta_label.text = "已修订 %d 次 · 原内容仍保留在修订记录中。" % revision_count
+		meta_label.add_theme_color_override("font_color", accent_color.darkened(0.22))
 		meta_label.show()
 
 	return item
+
+func _format_deleted_memory_status(item_data: Dictionary) -> String:
+	if GameDataManager.memory_manager and GameDataManager.memory_manager.has_method("format_deleted_memory_status"):
+		return GameDataManager.memory_manager.format_deleted_memory_status(item_data)
+	return "已删除 · 不会进入对话记忆，可随时恢复。"
+
+func _format_embedding_status(status: String) -> String:
+	match status.strip_edges().to_lower():
+		"ready":
+			return "就绪"
+		"pending":
+			return "等待生成"
+		"failed":
+			return "失败"
+		"disabled":
+			return "未启用"
+		_:
+			return "未生成"
+
+func _can_manage_memory(item_data: Dictionary, category_key: String) -> bool:
+	if _desktop_pet_mode or not BASE_MEMORY_CATEGORY_ORDER.has(category_key):
+		return false
+	if str(item_data.get("id", "")).is_empty() or GameDataManager.memory_manager == null:
+		return false
+	var current_character_id := str(GameDataManager.config.current_character_id) if GameDataManager.config else "default"
+	return _loaded_character_id == current_character_id
+
+func _on_pin_memory_pressed(layer: String, memory_id: String, should_pin: bool) -> void:
+	if GameDataManager.memory_manager == null:
+		return
+	if GameDataManager.memory_manager.set_memory_pinned(layer, memory_id, should_pin):
+		_load_memory_archive(_loaded_character_id)
+
+func _on_confirm_memory_pressed(layer: String, memory_id: String) -> void:
+	if GameDataManager.memory_manager == null:
+		return
+	if GameDataManager.memory_manager.confirm_memory(layer, memory_id):
+		_load_memory_archive(_loaded_character_id)
+
+func _on_delete_memory_pressed(layer: String, memory_id: String, content: String) -> void:
+	var dialog = CONFIRM_DIALOG_SCENE.instantiate()
+	get_tree().root.add_child(dialog)
+	dialog.setup_advanced(
+		"删除记忆",
+		"确认删除这条记忆？",
+		content.left(120),
+		"删除后不会再参与对话检索，但可以在当前分类中恢复。",
+		"删除",
+		"取消"
+	)
+	dialog.confirmed.connect(func() -> void:
+		if GameDataManager.memory_manager and GameDataManager.memory_manager.delete_memory(layer, memory_id):
+			_load_memory_archive(_loaded_character_id)
+	)
+
+func _on_restore_memory_pressed(layer: String, memory_id: String) -> void:
+	if GameDataManager.memory_manager and GameDataManager.memory_manager.restore_memory(layer, memory_id):
+		_load_memory_archive(_loaded_character_id)
+
+func _on_edit_memory_pressed(layer: String, memory_id: String, content: String) -> void:
+	var dialog = MEMORY_EDIT_DIALOG_SCENE.instantiate()
+	get_tree().root.add_child(dialog)
+	dialog.setup(layer, memory_id, content)
+	dialog.edit_submitted.connect(func(edit_layer: String, edit_memory_id: String, new_content: String) -> void:
+		if GameDataManager.memory_manager and not GameDataManager.memory_manager.enqueue_memory_edit(edit_layer, edit_memory_id, new_content, {
+			"source_type": "user_correction",
+			"source_title": "记忆归档纠正"
+		}).is_empty():
+			_load_memory_archive(_loaded_character_id)
+	)
+
+func _on_memory_detail_pressed(memory: Dictionary) -> void:
+	var dialog: Control = MEMORY_GOVERNANCE_DETAIL_DIALOG_SCENE.instantiate() as Control
+	get_tree().root.add_child(dialog)
+	dialog.setup(memory)
+
+func _on_accept_cluster_summary_pressed(cluster_id: String) -> void:
+	if GameDataManager.memory_manager and GameDataManager.memory_manager.accept_habit_cluster_summary_proposal(cluster_id):
+		_load_memory_archive(_loaded_character_id)
+
+func _on_reject_cluster_summary_pressed(cluster_id: String) -> void:
+	if GameDataManager.memory_manager and GameDataManager.memory_manager.reject_habit_cluster_summary_proposal(cluster_id):
+		_load_memory_archive(_loaded_character_id)
+
+func _on_disable_cluster_summary_pressed(cluster_id: String) -> void:
+	if GameDataManager.memory_manager and GameDataManager.memory_manager.disable_habit_cluster_summary(cluster_id):
+		_load_memory_archive(_loaded_character_id)
+
+func _on_rebuild_cluster_summary_pressed(cluster_id: String) -> void:
+	if GameDataManager.memory_manager and not GameDataManager.memory_manager.rebuild_habit_cluster_summary(cluster_id).is_empty():
+		_load_memory_archive(_loaded_character_id)
+
+func _get_cluster_member_ids(cluster_id: String, category_key: String, required_status: String = "") -> Array[String]:
+	var member_ids: Array[String] = []
+	if cluster_id.is_empty() or category_key != "habit":
+		return member_ids
+	for memory in _memory_data.get("habit", []):
+		if memory is Dictionary \
+		and str(memory.get("cluster_id", "")) == cluster_id \
+		and (required_status.is_empty() or str(memory.get("cluster_summary_status", "")) == required_status):
+			member_ids.append(str(memory.get("id", "")))
+	member_ids.sort()
+	return member_ids
+
+func _format_cluster_summary_archive_status(memory: Dictionary, member_count: int) -> String:
+	var status := str(memory.get("cluster_summary_status", ""))
+	var version := maxi(0, int(memory.get("cluster_summary_version", 0)))
+	var decision_at := _format_memory_date(str(memory.get("cluster_summary_last_decision_at", "")))
+	match status:
+		"active":
+			return "习惯摘要已启用 · 版本 %d · %d 条原始记忆\n%s" % [version, member_count, str(memory.get("cluster_summary", ""))]
+		"stale":
+			return "习惯摘要待重建 · 原始成员已经变化 · 上次决定 %s" % decision_at
+		"rejected":
+			return "本次习惯摘要已拒绝 · 当前使用原始记忆 · 上次决定 %s" % decision_at
+		"disabled":
+			return "习惯摘要已停用 · 当前使用原始记忆 · 上次决定 %s" % decision_at
+		_:
+			return "习惯摘要未生成"
 
 func _make_panel_style(bg_color: Color, border_color: Color, radius: int = 18, border_width: int = 1, shadow_alpha: float = 0.0) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -349,6 +585,8 @@ func _filter_player_archive_memories(raw_items: Variant) -> Array:
 			continue
 		if str(item.get("source_type", "")) == "story_script":
 			continue
+		if str(item.get("status", MemoryManager.MEMORY_STATUS_ACTIVE)) == MemoryManager.MEMORY_STATUS_SUPERSEDED:
+			continue
 		var scope := str(item.get("memory_scope", "player_shared")).strip_edges()
 		if scope == "" or scope == "player_shared":
 			results.append(item)
@@ -426,10 +664,10 @@ func _ensure_story_tab_button() -> void:
 	category_button_vbox.add_child(story_button)
 
 
-func _set_story_tab_visible(is_visible: bool) -> void:
+func _set_story_tab_visible(should_show: bool) -> void:
 	var story_button := _get_memory_tab_button(STORY_MEMORY_CATEGORY_KEY)
 	if story_button != null:
-		story_button.visible = is_visible
+		story_button.visible = should_show
 
 
 func _update_memory_tab_buttons() -> void:

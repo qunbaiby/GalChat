@@ -1,16 +1,29 @@
 extends RefCounted
 
-func start_chat_stream(client, user_message: String, history_type: String = "all") -> void:
+func start_chat_stream(client, user_message: String, history_type: String = "all", prompt_access_context: Dictionary = {}) -> void:
 	client._chat_stream_retry_count = 0
+	if client._chat_stream_active:
+		cancel_chat_stream(client)
+	client._active_chat_request_context = {}
 	if client._uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
-		client.chat_request_failed.emit("登录状态已过期，请重新登录后重试。")
+		_emit_failure(client, "登录状态已过期，请重新登录后重试。")
 		return
 	if not client.is_inside_tree() or client._is_api_key_empty():
-		client.chat_request_failed.emit(client._get_missing_credentials_message())
+		_emit_failure(client, client._get_missing_credentials_message())
 		return
-	if client._chat_stream_active:
-		stop_chat_stream(client)
-	var system_prompt: String = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, [])
+	var prompt_result: Dictionary = await GameDataManager.memory_retrieval_service.build_chat_prompt_result(
+		GameDataManager.profile,
+		user_message,
+		null,
+		"story_chat" if history_type == "story_chat" else "main_chat",
+		prompt_access_context
+	)
+	var system_prompt := str(prompt_result.get("prompt", ""))
+	client._active_chat_request_context = {
+		"request_id": str(prompt_result.get("request_id", "")),
+		"trace_id": str(prompt_result.get("trace_id", "")),
+		"rendered_memory_ids": prompt_result.get("rendered_memory_ids", []).duplicate()
+	}
 	var api_messages = [{"role": "system", "content": system_prompt}]
 	api_messages.append_array(client._get_history_messages(10, true, history_type))
 	var should_append: bool = true
@@ -24,16 +37,17 @@ func start_chat_stream(client, user_message: String, history_type: String = "all
 		api_messages.append({"role": "user", "content": user_message})
 	_start_stream_request(client, api_messages)
 
-func start_chat_stream_with_messages(client, api_messages: Array) -> void:
+func start_chat_stream_with_messages(client, api_messages: Array, request_context: Dictionary = {}) -> void:
 	client._chat_stream_retry_count = 0
+	if client._chat_stream_active:
+		cancel_chat_stream(client)
+	client._active_chat_request_context = request_context.duplicate(true)
 	if client._uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
-		client.chat_request_failed.emit("登录状态已过期，请重新登录后重试。")
+		_emit_failure(client, "登录状态已过期，请重新登录后重试。")
 		return
 	if not client.is_inside_tree() or client._is_api_key_empty():
-		client.chat_request_failed.emit(client._get_missing_credentials_message())
+		_emit_failure(client, client._get_missing_credentials_message())
 		return
-	if client._chat_stream_active:
-		stop_chat_stream(client)
 	_start_stream_request(client, api_messages)
 
 func _start_stream_request(client, api_messages: Array) -> void:
@@ -48,12 +62,14 @@ func _start_stream_request(client, api_messages: Array) -> void:
 	client._chat_stream_sse_buffer = ""
 	client._chat_stream_request_sent = false
 	client._chat_stream_body = JSON.stringify(body)
+	if GameDataManager.memory_retrieval_trace_service:
+		GameDataManager.memory_retrieval_trace_service.mark_request_started(str(client._active_chat_request_context.get("trace_id", "")))
 	_connect_stream_request(client)
 
 func _connect_stream_request(client) -> void:
 	var endpoint: Dictionary = client._get_stream_endpoint()
 	if endpoint.is_empty():
-		client.chat_request_failed.emit("AI 服务地址格式无效。")
+		_emit_failure(client, "AI 服务地址格式无效。")
 		return
 	var host: String = str(endpoint["host"])
 	client._chat_stream_headers = [
@@ -67,8 +83,7 @@ func _connect_stream_request(client) -> void:
 	var tls_options: TLSOptions = TLSOptions.client() if bool(endpoint["tls"]) else null
 	var err: int = client._chat_stream_client.connect_to_host(host, int(endpoint["port"]), tls_options)
 	if err != OK:
-		stop_chat_stream(client)
-		client.chat_request_failed.emit("网络请求发送失败。")
+		_emit_failure(client, "网络请求发送失败。")
 		return
 	client._chat_stream_active = true
 	client.set_process(true)
@@ -84,8 +99,7 @@ func process_chat_stream(client) -> void:
 	if status == HTTPClient.STATUS_CONNECTED and not client._chat_stream_request_sent:
 		var err: int = client._chat_stream_client.request(HTTPClient.METHOD_POST, path, client._chat_stream_headers, client._chat_stream_body)
 		if err != OK:
-			stop_chat_stream(client)
-			client.chat_request_failed.emit("网络请求发送失败。")
+			_emit_failure(client, "网络请求发送失败。")
 			return
 		client._chat_stream_request_sent = true
 		return
@@ -102,7 +116,7 @@ func process_chat_stream(client) -> void:
 					_retry_after_unauthorized(client, request_body)
 					return
 				client._chat_stream_retry_count = 0
-				client.chat_request_failed.emit(_get_http_error_message(response_code, err_body))
+				_emit_failure(client, _get_http_error_message(response_code, err_body))
 				return
 		var chunk: PackedByteArray = client._chat_stream_client.read_response_body_chunk()
 		if chunk.size() > 0:
@@ -111,8 +125,7 @@ func process_chat_stream(client) -> void:
 		return
 	if status == HTTPClient.STATUS_DISCONNECTED:
 		if client._chat_stream_full_text.strip_edges() == "":
-			stop_chat_stream(client)
-			client.chat_request_failed.emit("返回数据解析失败")
+			_emit_failure(client, "返回数据解析失败")
 		else:
 			_finish_chat_stream(client)
 
@@ -130,7 +143,7 @@ func _read_all_stream_body(client) -> String:
 func _retry_after_unauthorized(client, request_body: String) -> void:
 	if not await OfficialAuthManager.force_refresh_access_token():
 		client._chat_stream_retry_count = 0
-		client.chat_request_failed.emit("登录状态已过期，请重新登录后重试。")
+		_emit_failure(client, "登录状态已过期，请重新登录后重试。")
 		return
 	client._chat_stream_body = request_body
 	client._chat_stream_full_text = ""
@@ -193,8 +206,7 @@ func _consume_sse_event(client, event_text: String) -> void:
 			var api_error: Variant = data["error"]
 			if api_error is Dictionary:
 				error_message = str(api_error.get("message", error_message)).strip_edges()
-			stop_chat_stream(client)
-			client.chat_request_failed.emit(error_message)
+			_emit_failure(client, error_message)
 			return
 		var delta_text: String = ""
 		if data.has("choices") and data["choices"] is Array and data["choices"].size() > 0:
@@ -214,13 +226,18 @@ func _finish_chat_stream(client) -> void:
 	if not client._chat_stream_active:
 		return
 	var final_text: String = client._chat_stream_full_text
+	var request_context: Dictionary = client._active_chat_request_context.duplicate(true)
+	client._last_chat_request_context = request_context.duplicate(true)
+	if GameDataManager.memory_retrieval_trace_service:
+		GameDataManager.memory_retrieval_trace_service.mark_response_completed(str(request_context.get("trace_id", "")), final_text)
 	stop_chat_stream(client)
 	client._chat_stream_retry_count = 0
-	client.chat_request_completed.emit({
+	var response := {
 		"choices": [
 			{"message": {"content": final_text}}
 		]
-	})
+	}
+	client.chat_request_completed.emit(response)
 
 func stop_chat_stream(client) -> void:
 	client._chat_stream_active = false
@@ -233,6 +250,23 @@ func stop_chat_stream(client) -> void:
 		client._chat_stream_client.close()
 		client._chat_stream_client = null
 	client.set_process(false)
+
+func cancel_chat_stream(client) -> void:
+	var context: Dictionary = client._active_chat_request_context.duplicate(true)
+	client._last_chat_request_context = context.duplicate(true)
+	if GameDataManager.memory_retrieval_trace_service:
+		GameDataManager.memory_retrieval_trace_service.mark_request_failed(str(context.get("trace_id", "")), "用户取消请求", true)
+	stop_chat_stream(client)
+	client._active_chat_request_context = {}
+
+func _emit_failure(client, error_message: String) -> void:
+	var context: Dictionary = client._active_chat_request_context.duplicate(true)
+	client._last_chat_request_context = context.duplicate(true)
+	if GameDataManager.memory_retrieval_trace_service:
+		GameDataManager.memory_retrieval_trace_service.mark_request_failed(str(context.get("trace_id", "")), error_message)
+	stop_chat_stream(client)
+	client._active_chat_request_context = {}
+	client.chat_request_failed.emit(error_message)
 
 func is_chat_streaming(client) -> bool:
 	return client._chat_stream_active

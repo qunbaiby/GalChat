@@ -81,16 +81,18 @@ func _submit_chat(raw_text: String) -> void:
 	voice_record_button.disabled = true
 	status_label.text = "Luna 正在回复..."
 	_append_history("玩家", text)
-	deepseek_client.start_chat_stream_with_messages(_build_messages())
+	var prompt_result: Dictionary = await _build_messages(text)
+	deepseek_client.start_chat_stream_with_messages(prompt_result.get("messages", []), prompt_result.get("request_context", {}))
 
-func _build_messages() -> Array:
-	var prompt: String = GameDataManager.prompt_manager.build_system_prompt(
+func _build_messages(player_message: String) -> Dictionary:
+	var prompt_result: Dictionary = await GameDataManager.memory_retrieval_service.build_system_prompt_result(
 		GameDataManager.profile,
 		"desktop_pet",
-		"",
-		[],
-		GameDataManager.desktop_pet_memory_manager
+		player_message,
+		GameDataManager.desktop_pet_memory_manager,
+		"desktop_pet"
 	)
+	var prompt := str(prompt_result.get("prompt", ""))
 	var messages: Array = [{"role": "system", "content": prompt}]
 	var history: Array = GameDataManager.history.get_messages_by_type("desktop_pet")
 	var start_index := maxi(0, history.size() - HISTORY_LIMIT)
@@ -100,7 +102,14 @@ func _build_messages() -> Array:
 			"role": "assistant" if str(record.get("speaker", "")) == "char" else "user",
 			"content": str(record.get("text", ""))
 		})
-	return messages
+	return {
+		"messages": messages,
+		"request_context": {
+			"request_id": str(prompt_result.get("request_id", "")),
+			"trace_id": str(prompt_result.get("trace_id", "")),
+			"rendered_memory_ids": prompt_result.get("rendered_memory_ids", []).duplicate()
+		}
+	}
 
 func _append_history(speaker: String, text: String) -> void:
 	GameDataManager.history.add_message(
@@ -124,6 +133,7 @@ func _on_chat_completed(response: Dictionary) -> void:
 	if reply == "":
 		reply = "我在听。"
 	_append_history("char", reply)
+	deepseek_client.mark_chat_response_adopted(reply)
 	_finish_request()
 	reply_completed.emit(reply)
 

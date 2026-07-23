@@ -1,6 +1,6 @@
 extends Node
 
-const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
+const DeepSeekClientLocatorScript = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 
 const DYNAMIC_STYLES: Array[Dictionary] = [
 	{ "name": "单段回复", "weight": 35, "text": "【分段策略：单段回复】请将你的回答组织为连贯的一整段。要求：纯台词部分在 20 到 50 字之间，总字数不超过 65 字。【强制要求：请一次性发送完整内容，绝对不要使用 [SPLIT] 拆分段落】。【极度致命警告：你的整个回复中，绝对只能在最开头出现【唯一一个】用括号包裹的动作/神态描写，写完这个括号后必须全是台词，句尾或句中绝对、绝对不准再出现任何括号描写，否则系统会崩溃！】" },
@@ -26,6 +26,7 @@ const NPC_EVENT_DYNAMIC_STYLES: Array[Dictionary] = [
 # 缓存已加载的模板
 var templates: Dictionary = {}
 var world_setting_cache: String = ""
+var last_long_term_context_result: Dictionary = {}
 
 func _resolve_flavor_label(profile: CharacterProfile) -> String:
 	if profile == null or GameDataManager.personality_system == null:
@@ -77,15 +78,20 @@ func _get_relationship_prompt_floor(stage_num: int) -> float:
 		return 60.0
 	return 0.0
 
-func build_chat_prompt(profile: CharacterProfile, player_message: String = "", query_embedding: Array = []) -> String:
-	return build_system_prompt(profile, "default_chat", player_message, query_embedding)
+func build_chat_prompt(profile: CharacterProfile, player_message: String = "", query_embedding: Array = [], summary_channel: String = "main_chat") -> String:
+	return build_system_prompt(profile, "default_chat", player_message, query_embedding, null, summary_channel)
+
+const LONG_TERM_CONTEXT_MAX_CHARS := 3200
 
 func _resolve_memory_manager(memory_manager_override = null):
 	if memory_manager_override != null:
 		return memory_manager_override
 	return GameDataManager.memory_manager
 
-func build_system_prompt(profile: CharacterProfile, template_name: String = "default_chat", player_message: String = "", query_embedding: Array = [], memory_manager_override = null) -> String:
+func get_last_long_term_context_result() -> Dictionary:
+	return last_long_term_context_result.duplicate(true)
+
+func build_system_prompt(profile: CharacterProfile, template_name: String = "default_chat", player_message: String = "", query_embedding: Array = [], memory_manager_override = null, summary_channel: String = "", prompt_access_context: Dictionary = {}) -> String:
 	var template = load_template(template_name)
 	if template == "":
 		return ""
@@ -109,7 +115,22 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 	var mood_name = GameDataManager.mood_system.get_macro_mood_name(profile.mood_value)
 	mood_desc += "【角色当前整体心情】：\n" + mood_name + "\n"
 	var memory_manager = _resolve_memory_manager(memory_manager_override)
-	var memory_desc = memory_manager.get_memory_prompt(query_embedding) if memory_manager and memory_manager.has_method("get_memory_prompt") else ""
+	var emotion_context: Dictionary = GameDataManager.player_emotion_state_manager.build_emotion_context() if GameDataManager.player_emotion_state_manager else {}
+	var memory_query_options := {"emotion_context": emotion_context}
+	var memory_desc = memory_manager.get_memory_prompt(query_embedding, memory_query_options) if memory_manager and memory_manager.has_method("get_memory_prompt") else ""
+	var memory_chars := memory_desc.length()
+	var story_knowledge_result: Dictionary = {}
+	var story_knowledge_chars := 0
+	if summary_channel == "story_chat" and bool(prompt_access_context.get("allow_story_knowledge", false)) and GameDataManager.story_memory_manager and GameDataManager.story_memory_manager.has_method("build_story_knowledge_prompt_result"):
+		story_knowledge_result = GameDataManager.story_memory_manager.build_story_knowledge_prompt_result(prompt_access_context)
+		var story_knowledge_prompt := str(story_knowledge_result.get("prompt", ""))
+		story_knowledge_chars = story_knowledge_prompt.length()
+		if not story_knowledge_prompt.is_empty():
+			if not memory_desc.is_empty():
+				memory_desc += "\n\n"
+			memory_desc += story_knowledge_prompt
+	var diary_chars := 0
+	var summary_chars := 0
 	
 	# 注入近期日记作为长期上下文摘要
 	var diaries = profile.get_diaries()
@@ -123,9 +144,32 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 			diary_text += "【" + d.get("date", "未知日期") + " 日记】" + content + "\n"
 			
 		if diary_text != "":
+			diary_chars = diary_text.length()
 			if memory_desc != "":
 				memory_desc += "\n\n"
 			memory_desc += "- 历史日记摘要（这是你过去写下的日记摘要，反映了你与玩家之前的经历，请作为重要的长期上下文参考）：\n" + diary_text
+	if not summary_channel.is_empty() and GameDataManager.conversation_summary_manager:
+		var conversation_summary: String = GameDataManager.conversation_summary_manager.get_prompt_block(summary_channel)
+		if not conversation_summary.is_empty():
+			summary_chars = conversation_summary.length()
+			if not memory_desc.is_empty():
+				memory_desc += "\n\n"
+			memory_desc += conversation_summary
+	var untruncated_context: String = str(memory_desc)
+	memory_desc = _truncate_context(untruncated_context, LONG_TERM_CONTEXT_MAX_CHARS)
+	last_long_term_context_result = {
+		"context": memory_desc,
+		"memory_chars": memory_chars,
+		"story_knowledge_chars": story_knowledge_chars,
+		"story_knowledge_result": story_knowledge_result,
+		"diary_chars": diary_chars,
+		"summary_chars": summary_chars,
+		"final_chars": memory_desc.length(),
+		"max_chars": LONG_TERM_CONTEXT_MAX_CHARS,
+		"truncated": memory_desc.length() < untruncated_context.length(),
+		"summary_channel": summary_channel,
+		"emotion_context": emotion_context.duplicate(true)
+	}
 	
 	var stage_conf = profile.get_current_stage_config()
 	
@@ -177,7 +221,6 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 	var imp_notes = stage_conf.get("important_notes", "").replace("{char_name}", safe_char_name)
 	
 	var random_style = ""
-	var random_style_name = ""
 	if template_name == "desktop_pet":
 		var msg_len = player_message.length()
 		var current_styles = PET_DYNAMIC_STYLES.duplicate(true)
@@ -201,12 +244,10 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 			
 		var random_val = randi() % total_weight if total_weight > 0 else 0
 		random_style = current_styles[0]["text"]
-		random_style_name = current_styles[0]["name"]
 		for s in current_styles:
 			random_val -= s["weight"]
 			if random_val < 0:
 				random_style = s["text"]
-				random_style_name = s["name"]
 				break
 	elif template_name == "mobile_chat":
 		var msg_len = player_message.length()
@@ -231,12 +272,10 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 			
 		var random_val = randi() % total_weight if total_weight > 0 else 0
 		random_style = current_styles[0]["text"]
-		random_style_name = current_styles[0]["name"]
 		for s in current_styles:
 			random_val -= s["weight"]
 			if random_val < 0:
 				random_style = s["text"]
-				random_style_name = s["name"]
 				break
 	else:
 		var msg_len = player_message.length()
@@ -265,12 +304,10 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 			
 		var random_val = randi() % total_weight if total_weight > 0 else 0
 		random_style = current_styles[0]["text"]
-		random_style_name = current_styles[0]["name"]
 		for s in current_styles:
 			random_val -= s["weight"]
 			if random_val < 0:
 				random_style = s["text"]
-				random_style_name = s["name"]
 				break
 				
 	# 动态注入
@@ -305,6 +342,11 @@ func build_system_prompt(profile: CharacterProfile, template_name: String = "def
 		# GameDataManager.audit_logger.log_event("PROMPT_INJECTION", "Injected persona lock for character: " + profile.char_name)
 		
 	return base_prompt
+
+func _truncate_context(context: String, max_chars: int) -> String:
+	if context.length() <= max_chars:
+		return context
+	return context.left(max_chars - 1).strip_edges() + "…"
 
 func build_emotion_prompt(profile: CharacterProfile) -> String:
 	var template = load_template("emotion_analysis")
@@ -413,7 +455,7 @@ func _build_proactive_greeting_type_desc(prompt_type: String) -> String:
 	return type_desc
 
 func _pick_shared_main_scene_bubble_categories(profile: CharacterProfile, whitelist: Array[String]) -> Array[String]:
-	var deepseek_client = DeepSeekClientLocator.find(self)
+	var deepseek_client = DeepSeekClientLocatorScript.find(self)
 	var idle_service = null
 	if deepseek_client and deepseek_client.has_method("get"):
 		idle_service = deepseek_client.get("_idle_quote_service")

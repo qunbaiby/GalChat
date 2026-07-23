@@ -1,0 +1,78 @@
+{
+	"schema_version": 1,
+	"threshold_candidates": [0.78, 0.82, 0.86],
+	"cases": [
+		{
+			"name": "温热饮品习惯摘要等价",
+			"memories": {
+				"core": [],
+				"emotion": [],
+				"habit": [
+					{"id": "habit-warm-milk-night", "content": "玩家睡前通常会喝一杯温热牛奶，让自己慢慢放松下来", "embedding": [1.0, 0.0, 0.0]},
+					{"id": "habit-warm-drink-relax", "content": "玩家晚上放松时偏好温热的奶类饮品，不喜欢太冰的口感", "embedding": [0.99, 0.01, 0.0]},
+					{"id": "habit-milk-before-sleep", "content": "玩家准备睡觉前经常选择热牛奶作为固定的夜间饮品", "embedding": [0.98, 0.02, 0.0]},
+					{"id": "habit-bitter-coffee", "content": "玩家工作时偶尔会喝苦咖啡", "embedding": [0.0, 1.0, 0.0]}
+				],
+				"bond": []
+			},
+			"query_embedding": [1.0, 0.0, 0.0],
+			"member_memory_ids": ["habit-milk-before-sleep", "habit-warm-drink-relax", "habit-warm-milk-night"],
+			"expected_memory_ids": ["habit-milk-before-sleep", "habit-warm-drink-relax", "habit-warm-milk-night"],
+			"forbidden_memory_ids": ["habit-bitter-coffee"],
+			"summary": "玩家睡前习惯用温热的奶类饮品放松。"
+		},
+		{
+			"name": "夜间阅读习惯摘要等价",
+			"memories": {
+				"core": [],
+				"emotion": [],
+				"habit": [
+					{"id": "habit-read-before-bed", "content": "玩家睡前常会留出一段安静时间阅读纸质书籍", "embedding": [0.0, 0.0, 1.0]},
+					{"id": "habit-night-paper-book", "content": "玩家夜里更喜欢翻纸质书，而不是一直看手机屏幕", "embedding": [0.0, 0.01, 0.99]},
+					{"id": "habit-quiet-reading", "content": "玩家一天结束后习惯安静阅读几页再准备休息", "embedding": [0.0, 0.02, 0.98]},
+					{"id": "habit-morning-run", "content": "玩家周末早晨有时会去慢跑", "embedding": [0.0, 1.0, 0.0]}
+				],
+				"bond": []
+			},
+			"query_embedding": [0.0, 0.0, 1.0],
+			"member_memory_ids": ["habit-night-paper-book", "habit-quiet-reading", "habit-read-before-bed"],
+			"expected_memory_ids": ["habit-night-paper-book", "habit-quiet-reading", "habit-read-before-bed"],
+			"forbidden_memory_ids": ["habit-morning-run"],
+			"summary": "玩家夜间习惯安静阅读纸质书后再休息。"
+		}
+	],
+	"threshold_cases": [
+		{
+			"name": "夜间饮品聚类阈值边界",
+			"memories": {
+				"core": [],
+				"emotion": [],
+				"habit": [
+					{"id": "boundary-drink-leader", "content": "玩家夜间偏好温热饮品", "embedding": [1.0, 0.0]},
+					{"id": "boundary-drink-member-a", "content": "玩家睡前常选择热牛奶", "embedding": [0.84, 0.542586]},
+					{"id": "boundary-drink-member-b", "content": "玩家晚上喜欢温热奶饮", "embedding": [0.83, 0.557763]},
+					{"id": "boundary-drink-neighbor", "content": "玩家工作时喝常温咖啡", "embedding": [0.8, 0.6]}
+				],
+				"bond": []
+			},
+			"member_memory_ids": ["boundary-drink-leader", "boundary-drink-member-a", "boundary-drink-member-b"],
+			"forbidden_cluster_memory_ids": ["boundary-drink-neighbor"]
+		},
+		{
+			"name": "夜间阅读聚类阈值边界",
+			"memories": {
+				"core": [],
+				"emotion": [],
+				"habit": [
+					{"id": "boundary-read-leader", "content": "玩家夜间习惯阅读纸质书", "embedding": [0.0, 1.0, 0.0]},
+					{"id": "boundary-read-member-a", "content": "玩家睡前会安静翻几页书", "embedding": [0.0, 0.84, 0.542586]},
+					{"id": "boundary-read-member-b", "content": "玩家晚上偏好纸质阅读", "embedding": [0.0, 0.83, 0.557763]},
+					{"id": "boundary-read-neighbor", "content": "玩家夜间偶尔整理电子邮件", "embedding": [0.0, 0.8, 0.6]}
+				],
+				"bond": []
+			},
+			"member_memory_ids": ["boundary-read-leader", "boundary-read-member-a", "boundary-read-member-b"],
+			"forbidden_cluster_memory_ids": ["boundary-read-neighbor"]
+		}
+	]
+}

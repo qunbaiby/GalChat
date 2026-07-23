@@ -67,6 +67,7 @@ var dragging: bool = false
 var drag_offset: Vector2i = Vector2i.ZERO
 
 var pet_prompt: String = ""
+var _pet_prompt_request_context: Dictionary = {}
 var is_chatting: bool = false
 var current_response: String = ""
 var chat_history: Array = []
@@ -1723,12 +1724,34 @@ func _load_prompt() -> void:
 		chat_history.clear()
 		
 	# 强制在每次生成时都使用最新的系统提示词
-	pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet", "", [], GameDataManager.desktop_pet_memory_manager)
+	pet_prompt = GameDataManager.prompt_manager.build_system_prompt(GameDataManager.profile, "desktop_pet", "", [], GameDataManager.desktop_pet_memory_manager, "desktop_pet")
 	if pet_prompt.is_empty():
 		pet_prompt = "你是{name}，一个真实存在的人，正陪伴在玩家身边。请用生动自然的语气，根据你当前的心情和性格，以及你们的关系阶段，回答玩家的问题。绝对不能提到自己是AI或桌宠！你必须使用 [SPLIT] 分隔符将消息拆分为 1~2 段，且括号动作描述不超过10个字。每段最前面必须添加一个不超过20个汉字的 <voice:...> 标签，只描述当前句的情绪、语速、语气或音量，不得改变年龄、性别、身份或音色。"
 		var char_name = GameDataManager.profile.char_name if GameDataManager.profile.char_name != "" else "Luna"
 		pet_prompt = pet_prompt.replace("{name}", char_name)
+	_append_pet_prompt_constraints()
 
+func _load_prompt_for_query(player_message: String, prompt_access_context: Dictionary = {}) -> void:
+	var prompt_result: Dictionary = await GameDataManager.memory_retrieval_service.build_system_prompt_result(
+		GameDataManager.profile,
+		"desktop_pet",
+		player_message,
+		GameDataManager.desktop_pet_memory_manager,
+		"desktop_pet",
+		prompt_access_context
+	)
+	pet_prompt = str(prompt_result.get("prompt", ""))
+	_pet_prompt_request_context = {
+		"request_id": str(prompt_result.get("request_id", "")),
+		"trace_id": str(prompt_result.get("trace_id", "")),
+		"rendered_memory_ids": prompt_result.get("rendered_memory_ids", []).duplicate()
+	}
+	if pet_prompt.is_empty():
+		_load_prompt()
+		return
+	_append_pet_prompt_constraints()
+
+func _append_pet_prompt_constraints() -> void:
 	var player_name = GameDataManager.config.player_nickname
 	if not player_name.is_empty():
 		pet_prompt += "\n【特别注意】：玩家希望你称呼他为“%s”，请在对话中自然地使用这个称呼。" % player_name
@@ -1827,9 +1850,14 @@ func _try_trigger_memory_revisit() -> void:
 		return
 	
 	_last_reaction_tick = current_tick
-	GameDataManager.desktop_pet_memory_manager.mark_memory_revisited(revisit_data.get("memory_id", ""), trigger_context)
+	var revisit_event_id := GameDataManager.desktop_pet_memory_manager.mark_memory_revisited(revisit_data.get("memory_id", ""), trigger_context)
 	var prompt: String = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, trigger_context)
-	_trigger_proactive_chat(prompt)
+	_trigger_proactive_chat(prompt, false, CHAT_ORIGIN_SYSTEM, {
+		"revisit_event_id": revisit_event_id,
+		"revisit_memory_id": str(revisit_data.get("memory_id", "")),
+		"revisit_layer": str(revisit_data.get("layer", "")),
+		"revisit_context_domain": str(revisit_data.get("context_domain", ""))
+	})
 
 func _check_vision_recovery() -> void:
 	# 本地视觉次数限制已废弃，保留空实现仅兼容旧调用。
@@ -2234,7 +2262,7 @@ func _trigger_vision_chat(prompt_text: String, base64_image: String, origin: Str
 	# 构建专属的独立请求记录
 	chat_history.append({"role": "user", "content": "【屏幕截图发送成功】" + prompt_text})
 	if chat_history.size() > 10: chat_history = chat_history.slice(-10)
-	_load_prompt()
+	await _load_prompt_for_query(prompt_text)
 
 	deepseek_client.send_vision_request(pet_prompt, prompt_text, base64_image)
 
@@ -2585,7 +2613,7 @@ func _check_hourly_chime() -> void:
 		_trigger_proactive_chat(base_prompt)
 
 
-func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: String = CHAT_ORIGIN_SYSTEM) -> void:
+func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: String = CHAT_ORIGIN_SYSTEM, prompt_access_context: Dictionary = {}) -> void:
 	if is_chatting:
 		return
 	if not force and _is_proactive_temporarily_blocked():
@@ -2605,7 +2633,10 @@ func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: S
 		chat_history = chat_history.slice(-10)
 		
 	# 每次发送前都重新构建 prompt，确保应用识别的 prompt 也是最新的约束
-	_load_prompt()
+	if prompt_access_context.is_empty():
+		_load_prompt()
+	else:
+		await _load_prompt_for_query(prompt_text, prompt_access_context)
 		
 	# 构建专属的独立请求记录，不带历史上下文，防止主动吐槽被历史聊天带偏
 	var proactive_history = []
@@ -2618,7 +2649,7 @@ func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: S
 	for msg in proactive_history:
 		pet_messages.append(msg)
 		
-	deepseek_client.start_chat_stream_with_messages(pet_messages)
+	deepseek_client.start_chat_stream_with_messages(pet_messages, _pet_prompt_request_context)
 
 func _on_send_pressed() -> void:
 	var text = input_edit.text.strip_edges()
@@ -2654,7 +2685,7 @@ func _on_send_pressed() -> void:
 	if audio_player and audio_player.playing:
 		audio_player.stop()
 	
-	_load_prompt()
+	await _load_prompt_for_query(raw_user_text)
 	_append_desktop_pet_history_message("玩家", raw_user_text, "", CHAT_ORIGIN_PLAYER)
 	
 	var pet_messages = [{"role": "system", "content": pet_prompt}]
@@ -2725,6 +2756,7 @@ func _on_chat_completed(response: Dictionary) -> void:
 	# Add assistant message to history
 	chat_history.append({"role": "assistant", "content": text})
 	_append_desktop_pet_history_message("char", text, voice_cache_key, chat_origin)
+	deepseek_client.mark_chat_response_adopted(text)
 		
 	var user_text = ""
 	if chat_history.size() >= 2:

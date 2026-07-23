@@ -1,7 +1,7 @@
 class_name ChatHistoryManager
 extends Resource
 
-const SafeFileAccess = preload("res://scripts/utils/safe_file_access.gd")
+const SafeFileAccessUtil = preload("res://scripts/utils/safe_file_access.gd")
 # 每个记录包含: type (String), speaker (String), text (String), time (String), voice_cache_key (String, 可选)
 # 额外可附带: module/subtype/topic/is_choice 等扩展字段
 # type 当前主要包含:
@@ -28,10 +28,12 @@ func add_message(speaker: String, text: String, voice_cache_key: String = "", ty
 		record.merge(extra_data, true)
 	messages.append(record)
 	save_history()
+	if GameDataManager.conversation_summary_manager:
+		GameDataManager.conversation_summary_manager.on_history_message_added(type)
 
 func save_history() -> bool:
 	var content = JSON.stringify(messages, "\t")
-	return SafeFileAccess.store_string(get_history_path(), content)
+	return SafeFileAccessUtil.store_string(get_history_path(), content)
 
 func load_history() -> void:
 	var path = get_history_path()
@@ -51,6 +53,8 @@ func load_history() -> void:
 func clear_history() -> void:
 	messages.clear()
 	save_history()
+	if GameDataManager.conversation_summary_manager:
+		GameDataManager.conversation_summary_manager.clear_all()
 
 func get_messages_by_type(type_filter: String) -> Array:
 	if type_filter == "all" or type_filter == "":

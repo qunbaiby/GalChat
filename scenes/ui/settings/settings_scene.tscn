@@ -639,6 +639,36 @@ text = "等待授权"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="CognitionStatusRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CognitionStatusTitle" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/CognitionStatusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.14, 0.13, 0.11, 1)
+theme_override_font_sizes/font_size = 16
+text = "认知后台"
+vertical_alignment = 1
+
+[node name="CognitionStatusLabel" type="Label" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/CognitionStatusRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.176471, 0.647059, 0.588235, 1)
+theme_override_font_sizes/font_size = 14
+text = "队列空闲"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="CognitionManageButton" type="Button" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox/CognitionStatusRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "管理"
+tooltip_text = "查看失败任务和滚动摘要"
+
 [node name="OfficialGatewayRow" type="HBoxContainer" parent="CenterContainer/PanelRoot/MainMargin/RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ScrollContainer/TabContainer/AI 设置/ScrollContainer/VBoxContainer/API 设置Panel/Margin/VBox/RowsVBox"]
 layout_mode = 2
 theme_override_constants/separation = 16

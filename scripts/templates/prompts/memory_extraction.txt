@@ -41,10 +41,12 @@
       "action": "ADD",
       "layer": "core",
       "content": "玩家名字叫小明",
+	  "supersedes_id": "",
       "memory_scope": "player_shared",
       "memory_visibility": "prompt",
       "memory_player_involved": true,
       "memory_player_witnessed": true,
+	  "emotion_tags": ["calm"],
       "is_bond_mark": false
     },
     {
@@ -64,6 +66,9 @@
 - action 只能是 ADD, UPDATE, DELETE。
 - layer 只能是 core, emotion, habit, bond。
 - ADD 默认必须使用 memory_scope="player_shared"。如果不能确认是玩家与{name}之间的长期记忆，不要 ADD。
+- 如果新信息明确替代或纠正同层某条现有记忆，使用 ADD 并填写 supersedes_id 为旧记忆 id；不要同时保留互相冲突的新旧事实。
+- 如果只是补充同一事实且可直接改写，优先使用 UPDATE；内容完全相同则不要输出操作。
 - is_bond_mark 仅在 bond 中用于真正重要、会被主动回忆的关系节点。
+- emotion_tags 仅用于 emotion、habit、bond，可从 broken、low、calm、pleasant、ecstatic 中选择最相关的 0-2 项；无法判断或 core 必须使用空数组。标签描述这条记忆适合在角色何种宏观心情下被优先联想到，不代表玩家当前情绪。
 - 对于 UPDATE 和 DELETE，必须提供正确的 id。
 - 不要输出任何解释。

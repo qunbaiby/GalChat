@@ -633,7 +633,12 @@ func _on_rp_send_pressed() -> void:
 		var fake_msg = {"speaker": "system", "text": sys_prompt_text}
 		chat_history.append(fake_msg)
 		
-		var messages = [{"role": "system", "content": GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", "", [])}]
+		var red_packet_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
+			char_profile,
+			"mobile_chat",
+			sys_prompt_text
+		)
+		var messages = [{"role": "system", "content": red_packet_prompt}]
 		var recent = chat_history.slice(-10)
 		for msg in recent:
 			var msg_speaker = msg.get("speaker", "")
@@ -826,7 +831,11 @@ func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
 		scenario = "【系统提示：玩家刚刚给你打了一个%s，你接通了。请你先开口说第一句话，不要发表情或动作，直接用自然口吻回应。结合你当前的性格、阶段和心情来回应。】" % call_type_str
 		
 	# 不保存这段 prompt 到历史记录，只是作为一次性的 system/user 引导
-	var system_prompt = GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", "", [])
+	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
+		char_profile,
+		"mobile_chat",
+		scenario
+	)
 	
 	var messages = [{"role": "system", "content": system_prompt}]
 	
@@ -845,7 +854,11 @@ func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
 func _request_ai_call_response(player_text: String) -> void:
 	if not deepseek_client: return
 	
-	var system_prompt = GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", player_text, [])
+	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
+		char_profile,
+		"mobile_chat",
+		player_text
+	)
 	
 	var messages = [{"role": "system", "content": system_prompt}]
 	
@@ -867,7 +880,11 @@ func _request_ai_response(player_text: String) -> void:
 	if player_text.begins_with("[img]") and player_text.ends_with("[/img]"):
 		processed_text = "【系统动作：玩家向你发送了一张刚刚拍摄的照片。】"
 		
-	var system_prompt = GameDataManager.prompt_manager.build_system_prompt(char_profile, "mobile_chat", processed_text, [])
+	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
+		char_profile,
+		"mobile_chat",
+		processed_text
+	)
 	
 	var messages = [{"role": "system", "content": system_prompt}]
 	
@@ -1209,6 +1226,8 @@ func _save_message_to_history(speaker: String, text: String, is_voice: bool = fa
 		"duration": duration,
 		"is_read": is_read
 	}
+	if speaker == "char":
+		new_msg.merge(deepseek_client.mark_chat_response_adopted(text), true)
 	_append_history_message(new_msg, false)
 
 func _append_history_message(msg: Dictionary, add_to_ui: bool = false) -> void:

@@ -84,12 +84,18 @@ var _chat_stream_sse_buffer: String = ""
 var _chat_stream_full_text: String = ""
 var _chat_stream_response_code: int = 0
 var _chat_stream_retry_count: int = 0
+var _active_chat_request_context: Dictionary = {}
+var _last_chat_request_context: Dictionary = {}
 var _structured_chat_request_id: int = 0
 var _structured_chat_requests: Dictionary = {}
 var _pending_memory_context: Dictionary = {}
 var _active_memory_context: Dictionary = {}
 var _pending_memory_manager_override = null
 var _active_memory_manager_override = null
+var _active_cognition_task_id: String = ""
+var _active_cognition_task_scope: Dictionary = {}
+var _active_cognition_task: Dictionary = {}
+var _cognition_retry_timer: SceneTreeTimer
 var _vision_request_context: Dictionary = {}
 var _vision_auth_retried: bool = false
 var _idle_quote_service = DeepSeekIdleQuoteService.new()
@@ -102,6 +108,9 @@ var _chat_stream_service = DeepSeekChatStreamService.new()
 func _ready() -> void:
 	_update_script()
 	_reinitialize_http_nodes()
+	if GameDataManager.cognition_task_queue and not GameDataManager.cognition_task_queue.task_enqueued.is_connected(_process_cognition_queue):
+		GameDataManager.cognition_task_queue.task_enqueued.connect(_process_cognition_queue)
+	call_deferred("_process_cognition_queue")
 
 func _update_script() -> void:
 	_migrate_removed_chat_model()
@@ -226,27 +235,36 @@ func _get_history_messages(limit: int = 10, is_chat: bool = true, history_type: 
 		api_messages.append({"role": role, "content": clean_text})
 	return api_messages
 
-func send_chat_message(user_message: String, history_type: String = "all") -> void:
+func send_chat_message(user_message: String, history_type: String = "all", prompt_access_context: Dictionary = {}) -> void:
 	_update_script()
-	send_chat_message_stream(user_message, history_type)
+	send_chat_message_stream(user_message, history_type, prompt_access_context)
 
-func send_chat_message_stream(user_message: String, history_type: String = "all") -> void:
+func send_chat_message_stream(user_message: String, history_type: String = "all", prompt_access_context: Dictionary = {}) -> void:
 	_update_script()
-	_chat_stream_service.start_chat_stream(self, user_message, history_type)
+	_chat_stream_service.start_chat_stream(self, user_message, history_type, prompt_access_context)
 	_send_emotion_analysis(user_message)
 
-func send_chat_message_structured(user_message: String, history_type: String = "all", request_context: Dictionary = {}) -> int:
+func send_chat_message_structured(user_message: String, history_type: String = "all", request_context: Dictionary = {}, prompt_access_context: Dictionary = {}) -> int:
 	_update_script()
 	_structured_chat_request_id += 1
 	var context := request_context.duplicate(true)
 	context["request_id"] = _structured_chat_request_id
-	var system_prompt: String = GameDataManager.prompt_manager.build_chat_prompt(GameDataManager.profile, user_message, [])
+	_prepare_structured_chat_request(user_message, history_type, context, prompt_access_context)
+	_send_emotion_analysis(user_message)
+	return _structured_chat_request_id
+
+func _prepare_structured_chat_request(user_message: String, history_type: String, context: Dictionary, prompt_access_context: Dictionary = {}) -> void:
+	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_chat_prompt(
+		GameDataManager.profile,
+		user_message,
+		null,
+		"story_chat" if history_type == "story_chat" else "main_chat",
+		prompt_access_context
+	)
 	var api_messages: Array = [{"role": "system", "content": system_prompt}]
 	api_messages.append_array(_get_history_messages(10, true, history_type))
 	api_messages.append({"role": "user", "content": user_message})
 	_start_structured_chat_request(api_messages, context)
-	_send_emotion_analysis(user_message)
-	return _structured_chat_request_id
 
 func _start_structured_chat_request(api_messages: Array, request_context: Dictionary) -> void:
 	if not is_inside_tree() or _is_api_key_empty():
@@ -417,6 +435,9 @@ func extract_memory_from_chat_with_manager(user_text: String, ai_reply: String, 
 	_update_script()
 	_memory_emotion_service.extract_memory_from_chat(self, user_text, ai_reply, memory_context, memory_manager_override)
 
+func _process_cognition_queue() -> void:
+	_memory_emotion_service.process_cognition_queue(self)
+
 
 func call_chat_api_non_stream(api_messages: Array, response_format: Dictionary = {}) -> void:
 	_update_script()
@@ -447,12 +468,26 @@ func call_chat_api_non_stream(api_messages: Array, response_format: Dictionary =
 func get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
 	return _get_history_messages(limit, is_chat, history_type)
 
-func start_chat_stream_with_messages(api_messages: Array) -> void:
+func start_chat_stream_with_messages(api_messages: Array, request_context: Dictionary = {}) -> void:
 	_update_script()
 	if not is_inside_tree() or _is_api_key_empty():
 		chat_request_failed.emit(_get_missing_credentials_message())
 		return
-	_chat_stream_service.start_chat_stream_with_messages(self, api_messages)
+	_chat_stream_service.start_chat_stream_with_messages(self, api_messages, request_context)
+
+func mark_chat_response_adopted(adopted_text: String, segment_index: int = 0) -> Dictionary:
+	var context := _last_chat_request_context.duplicate(true)
+	var trace_id := str(context.get("trace_id", ""))
+	if trace_id.is_empty() or adopted_text.strip_edges().is_empty() or GameDataManager.memory_retrieval_trace_service == null:
+		return {}
+	if not GameDataManager.memory_retrieval_trace_service.mark_response_adopted(trace_id, adopted_text, segment_index):
+		return {}
+	return {
+		"ai_request_id": str(context.get("request_id", "")),
+		"memory_trace_id": trace_id,
+		"response_segment_index": segment_index,
+		"response_adopted": true
+	}
 
 func _process(_delta: float) -> void:
 	_chat_stream_service.process_chat_stream(self)
@@ -467,10 +502,10 @@ func get_chat_stream_full_text() -> String:
 	return _chat_stream_service.get_chat_stream_full_text(self)
 
 func stop_chat_stream() -> void:
-	_stop_chat_stream()
+	_chat_stream_service.cancel_chat_stream(self)
 
 func cancel_chat_request() -> void:
-	_stop_chat_stream()
+	_chat_stream_service.cancel_chat_stream(self)
 	if chat_http and chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		chat_http.cancel_request()
 

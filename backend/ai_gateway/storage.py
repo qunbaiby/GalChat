@@ -31,7 +31,7 @@ class ClosingConnection(sqlite3.Connection):
 
 
 class GatewayStorage:
-    SCHEMA_VERSION = 3
+    SCHEMA_VERSION = 4
 
     def __init__(self, database_path: str, refresh_days: int) -> None:
         self.database_path = database_path
@@ -163,6 +163,11 @@ class GatewayStorage:
                     daily_limit INTEGER NOT NULL,
                     updated_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS ark_provider_config (
+                    config_id INTEGER PRIMARY KEY CHECK (config_id = 1),
+                    encrypted_api_key TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS schema_metadata (
                     metadata_key TEXT PRIMARY KEY,
                     metadata_value TEXT NOT NULL,
@@ -184,6 +189,14 @@ class GatewayStorage:
             for column_name in ("input_tokens", "output_tokens", "total_tokens"):
                 if column_name not in usage_event_columns:
                     connection.execute(f"ALTER TABLE usage_events ADD COLUMN {column_name} INTEGER")
+            usage_metadata_migrations = {
+                "generated_images": "INTEGER",
+                "audio_characters": "INTEGER",
+                "provider_request_id": "TEXT",
+            }
+            for column_name, definition in usage_metadata_migrations.items():
+                if column_name not in usage_event_columns:
+                    connection.execute(f"ALTER TABLE usage_events ADD COLUMN {column_name} {definition}")
             provider_columns = {
                 row["name"] for row in connection.execute("PRAGMA table_info(provider_config)").fetchall()
             }

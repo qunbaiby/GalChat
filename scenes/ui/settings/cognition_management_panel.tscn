@@ -1,0 +1,316 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/settings/cognition_management_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.975, 0.985, 0.985, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.71, 0.71, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.04, 0.09, 0.1, 0.22)
+shadow_size = 18
+
+[node name="CognitionManagementPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.055, 0.06, 0.54)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(860, 620)
+layout_mode = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 22
+
+[node name="RootVBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Center/Panel/Margin/RootVBox"]
+layout_mode = 2
+
+[node name="TitleVBox" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/RootVBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13, 0.24, 0.25, 1)
+theme_override_font_sizes/font_size = 23
+text = "认知管理"
+
+[node name="StatusLabel" type="Label" parent="Center/Panel/Margin/RootVBox/Header/TitleVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.47, 0.49, 1)
+theme_override_font_sizes/font_size = 13
+text = "队列空闲"
+
+[node name="CloseButton" type="Button" parent="Center/Panel/Margin/RootVBox/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+text = "×"
+tooltip_text = "关闭"
+
+[node name="Tabs" type="TabContainer" parent="Center/Panel/Margin/RootVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="失败任务" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Toolbar" type="HBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs/失败任务"]
+layout_mode = 2
+
+[node name="FailedHint" type="Label" parent="Center/Panel/Margin/RootVBox/Tabs/失败任务/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.38, 0.47, 0.49, 1)
+theme_override_font_sizes/font_size = 13
+text = "终态任务不会自动执行，可重试或丢弃。"
+
+[node name="ClearFailedButton" type="Button" parent="Center/Panel/Margin/RootVBox/Tabs/失败任务/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 34)
+layout_mode = 2
+text = "清理全部"
+
+[node name="FailedScroll" type="ScrollContainer" parent="Center/Panel/Margin/RootVBox/Tabs/失败任务"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="FailedTaskList" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs/失败任务/FailedScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="FailedEmptyLabel" type="Label" parent="Center/Panel/Margin/RootVBox/Tabs/失败任务"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.38, 0.47, 0.49, 1)
+theme_override_font_sizes/font_size = 15
+text = "没有失败任务"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="滚动摘要" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SummaryToolbar" type="HBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs/滚动摘要"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ChannelOption" type="OptionButton" parent="Center/Panel/Margin/RootVBox/Tabs/滚动摘要/SummaryToolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 3
+popup/item_0/text = "主对话"
+popup/item_0/id = 0
+popup/item_1/text = "故事对话"
+popup/item_1/id = 1
+popup/item_2/text = "桌宠对话"
+popup/item_2/id = 2
+
+[node name="RebuildSummaryButton" type="Button" parent="Center/Panel/Margin/RootVBox/Tabs/滚动摘要/SummaryToolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+text = "重新生成"
+tooltip_text = "清除当前摘要并从历史对话重新生成"
+
+[node name="SummaryMetaLabel" type="Label" parent="Center/Panel/Margin/RootVBox/Tabs/滚动摘要"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.47, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "尚未生成摘要"
+
+[node name="SummaryText" type="RichTextLabel" parent="Center/Panel/Margin/RootVBox/Tabs/滚动摘要"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.17, 0.24, 0.25, 1)
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = "当前通道尚未生成滚动摘要。"
+fit_content = false
+scroll_active = true
+
+[node name="检索追踪" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TraceToolbar" type="HBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs/检索追踪"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TraceSummaryLabel" type="Label" parent="Center/Panel/Margin/RootVBox/Tabs/检索追踪/TraceToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.47, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "尚无检索记录"
+
+[node name="ClearTracesButton" type="Button" parent="Center/Panel/Margin/RootVBox/Tabs/检索追踪/TraceToolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+text = "清空记录"
+
+[node name="TraceText" type="RichTextLabel" parent="Center/Panel/Margin/RootVBox/Tabs/检索追踪"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.17, 0.24, 0.25, 1)
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+text = "进行一次对话后，这里会显示记忆检索与预算明细。"
+fit_content = false
+scroll_active = true
+
+[node name="治理质量" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GovernanceSummaryLabel" type="Label" parent="Center/Panel/Margin/RootVBox/Tabs/治理质量"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.47, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "尚无治理质量报告"
+
+[node name="GovernanceText" type="RichTextLabel" parent="Center/Panel/Margin/RootVBox/Tabs/治理质量"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.17, 0.24, 0.25, 1)
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+text = "这里会显示候选容量、情绪标签质量和调制影响。"
+fit_content = false
+scroll_active = true
+
+[node name="即时状态" type="VBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="InputRow" type="HBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlayerEmotionOption" type="OptionButton" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态/InputRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+item_count = 5
+popup/item_0/text = "崩溃"
+popup/item_0/id = 0
+popup/item_1/text = "低落"
+popup/item_1/id = 1
+popup/item_2/text = "平静"
+popup/item_2/id = 2
+popup/item_3/text = "愉快"
+popup/item_3/id = 3
+popup/item_4/text = "高兴奋"
+popup/item_4/id = 4
+
+[node name="ConfidenceSpinBox" type="SpinBox" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态/InputRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+min_value = 70.0
+max_value = 100.0
+step = 5.0
+value = 100.0
+suffix = "% 置信度"
+
+[node name="DurationSpinBox" type="SpinBox" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态/InputRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+min_value = 15.0
+max_value = 720.0
+step = 15.0
+value = 120.0
+suffix = " 分钟"
+
+[node name="ApplyPlayerEmotionButton" type="Button" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态/InputRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+text = "应用状态"
+tooltip_text = "保存玩家主动选择的即时情绪状态"
+
+[node name="StateToolbar" type="HBoxContainer" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlayerEmotionSummaryLabel" type="Label" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态/StateToolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.47, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "没有玩家显式情绪状态"
+
+[node name="ClearPlayerEmotionButton" type="Button" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态/StateToolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+text = "清除状态"
+tooltip_text = "清除玩家主动提供的即时情绪状态"
+
+[node name="PlayerEmotionText" type="RichTextLabel" parent="Center/Panel/Margin/RootVBox/Tabs/即时状态"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.17, 0.24, 0.25, 1)
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+text = "只有玩家显式提供、置信度达标且未过期的状态才会影响记忆排序。"
+fit_content = false
+scroll_active = true

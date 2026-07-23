@@ -13,7 +13,11 @@ $OutputEncoding = $utf8
 
 $godot = "d:\godot\Godot_v4.6.3-stable_mono_win64_console.exe"
 $projectPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$output = & $godot --path $projectPath --headless --language en --script $Script 2>&1
+if ($Script.EndsWith(".tscn", [System.StringComparison]::OrdinalIgnoreCase)) {
+	$output = & $godot --path $projectPath --headless --language en --scene $Script 2>&1
+} else {
+	$output = & $godot --path $projectPath --headless --language en --script $Script 2>&1
+}
 $exitCode = $LASTEXITCODE
 $textOutput = $output | ForEach-Object { $_.ToString() }
 $storyErrors = $textOutput | Where-Object {
