@@ -1204,6 +1204,69 @@ func enqueue_memory_edit(layer: String, id: String, new_content: String, revisio
 		"revision_source": revision_source.duplicate(true)
 	}, get_memory_domain())
 
+func enqueue_memory_embedding(layer: String, id: String) -> String:
+	if GameDataManager.cognition_task_queue == null or GameDataManager.config == null or not GameDataManager.config.embedding_enabled:
+		return ""
+	if not memories.has(layer):
+		return ""
+	for memory in memories[layer]:
+		if str(memory.get("id", "")) != id or str(memory.get("status", MEMORY_STATUS_ACTIVE)) != MEMORY_STATUS_ACTIVE:
+			continue
+		var content := str(memory.get("content", "")).strip_edges()
+		if content.is_empty():
+			return ""
+		var embedding_model := _get_current_embedding_model()
+		memory["embedding_status"] = "pending"
+		memory["embedding_model"] = embedding_model
+		memory["embedding_dimension"] = 0
+		memory["embedding"] = []
+		if not save_memory():
+			return ""
+		return GameDataManager.cognition_task_queue.enqueue("memory_embedding", {
+			"layer": layer,
+			"memory_id": id,
+			"content": content,
+			"content_hash": content.sha256_text(),
+			"embedding_model": embedding_model
+		}, get_memory_domain())
+	return ""
+
+func queue_pending_memory_embeddings() -> Array[String]:
+	var task_ids: Array[String] = []
+	if GameDataManager.config == null or not GameDataManager.config.embedding_enabled:
+		return task_ids
+	var embedding_model := _get_current_embedding_model()
+	for layer in memories.keys():
+		for memory in memories[layer]:
+			if str(memory.get("status", MEMORY_STATUS_ACTIVE)) != MEMORY_STATUS_ACTIVE:
+				continue
+			var status := str(memory.get("embedding_status", "missing"))
+			var model_mismatch := str(memory.get("embedding_model", "")) != embedding_model
+			if status == "ready" and not model_mismatch and not Array(memory.get("embedding", [])).is_empty():
+				continue
+			if model_mismatch and status == "ready":
+				memory["embedding_status"] = "stale"
+			var task_id := enqueue_memory_embedding(str(layer), str(memory.get("id", "")))
+			if not task_id.is_empty():
+				task_ids.append(task_id)
+	return task_ids
+
+func get_memory_embedding_task_state(payload: Dictionary) -> Dictionary:
+	var layer := str(payload.get("layer", ""))
+	var memory_id := str(payload.get("memory_id", ""))
+	if not memories.has(layer):
+		return {"obsolete": true}
+	for memory in memories[layer]:
+		if str(memory.get("id", "")) != memory_id:
+			continue
+		var content := str(memory.get("content", "")).strip_edges()
+		var obsolete := str(memory.get("status", MEMORY_STATUS_ACTIVE)) != MEMORY_STATUS_ACTIVE \
+			or content.is_empty() \
+			or content.sha256_text() != str(payload.get("content_hash", "")) \
+			or _get_current_embedding_model() != str(payload.get("embedding_model", ""))
+		return {"obsolete": obsolete, "content": content}
+	return {"obsolete": true}
+
 func confirm_memory(layer: String, id: String, source_options: Dictionary = {}) -> bool:
 	if not memories.has(layer):
 		return false
@@ -1402,6 +1465,10 @@ func add_turn() -> bool:
 	save_memory()
 	# 将原本的10回合触发一次，改为每3回合触发一次，或者根据需要调整为更频繁
 	return turns_since_last_extract % 3 == 0
+
+func rollback_last_observed_turn() -> void:
+	turns_since_last_extract = maxi(0, turns_since_last_extract - 1)
+	save_memory()
 
 func reset_turn_counter() -> void:
 	turns_since_last_extract = 0

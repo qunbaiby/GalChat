@@ -11,10 +11,11 @@ const MAX_ATTEMPTS := 5
 const LEASE_SECONDS := 120
 const BASE_RETRY_SECONDS := 15
 const MAX_RETRY_SECONDS := 900
-const LOCAL_TASK_TYPES := ["memory_edit"]
+const LOCAL_TASK_TYPES := ["memory_edit", "memory_embedding"]
 const MAX_QUEUE_SIZE := 200
 const TASK_PRIORITIES := {
 	"memory_edit": 100,
+	"memory_embedding": 90,
 	"conversation_summary": 80,
 	"habit_cluster_summary": 70,
 	"history": 40,
@@ -231,6 +232,15 @@ func _build_dedupe_key(task_type: String, payload: Dictionary, memory_domain: St
 	match task_type:
 		"memory_edit":
 			return "%s|%s|%s|%s" % [task_type, memory_domain, str(payload.get("layer", "")), str(payload.get("memory_id", ""))]
+		"memory_embedding":
+			return "%s|%s|%s|%s|%s|%s" % [
+				task_type,
+				memory_domain,
+				str(payload.get("layer", "")),
+				str(payload.get("memory_id", "")),
+				str(payload.get("content_hash", "")),
+				str(payload.get("embedding_model", ""))
+			]
 		"conversation_summary":
 			return "%s|%s" % [task_type, str(payload.get("channel", ""))]
 		"habit_cluster_summary":

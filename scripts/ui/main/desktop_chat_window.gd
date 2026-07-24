@@ -18,6 +18,7 @@ var _screen_index := 0
 var _request_in_flight := false
 var _is_recording := false
 var _response_buffer := ""
+var _active_player_text := ""
 
 func _ready() -> void:
 	borderless = true
@@ -80,6 +81,7 @@ func _submit_chat(raw_text: String) -> void:
 	send_button.disabled = true
 	voice_record_button.disabled = true
 	status_label.text = "Luna 正在回复..."
+	_active_player_text = text
 	_append_history("玩家", text)
 	var prompt_result: Dictionary = await _build_messages(text)
 	deepseek_client.start_chat_stream_with_messages(prompt_result.get("messages", []), prompt_result.get("request_context", {}))
@@ -134,6 +136,8 @@ func _on_chat_completed(response: Dictionary) -> void:
 		reply = "我在听。"
 	_append_history("char", reply)
 	deepseek_client.mark_chat_response_adopted(reply)
+	if GameDataManager.memory_observation_service:
+		GameDataManager.memory_observation_service.observe_completed_turn("desktop_chat", _active_player_text, reply)
 	_finish_request()
 	reply_completed.emit(reply)
 
@@ -143,6 +147,7 @@ func _on_chat_failed(error_message: String) -> void:
 	push_warning("桌面壁纸聊天失败: %s" % error_message)
 
 func _finish_request() -> void:
+	_active_player_text = ""
 	_request_in_flight = false
 	input.editable = true
 	send_button.disabled = false

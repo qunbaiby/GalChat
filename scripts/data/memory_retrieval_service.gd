@@ -78,6 +78,25 @@ func request_memory_embedding(memory_manager, layer: String, memory_id: String, 
 	if GameDataManager.config == null or not GameDataManager.config.embedding_enabled:
 		memory_manager.set_memory_embedding_state(layer, memory_id, [], "disabled")
 		return
+	if memory_manager.has_method("enqueue_memory_embedding"):
+		memory_manager.enqueue_memory_embedding(layer, memory_id)
+
+
+func process_memory_embedding_task(memory_manager, payload: Dictionary) -> Dictionary:
+	if memory_manager == null or not memory_manager.has_method("get_memory_embedding_task_state"):
+		return {"completed": false, "error": "目标记忆管理器不可用"}
+	var task_state: Dictionary = memory_manager.get_memory_embedding_task_state(payload)
+	if bool(task_state.get("obsolete", false)):
+		return {"completed": true, "obsolete": true}
+	var content := str(task_state.get("content", ""))
 	var embedding: Array = await DoubaoEmbeddingClient.get_embedding(content)
-	var status := "ready" if not embedding.is_empty() else "failed"
-	memory_manager.set_memory_embedding_state(layer, memory_id, embedding, status)
+	if embedding.is_empty():
+		memory_manager.set_memory_embedding_state(str(payload.get("layer", "")), str(payload.get("memory_id", "")), [], "failed")
+		return {"completed": false, "error": "Embedding 请求未返回有效向量"}
+	var saved: bool = memory_manager.set_memory_embedding_state(
+		str(payload.get("layer", "")),
+		str(payload.get("memory_id", "")),
+		embedding,
+		"ready"
+	)
+	return {"completed": saved, "error": "Embedding 结果保存失败" if not saved else ""}

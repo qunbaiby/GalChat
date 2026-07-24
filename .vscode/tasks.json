@@ -560,11 +560,13 @@
 				"Smoke Test Story Branch Runtime",
 				"Smoke Test Guided AI Chat",
 				"Smoke Test Cognition Task Queue",
+				"Smoke Test Memory Observation",
 				"Smoke Test Conversation Summary Conflict",
 				"Smoke Test Cognition Management Panel",
 				"Smoke Test Memory Governance Detail",
 				"Smoke Test Memory Retrieval",
 				"Smoke Test Memory Retrieval Trace",
+				"Smoke Test Real Anonymized Memory Quality",
 				"Smoke Test Player Emotion State",
 				"Smoke Test Story Branch Simulator",
 				"Smoke Test Date AI Workbench",
@@ -584,6 +586,59 @@
 				"kind": "test",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "Smoke Test Memory Observation",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/memory_observation_smoke.tscn",
+				"-SuccessMarker",
+				"MEMORY_OBSERVATION_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Real Anonymized Memory Quality",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/real_anonymized_memory_quality_smoke.tscn",
+				"-SuccessMarker",
+				"REAL_ANONYMIZED_MEMORY_QUALITY_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Validate Real Anonymized Memory Baseline",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\tools\\story_editor\\validate_real_memory_baseline.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
 		}
 	]
 }

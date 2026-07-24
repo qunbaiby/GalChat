@@ -66,6 +66,32 @@ func _run() -> void:
 	_expect(str(local_task.get("id", "")) == edit_id, "本地记忆编辑任务没有被本地领取通道领取。")
 	_expect(str(local_task.get("state", "")) == "processing", "本地任务领取后没有进入处理状态。")
 	_expect(restored.complete(edit_id), "本地任务完成后没有移除。")
+	var first_embedding_id := restored.enqueue("memory_embedding", {
+		"layer": "habit",
+		"memory_id": "memory-vector",
+		"content": "喜欢温热饮品",
+		"content_hash": "hash-1",
+		"embedding_model": "embedding-v1"
+	}, MemoryManager.MEMORY_DOMAIN_PLAYER)
+	var duplicate_embedding_id := restored.enqueue("memory_embedding", {
+		"layer": "habit",
+		"memory_id": "memory-vector",
+		"content": "喜欢温热饮品",
+		"content_hash": "hash-1",
+		"embedding_model": "embedding-v1"
+	}, MemoryManager.MEMORY_DOMAIN_PLAYER)
+	var changed_embedding_id := restored.enqueue("memory_embedding", {
+		"layer": "habit",
+		"memory_id": "memory-vector",
+		"content": "现在喜欢常温饮品",
+		"content_hash": "hash-2",
+		"embedding_model": "embedding-v1"
+	}, MemoryManager.MEMORY_DOMAIN_PLAYER)
+	_expect(first_embedding_id == duplicate_embedding_id and changed_embedding_id != first_embedding_id, "记忆向量任务没有按内容与模型快照去重。")
+	var embedding_task: Dictionary = restored.claim_next_local()
+	_expect(str(embedding_task.get("id", "")) == first_embedding_id, "记忆向量任务没有进入本地持久处理通道。")
+	restored.complete(first_embedding_id)
+	restored.complete(changed_embedding_id)
 
 	restored.tasks = []
 	var exchange_id := restored.enqueue("exchange", {"user_text": "普通", "ai_reply": "回复"}, MemoryManager.MEMORY_DOMAIN_PLAYER)

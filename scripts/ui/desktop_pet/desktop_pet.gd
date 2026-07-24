@@ -2765,9 +2765,8 @@ func _on_chat_completed(response: Dictionary) -> void:
 			user_text = last_msg["content"]
 	_current_chat_origin = CHAT_ORIGIN_SYSTEM
 			
-	if user_text != "" and GameDataManager.desktop_pet_memory_manager and GameDataManager.desktop_pet_memory_manager.add_turn():
-		var memory_context := GameDataManager.desktop_pet_memory_manager.build_reality_memory_context()
-		deepseek_client.extract_memory_from_chat_with_manager(user_text, text, memory_context, GameDataManager.desktop_pet_memory_manager)
+	if user_text != "" and GameDataManager.memory_observation_service:
+		GameDataManager.memory_observation_service.observe_completed_turn("desktop_pet", user_text, text)
 	if chat_origin == CHAT_ORIGIN_PLAYER or chat_origin == CHAT_ORIGIN_TOUCH:
 		_request_desktop_pet_post_chat_updates(text)
 		

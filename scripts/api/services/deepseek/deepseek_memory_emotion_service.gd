@@ -139,19 +139,30 @@ func _process_local_cognition_task(client, task: Dictionary) -> void:
 	var target_memory_manager = GameDataManager.cognition_task_queue.resolve_memory_manager(str(task.get("memory_domain", "")))
 	var payload: Dictionary = task.get("payload", {})
 	var succeeded := false
-	if str(task.get("type", "")) == "memory_edit" and target_memory_manager and target_memory_manager.has_method("update_memory_queued"):
+	var task_type := str(task.get("type", ""))
+	if task_type == "memory_edit" and target_memory_manager and target_memory_manager.has_method("update_memory_queued"):
 		succeeded = target_memory_manager.update_memory_queued(
 			str(payload.get("layer", "")),
 			str(payload.get("memory_id", "")),
 			str(payload.get("content", "")),
 			payload.get("revision_source", {}) if payload.get("revision_source", {}) is Dictionary else {}
 		)
+	elif task_type == "memory_embedding" and GameDataManager.memory_retrieval_service:
+		var result: Dictionary = await GameDataManager.memory_retrieval_service.process_memory_embedding_task(target_memory_manager, payload)
+		succeeded = bool(result.get("completed", false))
+		if not succeeded:
+			_fail_active_task(client, str(result.get("error", "记忆向量任务失败")))
+			return
 	if succeeded:
 		GameDataManager.cognition_task_queue.complete(client._active_cognition_task_id)
-		client.memory_request_completed.emit({"memory_edited": true, "memory_id": str(payload.get("memory_id", ""))})
+		client.memory_request_completed.emit({
+			"memory_edited": task_type == "memory_edit",
+			"memory_embedded": task_type == "memory_embedding",
+			"memory_id": str(payload.get("memory_id", ""))
+		})
 		_finish_active_task(client)
 		return
-	_fail_active_task(client, "本地记忆编辑失败")
+	_fail_active_task(client, "本地认知任务失败")
 
 func _send_cognition_task(client, task: Dictionary) -> int:
 	if str(task.get("type", "")) == "conversation_summary":

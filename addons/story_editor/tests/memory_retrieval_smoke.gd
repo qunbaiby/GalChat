@@ -19,6 +19,30 @@ func _run() -> void:
 	var manager := MemoryManager.new()
 	manager.memory_file_path_override = "user://memory_retrieval_governance_smoke_%d.json" % Time.get_ticks_usec()
 	manager.memories = _build_test_memories()
+	var original_queue = GameDataManager.cognition_task_queue
+	var embedding_queue := CognitionTaskQueueScript.new()
+	embedding_queue.save_path_override = "user://memory_embedding_queue_smoke_%d.json" % Time.get_ticks_usec()
+	GameDataManager.cognition_task_queue = embedding_queue
+	GameDataManager.config.embedding_enabled = true
+	var stale_memory := _memory("需要重建向量", MemoryManager.MEMORY_VISIBILITY_PROMPT)
+	stale_memory["embedding"] = [1.0, 0.0]
+	stale_memory["embedding_status"] = "ready"
+	stale_memory["embedding_model"] = "obsolete-model"
+	manager.memories = {"core": [], "emotion": [], "habit": [stale_memory], "bond": []}
+	var queued_embeddings := manager.queue_pending_memory_embeddings()
+	var duplicate_embeddings := manager.queue_pending_memory_embeddings()
+	_expect(queued_embeddings.size() == 1 and duplicate_embeddings.size() == 1 and queued_embeddings[0] == duplicate_embeddings[0], "模型失配记忆没有生成幂等的重建任务。")
+	var embedding_task: Dictionary = embedding_queue.get_task(queued_embeddings[0])
+	_expect(str(stale_memory.get("embedding_status", "")) == "pending" and stale_memory.get("embedding", []).is_empty(), "模型失配记忆没有清除旧向量并进入 pending。")
+	_expect(not bool(manager.get_memory_embedding_task_state(embedding_task.get("payload", {})).get("obsolete", true)), "有效 embedding 任务被错误判为过期。")
+	stale_memory["content"] = "内容已经变化"
+	_expect(bool(manager.get_memory_embedding_task_state(embedding_task.get("payload", {})).get("obsolete", false)), "内容变化后旧 embedding 任务仍可写回。")
+	GameDataManager.cognition_task_queue = original_queue
+	GameDataManager.config.embedding_enabled = false
+	if FileAccess.file_exists(embedding_queue.save_path_override):
+		DirAccess.remove_absolute(embedding_queue.save_path_override)
+	embedding_queue.queue_free()
+	manager.memories = _build_test_memories()
 	var fallback_prompt := manager.get_memory_prompt([])
 	var fallback_result := manager.get_last_memory_prompt_result()
 	var mismatched_prompt := manager.get_memory_prompt([1.0, 0.0])

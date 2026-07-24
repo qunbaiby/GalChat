@@ -1,0 +1,18 @@
+{
+	"schema_version": 1,
+	"dataset_kind": "real_anonymized_memory_retrieval",
+	"provenance": {
+		"source": "consented_local_sessions",
+		"user_reviewed": false,
+		"anonymization_status": "pending"
+	},
+	"embedding_model": "",
+	"embedding_dimension": 0,
+	"memories": {
+		"core": [],
+		"emotion": [],
+		"habit": [],
+		"bond": []
+	},
+	"cases": []
+}

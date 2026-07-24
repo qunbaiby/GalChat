@@ -2039,15 +2039,14 @@ func _on_chat_response(response: Dictionary) -> void:
 			var ai_reply = deepseek_client.get_chat_stream_full_text()
 			deepseek_client.send_options_generation(ai_reply, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
 			
-			# 触发记忆提取
+			# 提交完整回合记忆观察
 			var messages = GameDataManager.history.get_messages_by_type("story_chat").filter(func(message: Dictionary) -> bool:
 				return str(message.get("subtype", "")) == conversation_subtype
 			)
 			if messages.size() > 0:
 				var last_msg = messages[messages.size() - 1]
-				if last_msg["speaker"] == "我" and GameDataManager.memory_manager.add_turn():
-					deepseek_client.set_next_memory_context(GameDataManager.memory_manager.build_story_memory_context())
-					deepseek_client.extract_memory_from_chat(last_msg["text"], ai_reply)
+				if last_msg["speaker"] == "我" and GameDataManager.memory_observation_service:
+					GameDataManager.memory_observation_service.observe_completed_turn("story_chat", str(last_msg["text"]), ai_reply)
 					
 		return
 		
@@ -2069,15 +2068,14 @@ func _on_chat_response(response: Dictionary) -> void:
 		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit and not _guided_ai_close_after_reply:
 			deepseek_client.send_options_generation(reply, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
 			
-			# 触发记忆提取
+			# 提交完整回合记忆观察
 			var messages = GameDataManager.history.get_messages_by_type("story_chat").filter(func(message: Dictionary) -> bool:
 				return str(message.get("subtype", "")) == conversation_subtype
 			)
 			if messages.size() > 0:
 				var last_msg = messages[messages.size() - 1]
-				if last_msg["speaker"] == "我" and GameDataManager.memory_manager.add_turn():
-					deepseek_client.set_next_memory_context(GameDataManager.memory_manager.build_story_memory_context())
-					deepseek_client.extract_memory_from_chat(last_msg["text"], reply)
+				if last_msg["speaker"] == "我" and GameDataManager.memory_observation_service:
+					GameDataManager.memory_observation_service.observe_completed_turn("story_chat", str(last_msg["text"]), str(reply))
 			
 		# 拦截 reply 进行预处理，提取纯净的消息序列
 		var lines = _parse_reply_to_lines(reply)

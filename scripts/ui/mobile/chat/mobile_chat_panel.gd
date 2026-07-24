@@ -51,6 +51,7 @@ var _current_call_is_incoming: bool = false
 var _current_viewing_image_path: String = ""
 var _follow_up_serial: int = 0
 var _last_player_mobile_text: String = ""
+var _pending_memory_observation_text: String = ""
 var ui_context: Node = null
 var call_window_host: Node = null
 var is_embedded_mode: bool = false
@@ -662,6 +663,7 @@ func _on_rp_send_pressed() -> void:
 		
 		input_edit.editable = false
 		send_btn.disabled = true
+		_pending_memory_observation_text = ""
 		deepseek_client.call_chat_api_non_stream(messages)
 
 func _on_image_btn_pressed() -> void:
@@ -822,6 +824,7 @@ func _send_player_message(text: String) -> void:
 
 func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
 	if not deepseek_client: return
+	_pending_memory_observation_text = ""
 	
 	var call_type_str = "视频通话" if is_video else "语音通话"
 	var scenario = ""
@@ -853,6 +856,7 @@ func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
 
 func _request_ai_call_response(player_text: String) -> void:
 	if not deepseek_client: return
+	_pending_memory_observation_text = ""
 	
 	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
 		char_profile,
@@ -875,6 +879,7 @@ func _request_ai_call_response(player_text: String) -> void:
 
 func _request_ai_response(player_text: String) -> void:
 	if not deepseek_client: return
+	_pending_memory_observation_text = player_text.strip_edges()
 	
 	var processed_text = player_text
 	if player_text.begins_with("[img]") and player_text.ends_with("[/img]"):
@@ -977,6 +982,10 @@ func _on_ai_response(response: Dictionary) -> void:
 					if visible:
 						_add_message_bubble("char", clean_part, is_voice, duration)
 					_save_message_to_history("char", clean_part, is_voice, duration, visible)
+			var observed_player_text := _pending_memory_observation_text
+			_pending_memory_observation_text = ""
+			if GameDataManager.memory_observation_service and not observed_player_text.is_empty():
+				GameDataManager.memory_observation_service.observe_completed_turn("mobile_chat", observed_player_text, clean_content)
 			_schedule_follow_up_message(_last_player_mobile_text, clean_content)
 					
 			# Scroll to bottom
@@ -993,6 +1002,7 @@ func _on_ai_response(response: Dictionary) -> void:
 		_save_mobile_history()
 
 func _on_ai_error(err_msg: String) -> void:
+	_pending_memory_observation_text = ""
 	input_edit.editable = true
 	send_btn.disabled = false
 	

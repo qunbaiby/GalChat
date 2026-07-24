@@ -27,3 +27,6 @@ __pycache__/
 !.env.example
 backend/ai_gateway/data/
 backend/ai_gateway/*.db*
+
+# User-reviewed real memory quality baselines must remain local and private
+private_quality_baselines/

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://tools/story_editor/validate_real_memory_baseline.gd" type="Script" id="1"]
+
+[node name="ValidateRealMemoryBaseline" type="Node"]
+script = ExtResource("1")

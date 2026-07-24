@@ -17,6 +17,7 @@ var story_memory_manager: MemoryManager
 var memory_retrieval_service: Node
 var memory_retrieval_trace_service
 var cognition_task_queue
+var memory_observation_service
 var conversation_summary_manager
 var player_emotion_state_manager
 var personality_system: Node
@@ -95,6 +96,10 @@ func _ready() -> void:
 	cognition_task_queue.name = "CognitionTaskQueue"
 	add_child(cognition_task_queue)
 
+	memory_observation_service = preload("res://scripts/data/memory_observation_service.gd").new()
+	memory_observation_service.name = "MemoryObservationService"
+	add_child(memory_observation_service)
+
 	conversation_summary_manager = preload("res://scripts/data/conversation_summary_manager.gd").new()
 	conversation_summary_manager.name = "ConversationSummaryManager"
 	add_child(conversation_summary_manager)
@@ -157,6 +162,9 @@ func _ready() -> void:
 	memory_manager.load_memory()
 	desktop_pet_memory_manager.load_memory()
 	story_memory_manager.load_memory()
+	memory_manager.queue_pending_memory_embeddings()
+	desktop_pet_memory_manager.queue_pending_memory_embeddings()
+	story_memory_manager.queue_pending_memory_embeddings()
 	memory_manager.queue_habit_cluster_summary_tasks()
 	
 	npc_relationship_manager = preload("res://scripts/data/npc_relationship_manager.gd").new()
@@ -418,6 +426,12 @@ func reload_active_archive_data() -> void:
 	if cognition_task_queue:
 		cognition_task_queue.load_queue()
 	if memory_manager:
+		memory_manager.queue_pending_memory_embeddings()
+	if desktop_pet_memory_manager:
+		desktop_pet_memory_manager.queue_pending_memory_embeddings()
+	if story_memory_manager:
+		story_memory_manager.queue_pending_memory_embeddings()
+	if memory_manager:
 		memory_manager.queue_habit_cluster_summary_tasks()
 	if conversation_summary_manager:
 		conversation_summary_manager.load_summaries()
@@ -521,6 +535,12 @@ func switch_character(char_id: String) -> void:
 		story_memory_manager.load_memory()
 	if cognition_task_queue:
 		cognition_task_queue.load_queue()
+	if memory_manager:
+		memory_manager.queue_pending_memory_embeddings()
+	if desktop_pet_memory_manager:
+		desktop_pet_memory_manager.queue_pending_memory_embeddings()
+	if story_memory_manager:
+		story_memory_manager.queue_pending_memory_embeddings()
 	if memory_manager:
 		memory_manager.queue_habit_cluster_summary_tasks()
 	if conversation_summary_manager:

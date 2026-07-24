@@ -368,6 +368,7 @@ func _format_task_type(task_type: String) -> String:
 	match task_type:
 		"conversation_summary": return "滚动摘要"
 		"habit_cluster_summary": return "习惯摘要提案"
+		"memory_embedding": return "记忆向量化"
 		"memory_edit": return "记忆编辑"
 		"history": return "历史记忆提取"
 		_: return "对话记忆提取"

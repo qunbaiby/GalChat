@@ -372,6 +372,8 @@ func _create_voice_type_input(char_id: String, config, tag: String = "") -> void
 
 func _save_ui_data() -> void:
 	var config = GameDataManager.config
+	var previous_embedding_enabled := bool(config.embedding_enabled)
+	var previous_embedding_model := str(config.doubao_embedding_model).strip_edges()
 	config.ai_service_mode = ConfigResource.AI_SERVICE_OFFICIAL if ai_service_mode_option.selected == 0 else ConfigResource.AI_SERVICE_PERSONAL
 	var gateway_url: String = official_gateway_input.text.strip_edges().trim_suffix("/")
 	config.official_ai_gateway_url = gateway_url if not gateway_url.is_empty() else ConfigResource.DEFAULT_OFFICIAL_AI_GATEWAY
@@ -428,6 +430,12 @@ func _save_ui_data() -> void:
 	
 	config.save_config()
 	config.apply_runtime_settings()
+	var embedding_configuration_changed := previous_embedding_enabled != bool(config.embedding_enabled) \
+		or previous_embedding_model != str(config.doubao_embedding_model).strip_edges()
+	if embedding_configuration_changed and config.embedding_enabled:
+		for memory_manager in [GameDataManager.memory_manager, GameDataManager.desktop_pet_memory_manager, GameDataManager.story_memory_manager]:
+			if memory_manager and memory_manager.has_method("queue_pending_memory_embeddings"):
+				memory_manager.queue_pending_memory_embeddings()
 	
 	TTSManager.refresh_from_settings()
 

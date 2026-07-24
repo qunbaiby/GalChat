@@ -11,6 +11,11 @@ const MIN_REPLAY_PRECISION_AT_K := 0.5
 const MAX_REPLAY_FORBIDDEN_RECALLED := 0
 const MIN_CLUSTER_REPLAY_EQUIVALENCE_RATE := 1.0
 const MAX_CLUSTER_REPLAY_PROMPT_GROWTH_CHARS := 0
+const REAL_BASELINE_SCHEMA_VERSION := 1
+const REAL_BASELINE_MIN_CASES := 12
+const REAL_BASELINE_MIN_CASES_PER_CATEGORY := 2
+const REAL_BASELINE_REQUIRED_CATEGORIES := ["positive", "near_negative", "negation", "conflict"]
+const REAL_BASELINE_FORBIDDEN_FIELDS := ["query_text", "archive_id", "character_id", "player_name", "source_refs", "timestamp", "created_at", "updated_at"]
 
 signal traces_changed()
 
@@ -239,6 +244,103 @@ func evaluate_replay_cases(cases: Array, memory_manager) -> Dictionary:
 			"max_forbidden_recalled": MAX_REPLAY_FORBIDDEN_RECALLED
 		},
 		"results": case_results
+	}
+
+func evaluate_real_anonymized_baseline(dataset: Dictionary, memory_manager) -> Dictionary:
+	var readiness_violations: Array[String] = []
+	if int(dataset.get("schema_version", 0)) != REAL_BASELINE_SCHEMA_VERSION:
+		readiness_violations.append("真实匿名基线 schema_version 必须为 %d" % REAL_BASELINE_SCHEMA_VERSION)
+	if str(dataset.get("dataset_kind", "")) != "real_anonymized_memory_retrieval":
+		readiness_violations.append("dataset_kind 不是真实匿名记忆检索基线")
+	var provenance: Dictionary = dataset.get("provenance", {}) if dataset.get("provenance", {}) is Dictionary else {}
+	if str(provenance.get("source", "")) != "consented_local_sessions":
+		readiness_violations.append("数据来源必须是获得同意的本地会话")
+	if not bool(provenance.get("user_reviewed", false)):
+		readiness_violations.append("数据集尚未经过用户人工复核")
+	if str(provenance.get("anonymization_status", "")) != "reviewed":
+		readiness_violations.append("脱敏状态必须为 reviewed")
+	var embedding_model := str(dataset.get("embedding_model", "")).strip_edges()
+	var embedding_dimension := int(dataset.get("embedding_dimension", 0))
+	if embedding_model.is_empty() or embedding_dimension <= 0:
+		readiness_violations.append("缺少真实 embedding 模型或维度")
+	var cases: Array = dataset.get("cases", []) if dataset.get("cases", []) is Array else []
+	var memories: Dictionary = dataset.get("memories", {}) if dataset.get("memories", {}) is Dictionary else {}
+	var memory_ids: Dictionary = {}
+	var memory_count := 0
+	for layer in ["core", "emotion", "habit", "bond"]:
+		var layer_memories: Array = memories.get(layer, []) if memories.get(layer, []) is Array else []
+		for raw_memory in layer_memories:
+			if not raw_memory is Dictionary:
+				readiness_violations.append("记忆层 %s 存在非对象记录" % layer)
+				continue
+			var memory_id := str(raw_memory.get("id", "")).strip_edges()
+			if memory_id.is_empty() or memory_ids.has(memory_id):
+				readiness_violations.append("记忆 ID 为空或重复：%s" % memory_id)
+			else:
+				memory_ids[memory_id] = true
+			var content := str(raw_memory.get("content", "")).strip_edges()
+			if content.is_empty() or not bool(raw_memory.get("anonymization_reviewed", false)):
+				readiness_violations.append("记忆 %s 缺少内容或人工脱敏复核" % memory_id)
+			var memory_embedding: Array = raw_memory.get("embedding", []) if raw_memory.get("embedding", []) is Array else []
+			if memory_embedding.size() != embedding_dimension:
+				readiness_violations.append("记忆 %s 的向量维度不匹配" % memory_id)
+			for forbidden_field in REAL_BASELINE_FORBIDDEN_FIELDS:
+				if raw_memory.has(forbidden_field):
+					readiness_violations.append("记忆 %s 包含禁止字段 %s" % [memory_id, forbidden_field])
+			memory_count += 1
+	if memory_count == 0:
+		readiness_violations.append("真实匿名基线没有记忆语料")
+	if cases.size() < REAL_BASELINE_MIN_CASES:
+		readiness_violations.append("真实样本 %d 条，少于最低要求 %d 条" % [cases.size(), REAL_BASELINE_MIN_CASES])
+	var category_counts: Dictionary = {}
+	for category in REAL_BASELINE_REQUIRED_CATEGORIES:
+		category_counts[category] = 0
+	for raw_case in cases:
+		if not raw_case is Dictionary:
+			readiness_violations.append("存在非对象样本")
+			continue
+		var category := str(raw_case.get("category", ""))
+		if not category_counts.has(category):
+			readiness_violations.append("样本包含未知难例类别：%s" % category)
+		else:
+			category_counts[category] = int(category_counts[category]) + 1
+		for forbidden_field in REAL_BASELINE_FORBIDDEN_FIELDS:
+			if raw_case.has(forbidden_field):
+				readiness_violations.append("样本 %s 包含禁止字段 %s" % [str(raw_case.get("name", "未命名")), forbidden_field])
+		if str(raw_case.get("sample_origin", "")) != "real_session" or not bool(raw_case.get("anonymization_reviewed", false)):
+			readiness_violations.append("样本 %s 未声明真实来源和人工脱敏复核" % str(raw_case.get("name", "未命名")))
+		var query_embedding: Array = raw_case.get("query_embedding", []) if raw_case.get("query_embedding", []) is Array else []
+		if query_embedding.size() != embedding_dimension:
+			readiness_violations.append("样本 %s 的查询向量维度不匹配" % str(raw_case.get("name", "未命名")))
+		var expected_ids: Array = raw_case.get("expected_memory_ids", []) if raw_case.get("expected_memory_ids", []) is Array else []
+		var forbidden_ids: Array = raw_case.get("forbidden_memory_ids", []) if raw_case.get("forbidden_memory_ids", []) is Array else []
+		if expected_ids.is_empty() and forbidden_ids.is_empty():
+			readiness_violations.append("样本 %s 没有人工召回标注" % str(raw_case.get("name", "未命名")))
+		for memory_id in expected_ids + forbidden_ids:
+			if not memory_ids.has(str(memory_id)):
+				readiness_violations.append("样本 %s 引用了不存在的记忆 %s" % [str(raw_case.get("name", "未命名")), str(memory_id)])
+	for category in REAL_BASELINE_REQUIRED_CATEGORIES:
+		if int(category_counts.get(category, 0)) < REAL_BASELINE_MIN_CASES_PER_CATEGORY:
+			readiness_violations.append("类别 %s 只有 %d 条，少于最低要求 %d 条" % [category, int(category_counts.get(category, 0)), REAL_BASELINE_MIN_CASES_PER_CATEGORY])
+	var ready := readiness_violations.is_empty()
+	var replay_result: Dictionary = evaluate_replay_cases(cases, memory_manager) if ready else {}
+	return {
+		"report_type": "real_anonymized_memory_quality",
+		"ready": ready,
+		"passed": ready and bool(replay_result.get("passed", false)),
+		"readiness_violations": readiness_violations,
+		"case_count": cases.size(),
+		"memory_count": memory_count,
+		"category_counts": category_counts,
+		"embedding_model": embedding_model,
+		"embedding_dimension": embedding_dimension,
+		"replay": replay_result,
+		"requirements": {
+			"min_cases": REAL_BASELINE_MIN_CASES,
+			"min_cases_per_category": REAL_BASELINE_MIN_CASES_PER_CATEGORY,
+			"required_categories": REAL_BASELINE_REQUIRED_CATEGORIES.duplicate()
+			,"forbidden_fields": REAL_BASELINE_FORBIDDEN_FIELDS.duplicate()
+		}
 	}
 
 func evaluate_habit_cluster_replay_cases(cases: Array, memory_manager) -> Dictionary:
