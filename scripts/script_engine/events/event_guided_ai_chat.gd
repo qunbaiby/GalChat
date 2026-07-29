@@ -7,5 +7,6 @@ func _init(data: Dictionary) -> void:
 	policy = data.duplicate(true)
 
 func process_event(manager: Node) -> bool:
+	manager.is_guided_ai_blocked = true
 	manager.emit_signal("on_guided_ai_chat_requested", policy)
 	return true

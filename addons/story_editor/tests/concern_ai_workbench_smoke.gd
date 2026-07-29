@@ -46,6 +46,12 @@ func _run() -> void:
 		_expect(int((form_template.get("guided_ai_policy", {}) as Dictionary).get("max_player_rounds", 0)) == 6, "可视化轮数没有同步到模板。")
 		var template_json := workbench.get_node("Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson/TemplateJson") as CodeEdit
 		_expect(template_json.text.contains("guided_ai_policy"), "选择模板后没有显示 guided AI 配置。")
+		var allowed_topics := workbench.get_node("Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form/AllowedTopicsEditor")
+		_expect(allowed_topics.has_method("get_value") and allowed_topics.get_value() is Array, "允许话题没有使用安全列表编辑器。")
+		var expert_unlock := workbench.get_node("Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson/ExpertHeader/ExpertUnlock") as CheckButton
+		_expect(not template_json.editable, "心事模板专家 JSON 默认没有锁定。")
+		expert_unlock.button_pressed = true
+		_expect(template_json.editable, "心事模板专家模式解锁后仍不可编辑。")
 	workbench.queue_free()
 	await process_frame
 	if failures.is_empty():

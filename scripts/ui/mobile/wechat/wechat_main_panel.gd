@@ -96,7 +96,7 @@ func _ready() -> void:
 	if MobileFixedChatManager.has_signal("unread_count_changed"):
 		MobileFixedChatManager.unread_count_changed.connect(_on_fixed_chat_unread_changed)
 
-func _on_fixed_chat_unread_changed(char_id: String, unread_count: int) -> void:
+func _on_fixed_chat_unread_changed(_char_id: String, _unread_count: int) -> void:
 	if recent_chats_instance and recent_chats_instance.visible:
 		recent_chats_instance._load_contacts()
 	if contacts_instance and contacts_instance.visible:
@@ -428,7 +428,7 @@ func _on_contact_selected(char_id: String) -> void:
 	_current_contact_char_id = char_id
 	_show_contact_detail(char_id)
 
-func _open_chat_session(char_id: String, emit_signal: bool = true) -> void:
+func _open_chat_session(char_id: String, should_emit_signal: bool = true) -> void:
 	if char_id == "":
 		_show_chat_empty_state()
 		return
@@ -439,7 +439,7 @@ func _open_chat_session(char_id: String, emit_signal: bool = true) -> void:
 	contact_empty_state.hide()
 	contact_detail_panel.hide()
 	chat_container.show()
-	if emit_signal:
+	if should_emit_signal:
 		character_selected.emit(char_id)
 	_request_guide_refresh_after_layout()
 

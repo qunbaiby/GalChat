@@ -134,7 +134,7 @@ func _process_local_cognition_task(client, task: Dictionary) -> void:
 		"character_id": str(task.get("character_id", ""))
 	}
 	if not _active_task_matches_current_scope(client):
-		_fail_active_task(client, "本地认知任务作用域已失效")
+		_discard_invalid_scope_task(client)
 		return
 	var target_memory_manager = GameDataManager.cognition_task_queue.resolve_memory_manager(str(task.get("memory_domain", "")))
 	var payload: Dictionary = task.get("payload", {})
@@ -151,6 +151,15 @@ func _process_local_cognition_task(client, task: Dictionary) -> void:
 		var result: Dictionary = await GameDataManager.memory_retrieval_service.process_memory_embedding_task(target_memory_manager, payload)
 		succeeded = bool(result.get("completed", false))
 		if not succeeded:
+			var retry_after_seconds := int(result.get("retry_after_seconds", 0))
+			if retry_after_seconds > 0:
+				GameDataManager.cognition_task_queue.defer_retry(
+					client._active_cognition_task_id,
+					str(result.get("error", "记忆向量任务暂缓")),
+					retry_after_seconds
+				)
+				_finish_active_task(client)
+				return
 			_fail_active_task(client, str(result.get("error", "记忆向量任务失败")))
 			return
 	if succeeded:
@@ -398,12 +407,17 @@ func _fail_active_task(client, error_message: String) -> void:
 	client.memory_request_failed.emit(error_message)
 	_finish_active_task(client)
 
+func _discard_invalid_scope_task(client) -> void:
+	if not client._active_cognition_task_id.is_empty():
+		GameDataManager.cognition_task_queue.discard_invalid_scope(client._active_cognition_task_id)
+	_finish_active_task(client)
+
 func _finish_active_task(client) -> void:
 	client._active_cognition_task_id = ""
 	client._active_cognition_task_scope = {}
 	client._active_cognition_task = {}
 	clear_memory_request_context(client)
-	process_cognition_queue(client)
+	client.call_deferred("_process_cognition_queue")
 
 func _active_task_matches_current_scope(client) -> bool:
 	var scope: Dictionary = client._active_cognition_task_scope
@@ -417,9 +431,13 @@ func _schedule_queue_retry(client, delay_seconds: int) -> void:
 	if client._cognition_retry_timer != null:
 		return
 	client._cognition_retry_timer = client.get_tree().create_timer(float(delay_seconds))
+	var client_ref: WeakRef = weakref(client)
 	client._cognition_retry_timer.timeout.connect(func() -> void:
-		client._cognition_retry_timer = null
-		process_cognition_queue(client)
+		var active_client := client_ref.get_ref() as DeepSeekClient
+		if not is_instance_valid(active_client):
+			return
+		active_client._cognition_retry_timer = null
+		process_cognition_queue(active_client)
 	, CONNECT_ONE_SHOT)
 
 func _build_memory_options_from_operation(op: Dictionary, target_memory_manager) -> Dictionary:

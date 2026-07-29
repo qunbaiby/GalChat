@@ -1,3 +1,4 @@
+@tool
 extends HBoxContainer
 
 signal delete_requested(row: Control)

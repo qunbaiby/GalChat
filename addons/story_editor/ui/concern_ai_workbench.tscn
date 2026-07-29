@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://addons/story_editor/ui/concern_ai_workbench.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_structured_value_editor.tscn" id="2_structured"]
 
 [node name="ConcernAIWorkbench" type="Window"]
 title = "AI 心事工作台"
@@ -93,6 +94,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="VisualConfig" type="ScrollContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs"]
+unique_name_in_owner = true
 layout_mode = 2
 horizontal_scroll_mode = 0
 
@@ -298,17 +300,15 @@ layout_mode = 2
 wrap_mode = 1
 [node name="AllowedTopicsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
 layout_mode = 2
-text = "允许话题（每行一个）"
-[node name="AllowedTopicsEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+text = "允许话题"
+[node name="AllowedTopicsEditor" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form" instance=ExtResource("2_structured")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 [node name="ForbiddenFactsLabel" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
 layout_mode = 2
-text = "禁止虚构事实（每行一个）"
-[node name="ForbiddenFactsEdit" type="TextEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
+text = "禁止虚构事实"
+[node name="ForbiddenFactsEditor" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form" instance=ExtResource("2_structured")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 [node name="BeatsHeader" type="HBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/VisualConfig/Form"]
 layout_mode = 2
@@ -403,18 +403,29 @@ layout_mode = 2
 placeholder_text = "用一句话描述角色会记住什么"
 
 [node name="AdvancedJson" type="VBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs"]
+unique_name_in_owner = true
 layout_mode = 2
-[node name="AdvancedHint" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
+[node name="ExpertHeader" type="HBoxContainer" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
 layout_mode = 2
-text = "高级模式：用于编辑尚未映射到表单的扩展字段。"
+[node name="ExpertState" type="Label" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson/ExpertHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "已锁定：日常配置请使用策划表单"
+[node name="ExpertUnlock" type="CheckButton" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson/ExpertHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "解锁专家编辑"
 [node name="ApplyJsonButton" type="Button" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
 unique_name_in_owner = true
 layout_mode = 2
+disabled = true
 text = "应用 JSON 到可视化表单"
 [node name="TemplateJson" type="CodeEdit" parent="Root/Body/EditorSplit/TemplatePanel/TemplateTabs/AdvancedJson"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+editable = false
 wrap_mode = 1
 
 [node name="PreviewPanel" type="VBoxContainer" parent="Root/Body/EditorSplit"]

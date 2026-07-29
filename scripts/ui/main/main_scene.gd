@@ -348,7 +348,6 @@ func _try_start_auto_main_story_after_wechat_close() -> bool:
 	if manager.has_method("release_claimed_auto_start_topic"):
 		manager.release_claimed_auto_start_topic(char_id, str((topic_data as Dictionary).get("event_id", "")))
 	return false
-
 func _update_affection_button_ui() -> void:
 	if not is_instance_valid(affection_button) or not GameDataManager.profile:
 		return
@@ -1112,6 +1111,7 @@ func _on_embedded_session_completed(request: Dictionary) -> void:
 		elif _selected_main_story_topic.is_empty():
 			_selected_main_story_topic = _active_embedded_main_story_topic.duplicate(true)
 		_consume_selected_story_topic_if_needed()
+		_report_guide_action("acknowledge_guided_ai_round_limit")
 		_report_guide_action("finish_first_main_chat_after_goal")
 	elif str(request.get("mode", "")) == "concern":
 		_record_concern_template_completed(
@@ -1620,7 +1620,9 @@ func _set_dialogue_input_waiting(char_name: String = "") -> void:
 		var final_name := char_name.strip_edges()
 		if final_name == "":
 			final_name = "角色"
-		input_field.text = "【%s】正在讲话中，请等待…" % final_name
+		input_field.release_focus()
+		input_field.text = ""
+		input_field.placeholder_text = "%s 正在思考…" % final_name
 		input_field.editable = false
 	if send_btn:
 		send_btn.disabled = true
@@ -1668,13 +1670,7 @@ func _on_send_pressed() -> void:
 	
 	dialogue_name_label.text = "我"
 	
-	var display_text = text
-	var color_regex_zh = RegEx.new()
-	color_regex_zh.compile("（(.*?)）")
-	display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
-	var color_regex_en = RegEx.new()
-	color_regex_en.compile("\\((.*?)\\)")
-	display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
+	var display_text = ChatSplitHelper.format_leading_action(text)
 	
 	dialogue_text.bbcode_enabled = true
 	dialogue_text.text = display_text
@@ -1759,13 +1755,7 @@ func _on_chat_response(response: Dictionary, source_client: DeepSeekClient = nul
 			
 		dialogue_name_label.text = GameDataManager.profile.char_name
 		
-		var display_text = reply
-		var color_regex_zh = RegEx.new()
-		color_regex_zh.compile("（(.*?)）")
-		display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
-		var color_regex_en = RegEx.new()
-		color_regex_en.compile("\\((.*?)\\)")
-		display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
+		var display_text = ChatSplitHelper.format_leading_action(reply)
 		
 		dialogue_text.bbcode_enabled = true
 		dialogue_text.text = display_text
@@ -1966,22 +1956,7 @@ func _stream_worker_loop() -> void:
 				
 			dialogue_name_label.text = GameDataManager.profile.char_name
 			
-			# 强制清理：只保留最开头的一个动作描述，移除其余所有动作描述
-			var extract_regex = RegEx.new()
-			extract_regex.compile("（.*?）|\\(.*?\\)")
-			var matches = extract_regex.search_all(pure_text)
-			if matches.size() > 0:
-				var first_action = matches[0].get_string()
-				var no_action_text = extract_regex.sub(pure_text, "", true).strip_edges()
-				pure_text = first_action + " " + no_action_text
-			
-			var display_text = pure_text
-			var color_regex_zh = RegEx.new()
-			color_regex_zh.compile("（(.*?)）")
-			display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
-			var color_regex_en = RegEx.new()
-			color_regex_en.compile("\\((.*?)\\)")
-			display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
+			var display_text = ChatSplitHelper.format_leading_action(pure_text)
 			
 			dialogue_text.bbcode_enabled = true
 			dialogue_text.text = display_text
@@ -2987,7 +2962,11 @@ func _on_guide_feature_states_changed() -> void:
 	_refresh_guide_overlay_if_needed()
 
 func _on_main_ui_restored_after_chat_closed() -> void:
-	if _try_start_auto_main_story_after_wechat_close():
+	var guide_manager := _get_guide_manager()
+	var waiting_for_goal_guide := false
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		waiting_for_goal_guide = str(guide_manager.get_current_step_id()) == "explain_main_goal_panel"
+	if not waiting_for_goal_guide and _try_start_auto_main_story_after_wechat_close():
 		return
 	_try_reveal_affection_button_if_pending()
 	_try_reveal_goal_panel_if_pending()
@@ -3090,15 +3069,7 @@ func _get_control_focus_rect(control: Control) -> Rect2:
 		return Rect2()
 	if not control.is_visible_in_tree():
 		return Rect2()
-	var rect := Rect2(Vector2.ZERO, control.size)
-	var panel_origin: Vector2 = get_global_transform_with_canvas().origin
-	var current: Node = control
-	while current != null and current != self:
-		if current is Control:
-			rect.position += (current as Control).position
-		current = current.get_parent()
-	rect.position += panel_origin
-	return rect
+	return control.get_global_rect()
 
 func _build_main_action_cutout_polygon(rect: Rect2, slant_ratio: float) -> PackedVector2Array:
 	var polygon := PackedVector2Array()
@@ -3189,6 +3160,14 @@ func get_main_chat_topic_options_focus_entry() -> Dictionary:
 		return _build_rounded_focus_entry(preferred_target, 24.0)
 	return _build_rounded_focus_entry(quick_option_layer, 24.0)
 
+func get_ai_round_info_focus_entry() -> Dictionary:
+	var round_info := dialogue_panel.get_node_or_null("FreeChatInfoLayer") as Control if is_instance_valid(dialogue_panel) else null
+	return _build_rounded_focus_entry(round_info, 10.0)
+
+func is_ai_round_info_ready_for_guide() -> bool:
+	var round_info := dialogue_panel.get_node_or_null("FreeChatInfoLayer") as Control if is_instance_valid(dialogue_panel) else null
+	return is_instance_valid(round_info) and round_info.is_visible_in_tree()
+
 func _get_preferred_topic_option_target() -> Control:
 	if not is_instance_valid(quick_options_container):
 		return null
@@ -3236,6 +3215,7 @@ func _on_goal_panel_gui_input(event: InputEvent) -> void:
 		if str(guide_manager.get_current_step_id()) == "explain_main_goal_panel":
 			_report_guide_action("click_main_goal")
 			accept_event()
+			call_deferred("_try_start_auto_main_story_after_wechat_close")
 
 func _update_button_states_by_time() -> void:
 	if not GameDataManager.story_time_manager:
@@ -4215,6 +4195,7 @@ func _on_chat_closed() -> void:
 	ui_panel.modulate.a = 0.0
 	_ui_tween = create_tween()
 	_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
+	_ui_tween.finished.connect(_on_main_ui_restored_after_chat_closed, CONNECT_ONE_SHOT)
 	
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
 		current_bg_scene.set_ui_hidden(false)
@@ -4344,6 +4325,9 @@ func _on_affection_pressed() -> void:
 	_animate_button(affection_button)
 	_show_affection_popup()
 	_report_guide_action("open_affection")
+
+func open_affection_from_guide() -> void:
+	_on_affection_pressed()
 
 func _on_creation_pressed() -> void:
 	if _is_ui_blocked(): return

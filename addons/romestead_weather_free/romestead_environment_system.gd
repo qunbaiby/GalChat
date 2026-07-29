@@ -558,9 +558,7 @@ func _refresh_overlay_parent() -> void:
 		if _overlay_control.get_parent() != null:
 			_overlay_control.get_parent().remove_child(_overlay_control)
 		target_parent.add_child(_overlay_control)
-	_overlay_control.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_overlay_control.position = Vector2.ZERO
-	_overlay_control.size = Vector2.ZERO
+	_overlay_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_overlay_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
 
 

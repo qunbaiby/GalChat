@@ -231,10 +231,8 @@ func _read_json_dict(file_path: String) -> Dictionary:
         return data
     return {}
 
-func _normalize_tts_audio_format(value: String) -> String:
-    var normalized: String = value.strip_edges().to_lower()
-    if normalized == "wav":
-        return "wav"
+func _normalize_tts_audio_format(_value: String) -> String:
+    # V3 HTTP Chunked 的 WAV 分块带有重复文件头，旧配置统一迁移到 MP3。
     return "mp3"
 
 func get_default_tts_speaker(char_id: String) -> String:

@@ -100,7 +100,12 @@ func _run() -> void:
 	fake_requester.failed.emit(failed_job_id, "模拟网络失败", {"duration_ms": 7})
 	_expect(workbench.get_node("Root/Body/Results/StatusLabel").text.contains("模拟网络失败"), "请求失败状态在界面中不可见。")
 	var previous_preview: Dictionary = workbench.last_preview.duplicate(true)
-	var history_edit := workbench.get_node("Root/Body/InputScroll/Inputs/HistoryEdit") as TextEdit
+	var advanced_unlock := workbench.get_node("Root/Body/InputScroll/Inputs/AdvancedInputUnlock") as CheckButton
+	var advanced_panel := workbench.get_node("Root/Body/InputScroll/Inputs/AdvancedInputPanel") as VBoxContainer
+	_expect(not advanced_panel.visible, "手机 AI 高级测试输入默认没有隐藏。")
+	advanced_unlock.button_pressed = true
+	_expect(advanced_panel.visible, "解锁后高级测试输入仍未显示。")
+	var history_edit := advanced_panel.get_node("HistoryEdit") as TextEdit
 	history_edit.text = "{}"
 	_expect(not workbench.build_preview(), "非数组历史不应构建预览。")
 	_expect(workbench.last_preview == previous_preview, "非法输入不应覆盖上一份有效预览。")

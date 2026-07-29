@@ -1,5 +1,6 @@
 extends Control
 
+@warning_ignore("unused_signal")
 signal skip_pressed
 signal background_pressed(action_id: String)
 signal focus_pressed(action_id: String)
@@ -506,7 +507,7 @@ func _build_rect_minus_polygon_overlays(rect: Rect2, polygon: PackedVector2Array
 		var bottom_intersections := _get_polygon_horizontal_intersections(polygon, sample_bottom)
 		if top_intersections.size() < 2 or bottom_intersections.size() < 2:
 			continue
-		var segment_count: int = int(mini(top_intersections.size(), bottom_intersections.size()) / 2)
+		var segment_count := floori(float(mini(top_intersections.size(), bottom_intersections.size())) / 2.0)
 		for segment_index in range(segment_count):
 			var top_left_cutout := float(top_intersections[segment_index * 2])
 			var top_right_cutout := float(top_intersections[segment_index * 2 + 1])

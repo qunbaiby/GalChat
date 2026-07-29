@@ -66,6 +66,11 @@ func _run() -> void:
 	_expect(str(local_task.get("id", "")) == edit_id, "本地记忆编辑任务没有被本地领取通道领取。")
 	_expect(str(local_task.get("state", "")) == "processing", "本地任务领取后没有进入处理状态。")
 	_expect(restored.complete(edit_id), "本地任务完成后没有移除。")
+	var stale_edit_id: String = restored.enqueue("memory_edit", {"layer": "habit", "memory_id": "stale-memory", "content": "旧存档内容"}, MemoryManager.MEMORY_DOMAIN_PLAYER)
+	var stale_local_task: Dictionary = restored.claim_next_local()
+	_expect(str(stale_local_task.get("id", "")) == stale_edit_id, "失效作用域测试任务没有进入处理状态。")
+	_expect(restored.discard_invalid_scope(stale_edit_id), "无法永久丢弃作用域失效的本地任务。")
+	_expect(restored.get_task(stale_edit_id).is_empty(), "作用域失效任务仍留在队列等待重试。")
 	var first_embedding_id := restored.enqueue("memory_embedding", {
 		"layer": "habit",
 		"memory_id": "memory-vector",
@@ -90,6 +95,12 @@ func _run() -> void:
 	_expect(first_embedding_id == duplicate_embedding_id and changed_embedding_id != first_embedding_id, "记忆向量任务没有按内容与模型快照去重。")
 	var embedding_task: Dictionary = restored.claim_next_local()
 	_expect(str(embedding_task.get("id", "")) == first_embedding_id, "记忆向量任务没有进入本地持久处理通道。")
+	var defer_started_at := int(Time.get_unix_time_from_system())
+	_expect(restored.defer_retry(first_embedding_id, "Embedding 配额冷却中", 900), "记忆向量任务无法按配额冷却时间延后。")
+	var deferred_embedding_task: Dictionary = restored.get_task(first_embedding_id)
+	_expect(str(deferred_embedding_task.get("state", "")) == "pending", "配额冷却任务没有回到待处理状态。")
+	_expect(int(deferred_embedding_task.get("attempts", -1)) == 0, "配额冷却错误消耗了任务尝试次数。")
+	_expect(int(deferred_embedding_task.get("next_attempt_at", 0)) >= defer_started_at + 900, "配额冷却没有设置足够的延后时间。")
 	restored.complete(first_embedding_id)
 	restored.complete(changed_embedding_id)
 

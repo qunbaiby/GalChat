@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://addons/story_editor/ui/date_ai_workbench.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_structured_value_editor.tscn" id="2_structured"]
 
 [node name="DateAIWorkbench" type="Window"]
 title = "AI 约会工作台"
@@ -43,6 +44,12 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 text = "保存模板"
+
+[node name="TemplateJsonUnlock" type="CheckButton" parent="Root/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "仅在需要处理未建模字段时解锁"
+text = "解锁模板 JSON"
 
 [node name="PreviewButton" type="Button" parent="Root/Toolbar"]
 unique_name_in_owner = true
@@ -197,6 +204,129 @@ split_offset = 270
 [node name="InputTabs" type="TabContainer" parent="Root/Body/InputAndResults"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="TemplateConfig" type="ScrollContainer" parent="Root/Body/InputAndResults/InputTabs"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Form" type="VBoxContainer" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Header" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "模板用途与生成约束"
+
+[node name="Hint" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "这里配置模板长期复用的内容；本次约会的临时参数请在“策划参数”页调整。"
+autowrap_mode = 2
+
+[node name="BasicGrid" type="GridContainer" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+columns = 2
+
+[node name="TemplateIdLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "模板 ID"
+[node name="TemplateIdEdit" type="LineEdit" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+editable = false
+[node name="TemplateSourceLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "所属范围"
+[node name="TemplateSourceValue" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="OutlineTitleLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "策划标题"
+[node name="OutlineTitleEdit" type="LineEdit" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="WeightLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+layout_mode = 2
+text = "抽取权重"
+[node name="WeightSpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 100.0
+value = 1.0
+
+[node name="OutlinePromptLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+text = "生成纲要"
+[node name="OutlinePromptEdit" type="TextEdit" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+wrap_mode = 1
+
+[node name="PeriodsLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+text = "适用时段"
+[node name="Periods" type="HFlowContainer" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+[node name="MorningTemplateCheck" type="CheckBox" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "上午"
+[node name="AfternoonTemplateCheck" type="CheckBox" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "下午"
+[node name="EveningTemplateCheck" type="CheckBox" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/Periods"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "夜晚"
+
+[node name="WeatherTagsLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+text = "适用天气标签"
+[node name="WeatherTagsEditor" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form" instance=ExtResource("2_structured")]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="MustHaveBeatsLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+text = "必须出现的桥段"
+[node name="MustHaveBeatsEditor" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form" instance=ExtResource("2_structured")]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="MoodTagsLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+text = "氛围标签"
+[node name="MoodTagsEditor" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form" instance=ExtResource("2_structured")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SettlementGrid" type="GridContainer" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form"]
+layout_mode = 2
+columns = 4
+[node name="SettlementIntimacyLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/SettlementGrid"]
+layout_mode = 2
+text = "完成亲密度"
+[node name="SettlementIntimacySpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/SettlementGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -100.0
+max_value = 100.0
+step = 0.1
+[node name="SettlementTrustLabel" type="Label" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/SettlementGrid"]
+layout_mode = 2
+text = "完成信任度"
+[node name="SettlementTrustSpin" type="SpinBox" parent="Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/SettlementGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -100.0
+max_value = 100.0
+step = 0.1
 
 [node name="生成输入" type="VBoxContainer" parent="Root/Body/InputAndResults/InputTabs"]
 unique_name_in_owner = true
@@ -354,6 +484,7 @@ wrap_mode = 1
 [node name="TemplateJson" type="CodeEdit" parent="Root/Body/InputAndResults/InputTabs"]
 unique_name_in_owner = true
 layout_mode = 2
+editable = false
 
 [node name="RawJson" type="CodeEdit" parent="Root/Body/InputAndResults/InputTabs"]
 unique_name_in_owner = true

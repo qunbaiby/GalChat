@@ -35,6 +35,12 @@ func _run() -> void:
 	if load_result.get("ok", false):
 		var fixture := (load_result.get("data", []) as Array).duplicate(true)
 		(fixture[0] as Dictionary)["smoke_unknown_call"] = {"preserve": true}
+		((fixture[0] as Dictionary).get("lines", []) as Array)[0] = {
+			"text": "你终于接电话了。",
+			"expression": "worried",
+			"voice_instruction": "先松一口气，再略带埋怨地说",
+			"smoke_unknown_line": true
+		}
 		var diagnostics := Validator.validate(fixture, {"character_ids": character_ids}, Scanner.scan_story_references())
 		_expect(diagnostics.is_empty(), "真实固定来电应通过校验。")
 		var bad_calls := fixture.duplicate(true)
@@ -44,7 +50,7 @@ func _run() -> void:
 		var bad_diagnostics := Validator.validate(bad_calls, {"character_ids": character_ids}, {"missing_call": [{"story_id": "smoke_story", "chapter_id": "start"}]})
 		_expect(_has_message(bad_diagnostics, "通话 ID 重复"), "未识别重复通话 ID。")
 		_expect(_has_message(bad_diagnostics, "角色不存在"), "未识别未知角色。")
-		_expect(_has_message(bad_diagnostics, "台词必须是非空字符串"), "未识别空台词。")
+		_expect(_has_message(bad_diagnostics, "台词必须是非空字符串或台词对象"), "未识别空台词。")
 		_expect(_has_message(bad_diagnostics, "引用的固定来电不存在"), "未识别不存在的剧情 call_id。")
 		var write_result := JsonService.save_array(TEMP_PATH, fixture)
 		_expect(write_result.get("ok", false), "无法写入固定来电临时副本。")
@@ -73,6 +79,10 @@ func _run() -> void:
 			var saved_calls := saved_result.get("data", []) as Array
 			_expect(saved_calls.size() == 2, "保存回读改变了通话数量。")
 			_expect((((saved_calls[0] as Dictionary).get("smoke_unknown_call", {}) as Dictionary).get("preserve", false)), "保存丢失未知通话字段。")
+			var saved_first_line := (((saved_calls[0] as Dictionary).get("lines", []) as Array)[0] as Dictionary)
+			_expect(str(saved_first_line.get("expression", "")) == "worried", "保存丢失台词 expression。")
+			_expect(str(saved_first_line.get("voice_instruction", "")).contains("埋怨"), "保存丢失台词语音指令。")
+			_expect(bool(saved_first_line.get("smoke_unknown_line", false)), "保存丢失台词未知字段。")
 		catalog.queue_free()
 		await process_frame
 

@@ -4,8 +4,6 @@ const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const BUG_FEEDBACK_PANEL_SCENE = preload("res://scenes/ui/start/bug_feedback_panel.tscn")
 const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_panel.tscn")
 const ACCOUNT_CENTER_PANEL_SCENE = preload("res://scenes/ui/start/account_center_panel.tscn")
-const ConfirmDialogScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
-const GUIDE_STATE_KEY := "guide_state_v1"
 
 @onready var start_button: Button = $ContentRoot/MenuGroup/MenuButtons/StartButton
 @onready var desktop_pet_button: Button = $ContentRoot/MenuGroup/MenuButtons/DesktopPetButton
@@ -165,7 +163,7 @@ func _create_new_archive(slot_id: String, archive_name: String = "") -> void:
 		return
 	_apply_player_info_from_popup(popup.player_info)
 	popup.queue_free()
-	await _ensure_guide_opt_in_choice(true)
+	_ensure_guide_enabled()
 	var saved_ok: bool = GameDataManager.save_manager.auto_save("archive_initialized", GameDataManager.get_active_archive_id())
 	if not saved_ok:
 		push_error("StartScene 新建档案后自动存档失败。")
@@ -225,7 +223,7 @@ func _enter_game_for_current_archive(force_play_intro: bool, ensure_guide_prompt
 	var window = get_window()
 	GameDataManager.set_meta("last_window_pos", window.position)
 	if ensure_guide_prompt:
-		await _ensure_guide_opt_in_choice()
+		_ensure_guide_enabled()
 	if force_play_intro:
 		GameDataManager.save_active_story_checkpoint({})
 	var story_checkpoint := GameDataManager.load_active_story_checkpoint()
@@ -265,54 +263,14 @@ func _enter_game_for_current_archive(force_play_intro: bool, ensure_guide_prompt
 		return
 	_transition_to_scene("res://scenes/ui/main/main_scene.tscn")
 
-func _ensure_guide_opt_in_choice(force_prompt_when_unknown: bool = false) -> void:
+func _ensure_guide_enabled() -> void:
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager == null:
 		return
 	if guide_manager.has_method("reload_for_current_archive"):
 		guide_manager.reload_for_current_archive()
-	var raw_guide_state = GameDataManager.get_archive_custom_config(GUIDE_STATE_KEY, null)
-	var should_force_prompt := force_prompt_when_unknown and raw_guide_state == null
-	var should_prompt := should_force_prompt
-	if not should_prompt:
-		if not guide_manager.has_method("should_prompt_for_guide_opt_in") or not bool(guide_manager.should_prompt_for_guide_opt_in()):
-			return
-		should_prompt = true
-	if not should_prompt:
-		return
-	if ConfirmDialogScene == null:
-		return
-	var dialog = ConfirmDialogScene.instantiate()
-	get_tree().root.add_child(dialog)
-	dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	if dialog.has_method("setup_advanced"):
-		dialog.setup_advanced(
-			"开启新手引导",
-			"是否为这个存档开启新手引导？\n开启后会在开场剧情结束后，继续引导你完成行程安排与课程执行的基础教学。",
-			"",
-			"选择只会影响当前存档，之后也可以再手动开启其他演示引导。",
-			"开启引导",
-			"暂不需要"
-		)
-	var guide_opt_in_choice := {
-		"decided": false,
-		"enabled": false
-	}
-	if dialog.has_signal("confirmed"):
-		dialog.confirmed.connect(func() -> void:
-			guide_opt_in_choice["enabled"] = true
-			guide_opt_in_choice["decided"] = true
-		)
-	if dialog.has_signal("canceled"):
-		dialog.canceled.connect(func() -> void:
-			guide_opt_in_choice["enabled"] = false
-			guide_opt_in_choice["decided"] = true
-		)
-	while not bool(guide_opt_in_choice.get("decided", false)) and is_instance_valid(dialog):
-		await get_tree().process_frame
-	var enabled := bool(guide_opt_in_choice.get("enabled", false))
 	if guide_manager.has_method("set_guide_opt_in"):
-		guide_manager.set_guide_opt_in(enabled)
+		guide_manager.set_guide_opt_in(true)
 
 func _transition_to_scene(scene_path: String) -> void:
 	if get_tree().root.has_node("SceneTransitionManager"):

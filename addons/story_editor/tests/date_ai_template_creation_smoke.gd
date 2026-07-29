@@ -37,8 +37,14 @@ func _run() -> void:
 	workbench.call("_confirm_create_template")
 	_expect(str(workbench.selected_template.get("id", "")) == "created_from_ui", "工作台创建后没有自动选中新模板。")
 	var input_tabs := workbench.get_node("Root/Body/InputAndResults/InputTabs") as TabContainer
+	var template_config := workbench.get_node("Root/Body/InputAndResults/InputTabs/TemplateConfig") as ScrollContainer
 	var template_json := workbench.get_node("Root/Body/InputAndResults/InputTabs/TemplateJson") as CodeEdit
-	_expect(input_tabs.current_tab == input_tabs.get_tab_idx_from_control(template_json), "创建后没有打开模板 JSON 编辑页。")
+	_expect(input_tabs.current_tab == input_tabs.get_tab_idx_from_control(template_config), "创建后没有打开模板配置页。")
+	_expect(not template_json.editable, "模板 JSON 默认没有锁定。")
+	var title_edit := workbench.get_node("Root/Body/InputAndResults/InputTabs/TemplateConfig/Form/BasicGrid/OutlineTitleEdit") as LineEdit
+	title_edit.text = "表单修改后的约会"
+	var form_result := workbench.call("_template_from_form") as Dictionary
+	_expect(str((form_result.get("data", {}) as Dictionary).get("outline_title", "")) == "表单修改后的约会", "模板表单没有写回策划标题。")
 	workbench.queue_free()
 	await process_frame
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

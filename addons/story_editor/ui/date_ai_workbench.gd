@@ -27,11 +27,12 @@ var template_config_path := WorkbenchService.TEMPLATE_PATH
 
 func _ready() -> void:
 	size_changed.connect(_apply_planning_layout)
+	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(%TemplateConfig), "模板配置")
 	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(%生成输入), "策划参数")
-	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(template_json), "模板 JSON")
+	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(template_json), "专家：模板 JSON")
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(%QualitySummary), "质量总览")
-	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(raw_json), "原始响应")
-	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(batch_json), "批量响应")
+	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(raw_json), "测试：原始响应")
+	%InputTabs.set_tab_title(%InputTabs.get_tab_idx_from_control(batch_json), "测试：批量响应")
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(prompt_preview), "Prompt 预览")
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(sanitized_preview), "清洗与编译")
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(fallback_preview), "Fallback")
@@ -44,6 +45,7 @@ func _ready() -> void:
 	%PreviewButton.pressed.connect(run_preview)
 	%BatchAnalyzeButton.pressed.connect(run_batch_analysis)
 	%SaveTemplateButton.pressed.connect(save_template)
+	%TemplateJsonUnlock.toggled.connect(_set_template_json_unlocked)
 	%CreateTemplateButton.pressed.connect(_open_create_template_dialog)
 	%CreateTemplateDialog.confirmed.connect(_confirm_create_template)
 	%CreateTemplateSource.item_selected.connect(_update_create_template_targets)
@@ -60,6 +62,7 @@ func _ready() -> void:
 	audit_tree.set_column_expand(0, false)
 	audit_tree.set_column_custom_minimum_width(0, 76)
 	_create_generation_queue()
+	_set_template_json_unlocked(false)
 	_refresh_templates()
 	call_deferred("_apply_planning_layout")
 
@@ -82,7 +85,7 @@ func open_workbench() -> void:
 
 
 func run_preview() -> Dictionary:
-	var template_result := _parse_object(template_json.text, "模板")
+	var template_result := _template_from_form()
 	if not template_result.get("ok", false):
 		_set_status(str(template_result.error), true)
 		return {}
@@ -107,7 +110,7 @@ func run_preview() -> Dictionary:
 
 
 func save_template() -> void:
-	var result := _parse_object(template_json.text, "模板")
+	var result := _template_from_form()
 	if not result.get("ok", false):
 		_set_status(str(result.error), true)
 		return
@@ -171,8 +174,8 @@ func _confirm_create_template() -> void:
 	%TemplateSearch.clear()
 	_refresh_templates()
 	_select_template_by_id(str(definition.id))
-	%InputTabs.current_tab = %InputTabs.get_tab_idx_from_control(template_json)
-	_set_status("已创建约会模板，可继续编辑模板 JSON。", false)
+	%InputTabs.current_tab = %InputTabs.get_tab_idx_from_control(%TemplateConfig)
+	_set_status("已创建约会模板，可继续完善模板配置。", false)
 
 
 func _select_template_by_id(template_id: String) -> bool:
@@ -186,7 +189,7 @@ func _select_template_by_id(template_id: String) -> bool:
 
 
 func run_batch_analysis() -> Dictionary:
-	var template_result := _parse_object(template_json.text, "模板")
+	var template_result := _template_from_form()
 	if not template_result.get("ok", false):
 		_set_status(str(template_result.error), true)
 		return {}
@@ -212,7 +215,7 @@ func set_generation_requester(requester: Node) -> void:
 
 
 func start_generation_queue() -> void:
-	var template_result := _parse_object(template_json.text, "模板")
+	var template_result := _template_from_form()
 	if not template_result.get("ok", false):
 		_set_status(str(template_result.error), true)
 		return
@@ -264,6 +267,7 @@ func _select_template(list_index: int) -> void:
 	selected_template = templates[template_index].duplicate(true)
 	%TemplateSummary.text = "%s\n类型：%s    地点：%s\n必须桥段：%d 项" % [str(selected_template.get("outline_title", selected_template.get("id", "未命名模板"))), str(selected_template.get("type_id", "通用")), str(selected_template.get("location_id", "任意地点")), (selected_template.get("must_have_beats", []) as Array).size()]
 	template_json.text = JSON.stringify(selected_template, "    ", false)
+	_load_template_form(selected_template)
 	var location_id := str(selected_template.get("location_id", ""))
 	%LocationEdit.text = location_id if not location_id.is_empty() else "sakura_avenue"
 	var raw_sample := {"summary": "在具体地点发生了一段有共同体验和情绪推进的约会。", "segments": [{"lines": [
@@ -274,6 +278,73 @@ func _select_template(list_index: int) -> void:
 	raw_json.text = JSON.stringify(raw_sample, "    ", false)
 	batch_json.text = JSON.stringify([raw_sample, raw_sample.duplicate(true)], "    ", false)
 	run_preview()
+
+
+func _load_template_form(template: Dictionary) -> void:
+	%TemplateIdEdit.text = str(template.get("id", ""))
+	%TemplateSourceValue.text = "地点专属 · %s" % str(template.get("location_id", "")) if str(template.get("source", "type")) == "location" else "约会类型 · %s" % str(template.get("type_id", ""))
+	%OutlineTitleEdit.text = str(template.get("outline_title", ""))
+	%OutlinePromptEdit.text = str(template.get("outline_prompt", ""))
+	%WeightSpin.value = float(template.get("weight", 1))
+	_set_period_checks(template.get("time_periods", []))
+	%WeatherTagsEditor.setup(template.get("weather_tags", []), "string_list")
+	%MustHaveBeatsEditor.setup(template.get("must_have_beats", []), "string_list")
+	%MoodTagsEditor.setup(template.get("mood_tags", []), "string_list")
+	var settlement := template.get("settlement", {}) as Dictionary
+	%SettlementIntimacySpin.value = float(settlement.get("intimacy", 0.0))
+	%SettlementTrustSpin.value = float(settlement.get("trust", 0.0))
+
+
+func _template_from_form() -> Dictionary:
+	if selected_template.is_empty():
+		return {"ok": false, "error": "请先选择一个约会模板。"}
+	if %TemplateJsonUnlock.button_pressed:
+		var expert_result := _parse_object(template_json.text, "模板")
+		if not expert_result.get("ok", false):
+			return expert_result
+		var expert_template := (expert_result.get("data", {}) as Dictionary).duplicate(true)
+		selected_template = expert_template.duplicate(true)
+		return {"ok": true, "data": expert_template}
+	var template := selected_template.duplicate(true)
+	template["id"] = %TemplateIdEdit.text.strip_edges()
+	template["outline_title"] = %OutlineTitleEdit.text.strip_edges()
+	template["outline_prompt"] = %OutlinePromptEdit.text.strip_edges()
+	template["weight"] = int(%WeightSpin.value)
+	template["time_periods"] = _selected_periods()
+	template["weather_tags"] = %WeatherTagsEditor.get_value()
+	template["must_have_beats"] = %MustHaveBeatsEditor.get_value()
+	template["mood_tags"] = %MoodTagsEditor.get_value()
+	var settlement := (template.get("settlement", {}) as Dictionary).duplicate(true)
+	settlement["intimacy"] = float(%SettlementIntimacySpin.value)
+	settlement["trust"] = float(%SettlementTrustSpin.value)
+	template["settlement"] = settlement
+	selected_template = template.duplicate(true)
+	template_json.text = JSON.stringify(template, "    ", false)
+	return {"ok": true, "data": template}
+
+
+func _set_period_checks(raw_periods: Variant) -> void:
+	var periods: Array = raw_periods if raw_periods is Array else []
+	%MorningTemplateCheck.button_pressed = periods.has("morning")
+	%AfternoonTemplateCheck.button_pressed = periods.has("afternoon")
+	%EveningTemplateCheck.button_pressed = periods.has("evening")
+
+
+func _selected_periods() -> Array[String]:
+	var periods: Array[String] = []
+	if %MorningTemplateCheck.button_pressed:
+		periods.append("morning")
+	if %AfternoonTemplateCheck.button_pressed:
+		periods.append("afternoon")
+	if %EveningTemplateCheck.button_pressed:
+		periods.append("evening")
+	return periods
+
+
+func _set_template_json_unlocked(unlocked: bool) -> void:
+	template_json.editable = unlocked
+	%TemplateJsonUnlock.text = "模板 JSON 已解锁" if unlocked else "解锁模板 JSON"
+	%TemplateJsonUnlock.tooltip_text = "专家修改会覆盖表单中的完整模板结构" if unlocked else "仅在需要处理未建模字段时解锁"
 
 
 func _current_overrides() -> Dictionary:

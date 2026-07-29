@@ -121,9 +121,7 @@ func _create_shader_layer(layer_name: String, shader: Shader, texture: Texture2D
 	var layer := TextureRect.new()
 	layer.name = layer_name
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	layer.position = Vector2.ZERO
-	layer.size = Vector2.ZERO
+	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.texture = texture
 	layer.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	layer.stretch_mode = TextureRect.STRETCH_SCALE

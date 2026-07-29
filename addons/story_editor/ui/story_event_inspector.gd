@@ -4,6 +4,7 @@ extends VBoxContainer
 signal event_applied(event_data: Dictionary)
 
 const ChoiceOptionsEditorScene = preload("res://addons/story_editor/ui/story_choice_options_editor.tscn")
+const StructuredValueEditorScene = preload("res://addons/story_editor/ui/story_structured_value_editor.tscn")
 
 const EVENT_TYPES := [
 	"dialogue", "background", "audio", "bgm", "show_character",
@@ -72,15 +73,15 @@ const EVENT_SCHEMAS := {
 	],
 	"choice": [["options", "选项列表", "choice_options"]],
 	"jump": [["target_chapter", "目标章节", "chapter"]],
-	"set_variable": [["var_name", "变量名", "string"], ["var_value", "变量值", "json"]],
+	"set_variable": [["var_name", "变量名", "string"], ["var_value", "变量值", "variant"]],
 	"ai_chat": [["prompt_override", "Prompt 覆盖", "multiline"]],
 	"guided_ai_chat": [
 		["session_id", "会话 ID", "string"],
 		["narrative_anchor", "剧情锚点", "multiline"],
 		["scene_objective", "场景目标", "multiline"],
-		["allowed_topics", "允许讨论范围", "json"],
-		["forbidden_facts", "禁止改写事实", "json"],
-		["required_beats", "必达剧情点", "json"],
+		["allowed_topics", "允许讨论范围", "string_list"],
+		["forbidden_facts", "禁止改写事实", "string_list"],
+		["required_beats", "必达剧情点", "beat_list"],
 		["redirect_instruction", "偏题回拉策略", "multiline"],
 		["max_player_rounds", "最大玩家回合", "integer"],
 		["game_minutes", "完成后推进分钟", "integer"],
@@ -89,7 +90,7 @@ const EVENT_SCHEMAS := {
 		["hide_manual_end", "隐藏主动结束", "bool"],
 		["closing_instruction", "自然收束指令", "multiline"],
 		["fallback_closing_text", "失败兜底收束台词", "multiline"],
-		["outcome_branches", "结果章节映射", "json"]
+		["outcome_branches", "结果章节映射", "chapter_map"]
 	],
 	"start_free_chat": [["strategy", "对话策略", "multiline"], ["max_rounds", "最大轮数", "integer"]],
 	"voice_call": [["call_id", "固定通话 ID", "resource", "call"]],
@@ -117,6 +118,9 @@ func _ready() -> void:
 	type_select.item_selected.connect(_on_type_selected)
 	apply_button.pressed.connect(_apply_structured)
 	%ApplyJsonButton.pressed.connect(_apply_json)
+	%ExpertUnlock.toggled.connect(_set_expert_mode_unlocked)
+	%Tabs.set_tab_title(0, "策划配置")
+	%Tabs.set_tab_title(1, "专家模式")
 	clear_event()
 
 
@@ -127,7 +131,7 @@ func load_event(event_data: Dictionary) -> void:
 	_rebuild_fields()
 	advanced_json_edit.text = JSON.stringify(current_event, "    ", false)
 	apply_button.disabled = false
-	%ApplyJsonButton.disabled = false
+	_set_expert_mode_unlocked(%ExpertUnlock.button_pressed)
 	error_label.text = ""
 	loading = false
 
@@ -153,7 +157,8 @@ func clear_event() -> void:
 	_clear_fields()
 	advanced_json_edit.text = ""
 	apply_button.disabled = true
-	%ApplyJsonButton.disabled = true
+	%ExpertUnlock.button_pressed = false
+	_set_expert_mode_unlocked(false)
 	error_label.text = "选择一个节点后编辑事件。"
 	%TypeDescription.text = "选择画布中的事件节点后，这里会显示常用字段。"
 
@@ -194,6 +199,8 @@ func _create_field_control(key: String, label_text: String, kind: String, resour
 	match kind:
 		"choice_options":
 			control = ChoiceOptionsEditorScene.instantiate()
+		"string_list", "beat_list", "chapter_map", "variant":
+			control = StructuredValueEditorScene.instantiate()
 		"chapter":
 			var chapter_select := OptionButton.new()
 			for chapter_id in chapter_ids:
@@ -211,9 +218,9 @@ func _create_field_control(key: String, label_text: String, kind: String, resour
 				option_button.set_item_metadata(option_button.item_count - 1, str(entry.get("id", "")))
 				option_button.set_item_tooltip(option_button.item_count - 1, str(entry.get("path", "")))
 			control = option_button
-		"multiline", "json":
+		"multiline":
 			var text_edit := TextEdit.new()
-			text_edit.custom_minimum_size = Vector2(0, 110 if kind == "multiline" else 150)
+			text_edit.custom_minimum_size = Vector2(0, 110)
 			text_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 			control = text_edit
 		"number", "integer":
@@ -238,6 +245,8 @@ func _set_control_value(control: Control, kind: String, value: Variant) -> void:
 	match kind:
 		"choice_options":
 			control.setup(value as Array if value is Array else [], chapter_ids)
+		"string_list", "beat_list", "chapter_map", "variant":
+			control.setup(value, kind, chapter_ids)
 		"chapter":
 			var target := "end" if value == null else str(value)
 			for index in control.item_count:
@@ -258,8 +267,6 @@ func _set_control_value(control: Control, kind: String, value: Variant) -> void:
 			control.select(maxi(selected_index, 0))
 		"multiline", "string":
 			control.text = "" if value == null else str(value)
-		"json":
-			control.text = JSON.stringify(value, "    ", false)
 		"number", "integer":
 			control.value = 0.0 if value == null else float(value)
 		"bool":
@@ -288,6 +295,8 @@ func _read_control_value(control: Control, kind: String, key: String) -> Diction
 	match kind:
 		"choice_options":
 			return {"ok": true, "value": control.get_options()}
+		"string_list", "beat_list", "chapter_map", "variant":
+			return {"ok": true, "value": control.get_value()}
 		"chapter":
 			return {"ok": true, "value": str(control.get_item_metadata(control.selected))}
 		"resource":
@@ -300,13 +309,14 @@ func _read_control_value(control: Control, kind: String, key: String) -> Diction
 			return {"ok": true, "value": int(control.value)}
 		"bool":
 			return {"ok": true, "value": bool(control.button_pressed)}
-		"json":
-			var parser := JSON.new()
-			var parse_error := parser.parse(control.text)
-			if parse_error != OK:
-				return {"ok": false, "error": "%s 的 JSON 第 %d 行错误：%s" % [key, parser.get_error_line(), parser.get_error_message()]}
-			return {"ok": true, "value": parser.data}
 	return {"ok": false, "error": "不支持的字段类型：%s" % kind}
+
+
+func _set_expert_mode_unlocked(unlocked: bool) -> void:
+	advanced_json_edit.editable = unlocked
+	%ApplyJsonButton.disabled = not unlocked or current_event.is_empty()
+	%ExpertState.text = "已解锁：修改会替换当前事件的完整结构" if unlocked else "已锁定：仅用于查看完整数据和未建模字段"
+	%ExpertState.modulate = Color("#e0ad5b") if unlocked else Color("#78909c")
 
 
 func _apply_json() -> void:

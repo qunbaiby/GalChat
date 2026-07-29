@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://addons/story_editor/ui/mobile_ai_workbench.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/story_editor/ui/mobile_ai_history_editor.tscn" id="2_history"]
 
 [node name="MobileAIWorkbench" type="Window"]
 title = "手机 AI 交互测试台"
@@ -185,21 +186,53 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "今天练琴还顺利吗？"
 placeholder_text = "本轮玩家消息"
-[node name="HistoryEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs"]
+
+[node name="HistoryEditor" parent="Root/Body/InputScroll/Inputs" instance=ExtResource("2_history")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
-text = "[\n    {\"speaker\": \"player\", \"text\": \"在忙吗？\"},\n    {\"speaker\": \"char\", \"text\": \"刚练完一遍曲子。\"}\n]"
-wrap_mode = 1
 
 [node name="ResponseTitle" type="Label" parent="Root/Body/InputScroll/Inputs"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "4  原始响应"
-[node name="ResponseEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs"]
+text = "4  模拟角色回复"
+
+[node name="ResponseTextEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+text = "刚练完，有一点累。[SPLIT]不过比昨天顺多了。"
+placeholder_text = "填写模型可能返回的角色台词；可用 [SPLIT] 测试分段"
+wrap_mode = 1
+
+[node name="AdvancedInputUnlock" type="CheckButton" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "解锁高级测试输入"
+
+[node name="AdvancedInputPanel" type="VBoxContainer" parent="Root/Body/InputScroll/Inputs"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AdvancedHint" type="Label" parent="Root/Body/InputScroll/Inputs/AdvancedInputPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.72, 0.28, 1)
+text = "专家模式：仅用于构造系统事件、红包、图片消息或异常 API 响应。"
+autowrap_mode = 2
+
+[node name="HistoryEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs/AdvancedInputPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+editable = false
+text = "[\n    {\"speaker\": \"player\", \"text\": \"在忙吗？\"},\n    {\"speaker\": \"char\", \"text\": \"刚练完一遍曲子。\"}\n]"
+wrap_mode = 1
+[node name="ResponseEdit" type="TextEdit" parent="Root/Body/InputScroll/Inputs/AdvancedInputPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
+editable = false
 text = "{\n    \"choices\": [{\n        \"message\": {\"content\": \"刚练完，有一点累。[SPLIT]不过比昨天顺多了。\"}\n    }]\n}"
 wrap_mode = 1
 

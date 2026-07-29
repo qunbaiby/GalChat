@@ -5,6 +5,10 @@ const STORY_PERIOD_CARD_SCENE = preload("res://scenes/ui/story/story_period_card
 const ChatSplitHelperScript = preload("res://scripts/utils/chat_split_helper.gd")
 const GuidedAiResponseParser = preload("res://scripts/dialogue/guided_ai_response_parser.gd")
 const GuidedAiRequestGuard = preload("res://scripts/dialogue/guided_ai_request_guard.gd")
+const GuidedAiRoundPolicy = preload("res://scripts/dialogue/guided_ai_round_policy.gd")
+const GuidedAiPromptBuilder = preload("res://scripts/dialogue/guided_ai_prompt_builder.gd")
+
+var _guided_ai_round_policy := GuidedAiRoundPolicy.new()
 
 signal chat_closed
 signal embedded_topic_selected(topic: String, metadata: Dictionary)
@@ -34,6 +38,7 @@ var input_layer: Panel = null
 var input_field: TextEdit = null
 var send_btn: Button = null
 var voice_record_btn: Button = null
+var quick_option_layer: Control = null
 var quick_options_container: Node = null
 var end_chat_btn: Button = null
 var history_btn: Button = null
@@ -75,6 +80,8 @@ var _guided_ai_close_after_reply: bool = false
 var _guided_ai_closing_started: bool = false
 var _guided_ai_session_id: String = ""
 var _guided_ai_active_request_id: int = 0
+var _guided_ai_turn_started_at_ms: int = 0
+var _guided_ai_reply_available_at_ms: int = 0
 var _embedded_session_active: bool = false
 var _embedded_session_request: Dictionary = {}
 var _embedded_topic_options: Array = []
@@ -127,10 +134,10 @@ func _resolve_nodes() -> void:
 	if ui_panel and ui_panel != self and click_blocker_path == NodePath(""):
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	if ui_panel:
+	if dialogue_panel:
+		free_chat_info_layer = dialogue_panel.get_node_or_null("FreeChatInfoLayer") as Control
+	if not free_chat_info_layer and ui_panel:
 		free_chat_info_layer = ui_panel.get_node_or_null("FreeChatInfoLayer") as Control
-	else:
-		free_chat_info_layer = null
 
 	if dialogue_panel:
 		hide_ui_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/HideUIButton") as Button
@@ -153,6 +160,7 @@ func _resolve_nodes() -> void:
 		input_field = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/InputField") as TextEdit
 		send_btn = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/SendButton") as Button
 		voice_record_btn = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/VoiceRecordButton") as Button
+		quick_option_layer = dialogue_panel.get_node_or_null("QuickOptionLayer") as Control
 		quick_options_container = dialogue_panel.get_node_or_null("QuickOptionLayer/ScrollContainer/QuickOptions")
 		end_chat_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/EndChatButton") as Button
 		history_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/HistoryButton") as Button
@@ -163,6 +171,7 @@ func _resolve_nodes() -> void:
 		input_field = null
 		send_btn = null
 		voice_record_btn = null
+		quick_option_layer = null
 		quick_options_container = null
 		end_chat_btn = null
 		history_btn = null
@@ -196,6 +205,9 @@ func _resolve_nodes() -> void:
 
 func _ready() -> void:
 	_resolve_nodes()
+	var guide_manager := get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_story_scene_ready"):
+		guide_manager.on_story_scene_ready()
 
 	if dialogue_panel:
 		dialogue_panel.show()
@@ -433,6 +445,8 @@ func _on_script_dialogue_requested(speaker: String, content: String, mood: Strin
 		tts_expression = mood.strip_edges()
 	var voice_instruction: String = str(presentation.get("voice_instruction", "")).strip_edges()
 	await _show_message_async(actual_content, char_name, true, "", tts_expression, voice_instruction)
+	if script_engine and script_engine.is_running and script_engine.is_waiting_for_resume:
+		script_engine.resume()
 
 func _restore_story_checkpoint() -> bool:
 	var checkpoint := GameDataManager.load_active_story_checkpoint()
@@ -835,7 +849,11 @@ func _on_script_guided_ai_chat_requested(policy: Dictionary) -> void:
 	free_chat_current_round = 0
 	_update_free_chat_info()
 	if free_chat_info_layer:
+		free_chat_info_layer.move_to_front()
 		free_chat_info_layer.show()
+	var host := get_parent()
+	if is_instance_valid(host) and host.has_method("_refresh_guide_overlay_if_needed"):
+		host.call_deferred("_refresh_guide_overlay_if_needed")
 	_intro_playing = false
 	dialogue_panel.set_story_mode(false)
 	if input_layer:
@@ -1204,13 +1222,19 @@ func _get_story_location_display_name(location_id: String) -> String:
 func _update_free_chat_info() -> void:
 	if free_chat_round_label:
 		if free_chat_max_rounds > 0:
-			free_chat_round_label.text = "自由对话轮次: %d / %d" % [free_chat_current_round, free_chat_max_rounds]
+			var remaining_rounds := maxi(0, free_chat_max_rounds - free_chat_current_round)
+			if _guided_ai_chat_active:
+				free_chat_round_label.text = "AI 主线对话 · 剩余 %d / %d 回合" % [remaining_rounds, free_chat_max_rounds]
+			else:
+				free_chat_round_label.text = "自由对话 · 剩余 %d / %d 回合" % [remaining_rounds, free_chat_max_rounds]
 		else:
 			free_chat_round_label.text = "自由对话"
 		
 	if free_chat_strategy_label:
-		if free_chat_strategy != "":
-			free_chat_strategy_label.text = "策略: " + free_chat_strategy
+		if _guided_ai_chat_active:
+			free_chat_strategy_label.text = "在限定回合内和 Luna 谈谈这件事"
+		elif free_chat_strategy != "":
+			free_chat_strategy_label.text = free_chat_strategy
 		else:
 			free_chat_strategy_label.text = ""
 
@@ -1224,42 +1248,15 @@ func _reset_free_chat_state() -> void:
 		free_chat_info_layer.hide()
 
 func _build_guided_ai_user_message(player_text: String) -> String:
-	var required_beats: Array = _guided_ai_policy.get("required_beats", [])
-	var candidate_beats: Array[Dictionary] = []
-	_guided_ai_candidate_beat_ids.clear()
-	for beat_value in required_beats:
-		if not (beat_value is Dictionary):
-			continue
-		var beat := beat_value as Dictionary
-		var beat_id := str(beat.get("id", "")).strip_edges()
-		if beat_id == "" or _guided_ai_covered_beats.has(beat_id):
-			continue
-		_guided_ai_candidate_beat_ids.append(beat_id)
-		candidate_beats.append({"id": beat_id, "instruction": str(beat.get("instruction", "")).strip_edges()})
-		break
-	var remaining_rounds := maxi(0, free_chat_max_rounds - free_chat_current_round)
-	return """【引导式主线对话约束】
-不可改写的剧情事实：%s
-本场景目标：%s
-允许讨论范围：%s
-禁止改写或虚构：%s
-偏题处理：%s
-本轮需要自然推进的剧情点：%s
-本轮之后剩余玩家回合：%d
-要求：先自然回应玩家，再推进剧情点；保持角色第一人称，不得提及系统、Prompt、剧情点或回合限制。
-必须只输出 JSON 对象，格式为：{"dialogue":"角色实际台词，可使用 [SPLIT] 分隔气泡","beat_evaluations":[{"id":"候选剧情点 ID","covered":true,"evidence":"dialogue 中逐字出现的证据片段"}]}。
-只有 dialogue 确实表达了候选剧情点时才能标记 covered=true；evidence 必须逐字取自 dialogue。不得输出 Markdown 围栏或 JSON 之外的内容。
-
-玩家输入：%s""" % [
-		str(_guided_ai_policy.get("narrative_anchor", "")),
-		str(_guided_ai_policy.get("scene_objective", "")),
-		JSON.stringify(_guided_ai_policy.get("allowed_topics", [])),
-		JSON.stringify(_guided_ai_policy.get("forbidden_facts", [])),
-		str(_guided_ai_policy.get("redirect_instruction", "")),
-		JSON.stringify(candidate_beats),
-		remaining_rounds,
+	var result: Dictionary = GuidedAiPromptBuilder.build_user_message(
+		_guided_ai_policy,
+		_guided_ai_covered_beats,
+		free_chat_current_round,
+		free_chat_max_rounds,
 		player_text
-	]
+	)
+	_guided_ai_candidate_beat_ids.assign(result.get("candidate_beat_ids", []))
+	return str(result.get("prompt", ""))
 
 func _begin_guided_ai_closing() -> void:
 	if not _guided_ai_chat_active or _guided_ai_closing_started:
@@ -1282,7 +1279,7 @@ func _begin_guided_ai_closing() -> void:
 			if beat_id != "" and not _guided_ai_covered_beats.has(beat_id):
 				_guided_ai_candidate_beat_ids.append(beat_id)
 				missing_beats.append({"id": beat_id, "instruction": str((beat_value as Dictionary).get("instruction", ""))})
-	var closing_prompt := "【系统指令】本轮主线对话现在需要自然结束。%s 结束前请自然覆盖这些尚未表达的信息：%s。不得提及系统、回合数或限制。必须只输出 JSON 对象，格式为：{\"dialogue\":\"角色收束台词\",\"beat_evaluations\":[{\"id\":\"候选剧情点 ID\",\"covered\":true,\"evidence\":\"dialogue 中逐字出现的证据片段\"}]}。evidence 必须逐字取自 dialogue，不得输出 Markdown 围栏或额外内容。" % [
+	var closing_prompt := "【系统指令】本轮主线对话现在需要自然结束。%s 结束前请自然覆盖这些尚未表达的信息：%s。dialogue 必须至少包含一处使用全角圆括号包裹的动作、神态或细微反应，例如“（轻轻抱住琴谱）”；不得提及系统、回合数或限制。必须只输出 JSON 对象，格式为：{\"dialogue\":\"（角色动作）角色收束台词\",\"beat_evaluations\":[{\"id\":\"候选剧情点 ID\",\"covered\":true,\"evidence\":\"dialogue 中逐字出现的证据片段\"}]}。evidence 必须逐字取自 dialogue，不得输出 Markdown 围栏或额外内容。" % [
 		str(_guided_ai_policy.get("closing_instruction", "")),
 		JSON.stringify(missing_beats)
 	]
@@ -1317,7 +1314,7 @@ func _finish_guided_ai_chat(outcome: String = "complete", settle_time: bool = tr
 	elif target_chapter == "end":
 		script_engine._end_script()
 	elif script_engine and script_engine.is_running:
-		script_engine.resume()
+		script_engine.complete_guided_ai_chat()
 
 func _clear_guided_ai_state() -> void:
 	if _guided_ai_active_request_id > 0 and deepseek_client:
@@ -1349,6 +1346,15 @@ func _finish_script_ai_chat() -> void:
 		script_engine.resume()
 
 func _send_player_message(text: String, is_system_event: bool = false) -> void:
+	if _guided_ai_chat_active:
+		_guided_ai_turn_started_at_ms = Time.get_ticks_msec()
+		_guided_ai_reply_available_at_ms = 0
+		print("[GuidedAITrace] round=%d/%d stage=player_send_started chars=%d system_event=%s" % [
+			free_chat_current_round + (0 if is_system_event else 1),
+			free_chat_max_rounds,
+			text.length(),
+			str(is_system_event)
+		])
 	if not is_system_event and input_field:
 		input_field.text = ""
 		
@@ -1370,13 +1376,19 @@ func _send_player_message(text: String, is_system_event: bool = false) -> void:
 		
 	if not is_system_event:
 		# Wait for the typewriter effect of the player's message to finish before requesting AI response
-		await _show_message_async(text, "我")
+		await _show_message_async(text, "我", false, "", "", "", _guided_ai_chat_active)
+		if _guided_ai_chat_active:
+			print("[GuidedAITrace] round=%d/%d stage=player_message_playback_completed elapsed_ms=%d" % [
+				free_chat_current_round,
+				free_chat_max_rounds,
+				Time.get_ticks_msec() - _guided_ai_turn_started_at_ms
+			])
 	
 	var request_text := _build_guided_ai_user_message(text) if _guided_ai_chat_active and not is_system_event else text
 	_request_ai_response(request_text, is_system_event, text if _guided_ai_chat_active and not is_system_event else "")
 	
 	# 检查是否达到最大轮次，在发送请求后关闭模式，这样本次请求还能带上策略
-	if _guided_ai_chat_active and free_chat_current_round >= free_chat_max_rounds:
+	if _guided_ai_chat_active and _guided_ai_round_policy.should_close_after_round(free_chat_current_round, free_chat_max_rounds):
 		_guided_ai_close_after_reply = true
 		input_field.editable = false
 		send_btn.disabled = true
@@ -1510,6 +1522,17 @@ func _on_character_switched(char_id: String) -> void:
 		_restore_last_message()
 
 func _input(event: InputEvent) -> void:
+	if external_session_controlled and not _embedded_session_active:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if ui_panel and (not ui_panel.visible or ui_panel.modulate.a < 0.99):
+			get_viewport().set_input_as_handled()
+			if _ui_tween:
+				_ui_tween.kill()
+			ui_panel.visible = true
+			_ui_tween = create_tween()
+			_ui_tween.tween_property(ui_panel, "modulate:a", 1.0, 0.3)
+			return
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_F10:
 			GameDataManager.switch_character("luna")
@@ -1546,6 +1569,7 @@ func show_panel() -> void:
 		scale_tween.tween_property(target, "scale", Vector2(1.0, 1.0), 0.3)
 
 func start_embedded_topic_session(request: Dictionary) -> void:
+	set_process_input(true)
 	_embedded_session_active = true
 	_embedded_session_request = request.duplicate(true)
 	_embedded_topic_options = request.get("topic_options", []).duplicate(true)
@@ -1568,6 +1592,7 @@ func start_embedded_topic_session(request: Dictionary) -> void:
 	_play_embedded_intro()
 
 func start_embedded_story_session(request: Dictionary, script_path: String) -> void:
+	set_process_input(true)
 	_embedded_session_active = true
 	_embedded_session_request = request.duplicate(true)
 	conversation_subtype = str(request.get("subtype", conversation_subtype)).strip_edges()
@@ -1575,6 +1600,7 @@ func start_embedded_story_session(request: Dictionary, script_path: String) -> v
 	_play_story(script_path)
 
 func start_embedded_story_data_session(request: Dictionary, script_data: Dictionary) -> void:
+	set_process_input(true)
 	_embedded_session_active = true
 	_embedded_session_request = request.duplicate(true)
 	conversation_subtype = str(request.get("subtype", conversation_subtype)).strip_edges()
@@ -1670,6 +1696,8 @@ func hide_panel() -> void:
 		if target != self:
 			target.hide()
 		hide()
+		if external_session_controlled:
+			set_process_input(false)
 		_emit_chat_closed()
 		
 		# 强制检查：如果正在运行剧情且没有因为正常轮次耗尽而结束，玩家手动退出了界面，
@@ -1976,7 +2004,9 @@ func _request_ai_response(text: String, is_system_event: bool, history_text: Str
 			var request_context := {
 				"session_id": _guided_ai_session_id,
 				"request_kind": "closing" if _guided_ai_closing_started else "normal",
-				"candidate_beat_ids": _guided_ai_candidate_beat_ids.duplicate()
+				"candidate_beat_ids": _guided_ai_candidate_beat_ids.duplicate(),
+				"trace_source": "guided_ai_chat",
+				"turn_started_at_ms": _guided_ai_turn_started_at_ms
 			}
 			_guided_ai_active_request_id = deepseek_client.send_chat_message_structured(text, "story_chat", request_context, _build_story_knowledge_access_context())
 		else:
@@ -1999,6 +2029,20 @@ func _on_send_pressed() -> void:
 		return
 	
 	_send_player_message(text, false)
+
+func _set_dialogue_input_ready(clear_text: bool = true) -> void:
+	if dialogue_panel and dialogue_panel.has_method("set_input_ready_state"):
+		dialogue_panel.set_input_ready_state(clear_text)
+		return
+	if input_field:
+		if clear_text:
+			input_field.text = ""
+		input_field.editable = true
+		input_field.grab_focus()
+	if send_btn:
+		send_btn.disabled = false
+	if voice_record_btn:
+		voice_record_btn.disabled = false
 
 var pending_reply_lines = []
 var stream_live_active: bool = false
@@ -2081,19 +2125,35 @@ func _on_chat_response(response: Dictionary) -> void:
 		var lines = _parse_reply_to_lines(reply)
 		if lines.size() == 0:
 			_show_message(char_name + " 似乎走神了...", char_name)
-			send_btn.disabled = false
-			input_field.editable = true
+			_set_dialogue_input_ready()
 			return
 			
 		_play_message_sequence(lines, char_name)
 	else:
 		_show_message(char_name + " 似乎走神了...", char_name)
-		send_btn.disabled = false
-		input_field.editable = true
+		_set_dialogue_input_ready()
 
 func _on_structured_chat_response(response: Dictionary, request_context: Dictionary) -> void:
 	if not _is_current_guided_request(request_context):
+		print("[GuidedAITrace] request=%d stage=response_discarded active=%s active_request=%d active_session=%s response_session=%s closing=%s response_kind=%s" % [
+			int(request_context.get("request_id", 0)),
+			str(_guided_ai_chat_active),
+			_guided_ai_active_request_id,
+			_guided_ai_session_id,
+			str(request_context.get("session_id", "")),
+			str(_guided_ai_closing_started),
+			str(request_context.get("request_kind", ""))
+		])
 		return
+	_guided_ai_reply_available_at_ms = Time.get_ticks_msec()
+	print("[GuidedAITrace] request=%d stage=reply_available elapsed_from_send_ms=%d prompt_ms=%d embedding_ms=%d render_ms=%d http_ms=%d" % [
+		int(request_context.get("request_id", 0)),
+		_guided_ai_reply_available_at_ms - int(request_context.get("turn_started_at_ms", _guided_ai_reply_available_at_ms)),
+		int(request_context.get("prompt_build_ms", -1)),
+		int(request_context.get("query_embedding_ms", -1)),
+		int(request_context.get("prompt_render_ms", -1)),
+		int(request_context.get("model_http_ms", -1))
+	])
 	_guided_ai_candidate_beat_ids.assign(request_context.get("candidate_beat_ids", []))
 	_guided_ai_active_request_id = 0
 	_on_chat_response(response)
@@ -2217,6 +2277,8 @@ func _on_script_choice_requested(options: Array) -> void:
 	_story_choice_active = true
 	if input_layer:
 		input_layer.hide()
+	if quick_option_layer:
+		quick_option_layer.show()
 	if quick_options_container and quick_options_container.get_parent():
 		quick_options_container.get_parent().show()
 	QuickOptionListHelper.populate_option_items_with_index(
@@ -2247,6 +2309,8 @@ func _on_story_choice_selected(_text: String, index: int = -1) -> void:
 	GameDataManager.profile.save_profile()
 	var response_text := str(option_data.get("response", option_data.get("text", ""))).strip_edges()
 	QuickOptionListHelper.clear_container(quick_options_container)
+	if quick_option_layer:
+		quick_option_layer.hide()
 	if quick_options_container and quick_options_container.get_parent():
 		quick_options_container.get_parent().hide()
 	_story_choice_options.clear()
@@ -2329,8 +2393,7 @@ func _on_quick_option_selected(text: String, index: int = -1) -> void:
 
 func _on_chat_error(error_msg: String) -> void:
 	var char_name = GameDataManager.profile.char_name
-	send_btn.disabled = false
-	input_field.editable = true
+	_set_dialogue_input_ready()
 	stream_live_active = false
 	stream_live_done = true
 	stream_live_buffer = ""
@@ -2354,7 +2417,8 @@ func _finish_guided_ai_chat_with_fallback() -> void:
 	if end_chat_btn:
 		end_chat_btn.hide()
 	var fallback_text := str(_guided_ai_policy.get("fallback_closing_text", "（轻轻点头）那今天就先聊到这里吧。")).strip_edges()
-	await _show_message_async(fallback_text, GameDataManager.profile.char_name, false)
+	var fallback_display_text := ChatSplitHelperScript.format_actions(fallback_text)
+	await _show_message_async(fallback_display_text, GameDataManager.profile.char_name, false)
 	_finish_guided_ai_chat("incomplete")
 
 func _extract_stream_segments(force_flush: bool) -> void:
@@ -2441,8 +2505,7 @@ func _run_stream_worker() -> void:
 		return
 		
 	_try_show_options()
-	send_btn.disabled = false
-	input_field.editable = true
+	_set_dialogue_input_ready()
 
 func _auto_split_message(text: String) -> Array:
 	# 如果AI主动遵守了提示词，直接使用
@@ -2572,6 +2635,11 @@ func _auto_split_message(text: String) -> Array:
 	return merged_parts
 
 func _play_message_sequence(lines: Array, char_name: String) -> void:
+	if _guided_ai_chat_active and _guided_ai_reply_available_at_ms > 0:
+		print("[GuidedAITrace] stage=reply_playback_started bubbles=%d elapsed_from_send_ms=%d" % [
+			lines.size(),
+			Time.get_ticks_msec() - _guided_ai_turn_started_at_ms
+		])
 	for line in lines:
 		if GameDataManager.config.ai_mode_enabled:
 			_async_analyze_and_update_mood(line)
@@ -2585,6 +2653,11 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 		await get_tree().create_timer(1.0).timeout
 		
 	is_text_playback_finished = true
+	if _guided_ai_chat_active and _guided_ai_reply_available_at_ms > 0:
+		print("[GuidedAITrace] stage=reply_playback_completed display_ms=%d total_turn_ms=%d" % [
+			Time.get_ticks_msec() - _guided_ai_reply_available_at_ms,
+			Time.get_ticks_msec() - _guided_ai_turn_started_at_ms
+		])
 	if _guided_ai_chat_active and bool(_guided_ai_policy.get("allow_early_completion", false)) and _are_guided_ai_required_beats_covered():
 		_guided_ai_close_after_reply = true
 	
@@ -2602,8 +2675,7 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 		_begin_guided_ai_closing()
 	else:
 		_try_show_options()
-		send_btn.disabled = false
-		input_field.editable = true
+		_set_dialogue_input_ready()
 
 func _async_analyze_and_update_mood(line: String) -> void:
 	_pending_mood_analysis_line = line.strip_edges()
@@ -2666,7 +2738,7 @@ func _process_single_message_line_async(raw_line: String, char_name: String) -> 
 func _show_message(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "") -> void:
 	_show_message_async(text, speaker_name, is_restore, tts_text)
 
-func _show_message_async(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "", tts_expression: String = "", voice_instruction: String = "") -> void:
+func _show_message_async(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "", tts_expression: String = "", voice_instruction: String = "", auto_advance: bool = false) -> void:
 	if speaker_name == "":
 		speaker_name = GameDataManager.profile.char_name
 		
@@ -2766,7 +2838,10 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	dialogue_text.visible_characters = -1
 	_line_text_complete = true
 	
-	if _line_advance_requested:
+	if auto_advance:
+		_line_advance_requested = true
+		_cancel_active_line_audio()
+	elif _line_advance_requested:
 		_cancel_active_line_audio()
 	elif _intro_playing:
 		_intro_waiting_for_click = true

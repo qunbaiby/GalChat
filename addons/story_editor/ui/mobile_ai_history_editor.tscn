@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/mobile_ai_history_editor.gd" id="1_script"]
+
+[node name="MobileAIHistoryEditor" type="VBoxContainer"]
+theme_override_constants/separation = 6
+script = ExtResource("1_script")
+
+[node name="Toolbar" type="HFlowContainer" parent="."]
+layout_mode = 2
+
+[node name="Hint" type="Label" parent="Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "按真实聊天顺序添加消息，不需要填写 JSON。"
+autowrap_mode = 2
+
+[node name="AddPlayerButton" type="Button" parent="Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "添加玩家消息"
+
+[node name="AddCharacterButton" type="Button" parent="Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "添加角色消息"
+
+[node name="AddSystemButton" type="Button" parent="Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "添加系统事件"
+
+[node name="EmptyHint" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "暂无历史消息。"
+
+[node name="Rows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8

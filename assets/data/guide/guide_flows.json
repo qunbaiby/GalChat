@@ -240,11 +240,23 @@
                     "type": "wait_action",
                     "step_category": "wechat",
                     "title": "关闭微聊",
-                    "text": "这段固定对话已经结束。现在点击右上角关闭按钮，回到主场景后会自动继续这段主线。",
+                    "text": "这段固定对话已经结束。现在点击右上角关闭按钮；回到主场景后，先看看刚刚更新的近期目标。",
                     "wait_action": "close_wechat_panel",
                     "target_scene": "wechat",
                     "requires_scene": "wechat",
                     "target_mode": "close_button",
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "explain_main_goal_panel",
+                    "type": "wait_action",
+                    "step_category": "goal",
+                    "title": "看看近期目标",
+                    "text": "这里会展示近期目标。静老师已经约好周六给 Luna 做专项辅导，先点击左上角目标面板看看，再去跟 Luna 聊聊这件事吧。",
+                    "wait_action": "click_main_goal",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.goal",
                     "hide_until_scene_ready": true
                 },
                 {
@@ -263,8 +275,8 @@
                     "id": "choose_topic_after_goal",
                     "type": "wait_action",
                     "step_category": "chat",
-                    "title": "选择主线话题",
-                    "text": "固定微聊解锁的主线已经自动接续。看完 Luna 的反应后，点击这个主线话题，开始和她自由聊天。",
+                    "title": "进入 AI 主线对话",
+                    "text": "接下来将进入 AI 对话阶段。点击这个主线话题，在最多 4 个回合内和 Luna 谈谈周六专项辅导。开始时会消耗 5 点行动力，整段对话结束后时间推进 30 分钟；进入对话后，左上角会持续显示剩余回合数。",
                     "wait_action": "select_main_chat_topic",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -272,26 +284,31 @@
                     "hide_until_scene_ready": true
                 },
                 {
+                    "id": "explain_guided_ai_round_limit",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "留意剩余回合",
+                    "text": "接下来进入 AI 对话阶段。左上角会显示剩余回合数；请在最多 4 个回合内和 Luna 谈谈这件事。点击回合卡确认后，就可以开始输入了。",
+                    "wait_action": "acknowledge_guided_ai_round_limit",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.ai_rounds",
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "acknowledge_guided_ai_round_limit"
+                    }
+                },
+                {
                     "id": "finish_first_chat_after_goal",
                     "type": "wait_action",
                     "step_category": "chat",
-                    "title": "先把这次聊天聊完",
-                    "text": "这次就先顺着话题和 Luna 自由聊聊吧。聊完回到主场景后，我再带你认识更重要的情感入口。",
+                    "title": "在限定回合内聊完",
+                    "text": "左上角显示这段 AI 主线的剩余回合数。每次发送消息会使用 1 个回合；回合耗尽后 Luna 会自然收尾。行动力只在开始时扣除 5 点，时间会在整段结束后统一推进 30 分钟。聊完后，我再带你认识更重要的情感入口。",
                     "wait_action": "finish_first_main_chat_after_goal",
                     "target_scene": "main",
                     "requires_scene": "main",
-                    "hide_until_scene_ready": true
-                },
-                {
-                    "id": "explain_main_goal_panel",
-                    "type": "wait_action",
-                    "step_category": "goal",
-                    "title": "看看当前目标",
-                    "text": "主线聊天结束后，相关的重要目标、约定与阶段性安排都会汇总显示在这里。现在点击左上角目标面板，记住这次和静老师约好的专项辅导。",
-                    "wait_action": "click_main_goal",
-                    "target_scene": "main",
-                    "requires_scene": "main",
-                    "highlight_feature": "main.goal",
+                    "hide_overlay": true,
                     "hide_until_scene_ready": true
                 },
                 {
@@ -299,7 +316,7 @@
                     "type": "wait_action",
                     "step_category": "interaction",
                     "title": "留意这些常用区域",
-                    "text": "天气面板和顶部状态面板，之后也会经常陪你一起观察 Luna 的日常状态。现在点击任意一个高亮区域，我再继续带你往下。",
+                    "text": "天气面板会反映剧情时间变化，顶部状态面板则能查看行动力。刚才的 AI 主线在开始时消耗了 5 点行动力，并在整段结束后推进了 30 分钟。现在点击任意一个高亮区域，我再继续带你往下。",
                     "wait_action": "inspect_main_panels_after_interact",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -329,6 +346,10 @@
                     "requires_scene": "main",
                     "highlight_feature": "main.affection",
                     "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "open_affection"
+                    },
                     "feature_updates": {
                         "main.affection": true
                     }

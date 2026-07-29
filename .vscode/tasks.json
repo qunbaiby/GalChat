@@ -105,6 +105,44 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Embedded Story Choice",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/embedded_story_choice_smoke.gd",
+				"-SuccessMarker",
+				"EMBEDDED_STORY_CHOICE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Dialogue Input State",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/dialogue_input_state_smoke.gd",
+				"-SuccessMarker",
+				"DIALOGUE_INPUT_STATE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Smoke Test Cognition Task Queue",
 			"type": "shell",
 			"command": "powershell.exe",
@@ -541,6 +579,7 @@
 			"type": "shell",
 			"command": "git",
 			"args": [
+				"--no-pager",
 				"diff",
 				"--check"
 			],
@@ -559,6 +598,8 @@
 				"Smoke Test Mobile AI Requester",
 				"Smoke Test Story Branch Runtime",
 				"Smoke Test Guided AI Chat",
+				"Smoke Test Embedded Story Choice",
+				"Smoke Test Dialogue Input State",
 				"Smoke Test Cognition Task Queue",
 				"Smoke Test Memory Observation",
 				"Smoke Test Conversation Summary Conflict",

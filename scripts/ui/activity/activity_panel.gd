@@ -1159,7 +1159,7 @@ func _fetch_all_course_descriptions_from_ai(courses_data: Array) -> void:
 	var http = HTTPRequest.new()
 	http.timeout = 10.0
 	add_child(http)
-	http.request_completed.connect(func(res, code, hdrs, body): _on_all_ai_descriptions_completed(res, code, hdrs, body, http))
+	http.request_completed.connect(func(res, code, hdrs, response_body): _on_all_ai_descriptions_completed(res, code, hdrs, response_body, http))
 	
 	var url: String = ai_client._get_url()
 	var headers: Array = ai_client._get_headers()
@@ -1200,7 +1200,7 @@ func _finish_loading_and_open() -> void:
 		)
 	_open_execution_panel()
 
-func _on_all_ai_descriptions_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_all_ai_descriptions_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
 	
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:

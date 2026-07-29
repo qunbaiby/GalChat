@@ -16,10 +16,14 @@ const DEFAULT_SAMPLE_RATE := 24000
 const DEFAULT_BIT_RATE := 96000
 const DEFAULT_SPEECH_RATE := 0
 const DEFAULT_LOUDNESS_RATE := 0
+const SUPPORTED_SAMPLE_RATES := [8000, 16000, 22050, 24000, 32000, 44100, 48000]
+const MIN_RATE_ADJUSTMENT := -50
+const MAX_RATE_ADJUSTMENT := 100
+const MIN_MP3_BIT_RATE := 64000
+const MAX_MP3_BIT_RATE := 160000
 
 const AUDIO_FORMAT_OPTIONS := [
-	{"id": "mp3", "label": "MP3"},
-	{"id": "wav", "label": "WAV"}
+	{"id": "mp3", "label": "MP3"}
 ]
 
 var _http_request: HTTPRequest
@@ -189,6 +193,9 @@ func _build_request_options(text: String, options: Dictionary) -> Dictionary:
 				context_texts.append(instruction)
 		if not context_texts.is_empty():
 			merged["context_texts"] = context_texts
+	var section_id: String = str(options.get("section_id", "")).strip_edges()
+	if not section_id.is_empty():
+		merged["section_id"] = section_id
 	if options.has("additions") and options.get("additions", null) is Dictionary:
 		merged["additions"] = (options.get("additions", {}) as Dictionary).duplicate(true)
 	return merged
@@ -202,7 +209,19 @@ func _validate_request_options(options: Dictionary) -> String:
 		return "当前 speaker 属于旧版音色体系，不能用于 seed-tts-2.0，请改用新版 TTS 2.0 speaker。"
 	var format_id: String = _normalize_audio_format(str(options.get("audio_format", DEFAULT_AUDIO_FORMAT)).strip_edges())
 	if format_id.is_empty():
-		return "不支持的音频格式，仅支持 mp3 或 wav。"
+		return "当前豆包 TTS 2.0 流式播放仅支持 MP3；WAV 分块包含重复文件头，暂不开放。"
+	var sample_rate: int = int(options.get("sample_rate", DEFAULT_SAMPLE_RATE))
+	if not SUPPORTED_SAMPLE_RATES.has(sample_rate):
+		return "不支持的采样率：%d。可选值为 8000、16000、22050、24000、32000、44100 或 48000。" % sample_rate
+	var speech_rate: int = int(options.get("speech_rate", DEFAULT_SPEECH_RATE))
+	if speech_rate < MIN_RATE_ADJUSTMENT or speech_rate > MAX_RATE_ADJUSTMENT:
+		return "语速必须在 -50 到 100 之间。"
+	var loudness_rate: int = int(options.get("loudness_rate", DEFAULT_LOUDNESS_RATE))
+	if loudness_rate < MIN_RATE_ADJUSTMENT or loudness_rate > MAX_RATE_ADJUSTMENT:
+		return "音量必须在 -50 到 100 之间。"
+	var bit_rate: int = int(options.get("bit_rate", DEFAULT_BIT_RATE))
+	if bit_rate < MIN_MP3_BIT_RATE or bit_rate > MAX_MP3_BIT_RATE:
+		return "MP3 比特率必须在 64000 到 160000 之间。"
 	return ""
 
 func _build_request_body(options: Dictionary) -> Dictionary:
@@ -230,6 +249,9 @@ func _build_request_body(options: Dictionary) -> Dictionary:
 	var additions: Dictionary = (options.get("additions", {}) as Dictionary).duplicate(true) if options.get("additions", null) is Dictionary else {}
 	if options.has("context_texts") and options.get("context_texts", null) is Array:
 		additions["context_texts"] = (options.get("context_texts", []) as Array).duplicate()
+	var section_id: String = str(options.get("section_id", "")).strip_edges()
+	if not section_id.is_empty():
+		additions["section_id"] = section_id
 	if not additions.is_empty():
 		req_params["additions"] = JSON.stringify(additions)
 	return {"req_params": req_params}
@@ -247,6 +269,9 @@ func _build_official_request_body(options: Dictionary) -> Dictionary:
 	}
 	if options.has("context_texts") and options.get("context_texts", null) is Array:
 		request_body["context_texts"] = (options.get("context_texts", []) as Array).duplicate()
+	var section_id: String = str(options.get("section_id", "")).strip_edges()
+	if not section_id.is_empty():
+		request_body["section_id"] = section_id
 	return request_body
 
 func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
@@ -274,6 +299,7 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		return
 
 	var audio_format: String = _normalize_audio_format(str(request_info.get("audio_format", DEFAULT_AUDIO_FORMAT)).strip_edges())
+	var response_metadata: Dictionary = _extract_stream_metadata(body)
 	var resolved_audio_bytes: PackedByteArray = _extract_audio_bytes_from_response(body)
 	if resolved_audio_bytes.is_empty():
 		_emit_failure(request_id, _build_audio_parse_error_message(body, log_id), request_info, log_id)
@@ -289,7 +315,7 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		_emit_failure(request_id, "TTS 音频保存失败，错误码：%d" % save_error, request_info, log_id)
 		_try_start_next_request()
 		return
-	_emit_success(request_info, save_path, audio_format, log_id)
+	_emit_success(request_info, save_path, audio_format, log_id, response_metadata)
 	_try_start_next_request()
 
 func _retry_official_request_after_refresh(request_info: Dictionary) -> void:
@@ -299,7 +325,7 @@ func _retry_official_request_after_refresh(request_info: Dictionary) -> void:
 		_emit_failure(str(request_info.get("request_id", "")), "登录状态已失效，请重新登录后使用官方语音服务。", request_info)
 	_try_start_next_request()
 
-func _emit_success(request_info: Dictionary, audio_path: String, audio_format: String, log_id: String = "") -> void:
+func _emit_success(request_info: Dictionary, audio_path: String, audio_format: String, log_id: String = "", response_metadata: Dictionary = {}) -> void:
 	var request_id: String = str(request_info.get("request_id", "")).strip_edges()
 	var audio_bytes: PackedByteArray = FileAccess.get_file_as_bytes(audio_path)
 	var stream: AudioStream = _build_stream_from_bytes(audio_bytes, audio_format)
@@ -326,6 +352,8 @@ func _emit_success(request_info: Dictionary, audio_path: String, audio_format: S
 		"log_id": log_id,
 		"request_source": str(request_info.get("request_source", "")).strip_edges()
 	}
+	if response_metadata.has("usage"):
+		result_payload["usage"] = (response_metadata.get("usage", {}) as Dictionary).duplicate(true)
 	tts_completed.emit(request_id, result_payload)
 
 func _save_audio_bytes(save_path: String, audio_bytes: PackedByteArray) -> Error:
@@ -365,13 +393,10 @@ func _extract_streamed_audio_bytes(body: PackedByteArray) -> PackedByteArray:
 	if body_text.is_empty():
 		return PackedByteArray()
 	var merged_audio: PackedByteArray = PackedByteArray()
-	var chunk_count: int = 0
-	var line_count: int = 0
 	for raw_line in body_text.split("\n", false):
 		var line_text: String = raw_line.strip_edges()
 		if line_text.is_empty():
 			continue
-		line_count += 1
 		var json := JSON.new()
 		if json.parse(line_text) != OK:
 			continue
@@ -387,8 +412,22 @@ func _extract_streamed_audio_bytes(body: PackedByteArray) -> PackedByteArray:
 		if encoded_audio.is_empty():
 			continue
 		merged_audio.append_array(Marshalls.base64_to_raw(encoded_audio))
-		chunk_count += 1
 	return merged_audio
+
+func _extract_stream_metadata(body: PackedByteArray) -> Dictionary:
+	var metadata: Dictionary = {}
+	var body_text: String = body.get_string_from_utf8()
+	for raw_line in body_text.split("\n", false):
+		var line_text: String = raw_line.strip_edges()
+		if line_text.is_empty():
+			continue
+		var json := JSON.new()
+		if json.parse(line_text) != OK or not (json.data is Dictionary):
+			continue
+		var payload: Dictionary = json.data as Dictionary
+		if payload.get("usage", null) is Dictionary:
+			metadata["usage"] = (payload.get("usage", {}) as Dictionary).duplicate(true)
+	return metadata
 
 func _build_stream_from_bytes(audio_bytes: PackedByteArray, audio_format: String) -> AudioStream:
 	match audio_format:
@@ -643,7 +682,7 @@ func _generate_request_id() -> String:
 func _normalize_audio_format(format_id: String) -> String:
 	var normalized: String = format_id.to_lower().strip_edges()
 	match normalized:
-		"mp3", "wav":
+		"mp3":
 			return normalized
 		_:
 			return ""

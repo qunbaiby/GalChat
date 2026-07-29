@@ -26,10 +26,12 @@ text = "选择事件后显示可编辑内容。"
 autowrap_mode = 2
 
 [node name="Tabs" type="TabContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="结构化" type="ScrollContainer" parent="Tabs"]
+unique_name_in_owner = true
 layout_mode = 2
 horizontal_scroll_mode = 0
 
@@ -40,12 +42,31 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
 [node name="高级 JSON" type="VBoxContainer" parent="Tabs"]
+unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ExpertHeader" type="HBoxContainer" parent="Tabs/高级 JSON"]
+layout_mode = 2
+
+[node name="ExpertState" type="Label" parent="Tabs/高级 JSON/ExpertHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.47, 0.56, 0.61, 1)
+text = "已锁定：仅用于查看完整数据和未建模字段"
+autowrap_mode = 2
+
+[node name="ExpertUnlock" type="CheckButton" parent="Tabs/高级 JSON/ExpertHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "解锁专家编辑"
 
 [node name="AdvancedJsonEdit" type="CodeEdit" parent="Tabs/高级 JSON"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+editable = false
 line_folding = true
 gutters_draw_line_numbers = true
 wrap_mode = 1
@@ -54,7 +75,7 @@ wrap_mode = 1
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
-text = "应用高级 JSON"
+text = "应用完整结构"
 
 [node name="ErrorLabel" type="Label" parent="."]
 unique_name_in_owner = true

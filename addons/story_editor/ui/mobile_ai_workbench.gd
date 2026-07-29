@@ -17,11 +17,17 @@ func _ready() -> void:
 	%RealRequestButton.pressed.connect(start_real_request)
 	%CancelRequestButton.pressed.connect(cancel_real_request)
 	%CharacterSelect.item_selected.connect(_on_character_selected)
+	%AdvancedInputUnlock.toggled.connect(_set_advanced_input_unlocked)
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(%最终Prompt), "最终 Prompt")
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(%请求Messages), "请求 Messages")
 	%ResultTabs.set_tab_title(%ResultTabs.get_tab_idx_from_control(%请求元数据), "请求元数据")
 	_setup_characters()
 	_setup_diagnostics()
+	%HistoryEditor.setup([
+		{"speaker": "player", "text": "在忙吗？"},
+		{"speaker": "char", "text": "刚练完一遍曲子。"}
+	])
+	_set_advanced_input_unlocked(false)
 
 
 func open_workbench() -> void:
@@ -68,14 +74,17 @@ func cancel_real_request() -> void:
 
 
 func build_preview() -> bool:
-	var history_value: Variant = JSON.parse_string(%HistoryEdit.text)
-	if not history_value is Array:
-		_show_input_error("内存历史必须是 JSON 数组。")
-		return false
-	var response_value: Variant = JSON.parse_string(%ResponseEdit.text)
-	if not response_value is Dictionary:
-		_show_input_error("原始响应必须是 JSON 对象。")
-		return false
+	var history_value: Variant = %HistoryEditor.get_history()
+	var response_value: Variant = {"choices": [{"message": {"content": %ResponseTextEdit.text}}]}
+	if %AdvancedInputUnlock.button_pressed:
+		history_value = JSON.parse_string(%HistoryEdit.text)
+		if not history_value is Array:
+			_show_input_error("高级历史必须是 JSON 数组。")
+			return false
+		response_value = JSON.parse_string(%ResponseEdit.text)
+		if not response_value is Dictionary:
+			_show_input_error("高级原始响应必须是 JSON 对象。")
+			return false
 	var mode := str(%ModeSelect.get_item_metadata(%ModeSelect.selected))
 	last_preview = Service.preview(mode, _collect_overrides(), history_value as Array, %PlayerTextEdit.text, response_value)
 	var request := last_preview.get("request", {}) as Dictionary
@@ -153,6 +162,7 @@ func _on_request_completed(job_id: String, raw_response: Dictionary, metadata: D
 	active_job_id = ""
 	_set_request_running(false)
 	%ResponseEdit.text = JSON.stringify(raw_response, "    ")
+	%ResponseTextEdit.text = _extract_response_text(raw_response)
 	build_preview()
 	%请求元数据.text = JSON.stringify({"status": "completed", "job_id": job_id, "metadata": metadata}, "    ")
 	%StatusLabel.text = "真实请求完成 · 已按生产规则清洗 · 未写入角色存档"
@@ -173,6 +183,23 @@ func _set_request_running(running: bool) -> void:
 	%RealRequestButton.disabled = running
 	%CancelRequestButton.disabled = not running
 	%PreviewButton.disabled = running
+
+
+func _set_advanced_input_unlocked(unlocked: bool) -> void:
+	%AdvancedInputPanel.visible = unlocked
+	%HistoryEdit.editable = unlocked
+	%ResponseEdit.editable = unlocked
+	%AdvancedInputUnlock.text = "高级测试输入已解锁" if unlocked else "解锁高级测试输入"
+	if unlocked:
+		%HistoryEdit.text = JSON.stringify(%HistoryEditor.get_history(), "    ")
+		%ResponseEdit.text = JSON.stringify({"choices": [{"message": {"content": %ResponseTextEdit.text}}]}, "    ")
+
+
+func _extract_response_text(raw_response: Dictionary) -> String:
+	var choices := raw_response.get("choices", []) as Array
+	if choices.is_empty() or not choices[0] is Dictionary:
+		return ""
+	return str(((choices[0] as Dictionary).get("message", {}) as Dictionary).get("content", ""))
 
 
 func _disconnect_requester() -> void:

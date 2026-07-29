@@ -1,3 +1,4 @@
+@tool
 extends VBoxContainer
 
 signal move_requested(row: Control, direction: int)

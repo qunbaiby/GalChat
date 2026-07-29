@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d3u27w706r5v4"]
 
-[ext_resource type="Script" uid="uid://tq7h77h7h7h7" path="res://scripts/autoload/scene_transition_manager.gd" id="1_1"]
+[ext_resource type="Script" uid="uid://b63usuklk6vwi" path="res://scripts/autoload/scene_transition_manager.gd" id="1_1"]
 
 [node name="SceneTransitionManager" type="CanvasLayer"]
 layer = 100

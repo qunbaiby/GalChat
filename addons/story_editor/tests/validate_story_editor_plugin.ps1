@@ -6,8 +6,21 @@ $OutputEncoding = $utf8
 
 $godot = "d:\godot\Godot_v4.6.3-stable_mono_win64_console.exe"
 $projectPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$output = & $godot --path $projectPath --editor --headless --quit --language en 2>&1
-$exitCode = $LASTEXITCODE
+$originalAppData = $env:APPDATA
+$testAppData = Join-Path ([System.IO.Path]::GetTempPath()) ("galchat-story-plugin-" + [guid]::NewGuid().ToString("N"))
+$output = @()
+$exitCode = 1
+try {
+	New-Item -ItemType Directory -Path $testAppData -Force | Out-Null
+	$env:APPDATA = $testAppData
+	$output = & $godot --path $projectPath --editor --headless --quit --language en 2>&1
+	$exitCode = $LASTEXITCODE
+} finally {
+	$env:APPDATA = $originalAppData
+	if (Test-Path -LiteralPath $testAppData) {
+		Remove-Item -LiteralPath $testAppData -Recurse -Force -ErrorAction SilentlyContinue
+	}
+}
 $textOutput = $output | ForEach-Object { $_.ToString() }
 
 if ($exitCode -ne 0) {

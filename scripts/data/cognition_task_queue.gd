@@ -291,6 +291,17 @@ func complete(task_id: String) -> bool:
 	return false
 
 
+func discard_invalid_scope(task_id: String) -> bool:
+	for index in range(tasks.size()):
+		if str(tasks[index].get("id", "")) != task_id or str(tasks[index].get("state", "")) != "processing":
+			continue
+		tasks.remove_at(index)
+		var saved := _save_queue()
+		queue_changed.emit()
+		return saved
+	return false
+
+
 func fail(task_id: String, error_message: String) -> bool:
 	var now := int(Time.get_unix_time_from_system())
 	for task in tasks:
@@ -307,6 +318,22 @@ func fail(task_id: String, error_message: String) -> bool:
 		else:
 			task["state"] = "pending"
 			task["next_attempt_at"] = now + _get_retry_delay(attempts)
+		var saved := _save_queue()
+		queue_changed.emit()
+		return saved
+	return false
+
+
+func defer_retry(task_id: String, error_message: String, retry_after_seconds: int) -> bool:
+	var now := int(Time.get_unix_time_from_system())
+	for task in tasks:
+		if str(task.get("id", "")) != task_id:
+			continue
+		task["state"] = "pending"
+		task["last_error"] = error_message
+		task["lease_until"] = 0
+		task["next_attempt_at"] = now + maxi(1, retry_after_seconds)
+		task["updated_at"] = now
 		var saved := _save_queue()
 		queue_changed.emit()
 		return saved

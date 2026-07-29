@@ -264,7 +264,7 @@ func _rebuild_line_rows(lines: Array) -> void:
 	for line_index in lines.size():
 		var row := LineRowScene.instantiate()
 		%LineRows.add_child(row)
-		row.setup(line_index, lines.size(), str(lines[line_index]))
+		row.setup(line_index, lines.size(), lines[line_index])
 		row.move_requested.connect(_move_line_row)
 		row.delete_requested.connect(_delete_line_row)
 
@@ -280,8 +280,8 @@ func _delete_line_row(row: Control) -> void:
 func _collect_lines() -> Array:
 	var lines: Array = []
 	for row in %LineRows.get_children():
-		if row.has_method("get_line_text"):
-			lines.append(row.get_line_text())
+		if row.has_method("get_line_data"):
+			lines.append(row.get_line_data())
 	return lines
 
 

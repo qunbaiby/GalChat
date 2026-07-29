@@ -1,0 +1,82 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/story_editor/ui/story_structured_value_editor.gd" id="1_script"]
+
+[node name="StoryStructuredValueEditor" type="VBoxContainer"]
+theme_override_constants/separation = 6
+script = ExtResource("1_script")
+
+[node name="CollectionPanel" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="CollectionPanel"]
+layout_mode = 2
+
+[node name="CollectionHint" type="Label" parent="CollectionPanel/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+autowrap_mode = 2
+
+[node name="AddButton" type="Button" parent="CollectionPanel/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "添加一条"
+
+[node name="EmptyHint" type="Label" parent="CollectionPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.53, 0.57, 1)
+text = "暂无内容，点击右上角添加。"
+
+[node name="Rows" type="VBoxContainer" parent="CollectionPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VariantPanel" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="VariantHint" type="Label" parent="VariantPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+text = "先选择变量类型，再填写对应值。"
+
+[node name="VariantType" type="OptionButton" parent="VariantPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BoolValue" type="CheckBox" parent="VariantPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "开启"
+
+[node name="TextValue" type="LineEdit" parent="VariantPanel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+placeholder_text = "变量文本"
+
+[node name="NumberValue" type="SpinBox" parent="VariantPanel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+min_value = -1000000.0
+max_value = 1000000.0
+step = 0.1
+allow_greater = true
+allow_lesser = true
+
+[node name="ComplexValueHint" type="Label" parent="VariantPanel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.68, 0.36, 1)
+text = "当前是对象或数组。普通模式会保持原值；需要修改时请使用专家模式。"
+autowrap_mode = 2

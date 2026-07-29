@@ -7,7 +7,7 @@ signal schedule_finished
 @export var slot_scene: PackedScene
 
 const ScheduleEventPanelScene = preload("res://scenes/ui/activity/schedule_event_panel.tscn")
-const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
+const DEEPSEEK_CLIENT_LOCATOR = preload("res://scripts/api/utils/deepseek_client_locator.gd")
 const STAT_KEY_ALIASES := {
 	"stat_stamina": "体能",
 	"stat_rhythm": "反应",
@@ -310,7 +310,6 @@ func _get_day_label(course_index: int) -> String:
 	var weekdays = ["周六", "周日", "周一", "周二", "周三", "周四", "周五"]
 	var absolute_day = _schedule_start_day_offset + course_index
 	return weekdays[posmod(absolute_day, weekdays.size())]
-	return "本日"
 
 func _build_bonus_summary(course_data: Dictionary) -> String:
 	var parts: Array[String] = []
@@ -722,7 +721,7 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 		_try_auto_next()
 
 func _get_deepseek_client() -> Node:
-	return DeepSeekClientLocator.find(self)
+	return DEEPSEEK_CLIENT_LOCATOR.find(self)
 
 func _get_control_focus_rect(control: Control) -> Rect2:
 	if not is_instance_valid(control):

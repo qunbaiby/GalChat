@@ -20,7 +20,7 @@ from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 from urllib.parse import urlparse
 
 import httpx
@@ -169,13 +169,14 @@ class TtsSpeechRequest(BaseModel):
 
     text: str = Field(min_length=1, max_length=2_000)
     speaker: str = Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9_.-]+$")
-    audio_format: str = Field(default="mp3", pattern="^(mp3|wav)$")
-    sample_rate: int = Field(default=24_000, ge=8_000, le=48_000)
-    bit_rate: int = Field(default=96_000, ge=32_000, le=320_000)
+    audio_format: str = Field(default="mp3", pattern="^mp3$")
+    sample_rate: Literal[8_000, 16_000, 22_050, 24_000, 32_000, 44_100, 48_000] = 24_000
+    bit_rate: int = Field(default=96_000, ge=64_000, le=160_000)
     speech_rate: int = Field(default=0, ge=-50, le=100)
     loudness_rate: int = Field(default=0, ge=-50, le=100)
     enable_subtitle: bool = False
     context_texts: list[str] = Field(default_factory=list, max_length=2)
+    section_id: str | None = Field(default=None, min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
 
     @field_validator("context_texts")
     @classmethod
@@ -1248,9 +1249,14 @@ async def tts_speech(
         "speaker": payload.speaker,
         "audio_params": audio_params,
     }
+    additions: dict[str, Any] = {}
     if payload.context_texts:
+        additions["context_texts"] = payload.context_texts
+    if payload.section_id:
+        additions["section_id"] = payload.section_id
+    if additions:
         req_params["additions"] = json.dumps(
-            {"context_texts": payload.context_texts},
+            additions,
             ensure_ascii=False,
             separators=(",", ":"),
         )

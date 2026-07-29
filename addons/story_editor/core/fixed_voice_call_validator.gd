@@ -37,8 +37,19 @@ static func validate(calls_value: Variant, catalogs: Dictionary = {}, references
 			continue
 		for line_index in (lines_value as Array).size():
 			var line_value: Variant = (lines_value as Array)[line_index]
-			if not line_value is String or str(line_value).strip_edges().is_empty():
-				_add(diagnostics, "error", "%s / 台词 #%d" % [location, line_index + 1], "台词必须是非空字符串。")
+			var line_location := "%s / 台词 #%d" % [location, line_index + 1]
+			if line_value is String:
+				if str(line_value).strip_edges().is_empty():
+					_add(diagnostics, "error", line_location, "台词必须是非空字符串或台词对象。")
+				continue
+			if not line_value is Dictionary:
+				_add(diagnostics, "error", line_location, "台词必须是非空字符串或台词对象。")
+				continue
+			var line := line_value as Dictionary
+			if str(line.get("text", "")).strip_edges().is_empty():
+				_add(diagnostics, "error", line_location, "台词对象缺少非空 text。")
+			if str(line.get("voice_instruction", "")).length() > 80:
+				_add(diagnostics, "error", line_location, "TTS 2.0 语音指令不能超过 80 个字符。")
 	for call_id_value in references.keys():
 		var referenced_id := str(call_id_value)
 		if not call_ids.has(referenced_id):

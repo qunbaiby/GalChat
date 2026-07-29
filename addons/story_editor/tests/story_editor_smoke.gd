@@ -365,6 +365,39 @@ func _test_editor_scene(fixture: Dictionary) -> void:
 	_expect(jump_control != null and jump_control.item_count == 3, "Jump 没有生成包含全部章节的目标下拉。")
 	if jump_control != null:
 		_expect(str(jump_control.get_item_metadata(jump_control.selected)) == "end", "Jump 目标下拉没有选中当前目标。")
+	event_inspector.load_event({
+		"type": "guided_ai_chat",
+		"allowed_topics": ["周六辅导", "练习状态"],
+		"forbidden_facts": ["不得改变地点"],
+		"required_beats": [{"id": "confirm", "instruction": "确认会参加", "custom": "preserved"}],
+		"outcome_branches": {"completed": "branch"}
+	})
+	var topics_control: Control = (event_inspector.field_controls.get("allowed_topics", {}) as Dictionary).get("control") as Control
+	var beats_control: Control = (event_inspector.field_controls.get("required_beats", {}) as Dictionary).get("control") as Control
+	var branches_control: Control = (event_inspector.field_controls.get("outcome_branches", {}) as Dictionary).get("control") as Control
+	_expect(topics_control != null and topics_control.has_method("get_value"), "允许话题没有生成安全列表编辑器。")
+	_expect(beats_control != null and beats_control.has_method("get_value"), "必达剧情点没有生成表单编辑器。")
+	_expect(branches_control != null and branches_control.has_method("get_value"), "结果分支没有生成章节映射编辑器。")
+	if topics_control != null:
+		(topics_control.get_node("CollectionPanel/Rows").get_child(0).get_node("ValueEdit") as LineEdit).text = "修改后的话题"
+		_expect(topics_control.get_value() == ["修改后的话题", "练习状态"], "安全列表编辑器没有按数组写回话题。")
+	if beats_control != null:
+		var visual_beats := beats_control.get_value() as Array
+		_expect(str((visual_beats[0] as Dictionary).get("instruction", "")) == "确认会参加", "剧情点表单没有保留描述。")
+		_expect(str((visual_beats[0] as Dictionary).get("custom", "")) == "preserved", "剧情点表单丢失未知字段。")
+	if branches_control != null:
+		_expect((branches_control.get_value() as Dictionary).get("completed") == "branch", "结果分支表单没有保留目标章节。")
+	var expert_edit := event_inspector.get_node("Tabs/高级 JSON/AdvancedJsonEdit") as CodeEdit
+	var expert_unlock := event_inspector.get_node("Tabs/高级 JSON/ExpertHeader/ExpertUnlock") as CheckButton
+	_expect(not expert_edit.editable and event_inspector.get_node("Tabs/高级 JSON/ApplyJsonButton").disabled, "专家 JSON 默认没有锁定。")
+	expert_unlock.button_pressed = true
+	_expect(expert_edit.editable and not event_inspector.get_node("Tabs/高级 JSON/ApplyJsonButton").disabled, "解锁专家模式后仍不可编辑。")
+	event_inspector.load_event({"type": "set_variable", "var_name": "stage", "var_value": 2.5})
+	var variable_control: Control = (event_inspector.field_controls.get("var_value", {}) as Dictionary).get("control") as Control
+	_expect(variable_control != null and is_equal_approx(float(variable_control.get_value()), 2.5), "变量值表单没有保留数字类型。")
+	event_inspector.load_event({"type": "set_variable", "var_name": "stage", "var_value": 2})
+	variable_control = (event_inspector.field_controls.get("var_value", {}) as Dictionary).get("control") as Control
+	_expect(variable_control.get_value() is int and int(variable_control.get_value()) == 2, "变量值表单把整数改成了小数。")
 	editor.call("_select_event", "start", 0)
 	editor.call("_navigate_to_diagnostic", {"location": "start / #1", "message": "定位测试"})
 	_expect(editor.current_chapter == "start" and editor.selected_event_index == 0, "诊断双击定位没有选择对应事件。")

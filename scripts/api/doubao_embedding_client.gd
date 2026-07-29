@@ -1,14 +1,25 @@
 extends Node
 
 const EMBEDDING_URL = "https://ark.cn-beijing.volces.com/api/v3/embeddings/multimodal"
+const QUOTA_COOLDOWN_SECONDS := 900
 
 signal embedding_completed(result: Array)
 signal embedding_failed(error_msg: String)
 
+var _quota_cooldown_until: int = 0
+
 func get_embedding(text: String) -> Array:
 	if not GameDataManager.config.embedding_enabled:
 		return []
+	if is_quota_cooldown_active():
+		return []
 	return await _request_embedding(text, false)
+
+func is_quota_cooldown_active() -> bool:
+	return int(Time.get_unix_time_from_system()) < _quota_cooldown_until
+
+func _begin_quota_cooldown() -> void:
+	_quota_cooldown_until = int(Time.get_unix_time_from_system()) + QUOTA_COOLDOWN_SECONDS
 
 func _request_embedding(text: String, auth_retried: bool) -> Array:
 	var api_key = GameDataManager.config.doubao_embedding_api_key
@@ -66,6 +77,11 @@ func _request_embedding(text: String, auth_retried: bool) -> Array:
 		return []
 	if result_code != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 		var err_body = response_body.get_string_from_utf8() if response_body != null else ""
+		if response_code == 429:
+			_begin_quota_cooldown()
+			push_warning("[DoubaoEmbedding] 请求配额已用尽，15 分钟内暂停向量请求并降级为无向量检索。")
+			embedding_failed.emit("向量请求配额已用尽，已暂时降级")
+			return []
 		push_error("HTTP Request failed: " + str(response_code) + " Body: " + err_body)
 		embedding_failed.emit("请求失败，状态码：" + str(response_code))
 		return []

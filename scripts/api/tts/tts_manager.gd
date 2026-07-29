@@ -1,7 +1,7 @@
 extends Node
 
 const TTS_SERVICE_SCRIPT = preload("res://scripts/api/tts_service.gd")
-const ChatSplitHelper = preload("res://scripts/utils/chat_split_helper.gd")
+const CHAT_SPLIT_HELPER = preload("res://scripts/utils/chat_split_helper.gd")
 const COMPAT_CACHE_DIR := "user://tts_cache/by_key"
 const TTS_2_EXPRESSION_INSTRUCTIONS := {
 	"calm": "请用平静自然的语气说话，保持原本声线、音高和人物年龄感。",
@@ -100,7 +100,8 @@ func get_cache_key(text: String, options: Dictionary = {}) -> String:
 		"loudness_rate": int(final_options.get("loudness_rate", 0)),
 		"model": str(final_options.get("model", "")).strip_edges(),
 		"ssml": str(final_options.get("ssml", "")).strip_edges(),
-		"context_texts": final_options.get("context_texts", [])
+		"context_texts": final_options.get("context_texts", []),
+		"section_id": str(final_options.get("section_id", "")).strip_edges()
 	}
 	if final_options.has("additions") and final_options.get("additions", null) is Dictionary:
 		cache_payload["additions"] = (final_options.get("additions", {}) as Dictionary).duplicate(true)
@@ -126,6 +127,17 @@ func build_tts_2_instruction_options(voice_instruction: String, fallback_express
 	if not normalized_instruction.contains("保持原本声线"):
 		normalized_instruction += TTS_2_VOICE_IDENTITY_GUARD
 	return {"context_texts": [normalized_instruction]}
+
+func create_tts_2_section_id() -> String:
+	var seed_text := "%d:%d:%s" % [Time.get_ticks_usec(), randi(), str(Time.get_unix_time_from_system())]
+	var hex_id: String = seed_text.md5_text()
+	return "%s-%s-4%s-a%s-%s" % [
+		hex_id.substr(0, 8),
+		hex_id.substr(8, 4),
+		hex_id.substr(13, 3),
+		hex_id.substr(17, 3),
+		hex_id.substr(20, 12)
+	]
 
 func load_cached_audio_by_key(cache_key: String) -> AudioStream:
 	var normalized_key: String = cache_key.strip_edges()
@@ -209,7 +221,7 @@ func _build_effective_options(options: Dictionary = {}) -> Dictionary:
 	return final_options
 
 func _normalize_spoken_text(text: String) -> String:
-	return ChatSplitHelper.strip_parentheses(text).strip_edges()
+	return CHAT_SPLIT_HELPER.strip_parentheses(text).strip_edges()
 
 func _resolve_tts_2_speaker(speaker_id: String, char_id: String, config) -> String:
 	var normalized_speaker: String = speaker_id.strip_edges()

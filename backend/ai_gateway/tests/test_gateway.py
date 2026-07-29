@@ -906,7 +906,8 @@ def test_official_tts_injects_server_config_and_returns_audio(tmp_path):
         assert body["req_params"]["audio_params"]["format"] == "mp3"
         additions = __import__("json").loads(body["req_params"]["additions"])
         assert additions == {
-            "context_texts": ["请用略带担心但克制的语气说话，保持原本声线和音高。"]
+            "context_texts": ["请用略带担心但克制的语气说话，保持原本声线和音高。"],
+            "section_id": "11111111-2222-4333-a444-555555555555",
         }
         return httpx.Response(
             200,
@@ -924,6 +925,7 @@ def test_official_tts_injects_server_config_and_returns_audio(tmp_path):
                 "speaker": "S_voice_001",
                 "audio_format": "mp3",
                 "context_texts": ["请用略带担心但克制的语气说话，保持原本声线和音高。"],
+                "section_id": "11111111-2222-4333-a444-555555555555",
             },
         )
 
@@ -951,6 +953,26 @@ def test_official_tts_rejects_unconfigured_provider_and_extra_fields(tmp_path):
 
     assert unconfigured.status_code == 503
     assert injected.status_code == 422
+
+
+def test_official_tts_rejects_unsupported_audio_parameters(tmp_path):
+    module = load_app(tmp_path)
+    module.settings.capability_providers["tts"]["api_key"] = "server-tts-secret"
+    headers = {"Authorization": "Bearer test-player-token"}
+    with TestClient(module.app) as client:
+        invalid_sample_rate = client.post(
+            "/v1/game/tts/speech",
+            headers=headers,
+            json={"text": "hello", "speaker": "S_voice_001", "sample_rate": 11_025},
+        )
+        invalid_wav = client.post(
+            "/v1/game/tts/speech",
+            headers=headers,
+            json={"text": "hello", "speaker": "S_voice_001", "audio_format": "wav"},
+        )
+
+    assert invalid_sample_rate.status_code == 422
+    assert invalid_wav.status_code == 422
 
 
 def test_official_tts_does_not_forward_resource_id_as_model(tmp_path):

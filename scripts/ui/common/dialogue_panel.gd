@@ -1,5 +1,7 @@
 extends Control
 
+const ChatSplitHelperScript = preload("res://scripts/utils/chat_split_helper.gd")
+
 @onready var dialogue_layer = $DialogueLayer
 @onready var toolbar_container = $ToolBarContainer if has_node("ToolBarContainer") else null
 @onready var toolbar_margin = $ToolBarContainer/ToolBarMargin if has_node("ToolBarContainer/ToolBarMargin") else null
@@ -32,6 +34,7 @@ var _keep_panel_visible_on_finish: bool = false
 var _typewriter_finished: bool = false
 var _tts_pending: bool = false
 var _tts_playing: bool = false
+var _input_waiting: bool = false
 
 const MAX_CHARS = 200
 const DEFAULT_INPUT_PLACEHOLDER := "输入你想说的话..."
@@ -98,6 +101,7 @@ func _is_waiting_prompt_text(text: String) -> bool:
 	return text.find(INPUT_WAITING_SUFFIX) != -1
 
 func set_input_waiting_state(char_name: String = "角色") -> void:
+	_input_waiting = true
 	if input_layer:
 		input_layer.show()
 		input_layer.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -105,12 +109,11 @@ func set_input_waiting_state(char_name: String = "角色") -> void:
 	if final_name == "":
 		final_name = "角色"
 	if input_field:
-		input_field.placeholder_text = DEFAULT_INPUT_PLACEHOLDER
-		input_field.text = "【%s】%s" % [final_name, INPUT_WAITING_SUFFIX]
+		input_field.release_focus()
+		input_field.text = ""
+		input_field.placeholder_text = "%s 正在思考…" % final_name
 		input_field.editable = false
 		input_field.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		input_field.set_caret_line(0)
-		input_field.set_caret_column(0)
 		input_field.add_theme_color_override("font_color", INPUT_WAITING_FONT_COLOR)
 	if char_count_label:
 		char_count_label.text = "请等待"
@@ -123,6 +126,7 @@ func set_input_waiting_state(char_name: String = "角色") -> void:
 		voice_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func set_input_ready_state(clear_text: bool = true) -> void:
+	_input_waiting = false
 	if input_layer:
 		input_layer.show()
 		input_layer.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -133,6 +137,9 @@ func set_input_ready_state(clear_text: bool = true) -> void:
 		input_field.editable = true
 		input_field.mouse_filter = Control.MOUSE_FILTER_STOP
 		input_field.add_theme_color_override("font_color", INPUT_READY_FONT_COLOR)
+		input_field.grab_focus()
+		input_field.set_caret_line(input_field.get_line_count() - 1)
+		input_field.set_caret_column(input_field.get_line(input_field.get_line_count() - 1).length())
 	if send_btn:
 		send_btn.disabled = false
 		send_btn.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -195,7 +202,7 @@ func _on_input_text_changed():
 func _update_char_count():
 	if not input_field: return
 	if char_count_label:
-		if _is_waiting_prompt_text(input_field.text):
+		if _input_waiting or _is_waiting_prompt_text(input_field.text):
 			char_count_label.text = "请等待"
 			char_count_label.add_theme_color_override("font_color", CHAR_COUNT_WAITING_COLOR)
 			return
@@ -235,12 +242,12 @@ func _send_message(emit_button_signal: bool = true):
 	# Wait 0.5s to re-enable
 	var t = get_tree().create_timer(0.5)
 	t.timeout.connect(func():
-		if is_instance_valid(input_field) and not _is_waiting_prompt_text(input_field.text):
+		if is_instance_valid(input_field) and not _input_waiting:
 			input_field.editable = true
 			input_field.add_theme_color_override("font_color", INPUT_READY_FONT_COLOR)
-		if is_instance_valid(send_btn) and not _is_waiting_prompt_text(input_field.text):
+		if is_instance_valid(send_btn) and not _input_waiting:
 			send_btn.disabled = false
-		if is_instance_valid(voice_btn) and not _is_waiting_prompt_text(input_field.text):
+		if is_instance_valid(voice_btn) and not _input_waiting:
 			voice_btn.disabled = false
 	)
 
@@ -311,22 +318,7 @@ func _start_typewriter():
 		
 	var display_text = current_text
 	
-	# 强制清理：只保留最开头的一个动作描述，移除其余所有动作描述
-	var extract_regex = RegEx.new()
-	extract_regex.compile("（.*?）|\\(.*?\\)")
-	var matches = extract_regex.search_all(display_text)
-	if matches.size() > 0:
-		var first_action = matches[0].get_string()
-		var no_action_text = extract_regex.sub(display_text, "", true).strip_edges()
-		display_text = first_action + " " + no_action_text
-		current_text = display_text # Update current_text so TTS text also uses the cleaned version
-		
-	var color_regex_zh = RegEx.new()
-	color_regex_zh.compile("（(.*?)）")
-	display_text = color_regex_zh.sub(display_text, "[color=green]（$1）[/color]", true)
-	var color_regex_en = RegEx.new()
-	color_regex_en.compile("\\((.*?)\\)")
-	display_text = color_regex_en.sub(display_text, "[color=green]($1)[/color]", true)
+	display_text = ChatSplitHelperScript.format_leading_action(display_text)
 		
 	# Center text per requirement
 	display_text = "[center]" + display_text + "[/center]"

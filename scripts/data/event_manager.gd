@@ -118,7 +118,7 @@ func broadcast_state_change(context: Dictionary = {}) -> void:
 		return # 一次只触发一个事件，避免冲突
 
 func find_matching_auto_trigger_event(context: Dictionary = {}) -> Dictionary:
-	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
+	var condition_manager_script = preload("res://scripts/data/condition_manager.gd")
 	
 	for raw_event in event_registry:
 		if not (raw_event is Dictionary):
@@ -141,7 +141,7 @@ func find_matching_auto_trigger_event(context: Dictionary = {}) -> Dictionary:
 		elif not bool(event_data.get("is_repeatable", false)) and event_id in triggered_events:
 			continue
 		
-		var eval_result = ConditionManager.evaluate_conditions(conditions)
+		var eval_result = condition_manager_script.evaluate_conditions(conditions)
 		
 		# 如果是 location 条件，我们要确保 context 里传过来的 location 是一致的
 		if context.has("location_id"):

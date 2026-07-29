@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://ddab3x2x4y5v1"]
+[gd_scene load_steps=9 format=3 uid="uid://ddab3x2x4y5v1"]
 
 [ext_resource type="Script" uid="uid://wa3bpwj452wl" path="res://scripts/dialogue/dialogue_manager.gd" id="1_88hip"]
 [ext_resource type="Texture2D" uid="uid://c63bpyvfuad8k" path="res://assets/images/backgrounds/black.jpg" id="2_2exn1"]
@@ -7,25 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bdtd0mc84eq8r" path="res://scenes/ui/story/character_layer.tscn" id="4_heyvm"]
 [ext_resource type="AudioStream" uid="uid://cv5be50dpyrvy" path="res://assets/audio/bgm/Luna.mp3" id="6_oa57e"]
 [ext_resource type="PackedScene" uid="uid://31rttm1jhadv" path="res://scenes/ui/common/dialogue_panel.tscn" id="13_dialogue"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 10.0
-bg_color = Color(0.985, 0.988, 0.995, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.87, 0.89, 0.93, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.57, 0.82, 0.76, 0.1)
-shadow_size = 10
-shadow_offset = Vector2(0, 3)
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_1"]
 
@@ -95,57 +76,6 @@ mouse_filter = 2
 
 [node name="DialoguePanel" parent="UIPanel" instance=ExtResource("13_dialogue")]
 layout_mode = 1
-
-[node name="FreeChatInfoLayer" type="Control" parent="UIPanel"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -400.0
-offset_top = 80.0
-offset_right = -20.0
-offset_bottom = 200.0
-grow_horizontal = 0
-mouse_filter = 2
-
-[node name="Panel" type="PanelContainer" parent="UIPanel/FreeChatInfoLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
-
-[node name="Margin" type="MarginContainer" parent="UIPanel/FreeChatInfoLayer/Panel"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 10
-
-[node name="VBox" type="VBoxContainer" parent="UIPanel/FreeChatInfoLayer/Panel/Margin"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 5
-
-[node name="RoundLabel" type="Label" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 18
-text = "自由对话轮次: 0 / 5"
-
-[node name="StrategyLabel" type="RichTextLabel" parent="UIPanel/FreeChatInfoLayer/Panel/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.43, 0.45, 0.5, 1)
-theme_override_font_sizes/normal_font_size = 14
-bbcode_enabled = true
-text = "策略: 引导玩家说出心里话..."
-fit_content = true
 
 [node name="DeepSeekClient" type="Node" parent="."]
 script = ExtResource("3_buqdj")

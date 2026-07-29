@@ -151,13 +151,13 @@ func tick_minutes(mins: int = 1) -> void:
     var hours_added: int = 0
     var days_added: int = 0
     if current_minute >= 60:
-        hours_added = current_minute / 60
+        hours_added = floori(float(current_minute) / 60.0)
         current_hour += hours_added
         current_minute %= 60
         
         # 如果时间自然流逝跨越了时段，也自动更新时段文本
         if current_hour >= 24:
-            days_added = current_hour / 24
+            days_added = floori(float(current_hour) / 24.0)
             current_hour = current_hour % 24
             current_day_offset += days_added
             if GameDataManager.memory_manager != null:

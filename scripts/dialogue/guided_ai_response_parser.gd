@@ -36,6 +36,13 @@ static func parse_response(content: String, candidate_beat_ids: Array[String]) -
 	return {"ok": true, "dialogue": dialogue, "covered_beat_ids": covered_beat_ids}
 
 
+static func has_parenthetical_action(dialogue: String) -> bool:
+	var action_regex := RegEx.new()
+	if action_regex.compile("（[^（）]+）|\\([^()]+\\)") != OK:
+		return false
+	return action_regex.search(dialogue) != null
+
+
 static func _normalize_evidence_text(text: String) -> String:
 	var normalized := text.replace("[SPLIT]", " ")
 	for whitespace in ["\t", "\r", "\n", "\u00a0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u2028", "\u2029", "\u202f", "\u205f", "\u3000"]:

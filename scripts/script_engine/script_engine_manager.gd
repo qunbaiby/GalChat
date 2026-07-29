@@ -1,20 +1,35 @@
 class_name ScriptEngineManager
 extends Node
 
+@warning_ignore("unused_signal")
 signal on_dialogue_requested(speaker: String, content: String, mood: String, presentation: Dictionary)
+@warning_ignore("unused_signal")
 signal on_choice_requested(options: Array)
+@warning_ignore("unused_signal")
 signal on_bgm_requested(audio_path: String, fade_time: float)
+@warning_ignore("unused_signal")
 signal on_background_requested(bg_path: String, duration: float, transition_type: String)
+@warning_ignore("unused_signal")
 signal on_period_card_requested(period_label: String, location_name: String, bg_path: String, hold_duration: float)
+@warning_ignore("unused_signal")
 signal on_audio_requested(audio_type: String, action: String, audio_id: String, fade_time: float, loop: bool)
+@warning_ignore("unused_signal")
 signal on_variable_set(var_name: String, var_value: Variant)
+@warning_ignore("unused_signal")
 signal on_ai_chat_requested(prompt_override: String)
+@warning_ignore("unused_signal")
 signal on_guided_ai_chat_requested(policy: Dictionary)
+@warning_ignore("unused_signal")
 signal on_character_show_requested(animation: String, presentation: Dictionary)
+@warning_ignore("unused_signal")
 signal on_character_move_requested(animation: String, presentation: Dictionary)
+@warning_ignore("unused_signal")
 signal on_character_hide_requested(animation: String, presentation: Dictionary)
+@warning_ignore("unused_signal")
 signal on_player_call_name_requested()
+@warning_ignore("unused_signal")
 signal on_voice_call_requested(call_id: String)
+@warning_ignore("unused_signal")
 signal on_start_free_chat_requested(strategy: String, max_rounds: int)
 signal script_finished(script_id: String)
 signal checkpoint_changed(state: Dictionary)
@@ -28,6 +43,7 @@ var current_chapter_id: String = ""
 var current_event_index: int = 0
 var is_running: bool = false
 var is_waiting_for_resume: bool = false
+var is_guided_ai_blocked: bool = false
 
 func load_script(script_path: String) -> bool:
     _debug_record("story.load.started", "info", {"script_path": script_path})
@@ -157,12 +173,21 @@ func jump_to_chapter(target_chapter_id: String) -> void:
     _debug_record("story.chapter.entered")
 
 func resume() -> void:
+    if is_guided_ai_blocked:
+        _debug_record("story.resume.blocked", "warning", {}, {"reason": "guided_ai_requires_explicit_completion"})
+        return
     if not is_running or not is_waiting_for_resume:
         return
     is_waiting_for_resume = false
     _debug_record("story.resumed")
     current_event_index += 1
     _process_next_event()
+
+func complete_guided_ai_chat() -> void:
+    if not is_guided_ai_blocked:
+        return
+    is_guided_ai_blocked = false
+    resume()
 
 func _process_next_event() -> void:
     if not is_running or is_waiting_for_resume:
@@ -200,6 +225,7 @@ func _end_script() -> void:
     _debug_record("story.engine.finished")
     is_running = false
     is_waiting_for_resume = false
+    is_guided_ai_blocked = false
     script_finished.emit(current_script_id)
 
 func use_story_portraits() -> bool:

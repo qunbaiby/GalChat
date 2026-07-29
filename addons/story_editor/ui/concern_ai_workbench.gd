@@ -2,6 +2,7 @@
 extends Window
 
 const WorkbenchService = preload("res://addons/story_editor/core/concern_ai_workbench_service.gd")
+const StructuredValueEditorScene = preload("res://addons/story_editor/ui/story_structured_value_editor.tscn")
 const WINDOW_LAYOUT_PATH := "res://addons/story_editor/core/editor_window_layout.gd"
 
 var templates: Array[Dictionary] = []
@@ -32,7 +33,10 @@ func _ready() -> void:
 	%CreateDialog.confirmed.connect(_create_template)
 	%AddBeatButton.pressed.connect(func(): _add_beat_row({}))
 	%ApplyJsonButton.pressed.connect(_apply_json_to_form)
+	%ExpertUnlock.toggled.connect(_set_expert_unlocked)
 	%TemplateTabs.tab_changed.connect(_on_template_tab_changed)
+	_setup_safe_lists()
+	_set_expert_unlocked(false)
 	context_json.text = JSON.stringify({
 		"character_id": "luna",
 		"character_name": "Luna",
@@ -147,8 +151,8 @@ func _load_form(template: Dictionary) -> void:
 	var policy: Dictionary = template.get("guided_ai_policy", {})
 	%AnchorEdit.text = str(policy.get("narrative_anchor", ""))
 	%ObjectiveEdit.text = str(policy.get("scene_objective", ""))
-	%AllowedTopicsEdit.text = _join_lines(policy.get("allowed_topics", []))
-	%ForbiddenFactsEdit.text = _join_lines(policy.get("forbidden_facts", []))
+	%AllowedTopicsEditor.setup(policy.get("allowed_topics", []), "string_list")
+	%ForbiddenFactsEditor.setup(policy.get("forbidden_facts", []), "string_list")
 	_clear_beat_rows()
 	for raw_beat in policy.get("required_beats", []):
 		if raw_beat is Dictionary:
@@ -207,8 +211,8 @@ func _template_from_form() -> Dictionary:
 	var policy: Dictionary = template.get("guided_ai_policy", {}).duplicate(true)
 	policy["narrative_anchor"] = %AnchorEdit.text.strip_edges()
 	policy["scene_objective"] = %ObjectiveEdit.text.strip_edges()
-	policy["allowed_topics"] = _split_lines(%AllowedTopicsEdit.text)
-	policy["forbidden_facts"] = _split_lines(%ForbiddenFactsEdit.text)
+	policy["allowed_topics"] = %AllowedTopicsEditor.get_value()
+	policy["forbidden_facts"] = %ForbiddenFactsEditor.get_value()
 	policy["required_beats"] = _collect_beats()
 	policy["redirect_instruction"] = %RedirectEdit.text.strip_edges()
 	policy["max_player_rounds"] = int(%RoundsSpin.value)
@@ -236,6 +240,19 @@ func _apply_json_to_form() -> void:
 	_load_form(selected_template)
 	%TemplateTabs.current_tab = %TemplateTabs.get_tab_idx_from_control(%VisualConfig)
 	_set_status("JSON 已应用到可视化表单。", false)
+
+
+func _setup_safe_lists() -> void:
+	for editor in [%AllowedTopicsEditor, %ForbiddenFactsEditor]:
+		if editor.get_script() == null:
+			editor.set_script(StructuredValueEditorScene.instantiate().get_script())
+
+
+func _set_expert_unlocked(unlocked: bool) -> void:
+	template_json.editable = unlocked
+	%ApplyJsonButton.disabled = not unlocked
+	%ExpertState.text = "已解锁：完整 JSON 会覆盖策划表单" if unlocked else "已锁定：日常配置请使用策划表单"
+	%ExpertState.modulate = Color("#e0ad5b") if unlocked else Color("#78909c")
 
 
 func _on_template_tab_changed(tab_index: int) -> void:

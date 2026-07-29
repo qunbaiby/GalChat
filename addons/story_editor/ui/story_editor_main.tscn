@@ -535,7 +535,7 @@ column_titles_visible = true
 hide_root = true
 
 [node name="Inspector" type="VBoxContainer" parent="Root/Body/WorkspaceSplit"]
-custom_minimum_size = Vector2(240, 0)
+custom_minimum_size = Vector2(380, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -548,7 +548,7 @@ text = "事件 Inspector"
 [node name="InspectorHint" type="Label" parent="Root/Body/WorkspaceSplit/Inspector"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
-text = "选择画布节点后，在这里编辑内容并应用。高级 JSON 适合处理未建模字段。"
+text = "使用策划配置编辑事件；完整结构仅在专家模式下解锁。"
 autowrap_mode = 2
 
 [node name="EventInspector" parent="Root/Body/WorkspaceSplit/Inspector" instance=ExtResource("2_inspector")]

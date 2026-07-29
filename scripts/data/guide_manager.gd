@@ -7,13 +7,14 @@ signal feature_states_changed
 
 const GUIDE_DATA_PATH := "res://assets/data/guide/guide_flows.json"
 const GUIDE_STATE_KEY := "guide_state_v1"
+const GUIDE_FLOW_REVISION := 3
+const AI_ROUND_GUIDE_INSERT_INDEX := 19
 const DEFAULT_GUIDE_ID := "schedule_onboarding_guide"
 const DEMO_GUIDE_ID := "map_story_demo_guide"
 const GUIDE_SCENE_PATH := "res://scenes/ui/story/story_scene.tscn"
 const GUIDE_LOCK_HINT := "当前处于新手引导中，暂未解锁该功能。"
 const GuideOverlayScene = preload("res://scenes/ui/guide/guide_overlay.tscn")
 const ConditionManagerScript = preload("res://scripts/data/condition_manager.gd")
-const ConfirmDialogScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
 
 const MAIN_SCENE_FEATURE_PATHS := {
 	"main.affection": "UIPanel/AffectionButton",
@@ -38,21 +39,26 @@ var _world_map_scene_ref: WeakRef = null
 var _location_detail_panel_ref: WeakRef = null
 var _activity_panel_ref: WeakRef = null
 var _schedule_execution_panel_ref: WeakRef = null
-var _opt_in_dialog: Control = null
 
 func _ready() -> void:
 	_state = _build_default_state()
 	_load_guide_defs()
-	reload_for_current_archive()
 	_ensure_overlay()
+	if GameDataManager.has_signal("archive_changed") and not GameDataManager.archive_changed.is_connected(_on_archive_changed):
+		GameDataManager.archive_changed.connect(_on_archive_changed)
+	call_deferred("reload_for_current_archive")
+
+func _on_archive_changed(_archive_id: String) -> void:
+	reload_for_current_archive()
 
 func _build_default_state() -> Dictionary:
 	return {
 		"active_guide_id": "",
 		"current_step_index": 0,
+		"guide_flow_revision": GUIDE_FLOW_REVISION,
 		"completed_guides": [],
 		"feature_unlocks": {},
-		"guide_opt_in": "unknown"
+		"guide_opt_in": "enabled"
 	}
 
 func _load_guide_defs() -> void:
@@ -98,6 +104,17 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 		return normalized
 	normalized["active_guide_id"] = str(raw_state.get("active_guide_id", "")).strip_edges()
 	normalized["current_step_index"] = maxi(0, int(raw_state.get("current_step_index", 0)))
+	var saved_revision := maxi(1, int(raw_state.get("guide_flow_revision", 1)))
+	if saved_revision < 2:
+		if str(normalized["active_guide_id"]) == DEFAULT_GUIDE_ID and int(normalized["current_step_index"]) >= AI_ROUND_GUIDE_INSERT_INDEX:
+			normalized["current_step_index"] = int(normalized["current_step_index"]) + 1
+	if saved_revision < 3 and str(normalized["active_guide_id"]) == DEFAULT_GUIDE_ID:
+		var previous_step_index := int(normalized["current_step_index"])
+		if previous_step_index >= 18 and previous_step_index <= 20:
+			normalized["current_step_index"] = previous_step_index + 1
+		elif previous_step_index == 21:
+			normalized["current_step_index"] = 22
+	normalized["guide_flow_revision"] = GUIDE_FLOW_REVISION
 	var completed_guides: Array[String] = []
 	var raw_completed: Variant = raw_state.get("completed_guides", [])
 	if raw_completed is Array:
@@ -112,14 +129,21 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 		for key in raw_feature_unlocks.keys():
 			feature_unlocks[str(key)] = bool(raw_feature_unlocks[key])
 	normalized["feature_unlocks"] = feature_unlocks
-	var guide_opt_in := str(raw_state.get("guide_opt_in", "unknown")).strip_edges().to_lower()
-	if guide_opt_in != "enabled" and guide_opt_in != "disabled":
-		guide_opt_in = "unknown"
-	normalized["guide_opt_in"] = guide_opt_in
+	normalized["guide_opt_in"] = "enabled"
 	return normalized
 
 func _save_state() -> bool:
-	var result: Variant = GameDataManager.call("set_archive_custom_config", GUIDE_STATE_KEY, _state.duplicate(true), true)
+	var state_to_save := _state.duplicate(true)
+	var persisted_raw: Variant = GameDataManager.get_archive_custom_config(GUIDE_STATE_KEY, {})
+	if persisted_raw is Dictionary:
+		var persisted := _normalize_state(persisted_raw)
+		var active_guide_id := str(state_to_save.get("active_guide_id", "")).strip_edges()
+		if active_guide_id != "" and active_guide_id == str(persisted.get("active_guide_id", "")).strip_edges():
+			var persisted_step_index := int(persisted.get("current_step_index", 0))
+			if persisted_step_index > int(state_to_save.get("current_step_index", 0)):
+				state_to_save["current_step_index"] = persisted_step_index
+				_state["current_step_index"] = persisted_step_index
+	var result: Variant = GameDataManager.call("set_archive_custom_config", GUIDE_STATE_KEY, state_to_save, true)
 	return result is bool and bool(result)
 
 func _ensure_overlay() -> bool:
@@ -169,13 +193,22 @@ func _on_overlay_background_pressed(action_id: String) -> void:
 	report_action(action_id)
 
 func _on_overlay_focus_pressed(action_id: String) -> void:
+	if action_id == "open_affection":
+		var main_scene := _resolve_main_scene()
+		if is_instance_valid(main_scene) and main_scene.has_method("open_affection_from_guide"):
+			main_scene.open_affection_from_guide()
+			return
 	report_action(action_id)
 
 func on_main_scene_ready(main_scene: Node, just_finished_intro_story: bool = false) -> void:
+	reload_for_current_archive()
 	_main_scene_ref = weakref(main_scene)
 	_ensure_overlay()
 	apply_main_scene_feature_states(main_scene)
 	call_deferred("_deferred_handle_main_scene_guide_ready", just_finished_intro_story)
+
+func on_story_scene_ready() -> void:
+	_hide_overlay()
 
 func _deferred_handle_main_scene_guide_ready(just_finished_intro_story: bool) -> void:
 	if just_finished_intro_story:
@@ -222,6 +255,9 @@ func start_guide(guide_id: String) -> bool:
 		return false
 	if is_guide_completed(normalized_guide_id):
 		return false
+	if get_active_guide_id() == normalized_guide_id:
+		_refresh_current_step_display()
+		return true
 	_state["active_guide_id"] = normalized_guide_id
 	_state["current_step_index"] = 0
 	_save_state()
@@ -233,50 +269,11 @@ func start_demo_guide() -> bool:
 	return start_guide(DEMO_GUIDE_ID)
 
 func is_guide_opted_in() -> bool:
-	return str(_state.get("guide_opt_in", "unknown")).strip_edges() == "enabled"
+	return true
 
-func should_prompt_for_guide_opt_in() -> bool:
-	if is_guide_completed(DEFAULT_GUIDE_ID):
-		return false
-	if get_active_guide_id() != "":
-		return false
-	return str(_state.get("guide_opt_in", "unknown")).strip_edges() == "unknown"
-
-func set_guide_opt_in(enabled: bool) -> void:
-	_state["guide_opt_in"] = "enabled" if enabled else "disabled"
+func set_guide_opt_in(_enabled: bool = true) -> void:
+	_state["guide_opt_in"] = "enabled"
 	_save_state()
-
-func _show_guide_opt_in_dialog() -> void:
-	if is_instance_valid(_opt_in_dialog):
-		return
-	if ConfirmDialogScene == null:
-		return
-	_opt_in_dialog = ConfirmDialogScene.instantiate()
-	_opt_in_dialog.name = "GuideOptInDialog"
-	get_tree().root.add_child(_opt_in_dialog)
-	if _opt_in_dialog.has_method("setup_advanced"):
-		_opt_in_dialog.setup_advanced(
-			"开启新手引导",
-			"本存档首次进入游戏，是否开启新手引导？\n开启后会按步骤带你熟悉主场景、地图和剧情入口。",
-			"",
-			"你也可以稍后再通过事件或调试入口手动开启演示引导。",
-			"开启引导",
-			"暂不需要"
-		)
-	if _opt_in_dialog.has_signal("confirmed"):
-		_opt_in_dialog.confirmed.connect(_on_guide_opt_in_confirmed)
-	if _opt_in_dialog.has_signal("canceled"):
-		_opt_in_dialog.canceled.connect(_on_guide_opt_in_canceled)
-	_opt_in_dialog.tree_exited.connect(func() -> void:
-		_opt_in_dialog = null
-	)
-
-func _on_guide_opt_in_confirmed() -> void:
-	set_guide_opt_in(true)
-	start_default_guide_if_needed("opt_in")
-
-func _on_guide_opt_in_canceled() -> void:
-	set_guide_opt_in(false)
 
 func skip_active_guide() -> void:
 	var active_guide_id := str(_state.get("active_guide_id", "")).strip_edges()
@@ -533,6 +530,8 @@ func _show_step_overlay(guide_data: Dictionary, step_data: Dictionary, step_inde
 	if step_text == "":
 		step_text = "请根据当前提示继续操作。"
 	if not scene_ready and (bool(step_data.get("hide_until_scene_ready", false)) or not show_before_scene_ready):
+		if _show_resume_navigation_overlay(guide_data, step_data, step_index, total_steps):
+			return
 		_hide_overlay()
 		return
 	if not scene_ready:
@@ -543,6 +542,34 @@ func _show_step_overlay(guide_data: Dictionary, step_data: Dictionary, step_inde
 	var focus_interaction_allowed: bool = _is_step_focus_interaction_allowed(step_data)
 	var overlay_options := _resolve_overlay_options(step_data)
 	_overlay.show_step(guide_title, step_title, step_text, step_index + 1, total_steps, focus_rects, focus_interaction_allowed, overlay_options)
+
+func _show_resume_navigation_overlay(guide_data: Dictionary, step_data: Dictionary, step_index: int, total_steps: int) -> bool:
+	if not is_instance_valid(_resolve_main_scene()):
+		return false
+	var requires_scene := str(step_data.get("requires_scene", step_data.get("target_scene", ""))).strip_edges()
+	var navigation_feature := ""
+	var navigation_text := ""
+	match requires_scene:
+		"activity":
+			navigation_feature = "main.main_action"
+			navigation_text = "引导将从当前步骤继续。请重新打开“行程安排”，进入后会恢复这里的操作提示。"
+		"wechat":
+			navigation_feature = "main.wechat"
+			navigation_text = "引导将从当前步骤继续。请重新打开“微聊”，进入后会恢复这里的操作提示。"
+		_:
+			return false
+	var navigation_step := {
+		"target_scene": "main",
+		"requires_scene": "main",
+		"highlight_feature": navigation_feature
+	}
+	var focus_rects: Array = _resolve_step_focus_rects(navigation_step)
+	if focus_rects.is_empty():
+		return false
+	var guide_title := str(guide_data.get("title", "新手引导")).strip_edges()
+	var step_title := str(step_data.get("title", "继续引导")).strip_edges()
+	_overlay.show_step(guide_title, step_title, navigation_text, step_index + 1, total_steps, focus_rects, true, {})
+	return true
 
 func _resolve_step_focus_rects(step_data: Dictionary) -> Array:
 	var focus_rects: Array = []
@@ -669,6 +696,8 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 		var target_mode := str(step_data.get("target_mode", "")).strip_edges()
 		if highlight_feature == "main.goal" and main_scene.has_method("is_goal_panel_ready_for_guide"):
 			return bool(main_scene.is_goal_panel_ready_for_guide())
+		if highlight_feature == "main.ai_rounds" and main_scene.has_method("is_ai_round_info_ready_for_guide"):
+			return bool(main_scene.is_ai_round_info_ready_for_guide())
 		if highlight_feature == "main.affection" and main_scene.has_method("is_affection_button_ready_for_guide"):
 			return bool(main_scene.is_affection_button_ready_for_guide())
 		if highlight_feature == "main.affection_panel" and main_scene.has_method("is_affection_panel_ready_for_guide"):
@@ -717,6 +746,8 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 	return true
 
 func _should_skip_step(step_data: Dictionary) -> bool:
+	if bool(step_data.get("compatibility_auto_skip", false)):
+		return true
 	var skip_conditions: Variant = step_data.get("skip_conditions", [])
 	if skip_conditions is Array and not skip_conditions.is_empty():
 		var result: Dictionary = ConditionManagerScript.evaluate_conditions(skip_conditions)
@@ -833,6 +864,8 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				raw_result = main_scene.get_wechat_button_focus_entry()
 			elif highlight_feature == "main.chat" and main_scene.has_method("get_chat_button_focus_entry"):
 				raw_result = main_scene.get_chat_button_focus_entry()
+			elif highlight_feature == "main.ai_rounds" and main_scene.has_method("get_ai_round_info_focus_entry"):
+				raw_result = main_scene.get_ai_round_info_focus_entry()
 			elif target_mode == "topic_options" and main_scene.has_method("get_main_chat_topic_options_focus_entry"):
 				raw_result = main_scene.get_main_chat_topic_options_focus_entry()
 	if target_scene == "activity":

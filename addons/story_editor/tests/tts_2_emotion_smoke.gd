@@ -59,7 +59,8 @@ func _run() -> void:
 		"bit_rate": 96000,
 		"speech_rate": 0,
 		"loudness_rate": 0,
-		"context_texts": context_texts
+		"context_texts": context_texts,
+		"section_id": "11111111-2222-4333-a444-555555555555"
 	}
 	var direct_body: Dictionary = service.call("_build_request_body", request_options)
 	var direct_params: Dictionary = direct_body.get("req_params", {}) as Dictionary
@@ -67,10 +68,23 @@ func _run() -> void:
 	_expect(direct_params.get("additions", null) is String, "V3 additions 必须序列化为 JSON string。")
 	var additions: Dictionary = JSON.parse_string(str(direct_params.get("additions", "{}"))) as Dictionary
 	_expect(additions.get("context_texts", []) == context_texts, "直连请求没有保留 context_texts。")
+	_expect(str(additions.get("section_id", "")) == str(request_options.section_id), "直连请求没有保留 section_id。")
 
 	var official_body: Dictionary = service.call("_build_official_request_body", request_options)
 	_expect(str(official_body.get("speaker", "")) == "zh_female_vv_uranus_bigtts", "官方网关请求改变了 speaker。")
 	_expect(official_body.get("context_texts", []) == context_texts, "官方网关请求没有保留 context_texts。")
+	_expect(str(official_body.get("section_id", "")) == str(request_options.section_id), "官方网关请求没有保留 section_id。")
+	var generated_section_id: String = manager.create_tts_2_section_id()
+	_expect(generated_section_id.length() == 36 and generated_section_id.count("-") == 4, "生成的 TTS section_id 不是 UUID 形状。")
+	_expect(service.call("_validate_request_options", request_options) == "", "合法 TTS 2.0 参数被拒绝。")
+	var invalid_sample_rate := request_options.duplicate(true)
+	invalid_sample_rate["sample_rate"] = 11025
+	_expect(not str(service.call("_validate_request_options", invalid_sample_rate)).is_empty(), "非法采样率没有被拒绝。")
+	var invalid_wav := request_options.duplicate(true)
+	invalid_wav["audio_format"] = "wav"
+	_expect(not str(service.call("_validate_request_options", invalid_wav)).is_empty(), "流式 WAV 没有被拒绝。")
+	var response_metadata: Dictionary = service.call("_extract_stream_metadata", ("{\"code\":0,\"data\":\"SUQzBA==\"}\n{\"code\":20000000,\"data\":null,\"usage\":{\"text_words\":9}}\n").to_utf8_buffer())
+	_expect(int((response_metadata.get("usage", {}) as Dictionary).get("text_words", 0)) == 9, "TTS 结束帧 usage 没有被提取。")
 	manager.free()
 	service.free()
 	config.free()

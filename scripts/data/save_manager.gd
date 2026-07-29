@@ -128,6 +128,9 @@ func load_archive(slot_id: String) -> bool:
 	if not _archive_has_runtime_data(final_slot_id):
 		return false
 	if final_slot_id == get_active_archive_id():
+		current_slot_id = final_slot_id
+		GameDataManager.reload_active_archive_data()
+		update_active_archive_meta()
 		return true
 	_save_active_archive_before_change(final_slot_id)
 	GameDataManager.begin_archive_change(final_slot_id)

@@ -1,3 +1,4 @@
+@tool
 extends VBoxContainer
 
 const OptionRowScene = preload("res://addons/story_editor/ui/story_choice_option_row.tscn")

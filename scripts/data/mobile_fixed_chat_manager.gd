@@ -1,7 +1,6 @@
 extends Node
 
 signal unread_count_changed(chat_id: String, unread_count: int)
-signal message_unlocked(chat_id: String, message_index: int)
 signal character_typing_state_changed(char_id: String, is_typing: bool)
 
 const SCRIPT_DIR = "res://assets/data/mobile/fixed_chats/"

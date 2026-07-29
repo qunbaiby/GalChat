@@ -3,7 +3,9 @@ class_name DeepSeekClient
 
 signal chat_request_completed(response: Dictionary)
 signal chat_request_failed(error_message: String)
+@warning_ignore("unused_signal")
 signal chat_stream_delta(delta_text: String)
+@warning_ignore("unused_signal")
 signal chat_stream_started()
 signal structured_chat_request_completed(response: Dictionary, request_context: Dictionary)
 signal structured_chat_request_failed(error_message: String, request_context: Dictionary)
@@ -11,7 +13,9 @@ signal structured_chat_request_failed(error_message: String, request_context: Di
 signal emotion_request_completed(response: Dictionary)
 signal emotion_request_failed(error_message: String)
 
+@warning_ignore("unused_signal")
 signal memory_request_completed(response: Dictionary)
+@warning_ignore("unused_signal")
 signal memory_request_failed(error_message: String)
 
 signal options_request_completed(response: Dictionary)
@@ -23,33 +27,44 @@ signal narrator_request_failed(error_message: String)
 signal character_mood_request_completed(response: Dictionary)
 signal character_mood_request_failed(error_message: String)
 
+@warning_ignore("unused_signal")
 signal npc_event_dialogue_completed(dialogue: String)
 signal npc_event_dialogue_failed(error_message: String)
 
+@warning_ignore("unused_signal")
 signal diary_generated(diary_entry: Dictionary)
 signal diary_error(error_msg: String)
 
 signal vision_request_completed(response: Dictionary)
 signal vision_request_failed(error_message: String)
 
+@warning_ignore("unused_signal")
 signal moment_generated(moment_data: Dictionary)
 signal moment_error(error_msg: String)
+@warning_ignore("unused_signal")
 signal moment_reply_generated(post_id: String, reply_text: String)
 signal moment_reply_error(error_msg: String)
 
+@warning_ignore("unused_signal")
 signal schedule_event_generated(event_data: Dictionary)
 signal schedule_event_error(error_msg: String)
+@warning_ignore("unused_signal")
 signal schedule_event_resolved(result_data: Dictionary)
 signal schedule_event_resolve_error(error_msg: String)
+@warning_ignore("unused_signal")
 signal date_story_generated(script_data: Dictionary)
 signal date_story_error(error_msg: String)
+@warning_ignore("unused_signal")
 signal date_story_generated_detailed(script_data: Dictionary, metadata: Dictionary)
 signal date_story_error_detailed(error_msg: String, metadata: Dictionary)
 
+@warning_ignore("unused_signal")
 signal idle_quote_completed(quote: String)
 signal idle_quote_failed(error_msg: String)
 
+@warning_ignore("unused_signal")
 signal image_to_image_completed(image_path: String)
+@warning_ignore("unused_signal")
 signal image_to_image_failed(error_message: String)
 
 const DeepSeekIdleQuoteService = preload("res://scripts/api/services/deepseek/deepseek_idle_quote_service.gd")
@@ -75,26 +90,44 @@ var schedule_resolve_http: HTTPRequest
 var date_story_http: HTTPRequest
 var idle_quote_http: HTTPRequest
 
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_client: HTTPClient
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_active: bool = false
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_request_sent: bool = false
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_body: String = ""
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_headers: Array = []
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_sse_buffer: String = ""
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_full_text: String = ""
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_response_code: int = 0
+@warning_ignore("unused_private_class_variable")
 var _chat_stream_retry_count: int = 0
+@warning_ignore("unused_private_class_variable")
 var _active_chat_request_context: Dictionary = {}
 var _last_chat_request_context: Dictionary = {}
 var _structured_chat_request_id: int = 0
 var _structured_chat_requests: Dictionary = {}
+@warning_ignore("unused_private_class_variable")
 var _pending_memory_context: Dictionary = {}
+@warning_ignore("unused_private_class_variable")
 var _active_memory_context: Dictionary = {}
+@warning_ignore("unused_private_class_variable")
 var _pending_memory_manager_override = null
+@warning_ignore("unused_private_class_variable")
 var _active_memory_manager_override = null
+@warning_ignore("unused_private_class_variable")
 var _active_cognition_task_id: String = ""
+@warning_ignore("unused_private_class_variable")
 var _active_cognition_task_scope: Dictionary = {}
+@warning_ignore("unused_private_class_variable")
 var _active_cognition_task: Dictionary = {}
+@warning_ignore("unused_private_class_variable")
 var _cognition_retry_timer: SceneTreeTimer
 var _vision_request_context: Dictionary = {}
 var _vision_auth_retried: bool = false
@@ -120,7 +153,7 @@ func _reinitialize_http_nodes() -> void:
 		return
 		
 	# Helper function to create or reset an HTTPRequest node
-	var reset_node = func(node_name: String, timeout_val: float, signal_name: String, callback_name: String) -> HTTPRequest:
+	var reset_node = func(node_name: String, timeout_val: float, _signal_name: String, callback_name: String) -> HTTPRequest:
 		var node = get_node_or_null(node_name)
 		if node != null:
 			if node.is_connected("request_completed", Callable(self, callback_name)):
@@ -249,18 +282,33 @@ func send_chat_message_structured(user_message: String, history_type: String = "
 	_structured_chat_request_id += 1
 	var context := request_context.duplicate(true)
 	context["request_id"] = _structured_chat_request_id
+	context["request_started_at_ms"] = Time.get_ticks_msec()
 	_prepare_structured_chat_request(user_message, history_type, context, prompt_access_context)
-	_send_emotion_analysis(user_message)
 	return _structured_chat_request_id
 
 func _prepare_structured_chat_request(user_message: String, history_type: String, context: Dictionary, prompt_access_context: Dictionary = {}) -> void:
-	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_chat_prompt(
+	var prompt_started_at_ms := Time.get_ticks_msec()
+	if str(context.get("trace_source", "")) == "guided_ai_chat":
+		print("[GuidedAITrace] request=%d stage=memory_prompt_started" % int(context.get("request_id", 0)))
+	var prompt_result: Dictionary = await GameDataManager.memory_retrieval_service.build_chat_prompt_result(
 		GameDataManager.profile,
 		user_message,
 		null,
 		"story_chat" if history_type == "story_chat" else "main_chat",
 		prompt_access_context
 	)
+	var system_prompt := str(prompt_result.get("prompt", ""))
+	context["prompt_build_ms"] = Time.get_ticks_msec() - prompt_started_at_ms
+	context["query_embedding_ms"] = int(prompt_result.get("query_embedding_ms", -1))
+	context["prompt_render_ms"] = int(prompt_result.get("prompt_render_ms", -1))
+	if str(context.get("trace_source", "")) == "guided_ai_chat":
+		print("[GuidedAITrace] request=%d stage=memory_prompt_completed embedding_ms=%d render_ms=%d total_ms=%d prompt_chars=%d" % [
+			int(context.get("request_id", 0)),
+			int(context.get("query_embedding_ms", -1)),
+			int(context.get("prompt_render_ms", -1)),
+			int(context.get("prompt_build_ms", -1)),
+			system_prompt.length()
+		])
 	var api_messages: Array = [{"role": "system", "content": system_prompt}]
 	api_messages.append_array(_get_history_messages(10, true, history_type))
 	api_messages.append({"role": "user", "content": user_message})
@@ -274,6 +322,9 @@ func _start_structured_chat_request(api_messages: Array, request_context: Dictio
 	request.timeout = 60.0
 	add_child(request)
 	var request_id := int(request_context.get("request_id", 0))
+	request_context["model_request_started_at_ms"] = Time.get_ticks_msec()
+	if str(request_context.get("trace_source", "")) == "guided_ai_chat":
+		print("[GuidedAITrace] request=%d stage=model_http_started messages=%d" % [request_id, api_messages.size()])
 	_structured_chat_requests[request_id] = request
 	request.request_completed.connect(_on_structured_chat_completed.bind(request, request_context), CONNECT_ONE_SHOT)
 	var body := {
@@ -291,6 +342,17 @@ func _start_structured_chat_request(api_messages: Array, request_context: Dictio
 
 func _on_structured_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, request: HTTPRequest, request_context: Dictionary) -> void:
 	var request_id := int(request_context.get("request_id", 0))
+	var completed_at_ms := Time.get_ticks_msec()
+	request_context["model_http_ms"] = completed_at_ms - int(request_context.get("model_request_started_at_ms", completed_at_ms))
+	request_context["total_request_ms"] = completed_at_ms - int(request_context.get("request_started_at_ms", completed_at_ms))
+	if str(request_context.get("trace_source", "")) == "guided_ai_chat":
+		print("[GuidedAITrace] request=%d stage=model_http_completed result=%d status=%d http_ms=%d total_request_ms=%d" % [
+			request_id,
+			result,
+			response_code,
+			int(request_context.get("model_http_ms", -1)),
+			int(request_context.get("total_request_ms", -1))
+		])
 	_cleanup_structured_chat_request(request_id, request)
 	if result == HTTPRequest.RESULT_TIMEOUT:
 		structured_chat_request_failed.emit(GameDataManager.profile.char_name + " 似乎走神了...", request_context)
@@ -645,7 +707,7 @@ func _on_narrator_completed(result: int, response_code: int, _headers: PackedStr
 func _on_character_mood_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_handle_response(result, response_code, body, character_mood_request_completed, character_mood_request_failed)
 
-func _on_npc_event_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_npc_event_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	_narrative_service.handle_npc_event_completed(self, response_code, body)
 
 func _on_diary_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:

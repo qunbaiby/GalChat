@@ -18,7 +18,10 @@ func build_system_prompt(profile: CharacterProfile, template_name: String, playe
 
 func build_system_prompt_result(profile: CharacterProfile, template_name: String, player_message: String, memory_manager_override = null, summary_channel: String = "", prompt_access_context: Dictionary = {}) -> Dictionary:
 	var request_id := "%d-%d" % [int(Time.get_unix_time_from_system()), Time.get_ticks_usec()]
+	var embedding_started_at_ms := Time.get_ticks_msec()
 	var query_embedding: Array = await get_query_embedding(player_message)
+	var query_embedding_ms := Time.get_ticks_msec() - embedding_started_at_ms
+	var prompt_render_started_at_ms := Time.get_ticks_msec()
 	var prompt: String = GameDataManager.prompt_manager.build_system_prompt(
 		profile,
 		template_name,
@@ -28,6 +31,7 @@ func build_system_prompt_result(profile: CharacterProfile, template_name: String
 		summary_channel,
 		prompt_access_context
 	)
+	var prompt_render_ms := Time.get_ticks_msec() - prompt_render_started_at_ms
 	var memory_manager = memory_manager_override if memory_manager_override != null else GameDataManager.memory_manager
 	if memory_manager and memory_manager.has_method("get_last_memory_prompt_result") and GameDataManager.memory_retrieval_trace_service:
 		var retrieval_result: Dictionary = memory_manager.get_last_memory_prompt_result()
@@ -60,9 +64,18 @@ func build_system_prompt_result(profile: CharacterProfile, template_name: String
 			"prompt": prompt,
 			"request_id": request_id,
 			"trace_id": str(trace.get("id", "")),
-			"rendered_memory_ids": trace.get("rendered_memory_ids", []).duplicate()
+			"rendered_memory_ids": trace.get("rendered_memory_ids", []).duplicate(),
+			"query_embedding_ms": query_embedding_ms,
+			"prompt_render_ms": prompt_render_ms
 		}
-	return {"prompt": prompt, "request_id": request_id, "trace_id": "", "rendered_memory_ids": []}
+	return {
+		"prompt": prompt,
+		"request_id": request_id,
+		"trace_id": "",
+		"rendered_memory_ids": [],
+		"query_embedding_ms": query_embedding_ms,
+		"prompt_render_ms": prompt_render_ms
+	}
 
 
 func get_query_embedding(query_text: String) -> Array:
@@ -92,7 +105,11 @@ func process_memory_embedding_task(memory_manager, payload: Dictionary) -> Dicti
 	var embedding: Array = await DoubaoEmbeddingClient.get_embedding(content)
 	if embedding.is_empty():
 		memory_manager.set_memory_embedding_state(str(payload.get("layer", "")), str(payload.get("memory_id", "")), [], "failed")
-		return {"completed": false, "error": "Embedding 请求未返回有效向量"}
+		var error_message := "Embedding 请求未返回有效向量"
+		if DoubaoEmbeddingClient.has_method("is_quota_cooldown_active") and DoubaoEmbeddingClient.is_quota_cooldown_active():
+			error_message = "Embedding 配额冷却中，稍后自动重试"
+			return {"completed": false, "error": error_message, "retry_after_seconds": 900}
+		return {"completed": false, "error": error_message}
 	var saved: bool = memory_manager.set_memory_embedding_state(
 		str(payload.get("layer", "")),
 		str(payload.get("memory_id", "")),

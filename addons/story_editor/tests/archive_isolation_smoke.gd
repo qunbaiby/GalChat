@@ -27,6 +27,22 @@ func _run() -> void:
 	if guide_manager == null:
 		_finish()
 		return
+	var migrated_guide_state: Dictionary = guide_manager._normalize_state({
+		"active_guide_id": "schedule_onboarding_guide",
+		"current_step_index": 19,
+		"completed_guides": [],
+		"feature_unlocks": {},
+		"guide_opt_in": "enabled"
+	})
+	_expect(int(migrated_guide_state.get("current_step_index", 0)) == 21, "旧引导断点没有跨过 AI 回合说明和 GoalPanel 步骤。")
+	var pre_insert_guide_state: Dictionary = guide_manager._normalize_state({
+		"active_guide_id": "schedule_onboarding_guide",
+		"current_step_index": 18,
+		"completed_guides": [],
+		"feature_unlocks": {},
+		"guide_opt_in": "enabled"
+	})
+	_expect(int(pre_insert_guide_state.get("current_step_index", 0)) == 19, "旧话题选择断点没有迁移到 GoalPanel 之后。")
 
 	save_manager.delete_save(ARCHIVE_A)
 	save_manager.delete_save(ARCHIVE_B)
@@ -40,6 +56,14 @@ func _run() -> void:
 	game_data_manager.config.unlocked_area_ids = ["archive_a_area"]
 	game_data_manager.set_archive_custom_config("desktop_wallpaper_enabled", true)
 	guide_manager.set_guide_opt_in(true)
+	guide_manager._state["active_guide_id"] = "schedule_onboarding_guide"
+	guide_manager._state["current_step_index"] = 19
+	_expect(guide_manager._save_state(), "档案 A 引导断点保存失败。")
+	_expect(guide_manager.start_guide("schedule_onboarding_guide"), "重复启动活动引导应保持当前流程。")
+	_expect(guide_manager.get_current_step_id() == "choose_topic_after_goal", "重复启动活动引导错误重置了断点。")
+	guide_manager._state["current_step_index"] = 0
+	_expect(guide_manager._save_state(), "旧内存状态合并保存失败。")
+	_expect(guide_manager.get_current_step_id() == "choose_topic_after_goal", "旧内存状态覆盖了已保存的较新引导断点。")
 	game_data_manager.config.free_chat_enabled = true
 	game_data_manager.save_active_story_checkpoint({
 		"script_id": "archive_a_story",
@@ -54,6 +78,9 @@ func _run() -> void:
 	tracks_a[0]["is_favorite"] = not default_favorite
 	MusicLibrary.save_tracks(tracks_a)
 	_expect(save_manager.auto_save("archive_isolation_a", ARCHIVE_A), "档案 A 保存失败。")
+	guide_manager._state["current_step_index"] = 0
+	_expect(save_manager.load_archive(ARCHIVE_A), "无法重新读取当前活动档案。")
+	_expect(guide_manager.get_current_step_id() == "choose_topic_after_goal", "读取当前活动档案时没有从磁盘恢复引导断点。")
 	var meta_a_first: Dictionary = save_manager.load_slot_meta(ARCHIVE_A)
 	_expect(int(meta_a_first.get("schema_version", 0)) == 1, "档案 A 没有写入当前存档 schema。")
 	_expect(int(meta_a_first.get("save_generation", 0)) == 1, "档案 A 首次提交代次错误。")
@@ -104,8 +131,7 @@ func _run() -> void:
 	_expect(game_data_manager.config.unlocked_area_ids.is_empty(), "新档继承了 A 的区域解锁。")
 	_expect(not game_data_manager.profile.has_finished_story("intro_story"), "新档继承了 A 的开篇剧情完成状态。")
 	_expect(not bool(game_data_manager.get_archive_custom_config("desktop_wallpaper_enabled", false)), "新档继承了 A 的壁纸模式。")
-	_expect(not guide_manager.is_guide_opted_in(), "新档继承了 A 的引导选择。")
-	_expect(guide_manager.should_prompt_for_guide_opt_in(), "新档没有恢复首次引导询问状态。")
+	_expect(guide_manager.is_guide_opted_in(), "新档没有自动开启新手引导。")
 	_expect(game_data_manager.config.free_chat_enabled, "全局自由聊天开关没有沿用到新档。")
 	_expect(game_data_manager.load_active_story_checkpoint().is_empty(), "新档继承了 A 的剧情检查点。")
 	game_data_manager.save_story_checkpoint_for_archive({"script_id": "stale_archive_a_story"}, ARCHIVE_A)
@@ -123,6 +149,8 @@ func _run() -> void:
 	_expect(game_data_manager.config.unlocked_area_ids.has("archive_a_area"), "切回 A 后区域解锁未恢复。")
 	_expect(bool(game_data_manager.get_archive_custom_config("desktop_wallpaper_enabled", false)), "切回 A 后壁纸模式未恢复。")
 	_expect(guide_manager.is_guide_opted_in(), "切回 A 后引导选择未恢复。")
+	_expect(guide_manager.get_active_guide_id() == "schedule_onboarding_guide", "切回 A 后活动引导未恢复。")
+	_expect(guide_manager.get_current_step_id() == "choose_topic_after_goal", "切回 A 后没有恢复到保存的引导断点。")
 	_expect(game_data_manager.config.free_chat_enabled, "切回 A 后全局自由聊天开关发生变化。")
 	var restored_checkpoint: Dictionary = game_data_manager.load_active_story_checkpoint()
 	_expect(int(restored_checkpoint.get("schema_version", 0)) == 1, "剧情检查点没有写入当前 schema。")

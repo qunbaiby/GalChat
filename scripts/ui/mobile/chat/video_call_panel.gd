@@ -25,6 +25,7 @@ var is_processing_queue: bool = false
 var is_fixed_mode: bool = false
 var fixed_call_data: Array = []
 var current_fixed_idx: int = 0
+var tts_section_id: String = ""
 
 func _ready() -> void:
     hangup_btn.pressed.connect(_on_hangup_pressed)
@@ -47,6 +48,7 @@ func setup(char_id: String, profile: CharacterProfile, is_incoming: bool = false
     current_char_id = char_id
     char_profile = profile
     is_fixed_mode = is_fixed
+    tts_section_id = TTSManager.create_tts_2_section_id()
     
     name_label.text = profile.char_name
     status_label.text = "接通中..."
@@ -88,6 +90,7 @@ func _advance_fixed_call() -> void:
         current_fixed_idx += 1
         add_character_message(text)
     else:
+        tts_section_id = ""
         call_ended.emit()
 
 func set_loading_state() -> void:
@@ -179,6 +182,7 @@ func _on_hangup_pressed() -> void:
     if audio_player.playing:
         audio_player.stop()
     message_queue.clear()
+    tts_section_id = ""
     call_ended.emit()
 
 func _on_record_down() -> void:
@@ -228,7 +232,17 @@ func _on_asr_failed(err_msg: String) -> void:
     await get_tree().create_timer(2.0).timeout
     status_label.text = "视频通话中"
 
-func add_character_message(text: String) -> void:
+func add_character_message(message: Variant) -> void:
+    if message is Dictionary:
+        var line_data := (message as Dictionary).duplicate(true)
+        var line_text: String = str(line_data.get("text", "")).strip_edges()
+        if not line_text.is_empty():
+            line_data["text"] = line_text
+            message_queue.append(line_data)
+        if not is_processing_queue:
+            _process_next_message()
+        return
+    var text: String = str(message)
     var parts = ChatSplitHelper.merge_incomplete_parentheses(text.split("[SPLIT]"))
     for p in parts:
         var c = p.strip_edges()
@@ -259,7 +273,9 @@ func _process_next_message() -> void:
     record_btn.disabled = true
     status_label.text = "对方正在讲话..."
     
-    var chunk = message_queue.pop_front()
+    var chunk_value: Variant = message_queue.pop_front()
+    var chunk_data: Dictionary = (chunk_value as Dictionary).duplicate(true) if chunk_value is Dictionary else {"text": str(chunk_value)}
+    var chunk: String = str(chunk_data.get("text", ""))
     var display_text = _extract_dialogue_text(chunk)
     var tts_text = display_text
     
@@ -273,9 +289,10 @@ func _process_next_message() -> void:
     var raw_action = _extract_action_only(chunk)
     # 开始 TTS
     if GameDataManager.config.voice_enabled and _has_readable_text(tts_text):
-        var options = {}
+        var options = {"section_id": tts_section_id, "request_source": "video_call"}
         if GameDataManager.config.tts_character_speakers.has(current_char_id):
             options["speaker"] = GameDataManager.config.tts_character_speakers[current_char_id]
+        options.merge(TTSManager.build_tts_2_instruction_options(str(chunk_data.get("voice_instruction", "")), str(chunk_data.get("expression", ""))), true)
             
         TTSManager.synthesize(tts_text, options)
         

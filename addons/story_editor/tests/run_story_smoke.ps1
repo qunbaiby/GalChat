@@ -13,12 +13,25 @@ $OutputEncoding = $utf8
 
 $godot = "d:\godot\Godot_v4.6.3-stable_mono_win64_console.exe"
 $projectPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-if ($Script.EndsWith(".tscn", [System.StringComparison]::OrdinalIgnoreCase)) {
-	$output = & $godot --path $projectPath --headless --language en --scene $Script 2>&1
-} else {
-	$output = & $godot --path $projectPath --headless --language en --script $Script 2>&1
+$originalAppData = $env:APPDATA
+$testAppData = Join-Path ([System.IO.Path]::GetTempPath()) ("galchat-story-smoke-" + [guid]::NewGuid().ToString("N"))
+$output = @()
+$exitCode = 1
+try {
+	New-Item -ItemType Directory -Path $testAppData -Force | Out-Null
+	$env:APPDATA = $testAppData
+	if ($Script.EndsWith(".tscn", [System.StringComparison]::OrdinalIgnoreCase)) {
+		$output = & $godot --path $projectPath --headless --language en --scene $Script 2>&1
+	} else {
+		$output = & $godot --path $projectPath --headless --language en --script $Script 2>&1
+	}
+	$exitCode = $LASTEXITCODE
+} finally {
+	$env:APPDATA = $originalAppData
+	if (Test-Path -LiteralPath $testAppData) {
+		Remove-Item -LiteralPath $testAppData -Recurse -Force -ErrorAction SilentlyContinue
+	}
 }
-$exitCode = $LASTEXITCODE
 $textOutput = $output | ForEach-Object { $_.ToString() }
 $storyErrors = $textOutput | Where-Object {
 	$_ -match "SCRIPT ERROR" -or
