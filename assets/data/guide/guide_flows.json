@@ -4,6 +4,7 @@
             "id": "schedule_onboarding_guide",
             "title": "行程安排新手引导",
             "guide_category": "schedule_onboarding",
+            "show_completion_toast": false,
             "auto_start_after_intro": true,
             "steps": [
                 {
@@ -27,7 +28,7 @@
                     "type": "wait_action",
                     "step_category": "schedule",
                     "title": "课程类型切换",
-                    "text": "这里是课程类型切换区。先点击一次课程类型 tab，看看不同课程分类如何切换。切换后我会继续介绍下方对应的课程列表。",
+                    "text": "点击上方课程分类，看看对应的课程列表。",
                     "wait_action": "activity_switch_category",
                     "target_scene": "activity",
                     "requires_scene": "activity",
@@ -40,7 +41,7 @@
                     "type": "wait_action",
                     "step_category": "schedule",
                     "title": "课程列表区域",
-                    "text": "这里会显示你刚才选中分类下的课程列表。现在可以继续切换上方 tab，然后从这里点击一门课程，把它安排到下方 MorningRow 的槽位里。",
+                    "text": "选择一门课程，把它安排到下方行程槽位。",
                     "wait_action": "activity_add_course",
                     "target_scene": "activity",
                     "requires_scene": "activity",
@@ -60,7 +61,7 @@
                     "type": "wait_action",
                     "step_category": "schedule",
                     "title": "行程安排槽位",
-                    "text": "你刚才选中的课程已经进入下方行程安排槽位。接下来继续安排课程，把本周 5 个槽位全部排满。当前你可以一边切 tab 挑课程，一边观察行程安排的排课结果。",
+                    "text": "继续挑选课程，把本周 5 个行程槽位全部排满。",
                     "wait_action": "activity_schedule_full",
                     "target_scene": "activity",
                     "requires_scene": "activity",
@@ -84,7 +85,7 @@
                     "type": "wait_action",
                     "step_category": "schedule",
                     "title": "主线剧情占位槽",
-                    "text": "这个带特殊边框和图标的槽位是主线剧情占位槽。它代表固定剧情事件，会自动保留在本周安排里，不属于玩家自由选课的普通课程槽位。",
+                    "text": "特殊槽位代表固定主线剧情，不占用自由选课位置。",
                     "wait_action": "activity_click_main_event_slot",
                     "target_scene": "activity",
                     "requires_scene": "activity",
@@ -135,7 +136,7 @@
                     "type": "wait_action",
                     "step_category": "schedule_execution",
                     "title": "本周行程轨道",
-                    "text": "这里会展示你之前排好的所有行程安排。现在点击任意区域，结束这部分说明；接下来你就可以自己按节奏推进整周行程了。",
+                    "text": "这里会展示本周全部行程。点击高亮区域继续。",
                     "wait_action": "schedule_execution_finish_intro",
                     "target_scene": "schedule_execution",
                     "requires_scene": "schedule_execution",
@@ -164,7 +165,7 @@
                     "type": "wait_action",
                     "step_category": "stats",
                     "title": "先看看属性变化",
-                    "text": "本周行程结算完成后，Luna 的属性变化都会汇总反映在这里。行程安排、日常互动都会持续影响这些属性，而这些属性也会进一步决定她未来的成长方向。现在点击左上角属性面板，继续下一步。",
+                    "text": "行程和互动会改变 Luna 的属性。点击属性面板查看。",
                     "wait_action": "click_main_stats",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -180,7 +181,7 @@
                     "type": "wait_action",
                     "step_category": "wechat",
                     "title": "看看新的微聊消息",
-                    "text": "静老师的固定消息已经触发了，现在微聊按钮会带着红点并轻微抖动提醒你。点击微聊按钮，打开消息面板，看看这条新消息。",
+                    "text": "静老师发来了新消息。点击微聊查看。",
                     "wait_action": "open_wechat",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -192,7 +193,7 @@
                     "type": "wait_action",
                     "step_category": "wechat",
                     "title": "微聊聊天列表",
-                    "text": "这里是微聊里的聊天列表区域，最新的固定消息会优先显示在这里。现在点击静老师这条带未读提示的会话，继续查看她刚发来的内容。",
+                    "text": "点击带未读提示的静老师会话。",
                     "wait_action": "wechat_select_chat",
                     "target_scene": "wechat",
                     "requires_scene": "wechat",
@@ -204,7 +205,7 @@
                     "type": "wait_action",
                     "step_category": "wechat",
                     "title": "先把消息看完",
-                    "text": "静老师的会话已经打开了。这里高亮的是聊天内容滚动区，先点一下这块聊天内容，确认你已经查看了这条新消息；在这一步完成前，先不要关闭微聊。",
+                    "text": "点击静老师发来的消息，先把内容看完。",
                     "wait_action": "wechat_view_chat_session",
                     "target_scene": "wechat",
                     "requires_scene": "wechat",
@@ -228,7 +229,7 @@
                     "type": "wait_action",
                     "step_category": "wechat",
                     "title": "把整段对话发完",
-                    "text": "选项内容已经放进输入框了。先点击发送，把第一句回复发出去；从这之后到整段固定对话结束前，高亮都会一直保持在整个聊天区域，不再变化。你只要继续按流程点完后续选项并发完全部内容；等系统提示本次对话已结束后，再点击一次高亮区域，我就带你进入关闭微聊的下一步。",
+                    "text": "点击发送并完成整段对话。结束后，再点击高亮区域继续。",
                     "wait_action": "wechat_acknowledge_fixed_conversation_finished",
                     "target_scene": "wechat",
                     "requires_scene": "wechat",
@@ -252,12 +253,17 @@
                     "type": "wait_action",
                     "step_category": "goal",
                     "title": "看看近期目标",
-                    "text": "这里会展示近期目标。静老师已经约好周六给 Luna 做专项辅导，先点击左上角目标面板看看，再去跟 Luna 聊聊这件事吧。",
+                    "text": "静老师约好周六专项辅导。点击近期目标查看。",
                     "wait_action": "click_main_goal",
                     "target_scene": "main",
                     "requires_scene": "main",
                     "highlight_feature": "main.goal",
-                    "hide_until_scene_ready": true
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "click_main_goal",
+                        "focus_handler_method": "open_main_goal_story_from_guide"
+                    }
                 },
                 {
                     "id": "wait_first_main_story_auto_open",
@@ -275,20 +281,21 @@
                     "id": "choose_topic_after_goal",
                     "type": "wait_action",
                     "step_category": "chat",
-                    "title": "进入 AI 主线对话",
-                    "text": "接下来将进入 AI 对话阶段。点击这个主线话题，在最多 4 个回合内和 Luna 谈谈周六专项辅导。开始时会消耗 5 点行动力，整段对话结束后时间推进 30 分钟；进入对话后，左上角会持续显示剩余回合数。",
+                    "title": "选择主线话题",
+                    "text": "点击专项辅导话题，开始最多 4 回合的主线对话。",
                     "wait_action": "select_main_chat_topic",
                     "target_scene": "main",
                     "requires_scene": "main",
                     "target_mode": "topic_options",
-                    "hide_until_scene_ready": true
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 0.0
                 },
                 {
                     "id": "explain_guided_ai_round_limit",
                     "type": "wait_action",
                     "step_category": "chat",
                     "title": "留意剩余回合",
-                    "text": "接下来进入 AI 对话阶段。左上角会显示剩余回合数；请在最多 4 个回合内和 Luna 谈谈这件事。点击回合卡确认后，就可以开始输入了。",
+                    "text": "左上角显示剩余回合。点击回合卡后开始输入。",
                     "wait_action": "acknowledge_guided_ai_round_limit",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -304,7 +311,7 @@
                     "type": "wait_action",
                     "step_category": "chat",
                     "title": "在限定回合内聊完",
-                    "text": "左上角显示这段 AI 主线的剩余回合数。每次发送消息会使用 1 个回合；回合耗尽后 Luna 会自然收尾。行动力只在开始时扣除 5 点，时间会在整段结束后统一推进 30 分钟。聊完后，我再带你认识更重要的情感入口。",
+                    "text": "每次发送使用 1 个回合。对话不耗行动力，结束后推进 30 分钟。",
                     "wait_action": "finish_first_main_chat_after_goal",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -315,20 +322,12 @@
                     "id": "inspect_main_panels_after_interact",
                     "type": "wait_action",
                     "step_category": "interaction",
-                    "title": "留意这些常用区域",
-                    "text": "天气面板会反映剧情时间变化，顶部状态面板则能查看行动力。刚才的 AI 主线在开始时消耗了 5 点行动力，并在整段结束后推进了 30 分钟。现在点击任意一个高亮区域，我再继续带你往下。",
+                    "title": "留意时间与天气",
+                    "text": "时间与天气会随剧情变化。点击高亮区域继续。",
                     "wait_action": "inspect_main_panels_after_interact",
                     "target_scene": "main",
                     "requires_scene": "main",
                     "highlight_feature": "main.weather",
-                    "focus_targets": [
-                        {
-                            "highlight_feature": "main.weather"
-                        },
-                        {
-                            "highlight_feature": "main.top_status"
-                        }
-                    ],
                     "hide_until_scene_ready": true,
                     "overlay_options": {
                         "capture_focus_clicks": true,
@@ -340,7 +339,7 @@
                     "type": "wait_action",
                     "step_category": "affection",
                     "title": "看看情感入口",
-                    "text": "与 Luna 的所有聊天、陪伴和互动，都会持续影响她对你的好感与情感状态。现在点击左上角情感按钮，进入情感面板看看。",
+                    "text": "互动会影响 Luna 的情感状态。点击情感按钮查看。",
                     "wait_action": "open_affection",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -348,7 +347,8 @@
                     "hide_until_scene_ready": true,
                     "overlay_options": {
                         "capture_focus_clicks": true,
-                        "focus_wait_action": "open_affection"
+                        "focus_wait_action": "open_affection",
+                        "focus_handler_method": "open_affection_from_guide"
                     },
                     "feature_updates": {
                         "main.affection": true
@@ -359,7 +359,7 @@
                     "type": "wait_action",
                     "step_category": "affection",
                     "title": "查看情感状态",
-                    "text": "这里可以随时查看你和 Luna 当前的情感阶段、状态变化与相关信息。看完后把情感面板关掉，我们就正式开始这段陪伴旅程。",
+                    "text": "这里记录你们的情感阶段。看完后关闭面板。",
                     "wait_action": "close_affection_panel",
                     "target_scene": "main",
                     "requires_scene": "main",
@@ -371,13 +371,49 @@
                     "type": "wait_action",
                     "step_category": "affection",
                     "title": "陪伴开始了",
-                    "text": "接下来，就按你的节奏开启与 Luna 的陪伴之旅吧。点击任意空白处，结束这段新手引导。",
+                    "text": "要提高和 Luna 的好感度，就需要多与 Luna 互动。点击任意空白处，继续了解互动需要注意的事项。",
                     "wait_action": "start_companion_journey",
                     "target_scene": "main",
                     "requires_scene": "main",
                     "overlay_options": {
                         "center_panel_when_no_focus": true,
                         "background_wait_action": "start_companion_journey"
+                    }
+                },
+                {
+                    "id": "explain_interaction_energy",
+                    "type": "wait_action",
+                    "step_category": "interaction",
+                    "title": "合理规划行动力",
+                    "text": "与 Luna 互动需要消耗行动力。合理规划行动力，与 Luna 进行互动吧。点击高亮的行动力区域继续。",
+                    "wait_action": "acknowledge_interaction_energy",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.energy",
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "acknowledge_interaction_energy"
+                    }
+                },
+                {
+                    "id": "open_first_daily_chat",
+                    "type": "wait_action",
+                    "step_category": "chat",
+                    "title": "先聊聊天吧",
+                    "text": "先试试与 Luna 聊聊天吧，聊什么话题都可以哦。点击聊天按钮，开启日常聊天。",
+                    "wait_action": "open_first_daily_chat",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.chat",
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "open_first_daily_chat",
+                        "focus_handler_method": "open_daily_chat_from_guide"
+                    },
+                    "feature_updates": {
+                        "main.chat": true
                     }
                 }
             ],
@@ -469,6 +505,219 @@
                 "main.diary": true,
                 "main.wardrobe": true
             }
+        },
+        {
+            "id": "day6_library_guidance_guide",
+            "title": "周六专项辅导引导",
+            "guide_category": "day6_library_guidance",
+            "show_completion_toast": false,
+            "auto_start_after_intro": false,
+            "steps": [
+                {
+                    "id": "open_map_for_saturday_guidance",
+                    "type": "wait_action",
+                    "title": "别忘了周六的约定",
+                    "text": "今天就是和静约好为 Luna 进行专项辅导的日子。点击“外出”，带 Luna 前往学校图书馆吧。",
+                    "wait_action": "open_map",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "highlight_feature": "main.main_action",
+                    "hide_until_scene_ready": true,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "open_map",
+                        "focus_handler_method": "open_map_from_guide"
+                    },
+                    "feature_updates": {
+                        "main.main_action": true
+                    }
+                },
+                {
+                    "id": "select_art_academy_for_guidance",
+                    "type": "wait_action",
+                    "title": "前往江屿现代艺术大学",
+                    "text": "地图默认停在青屿街。点击底部的区域卡片，可以查看该区域内的所有地点。现在选择“江屿现代艺术大学”。",
+                    "wait_action": "select_map_area",
+                    "action_payload_match": {
+                        "area_id": "art_academy"
+                    },
+                    "target_scene": "world_map",
+                    "requires_scene": "world_map",
+                    "target_mode": "area_by_id",
+                    "target_id": "art_academy",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 10.0
+                },
+                {
+                    "id": "select_library_for_guidance",
+                    "type": "wait_action",
+                    "title": "静已经在等你们了",
+                    "text": "看样子静已经在图书馆等你们了。点击“图书馆”，打开右侧地点详情。",
+                    "wait_action": "select_map_location",
+                    "action_payload_match": {
+                        "location_id": "library"
+                    },
+                    "target_scene": "world_map",
+                    "requires_scene": "world_map",
+                    "target_mode": "location_by_id",
+                    "target_id": "library",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 0.0,
+                    "overlay_options": {
+                        "panel_placement": "below"
+                    }
+                },
+                {
+                    "id": "enter_library_guidance_story",
+                    "type": "wait_action",
+                    "title": "赴约进行专项辅导",
+                    "text": "右侧详情显示今天有可触发的主线剧情。点击“进入剧情”，带 Luna 赴静的周六专项辅导之约。",
+                    "wait_action": "enter_location_detail",
+                    "action_payload_match": {
+                        "location_id": "library"
+                    },
+                    "target_scene": "location_detail",
+                    "requires_scene": "location_detail",
+                    "target_path": "MainPanel/Margin/VBox/EnterButton",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 10.0,
+                    "overlay_options": {
+                        "panel_placement": "left"
+                    }
+                },
+                {
+                    "id": "wait_library_guidance_story_finished",
+                    "type": "wait_action",
+                    "wait_action": "story_finished",
+                    "action_payload_match": {
+                        "script_id": "jing_library_guidance"
+                    },
+                    "hide_overlay": true,
+                    "hide_until_scene_ready": true
+                },
+                {
+                    "id": "open_library_tutoring",
+                    "type": "wait_action",
+                    "title": "静的额外课业指导",
+                    "text": "周末可以前来图书馆接受静的额外指导，以此来弥补那些学的不够扎实的课程",
+                    "wait_action": "open_library_tutoring",
+                    "target_scene": "quick_location",
+                    "requires_scene": "quick_location",
+                    "target_mode": "action_by_id",
+                    "target_id": "study",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 8.0
+                },
+                {
+                    "id": "select_library_tutoring_courses",
+                    "type": "wait_action",
+                    "title": "选择课业指导课程",
+                    "text": "挑选合适的课程，单次最多可安排五次课业指导，同时也要注意时间和行动力的消耗哦",
+                    "wait_action": "tutoring_schedule_full",
+                    "action_payload_match": {
+                        "count": 5
+                    },
+                    "target_scene": "tutoring",
+                    "requires_scene": "tutoring",
+                    "target_mode": "course_list",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 0.0,
+                    "overlay_options": {
+                        "panel_placement": "left"
+                    }
+                },
+                {
+                    "id": "explain_library_tutoring_details",
+                    "type": "wait_action",
+                    "title": "查看指导收益",
+                    "text": "这里能够看到完成本次课业指导之后的属性变化",
+                    "wait_action": "tutoring_click_details",
+                    "target_scene": "tutoring",
+                    "requires_scene": "tutoring",
+                    "target_mode": "detail_panel",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 0.0,
+                    "overlay_options": {
+                        "panel_placement": "left"
+                    }
+                },
+                {
+                    "id": "start_library_tutoring",
+                    "type": "wait_action",
+                    "title": "开始课业指导",
+                    "text": "点击开始指导，接受本次静的额外课业指导吧。",
+                    "wait_action": "tutoring_start",
+                    "target_scene": "tutoring",
+                    "requires_scene": "tutoring",
+                    "target_mode": "start_button",
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 8.0
+                }
+            ],
+            "completion_feature_updates": {
+                "main.main_action": true
+            }
+        },
+        {
+            "id": "day6_music_followup_guide",
+            "title": "星空下的祈愿",
+            "guide_category": "day6_music_followup",
+            "auto_start_after_intro": false,
+            "show_completion_toast": false,
+            "steps": [
+                {
+                    "id": "explain_day6_music_player",
+                    "type": "wait_action",
+                    "title": "星空下的祈愿",
+                    "text": "经过静的指导之后，这首《星空下的祈愿》Luna弹得很娴熟了呢。",
+                    "wait_action": "inspect_day6_music_player",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "target_mode": "music_player",
+                    "allowed_interactions": ["main.music_player"],
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 4.0,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "inspect_day6_music_player"
+                    }
+                },
+                {
+                    "id": "open_day6_music_playlist",
+                    "type": "wait_action",
+                    "title": "桌面播放列表",
+                    "text": "所有音乐都会收录在这里。",
+                    "wait_action": "open_music_playlist",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "target_mode": "music_cover",
+                    "allowed_interactions": ["main.music_cover"],
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 6.0,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "open_music_playlist",
+                        "focus_handler_method": "open_music_playlist_from_guide"
+                    }
+                },
+                {
+                    "id": "explain_day6_music_playlist",
+                    "type": "wait_action",
+                    "title": "切换音乐",
+                    "text": "在这里切换你想听的音乐吧。",
+                    "wait_action": "inspect_music_playlist",
+                    "target_scene": "main",
+                    "requires_scene": "main",
+                    "target_mode": "music_playlist",
+                    "allowed_interactions": ["main.music_playlist"],
+                    "hide_until_scene_ready": true,
+                    "highlight_padding": 6.0,
+                    "overlay_options": {
+                        "capture_focus_clicks": true,
+                        "focus_wait_action": "inspect_music_playlist"
+                    }
+                }
+            ]
         },
         {
             "id": "map_story_demo_guide",

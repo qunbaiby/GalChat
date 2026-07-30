@@ -1,8 +1,6 @@
 extends Control
 
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
-const ConcernTemplateRepositoryScript = preload("res://scripts/data/concern_template_repository.gd")
-const ConcernTemplateCompilerScript = preload("res://scripts/data/concern_template_compiler.gd")
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const AffectionPanelScene = preload("res://scenes/ui/main/affection_panel.tscn")
 const BackgroundSettingPanelScene = preload("res://scenes/ui/main/background_setting_panel.tscn")
@@ -17,6 +15,11 @@ const MAIN_SCENE_BGM_FADE_FLOOR_DB := -40.0
 const DRAWING_BOARD_SCENE_PATH := "res://scenes/ui/main/drawing_board_panel.tscn"
 const CREATION_MUSIC_SCENE_PATH := "res://scenes/ui/main/creation_music_panel.tscn"
 const GIFT_PANEL_SCENE: PackedScene = preload("res://scenes/ui/gift/gift_panel.tscn")
+const DailyChatRoundPolicyScript = preload("res://scripts/dialogue/daily_chat_round_policy.gd")
+const DailyChatTopicRepositoryScript = preload("res://scripts/data/daily_chat_topic_repository.gd")
+const DAILY_CHAT_ENERGY_COST := 3
+const DAILY_CHAT_MINUTES_PER_ROUND := 20
+const INTERACTION_CUTOFF_MINUTES := 23 * 60
 const MAIN_FEATURE_LOCK_HINT := "功能尚未解锁"
 const LOCKED_BUTTON_MODULATE := Color(0.58, 0.6, 0.66, 0.92)
 const UNLOCKED_BUTTON_MODULATE := Color(1, 1, 1, 1)
@@ -79,11 +82,13 @@ const MAIN_FEATURE_ALIASES := {
 @onready var dialogue_name_label: Label = $DialoguePanel/DialogueLayer/VBox/NameLabel
 @onready var dialogue_text: RichTextLabel = $DialoguePanel/DialogueLayer/VBox/RichTextLabel
 @onready var quick_option_layer: Control = $DialoguePanel/QuickOptionLayer
+@onready var ai_player_option_layer: Control = $DialoguePanel/AiPlayerOptionLayer
+@onready var ai_player_options_container: GridContainer = $DialoguePanel/AiPlayerOptionLayer/Margin/Content/OptionsGrid
 @onready var input_layer: Panel = $DialoguePanel/InputLayer
 @onready var input_field: TextEdit = $DialoguePanel/InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/SendButton
 @onready var dialogue_toolbar_container: Control = $DialoguePanel/ToolBarContainer
-@onready var end_chat_btn: Button = $DialoguePanel/ToolBarContainer/ToolBarMargin/HBox/EndChatButton
+@onready var end_chat_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/EndChatButton
 @onready var history_btn: Button = $DialoguePanel/ToolBarContainer/ToolBarMargin/HBox/HistoryButton
 @onready var quick_options_container = $DialoguePanel/QuickOptionLayer/ScrollContainer/QuickOptions
 
@@ -93,7 +98,6 @@ var activity_panel_instance = null
 var drawing_board_instance = null
 
 var _typewriter_tween: Tween = null
-var stream_live_buffer: String = ""
 var stream_live_active: bool = false
 
 var _accumulated_stats: Dictionary = {
@@ -117,6 +121,8 @@ var schedule_panel_instance = null
 var gift_panel_instance: Control = null
 
 var _story_mode_active: bool = false
+var _daily_dialogue_hud_nodes: Array[Control] = []
+var _daily_dialogue_hud_indices: Dictionary = {}
 var _main_action_mode: String = "schedule"
 var _main_action_time_disabled: bool = false
 var _interaction_ui_locked_by_dialogue: bool = false
@@ -156,6 +162,8 @@ var proactive_greeting_step: int = 0
 var is_memory_revisit_active: bool = false
 var _active_memory_revisit: Dictionary = {}
 var _generated_image_panel: Panel = null
+var _pending_guided_ai_completion_guide_actions: bool = false
+var _guided_ai_round_guide_ready_last_frame: bool = false
 
 var _waiting_for_chat_click: bool = false
 signal _chat_click_proceed
@@ -165,12 +173,12 @@ var _main_chat_player_line_active: bool = false
 
 var pending_options_data = []
 var _rendered_quick_options: Array = []
+var _main_chat_options_request_failed: bool = false
 var is_text_playback_finished = true
 var _main_chat_session_client: DeepSeekClient = null
 const DAILY_HISTORY_MODULE := "daily"
 const MAIN_CHAT_SUBTYPE_DAILY := "daily_chat"
 const MAIN_CHAT_SUBTYPE_TOPIC := "daily_topic_chat"
-const MAIN_CHAT_SUBTYPE_CONCERN := "daily_concern_chat"
 const MAIN_CHAT_SUBTYPE_STORY_TOPIC := "daily_story_topic_chat"
 const MAIN_CHAT_SUBTYPE_MEMORY := "daily_memory_revisit"
 const MAIN_CHAT_SUBTYPE_PROACTIVE := "daily_proactive"
@@ -180,7 +188,6 @@ var _selected_main_story_topic: Dictionary = {}
 var _pending_auto_main_story_after_wechat_close: bool = false
 var _pending_auto_main_story_character_id: String = ""
 var _active_embedded_main_story_topic: Dictionary = {}
-var _resolved_concern_template: Dictionary = {}
 
 func _set_main_chat_context(subtype: String, topic: String = "") -> void:
 	_current_main_chat_subtype = subtype
@@ -194,24 +201,26 @@ func _start_main_chat_session(channel: String) -> DeepSeekClient:
 	_main_chat_session_client = DeepSeekClient.new()
 	_main_chat_session_client.name = "MainChatClient_%s" % channel
 	add_child(_main_chat_session_client)
-	_main_chat_session_client.chat_stream_started.connect(_on_chat_stream_started.bind(_main_chat_session_client))
-	_main_chat_session_client.chat_stream_delta.connect(_on_chat_stream_delta.bind(_main_chat_session_client))
-	_main_chat_session_client.chat_request_completed.connect(_on_chat_response.bind(_main_chat_session_client))
+	_main_chat_session_client.realize_turn_completed.connect(_on_realize_turn_completed.bind(_main_chat_session_client))
+	_main_chat_session_client.realize_turn_failed.connect(_on_realize_turn_failed.bind(_main_chat_session_client))
 	_main_chat_session_client.options_request_completed.connect(_on_options_response.bind(_main_chat_session_client))
+	_main_chat_session_client.options_request_failed.connect(_on_main_chat_options_failed.bind(_main_chat_session_client))
 	_main_chat_session_client.emotion_request_completed.connect(_on_emotion_response.bind(_main_chat_session_client))
 	return _main_chat_session_client
 
 func _end_main_chat_session() -> void:
 	if is_instance_valid(_main_chat_session_client):
-		_main_chat_session_client.cancel_chat_request()
+		_main_chat_session_client.cancel_realize_turn_requests()
 		_main_chat_session_client.queue_free()
 	_main_chat_session_client = null
 	pending_options_data.clear()
 	_rendered_quick_options.clear()
+	_main_chat_options_request_failed = false
 	stream_live_queue.clear()
-	stream_live_buffer = ""
 	stream_live_active = false
 	stream_live_done = false
+	if dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
+		dialogue_panel.clear_ai_player_options(true)
 
 func _get_main_chat_session_client() -> DeepSeekClient:
 	if is_instance_valid(_main_chat_session_client):
@@ -253,45 +262,6 @@ func _get_current_main_chat_character_id() -> String:
 		return str(GameDataManager.config.current_character_id).strip_edges().to_lower()
 	return ""
 
-func _build_concern_template_context() -> Dictionary:
-	var story_time_manager = GameDataManager.story_time_manager
-	var date_dict: Dictionary = story_time_manager.get_current_date_dict() if story_time_manager else {}
-	return {
-		"character_id": _get_current_main_chat_character_id(),
-		"character_name": str(GameDataManager.profile.char_name) if GameDataManager.profile else "角色",
-		"weekday": int(date_dict.get("weekday", -1)),
-		"time_period": str(story_time_manager.current_period) if story_time_manager else "",
-		"day_offset": int(story_time_manager.current_day_offset) if story_time_manager else 0,
-		"stage": int(GameDataManager.profile.current_stage) if GameDataManager.profile else 0,
-		"intimacy": float(GameDataManager.profile.intimacy) if GameDataManager.profile else 0.0,
-		"trust": float(GameDataManager.profile.trust) if GameDataManager.profile else 0.0
-	}
-
-func resolve_available_concern_template() -> Dictionary:
-	var state: Dictionary = GameDataManager.profile.concern_template_state if GameDataManager.profile else {}
-	_resolved_concern_template = ConcernTemplateRepositoryScript.resolve_for_context(_build_concern_template_context(), state)
-	return _resolved_concern_template.duplicate(true)
-
-func has_available_concern_template() -> bool:
-	return not resolve_available_concern_template().is_empty()
-
-func _record_concern_template_started(template_id: String, day_offset: int) -> void:
-	if not GameDataManager.profile or template_id == "":
-		return
-	var template_state: Dictionary = GameDataManager.profile.concern_template_state.get(template_id, {})
-	template_state["last_started_day"] = day_offset
-	GameDataManager.profile.concern_template_state[template_id] = template_state
-	GameDataManager.profile.save_profile()
-
-func _record_concern_template_completed(template_id: String, day_offset: int) -> void:
-	if not GameDataManager.profile or template_id == "":
-		return
-	var template_state: Dictionary = GameDataManager.profile.concern_template_state.get(template_id, {})
-	template_state["completion_count"] = int(template_state.get("completion_count", 0)) + 1
-	template_state["last_completed_day"] = day_offset
-	GameDataManager.profile.concern_template_state[template_id] = template_state
-	GameDataManager.profile.save_profile()
-
 func _clear_expired_main_chat_topics() -> void:
 	var manager := _get_main_chat_topic_manager()
 	if manager == null or not manager.has_method("clear_expired_topics"):
@@ -324,6 +294,12 @@ func _consume_selected_story_topic_if_needed() -> void:
 	_selected_main_story_topic.clear()
 
 func _on_wechat_closed() -> void:
+	var guide_manager := _get_guide_manager()
+	var waiting_for_goal_guide := guide_manager and guide_manager.has_method("get_current_step_id") and str(guide_manager.get_current_step_id()) == "explain_main_goal_panel"
+	if waiting_for_goal_guide:
+		var fixed_chat_manager := get_node_or_null("/root/MobileFixedChatManager")
+		if fixed_chat_manager and fixed_chat_manager.has_method("reconcile_completed_script_events"):
+			fixed_chat_manager.reconcile_completed_script_events()
 	_pending_auto_main_story_after_wechat_close = true
 	_pending_auto_main_story_character_id = _get_current_main_chat_character_id()
 
@@ -627,6 +603,47 @@ func _on_activity_panel_visibility_changed() -> void:
 	else:
 		_resume_main_scene_bgm("activity_panel")
 
+func _sync_fullscreen_overlay_bgm_pause() -> void:
+	var should_pause := _has_fullscreen_main_overlay()
+	var is_paused_for_overlay := _main_scene_bgm_pause_reasons.has("fullscreen_overlay")
+	if should_pause == is_paused_for_overlay:
+		return
+	if should_pause:
+		_pause_main_scene_bgm("fullscreen_overlay")
+	else:
+		_resume_main_scene_bgm("fullscreen_overlay")
+
+func _has_fullscreen_main_overlay() -> bool:
+	if _story_mode_active or _bg_transition_active or _interaction_ui_locked_by_dialogue:
+		return true
+	if _phone_mode_active:
+		return true
+	var overlay_controls: Array = [
+		mobile_interface_instance,
+		camera_panel_instance,
+		dialogue_panel,
+		chat_scene_instance,
+		schedule_panel_instance,
+		activity_panel_instance,
+		history_panel_instance,
+		archive_panel_instance,
+		wardrobe_panel,
+		diary_panel,
+		creation_panel,
+		drawing_board_instance,
+		creation_music_panel_instance,
+		affection_overlay,
+		affection_popup_frame,
+		settings_panel_instance,
+		bg_setting_panel_instance,
+		_generated_image_panel
+	]
+	for overlay_value in overlay_controls:
+		if overlay_value is CanvasItem and is_instance_valid(overlay_value) and (overlay_value as CanvasItem).is_visible_in_tree():
+			return true
+	var schedule_execution_panel := find_child("ScheduleExecutionPanel", true, false) as Control
+	return is_instance_valid(schedule_execution_panel) and schedule_execution_panel.is_visible_in_tree()
+
 func _can_play_goal_panel_reveal_animation() -> bool:
 	if not is_instance_valid(goal_panel) or not is_instance_valid(ui_panel):
 		return false
@@ -855,13 +872,6 @@ func _get_scene_chat_button() -> Button:
 		return null
 	return current_bg_scene.get_node_or_null("ChatButton") as Button
 
-func _is_scene_concern_chat_available() -> bool:
-	if not is_instance_valid(current_bg_scene):
-		return false
-	if current_bg_scene.has_method("is_concern_mode_available"):
-		return bool(current_bg_scene.is_concern_mode_available())
-	return false
-
 func _refresh_scene_chat_button_state() -> void:
 	if not is_instance_valid(current_bg_scene):
 		return
@@ -869,6 +879,10 @@ func _refresh_scene_chat_button_state() -> void:
 		current_bg_scene.refresh_chat_button_state()
 
 func _is_scene_chat_entry_allowed_by_time() -> bool:
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		if str(guide_manager.get_current_step_id()) == "open_first_daily_chat":
+			return true
 	if not GameDataManager.story_time_manager:
 		return true
 	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
@@ -878,10 +892,45 @@ func _is_scene_chat_entry_allowed_by_time() -> bool:
 
 func _on_scene_chat_button_pressed() -> void:
 	var chat_btn := _get_scene_chat_button()
-	if _is_scene_concern_chat_available():
-		_start_embedded_concern_chat(chat_btn)
-		return
 	_start_embedded_daily_chat(chat_btn)
+
+func _get_daily_chat_entry_unavailable_reason() -> String:
+	var current_minutes := 0
+	if GameDataManager.story_time_manager:
+		current_minutes = int(GameDataManager.story_time_manager.current_hour) * 60 + int(GameDataManager.story_time_manager.current_minute)
+	return DailyChatRoundPolicyScript.get_unavailable_reason(
+		int(GameDataManager.profile.current_energy),
+		DAILY_CHAT_ENERGY_COST,
+		current_minutes,
+		DAILY_CHAT_MINUTES_PER_ROUND,
+		INTERACTION_CUTOFF_MINUTES
+	)
+
+func _show_interaction_unavailable_dialog(reason: String, required_energy: int = 0) -> void:
+	var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
+	if confirm_scene == null:
+		return
+	var dialog = confirm_scene.instantiate()
+	add_child(dialog)
+	var message := "时间已经很晚了，无法在 23:00 前完成这次互动。"
+	if reason == "energy":
+		message = "行动力不足，至少需要 %d 点行动力才能开始这次互动。" % required_energy
+	dialog.setup_advanced("暂时无法互动", message, "", "", "知道了", "")
+	if dialog.cancel_button:
+		dialog.cancel_button.hide()
+
+func _can_open_cost_interaction(action_id: String) -> bool:
+	if not GameDataManager.interaction_manager:
+		return true
+	var unavailable: Dictionary = GameDataManager.interaction_manager.get_interaction_unavailable_reason(action_id)
+	if unavailable.is_empty():
+		return true
+	_show_interaction_unavailable_dialog(str(unavailable.get("reason", "")), int(unavailable.get("required", 0)))
+	return false
+
+func open_daily_chat_from_guide() -> void:
+	_report_guide_action("open_first_daily_chat")
+	_start_embedded_daily_chat(_get_scene_chat_button())
 
 func _set_main_scene_dialogue_panel_handlers_enabled(enabled: bool) -> void:
 	var bindings := [
@@ -938,6 +987,7 @@ func _start_embedded_dialogue_session(request: Dictionary, animate_target: Butto
 	if is_instance_valid(animate_target):
 		_animate_button(animate_target)
 	_story_mode_active = true
+	_set_daily_dialogue_hud_visible(str(request.get("mode", "")) == "daily")
 	if _ui_tween:
 		_ui_tween.kill()
 	_ui_tween = create_tween()
@@ -948,8 +998,7 @@ func _start_embedded_dialogue_session(request: Dictionary, animate_target: Butto
 	_set_interaction_ui_hidden_for_dialogue(true)
 	var session_manager := _ensure_embedded_dialogue_manager()
 	session_manager.start_embedded_topic_session(request)
-	if bgm.playing:
-		bgm.stop()
+	_sync_fullscreen_overlay_bgm_pause()
 	return true
 
 func _start_embedded_main_story(topic_data: Dictionary) -> bool:
@@ -1007,76 +1056,68 @@ func _start_embedded_story_dialogue_session(request: Dictionary, script_path: St
 	_set_interaction_ui_hidden_for_dialogue(true)
 	var session_manager := _ensure_embedded_dialogue_manager()
 	session_manager.start_embedded_story_session(request, script_path)
-	if bgm.playing:
-		bgm.stop()
+	_sync_fullscreen_overlay_bgm_pause()
 	return true
-
-func _start_embedded_concern_chat(animate_target: Button = null) -> void:
-	var template := resolve_available_concern_template()
-	if template.is_empty():
-		_start_embedded_daily_chat(animate_target)
-		return
-	var context := _build_concern_template_context()
-	var request := {
-		"session_id": "concern_%s_%d" % [str(template.get("template_id", "concern")), int(context.get("day_offset", 0))],
-		"mode": "concern",
-		"subtype": MAIN_CHAT_SUBTYPE_CONCERN,
-		"concern_template_id": str(template.get("template_id", "")),
-		"concern_started_day": int(context.get("day_offset", 0))
-	}
-	if _is_ui_blocked() or _story_mode_active:
-		return
-	if is_instance_valid(animate_target):
-		_animate_button(animate_target)
-	_story_mode_active = true
-	if _ui_tween:
-		_ui_tween.kill()
-	_ui_tween = create_tween()
-	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
-	_ui_tween.tween_callback(func(): ui_panel.visible = false)
-	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-		current_bg_scene.set_ui_hidden(true)
-	_set_interaction_ui_hidden_for_dialogue(true)
-	var session_manager := _ensure_embedded_dialogue_manager()
-	session_manager.start_embedded_story_data_session(request, ConcernTemplateCompilerScript.compile(template, context))
-	_record_concern_template_started(str(template.get("template_id", "")), int(context.get("day_offset", 0)))
-	if bgm.playing:
-		bgm.stop()
 
 func _start_embedded_daily_chat(animate_target: Button = null) -> void:
 	if _is_ui_blocked() or _story_mode_active:
 		return
+	var unavailable_reason := _get_daily_chat_entry_unavailable_reason()
+	if unavailable_reason != "":
+		_show_interaction_unavailable_dialog(unavailable_reason, DAILY_CHAT_ENERGY_COST)
+		return
 	if is_instance_valid(animate_target):
 		_animate_button(animate_target)
 	var profile = GameDataManager.profile
-	var stage_conf = profile.get_current_stage_config()
-	var prompt = "请基于角色设定和当前情感阶段，生成学习、生活、感受各一个20字以内、可由玩家直接发送的轻松日常话题，不要生成正式心事剧情。只输出JSON：{\"study_topic\":\"...\",\"life_topic\":\"...\",\"emotion_topic\":\"...\"}。当前阶段：%s。角色设定：%s" % [stage_conf.get("stageTitle", "陌生人"), profile.description]
-	var topic_client := _start_main_chat_session("embedded_daily_topics")
-	topic_client.generate_dynamic_topics(prompt, func(text: String):
-		if topic_client != _main_chat_session_client:
+	var player_address := str(profile.player_title).strip_edges()
+	if player_address.is_empty():
+		player_address = str(profile.player_name).strip_edges()
+	if player_address.is_empty():
+		player_address = "你"
+	var topic_map: Dictionary = DailyChatTopicRepositoryScript.draw_topic_map()
+	var request := {
+		"session_id": "daily_%d" % Time.get_unix_time_from_system(),
+		"mode": "daily",
+		"subtype": MAIN_CHAT_SUBTYPE_TOPIC,
+		"intro_events": [
+			{"speaker": profile.char_name, "content": "（放松地看向你）%s，要聊些什么呢？" % player_address, "auto_advance": true}
+		],
+		"topic_options": [
+			QuickOptionListHelper.build_topic_option_item(str(topic_map.get("study", "最近学到了什么新东西？")), "study"),
+			QuickOptionListHelper.build_topic_option_item(str(topic_map.get("life", "今天有什么想和我聊的吗？")), "life"),
+			QuickOptionListHelper.build_topic_option_item(str(topic_map.get("emotion", "你现在心情怎么样？")), "emotion")
+		],
+		"ai_context": "请围绕玩家选择的日常话题自然交流。",
+		"topic_prompt_template": "【系统提示】玩家选择了日常话题：{topic}。请自然承接，直接以角色第一人称回复并包含括号动作描写。",
+		"energy_cost_per_round": DAILY_CHAT_ENERGY_COST,
+		"minutes_per_round": DAILY_CHAT_MINUTES_PER_ROUND,
+		"daily_chat_cutoff_minutes": INTERACTION_CUTOFF_MINUTES
+	}
+	_start_embedded_dialogue_session(request)
+
+func _set_daily_dialogue_hud_visible(should_show: bool) -> void:
+	if should_show:
+		if not _daily_dialogue_hud_nodes.is_empty():
 			return
-		var topic_map := _parse_topic_topic_map(text)
-		_end_main_chat_session()
-		var request := {
-			"session_id": "daily_%d" % Time.get_unix_time_from_system(),
-			"mode": "daily",
-			"subtype": MAIN_CHAT_SUBTYPE_TOPIC,
-			"intro_events": [
-				{"speaker": "旁白", "content": "周末的片刻显得格外安静。"},
-				{"speaker": profile.char_name, "content": "（放松地看向你）今天想聊些什么？"},
-				{"speaker": "旁白", "content": "她把选择交给了你。"}
-			],
-			"topic_options": [
-				QuickOptionListHelper.build_topic_option_item(str(topic_map.get("study", "最近学习进度还顺利吗？")), "study"),
-				QuickOptionListHelper.build_topic_option_item(str(topic_map.get("life", "今天过得怎么样？")), "life"),
-				QuickOptionListHelper.build_topic_option_item(str(topic_map.get("emotion", "最近有什么感受想分享？")), "emotion")
-			],
-			"ai_context": "请围绕玩家选择的日常话题自然交流。",
-			"topic_prompt_template": "【系统提示】玩家选择了日常话题：{topic}。请自然承接，直接以角色第一人称回复并包含括号动作描写。",
-			"cost_action": "chat_luna_topic"
-		}
-		_start_embedded_dialogue_session(request)
-	)
+		for node_path in [NodePath("UIPanel/WeatherPanel"), NodePath("UIPanel/TopStatusPanel")]:
+			var hud_node := get_node_or_null(node_path) as Control
+			if not hud_node:
+				continue
+			_daily_dialogue_hud_indices[hud_node.get_instance_id()] = hud_node.get_index()
+			_daily_dialogue_hud_nodes.append(hud_node)
+			hud_node.reparent(self, true)
+			hud_node.show()
+			hud_node.move_to_front()
+		return
+	for hud_node in _daily_dialogue_hud_nodes:
+		if not is_instance_valid(hud_node):
+			continue
+		hud_node.reparent(ui_panel, true)
+		var original_index := int(_daily_dialogue_hud_indices.get(hud_node.get_instance_id(), -1))
+		if original_index >= 0:
+			ui_panel.move_child(hud_node, mini(original_index, ui_panel.get_child_count() - 1))
+	_daily_dialogue_hud_nodes.clear()
+	_daily_dialogue_hud_indices.clear()
 
 func _on_embedded_topic_options_ready(request: Dictionary) -> void:
 	if str(request.get("mode", "")) == "main_story":
@@ -1111,53 +1152,18 @@ func _on_embedded_session_completed(request: Dictionary) -> void:
 		elif _selected_main_story_topic.is_empty():
 			_selected_main_story_topic = _active_embedded_main_story_topic.duplicate(true)
 		_consume_selected_story_topic_if_needed()
-		_report_guide_action("acknowledge_guided_ai_round_limit")
-		_report_guide_action("finish_first_main_chat_after_goal")
-	elif str(request.get("mode", "")) == "concern":
-		_record_concern_template_completed(
-			str(request.get("concern_template_id", "")),
-			int(request.get("concern_started_day", 0))
-		)
+		_pending_guided_ai_completion_guide_actions = true
+		call_deferred("_resume_guide_after_embedded_main_story")
 	_active_embedded_main_story_topic.clear()
 	_reset_main_chat_context()
 
-func _parse_topic_topic_map(raw_text: String) -> Dictionary:
-	var fallback := {
-		"study": "最近学习进度还顺利吗？",
-		"life": "今天过得怎么样？",
-		"emotion": "最近有什么感受想分享？"
-	}
-	var json_text := raw_text.strip_edges()
-	var regex := RegEx.new()
-	regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
-	var match = regex.search(raw_text)
-	if match:
-		json_text = match.get_string(1).strip_edges()
-	else:
-		var start_idx := raw_text.find("{")
-		var end_idx := raw_text.rfind("}")
-		if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-			json_text = raw_text.substr(start_idx, end_idx - start_idx + 1).strip_edges()
-
-	var json := JSON.new()
-	if json_text != "" and json.parse(json_text) == OK and json.data is Dictionary:
-		var data := json.data as Dictionary
-		return {
-			"study": str(data.get("study_topic", fallback["study"])).strip_edges(),
-			"life": str(data.get("life_topic", fallback["life"])).strip_edges(),
-			"emotion": str(data.get("emotion_topic", fallback["emotion"])).strip_edges()
-		}
-
-	var topics := QuickOptionListHelper.parse_topic_lines(
-		raw_text,
-		[fallback["study"], fallback["life"], fallback["emotion"]],
-		3
-	)
-	return {
-		"study": str(topics[0] if topics.size() > 0 else fallback["study"]),
-		"life": str(topics[1] if topics.size() > 1 else fallback["life"]),
-		"emotion": str(topics[2] if topics.size() > 2 else fallback["emotion"])
-	}
+func _resume_guide_after_embedded_main_story() -> void:
+	if not _pending_guided_ai_completion_guide_actions or not is_inside_tree():
+		return
+	if not is_main_ui_ready_for_guide():
+		return
+	_pending_guided_ai_completion_guide_actions = false
+	_advance_guided_ai_completion_guide_steps()
 
 var is_ending_chat: bool = false
 
@@ -1181,6 +1187,8 @@ func _on_date_pressed() -> void:
 
 func _on_gift_pressed() -> void:
 	if _is_ui_blocked(): return
+	if not _can_open_cost_interaction("gift"):
+		return
 	_open_gift_panel()
 
 func _open_gift_panel() -> void:
@@ -1238,6 +1246,8 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 	dialogue_name_label.text = GameDataManager.profile.char_name
 	dialogue_text.text = "..."
 	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
+	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
+		dialogue_panel.set_ai_player_option_status("Luna正在思考中")
 
 	if end_chat_btn:
 		end_chat_btn.show()
@@ -1255,7 +1265,7 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 		player_name = "指导人"
 
 	var user_msg = "【系统提示】玩家（当前身份：" + player_name + "）刚刚送给你一份礼物：【" + gift_name + "】。当前情感阶段是：" + stage_desc + "。请结合你的性格、心情和这份礼物的特点，主动对玩家说出你的感谢和反应（必须包含动作描写）。不要复述系统提示，直接给出台词。"
-	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat")
+	_get_main_chat_session_client().send_realize_turn_message(user_msg, "main_chat", _build_main_chat_meta())
 
 func _on_rest_pressed() -> void:
 	if _is_ui_blocked(): return
@@ -1327,8 +1337,8 @@ func _execute_rest_transition(dialog: Node) -> void:
 		GameDataManager.story_time_manager.current_period = GameDataManager.story_time_manager.PERIOD_MORNING
 		GameDataManager.story_time_manager.time_advanced.emit(0, GameDataManager.story_time_manager.current_period)
 		
-		# 恢复行动力等日常重置逻辑可以在这里或者时间管理器的跨天信号里处理
-		GameDataManager.profile.current_energy = GameDataManager.profile.max_energy
+		if MapDataManager and MapDataManager.has_method("sync_story_progress_unlocks"):
+			MapDataManager.sync_story_progress_unlocks(false)
 		
 		GameDataManager.profile.save_profile()
 		GameDataManager.story_time_manager.save_data()
@@ -1352,6 +1362,9 @@ func _execute_rest_transition(dialog: Node) -> void:
 	ui_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	if not should_fade_in_bgm:
 		_sync_main_scene_bgm_state()
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("start_scheduled_guides_if_needed"):
+		guide_manager.start_scheduled_guides_if_needed()
 	print("[MainScene] 休息按钮被点击，预留接口")
 
 func _open_drawing_board() -> void:
@@ -1584,6 +1597,8 @@ func _close_chat_panel(show_stats_toast: bool = true) -> void:
 
 	if quick_option_layer:
 		quick_option_layer.hide()
+	if dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
+		dialogue_panel.clear_ai_player_options(true)
 	
 	ui_panel.visible = true
 	ui_panel.modulate.a = 0.0
@@ -1617,12 +1632,9 @@ func _set_dialogue_input_waiting(char_name: String = "") -> void:
 	if input_layer:
 		input_layer.show()
 	if input_field:
-		var final_name := char_name.strip_edges()
-		if final_name == "":
-			final_name = "角色"
 		input_field.release_focus()
 		input_field.text = ""
-		input_field.placeholder_text = "%s 正在思考…" % final_name
+		input_field.placeholder_text = "输入你想说的话..."
 		input_field.editable = false
 	if send_btn:
 		send_btn.disabled = true
@@ -1660,11 +1672,14 @@ func _on_send_pressed() -> void:
 		_set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY)
 		
 	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
+	_main_chat_options_request_failed = false
+	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
+		dialogue_panel.set_ai_player_option_status("Luna正在思考中")
 	
-	for child in quick_options_container.get_children():
-		child.queue_free()
+	QuickOptionListHelper.clear_container(quick_options_container)
 	if quick_option_layer:
 		quick_option_layer.hide()
+	QuickOptionListHelper.clear_container(ai_player_options_container)
 		
 	GameDataManager.history.add_message("player", text, "", "main_chat", _build_main_chat_meta())
 	
@@ -1678,6 +1693,8 @@ func _on_send_pressed() -> void:
 	_main_chat_player_line_active = true
 	_main_chat_line_text_complete = false
 	_waiting_for_chat_click = true
+	if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+		dialogue_panel.set_continue_indicator_visible(false)
 	
 	if _typewriter_tween:
 		_typewriter_tween.kill()
@@ -1692,223 +1709,68 @@ func _on_send_pressed() -> void:
 	dialogue_text.visible_ratio = 1.0
 	dialogue_text.visible_characters = -1
 	_main_chat_line_text_complete = true
+	if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+		dialogue_panel.set_continue_indicator_visible(true)
 	if _waiting_for_chat_click and is_inside_tree():
 		await _chat_click_proceed
+	if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+		dialogue_panel.set_continue_indicator_visible(false)
 	_main_chat_player_line_active = false
 	
 	if is_proactive_greeting:
 		is_proactive_greeting = false
 		
-	_get_main_chat_session_client().send_chat_message_stream(text, "main_chat")
+	_get_main_chat_session_client().send_realize_turn_message(text, "main_chat", _build_main_chat_meta())
 
-func _on_chat_stream_started(source_client: DeepSeekClient = null) -> void:
+func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dictionary, source_client: DeepSeekClient = null) -> void:
 	if source_client != null and source_client != _main_chat_session_client:
 		return
+	var segments: Variant = realized_turn.get("segments")
+	if not segments is Array or segments.is_empty():
+		_on_realize_turn_failed("角色回复没有可展示内容。", request_context, source_client)
+		return
+	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
+		dialogue_panel.set_ai_player_option_status("Luna正在讲话")
+	var scene_commit: Dictionary = GameDataManager.chat_scene_state_runtime.apply_realized_turn(realized_turn) if GameDataManager.chat_scene_state_runtime else {}
+	request_context["scene_state_snapshot"] = scene_commit.get("snapshot", {}).duplicate(true) if scene_commit.get("snapshot", {}) is Dictionary else {}
+	request_context["accepted_effects"] = scene_commit.get("accepted_effects", []).duplicate(true) if scene_commit.get("accepted_effects", []) is Array else []
 	stream_live_active = true
-	stream_live_done = false
-	stream_live_buffer = ""
+	stream_live_done = true
 	stream_live_queue.clear()
 	_stream_response_segment_index = 0
 	is_text_playback_finished = false
 	pending_options_data.clear()
 	_skip_current_ai_chat_line_requested = false
 	_main_chat_line_text_complete = false
-	
-	if _waiting_for_chat_click:
-		_waiting_for_chat_click = false
-		_chat_click_proceed.emit()
-		
+	for segment in segments:
+		if segment is Dictionary:
+			var queued_segment := (segment as Dictionary).duplicate(true)
+			queued_segment["request_context"] = request_context.duplicate(true)
+			stream_live_queue.append(queued_segment)
+	var accepted_speech: Array[String] = []
+	for segment in segments:
+		if segment is Dictionary:
+			accepted_speech.append(str(segment.get("speech", "")))
+	var accepted_reply := "\n".join(accepted_speech)
+	var session_client := _get_main_chat_session_client()
+	_main_chat_options_request_failed = false
+	session_client.send_options_generation(accepted_reply, "", "main_chat", _current_main_chat_subtype)
+	session_client.send_emotion_generation(accepted_reply)
 	_try_start_stream_worker()
 
-func _on_chat_stream_delta(delta_text: String, source_client: DeepSeekClient = null) -> void:
+func _on_realize_turn_failed(error_message: String, _request_context: Dictionary, source_client: DeepSeekClient = null) -> void:
 	if source_client != null and source_client != _main_chat_session_client:
 		return
-	if not stream_live_active:
-		return
-	stream_live_buffer += delta_text
-	_extract_stream_segments(false)
-	_try_start_stream_worker()
-
-func _on_chat_response(response: Dictionary, source_client: DeepSeekClient = null) -> void:
-	if source_client != null and source_client != _main_chat_session_client:
-		return
-	if stream_live_active:
-		stream_live_done = true
-		_extract_stream_segments(true)
-		_try_start_stream_worker()
-		
-		# 我们不再在这里直接保存全量内容，因为 _stream_worker_loop 会逐句保存并附带语音缓存
-		var session_client := _get_main_chat_session_client()
-		var stream_reply: String = session_client.get_chat_stream_full_text()
-		# GameDataManager.history.add_message("char", stream_reply, "", "main_chat")
-		session_client.send_options_generation(stream_reply, "", "main_chat", _current_main_chat_subtype)
-		session_client.send_emotion_generation(stream_reply)
-		return
-		
-	if response.has("choices") and response["choices"].size() > 0:
-		var reply = response["choices"][0]["message"]["content"]
-		# 我们不再在这里直接保存全量内容，因为 _stream_worker_loop 会逐句保存并附带语音缓存
-		# GameDataManager.history.add_message("char", reply, "", "main_chat")
-		var session_client := _get_main_chat_session_client()
-		session_client.send_options_generation(reply, "", "main_chat", _current_main_chat_subtype)
-		session_client.send_emotion_generation(reply)
-			
-		dialogue_name_label.text = GameDataManager.profile.char_name
-		
-		var display_text = ChatSplitHelper.format_leading_action(reply)
-		
-		dialogue_text.bbcode_enabled = true
-		dialogue_text.text = display_text
-		dialogue_text.visible_ratio = 1.0
-		_set_dialogue_input_ready()
-	else:
-		dialogue_name_label.text = GameDataManager.profile.char_name
-		dialogue_text.text = "似乎走神了..."
-		_set_dialogue_input_ready()
-
-func _extract_stream_segments(force_flush: bool) -> void:
-	var delim = "[SPLIT]"
-	while true:
-		var idx = stream_live_buffer.find(delim)
-		if idx == -1:
-			break
-		var part = stream_live_buffer.substr(0, idx).strip_edges()
-		stream_live_buffer = stream_live_buffer.substr(idx + delim.length())
-		if part != "":
-			stream_live_queue.append(part)
-			
-	if force_flush:
-		var last_part = stream_live_buffer.strip_edges()
-		stream_live_buffer = ""
-		if last_part != "":
-			var parts = _auto_split_message(last_part)
-			for p in parts:
-				if typeof(p) == TYPE_STRING:
-					var tp = p.strip_edges()
-					if tp != "":
-						stream_live_queue.append(tp)
-
-func _auto_split_message(text: String) -> Array:
-	if "[SPLIT]" in text:
-		return text.split("[SPLIT]", false)
-		
-	var mood_tag = ""
-	var pure_text = text
-	var mood_regex = RegEx.new()
-	mood_regex.compile("(?i)(?:<|\\<|《|\\[|【)\\s*(mood|心情)\\s*[:：]\\s*([^>\\>》\\]】]+)\\s*(?:>|\\>|》|\\]|】)")
-	var mood_match = mood_regex.search(text)
-	if mood_match:
-		mood_tag = mood_match.get_string()
-		pure_text = text.replace(mood_tag, "")
-		
-	var modified_text = pure_text
-	
-	# 新增策略0：优先将大模型输出的换行符视为消息分隔符
-	# 很多时候AI会用换行来排版不同的动作和对话
-	modified_text = modified_text.replace("\r\n", "\n")
-	var nl_regex = RegEx.new()
-	nl_regex.compile("\\n+")
-	modified_text = nl_regex.sub(modified_text, "[SPLIT]", true)
-	
-	# 修复：确保连续的 [SPLIT] 被合并为一个
-	modified_text = modified_text.replace("[SPLIT][SPLIT]", "[SPLIT]")
-	modified_text = modified_text.replace("[SPLIT] [SPLIT]", "[SPLIT]")
-	
-	if not "[SPLIT]" in modified_text:
-		var endings = ["。", "！", "？", "……", "”", "」", "~", "～"]
-		var brackets = ["（", "("]
-		
-		# 策略1：根据“标点+动作括号”完美切分，这样刚好能保证切分后下一句以动作开头，带着后续的对话
-		for end_char in endings:
-			for bracket in brackets:
-				modified_text = modified_text.replace(end_char + bracket, end_char + "[SPLIT]" + bracket)
-				modified_text = modified_text.replace(end_char + " " + bracket, end_char + "[SPLIT]" + bracket)
-				
-		# 策略2：如果文本仍未切分且过长（>80字），强行按标点切分
-		if not "[SPLIT]" in modified_text and modified_text.length() > 80:
-			modified_text = modified_text.replace("。", "。[SPLIT]")
-			modified_text = modified_text.replace("！", "！[SPLIT]")
-			modified_text = modified_text.replace("？", "？[SPLIT]")
-			# 避免把连续的标点切碎
-			modified_text = modified_text.replace("[SPLIT][SPLIT]", "[SPLIT]")
-		
-	var parts = modified_text.split("[SPLIT]", false)
-	var merged_parts = []
-	var temp_str = ""
-	
-	for p in parts:
-		var tp = p.strip_edges()
-		if tp == "": continue
-		
-		if temp_str == "":
-			temp_str = tp
-		else:
-			# 优化：判断当前片段(tp)或者暂存片段(temp_str)是否*仅仅*包含动作描写（没有实质对话内容）
-			var tp_clean = tp
-			var temp_clean = temp_str
-			var action_regex = RegEx.new()
-			action_regex.compile("（.*?）|\\(.*?\\)")
-			tp_clean = action_regex.sub(tp_clean, "", true).strip_edges()
-			temp_clean = action_regex.sub(temp_clean, "", true).strip_edges()
-			
-			# 如果其中一个片段仅仅只有动作描写（去掉括号后无内容），则必须合并
-			if tp_clean == "" or temp_clean == "":
-				temp_str += " " + tp
-			else:
-				merged_parts.append(temp_str)
-				temp_str = tp
-				
-	if temp_str != "":
-		merged_parts.append(temp_str)
-
-	merged_parts = ChatSplitHelper.merge_incomplete_parentheses(merged_parts)
-		
-	# 新增限制：如果某一条消息长度超过 60，强制进行二次切分
-	var final_split_parts = []
-	for part in merged_parts:
-		if part.length() > 60:
-			var split_part = part
-			var endings = ["。", "！", "？", "……", "”", "」", "~", "～"]
-			var brackets = ["（", "("]
-			# 尝试在动作前切分
-			for end_char in endings:
-				for bracket in brackets:
-					split_part = split_part.replace(end_char + bracket, end_char + "[FORCE_SPLIT]" + bracket)
-					split_part = split_part.replace(end_char + " " + bracket, end_char + "[FORCE_SPLIT]" + bracket)
-			
-			# 如果依然没有切分开，强行按标点切分
-			if not "[FORCE_SPLIT]" in split_part:
-				split_part = split_part.replace("。", "。[FORCE_SPLIT]")
-				split_part = split_part.replace("！", "！[FORCE_SPLIT]")
-				split_part = split_part.replace("？", "？[FORCE_SPLIT]")
-				split_part = split_part.replace("[FORCE_SPLIT][FORCE_SPLIT]", "[FORCE_SPLIT]")
-				
-			var sub_parts = split_part.split("[FORCE_SPLIT]", false)
-			for sp in sub_parts:
-				if sp.strip_edges() != "":
-					final_split_parts.append(sp.strip_edges())
-		else:
-			final_split_parts.append(part)
-			
-	merged_parts = final_split_parts
-	merged_parts = ChatSplitHelper.merge_incomplete_parentheses(merged_parts)
-		
-	# 限制最多3条
-	if merged_parts.size() > 3:
-		# 只保留前3条，或者把后面的内容全部合并到第3条里
-		var truncated_parts = []
-		truncated_parts.append(merged_parts[0])
-		truncated_parts.append(merged_parts[1])
-		truncated_parts.append(merged_parts[2])
-		merged_parts = truncated_parts
-		
-	if merged_parts.size() > 0 and mood_tag != "":
-		merged_parts[merged_parts.size() - 1] += mood_tag
-		
-	if merged_parts.size() == 0:
-		return [text]
-		
-	return merged_parts
+	stream_live_active = false
+	stream_live_done = false
+	stream_live_queue.clear()
+	is_text_playback_finished = true
+	dialogue_name_label.text = GameDataManager.profile.char_name
+	dialogue_text.text = "回复失败，请重试。"
+	_set_dialogue_input_ready(false)
+	if dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
+		dialogue_panel.clear_ai_player_options(true)
+	ToastManager.show_system_toast(error_message, Color.RED)
 
 func _try_start_stream_worker() -> void:
 	if stream_live_worker_running:
@@ -1942,9 +1804,16 @@ func _stream_worker_loop() -> void:
 			break
 			
 		if stream_live_queue.size() > 0:
-			var text = stream_live_queue.pop_front()
+			var queued_value: Variant = stream_live_queue.pop_front()
+			var realized_segment: Dictionary = queued_value if queued_value is Dictionary else {}
+			var speech := str(realized_segment.get("speech", queued_value)).strip_edges()
+			var action_description := str((realized_segment.get("action", {}) as Dictionary).get("description", "")).strip_edges() if realized_segment.get("action", {}) is Dictionary else ""
+			var delivery_instruction := str(realized_segment.get("delivery_instruction", "")).strip_edges()
+			var text := speech if action_description.is_empty() else "（%s）%s" % [action_description, speech]
 			_skip_current_ai_chat_line_requested = false
 			_main_chat_line_text_complete = false
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(false)
 			
 			# 清理情绪标签等
 			var mood_regex = RegEx.new()
@@ -1971,7 +1840,7 @@ func _stream_worker_loop() -> void:
 			_typewriter_tween.tween_property(dialogue_text, "visible_ratio", 1.0, dur)
 			
 			var is_tts_started = false
-			var tts_text = pure_text
+			var tts_text = speech if not realized_segment.is_empty() else pure_text
 			var current_line_tts_text := ""
 			var action_regex = RegEx.new()
 			action_regex.compile("（.*?）|\\(.*?\\)")
@@ -1983,7 +1852,7 @@ func _stream_worker_loop() -> void:
 				if regex_tts.search(tts_text) != null:
 					is_tts_started = true
 					current_line_tts_text = tts_text
-					var options = {}
+					var options = TTSManager.build_tts_2_instruction_options(delivery_instruction) if not delivery_instruction.is_empty() else {}
 					# 通过 TTSManager 统一生成缓存键，确保与实际缓存文件命名一致
 					current_cache_key = TTSManager.get_cache_key(tts_text, options)
 					_remember_pending_main_scene_tts(tts_text)
@@ -1994,7 +1863,19 @@ func _stream_worker_loop() -> void:
 			
 			# 将该条切分后的消息存入历史记录中
 			var response_meta := _build_main_chat_meta()
-			response_meta.merge(deepseek_client.mark_chat_response_adopted(pure_text, _stream_response_segment_index), true)
+			var request_context: Dictionary = realized_segment.get("request_context", {}) if realized_segment.get("request_context", {}) is Dictionary else {}
+			if not request_context.is_empty():
+				response_meta["reply_pipeline"] = str(request_context.get("reply_pipeline", "realize_turn_v6"))
+				response_meta["ai_request_id"] = str(request_context.get("request_id", ""))
+				response_meta["memory_trace_id"] = str(request_context.get("trace_id", ""))
+				response_meta["response_segment_index"] = _stream_response_segment_index
+				response_meta["response_adopted"] = true
+				response_meta["scene_state_snapshot"] = request_context.get("scene_state_snapshot", {}).duplicate(true) if request_context.get("scene_state_snapshot", {}) is Dictionary else {}
+				response_meta["accepted_effects"] = request_context.get("accepted_effects", []).duplicate(true) if request_context.get("accepted_effects", []) is Array else []
+				if GameDataManager.memory_retrieval_trace_service:
+					GameDataManager.memory_retrieval_trace_service.mark_response_adopted(str(request_context.get("trace_id", "")), pure_text, _stream_response_segment_index)
+			else:
+				response_meta.merge(deepseek_client.mark_chat_response_adopted(pure_text, _stream_response_segment_index), true)
 			GameDataManager.history.add_message("char", pure_text, current_cache_key, "main_chat", response_meta)
 			_stream_response_segment_index += 1
 			
@@ -2014,12 +1895,16 @@ func _stream_worker_loop() -> void:
 			dialogue_text.visible_characters = -1
 			_main_chat_line_text_complete = true
 			_waiting_for_chat_click = true
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(true)
 			if _skip_current_ai_chat_line_requested:
 				if current_line_tts_text != "":
 					_consume_pending_main_scene_tts(current_line_tts_text)
 				if audio_player and audio_player.playing:
 					audio_player.stop()
 				_skip_current_ai_chat_line_requested = false
+				if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+					dialogue_panel.set_continue_indicator_visible(false)
 				continue
 				
 			if is_tts_started and is_inside_tree() and audio_player:
@@ -2048,6 +1933,8 @@ func _stream_worker_loop() -> void:
 			while not _skip_current_ai_chat_line_requested and stream_live_active and is_inside_tree():
 				await get_tree().process_frame
 			_waiting_for_chat_click = false
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(false)
 			if current_line_tts_text != "":
 				_consume_pending_main_scene_tts(current_line_tts_text)
 			if audio_player and audio_player.playing:
@@ -2085,6 +1972,11 @@ func _stream_worker_loop() -> void:
 			{"id": "revisit_dismissed", "text": "这件事暂时别再提了", "focus": "trust"}
 		]
 	_try_show_options()
+	if not is_memory_revisit_active and pending_options_data.is_empty() and ai_player_options_container.get_child_count() == 0:
+		if _main_chat_options_request_failed:
+			dialogue_panel.clear_ai_player_options(true)
+		else:
+			dialogue_panel.set_ai_player_option_status("Luna正在思考中")
 	
 	_set_dialogue_input_ready()
 
@@ -2098,11 +1990,13 @@ func _on_tts_success(audio_stream: AudioStream, text: String) -> void:
 		audio_player.stream = audio_stream
 		audio_player.play()
 
+
 func _on_tts_failed(error_msg: String, text: String) -> void:
 	if _story_mode_active:
 		return
 	_consume_pending_main_scene_tts(text)
 	print("MainScene TTS 失败: ", error_msg)
+
 
 func _on_dialogue_panel_gui_input(event: InputEvent) -> void:
 	if _story_mode_active:
@@ -2114,31 +2008,39 @@ func _on_dialogue_panel_gui_input(event: InputEvent) -> void:
 			dialogue_text.visible_ratio = 1.0
 			dialogue_text.visible_characters = -1
 			_main_chat_line_text_complete = true
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(true)
 		elif _main_chat_player_line_active:
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(false)
 			_waiting_for_chat_click = false
 			_chat_click_proceed.emit()
 		elif stream_live_active and not is_text_playback_finished:
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(false)
 			_skip_current_ai_chat_line_requested = true
 			if audio_player and audio_player.playing:
 				audio_player.stop()
 		elif _waiting_for_chat_click:
+			if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+				dialogue_panel.set_continue_indicator_visible(false)
 			_waiting_for_chat_click = false
 			_chat_click_proceed.emit()
+
 
 func _show_accumulated_stats() -> void:
 	var display_keys = {
 		"intimacy": "亲密",
 		"trust": "信任"
 	}
-	
 	for key in _accumulated_stats.keys():
-		var val = _accumulated_stats[key]
-		if abs(val) > 0.01: # Avoid floating point inaccuracies
-			if display_keys.has(key):
-				var sign_str = "+" if val > 0 else ""
-				var formatted_val = sign_str + ("%.1f" % val)
-				ToastManager.show_stat_toast(key, display_keys[key] + " " + formatted_val)
-		_accumulated_stats[key] = 0.0 # reset for next time
+		var value = _accumulated_stats[key]
+		if abs(value) > 0.01 and display_keys.has(key):
+			var sign_str = "+" if value > 0 else ""
+			var formatted_value = sign_str + ("%.1f" % value)
+			ToastManager.show_stat_toast(key, display_keys[key] + " " + formatted_value)
+		_accumulated_stats[key] = 0.0
+
 
 func _on_emotion_response(response: Dictionary, source_client: DeepSeekClient = null) -> void:
 	if source_client != null and source_client != _main_chat_session_client:
@@ -2151,21 +2053,18 @@ func _on_emotion_response(response: Dictionary, source_client: DeepSeekClient = 
 		var has_changes = false
 		var relationship_feedback: Dictionary = {}
 		var personality_feedback: Dictionary = {}
-		
-		for m in matches:
-			var tag = m.get_string(1).to_lower()
-			var val = m.get_string(2).strip_edges()
-			var f_val = val.to_float()
-			
+		for match_result in matches:
+			var tag = match_result.get_string(1).to_lower()
+			var value_text = match_result.get_string(2).strip_edges()
+			var float_value = value_text.to_float()
 			if tag == "intimacy" or tag.begins_with("亲密"):
-				relationship_feedback["intimacy"] = float(relationship_feedback.get("intimacy", 0.0)) + f_val
+				relationship_feedback["intimacy"] = float(relationship_feedback.get("intimacy", 0.0)) + float_value
 			elif tag == "trust" or tag.begins_with("信任"):
-				relationship_feedback["trust"] = float(relationship_feedback.get("trust", 0.0)) + f_val
-			elif tag in ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"]:
-				if f_val != 0.0:
-					has_changes = true
-					personality_feedback[tag] = float(personality_feedback.get(tag, 0.0)) + f_val
-					_accumulated_stats[tag] += f_val
+				relationship_feedback["trust"] = float(relationship_feedback.get("trust", 0.0)) + float_value
+			elif tag in ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"] and float_value != 0.0:
+				has_changes = true
+				personality_feedback[tag] = float(personality_feedback.get(tag, 0.0)) + float_value
+				_accumulated_stats[tag] += float_value
 		if not relationship_feedback.is_empty():
 			var sanitized_relationships = GameDataManager.personality_system.sanitize_llm_relationship_deltas(relationship_feedback)
 			var intimacy_delta = float(sanitized_relationships.get("intimacy", 0.0))
@@ -2183,11 +2082,8 @@ func _on_emotion_response(response: Dictionary, source_client: DeepSeekClient = 
 				GameDataManager.profile,
 				personality_feedback,
 				"main_scene_emotion",
-				{
-					"force_log": true
-				}
+				{"force_log": true}
 			)
-					
 		if has_changes:
 			GameDataManager.profile.save_profile()
 			if stats_panel and stats_panel.has_method("_update_ui"):
@@ -2196,26 +2092,25 @@ func _on_emotion_response(response: Dictionary, source_client: DeepSeekClient = 
 				top_status_panel._update_ui()
 			_update_affection_button_ui()
 
+
 func _on_options_response(response: Dictionary, source_client: DeepSeekClient = null) -> void:
 	if source_client != null and source_client != _main_chat_session_client:
 		return
+	_main_chat_options_request_failed = false
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
 		var json = JSON.new()
-		
-		# 提取可能的 JSON 代码块
 		var json_str = reply
 		var regex = RegEx.new()
 		regex.compile("```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```")
-		var match = regex.search(reply)
-		if match:
-			json_str = match.get_string(1).strip_edges()
+		var match_result = regex.search(reply)
+		if match_result:
+			json_str = match_result.get_string(1).strip_edges()
 		else:
 			var start_idx = reply.find("{")
 			var end_idx = reply.rfind("}")
 			if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
 				json_str = reply.substr(start_idx, end_idx - start_idx + 1)
-				
 		if json.parse(json_str.strip_edges()) == OK:
 			var data = json.get_data()
 			if data is Dictionary and data.has("options") and data["options"] is Array:
@@ -2223,20 +2118,42 @@ func _on_options_response(response: Dictionary, source_client: DeepSeekClient = 
 				_try_show_options()
 				return
 
+func _on_main_chat_options_failed(_error_message: String, source_client: DeepSeekClient = null) -> void:
+	if source_client != null and source_client != _main_chat_session_client:
+		return
+	pending_options_data.clear()
+	_main_chat_options_request_failed = true
+	if is_text_playback_finished and dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
+		dialogue_panel.clear_ai_player_options(true)
+
 func _try_show_options() -> void:
 	if is_text_playback_finished and pending_options_data.size() > 0:
-		if quick_option_layer:
-			quick_option_layer.show()
 		_rendered_quick_options = QuickOptionListHelper.normalize_dialogue_choice_options(pending_options_data)
+		if is_memory_revisit_active:
+			if quick_option_layer:
+				quick_option_layer.show()
+			QuickOptionListHelper.populate_option_items_with_index(
+				quick_options_container,
+				_rendered_quick_options,
+				_on_quick_option_selected
+			)
+			if dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
+				dialogue_panel.clear_ai_player_options(true)
+			pending_options_data.clear()
+			return
+		_rendered_quick_options = _rendered_quick_options.slice(0, 2)
 		QuickOptionListHelper.populate_option_items_with_index(
-			quick_options_container,
+			ai_player_options_container,
 			_rendered_quick_options,
-			_on_quick_option_selected,
-			74.0
+			_on_quick_option_selected
 		)
+		if dialogue_panel and dialogue_panel.has_method("show_ai_player_options"):
+			dialogue_panel.show_ai_player_options()
 		pending_options_data.clear()
 
 func _on_quick_option_selected(text: String, index: int = -1) -> void:
+	if dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
+		dialogue_panel.clear_ai_player_options(false)
 	if index >= 0 and index < _rendered_quick_options.size():
 		var option_data := _rendered_quick_options[index] as Dictionary
 		var option_id := str(option_data.get("id", ""))
@@ -2674,6 +2591,59 @@ func _ready() -> void:
 		_trigger_proactive_greeting()
 		_reset_idle_chatter_timer()
 
+func apply_main_scene_presentation(event: Dictionary) -> bool:
+	if not is_instance_valid(music_player) or not is_instance_valid(bgm):
+		return false
+	var background_id := str(event.get("background_id", "")).strip_edges()
+	var background_entry: Dictionary = _main_bg_catalog_by_id.get(background_id, {})
+	var background_path := str(background_entry.get("path", "")).strip_edges()
+	if background_path != "" and ResourceLoader.exists(background_path):
+		_load_bg_scene(background_path)
+		if GameDataManager.config:
+			GameDataManager.config.current_main_bg_id = background_id
+			GameDataManager.config.save_config()
+		if GameDataManager.profile:
+			GameDataManager.profile.current_main_bg_id = background_id
+			GameDataManager.profile.save_profile()
+	var playlist_track_ids: Variant = event.get("playlist_track_ids", [])
+	if playlist_track_ids is Array:
+		for raw_track_id in playlist_track_ids:
+			var track_id := str(raw_track_id).strip_edges()
+			if track_id != "":
+				MusicLibrary.update_track_fields(track_id, {"in_playlist": true})
+	var play_track_id := str(event.get("play_track_id", "")).strip_edges()
+	if play_track_id != "":
+		music_player.play_track_by_id(play_track_id)
+	var guide_manager := _get_guide_manager()
+	var guide_id := str(event.get("guide_id", "")).strip_edges()
+	if guide_id != "" and guide_manager and guide_manager.has_method("start_guide"):
+		guide_manager.start_guide(guide_id)
+	return true
+
+func get_music_player_focus_entry() -> Dictionary:
+	if is_instance_valid(music_player) and music_player.has_method("get_player_focus_target"):
+		return _build_rounded_focus_entry(music_player.get_player_focus_target(), 12.0)
+	return {}
+
+func get_music_cover_focus_entry() -> Dictionary:
+	if is_instance_valid(music_player) and music_player.has_method("get_cover_focus_target"):
+		return _build_rounded_focus_entry(music_player.get_cover_focus_target(), 10.0)
+	return {}
+
+func get_music_playlist_focus_entry() -> Dictionary:
+	if is_instance_valid(music_player) and music_player.has_method("get_playlist_focus_target"):
+		return _build_rounded_focus_entry(music_player.get_playlist_focus_target(), 10.0)
+	return {}
+
+func open_music_playlist_from_guide() -> void:
+	if is_instance_valid(music_player) and music_player.has_method("open_playlist_from_guide"):
+		music_player.open_playlist_from_guide()
+		_report_guide_action("open_music_playlist")
+		call_deferred("_refresh_guide_overlay_if_needed")
+
+func is_music_playlist_ready_for_guide() -> bool:
+	return is_instance_valid(music_player) and music_player.has_method("is_playlist_ready_for_guide") and bool(music_player.is_playlist_ready_for_guide())
+
 func _exit_tree() -> void:
 	if _desktop_mode_active:
 		_shutdown_desktop_mode_for_exit()
@@ -2686,7 +2656,19 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	_check_afk_status()
 	_sync_desktop_wallpaper_suspension()
+	_sync_fullscreen_overlay_bgm_pause()
+	_sync_guided_ai_round_guide_visibility()
 	_update_main_scene_idle_chatter(delta)
+
+func _sync_guided_ai_round_guide_visibility() -> void:
+	var guide_manager := _get_guide_manager()
+	var waiting_for_round_guide := false
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		waiting_for_round_guide = str(guide_manager.get_current_step_id()) == "explain_guided_ai_round_limit"
+	var round_guide_ready := waiting_for_round_guide and is_ai_round_info_ready_for_guide()
+	if round_guide_ready and not _guided_ai_round_guide_ready_last_frame:
+		_refresh_guide_overlay_if_needed()
+	_guided_ai_round_guide_ready_last_frame = round_guide_ready
 
 func _input(event: InputEvent) -> void:
 	if _is_idle_activity_event(event):
@@ -2936,13 +2918,30 @@ func _update_main_feature_lock_states() -> void:
 	_apply_feature_lock_view(_feature_lock_views.get("main.creation", {}), not _is_main_feature_unlocked_internal("main.creation", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.wechat", {}), not _is_main_feature_unlocked_internal("main.wechat", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.wardrobe", {}), not _is_main_feature_unlocked_internal("main.wardrobe", true))
-	_apply_feature_lock_view(_feature_lock_views.get("main.date", {}), not _is_main_feature_unlocked_internal("main.date", true))
+	var date_unlocked := _is_main_feature_unlocked_internal("main.date", true)
+	_apply_feature_lock_view(_feature_lock_views.get("main.date", {}), not date_unlocked)
+	if is_instance_valid(date_button):
+		date_button.visible = date_unlocked
 	var main_action_locked := false
 	if _main_action_mode == "map":
 		main_action_locked = not _is_main_feature_unlocked_internal("main.outing", true)
 	elif _main_action_mode == "schedule":
 		main_action_locked = not _is_main_feature_unlocked_internal("main.schedule", true)
 	_apply_feature_lock_view(_feature_lock_views.get("main.main_action", {}), main_action_locked, _main_action_time_disabled)
+	_keep_main_utility_buttons_available()
+
+func _keep_main_utility_buttons_available() -> void:
+	for button_value in [wechat_button, rest_button, hide_ui_button, camera_button, phone_button]:
+		if button_value is Button and is_instance_valid(button_value):
+			var utility_button := button_value as Button
+			utility_button.disabled = false
+			utility_button.modulate = UNLOCKED_BUTTON_MODULATE
+			utility_button.set_meta("guide_locked", false)
+			utility_button.set_meta("feature_locked", false)
+			if utility_button.tooltip_text == MAIN_FEATURE_LOCK_HINT:
+				utility_button.tooltip_text = ""
+	if is_instance_valid(rest_button):
+		rest_button.show()
 
 func _refresh_guide_overlay_if_needed() -> void:
 	var guide_manager := _get_guide_manager()
@@ -2962,6 +2961,7 @@ func _on_guide_feature_states_changed() -> void:
 	_refresh_guide_overlay_if_needed()
 
 func _on_main_ui_restored_after_chat_closed() -> void:
+	_resume_guide_after_embedded_main_story()
 	var guide_manager := _get_guide_manager()
 	var waiting_for_goal_guide := false
 	if guide_manager and guide_manager.has_method("get_current_step_id"):
@@ -2970,6 +2970,16 @@ func _on_main_ui_restored_after_chat_closed() -> void:
 		return
 	_try_reveal_affection_button_if_pending()
 	_try_reveal_goal_panel_if_pending()
+	_refresh_guide_overlay_if_needed()
+
+func _advance_guided_ai_completion_guide_steps() -> void:
+	var guide_manager := _get_guide_manager()
+	if not guide_manager or not guide_manager.has_method("get_current_step_id"):
+		return
+	if str(guide_manager.get_current_step_id()) == "explain_guided_ai_round_limit":
+		_report_guide_action("acknowledge_guided_ai_round_limit")
+	if str(guide_manager.get_current_step_id()) == "finish_first_chat_after_goal":
+		_report_guide_action("finish_first_main_chat_after_goal")
 	_refresh_guide_overlay_if_needed()
 
 func _on_scene_transition_finished(scene_path: String) -> void:
@@ -3115,9 +3125,6 @@ func get_main_action_focus_entry() -> Dictionary:
 		"cutout_polygon": _build_main_action_cutout_polygon(rect, cutout_slant)
 	}
 
-func get_stats_panel_focus_entry() -> Dictionary:
-	return _build_rounded_focus_entry(stats_panel, 26.0)
-
 func get_affection_button_focus_entry() -> Dictionary:
 	return _build_rounded_focus_entry(affection_button, 20.0)
 
@@ -3157,7 +3164,7 @@ func get_main_chat_topic_options_focus_entry() -> Dictionary:
 		return {}
 	var preferred_target := _get_preferred_topic_option_target()
 	if is_instance_valid(preferred_target):
-		return _build_rounded_focus_entry(preferred_target, 24.0)
+		return _build_rounded_focus_entry(preferred_target, 26.0)
 	return _build_rounded_focus_entry(quick_option_layer, 24.0)
 
 func get_ai_round_info_focus_entry() -> Dictionary:
@@ -3213,9 +3220,12 @@ func _on_goal_panel_gui_input(event: InputEvent) -> void:
 	var guide_manager := _get_guide_manager()
 	if guide_manager and guide_manager.has_method("get_current_step_id"):
 		if str(guide_manager.get_current_step_id()) == "explain_main_goal_panel":
-			_report_guide_action("click_main_goal")
 			accept_event()
-			call_deferred("_try_start_auto_main_story_after_wechat_close")
+			open_main_goal_story_from_guide()
+
+func open_main_goal_story_from_guide() -> void:
+	_report_guide_action("click_main_goal")
+	call_deferred("_try_start_auto_main_story_after_wechat_close")
 
 func _update_button_states_by_time() -> void:
 	if not GameDataManager.story_time_manager:
@@ -3378,6 +3388,8 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 	dialogue_name_label.text = GameDataManager.profile.char_name
 	dialogue_text.text = "..."
 	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
+	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
+		dialogue_panel.set_ai_player_option_status("Luna正在思考中")
 	
 	if end_chat_btn:
 		end_chat_btn.show()
@@ -3392,7 +3404,7 @@ func start_memory_revisit(revisit_data: Dictionary) -> void:
 		quick_option_layer.hide()
 	
 	var user_msg = GameDataManager.prompt_manager.build_memory_revisit_prompt(GameDataManager.profile, revisit_data, revisit_data.get("trigger_context", {}))
-	_get_main_chat_session_client().send_chat_message_stream(user_msg, "main_chat", {
+	_get_main_chat_session_client().send_realize_turn_message(user_msg, "main_chat", {
 		"revisit_event_id": str(revisit_data.get("revisit_event_id", "")),
 		"revisit_memory_id": str(revisit_data.get("memory_id", "")),
 		"revisit_layer": str(revisit_data.get("layer", "")),
@@ -3432,8 +3444,7 @@ func start_farewell() -> void:
 		return
 		
 	var session_client := _get_main_chat_session_client()
-	if session_client.is_chat_streaming():
-		session_client.stop_chat_stream()
+	session_client.cancel_realize_turn_requests()
 		
 	stream_live_active = false
 	stream_live_worker_running = false
@@ -3462,8 +3473,14 @@ func start_farewell() -> void:
 	if quick_option_layer:
 		quick_option_layer.hide()
 		
-	var prompt = "【系统提示：玩家想要结束对话。请结合你当前的身份、心情和性格，说一句简短的结束语作为告别（必须包含括号动作描写）。绝对不要提到你是AI。】"
-	session_client.send_chat_message_stream(prompt, "main_chat")
+	var farewell_event := "玩家已按下结束对话按钮，本轮需要由角色自然告别并结束当前会话。"
+	session_client.send_realize_turn_message(farewell_event, "main_chat", {
+		"module": DAILY_HISTORY_MODULE,
+		"subtype": _current_main_chat_subtype,
+		"channel": "main_chat_farewell",
+		"turn_origin": "program_event",
+		"additional_authoritative_context": "角色应简短告别，不再开启新话题；这是程序事件，不是玩家说出的话。"
+	})
 
 func _add_neon_effect_to_button(btn: Button) -> void:
 	if btn.has_meta("neon_style"):
@@ -3661,11 +3678,11 @@ func _check_afk_status() -> void:
 
 func _on_enter_afk() -> void:
 	print("[MainScene] 视为主场景后台挂机，暂停音乐与进度")
-	_sync_main_scene_bgm_state()
+	_pause_main_scene_bgm("afk")
 		
 func _on_exit_afk() -> void:
 	print("[MainScene] 退出后台挂机模式，恢复音乐与进度")
-	_sync_main_scene_bgm_state()
+	_resume_main_scene_bgm("afk")
 	_reset_idle_chatter_timer()
 
 func _is_desktop_pet_afk_active() -> bool:
@@ -3739,28 +3756,17 @@ func _process_story_post_events_on_main_ready() -> void:
 	if not is_inside_tree():
 		return
 	var story_post_event_manager := get_node_or_null("/root/StoryPostEventManager")
+	if story_post_event_manager and story_post_event_manager.has_method("reconcile_completed_story_fixed_chats"):
+		story_post_event_manager.reconcile_completed_story_fixed_chats()
 	if story_post_event_manager and story_post_event_manager.has_method("process_timing"):
-		story_post_event_manager.process_timing("next_main_scene")
+		var executed_events: Array[Dictionary] = story_post_event_manager.process_timing("next_main_scene")
+		for event in executed_events:
+			if str(event.get("type", "")) == "main_scene_presentation":
+				apply_main_scene_presentation(event)
 	var fixed_chat_manager := get_node_or_null("/root/MobileFixedChatManager")
 	if fixed_chat_manager and fixed_chat_manager.has_method("trigger_pending_for_main_scene"):
 		fixed_chat_manager.trigger_pending_for_main_scene()
-	_ensure_jing_fixed_chat_triggered_after_story()
 	_on_wechat_unread_changed()
-
-func _ensure_jing_fixed_chat_triggered_after_story() -> void:
-	if GameDataManager.profile == null or not GameDataManager.profile.has_method("has_finished_story"):
-		return
-	if not bool(GameDataManager.profile.has_finished_story("luna_piano_practice")):
-		return
-	var fixed_chat_manager := get_node_or_null("/root/MobileFixedChatManager")
-	if fixed_chat_manager == null:
-		return
-	if fixed_chat_manager.has_method("is_script_active") and bool(fixed_chat_manager.is_script_active("jing_piano_practice_invite")):
-		return
-	if fixed_chat_manager.has_method("is_script_completed") and bool(fixed_chat_manager.is_script_completed("jing_piano_practice_invite")):
-		return
-	if fixed_chat_manager.has_method("can_trigger_script") and bool(fixed_chat_manager.can_trigger_script("jing_piano_practice_invite")):
-		fixed_chat_manager.trigger_script("jing_piano_practice_invite")
 
 func _start_wechat_shake() -> void:
 	if not is_instance_valid(wechat_button):
@@ -3979,7 +3985,10 @@ func _sync_desktop_wallpaper_suspension() -> void:
 
 func _set_desktop_wallpaper_suspended(suspended: bool) -> void:
 	_desktop_wallpaper_suspended = suspended
-	_resume_main_scene_bgm("desktop_game_foreground")
+	if suspended:
+		_pause_main_scene_bgm("desktop_game_foreground")
+	else:
+		_resume_main_scene_bgm("desktop_game_foreground")
 	if is_instance_valid(desktop_chat_window):
 		desktop_chat_window.set_suspended(suspended)
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_desktop_bubble_suspended"):
@@ -4079,6 +4088,7 @@ func _on_main_action_pressed() -> void:
 		_pause_main_scene_bgm("map_scene")
 		SceneTransitionManager.transition_to_scene("res://scenes/ui/map/core/world_map_scene.tscn")
 	elif _main_action_mode == "schedule":
+		_pause_main_scene_bgm("activity_panel")
 		if activity_panel_instance == null:
 			var ActivityPanelObj = load("res://scenes/ui/activity/activity_panel.tscn")
 			activity_panel_instance = ActivityPanelObj.instantiate()
@@ -4088,6 +4098,11 @@ func _on_main_action_pressed() -> void:
 				activity_panel_instance.visibility_changed.connect(_on_activity_panel_visibility_changed)
 		activity_panel_instance.show_panel()
 		_report_guide_action("open_schedule")
+
+func open_map_from_guide() -> void:
+	if _main_action_mode != "map" or _is_ui_blocked():
+		return
+	_on_main_action_pressed()
 
 func _sync_background_weather_layer() -> void:
 	var weather_bridge = get_tree().root.get_node_or_null("GameDataManager/WeatherBridge")
@@ -4131,58 +4146,10 @@ func _load_bg_scene(path: String) -> void:
 func _on_interact_trigger_pressed() -> void:
 	_on_scene_chat_button_pressed()
 
-func _start_story_concern_flow(animate_target: Button = null) -> void:
-	if _is_ui_blocked() or _story_mode_active:
-		return
-	if is_instance_valid(chat_scene_instance) and chat_scene_instance.visible:
-		return
-	if is_instance_valid(animate_target):
-		_animate_button(animate_target)
-
-	_story_mode_active = true
-	
-	if _ui_tween:
-		_ui_tween.kill()
-	_ui_tween = create_tween()
-	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
-	_ui_tween.tween_callback(func(): ui_panel.visible = false)
-	
-	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-		current_bg_scene.set_ui_hidden(true)
-		
-	_set_interaction_ui_hidden_for_dialogue(true)
-	
-	if chat_scene_instance == null:
-		chat_scene_instance = Control.new()
-		chat_scene_instance.name = "EmbeddedDialogueManager"
-		chat_scene_instance.visible = false
-		chat_scene_instance.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chat_scene_instance.set_script(load("res://scripts/dialogue/dialogue_manager.gd"))
-		var concern_client := DeepSeekClient.new()
-		concern_client.name = "DeepSeekClient"
-		chat_scene_instance.add_child(concern_client)
-		chat_scene_instance.ui_panel_path = NodePath("../DialoguePanel")
-		chat_scene_instance.dialogue_panel_path = NodePath("../DialoguePanel")
-		chat_scene_instance.deepseek_client_path = NodePath("DeepSeekClient")
-		chat_scene_instance.audio_player_path = NodePath("../MainTTSPlayer")
-		chat_scene_instance.click_blocker_path = NodePath("")
-		chat_scene_instance.character_layer_path = NodePath("")
-		chat_scene_instance.free_chat_info_layer_path = NodePath("")
-		chat_scene_instance.conversation_subtype = MAIN_CHAT_SUBTYPE_CONCERN
-		add_child(chat_scene_instance)
-		move_child(chat_scene_instance, -1)
-		chat_scene_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		chat_scene_instance.chat_closed.connect(_on_chat_closed)
-		
-	chat_scene_instance.show_panel()
-	if bgm.playing:
-		bgm.stop()
-
-func _on_galchat_pressed() -> void:
-	_start_embedded_concern_chat()
-
 func _on_chat_closed() -> void:
 	_story_mode_active = false
+	_set_daily_dialogue_hud_visible(false)
+	_set_interaction_ui_hidden_for_dialogue(false)
 	
 	if dialogue_panel and dialogue_panel.visible:
 		var d_tween = create_tween()
@@ -4227,9 +4194,11 @@ func _play_cached_voice(cache_key: String) -> void:
 		return
 
 	var history_text := ""
+	var history_character_id := ""
 	for msg in GameDataManager.history.messages:
 		if str(msg.get("voice_cache_key", "")) == cache_key:
 			history_text = str(msg.get("text", ""))
+			history_character_id = str(msg.get("character_id", _get_current_main_chat_character_id())).strip_edges().to_lower()
 			break
 
 	if history_text != "":
@@ -4239,7 +4208,7 @@ func _play_cached_voice(cache_key: String) -> void:
 		clean_text = ChatSplitHelper.strip_parentheses(clean_text).strip_edges()
 		if clean_text != "":
 			_remember_pending_main_scene_tts(clean_text)
-			TTSManager.synthesize(clean_text, {})
+			TTSManager.synthesize(clean_text, {"character_id": history_character_id})
 			return
 
 	print("未找到语音缓存: ", cache_key)
@@ -4327,10 +4296,16 @@ func _on_affection_pressed() -> void:
 	_report_guide_action("open_affection")
 
 func open_affection_from_guide() -> void:
-	_on_affection_pressed()
+	if not is_instance_valid(affection_button):
+		return
+	_animate_button(affection_button)
+	_show_affection_popup()
+	_report_guide_action("open_affection")
 
 func _on_creation_pressed() -> void:
 	if _is_ui_blocked(): return
+	if not _can_open_cost_interaction("co_create_board"):
+		return
 	_animate_button(creation_button)
 	_show_creation_panel()
 

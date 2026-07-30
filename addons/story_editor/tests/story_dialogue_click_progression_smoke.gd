@@ -45,6 +45,7 @@ func _run() -> void:
 		await process_frame
 		if dialogue_layer != null:
 			root.push_input(click_event)
+		await process_frame
 		wait_frames = 0
 		while wait_frames < 180 and story_scene.script_engine.current_event_index == first_event_index:
 			await process_frame

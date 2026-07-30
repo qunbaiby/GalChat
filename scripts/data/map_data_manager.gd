@@ -43,6 +43,7 @@ func reload_for_current_character() -> void:
 	_last_visited_area = ""
 	_last_visited_location = ""
 	_load_entry_trigger_history()
+	sync_story_progress_unlocks()
 
 func _get_current_story_day_offset() -> int:
 	if GameDataManager.story_time_manager:
@@ -138,6 +139,39 @@ func get_area_order() -> Array:
 func get_location(location_id: String) -> Dictionary:
 	return locations.get(location_id, {})
 
+func sync_story_progress_unlocks(save_now: bool = true) -> bool:
+	if GameDataManager.story_time_manager == null or GameDataManager.config == null:
+		return false
+	if not GameDataManager.story_time_manager.has_method("get_current_map_unlock_policy"):
+		return false
+	var policy: Dictionary = GameDataManager.story_time_manager.get_current_map_unlock_policy()
+	if policy.is_empty():
+		return false
+	var allowed_area_ids: Array = policy.get("allowed_area_ids", []) if policy.get("allowed_area_ids", []) is Array else []
+	var allowed_location_ids: Array = policy.get("allowed_location_ids", []) if policy.get("allowed_location_ids", []) is Array else []
+	var changed := false
+	if bool(policy.get("remove_other_unlocks", false)):
+		for unlocked_area_id in GameDataManager.config.unlocked_area_ids.duplicate():
+			if not allowed_area_ids.has(str(unlocked_area_id)):
+				GameDataManager.config.unlocked_area_ids.erase(unlocked_area_id)
+				changed = true
+		for unlocked_location_id in GameDataManager.config.unlocked_location_ids.duplicate():
+			if not allowed_location_ids.has(str(unlocked_location_id)):
+				GameDataManager.config.unlocked_location_ids.erase(unlocked_location_id)
+				changed = true
+	if bool(policy.get("persist_allowed_unlocks", false)):
+		for area_id in allowed_area_ids:
+			if not GameDataManager.config.unlocked_area_ids.has(area_id):
+				GameDataManager.config.unlocked_area_ids.append(area_id)
+				changed = true
+		for location_id in allowed_location_ids:
+			if not GameDataManager.config.unlocked_location_ids.has(location_id):
+				GameDataManager.config.unlocked_location_ids.append(location_id)
+				changed = true
+	if changed and save_now:
+		GameDataManager.config.save_config()
+	return changed
+
 func is_area_unlocked(area_id: String) -> bool:
 	var area = get_area(area_id)
 	if area.is_empty():
@@ -148,17 +182,20 @@ func is_area_unlocked(area_id: String) -> bool:
 	
 	if GameDataManager.config and GameDataManager.config.unlocked_area_ids.has(area_id):
 		return true
-	
+	var unlock_policy: Dictionary = GameDataManager.story_time_manager.get_current_map_unlock_policy() if GameDataManager.story_time_manager and GameDataManager.story_time_manager.has_method("get_current_map_unlock_policy") else {}
+	if not unlock_policy.is_empty():
+		var allowed_area_ids: Array = unlock_policy.get("allowed_area_ids", []) if unlock_policy.get("allowed_area_ids", []) is Array else []
+		return allowed_area_ids.has(area_id)
+
 	var conditions = area.get("unlock_conditions", [])
 	if not (conditions is Array) or conditions.is_empty():
-		return true
-	
-	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
-	var eval_result = ConditionManager.evaluate_conditions(conditions)
+		return false
+
+	var condition_manager_script = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = condition_manager_script.evaluate_conditions(conditions)
 	if bool(eval_result.get("passed", false)):
 		unlock_area(area_id)
 		return true
-	
 	return false
 
 func get_area_lock_reason(area_id: String) -> String:
@@ -177,8 +214,8 @@ func get_area_lock_reason(area_id: String) -> String:
 	if not (conditions is Array) or conditions.is_empty():
 		return "暂未解锁"
 	
-	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
-	var eval_result = ConditionManager.evaluate_conditions(conditions)
+	var condition_manager_script = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = condition_manager_script.evaluate_conditions(conditions)
 	if not bool(eval_result.get("passed", false)):
 		return str(eval_result.get("failed_reason", "暂未解锁"))
 	return "暂未解锁"
@@ -197,21 +234,36 @@ func unlock_area(area_id: String, save_now: bool = true) -> void:
 	if save_now:
 		GameDataManager.config.save_config()
 
+func unlock_location(location_id: String, save_now: bool = true) -> void:
+	if location_id == "" or not locations.has(location_id) or GameDataManager.config == null:
+		return
+	if GameDataManager.config.unlocked_location_ids.has(location_id):
+		return
+	GameDataManager.config.unlocked_location_ids.append(location_id)
+	if save_now:
+		GameDataManager.config.save_config()
+
 func is_location_unlocked(location_id: String) -> bool:
 	var loc = get_location(location_id)
 	if loc.is_empty():
 		return false
-		
-	# 如果没有 conditions，默认解锁
-	if not loc.has("conditions"):
+	if GameDataManager.config and GameDataManager.config.unlocked_location_ids.has(location_id):
 		return true
+	var unlock_policy: Dictionary = GameDataManager.story_time_manager.get_current_map_unlock_policy() if GameDataManager.story_time_manager and GameDataManager.story_time_manager.has_method("get_current_map_unlock_policy") else {}
+	if not unlock_policy.is_empty():
+		var allowed_location_ids: Array = unlock_policy.get("allowed_location_ids", []) if unlock_policy.get("allowed_location_ids", []) is Array else []
+		return allowed_location_ids.has(location_id)
+		
+	# 无解锁记录也无条件的地点保持锁定，等待后续剧情显式解锁。
+	if not loc.has("conditions"):
+		return bool(loc.get("default_unlocked", false))
 		
 	var conditions = loc["conditions"]
 	if not (conditions is Array):
 		return true
 		
-	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
-	var eval_result = ConditionManager.evaluate_conditions(conditions)
+	var condition_manager_script = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = condition_manager_script.evaluate_conditions(conditions)
 	return eval_result["passed"]
 	
 func is_location_visible(location_id: String) -> bool:
@@ -226,17 +278,21 @@ func is_location_visible(location_id: String) -> bool:
 	if not (v_conditions is Array):
 		return true
 		
-	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
-	var eval_result = ConditionManager.evaluate_conditions(v_conditions)
+	var condition_manager_script = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = condition_manager_script.evaluate_conditions(v_conditions)
 	return eval_result["passed"]
 
 func get_location_lock_reason(location_id: String) -> String:
 	var loc = get_location(location_id)
-	if loc.is_empty() or not loc.has("conditions"):
+	if loc.is_empty():
 		return ""
+	if is_location_unlocked(location_id):
+		return ""
+	if not loc.has("conditions"):
+		return str(loc.get("unlock_hint", "等待后续剧情解锁"))
 		
-	var ConditionManager = preload("res://scripts/data/condition_manager.gd")
-	var eval_result = ConditionManager.evaluate_conditions(loc["conditions"])
+	var condition_manager_script = preload("res://scripts/data/condition_manager.gd")
+	var eval_result = condition_manager_script.evaluate_conditions(loc["conditions"])
 	if not eval_result["passed"]:
 		return eval_result["failed_reason"]
 	return ""
@@ -275,8 +331,8 @@ func _get_active_story_events(day_cfg: Dictionary, period: String) -> Array:
 	var active_events: Array = []
 	var base_events = day_cfg.get("events", [])
 	if base_events is Array:
-		for event_id in base_events:
-			var event_key := str(event_id).strip_edges()
+		for raw_event in base_events:
+			var event_key: String = GameDataManager.story_time_manager.get_story_event_id(raw_event) if GameDataManager.story_time_manager else str(raw_event).strip_edges()
 			if event_key != "" and not active_events.has(event_key):
 				active_events.append(event_key)
 	
@@ -294,8 +350,8 @@ func _get_active_story_events(day_cfg: Dictionary, period: String) -> Array:
 	if period_event_key != "":
 		var period_events = day_cfg.get(period_event_key, [])
 		if period_events is Array:
-			for event_id in period_events:
-				var event_key := str(event_id).strip_edges()
+			for raw_event in period_events:
+				var event_key: String = GameDataManager.story_time_manager.get_story_event_id(raw_event) if GameDataManager.story_time_manager else str(raw_event).strip_edges()
 				if event_key != "" and not active_events.has(event_key):
 					active_events.append(event_key)
 	

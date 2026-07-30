@@ -5,8 +5,8 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "order", "label": "点单"},
-      {"id": "work", "label": "打工"},
+      {"id": "order", "label": "点单", "handler": {"type": "scene", "scene_path": "res://scenes/ui/map/cafe/cafe_order_menu.tscn"}},
+      {"id": "work", "label": "打工", "handler": {"type": "result_bubble"}},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -16,7 +16,8 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "study", "label": "课业指导"},
+      {"id": "study", "label": "课业指导", "handler": {"type": "scene", "scene_path": "res://scenes/ui/map/library/tutoring_menu.tscn", "guide_action": "open_library_tutoring"}},
+      {"id": "self_study", "label": "自习", "handler": {"type": "result_bubble"}},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -26,7 +27,7 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "study", "label": "作品讲评"},
+      {"id": "study", "label": "作品讲评", "handler": {"type": "scene", "scene_path": "res://scenes/ui/map/art_gallery/art_study_menu.tscn"}},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -36,7 +37,7 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "study", "label": "共同练习"},
+      {"id": "study", "label": "共同练习", "handler": {"type": "scene", "scene_path": "res://scenes/ui/map/concert_hall/music_study_menu.tscn"}},
       {"id": "leave", "label": "离开"}
     ]
   },
@@ -46,7 +47,7 @@
     "type": "resident",
     "interactions": [
       {"id": "chat", "label": "聊天"},
-      {"id": "study", "label": "表演学习"},
+      {"id": "study", "label": "表演学习", "handler": {"type": "scene", "scene_path": "res://scenes/ui/map/grand_theater/performance_study_menu.tscn"}},
       {"id": "leave", "label": "离开"}
     ]
   },

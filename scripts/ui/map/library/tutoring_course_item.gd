@@ -1,5 +1,7 @@
 extends PanelContainer
 
+const TUTORING_ENERGY_MULTIPLIER := 2
+
 signal course_clicked(course_data: Dictionary)
 
 @onready var name_label: Label = $Margin/VBox/HeaderHBox/NameLabel
@@ -18,7 +20,7 @@ var style_normal: StyleBoxFlat
 var style_selected: StyleBoxFlat
 
 func _get_energy_cost() -> int:
-	return max(1, int(ceil(float(_increment) / 5.0)))
+	return max(1, int(ceil(float(_increment) / 5.0))) * TUTORING_ENERGY_MULTIPLIER
 
 func _ready() -> void:
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

@@ -54,6 +54,7 @@ func _run() -> void:
 	game_data_manager.config.resolution_idx = 2
 	game_data_manager.config.pet_disturbance_mode = "安静模式"
 	game_data_manager.config.unlocked_area_ids = ["archive_a_area"]
+	game_data_manager.config.unlocked_location_ids = ["archive_a_location"]
 	game_data_manager.set_archive_custom_config("desktop_wallpaper_enabled", true)
 	guide_manager.set_guide_opt_in(true)
 	guide_manager._state["active_guide_id"] = "schedule_onboarding_guide"
@@ -129,6 +130,7 @@ func _run() -> void:
 	_expect(game_data_manager.config.resolution_idx == 2, "全局分辨率没有沿用到新档。")
 	_expect(game_data_manager.config.pet_disturbance_mode == "安静模式", "全局桌宠设置没有沿用到新档。")
 	_expect(game_data_manager.config.unlocked_area_ids.is_empty(), "新档继承了 A 的区域解锁。")
+	_expect(game_data_manager.config.unlocked_location_ids.is_empty(), "新档继承了 A 的地点解锁。")
 	_expect(not game_data_manager.profile.has_finished_story("intro_story"), "新档继承了 A 的开篇剧情完成状态。")
 	_expect(not bool(game_data_manager.get_archive_custom_config("desktop_wallpaper_enabled", false)), "新档继承了 A 的壁纸模式。")
 	_expect(guide_manager.is_guide_opted_in(), "新档没有自动开启新手引导。")
@@ -147,6 +149,7 @@ func _run() -> void:
 	_expect(game_data_manager.config.resolution_idx == 2, "切回 A 后分辨率未恢复。")
 	_expect(game_data_manager.config.pet_disturbance_mode == "安静模式", "切回 A 后桌宠设置未恢复。")
 	_expect(game_data_manager.config.unlocked_area_ids.has("archive_a_area"), "切回 A 后区域解锁未恢复。")
+	_expect(game_data_manager.config.unlocked_location_ids.has("archive_a_location"), "切回 A 后地点解锁未恢复。")
 	_expect(bool(game_data_manager.get_archive_custom_config("desktop_wallpaper_enabled", false)), "切回 A 后壁纸模式未恢复。")
 	_expect(guide_manager.is_guide_opted_in(), "切回 A 后引导选择未恢复。")
 	_expect(guide_manager.get_active_guide_id() == "schedule_onboarding_guide", "切回 A 后活动引导未恢复。")

@@ -35,14 +35,28 @@ func _run() -> void:
 			guided_story_event = story_event_value as Dictionary
 			break
 	_expect(int(guided_story_event.get("max_player_rounds", 0)) == 4, "首个 AI 主线没有配置为 4 个玩家回合。")
-	_expect(int(guided_story_event.get("action_cost", 0)) == 5, "首个 AI 主线行动力消耗不是 5 点。")
-	_expect(int(guided_story_event.get("game_minutes", 0)) == 30, "首个 AI 主线时间推进不是 30 分钟。")
+	_expect(int(story_data.get("action_cost", -1)) == 0, "目标引导后的整段固定剧情不应消耗行动力。")
+	_expect(int(story_data.get("game_minutes", 0)) == 30, "整段固定剧情时间推进不是 30 分钟。")
+	_expect(not guided_story_event.has("action_cost") and not guided_story_event.has("game_minutes"), "Guided AI 事件仍持有整剧成本字段。")
+	var guided_schema: Array = EventInspector.EVENT_SCHEMAS.get("guided_ai_chat", [])
+	_expect(not _schema_has_field(guided_schema, "action_cost") and not _schema_has_field(guided_schema, "game_minutes"), "Guided AI Inspector 仍暴露整剧成本字段。")
+	_expect(bool(guided_story_event.get("hide_manual_end", false)), "首个 AI 主线应由回合耗尽自然收尾，不能手动提前结束。")
 	_expect(not bool(guided_story_event.get("allow_early_completion", true)), "首个 AI 主线不应在剧情点提前覆盖后提前结束。")
 	var fallback_closing_text := str(guided_story_event.get("fallback_closing_text", ""))
 	var fallback_display_text := ChatSplitHelper.format_actions(fallback_closing_text)
-	_expect(fallback_display_text.contains("[color=green]（轻轻抱住琴谱）[/color]"), "guided AI fallback 收尾动作没有使用统一绿色格式。")
+	_expect(fallback_display_text.contains("[color=green]（她轻轻抱紧怀里的琴谱，低头看了片刻，又抬起眼认真望向你）[/color]"), "guided AI fallback 收尾动作没有使用统一绿色格式。")
+	_expect(not story_events.is_empty() and bool((story_events.back() as Dictionary).get("auto_advance", false)), "AI 主线结尾固定旁白没有配置自动推进。")
 	var guided_prompt_result: Dictionary = GuidedAiPromptBuilder.build_user_message(guided_story_event, [], 1, 4, "我会陪着你。")
 	_expect(str(guided_prompt_result.get("prompt", "")).contains("必须至少包含一处使用全角圆括号包裹"), "guided AI prompt 没有强制圆括号动作契约。")
+	var opening_prompt_result: Dictionary = GuidedAiPromptBuilder.build_user_message(guided_story_event, [], 0, 4, "（玩家尚未发言，请由角色主动开始这段对话。）", true)
+	_expect(str(opening_prompt_result.get("prompt", "")).contains("这是角色主动开场，玩家尚未发言"), "guided AI 没有生成角色主动开场 Prompt。")
+	_expect(str(opening_prompt_result.get("prompt", "")).contains("本轮之后剩余玩家回合：4"), "角色主动开场错误消耗了玩家回合。")
+	var invalid_guided_response := GuidedAiResponseParser.parse_response("这不是 JSON", ["confirm"])
+	_expect(not bool(invalid_guided_response.get("ok", true)), "guided AI 非 JSON 响应没有返回可控解析错误。")
+	var wrapped_guided_response := GuidedAiResponseParser.parse_response("回复如下：{\"dialogue\":\"（她把手边的画稿慢慢拢好，抬起眼认真望向你）我明白。\",\"beat_evaluations\":[]}", ["confirm"])
+	_expect(bool(wrapped_guided_response.get("ok", false)), "guided AI 无法从包裹文本中提取 JSON 对象。")
+	var short_action_response := GuidedAiResponseParser.parse_response("{\"dialogue\":\"（点头）我明白。\",\"beat_evaluations\":[]}", ["confirm"])
+	_expect(bool(short_action_response.get("ok", false)), "guided AI 把动作较短但结构合法的回复误判为生成失败。")
 
 	var event_data := (EditorMain.EVENT_DEFAULTS["guided_ai_chat"] as Dictionary).duplicate(true)
 	event_data["narrative_anchor"] = "已发生的剧情事实"
@@ -64,9 +78,25 @@ func _run() -> void:
 	_expect(engine.current_event_index == blocked_event_index and engine.is_waiting_for_resume, "通用 resume 错误越过了 guided_ai_chat。")
 	engine.complete_guided_ai_chat()
 	_expect(not engine.is_guided_ai_blocked, "guided_ai_chat 显式完成后没有解除专属锁。")
+	var ending_engine := ScriptEngine.new()
+	root.add_child(ending_engine)
+	var finish_signal_state := {"count": 0}
+	ending_engine.script_finished.connect(func(_script_id: String): finish_signal_state["count"] = int(finish_signal_state["count"]) + 1)
+	_expect(ending_engine.load_script_data({
+		"script_id": "jump_end_once",
+		"chapters": {"start": {"events": [{"type": "jump", "target_chapter": "end"}]}}
+	}), "ScriptEngine 无法加载 jump end 回归脚本。")
+	ending_engine.start_script()
+	await process_frame
+	_expect(int(finish_signal_state["count"]) == 1, "jump end 没有恰好发出一次 script_finished，可能导致行程剧情重播。")
+	ending_engine.queue_free()
 
 	var parsed_response := GuidedAiResponseParser.parse_response(JSON.stringify({
-		"dialogue": "（握紧琴谱）我很期待周六的辅导。[SPLIT]但也担心自己表现不好。",
+		"dialogue": "（她握紧怀里的琴谱，视线在封面停了片刻才重新望向你）我很期待周六的辅导。[SPLIT]但也担心自己表现不好。",
+		"next_options": [
+			{"text": "你最期待哪一部分？", "focus": "intimacy"},
+			{"text": "还有什么让你担心？", "focus": "trust"}
+		],
 		"beat_evaluations": [
 			{"id": "expectation", "covered": true, "evidence": "我很期待周六的辅导"},
 			{"id": "concern", "covered": true, "evidence": "并未出现在台词中的伪造证据"},
@@ -76,20 +106,37 @@ func _run() -> void:
 	_expect(bool(parsed_response.get("ok", false)), "合法结构化 AI 回复无法解析。")
 	_expect(str(parsed_response.get("dialogue", "")).contains("[SPLIT]"), "结构化解析丢失角色台词。")
 	_expect(parsed_response.get("covered_beat_ids", []) == ["expectation"], "结构化解析接受了伪造 evidence 或未知剧情点。")
+	_expect((parsed_response.get("next_options", []) as Array).size() == 2, "结构化解析没有保留同请求返回的下一轮选项。")
 	_expect(GuidedAiResponseParser.has_parenthetical_action(str(parsed_response.get("dialogue", ""))), "结构化回复没有识别全角圆括号动作。")
 	_expect(not GuidedAiResponseParser.has_parenthetical_action("我很期待周六的辅导。"), "纯台词被错误识别为括号动作。")
 	var formatted_actions: String = ChatSplitHelper.format_leading_action("（握紧琴谱）我会认真准备。(轻轻点头)")
 	_expect(formatted_actions.contains("[color=green]（握紧琴谱）[/color]"), "全角括号动作没有使用统一绿色格式。")
 	_expect(formatted_actions.contains("[color=green](轻轻点头)[/color]"), "半角括号动作没有使用统一绿色格式。")
 	_expect(formatted_actions.contains("我会认真准备。"), "统一动作格式化错误删除了角色台词。")
+	var repaired_parts := ChatSplitHelper.merge_incomplete_parentheses(["（她按住画稿，抬眼望向你", "我会认真准备。"])
+	_expect(repaired_parts.size() == 1 and str(repaired_parts[0]).ends_with("）"), "AI 对白末尾未闭合的全角括号没有自动补齐。")
+	var dialogue_manager_source := FileAccess.get_file_as_string("res://scripts/dialogue/dialogue_manager.gd")
+	_expect(dialogue_manager_source.contains("_prepare_story_cost_settlement()"), "固定剧情启动前没有统一结算根级成本。")
+	_expect(dialogue_manager_source.contains("_settle_completed_story_time(script_meta)"), "固定剧情完成后没有统一推进根级时间。")
+	_expect(dialogue_manager_source.contains("_guided_ai_reply_playback_active"), "Guided AI 缺少回复播放互斥锁。")
+	_expect(dialogue_manager_source.contains("_refresh_guided_ai_round_guide_when_ready(host)"), "回合卡显示后没有再次刷新新手引导。")
+	_expect(dialogue_manager_source.contains("_guided_ai_used_option_texts.has(option_text)"), "Guided AI 没有过滤已选择过的重复选项。")
+	_expect(dialogue_manager_source.contains("_is_duplicate_guided_ai_reply(reply)"), "Guided AI 没有在采用前拒绝会话内重复回复。")
+	_expect(dialogue_manager_source.contains('error_message.contains("429")'), "Guided AI 遇到 429 后仍可能立即连续重试。")
+	_expect(dialogue_manager_source.contains("await _finish_guided_ai_chat_with_fallback()"), "Guided AI 请求耗尽后没有通过本地收束解除剧情锁。")
+	_expect(dialogue_manager_source.contains('await _show_message_async(fallback_display_text, GameDataManager.profile.char_name, false, "", "", "", true)'), "Guided AI 本地收束对白仍会等待点击并阻断剧情。")
+	var dialogue_event_source := FileAccess.get_file_as_string("res://scripts/script_engine/events/event_dialogue.gd")
+	_expect(dialogue_event_source.contains('"auto_advance": data.get("auto_advance", false)'), "固定对白事件没有向播放层传递自动推进配置。")
+	var schedule_source := FileAccess.get_file_as_string("res://scripts/ui/activity/schedule_execution_panel.gd")
+	_expect(schedule_source.contains("_started_story_event_keys.has(event_id)"), "活动主线事件缺少执行周期内的原子去重锁。")
 	var round_policy := GuidedAiRoundPolicy.new()
 	for round_number in range(1, 4):
 		_expect(not round_policy.should_close_after_round(round_number, 4), "guided AI 在第 %d 轮错误提前结束。" % round_number)
 	_expect(round_policy.should_close_after_round(4, 4), "guided AI 第 4 轮后没有进入收尾。")
-	var fenced_response := GuidedAiResponseParser.parse_response("```json\n{\"dialogue\":\"确认约定\",\"beat_evaluations\":[{\"id\":\"confirm\",\"covered\":true,\"evidence\":\"确认约定\"}]}\n```", ["confirm"])
+	var fenced_response := GuidedAiResponseParser.parse_response("```json\n{\"dialogue\":\"（她把画稿轻轻放回桌面，又抬起眼认真望向你）确认约定\",\"beat_evaluations\":[{\"id\":\"confirm\",\"covered\":true,\"evidence\":\"确认约定\"}]}\n```", ["confirm"])
 	_expect(bool(fenced_response.get("ok", false)) and fenced_response.get("covered_beat_ids", []) == ["confirm"], "结构化解析无法兼容 JSON 代码围栏。")
 	var strict_response := GuidedAiResponseParser.parse_response(JSON.stringify({
-		"dialogue": "我很期待\t周六的辅导，也会认真准备。",
+		"dialogue": "（她的指尖沿着画稿边缘停下，肩膀也随着呼吸慢慢放松）我很期待\t周六的辅导，也会认真准备。",
 		"beat_evaluations": [
 			{"id": "expectation", "covered": "false", "evidence": "我很期待 周六的辅导"},
 			{"id": "confirmation", "covered": true, "evidence": "也会认真准备"}
@@ -97,7 +144,7 @@ func _run() -> void:
 	}), ["expectation", "confirmation"])
 	_expect(strict_response.get("covered_beat_ids", []) == ["confirmation"], "结构化解析接受了字符串布尔值。")
 	var whitespace_response := GuidedAiResponseParser.parse_response(JSON.stringify({
-		"dialogue": "我很期待　周六的辅导。",
+		"dialogue": "（她轻轻抚平画稿上的折角，抬眼时目光比刚才坚定许多）我很期待　周六的辅导。",
 		"beat_evaluations": [{"id": "expectation", "covered": true, "evidence": "我很期待 周六的辅导"}]
 	}), ["expectation"])
 	_expect(whitespace_response.get("covered_beat_ids", []) == ["expectation"], "结构化解析没有统一全角空格。")
@@ -121,6 +168,14 @@ func _run() -> void:
 		"chapters": {"start": {"events": [invalid_event]}}
 	})
 	_expect(_has_errors(invalid_diagnostics), "Validator 没有拒绝非法回合、剧情点或结果分支。")
+	var legacy_cost_event := event_data.duplicate(true)
+	legacy_cost_event["game_minutes"] = 30
+	legacy_cost_event["action_cost"] = 10
+	var legacy_cost_diagnostics := StoryValidator.validate({
+		"script_id": "legacy_guided_ai_cost",
+		"chapters": {"start": {"events": [legacy_cost_event]}}
+	})
+	_expect(_has_errors(legacy_cost_diagnostics), "Validator 没有拒绝 Guided AI 事件上的旧成本字段。")
 
 	if failures.is_empty():
 		print("GUIDED_AI_CHAT_SMOKE_OK")
@@ -133,6 +188,12 @@ func _run() -> void:
 func _has_errors(diagnostics: Array[Dictionary]) -> bool:
 	for diagnostic in diagnostics:
 		if str(diagnostic.get("severity", "")) == "error":
+			return true
+	return false
+
+func _schema_has_field(schema: Array, field_name: String) -> bool:
+	for field_value in schema:
+		if field_value is Array and not field_value.is_empty() and str(field_value[0]) == field_name:
 			return true
 	return false
 

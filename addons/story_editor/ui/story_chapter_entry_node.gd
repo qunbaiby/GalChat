@@ -2,6 +2,7 @@
 extends GraphNode
 
 signal chapter_activated(chapter_id: String)
+signal chapter_selected(chapter_id: String)
 
 const BRANCH_COLOR := Color("#58c99b")
 
@@ -30,8 +31,10 @@ func _apply_setup() -> void:
 
 
 func _on_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
-		chapter_activated.emit(chapter_id)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		chapter_selected.emit(chapter_id)
+		if event.double_click:
+			chapter_activated.emit(chapter_id)
 
 
 static func node_name_for(next_chapter_id: String) -> String:

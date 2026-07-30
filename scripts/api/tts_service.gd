@@ -189,7 +189,7 @@ func _build_request_options(text: String, options: Dictionary) -> Dictionary:
 		var context_texts: Array[String] = []
 		for entry in options.get("context_texts", []):
 			var instruction: String = str(entry).strip_edges()
-			if not instruction.is_empty() and instruction.length() <= 120 and context_texts.size() < 2:
+			if not instruction.is_empty() and instruction.length() <= 300 and context_texts.is_empty():
 				context_texts.append(instruction)
 		if not context_texts.is_empty():
 			merged["context_texts"] = context_texts

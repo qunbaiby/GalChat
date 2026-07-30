@@ -3,12 +3,10 @@ class_name DeepSeekClient
 
 signal chat_request_completed(response: Dictionary)
 signal chat_request_failed(error_message: String)
-@warning_ignore("unused_signal")
-signal chat_stream_delta(delta_text: String)
-@warning_ignore("unused_signal")
-signal chat_stream_started()
 signal structured_chat_request_completed(response: Dictionary, request_context: Dictionary)
 signal structured_chat_request_failed(error_message: String, request_context: Dictionary)
+signal realize_turn_completed(realized_turn: Dictionary, request_context: Dictionary)
+signal realize_turn_failed(error_message: String, request_context: Dictionary)
 
 signal emotion_request_completed(response: Dictionary)
 signal emotion_request_failed(error_message: String)
@@ -72,7 +70,7 @@ const DeepSeekSceneEventService = preload("res://scripts/api/services/deepseek/d
 const DeepSeekSocialContentService = preload("res://scripts/api/services/deepseek/deepseek_social_content_service.gd")
 const DeepSeekMemoryEmotionService = preload("res://scripts/api/services/deepseek/deepseek_memory_emotion_service.gd")
 const DeepSeekNarrativeService = preload("res://scripts/api/services/deepseek/deepseek_narrative_service.gd")
-const DeepSeekChatStreamService = preload("res://scripts/api/services/deepseek/deepseek_chat_stream_service.gd")
+const ChatRealizeTurnService = preload("res://scripts/api/chat_realize_turn_service.gd")
 
 var chat_http: HTTPRequest
 var emotion_http: HTTPRequest
@@ -90,26 +88,6 @@ var schedule_resolve_http: HTTPRequest
 var date_story_http: HTTPRequest
 var idle_quote_http: HTTPRequest
 
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_client: HTTPClient
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_active: bool = false
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_request_sent: bool = false
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_body: String = ""
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_headers: Array = []
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_sse_buffer: String = ""
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_full_text: String = ""
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_response_code: int = 0
-@warning_ignore("unused_private_class_variable")
-var _chat_stream_retry_count: int = 0
-@warning_ignore("unused_private_class_variable")
-var _active_chat_request_context: Dictionary = {}
 var _last_chat_request_context: Dictionary = {}
 var _structured_chat_request_id: int = 0
 var _structured_chat_requests: Dictionary = {}
@@ -136,10 +114,13 @@ var _scene_event_service = DeepSeekSceneEventService.new()
 var _social_content_service = DeepSeekSocialContentService.new()
 var _memory_emotion_service = DeepSeekMemoryEmotionService.new()
 var _narrative_service = DeepSeekNarrativeService.new()
-var _chat_stream_service = DeepSeekChatStreamService.new()
+var _realize_turn_service = ChatRealizeTurnService.new()
 
 func _ready() -> void:
 	_update_script()
+	_realize_turn_service.bind_client(self)
+	_realize_turn_service.turn_completed.connect(realize_turn_completed.emit)
+	_realize_turn_service.turn_failed.connect(realize_turn_failed.emit)
 	_reinitialize_http_nodes()
 	if GameDataManager.cognition_task_queue and not GameDataManager.cognition_task_queue.task_enqueued.is_connected(_process_cognition_queue):
 		GameDataManager.cognition_task_queue.task_enqueued.connect(_process_cognition_queue)
@@ -232,23 +213,6 @@ func _get_url() -> String:
 		return GameDataManager.config.official_ai_gateway_url.trim_suffix("/") + "/chat/completions"
 	return "https://api.deepseek.com/v1/chat/completions"
 
-func _get_stream_endpoint() -> Dictionary:
-	var url: String = _get_url()
-	var regex := RegEx.new()
-	if regex.compile("^(https?)://([^/:]+)(?::([0-9]+))?(/.*)$") != OK:
-		return {}
-	var matched := regex.search(url)
-	if matched == null:
-		return {}
-	var scheme: String = matched.get_string(1)
-	var port_text: String = matched.get_string(3)
-	return {
-		"host": matched.get_string(2),
-		"port": int(port_text) if not port_text.is_empty() else (443 if scheme == "https" else 80),
-		"path": matched.get_string(4),
-		"tls": scheme == "https"
-	}
-
 func _get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
 	var api_messages = []
 	var history_msgs = GameDataManager.history.get_messages_by_type(history_type)
@@ -268,15 +232,6 @@ func _get_history_messages(limit: int = 10, is_chat: bool = true, history_type: 
 		api_messages.append({"role": role, "content": clean_text})
 	return api_messages
 
-func send_chat_message(user_message: String, history_type: String = "all", prompt_access_context: Dictionary = {}) -> void:
-	_update_script()
-	send_chat_message_stream(user_message, history_type, prompt_access_context)
-
-func send_chat_message_stream(user_message: String, history_type: String = "all", prompt_access_context: Dictionary = {}) -> void:
-	_update_script()
-	_chat_stream_service.start_chat_stream(self, user_message, history_type, prompt_access_context)
-	_send_emotion_analysis(user_message)
-
 func send_chat_message_structured(user_message: String, history_type: String = "all", request_context: Dictionary = {}, prompt_access_context: Dictionary = {}) -> int:
 	_update_script()
 	_structured_chat_request_id += 1
@@ -286,7 +241,26 @@ func send_chat_message_structured(user_message: String, history_type: String = "
 	_prepare_structured_chat_request(user_message, history_type, context, prompt_access_context)
 	return _structured_chat_request_id
 
+func send_structured_messages(api_messages: Array, request_context: Dictionary = {}) -> int:
+	_structured_chat_request_id += 1
+	var context := request_context.duplicate(true)
+	context["network_request_id"] = _structured_chat_request_id
+	context["request_started_at_ms"] = Time.get_ticks_msec()
+	_start_structured_chat_request(api_messages, context)
+	return _structured_chat_request_id
+
+func send_realize_turn_message(player_text: String, history_type: String = "main_chat", request_context: Dictionary = {}, prompt_access_context: Dictionary = {}) -> void:
+	_realize_turn_service.request_turn(player_text, history_type, request_context, prompt_access_context)
+
+func cancel_realize_turn_requests() -> void:
+	_realize_turn_service.cancel_all()
+	cancel_structured_chat_requests()
+
 func _prepare_structured_chat_request(user_message: String, history_type: String, context: Dictionary, prompt_access_context: Dictionary = {}) -> void:
+	if _uses_official_ai() and not await OfficialAuthManager.ensure_valid_access_token():
+		context["failure_stage"] = "auth_preflight"
+		structured_chat_request_failed.emit("官方 AI 登录状态无法续期。", context)
+		return
 	var prompt_started_at_ms := Time.get_ticks_msec()
 	if str(context.get("trace_source", "")) == "guided_ai_chat":
 		print("[GuidedAITrace] request=%d stage=memory_prompt_started" % int(context.get("request_id", 0)))
@@ -321,27 +295,30 @@ func _start_structured_chat_request(api_messages: Array, request_context: Dictio
 	var request := HTTPRequest.new()
 	request.timeout = 60.0
 	add_child(request)
-	var request_id := int(request_context.get("request_id", 0))
+	var request_id := int(request_context.get("network_request_id", request_context.get("request_id", 0)))
 	request_context["model_request_started_at_ms"] = Time.get_ticks_msec()
 	if str(request_context.get("trace_source", "")) == "guided_ai_chat":
 		print("[GuidedAITrace] request=%d stage=model_http_started messages=%d" % [request_id, api_messages.size()])
 	_structured_chat_requests[request_id] = request
-	request.request_completed.connect(_on_structured_chat_completed.bind(request, request_context), CONNECT_ONE_SHOT)
+	request.request_completed.connect(_on_structured_chat_completed.bind(request, request_context, api_messages), CONNECT_ONE_SHOT)
 	var body := {
 		"model": get_chat_model_id(),
 		"messages": api_messages,
 		"temperature": GameDataManager.config.temperature,
 		"max_tokens": GameDataManager.config.max_tokens,
-		"stream": false,
-		"response_format": {"type": "json_object"}
+		"stream": false
 	}
+	if not bool(request_context.get("force_text_response", false)):
+		body["response_format"] = {"type": "json_object"}
 	var error := request.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 	if error != OK:
 		_cleanup_structured_chat_request(request_id, request)
+		request_context["failure_stage"] = "request_start"
+		request_context["client_error"] = error
 		structured_chat_request_failed.emit.call_deferred("网络请求发送失败: %s" % error, request_context)
 
-func _on_structured_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, request: HTTPRequest, request_context: Dictionary) -> void:
-	var request_id := int(request_context.get("request_id", 0))
+func _on_structured_chat_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, request: HTTPRequest, request_context: Dictionary, api_messages: Array) -> void:
+	var request_id := int(request_context.get("network_request_id", request_context.get("request_id", 0)))
 	var completed_at_ms := Time.get_ticks_msec()
 	request_context["model_http_ms"] = completed_at_ms - int(request_context.get("model_request_started_at_ms", completed_at_ms))
 	request_context["total_request_ms"] = completed_at_ms - int(request_context.get("request_started_at_ms", completed_at_ms))
@@ -354,17 +331,57 @@ func _on_structured_chat_completed(result: int, response_code: int, _headers: Pa
 			int(request_context.get("total_request_ms", -1))
 		])
 	_cleanup_structured_chat_request(request_id, request)
+	if response_code == 401 and _uses_official_ai() and not bool(request_context.get("auth_retried", false)):
+		request_context["auth_retried"] = true
+		if await OfficialAuthManager.force_refresh_access_token():
+			request_context["request_started_at_ms"] = Time.get_ticks_msec()
+			_start_structured_chat_request(api_messages, request_context)
+			return
+		request_context["failure_stage"] = "auth_refresh"
+		structured_chat_request_failed.emit("官方 AI 登录状态已失效，且自动续期失败。", request_context)
+		return
 	if result == HTTPRequest.RESULT_TIMEOUT:
+		request_context["failure_stage"] = "http_timeout"
 		structured_chat_request_failed.emit(GameDataManager.profile.char_name + " 似乎走神了...", request_context)
 		return
 	if response_code != 200:
+		request_context["failure_stage"] = "http_status"
+		request_context["response_code"] = response_code
 		structured_chat_request_failed.emit("API 请求错误，状态码: %d" % response_code, request_context)
 		return
 	var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
-	if parsed is Dictionary:
-		structured_chat_request_completed.emit(parsed, request_context)
-	else:
-		structured_chat_request_failed.emit("返回数据解析失败", request_context)
+	if not parsed is Dictionary:
+		request_context["failure_stage"] = "provider_json"
+		structured_chat_request_failed.emit("AI 服务返回的响应不是 JSON 对象。", request_context)
+		return
+	var choices: Variant = (parsed as Dictionary).get("choices")
+	if not choices is Array or choices.is_empty() or not choices[0] is Dictionary:
+		request_context["failure_stage"] = "provider_envelope"
+		structured_chat_request_failed.emit("AI 服务响应缺少 choices。", request_context)
+		return
+	var message: Variant = (choices[0] as Dictionary).get("message")
+	if not message is Dictionary or str((message as Dictionary).get("content", "")).strip_edges().is_empty():
+		var raw_content := str((message as Dictionary).get("content", "")) if message is Dictionary else ""
+		var content_codepoints: Array[String] = []
+		for content_index in range(mini(raw_content.length(), 12)):
+			content_codepoints.append("U+%04X" % raw_content.unicode_at(content_index))
+		request_context["failure_stage"] = "provider_content"
+		request_context["provider_content_type"] = typeof((message as Dictionary).get("content")) if message is Dictionary else TYPE_NIL
+		request_context["provider_content_length"] = raw_content.length()
+		request_context["provider_finish_reason"] = str((choices[0] as Dictionary).get("finish_reason", ""))
+		request_context["provider_completion_tokens"] = int(((parsed as Dictionary).get("usage", {}) as Dictionary).get("completion_tokens", -1)) if (parsed as Dictionary).get("usage", {}) is Dictionary else -1
+		print("[RealizeTurnTrace] network_request=%d stage=provider_content_empty content_type=%d content_length=%d codepoints=%s finish_reason=%s completion_tokens=%d force_text_response=%s" % [
+			request_id,
+			int(request_context["provider_content_type"]),
+			int(request_context["provider_content_length"]),
+			",".join(content_codepoints),
+			str(request_context["provider_finish_reason"]),
+			int(request_context["provider_completion_tokens"]),
+			str(request_context.get("force_text_response", false))
+		])
+		structured_chat_request_failed.emit("AI 服务响应缺少角色回复内容。", request_context)
+		return
+	structured_chat_request_completed.emit(parsed, request_context)
 
 func _cleanup_structured_chat_request(request_id: int, request: HTTPRequest) -> void:
 	_structured_chat_requests.erase(request_id)
@@ -530,13 +547,6 @@ func call_chat_api_non_stream(api_messages: Array, response_format: Dictionary =
 func get_history_messages(limit: int = 10, is_chat: bool = true, history_type: String = "all") -> Array:
 	return _get_history_messages(limit, is_chat, history_type)
 
-func start_chat_stream_with_messages(api_messages: Array, request_context: Dictionary = {}) -> void:
-	_update_script()
-	if not is_inside_tree() or _is_api_key_empty():
-		chat_request_failed.emit(_get_missing_credentials_message())
-		return
-	_chat_stream_service.start_chat_stream_with_messages(self, api_messages, request_context)
-
 func mark_chat_response_adopted(adopted_text: String, segment_index: int = 0) -> Dictionary:
 	var context := _last_chat_request_context.duplicate(true)
 	var trace_id := str(context.get("trace_id", ""))
@@ -551,23 +561,7 @@ func mark_chat_response_adopted(adopted_text: String, segment_index: int = 0) ->
 		"response_adopted": true
 	}
 
-func _process(_delta: float) -> void:
-	_chat_stream_service.process_chat_stream(self)
-
-func _stop_chat_stream() -> void:
-	_chat_stream_service.stop_chat_stream(self)
-
-func is_chat_streaming() -> bool:
-	return _chat_stream_service.is_chat_streaming(self)
-
-func get_chat_stream_full_text() -> String:
-	return _chat_stream_service.get_chat_stream_full_text(self)
-
-func stop_chat_stream() -> void:
-	_chat_stream_service.cancel_chat_stream(self)
-
 func cancel_chat_request() -> void:
-	_chat_stream_service.cancel_chat_stream(self)
 	if chat_http and chat_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		chat_http.cancel_request()
 

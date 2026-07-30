@@ -97,7 +97,7 @@ static func _scan_story_time(path: String, result: Dictionary) -> void:
 				_add_source_error(result, "%s / daily_data / #%d / %s" % [path, day_index + 1, field], "日程剧情字段必须是数组。")
 				continue
 			for event_index in (events_value as Array).size():
-				var event_id := str((events_value as Array)[event_index]).strip_edges()
+				var event_id := _schedule_event_id((events_value as Array)[event_index])
 				(result.references as Array[Dictionary]).append({
 					"source_type": "story_schedule",
 					"source_id": event_id,
@@ -110,6 +110,12 @@ static func _scan_story_time(path: String, result: Dictionary) -> void:
 					"day_offset": day_offset,
 					"period": _schedule_period(field)
 				})
+
+
+static func _schedule_event_id(event_value: Variant) -> String:
+	if event_value is Dictionary:
+		return str((event_value as Dictionary).get("id", "")).strip_edges()
+	return str(event_value).strip_edges()
 
 
 static func _scan_map_data(path: String, result: Dictionary) -> void:

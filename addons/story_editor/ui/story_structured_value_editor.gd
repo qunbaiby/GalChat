@@ -1,6 +1,8 @@
 @tool
 extends VBoxContainer
 
+signal value_changed
+
 const MODE_STRING_LIST := "string_list"
 const MODE_BEAT_LIST := "beat_list"
 const MODE_CHAPTER_MAP := "chapter_map"
@@ -64,6 +66,7 @@ func add_item() -> void:
 		MODE_CHAPTER_MAP:
 			_add_chapter_map_row("", "end")
 	_refresh_empty_state()
+	value_changed.emit()
 
 
 func _configure_header() -> void:
@@ -104,6 +107,7 @@ func _add_string_row(value: String) -> void:
 	value_edit.text = value
 	value_edit.placeholder_text = "填写内容"
 	value_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value_edit.text_changed.connect(value_changed.emit.unbind(1))
 	row.add_child(value_edit)
 	row.add_child(_create_delete_button(row))
 	%Rows.add_child(row)
@@ -119,6 +123,7 @@ func _add_beat_row(value: Dictionary) -> void:
 	id_edit.text = str(value.get("id", ""))
 	id_edit.placeholder_text = "剧情点 ID"
 	id_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	id_edit.text_changed.connect(value_changed.emit.unbind(1))
 	header.add_child(id_edit)
 	header.add_child(_create_delete_button(row))
 	row.add_child(header)
@@ -128,6 +133,7 @@ func _add_beat_row(value: Dictionary) -> void:
 	instruction_edit.placeholder_text = "描述必须在对话中自然覆盖的信息"
 	instruction_edit.custom_minimum_size = Vector2(0, 72)
 	instruction_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	instruction_edit.text_changed.connect(value_changed.emit)
 	row.add_child(instruction_edit)
 	%Rows.add_child(row)
 
@@ -139,6 +145,7 @@ func _add_chapter_map_row(outcome: String, target_chapter: String) -> void:
 	outcome_edit.text = outcome
 	outcome_edit.placeholder_text = "结果名称"
 	outcome_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outcome_edit.text_changed.connect(value_changed.emit.unbind(1))
 	row.add_child(outcome_edit)
 	var target_select := OptionButton.new()
 	target_select.name = "TargetSelect"
@@ -153,6 +160,7 @@ func _add_chapter_map_row(outcome: String, target_chapter: String) -> void:
 		target_select.set_item_metadata(target_select.item_count - 1, target_chapter)
 		target_select.select(target_select.item_count - 1)
 	row.add_child(target_select)
+	target_select.item_selected.connect(value_changed.emit.unbind(1))
 	row.add_child(_create_delete_button(row))
 	%Rows.add_child(row)
 
@@ -169,6 +177,7 @@ func _delete_row(row: Control) -> void:
 	%Rows.remove_child(row)
 	row.queue_free()
 	_refresh_empty_state()
+	value_changed.emit()
 
 
 func _refresh_empty_state() -> void:

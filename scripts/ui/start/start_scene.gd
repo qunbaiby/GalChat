@@ -4,6 +4,7 @@ const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const BUG_FEEDBACK_PANEL_SCENE = preload("res://scenes/ui/start/bug_feedback_panel.tscn")
 const ACCOUNT_AUTH_PANEL_SCENE = preload("res://scenes/ui/start/account_auth_panel.tscn")
 const ACCOUNT_CENTER_PANEL_SCENE = preload("res://scenes/ui/start/account_center_panel.tscn")
+const ConfirmDialogScene = preload("res://scenes/ui/common/confirm_dialog.tscn")
 
 @onready var start_button: Button = $ContentRoot/MenuGroup/MenuButtons/StartButton
 @onready var desktop_pet_button: Button = $ContentRoot/MenuGroup/MenuButtons/DesktopPetButton

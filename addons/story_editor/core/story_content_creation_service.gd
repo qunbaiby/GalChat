@@ -17,7 +17,7 @@ static func create(kind: String, content_id: String, options: Dictionary = {}, r
 	match kind:
 		"main_story", "map_story":
 			var path := str(roots.get(kind, "")).path_join(normalized_id + ".json")
-			return _save_new_dictionary(path, {"script_id": normalized_id, "summary": str(options.get("name", "")), "chapters": {"start": {"events": [{"type": "dialogue", "speaker": "旁白", "content": "新剧情开始。"}]}}}, {"kind": "story", "path": path})
+			return _save_new_dictionary(path, {"script_id": normalized_id, "game_minutes": 0, "action_cost": 0, "summary": str(options.get("name", "")), "chapters": {"start": {"events": [{"type": "dialogue", "speaker": "旁白", "content": "新剧情开始。"}]}}}, {"kind": "story", "path": path})
 		"mobile_chat":
 			var character_id := str(options.get("character_id", "")).strip_edges()
 			if character_id.is_empty(): return {"ok": false, "error": "手机消息需要角色 ID。"}

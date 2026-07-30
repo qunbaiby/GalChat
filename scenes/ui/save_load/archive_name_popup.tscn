@@ -125,11 +125,12 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-theme_override_colors/font_placeholder_color = Color(0.13725491, 0.7137255, 0.6901961, 1)
+theme_override_colors/font_placeholder_color = Color(0.13725491, 0.7137255, 0.6901961, 0.42)
 theme_override_styles/normal = SubResource("StyleBoxFlat_Input")
 theme_override_styles/focus = SubResource("StyleBoxFlat_Input")
 placeholder_text = "例如 第一次相遇、夏日记忆、Luna 的新篇章"
 alignment = 1
+caret_blink = true
 
 [node name="HintCard" type="PanelContainer" parent="PopupPanel/MarginContainer/VBoxContainer"]
 self_modulate = Color(1, 1, 1, 0)

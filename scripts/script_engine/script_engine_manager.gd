@@ -81,6 +81,8 @@ func load_script_data(data: Variant, source_path: String = "") -> bool:
         "story_area_id": str(script_data.get("story_area_id", "")),
         "day_offset": int(script_data.get("day_offset", 0)),
         "story_period": str(script_data.get("story_period", "")),
+		"game_minutes": maxi(0, int(script_data.get("game_minutes", 0))),
+		"action_cost": maxi(0, int(script_data.get("action_cost", 0))),
         "runtime_generated": bool(script_data.get("runtime_generated", false)),
         "story_category": str(script_data.get("story_category", "")),
         "location_names": script_data.get("location_names", []),
@@ -221,6 +223,8 @@ func _process_next_event() -> void:
     _end_script()
 
 func _end_script() -> void:
+    if not is_running:
+        return
     print("[ScriptEngine] Script finished: ", current_script_id)
     _debug_record("story.engine.finished")
     is_running = false

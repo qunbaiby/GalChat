@@ -13,8 +13,17 @@ func _ready() -> void:
 		return
 	name_input.placeholder_text = INPUT_PLACEHOLDER
 	name_input.text_submitted.connect(_on_text_submitted)
+	name_input.focus_entered.connect(_on_name_input_focus_entered)
+	name_input.focus_exited.connect(_on_name_input_focus_exited)
 	confirm_btn.pressed.connect(_on_confirm_pressed)
-	name_input.grab_focus()
+	name_input.release_focus()
+
+func _on_name_input_focus_entered() -> void:
+	name_input.placeholder_text = ""
+
+func _on_name_input_focus_exited() -> void:
+	if name_input.text.is_empty():
+		name_input.placeholder_text = INPUT_PLACEHOLDER
 
 func _on_text_submitted(_text: String) -> void:
 	_on_confirm_pressed()

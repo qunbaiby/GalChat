@@ -3,6 +3,7 @@ extends Control
 const DEBUG_PANEL_SCENE = preload("res://scenes/ui/story/debug_panel.tscn")
 const STORY_PERIOD_CARD_SCENE = preload("res://scenes/ui/story/story_period_card.tscn")
 const ChatSplitHelperScript = preload("res://scripts/utils/chat_split_helper.gd")
+const DailyChatRoundPolicyScript = preload("res://scripts/dialogue/daily_chat_round_policy.gd")
 const GuidedAiResponseParser = preload("res://scripts/dialogue/guided_ai_response_parser.gd")
 const GuidedAiRequestGuard = preload("res://scripts/dialogue/guided_ai_request_guard.gd")
 const GuidedAiRoundPolicy = preload("res://scripts/dialogue/guided_ai_round_policy.gd")
@@ -62,6 +63,7 @@ var _intro_waiting_for_click: bool = false
 var _waiting_for_chat_click: bool = false
 var _line_text_complete: bool = false
 var _line_advance_requested: bool = false
+var _line_display_generation: int = 0
 var _active_line_tts_text: String = ""
 var _current_story_speaker_id: String = ""
 var _return_to_main_on_story_finish: bool = false
@@ -82,9 +84,18 @@ var _guided_ai_session_id: String = ""
 var _guided_ai_active_request_id: int = 0
 var _guided_ai_turn_started_at_ms: int = 0
 var _guided_ai_reply_available_at_ms: int = 0
+var _guided_ai_last_request_text: String = ""
+var _guided_ai_last_raw_response: String = ""
+var _guided_ai_parse_retry_count: int = 0
+var _guided_ai_request_retry_count: int = 0
+var _guided_ai_reply_playback_active: bool = false
+var _guided_ai_used_option_texts: Array[String] = []
+var _guided_ai_used_reply_signatures: Array[String] = []
+const GUIDED_AI_MAX_RETRIES := 3
 var _embedded_session_active: bool = false
 var _embedded_session_request: Dictionary = {}
 var _embedded_topic_options: Array = []
+var _embedded_daily_turn_pending: bool = false
 
 var _accumulated_stats: Dictionary = {
 	"intimacy": 0.0,
@@ -114,6 +125,7 @@ signal _chat_click_proceed
 func _emit_chat_closed() -> void:
 	if _embedded_session_active:
 		_embedded_session_active = false
+		_embedded_daily_turn_pending = false
 		embedded_session_completed.emit(_embedded_session_request.duplicate(true))
 		_embedded_session_request.clear()
 		_embedded_topic_options.clear()
@@ -162,7 +174,7 @@ func _resolve_nodes() -> void:
 		voice_record_btn = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/VoiceRecordButton") as Button
 		quick_option_layer = dialogue_panel.get_node_or_null("QuickOptionLayer") as Control
 		quick_options_container = dialogue_panel.get_node_or_null("QuickOptionLayer/ScrollContainer/QuickOptions")
-		end_chat_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/EndChatButton") as Button
+		end_chat_btn = dialogue_panel.get_node_or_null("InputLayer/HBoxContainer/EndChatButton") as Button
 		history_btn = dialogue_panel.get_node_or_null("ToolBarContainer/ToolBarMargin/HBox/HistoryButton") as Button
 	else:
 		name_label = null
@@ -251,10 +263,10 @@ func _ready() -> void:
 	if deepseek_client:
 		deepseek_client.chat_request_completed.connect(_on_chat_response)
 		deepseek_client.chat_request_failed.connect(_on_chat_error)
+		deepseek_client.realize_turn_completed.connect(_on_realize_turn_completed)
+		deepseek_client.realize_turn_failed.connect(_on_realize_turn_failed)
 		deepseek_client.structured_chat_request_completed.connect(_on_structured_chat_response)
 		deepseek_client.structured_chat_request_failed.connect(_on_structured_chat_error)
-		deepseek_client.chat_stream_started.connect(_on_chat_stream_started)
-		deepseek_client.chat_stream_delta.connect(_on_chat_stream_delta)
 		
 		deepseek_client.emotion_request_completed.connect(_on_emotion_response)
 		deepseek_client.emotion_request_failed.connect(_on_emotion_error)
@@ -367,6 +379,9 @@ func _play_story(path: String) -> void:
 		fade_tween.tween_property(self, "modulate:a", 1.0, 1.0)
 	
 	if script_engine.load_script(path):
+		if not _prepare_story_cost_settlement():
+			_restore_story_ui_after_unavailable_cost()
+			return
 		if script_engine.use_story_portraits():
 			if character_layer and character_layer.has_method("begin_story_mode"):
 				character_layer.begin_story_mode()
@@ -401,6 +416,9 @@ func _play_story_data(data: Variant) -> void:
 	fade_tween.tween_property(self, "modulate:a", 1.0, 1.0)
 
 	if script_engine.load_script_data(data):
+		if not _prepare_story_cost_settlement():
+			_restore_story_ui_after_unavailable_cost()
+			return
 		if script_engine.use_story_portraits():
 			if character_layer and character_layer.has_method("begin_story_mode"):
 				character_layer.begin_story_mode()
@@ -417,6 +435,44 @@ func _play_story_data(data: Variant) -> void:
 		send_btn.disabled = false
 		input_field.editable = true
 		input_layer.show()
+
+func _prepare_story_cost_settlement() -> bool:
+	if _has_matching_story_checkpoint():
+		return true
+	var script_meta := script_engine.get_current_script_meta()
+	var action_cost := maxi(0, int(script_meta.get("action_cost", 0)))
+	var game_minutes := maxi(0, int(script_meta.get("game_minutes", 0)))
+	if GameDataManager.interaction_manager:
+		var unavailable: Dictionary = GameDataManager.interaction_manager.get_cost_unavailable_reason(action_cost, 0, game_minutes)
+		if not unavailable.is_empty():
+			GameDataManager.interaction_manager.show_unavailable_dialog(unavailable)
+			return false
+	elif action_cost > 0 and GameDataManager.profile.current_energy < action_cost:
+		return false
+	if action_cost > 0 and not GameDataManager.profile.consume_energy(action_cost):
+		return false
+	if action_cost > 0:
+		GameDataManager.profile.save_profile()
+	return true
+
+func _has_matching_story_checkpoint() -> bool:
+	var checkpoint := GameDataManager.load_active_story_checkpoint()
+	if checkpoint.is_empty() or str(checkpoint.get("script_id", "")) != script_engine.current_script_id:
+		return false
+	var checkpoint_path := str(checkpoint.get("script_path", ""))
+	return checkpoint_path.is_empty() or checkpoint_path == script_engine.current_script_path
+
+func _restore_story_ui_after_unavailable_cost() -> void:
+	_intro_playing = false
+	send_btn.disabled = false
+	input_field.editable = true
+	input_layer.show()
+
+func _settle_completed_story_time(script_meta: Dictionary) -> void:
+	var game_minutes := maxi(0, int(script_meta.get("game_minutes", 0)))
+	if game_minutes > 0 and GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.tick_minutes(game_minutes)
+		GameDataManager.profile.save_profile()
 
 func _on_script_dialogue_requested(speaker: String, content: String, mood: String, presentation: Dictionary = {}) -> void:
 	var portrait_speaker = str(presentation.get("character", "")).strip_edges()
@@ -444,7 +500,8 @@ func _on_script_dialogue_requested(speaker: String, content: String, mood: Strin
 	if tts_expression.is_empty():
 		tts_expression = mood.strip_edges()
 	var voice_instruction: String = str(presentation.get("voice_instruction", "")).strip_edges()
-	await _show_message_async(actual_content, char_name, true, "", tts_expression, voice_instruction)
+	var auto_advance := bool(presentation.get("auto_advance", false))
+	await _show_message_async(actual_content, char_name, true, "", tts_expression, voice_instruction, auto_advance)
 	if script_engine and script_engine.is_running and script_engine.is_waiting_for_resume:
 		script_engine.resume()
 
@@ -707,13 +764,13 @@ func _on_script_background_requested(bg_path: String, duration: float, transitio
 				BackgroundTransitionHelper.execute_transition(bg_node, tex, duration, transition_type, func(): script_engine.resume())
 			else:
 				bg_node.texture = tex
-				script_engine.resume()
+				script_engine.call_deferred("resume")
 		else:
 			print("[ScriptEngine] 警告：找到了背景资源，但未找到对应的 TextureRect 背景节点！", bg_node)
-			script_engine.resume()
+			script_engine.call_deferred("resume")
 	else:
 		print("[ScriptEngine] 警告：无法加载背景图片 -> ", bg_path)
-		script_engine.resume()
+		script_engine.call_deferred("resume")
 
 func _on_script_period_card_requested(period_label: String, location_name: String, bg_path: String, hold_duration: float) -> void:
 	_ensure_story_period_card()
@@ -835,14 +892,17 @@ func _on_script_ai_chat_requested(prompt_override: String) -> void:
 	await _show_message_async(enter_text, char_name, true)
 
 func _on_script_guided_ai_chat_requested(policy: Dictionary) -> void:
-	_guided_ai_chat_active = true
 	_guided_ai_policy = policy.duplicate(true)
+	_guided_ai_chat_active = true
 	_guided_ai_session_id = str(policy.get("session_id", "")).strip_edges()
 	_guided_ai_active_request_id = 0
 	_guided_ai_covered_beats.clear()
 	_guided_ai_candidate_beat_ids.clear()
 	_guided_ai_close_after_reply = false
 	_guided_ai_closing_started = false
+	_guided_ai_reply_playback_active = false
+	_guided_ai_used_option_texts.clear()
+	_guided_ai_used_reply_signatures.clear()
 	is_free_chat_mode = true
 	free_chat_strategy = str(policy.get("scene_objective", "")).strip_edges()
 	free_chat_max_rounds = maxi(1, int(policy.get("max_player_rounds", 4)))
@@ -852,8 +912,11 @@ func _on_script_guided_ai_chat_requested(policy: Dictionary) -> void:
 		free_chat_info_layer.move_to_front()
 		free_chat_info_layer.show()
 	var host := get_parent()
+	if is_instance_valid(host) and host.has_method("_report_guide_action"):
+		host.call("_report_guide_action", "select_main_chat_topic")
 	if is_instance_valid(host) and host.has_method("_refresh_guide_overlay_if_needed"):
 		host.call_deferred("_refresh_guide_overlay_if_needed")
+	_refresh_guided_ai_round_guide_when_ready(host)
 	_intro_playing = false
 	dialogue_panel.set_story_mode(false)
 	if input_layer:
@@ -862,16 +925,33 @@ func _on_script_guided_ai_chat_requested(policy: Dictionary) -> void:
 	send_btn.disabled = false
 	if end_chat_btn:
 		end_chat_btn.visible = not bool(policy.get("hide_manual_end", true))
-	var action_cost := maxi(0, int(policy.get("action_cost", 0)))
-	if action_cost > 0 and not GameDataManager.profile.consume_energy(action_cost):
-		ToastManager.show_system_toast("行动力不足，需要 %d 点行动力" % action_cost, Color.RED)
-		_finish_guided_ai_chat("incomplete", false)
+	_request_guided_ai_opening()
+
+func _refresh_guided_ai_round_guide_when_ready(host: Node) -> void:
+	await get_tree().process_frame
+	if not _guided_ai_chat_active or not is_instance_valid(host):
 		return
-	GameDataManager.profile.save_profile()
-	if bool(policy.get("show_entry_line", true)):
-		var entry_line := str(policy.get("entry_line", "（轻轻看向你）我想继续聊聊刚才的事。")).strip_edges()
-		if entry_line != "":
-			await _show_message_async(entry_line, GameDataManager.profile.char_name, true)
+	if free_chat_info_layer and free_chat_info_layer.is_visible_in_tree() and host.has_method("_refresh_guide_overlay_if_needed"):
+		host.call("_refresh_guide_overlay_if_needed")
+
+func _request_guided_ai_opening() -> void:
+	if not _guided_ai_chat_active:
+		return
+	var opening_result: Dictionary = GuidedAiPromptBuilder.build_user_message(
+		_guided_ai_policy,
+		_guided_ai_covered_beats,
+		0,
+		free_chat_max_rounds,
+		"（玩家尚未发言，请由角色主动开始这段对话。）",
+		true
+	)
+	_guided_ai_candidate_beat_ids.assign(opening_result.get("candidate_beat_ids", []))
+	_guided_ai_turn_started_at_ms = Time.get_ticks_msec()
+	if input_field:
+		input_field.editable = false
+	if send_btn:
+		send_btn.disabled = true
+	_request_ai_response(str(opening_result.get("prompt", "")), true)
 
 func _on_script_finished(script_id: String) -> void:
 	print("Script finished: ", script_id)
@@ -879,6 +959,7 @@ func _on_script_finished(script_id: String) -> void:
 	if character_layer and character_layer.has_method("end_story_mode"):
 		character_layer.end_story_mode()
 	var script_meta = script_engine.get_current_script_meta() if script_engine else {}
+	_settle_completed_story_time(script_meta)
 	var is_runtime_generated := bool(script_meta.get("runtime_generated", false))
 	var is_date_story := str(script_meta.get("story_category", "")).strip_edges() == "date_dynamic"
 	var is_first_completion := true
@@ -1261,6 +1342,9 @@ func _build_guided_ai_user_message(player_text: String) -> String:
 func _begin_guided_ai_closing() -> void:
 	if not _guided_ai_chat_active or _guided_ai_closing_started:
 		return
+	if _guided_ai_active_request_id > 0 and deepseek_client:
+		deepseek_client.cancel_structured_chat_request(_guided_ai_active_request_id)
+		_guided_ai_active_request_id = 0
 	_guided_ai_closing_started = true
 	_guided_ai_close_after_reply = false
 	if input_layer:
@@ -1279,7 +1363,7 @@ func _begin_guided_ai_closing() -> void:
 			if beat_id != "" and not _guided_ai_covered_beats.has(beat_id):
 				_guided_ai_candidate_beat_ids.append(beat_id)
 				missing_beats.append({"id": beat_id, "instruction": str((beat_value as Dictionary).get("instruction", ""))})
-	var closing_prompt := "【系统指令】本轮主线对话现在需要自然结束。%s 结束前请自然覆盖这些尚未表达的信息：%s。dialogue 必须至少包含一处使用全角圆括号包裹的动作、神态或细微反应，例如“（轻轻抱住琴谱）”；不得提及系统、回合数或限制。必须只输出 JSON 对象，格式为：{\"dialogue\":\"（角色动作）角色收束台词\",\"beat_evaluations\":[{\"id\":\"候选剧情点 ID\",\"covered\":true,\"evidence\":\"dialogue 中逐字出现的证据片段\"}]}。evidence 必须逐字取自 dialogue，不得输出 Markdown 围栏或额外内容。" % [
+	var closing_prompt := "【系统指令】本轮主线对话现在需要自然结束。%s 你和玩家住在同一栋房子里，不得说自己或玩家要回家、离开这栋房子，也不要说‘下次见’。结束前请自然覆盖这些尚未表达的信息：%s。dialogue 必须包含至少 12 个汉字的全角括号动作描写，同时写出两个以上可观察细节，例如手部动作、视线、姿态、呼吸、表情或现场物件互动；不得只写‘点头’‘微笑’等简短概括。不得提及系统、回合数或限制。必须只输出 JSON 对象，格式为：{\"dialogue\":\"（细腻的角色动作）角色收束台词\",\"beat_evaluations\":[{\"id\":\"候选剧情点 ID\",\"covered\":true,\"evidence\":\"dialogue 中逐字出现的证据片段\"}]}。evidence 必须逐字取自 dialogue，不得输出 Markdown 围栏或额外内容。" % [
 		str(_guided_ai_policy.get("closing_instruction", "")),
 		JSON.stringify(missing_beats)
 	]
@@ -1295,11 +1379,7 @@ func _are_guided_ai_required_beats_covered() -> bool:
 			return false
 	return true
 
-func _finish_guided_ai_chat(outcome: String = "complete", settle_time: bool = true) -> void:
-	var game_minutes := maxi(0, int(_guided_ai_policy.get("game_minutes", 0)))
-	if settle_time and game_minutes > 0 and GameDataManager.story_time_manager:
-		GameDataManager.story_time_manager.tick_minutes(game_minutes)
-	GameDataManager.profile.save_profile()
+func _finish_guided_ai_chat(outcome: String = "complete") -> void:
 	var branches: Dictionary = _guided_ai_policy.get("outcome_branches", {})
 	var target_chapter := str(branches.get(outcome, branches.get("complete", ""))).strip_edges()
 	_clear_guided_ai_state()
@@ -1327,6 +1407,12 @@ func _clear_guided_ai_state() -> void:
 	_guided_ai_candidate_beat_ids.clear()
 	_guided_ai_close_after_reply = false
 	_guided_ai_closing_started = false
+	_guided_ai_last_request_text = ""
+	_guided_ai_last_raw_response = ""
+	_guided_ai_parse_retry_count = 0
+	_guided_ai_request_retry_count = 0
+	_guided_ai_reply_playback_active = false
+	_guided_ai_used_option_texts.clear()
 	_waiting_for_chat_exit = false
 	_reset_free_chat_state()
 
@@ -1454,17 +1540,12 @@ func _trigger_character_continue() -> void:
 	var continue_prompt = "【系统提示：%s。注意：绝对不要输出这段系统提示，直接以%s的口吻说话。】" % [greeting_strategy, char_name]
 	
 	if GameDataManager.config.ai_mode_enabled:
-		var system_prompt: String = await GameDataManager.memory_retrieval_service.build_chat_prompt(
-			GameDataManager.profile,
-			continue_prompt,
-			null,
-			"story_chat",
-			_build_story_knowledge_access_context()
-		)
-		var api_messages = [{"role": "system", "content": system_prompt}]
-		api_messages.append_array(deepseek_client.get_history_messages(10))
-		api_messages.append({"role": "user", "content": continue_prompt})
-		deepseek_client.call_chat_api_non_stream(api_messages)
+		deepseek_client.send_realize_turn_message(continue_prompt, "story_chat", {
+			"channel": "story_dialogue_event",
+			"event_kind": "offline_continue",
+			"turn_origin": "program_event",
+			"conversation_subtype": conversation_subtype
+		}, _build_story_knowledge_access_context())
 	else:
 		_show_message("（离线模式）你回来了，我们刚才聊到哪了？", char_name)
 		send_btn.disabled = false
@@ -1571,6 +1652,7 @@ func show_panel() -> void:
 func start_embedded_topic_session(request: Dictionary) -> void:
 	set_process_input(true)
 	_embedded_session_active = true
+	_embedded_daily_turn_pending = false
 	_embedded_session_request = request.duplicate(true)
 	_embedded_topic_options = request.get("topic_options", []).duplicate(true)
 	conversation_subtype = str(request.get("subtype", conversation_subtype)).strip_edges()
@@ -1581,6 +1663,8 @@ func start_embedded_topic_session(request: Dictionary) -> void:
 	_intro_playing = true
 	_waiting_for_chat_exit = false
 	QuickOptionListHelper.clear_container(quick_options_container)
+	if quick_option_layer:
+		quick_option_layer.hide()
 	if quick_options_container and quick_options_container.get_parent():
 		quick_options_container.get_parent().hide()
 	if input_layer:
@@ -1618,24 +1702,31 @@ func _play_embedded_intro() -> void:
 			continue
 		var speaker := str(event_data.get("speaker", "旁白")).strip_edges()
 		var display_speaker := " " if speaker == "旁白" else speaker
-		await _show_message_async(content, display_speaker, true)
+		var auto_advance := bool(event_data.get("auto_advance", false))
+		await _show_message_async(content, display_speaker, true, "", "", "", auto_advance)
 	_intro_playing = false
 	if _embedded_topic_options.is_empty():
 		_enter_embedded_free_chat()
 		return
+	if quick_option_layer:
+		quick_option_layer.show()
 	if quick_options_container and quick_options_container.get_parent():
 		quick_options_container.get_parent().show()
 	QuickOptionListHelper.populate_option_items_with_index(
 		quick_options_container,
 		_embedded_topic_options,
-		_on_embedded_topic_selected,
-		74.0
+		_on_embedded_topic_selected
 	)
 	embedded_topic_options_ready.emit(_embedded_session_request.duplicate(true))
 
 func _on_embedded_topic_selected(topic: String, index: int = -1) -> void:
 	if not _embedded_session_active or index < 0 or index >= _embedded_topic_options.size():
 		return
+	if str(_embedded_session_request.get("mode", "")) == "daily":
+		var unavailable_reason := _get_embedded_daily_unavailable_reason()
+		if unavailable_reason != "":
+			_request_embedded_daily_closing(unavailable_reason)
+			return
 	var cost_action := str(_embedded_session_request.get("cost_action", "")).strip_edges()
 	if cost_action != "" and GameDataManager.interaction_manager:
 		if not GameDataManager.interaction_manager.execute_interaction(cost_action):
@@ -1646,10 +1737,14 @@ func _on_embedded_topic_selected(topic: String, index: int = -1) -> void:
 	if subtype_by_kind.has(option_kind):
 		conversation_subtype = str(subtype_by_kind.get(option_kind, conversation_subtype))
 	QuickOptionListHelper.clear_container(quick_options_container)
+	if quick_option_layer:
+		quick_option_layer.hide()
 	if quick_options_container and quick_options_container.get_parent():
 		quick_options_container.get_parent().hide()
 	embedded_topic_selected.emit(topic, option_data)
 	_enter_embedded_free_chat()
+	if _is_embedded_daily_chat():
+		_embedded_daily_turn_pending = true
 	var prompt_template := str(_embedded_session_request.get("topic_prompt_template", "")).strip_edges()
 	var prompt := prompt_template.replace("{topic}", topic)
 	if prompt == "":
@@ -1747,13 +1842,19 @@ func _on_click_blocker_input(event: InputEvent) -> void:
 				dialogue_text.visible_ratio = 1.0
 				dialogue_text.visible_characters = -1
 				_line_text_complete = true
+				if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+					dialogue_panel.set_continue_indicator_visible(true)
 			elif _intro_playing:
+				if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+					dialogue_panel.set_continue_indicator_visible(false)
 				get_viewport().set_input_as_handled()
 				_line_advance_requested = true
 				_intro_waiting_for_click = false
 				_cancel_active_line_audio()
 				_intro_click_proceed.emit()
 			else:
+				if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+					dialogue_panel.set_continue_indicator_visible(false)
 				get_viewport().set_input_as_handled()
 				_line_advance_requested = true
 				_waiting_for_chat_click = false
@@ -1789,7 +1890,14 @@ func _on_camera_closed() -> void:
 
 func _on_end_chat_pressed() -> void:
 	if _guided_ai_chat_active:
+		if _guided_ai_reply_playback_active:
+			_guided_ai_close_after_reply = true
+			if end_chat_btn:
+				end_chat_btn.hide()
+			return
+		_begin_guided_ai_closing()
 		return
+	_embedded_daily_turn_pending = false
 	if not GameDataManager.config.ai_mode_enabled:
 		_show_message("（离线模式）下次再见！", GameDataManager.profile.char_name)
 		await get_tree().create_timer(1.5).timeout
@@ -1816,7 +1924,12 @@ func _on_end_chat_pressed() -> void:
 	var prompt = GameDataManager.prompt_manager.build_end_chat_prompt(GameDataManager.profile, recent_history)
 	
 	# 发送隐藏系统消息来获取告别回复
-	deepseek_client.send_chat_message(prompt, "story_chat", _build_story_knowledge_access_context())
+	deepseek_client.send_realize_turn_message(prompt, "story_chat", {
+		"channel": "story_dialogue_event",
+		"event_kind": "chat_exit",
+		"turn_origin": "program_event",
+		"conversation_subtype": conversation_subtype
+	}, _build_story_knowledge_access_context())
 	
 	# 设定一个特殊标记，表示 AI 下一句话结束后应该退出面板
 	_waiting_for_chat_exit = true
@@ -1898,7 +2011,12 @@ func _trigger_gift_reaction(gift: Dictionary) -> void:
 	var prompt = "【系统动作：玩家刚刚送给了你一份礼物，名称是：“%s”，描述是：“%s”。请根据你们当前的关系状态（亲密度：%.1f，信任度：%.1f，风味：%s）以及礼物的内容，给出自然的反应和台词。注意：不要输出这段系统提示，直接以%s的口吻说话。】" % [gift.name, gift.desc, GameDataManager.profile.intimacy, GameDataManager.profile.trust, dyn_traits, char_name]
 	
 	if GameDataManager.config.ai_mode_enabled:
-		deepseek_client.send_chat_message(prompt)
+		deepseek_client.send_realize_turn_message(prompt, "story_chat", {
+			"channel": "story_dialogue_event",
+			"event_kind": "gift_reaction",
+			"turn_origin": "program_event",
+			"conversation_subtype": conversation_subtype
+		}, _build_story_knowledge_access_context())
 	else:
 		if is_inside_tree():
 			await get_tree().create_timer(1.0).timeout
@@ -1971,9 +2089,13 @@ func _play_cached_voice(cache_key: String) -> void:
 		return
 
 	var history_text := ""
+	var history_character_id := ""
 	for msg in GameDataManager.history.messages:
 		if str(msg.get("voice_cache_key", "")) == cache_key:
 			history_text = str(msg.get("text", ""))
+			history_character_id = str(msg.get("character_id", "")).strip_edges().to_lower()
+			if history_character_id.is_empty():
+				history_character_id = _resolve_story_speaker_id(str(msg.get("speaker", "")))
 			break
 
 	if history_text != "":
@@ -1982,13 +2104,13 @@ func _play_cached_voice(cache_key: String) -> void:
 		var clean_text = bbcode_regex.sub(history_text, "", true).strip_edges()
 		clean_text = ChatSplitHelper.strip_parentheses(clean_text).strip_edges()
 		if clean_text != "":
-			TTSManager.synthesize(clean_text, {})
+			TTSManager.synthesize(clean_text, {"character_id": history_character_id})
 			return
 
 	print("未找到语音缓存: ", cache_key)
 
 func _request_ai_response(text: String, is_system_event: bool, history_text: String = "") -> void:
-	if not is_system_event:
+	if not is_system_event and _guided_ai_chat_active:
 		var saved_text := history_text if history_text != "" else text
 		GameDataManager.history.add_message("我", saved_text, "", "story_chat", {"subtype": conversation_subtype})
 		
@@ -1997,10 +2119,9 @@ func _request_ai_response(text: String, is_system_event: bool, history_text: Str
 	
 	if GameDataManager.config.ai_mode_enabled:
 		if _guided_ai_chat_active:
-			stream_live_active = false
-			stream_live_done = false
-			stream_live_buffer = ""
-			stream_live_queue.clear()
+			_guided_ai_last_request_text = text
+			_guided_ai_parse_retry_count = 0
+			_guided_ai_request_retry_count = 0
 			var request_context := {
 				"session_id": _guided_ai_session_id,
 				"request_kind": "closing" if _guided_ai_closing_started else "normal",
@@ -2010,9 +2131,18 @@ func _request_ai_response(text: String, is_system_event: bool, history_text: Str
 			}
 			_guided_ai_active_request_id = deepseek_client.send_chat_message_structured(text, "story_chat", request_context, _build_story_knowledge_access_context())
 		else:
-			deepseek_client.send_chat_message(text, "story_chat", _build_story_knowledge_access_context())
+			deepseek_client.send_realize_turn_message(text, "story_chat", {
+				"channel": "story_dialogue_event" if is_system_event else "story_dialogue_player",
+				"event_kind": "daily_topic_selected" if is_system_event and _is_embedded_daily_chat() else "",
+				"turn_origin": "program_event" if is_system_event else "player_input",
+				"conversation_subtype": conversation_subtype
+			}, _build_story_knowledge_access_context())
 	else:
 		if _guided_ai_chat_active:
+			if is_system_event:
+				_show_message("（轻轻看向你）我想继续聊聊刚才的事。", GameDataManager.profile.char_name)
+				_set_dialogue_input_ready(false)
+				return
 			await _finish_guided_ai_chat_with_fallback()
 			return
 		# 本地兜底对话
@@ -2027,8 +2157,70 @@ func _on_send_pressed() -> void:
 	var text = input_field.text.strip_edges()
 	if text.is_empty():
 		return
+	if _is_embedded_daily_chat():
+		var unavailable_reason := _get_embedded_daily_unavailable_reason()
+		if unavailable_reason != "":
+			_request_embedded_daily_closing(unavailable_reason)
+			return
+		_embedded_daily_turn_pending = true
 	
 	_send_player_message(text, false)
+
+func _is_embedded_daily_chat() -> bool:
+	return _embedded_session_active and str(_embedded_session_request.get("mode", "")) == "daily"
+
+func _get_embedded_daily_unavailable_reason() -> String:
+	if not _is_embedded_daily_chat():
+		return ""
+	var energy_cost := maxi(0, int(_embedded_session_request.get("energy_cost_per_round", 0)))
+	var minutes_per_round := maxi(0, int(_embedded_session_request.get("minutes_per_round", 0)))
+	var cutoff_minutes := maxi(0, int(_embedded_session_request.get("daily_chat_cutoff_minutes", 24 * 60)))
+	var current_energy := int(GameDataManager.profile.current_energy) if GameDataManager.profile else 0
+	var current_minutes := 0
+	if GameDataManager.story_time_manager:
+		current_minutes = int(GameDataManager.story_time_manager.current_hour) * 60 + int(GameDataManager.story_time_manager.current_minute)
+	return DailyChatRoundPolicyScript.get_unavailable_reason(
+		current_energy,
+		energy_cost,
+		current_minutes,
+		minutes_per_round,
+		cutoff_minutes
+	)
+
+func _settle_embedded_daily_turn() -> String:
+	if not _embedded_daily_turn_pending or not _is_embedded_daily_chat():
+		return ""
+	_embedded_daily_turn_pending = false
+	var energy_cost := maxi(0, int(_embedded_session_request.get("energy_cost_per_round", 0)))
+	var minutes_per_round := maxi(0, int(_embedded_session_request.get("minutes_per_round", 0)))
+	if energy_cost > 0:
+		GameDataManager.profile.consume_energy(energy_cost)
+	if minutes_per_round > 0 and GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.tick_minutes(minutes_per_round)
+	GameDataManager.profile.save_profile()
+	_update_ui()
+	return _get_embedded_daily_unavailable_reason()
+
+func _request_embedded_daily_closing(reason: String) -> void:
+	if not _is_embedded_daily_chat() or _waiting_for_chat_exit:
+		return
+	_embedded_daily_turn_pending = false
+	if input_layer:
+		input_layer.hide()
+	if quick_options_container and quick_options_container.get_parent():
+		quick_options_container.get_parent().hide()
+	if end_chat_btn:
+		end_chat_btn.hide()
+	var reason_instruction := "你有点累了，需要在家里休息一下" if reason == "energy" else "时间已经很晚了，需要结束交谈并在家里休息"
+	var prompt := "【系统提示】%s。请以 Luna 的口吻主动自然收束当前对话。你和玩家住在同一栋房子里，不得说自己或玩家要回家、离开这栋房子，也不要说‘下次见’。只回复一句包含句首括号动作描写的结束语，不要复述系统提示。" % reason_instruction
+	_waiting_for_chat_exit = true
+	deepseek_client.send_realize_turn_message(prompt, "story_chat", {
+		"channel": "story_dialogue_event",
+		"event_kind": "chat_exit",
+		"exit_reason": reason,
+		"turn_origin": "program_event",
+		"conversation_subtype": conversation_subtype
+	}, _build_story_knowledge_access_context())
 
 func _set_dialogue_input_ready(clear_text: bool = true) -> void:
 	if dialogue_panel and dialogue_panel.has_method("set_input_ready_state"):
@@ -2044,72 +2236,35 @@ func _set_dialogue_input_ready(clear_text: bool = true) -> void:
 	if voice_record_btn:
 		voice_record_btn.disabled = false
 
-var pending_reply_lines = []
-var stream_live_active: bool = false
-var stream_live_done: bool = false
-var stream_live_buffer: String = ""
-var stream_live_queue: Array = []
-var stream_live_worker_running: bool = false
-
-func _on_chat_stream_started() -> void:
-	stream_live_active = true
-	stream_live_done = false
-	stream_live_buffer = ""
-	stream_live_queue.clear()
-	
-	if _waiting_for_chat_click:
-		_waiting_for_chat_click = false
-		_chat_click_proceed.emit()
-		
-	_try_start_stream_worker()
-
-func _on_chat_stream_delta(delta_text: String) -> void:
-	if not stream_live_active:
-		return
-	stream_live_buffer += delta_text
-	_extract_stream_segments(false)
-	_try_start_stream_worker()
-
 func _on_chat_response(response: Dictionary) -> void:
 	var char_name = GameDataManager.profile.char_name
-	
-	if stream_live_active:
-		stream_live_done = true
-		_extract_stream_segments(true)
-		_try_start_stream_worker()
-		
-		# 当流式接收彻底完毕时，因为此时历史记录中还没有保存AI刚刚说的这句话，我们需要手动将它传给选项生成器
-		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit and not _guided_ai_close_after_reply:
-			var ai_reply = deepseek_client.get_chat_stream_full_text()
-			deepseek_client.send_options_generation(ai_reply, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
-			
-			# 提交完整回合记忆观察
-			var messages = GameDataManager.history.get_messages_by_type("story_chat").filter(func(message: Dictionary) -> bool:
-				return str(message.get("subtype", "")) == conversation_subtype
-			)
-			if messages.size() > 0:
-				var last_msg = messages[messages.size() - 1]
-				if last_msg["speaker"] == "我" and GameDataManager.memory_observation_service:
-					GameDataManager.memory_observation_service.observe_completed_turn("story_chat", str(last_msg["text"]), ai_reply)
-					
+	if _guided_ai_chat_active and _guided_ai_reply_playback_active:
+		print("[GuidedAITrace] stage=response_discarded reason=reply_playback_active")
 		return
-		
 	if response.has("choices") and response["choices"].size() > 0:
 		var reply = response["choices"][0]["message"]["content"]
 		if _guided_ai_chat_active:
+			_guided_ai_last_raw_response = str(reply)
 			var parsed_guided: Dictionary = GuidedAiResponseParser.parse_response(str(reply), _guided_ai_candidate_beat_ids)
 			if not bool(parsed_guided.get("ok", false)):
-				await _finish_guided_ai_chat_with_fallback()
+				_retry_guided_ai_response(str(parsed_guided.get("error", "响应格式错误。")))
 				return
 			reply = str(parsed_guided.get("dialogue", ""))
+			if _is_duplicate_guided_ai_reply(reply):
+				_retry_guided_ai_response("dialogue 与本次会话已经播放的角色回复重复；必须回应玩家的新输入并推进当前剧情点，不得复述上一句。")
+				return
 			for beat_id in parsed_guided.get("covered_beat_ids", []):
 				var normalized_beat_id := str(beat_id)
 				if not _guided_ai_covered_beats.has(normalized_beat_id):
 					_guided_ai_covered_beats.append(normalized_beat_id)
 			_guided_ai_candidate_beat_ids.clear()
+			if not _guided_ai_close_after_reply and not _guided_ai_closing_started:
+				pending_options_data = _filter_guided_ai_options(parsed_guided.get("next_options", []))
+				if pending_options_data.is_empty():
+					pending_options_data = _build_guided_ai_fallback_options()
 		
 		# 非流式模式下，收到完整回复后也立刻提前触发选项生成，并手动传入最新回复
-		if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit and not _guided_ai_close_after_reply:
+		if not _guided_ai_chat_active and GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit and not _guided_ai_close_after_reply:
 			deepseek_client.send_options_generation(reply, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
 			
 			# 提交完整回合记忆观察
@@ -2124,16 +2279,75 @@ func _on_chat_response(response: Dictionary) -> void:
 		# 拦截 reply 进行预处理，提取纯净的消息序列
 		var lines = _parse_reply_to_lines(reply)
 		if lines.size() == 0:
+			if _guided_ai_chat_active:
+				_retry_guided_ai_response("dialogue 没有可播放内容。")
+				return
 			_show_message(char_name + " 似乎走神了...", char_name)
 			_set_dialogue_input_ready()
 			return
 			
+		if _guided_ai_chat_active:
+			_guided_ai_reply_playback_active = true
 		_play_message_sequence(lines, char_name)
 	else:
+		if _guided_ai_chat_active:
+			_retry_guided_ai_response("响应缺少 choices。")
+			return
 		_show_message(char_name + " 似乎走神了...", char_name)
 		_set_dialogue_input_ready()
 
+func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dictionary) -> void:
+	var channel := str(request_context.get("channel", ""))
+	if channel != "story_dialogue_player" and channel != "story_dialogue_event":
+		return
+	var segments: Variant = realized_turn.get("segments")
+	if not segments is Array or segments.is_empty():
+		_on_realize_turn_failed("角色回复没有可展示内容。", request_context)
+		return
+	var lines: Array = []
+	var accepted_speech: Array[String] = []
+	for index in range(segments.size()):
+		var segment: Variant = segments[index]
+		if not segment is Dictionary:
+			continue
+		var line_data := (segment as Dictionary).duplicate(true)
+		line_data["reply_pipeline"] = str(request_context.get("reply_pipeline", "realize_turn_v6"))
+		line_data["ai_request_id"] = str(request_context.get("request_id", ""))
+		line_data["memory_trace_id"] = str(request_context.get("trace_id", ""))
+		line_data["response_segment_index"] = index
+		line_data["response_adopted"] = true
+		lines.append(line_data)
+		accepted_speech.append(str(line_data.get("speech", "")).strip_edges())
+	var combined_speech := "\n".join(accepted_speech)
+	if GameDataManager.config.ai_mode_enabled and not _waiting_for_chat_exit:
+		deepseek_client.send_options_generation(combined_speech, free_chat_strategy if is_free_chat_mode else "", "story_chat", conversation_subtype)
+	var player_text := str(request_context.get("player_text", "")).strip_edges()
+	if channel == "story_dialogue_player" and not player_text.is_empty() and GameDataManager.memory_observation_service:
+		GameDataManager.memory_observation_service.observe_completed_turn("story_chat", player_text, combined_speech)
+	_play_message_sequence(lines, GameDataManager.profile.char_name)
+
+func _on_realize_turn_failed(error_message: String, request_context: Dictionary) -> void:
+	var channel := str(request_context.get("channel", ""))
+	if channel != "story_dialogue_player" and channel != "story_dialogue_event":
+		return
+	_embedded_daily_turn_pending = false
+	if _waiting_for_chat_exit:
+		_waiting_for_chat_exit = false
+		var exit_reason := str(request_context.get("exit_reason", ""))
+		var fallback_text := "（轻轻合上手边的东西）那我们先聊到这里，我就在旁边待着。"
+		if exit_reason == "energy":
+			fallback_text = "（轻轻揉了揉眼睛）我有点累了，先在这里歇一会儿吧。"
+		elif exit_reason == "late":
+			fallback_text = "（抬眼看了看时间）已经很晚了，我们先休息吧。"
+		await _show_message_async(fallback_text, GameDataManager.profile.char_name, false, "", "", "", true)
+		_emit_chat_closed()
+		return
+	_set_dialogue_input_ready()
+	ToastManager.show_system_toast(error_message, Color.RED)
+
 func _on_structured_chat_response(response: Dictionary, request_context: Dictionary) -> void:
+	if str(request_context.get("reply_pipeline", "")) == "realize_turn_v6":
+		return
 	if not _is_current_guided_request(request_context):
 		print("[GuidedAITrace] request=%d stage=response_discarded active=%s active_request=%d active_session=%s response_session=%s closing=%s response_kind=%s" % [
 			int(request_context.get("request_id", 0)),
@@ -2158,16 +2372,101 @@ func _on_structured_chat_response(response: Dictionary, request_context: Diction
 	_guided_ai_active_request_id = 0
 	_on_chat_response(response)
 
+func _retry_guided_ai_response(parse_error: String) -> void:
+	if not _guided_ai_chat_active:
+		return
+	if _guided_ai_parse_retry_count >= GUIDED_AI_MAX_RETRIES:
+		_guided_ai_active_request_id = 0
+		var recovered_dialogue := GuidedAiResponseParser.recover_dialogue(_guided_ai_last_raw_response)
+		if not recovered_dialogue.is_empty() and not _is_duplicate_guided_ai_reply(recovered_dialogue):
+			print("[GuidedAITrace] stage=validation_exhausted_adopted error=%s chars=%d" % [parse_error, recovered_dialogue.length()])
+			_guided_ai_candidate_beat_ids.clear()
+			_accept_guided_ai_dialogue(recovered_dialogue)
+			return
+		push_error("[GuidedAI] 模型连续返回无法提取台词的响应：%s raw=%s" % [parse_error, _guided_ai_last_raw_response])
+		ToastManager.show_system_toast("AI 回复异常，已使用剧情收束继续主线。", Color.ORANGE)
+		_finish_guided_ai_chat_with_fallback()
+		return
+	_guided_ai_parse_retry_count += 1
+	var retry_prompt := "%s\n\n【格式纠正】上一次响应无法解析（%s）。请重新回答同一轮，只输出合法 JSON；dialogue 必须包含至少 12 个汉字、带两个以上可观察细节的全角括号动作描写。不要输出 Markdown 或额外文字。" % [_guided_ai_last_request_text, parse_error]
+	_send_guided_ai_retry(retry_prompt, {"parse_retry": _guided_ai_parse_retry_count})
+
+func _accept_guided_ai_dialogue(reply: String) -> void:
+	if _guided_ai_reply_playback_active:
+		return
+	if not _register_guided_ai_reply(reply):
+		_finish_guided_ai_chat_with_fallback()
+		return
+	if not _guided_ai_close_after_reply and not _guided_ai_closing_started:
+		pending_options_data = _build_guided_ai_fallback_options()
+	var lines := _parse_reply_to_lines(reply)
+	if lines.is_empty():
+		_set_dialogue_input_ready(false)
+		return
+	_guided_ai_reply_playback_active = true
+	_play_message_sequence(lines, GameDataManager.profile.char_name)
+
 func _on_structured_chat_error(error_message: String, request_context: Dictionary) -> void:
 	if not _is_current_guided_request(request_context):
 		return
 	_guided_ai_active_request_id = 0
-	_on_chat_error(error_message)
+	if error_message.contains("429"):
+		push_warning("[GuidedAI] 请求被限流，跳过立即重试并使用剧情收束继续主线。")
+		ToastManager.show_system_toast("AI 服务繁忙，已使用剧情收束继续主线。", Color.ORANGE)
+		await _finish_guided_ai_chat_with_fallback()
+		return
+	if _guided_ai_request_retry_count >= GUIDED_AI_MAX_RETRIES:
+		var failure_stage := str(request_context.get("failure_stage", "unknown"))
+		push_error("[GuidedAI] 请求连续失败 stage=%s error=%s context=%s" % [failure_stage, error_message, JSON.stringify(request_context)])
+		ToastManager.show_system_toast("AI 请求失败，已使用剧情收束继续主线。", Color.ORANGE)
+		await _finish_guided_ai_chat_with_fallback()
+		return
+	_guided_ai_request_retry_count += 1
+	print("[GuidedAITrace] stage=request_retry retry=%d/%d failure_stage=%s error=%s" % [
+		_guided_ai_request_retry_count,
+		GUIDED_AI_MAX_RETRIES,
+		str(request_context.get("failure_stage", "unknown")),
+		error_message
+	])
+	var retry_prompt := "%s\n\n【请求恢复】请继续完成同一轮回复。上一次请求未成功（%s），不要提及错误或重试，只输出约定的合法 JSON。" % [_guided_ai_last_request_text, error_message]
+	_send_guided_ai_retry(retry_prompt, {"request_retry": _guided_ai_request_retry_count})
+
+func _send_guided_ai_retry(prompt: String, retry_metadata: Dictionary) -> void:
+	var request_context := {
+		"session_id": _guided_ai_session_id,
+		"request_kind": "closing" if _guided_ai_closing_started else "normal",
+		"candidate_beat_ids": _guided_ai_candidate_beat_ids.duplicate(),
+		"trace_source": "guided_ai_chat",
+		"turn_started_at_ms": _guided_ai_turn_started_at_ms
+	}
+	request_context.merge(retry_metadata, true)
+	_guided_ai_active_request_id = deepseek_client.send_chat_message_structured(prompt, "story_chat", request_context, _build_story_knowledge_access_context())
 
 func _is_current_guided_request(request_context: Dictionary) -> bool:
 	if not _guided_ai_chat_active:
 		return false
 	return GuidedAiRequestGuard.matches(_guided_ai_session_id, _guided_ai_active_request_id, _guided_ai_closing_started, request_context)
+
+func _is_duplicate_guided_ai_reply(reply: String) -> bool:
+	var signature := _build_guided_ai_reply_signature(reply)
+	return not signature.is_empty() and _guided_ai_used_reply_signatures.has(signature)
+
+func _register_guided_ai_reply(reply: String) -> bool:
+	var signature := _build_guided_ai_reply_signature(reply)
+	if signature.is_empty() or _guided_ai_used_reply_signatures.has(signature):
+		return false
+	_guided_ai_used_reply_signatures.append(signature)
+	return true
+
+func _build_guided_ai_reply_signature(reply: String) -> String:
+	var normalized := reply.strip_edges().to_lower().replace("[split]", " ")
+	var voice_tag_regex := RegEx.new()
+	if voice_tag_regex.compile("(?i)(?:<|《|\\[|【)\\s*(voice|语音指令)\\s*[:：][^>》\\]】]*(?:>|》|\\]|】)") == OK:
+		normalized = voice_tag_regex.sub(normalized, "", true)
+	normalized = ChatSplitHelper.strip_parentheses(normalized)
+	for token in [" ", "\t", "\r", "\n", "，", ",", "。", ".", "！", "!", "？", "?", "；", ";", "：", ":", "…", "~", "～"]:
+		normalized = normalized.replace(token, "")
+	return normalized.md5_text() if not normalized.is_empty() else ""
 
 # 移除旧的 _on_character_mood_response 和 _on_character_mood_error 回调，
 # 因为我们现在改为在 _play_message_sequence 中逐条进行同步等待分析了。
@@ -2284,8 +2583,7 @@ func _on_script_choice_requested(options: Array) -> void:
 	QuickOptionListHelper.populate_option_items_with_index(
 		quick_options_container,
 		_story_choice_options,
-		_on_story_choice_selected,
-		74.0
+		_on_story_choice_selected
 	)
 	if _embedded_session_active:
 		embedded_story_choice_ready.emit(_embedded_session_request.duplicate(true))
@@ -2350,11 +2648,31 @@ func _on_options_response(response: Dictionary) -> void:
 		if json.parse(json_str.strip_edges()) == OK:
 			var data = json.get_data()
 			if data is Dictionary and data.has("options") and data["options"] is Array:
-				pending_options_data = data["options"]
+				pending_options_data = _filter_guided_ai_options(data["options"])
 				_try_show_options()
 				return
 				
 		print("Warning: Options Agent did not return valid JSON.")
+
+func _filter_guided_ai_options(options: Array) -> Array:
+	if not _guided_ai_chat_active:
+		return options
+	var filtered: Array = []
+	var seen_texts: Array[String] = []
+	for option_value in options:
+		var normalized_items := QuickOptionListHelper.normalize_dialogue_choice_options([option_value])
+		if normalized_items.is_empty():
+			continue
+		var option_text := str((normalized_items[0] as Dictionary).get("text", "")).strip_edges()
+		if option_text.is_empty() or seen_texts.has(option_text) or _guided_ai_used_option_texts.has(option_text):
+			continue
+		seen_texts.append(option_text)
+		filtered.append(option_value)
+	return filtered
+
+func _build_guided_ai_fallback_options() -> Array:
+	var filtered := _filter_guided_ai_options(_guided_ai_policy.get("fallback_options", []) as Array)
+	return filtered.slice(0, mini(2, filtered.size()))
 
 func _try_show_options() -> void:
 	# 只有当文本演出完全结束，且已经获取到了选项数据时，才将选项渲染到UI
@@ -2366,17 +2684,22 @@ func _on_options_error(error_msg: String) -> void:
 	print("Options Agent Failed: ", error_msg)
 
 func _populate_quick_options(options: Array) -> void:
+	if quick_option_layer:
+		quick_option_layer.show()
 	if quick_options_container and quick_options_container.get_parent():
 		quick_options_container.get_parent().show()
 	_rendered_quick_options = QuickOptionListHelper.normalize_dialogue_choice_options(options)
 	QuickOptionListHelper.populate_option_items_with_index(
 		quick_options_container,
 		_rendered_quick_options,
-		_on_quick_option_selected,
-		74.0
+		_on_quick_option_selected
 	)
 
 func _on_quick_option_selected(text: String, index: int = -1) -> void:
+	if _guided_ai_chat_active:
+		var normalized_text := text.strip_edges()
+		if normalized_text != "" and not _guided_ai_used_option_texts.has(normalized_text):
+			_guided_ai_used_option_texts.append(normalized_text)
 	if index >= 0 and index < _rendered_quick_options.size():
 		var option_data := _rendered_quick_options[index] as Dictionary
 		var kind := str(option_data.get("kind", "")).strip_edges()
@@ -2392,20 +2715,11 @@ func _on_quick_option_selected(text: String, index: int = -1) -> void:
 	_on_send_pressed()
 
 func _on_chat_error(error_msg: String) -> void:
-	var char_name = GameDataManager.profile.char_name
+	_embedded_daily_turn_pending = false
 	_set_dialogue_input_ready()
-	stream_live_active = false
-	stream_live_done = true
-	stream_live_buffer = ""
-	stream_live_queue.clear()
 	ToastManager.show_system_toast(error_msg, Color.RED)
 	if _guided_ai_chat_active:
 		await _finish_guided_ai_chat_with_fallback()
-		return
-	# 本地兜底
-	if is_inside_tree():
-		await get_tree().create_timer(1.0).timeout
-	_show_message("你在哪儿？我听不到你的声音了...", char_name)
 
 func _finish_guided_ai_chat_with_fallback() -> void:
 	if not _guided_ai_chat_active:
@@ -2418,94 +2732,8 @@ func _finish_guided_ai_chat_with_fallback() -> void:
 		end_chat_btn.hide()
 	var fallback_text := str(_guided_ai_policy.get("fallback_closing_text", "（轻轻点头）那今天就先聊到这里吧。")).strip_edges()
 	var fallback_display_text := ChatSplitHelperScript.format_actions(fallback_text)
-	await _show_message_async(fallback_display_text, GameDataManager.profile.char_name, false)
+	await _show_message_async(fallback_display_text, GameDataManager.profile.char_name, false, "", "", "", true)
 	_finish_guided_ai_chat("incomplete")
-
-func _extract_stream_segments(force_flush: bool) -> void:
-	var delim = "[SPLIT]"
-	while true:
-		var idx = stream_live_buffer.find(delim)
-		if idx == -1:
-			break
-		var part = stream_live_buffer.substr(0, idx).strip_edges()
-		stream_live_buffer = stream_live_buffer.substr(idx + delim.length())
-		if part != "":
-			stream_live_queue.append(part)
-			
-	if force_flush:
-		var last_part = stream_live_buffer.strip_edges()
-		stream_live_buffer = ""
-		if last_part != "":
-			var parts = _auto_split_message(last_part)
-			for p in parts:
-				if typeof(p) == TYPE_STRING:
-					var tp = p.strip_edges()
-					if tp != "":
-						stream_live_queue.append(tp)
-
-func _try_start_stream_worker() -> void:
-	if not stream_live_worker_running:
-		stream_live_worker_running = true
-		call_deferred("_run_stream_worker")
-
-func _run_stream_worker() -> void:
-	var char_name = GameDataManager.profile.char_name
-	while true:
-		while not is_inside_tree():
-			if not stream_live_active:
-				stream_live_worker_running = false
-				return
-			var main_loop := Engine.get_main_loop() as SceneTree
-			if main_loop == null:
-				stream_live_active = false
-				stream_live_worker_running = false
-				return
-			await main_loop.process_frame
-			
-		if not stream_live_active and stream_live_queue.size() == 0:
-			break
-			
-		if stream_live_queue.size() == 0:
-			if stream_live_done:
-				break
-			if is_inside_tree():
-				await get_tree().create_timer(0.05).timeout
-			continue
-			
-		var line = stream_live_queue.pop_front()
-		if typeof(line) != TYPE_STRING:
-			continue
-		var t = str(line).strip_edges()
-		if t == "":
-			continue
-			
-		if GameDataManager.config.ai_mode_enabled:
-			# 异步发起分析，不阻塞当前流程的推进和打字机的显示
-			_async_analyze_and_update_mood(t)
-				
-		await _process_single_message_line_async(t, char_name)
-		
-		if not stream_live_active:
-			break
-			
-	stream_live_active = false
-	stream_live_worker_running = false
-	
-	GameDataManager.profile.save_profile()
-	_update_ui()
-	
-	# 因为选项生成请求已经提前到流式接收完毕时发送，这里只需要恢复UI交互即可
-	is_text_playback_finished = true
-	
-	if _waiting_for_chat_exit:
-		_waiting_for_chat_exit = false
-		if is_inside_tree():
-			await get_tree().create_timer(1.5).timeout
-		hide_panel()
-		return
-		
-	_try_show_options()
-	_set_dialogue_input_ready()
 
 func _auto_split_message(text: String) -> Array:
 	# 如果AI主动遵守了提示词，直接使用
@@ -2640,11 +2868,19 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 			lines.size(),
 			Time.get_ticks_msec() - _guided_ai_turn_started_at_ms
 		])
+	if _guided_ai_chat_active:
+		var combined_reply_parts: Array[String] = []
+		for reply_line in lines:
+			combined_reply_parts.append(str(reply_line.get("speech", "")) if reply_line is Dictionary else str(reply_line))
+		_register_guided_ai_reply(" ".join(combined_reply_parts))
 	for line in lines:
-		if GameDataManager.config.ai_mode_enabled:
-			_async_analyze_and_update_mood(line)
-				
-		await _process_single_message_line_async(line, char_name)
+		var mood_line := str(line.get("speech", "")) if line is Dictionary else str(line)
+		if GameDataManager.config.ai_mode_enabled and not _guided_ai_chat_active:
+			_async_analyze_and_update_mood(mood_line)
+		if line is Dictionary:
+			await _process_realized_story_segment(line, char_name)
+		else:
+			await _process_single_message_line_async(str(line), char_name)
 		
 	GameDataManager.profile.save_profile()
 	_update_ui()
@@ -2653,6 +2889,9 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 		await get_tree().create_timer(1.0).timeout
 		
 	is_text_playback_finished = true
+	var daily_close_reason := _settle_embedded_daily_turn()
+	if _guided_ai_chat_active:
+		_guided_ai_reply_playback_active = false
 	if _guided_ai_chat_active and _guided_ai_reply_available_at_ms > 0:
 		print("[GuidedAITrace] stage=reply_playback_completed display_ms=%d total_turn_ms=%d" % [
 			Time.get_ticks_msec() - _guided_ai_reply_available_at_ms,
@@ -2671,6 +2910,8 @@ func _play_message_sequence(lines: Array, char_name: String) -> void:
 		else:
 			_emit_chat_closed()
 		return
+	elif daily_close_reason != "":
+		_request_embedded_daily_closing(daily_close_reason)
 	elif _guided_ai_close_after_reply:
 		_begin_guided_ai_closing()
 	else:
@@ -2735,10 +2976,43 @@ func _process_single_message_line_async(raw_line: String, char_name: String) -> 
 	
 	await _show_message_async(display_text, char_name, false, tts_text, tts_expression, voice_instruction)
 
+func _process_realized_story_segment(segment: Dictionary, char_name: String) -> void:
+	var speech := str(segment.get("speech", "")).strip_edges()
+	var action: Variant = segment.get("action")
+	var action_description := str(action.get("description", "")).strip_edges() if action is Dictionary else ""
+	var display_text := speech
+	if not action_description.is_empty() and action_description != "本段未提供可见动作。":
+		display_text = "[color=green]（%s）[/color]%s" % [action_description, speech]
+	var response_meta := {
+		"reply_pipeline": str(segment.get("reply_pipeline", "realize_turn_v6")),
+		"ai_request_id": str(segment.get("ai_request_id", "")),
+		"memory_trace_id": str(segment.get("memory_trace_id", "")),
+		"response_segment_index": int(segment.get("response_segment_index", 0)),
+		"response_adopted": true
+	}
+	await _show_message_async(
+		display_text,
+		char_name,
+		false,
+		speech,
+		"",
+		str(segment.get("delivery_instruction", "")).strip_edges(),
+		false,
+		response_meta
+	)
+	if GameDataManager.memory_retrieval_trace_service:
+		GameDataManager.memory_retrieval_trace_service.mark_response_adopted(
+			str(segment.get("memory_trace_id", "")),
+			speech,
+			int(segment.get("response_segment_index", 0))
+		)
+
 func _show_message(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "") -> void:
 	_show_message_async(text, speaker_name, is_restore, tts_text)
 
-func _show_message_async(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "", tts_expression: String = "", voice_instruction: String = "", auto_advance: bool = false) -> void:
+func _show_message_async(text: String, speaker_name: String = "", is_restore: bool = false, tts_text: String = "", tts_expression: String = "", voice_instruction: String = "", auto_advance: bool = false, response_meta: Dictionary = {}) -> void:
+	_line_display_generation += 1
+	var line_generation := _line_display_generation
 	if speaker_name == "":
 		speaker_name = GameDataManager.profile.char_name
 		
@@ -2758,9 +3032,12 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		return
 	dialogue_text.bbcode_enabled = true
 	dialogue_text.text = text
+	dialogue_text.visible_characters = 0
 	dialogue_text.visible_ratio = 0.0
 	_line_text_complete = false
 	_line_advance_requested = false
+	if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+		dialogue_panel.set_continue_indicator_visible(false)
 	
 	# 简单的打字机效果
 	if _typewriter_tween:
@@ -2777,6 +3054,9 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	# 触发TTS语音合成 (仅对 角色 发声)，如果是恢复记录则不发声
 	# 在固定剧情模式下，判断 speaker_name 是不是玩家或旁白，都不是的话说明是配音角色，也可以发声
 	var is_player_or_narrator = (speaker_name == "我" or speaker_name == "旁白" or speaker_name == " ")
+	var message_character_id := str(GameDataManager.config.current_character_id).strip_edges().to_lower()
+	if _intro_playing and not _current_story_speaker_id.is_empty():
+		message_character_id = _current_story_speaker_id.strip_edges().to_lower()
 	
 	# 如果是固定剧情（_intro_playing），即使 is_restore 为 true，也允许发声
 	if GameDataManager.config.voice_enabled and (not is_restore or _intro_playing) and not is_player_or_narrator:
@@ -2797,13 +3077,10 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 			
 			# 如果是固定剧情的配音，优先尝试用 speaker_name 作为角色 ID 查找音色
 			# 否则使用当前全局角色的音色
-			var char_id = GameDataManager.config.current_character_id
-			if _intro_playing and _current_story_speaker_id != "":
-				char_id = _current_story_speaker_id
-				
 			var options = {}
-			if GameDataManager.config.tts_character_speakers.has(char_id):
-				options["speaker"] = GameDataManager.config.tts_character_speakers[char_id]
+			if GameDataManager.config.tts_character_speakers.has(message_character_id):
+				options["speaker"] = GameDataManager.config.tts_character_speakers[message_character_id]
+			options["character_id"] = message_character_id
 			options.merge(TTSManager.build_tts_2_instruction_options(voice_instruction, tts_expression), true)
 				
 			cache_key = TTSManager.get_cache_key(text_to_speak, options)
@@ -2811,13 +3088,19 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		
 	# 保存记录到历史管理器 (只有在非恢复模式时保存)
 	if not is_restore:
-		var response_meta := {"subtype": conversation_subtype}
-		if speaker_name != "玩家" and speaker_name != "我":
-			response_meta.merge(deepseek_client.mark_chat_response_adopted(text), true)
-		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat", response_meta)
+		var history_meta := {"subtype": conversation_subtype}
+		history_meta.merge(response_meta, true)
+		if speaker_name != "玩家" and speaker_name != "我" and response_meta.is_empty():
+			history_meta.merge(deepseek_client.mark_chat_response_adopted(text), true)
+		if not is_player_or_narrator and not message_character_id.is_empty():
+			history_meta["character_id"] = message_character_id
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "story_chat", history_meta)
 	elif _intro_playing and text != "":
 		# 因为 _intro_playing 调用时是 is_restore=true 专门为了避开 normal 的保存
-		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story", {"subtype": "fixed_story"})
+		var fixed_story_meta := {"subtype": "fixed_story"}
+		if not is_player_or_narrator and not message_character_id.is_empty():
+			fixed_story_meta["character_id"] = message_character_id
+		GameDataManager.history.add_message(speaker_name, text, cache_key, "fixed_story", fixed_story_meta)
 
 	# 等待打字机效果完成
 	if not is_inside_tree():
@@ -2829,14 +3112,18 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		if not is_instance_valid(scene_tree):
 			return
 		await scene_tree.process_frame
+		if line_generation != _line_display_generation:
+			return
 			
-	if not is_inside_tree():
+	if not is_inside_tree() or line_generation != _line_display_generation:
 		return
 		
 	# If we killed the tween, make sure the text is fully shown
 	dialogue_text.visible_ratio = 1.0
 	dialogue_text.visible_characters = -1
 	_line_text_complete = true
+	if not auto_advance and not _line_advance_requested and dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+		dialogue_panel.set_continue_indicator_visible(true)
 	
 	if auto_advance:
 		_line_advance_requested = true
@@ -2852,6 +3139,8 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	if is_tts_started and is_inside_tree() and not _line_advance_requested:
 		var wait_count = 0
 		while not audio_player.playing and wait_count < 10:
+			if line_generation != _line_display_generation:
+				return
 			if (_intro_playing and not _intro_waiting_for_click) or (not _intro_playing and not _waiting_for_chat_click):
 				break
 			if not is_instance_valid(scene_tree):
@@ -2862,6 +3151,8 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 		wait_count = 0
 		var max_wait_count = 1200
 		while audio_player.playing and is_inside_tree() and wait_count < max_wait_count:
+			if line_generation != _line_display_generation:
+				return
 			if (_intro_playing and not _intro_waiting_for_click) or (not _intro_playing and not _waiting_for_chat_click):
 				_cancel_active_line_audio()
 				break
@@ -2878,6 +3169,10 @@ func _show_message_async(text: String, speaker_name: String = "", is_restore: bo
 	else:
 		if is_inside_tree() and _waiting_for_chat_click:
 			await _chat_click_proceed
+	if line_generation != _line_display_generation:
+		return
+	if dialogue_panel and dialogue_panel.has_method("set_continue_indicator_visible"):
+		dialogue_panel.set_continue_indicator_visible(false)
 	_active_line_tts_text = ""
 
 func _on_tts_success(audio_stream: AudioStream, text: String) -> void:

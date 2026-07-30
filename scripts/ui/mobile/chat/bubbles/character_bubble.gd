@@ -279,7 +279,7 @@ func setup(msg: Dictionary, char_profile: Dictionary = {}):
 						panel._mark_message_read(text)
 				var panel = get_tree().get_root().find_child("MobileChatPanel", true, false)
 				if panel and panel.has_method("_play_voice_message"):
-					panel._play_voice_message(text)
+					panel._play_voice_message(text, msg)
 		)
 	elif text.begins_with("[img]") and text.ends_with("[/img]"):
 		margin_container.add_theme_constant_override("margin_left", 0)

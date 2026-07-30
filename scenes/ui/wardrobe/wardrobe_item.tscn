@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://wardrobe_item_uid"]
 
-[ext_resource type="Script" uid="uid://wardrobe_item_script" path="res://scripts/ui/wardrobe/wardrobe_item.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://dbh2j7muhmy1i" path="res://scripts/ui/wardrobe/wardrobe_item.gd" id="2_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ButtonBlank"]
 bg_color = Color(1, 1, 1, 0)

@@ -89,7 +89,6 @@ var course_progress: Dictionary = {}
 
 var diaries: Array = []
 var finished_stories: Array = []
-var concern_template_state: Dictionary = {}
 
 signal stage_upgraded(new_stage: int)
 signal profile_updated()
@@ -307,7 +306,6 @@ func load_profile(force_char_id: String = "") -> void:
 				course_progress = data.get("course_progress", {})
 				diaries = data.get("diaries", [])
 				finished_stories = data.get("finished_stories", [])
-				concern_template_state = data.get("concern_template_state", {})
 	else:
 		openness = float(str(base_personality.get("openness", 50.0)))
 		conscientiousness = float(str(base_personality.get("conscientiousness", 50.0)))
@@ -710,6 +708,12 @@ func consume_energy(amount: int) -> bool:
 		return true
 	return false
 
+func restore_energy(save_now: bool = true) -> void:
+	current_energy = max_energy
+	if save_now:
+		save_profile()
+	profile_updated.emit()
+
 func get_player_avatar_path() -> String:
 	var candidates: Array[String] = []
 	if player_avatar_path.strip_edges() != "":
@@ -812,8 +816,7 @@ func save_profile() -> bool:
 		"gold": gold,
 		"course_progress": course_progress,
 		"diaries": diaries,
-		"finished_stories": finished_stories,
-		"concern_template_state": concern_template_state
+		"finished_stories": finished_stories
 	}
 	var content = JSON.stringify(data, "\t")
 	return SafeFileAccessUtil.store_string(get_profile_path(), content)

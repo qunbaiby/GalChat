@@ -130,11 +130,11 @@ func apply_day() -> bool:
 	var days := _days()
 	var day := (days[selected_day_index] as Dictionary).duplicate(true)
 	day["day_offset"] = int(%DayOffsetSpin.value)
-	_set_array_field(day, "events", _parse_strings(%AllDayEdit.text))
-	_set_array_field(day, "morning_events", _parse_strings(%MorningEdit.text))
-	_set_array_field(day, "afternoon_events", _parse_strings(%AfternoonEdit.text))
-	_set_array_field(day, "evening_events", _parse_strings(%EveningEdit.text))
-	_set_array_field(day, "night_events", _parse_strings(%NightEdit.text))
+	_set_array_field(day, "events", _merge_event_values(day.get("events", []), _parse_strings(%AllDayEdit.text)))
+	_set_array_field(day, "morning_events", _merge_event_values(day.get("morning_events", []), _parse_strings(%MorningEdit.text)))
+	_set_array_field(day, "afternoon_events", _merge_event_values(day.get("afternoon_events", []), _parse_strings(%AfternoonEdit.text)))
+	_set_array_field(day, "evening_events", _merge_event_values(day.get("evening_events", []), _parse_strings(%EveningEdit.text)))
+	_set_array_field(day, "night_events", _merge_event_values(day.get("night_events", []), _parse_strings(%NightEdit.text)))
 	days[selected_day_index] = day
 	story_time_data["daily_data"] = days
 	_refresh_after_edit()
@@ -440,8 +440,22 @@ func _join_values(value: Variant) -> String:
 		return ""
 	var texts: Array[String] = []
 	for item in value:
-		texts.append(str(item))
+		texts.append(str((item as Dictionary).get("id", "")) if item is Dictionary else str(item))
 	return ", ".join(texts)
+
+
+func _merge_event_values(existing_value: Variant, event_ids: Array[String]) -> Array:
+	var existing_by_id := {}
+	if existing_value is Array:
+		for item in existing_value:
+			if item is Dictionary:
+				var event_id := str((item as Dictionary).get("id", "")).strip_edges()
+				if event_id != "":
+					existing_by_id[event_id] = (item as Dictionary).duplicate(true)
+	var merged: Array = []
+	for event_id in event_ids:
+		merged.append(existing_by_id.get(event_id, event_id))
+	return merged
 
 
 func _set_array_field(target: Dictionary, field: String, values: Array) -> void:

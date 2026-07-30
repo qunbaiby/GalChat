@@ -15,7 +15,8 @@ func _init(data: Dictionary) -> void:
         "expression": data.get("expression", ""),
 		"voice_instruction": data.get("voice_instruction", ""),
         "focus": data.get("focus", null),
-        "display_name": data.get("display_name", "")
+        "display_name": data.get("display_name", ""),
+        "auto_advance": data.get("auto_advance", false)
     }
 
 func process_event(manager: Node) -> bool:

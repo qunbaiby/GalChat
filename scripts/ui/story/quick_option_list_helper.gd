@@ -129,8 +129,7 @@ static func build_topic_option_item(text: String, topic_kind: String) -> Diction
 static func populate_option_items(
 	container: Node,
 	options: Array,
-	on_selected: Callable,
-	min_height: float = 50.0
+	on_selected: Callable
 ) -> void:
 	clear_container(container)
 	if not is_instance_valid(container):
@@ -145,14 +144,13 @@ static func populate_option_items(
 			continue
 		var item = scene.instantiate()
 		container.add_child(item)
-		item.setup(option_text, min_height)
+		item.setup(option_text)
 		item.option_selected.connect(on_selected)
 
 static func populate_option_items_with_index(
 	container: Node,
 	options: Array,
-	on_selected: Callable,
-	min_height: float = 50.0
+	on_selected: Callable
 ) -> void:
 	clear_container(container)
 	if not is_instance_valid(container):
@@ -181,7 +179,7 @@ static func populate_option_items_with_index(
 		var item = scene.instantiate()
 		container.add_child(item)
 		if option_text is Dictionary:
-			item.setup(option_text, min_height)
+			item.setup(option_text)
 		else:
-			item.setup(clean_text, min_height)
+			item.setup(clean_text)
 		item.option_selected.connect(on_selected.bind(index))

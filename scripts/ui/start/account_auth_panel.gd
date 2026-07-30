@@ -48,7 +48,7 @@ func _ready() -> void:
 	_code_cooldown_timer.timeout.connect(_on_code_cooldown_tick)
 	add_child(_code_cooldown_timer)
 	_set_mode(AuthMode.LOGIN)
-	username_input.grab_focus()
+	username_input.release_focus()
 
 func _on_version_pressed() -> void:
 	_version_click_count += 1

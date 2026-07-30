@@ -1,5 +1,7 @@
 {
     "script_id": "jing_piano_practice_followup",
+    "game_minutes": 30,
+    "action_cost": 0,
     "summary": "静老师发来周六专项辅导邀约后，Luna 与指导人谈论自己的期待和顾虑。",
     "use_portraits": false,
     "memory_enabled": true,
@@ -80,12 +82,10 @@
                     ],
                     "redirect_instruction": "玩家偏题时先用一句话自然回应，再把话题带回周六专项辅导、练习状态或 Luna 的真实感受。",
                     "max_player_rounds": 4.0,
-                    "game_minutes": 30.0,
-                    "action_cost": 5.0,
                     "allow_early_completion": false,
                     "hide_manual_end": true,
                     "closing_instruction": "以需要为周六辅导做好准备为理由自然结束交流，语气应体现她已经得到玩家陪伴后的安心。",
-                    "fallback_closing_text": "（轻轻抱住琴谱）我会去参加周六的辅导。虽然还有点紧张……但我想认真试试看。",
+                    "fallback_closing_text": "（她轻轻抱紧怀里的琴谱，低头看了片刻，又抬起眼认真望向你）我会去参加周六的辅导。虽然还有点紧张……但我想认真试试看。",
                     "outcome_branches": {
 
                     },
@@ -98,6 +98,7 @@
                     "type": "dialogue",
                     "speaker": "旁白",
                     "content": "说出心里的顾虑后，她的神情终于放松了一些。",
+                    "auto_advance": true,
                     "_editor_position": {
                         "x": 1800.0,
                         "y": 280.0

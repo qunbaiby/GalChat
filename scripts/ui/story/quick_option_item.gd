@@ -40,7 +40,7 @@ var _option_kind: String = "default"
 func _ready() -> void:
 	pressed.connect(_on_pressed)
 
-func setup(option_data: Variant, min_height: float = -1.0) -> void:
+func setup(option_data: Variant) -> void:
 	var final_primary := ""
 	var final_kind := "default"
 	var final_icon_path := DEFAULT_ICON_PATH

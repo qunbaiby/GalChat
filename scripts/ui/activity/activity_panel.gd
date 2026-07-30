@@ -304,8 +304,8 @@ func _init_schedule_slots() -> void:
 func _append_story_event_entries(event_entries: Array, raw_events: Variant, period: String) -> void:
 	if not (raw_events is Array):
 		return
-	for raw_event_id in raw_events:
-		var event_id := str(raw_event_id).strip_edges()
+	for raw_event in raw_events:
+		var event_id: String = GameDataManager.story_time_manager.get_story_event_id(raw_event) if GameDataManager.story_time_manager else str(raw_event).strip_edges()
 		if event_id == "":
 			continue
 		var script_path := "res://assets/data/story/scripts/main/%s.json" % event_id
@@ -1061,6 +1061,7 @@ func _on_execute_pressed() -> void:
 				summary = "当日共有 %d 段固定剧情会依次触发。\n%s" % [event_count, summary]
 			
 			courses_data.append({
+				"schedule_item_type": "main_story",
 				"name": "主线事件",
 				"image_path": cover_path,
 				"icon_path": "res://assets/images/icons/ui/main/diary_book.svg",
@@ -1075,6 +1076,7 @@ func _on_execute_pressed() -> void:
 		elif typeof(item) == TYPE_STRING:
 			var act = GameDataManager.activity_manager.get_activity_by_id(item)
 			var single_course = {
+				"schedule_item_type": "course",
 				"id": act.get("id", ""),
 				"name": act.get("name", "未知课程"),
 				"category_id": act.get("category_id", ""),

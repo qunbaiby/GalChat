@@ -57,6 +57,27 @@ func _run() -> void:
 	_expect(overlay._focus_rects == [Rect2(100.0, 100.0, 120.0, 48.0)], "继续入口高亮范围没有沿用主界面按钮轮廓。")
 	_expect(str(overlay._focus_entries[0].get("shape", "")) == "trapezoid_left", "继续入口丢失了主行动按钮的梯形高亮形状。")
 	_expect((overlay._focus_entries[0].get("cutout_polygon", PackedVector2Array()) as PackedVector2Array).size() == 4, "继续入口丢失了主行动按钮的梯形挖孔轮廓。")
+	await process_frame
+	var avatar := overlay.get_node_or_null("GuidePanel/GuideRow/AvatarFrame/AvatarMargin/LunaAvatar") as TextureRect
+	_expect(avatar != null and avatar.texture != null, "引导提示框没有显示 Luna 头像。")
+	var avatar_frame := overlay.get_node("GuidePanel/GuideRow/AvatarFrame") as PanelContainer
+	var avatar_margin := overlay.get_node("GuidePanel/GuideRow/AvatarFrame/AvatarMargin") as MarginContainer
+	var message_panel := overlay.get_node("GuidePanel/GuideRow/MessagePanel") as PanelContainer
+	_expect(avatar_frame.z_index > message_panel.z_index, "Luna 头像框没有绘制在文本框上方。")
+	_expect(avatar_margin.get_theme_constant("margin_left") <= 4, "Luna 头像与头像框之间仍有过大留白。")
+	_expect(is_equal_approx(overlay._panel_root.size.y, 148.0), "引导提示框总高度没有固定为头像高度。")
+	_expect(message_panel.size.y <= 94.0 and avatar_frame.size.y - message_panel.size.y >= 50.0, "头像框没有明显高于居中的文本框。")
+	_expect(is_equal_approx(overlay._body_label.custom_minimum_size.y, 66.0), "引导正文没有固定为三行文本高度。")
+	_expect(overlay._click_pointer.visible, "可点击高亮步骤没有显示点击手势。")
+	_expect(overlay._click_pointer.get_rect().get_center().distance_to(Rect2(100.0, 100.0, 120.0, 48.0).get_center()) < 1.0, "点击手势没有对准高亮区域中心。")
+
+	overlay.show_step("测试引导", "矩形目标", "点击高亮区域继续。", 1, 1, Rect2(300.0, 200.0, 160.0, 64.0), true, {})
+	await process_frame
+	_expect(not overlay._focus_frames.is_empty() and overlay._focus_frames[0].visible, "矩形目标没有显示绿色高亮边框。")
+	_expect(not overlay._focus_glows.is_empty() and overlay._focus_glows[0].visible, "矩形目标没有显示绿色外发光。")
+	var initial_glow_scale: Vector2 = overlay._focus_glows[0].scale
+	await create_timer(0.4).timeout
+	_expect(overlay._focus_glows[0].scale.distance_to(initial_glow_scale) > 0.001, "绿色高亮没有播放呼吸动画。")
 	mock_main_scene.queue_free()
 	guide_manager._main_scene_ref = original_main_scene_ref
 	guide_manager._activity_panel_ref = original_activity_panel_ref

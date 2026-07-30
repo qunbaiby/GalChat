@@ -172,9 +172,10 @@ autowrap_mode = 3
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83137256, 0.3019608, 0.29803923, 1)
-theme_override_colors/font_placeholder_color = Color(0.7372549, 0.7411765, 0.7490196, 1)
+theme_override_colors/font_placeholder_color = Color(0.7372549, 0.7411765, 0.7490196, 0.42)
 placeholder_text = "请输入确认文本"
 alignment = 1
+caret_blink = true
 
 [node name="InputGuideLabel" type="Label" parent="ConfirmPanel/ConfirmMargin/ConfirmContainer/VBoxContainer" unique_id=1450362711]
 visible = false

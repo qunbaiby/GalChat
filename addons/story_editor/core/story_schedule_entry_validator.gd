@@ -35,10 +35,16 @@ static func _validate_story_time(data: Dictionary, diagnostics: Array[Dictionary
 				_add(diagnostics, "error", "invalid_event_list", "%s / %s" % [location, field], "剧情事件字段必须是数组。")
 				continue
 			for event_value in day.get(field, []):
-				var event_id := str(event_value).strip_edges()
+				var event_id := _event_id(event_value)
 				var target_path := "res://assets/data/story/scripts/main/%s.json" % event_id
 				if event_id.is_empty() or not FileAccess.file_exists(target_path):
 					_add(diagnostics, "error", "missing_schedule_story", "%s / %s" % [location, field], "日程目标剧情不存在：%s" % (event_id if not event_id.is_empty() else "<空>"))
+
+
+static func _event_id(event_value: Variant) -> String:
+	if event_value is Dictionary:
+		return str((event_value as Dictionary).get("id", "")).strip_edges()
+	return str(event_value).strip_edges()
 
 
 static func _validate_map_data(data: Dictionary, diagnostics: Array[Dictionary]) -> void:

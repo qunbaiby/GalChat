@@ -385,7 +385,7 @@ custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.23921569, 0.25882354, 0.2784314, 1)
-theme_override_colors/font_placeholder_color = Color(0.37254903, 0.38039216, 0.3882353, 1)
+theme_override_colors/font_placeholder_color = Color(0.37254903, 0.38039216, 0.3882353, 0.42)
 theme_override_colors/caret_color = Color(0.35686275, 0.77254903, 0.7490196, 1)
 theme_override_colors/selection_color = Color(0.37254903, 0.38039216, 0.3882353, 1)
 theme_override_font_sizes/font_size = 15
@@ -395,7 +395,6 @@ placeholder_text = "请输入你的名字 >"
 alignment = 2
 max_length = 10
 caret_blink = true
-caret_force_displayed = true
 
 [node name="NameDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1588377695]
 layout_mode = 2
@@ -530,6 +529,7 @@ layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_ol4fl")
 
 [node name="ZodiacField" type="HBoxContainer" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1539728633]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
@@ -559,6 +559,7 @@ text = "未知星座"
 horizontal_alignment = 2
 
 [node name="ZodiacDivider" type="HSeparator" parent="PopupPanel/MarginContainer/MainVBox/InfoCard/InfoMargin/FormVBox" unique_id=1848928151]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_ol4fl")
 

@@ -39,7 +39,7 @@ shader_parameter/glow_color = Color(0, 0, 0, 0)
 shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
-bg_color = Color(0.98039216, 0.9843137, 0.9882353, 1)
+bg_color = Color(0.49278682, 0.56711507, 0.6399743, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionPressed"]
 bg_color = Color(1, 0.96, 0.9, 1)
@@ -341,6 +341,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="DefaultRoomBg" parent="BackgroundContainer" unique_id=284717935 instance=ExtResource("2_18746")]
+visible = false
 layout_mode = 1
 
 [node name="DialoguePanel" parent="." unique_id=872494112 instance=ExtResource("14_dialogue")]
@@ -359,9 +360,9 @@ mouse_filter = 2
 
 [node name="TopStatusPanel" parent="UIPanel" unique_id=1803891038 instance=ExtResource("11_top_panel")]
 layout_mode = 1
-offset_left = 866.0
+offset_left = 826.0
 offset_top = 7.0
-offset_right = 1132.0
+offset_right = 1092.0
 offset_bottom = 52.0
 
 [node name="DateButton" type="Button" parent="UIPanel" unique_id=8074925]
@@ -619,7 +620,7 @@ custom_minimum_size = Vector2(160, 75)
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionHover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_MainActionNormal")

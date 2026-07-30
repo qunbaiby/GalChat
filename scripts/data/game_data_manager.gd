@@ -20,6 +20,7 @@ var cognition_task_queue
 var memory_observation_service
 var conversation_summary_manager
 var player_emotion_state_manager
+var chat_scene_state_runtime
 var personality_system: Node
 var stats_system: Node
 var activity_manager: Node
@@ -107,6 +108,10 @@ func _ready() -> void:
 	player_emotion_state_manager = preload("res://scripts/data/player_emotion_state_manager.gd").new()
 	player_emotion_state_manager.name = "PlayerEmotionStateManager"
 	add_child(player_emotion_state_manager)
+
+	chat_scene_state_runtime = preload("res://scripts/data/chat_scene_state_runtime.gd").new()
+	chat_scene_state_runtime.name = "ChatSceneStateRuntime"
+	add_child(chat_scene_state_runtime)
 	
 	personality_system = preload("res://scripts/data/personality_system.gd").new()
 	add_child(personality_system)
@@ -155,6 +160,7 @@ func _ready() -> void:
 	
 	history = ChatHistoryManager.new()
 	history.load_history()
+	_recover_chat_scene_state()
 	cognition_task_queue.load_queue()
 	conversation_summary_manager.load_summaries()
 	player_emotion_state_manager.load_state()
@@ -391,6 +397,7 @@ func reload_active_archive_data() -> void:
 		profile.load_profile()
 	if history:
 		history.load_history()
+		_recover_chat_scene_state()
 	if memory_manager:
 		memory_manager.load_memory()
 	if desktop_pet_memory_manager:
@@ -528,6 +535,7 @@ func switch_character(char_id: String) -> void:
 	
 	profile.load_profile(char_id)
 	history.load_history()
+	_recover_chat_scene_state()
 	memory_manager.load_memory()
 	if desktop_pet_memory_manager:
 		desktop_pet_memory_manager.load_memory()
@@ -572,6 +580,10 @@ func switch_character(char_id: String) -> void:
 	persona_lock.check_and_lock_character(profile.char_name)
 	
 	character_switched.emit(char_id)
+
+func _recover_chat_scene_state() -> void:
+	if chat_scene_state_runtime and history:
+		chat_scene_state_runtime.recover_from_history(history.get_messages_by_type("main_chat"))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:

@@ -88,7 +88,8 @@ func _load_states() -> void:
 				"current_step": 0,
 				"is_active": false,
 				"is_completed": false,
-				"completion_notice_sent": false
+				"completion_notice_sent": false,
+				"completion_events_applied": false
 			}
 			state_changed = true
 		elif not _chat_states[script_id].has("completion_notice_sent"):
@@ -146,6 +147,9 @@ func add_contact(char_id: String, save_now: bool = true) -> bool:
 	return true
 
 func reload_for_active_archive() -> void:
+	for script_id in _advancing_scripts.keys():
+		_advancing_scripts[script_id] = false
+	_advancing_scripts.clear()
 	_chat_states.clear()
 	_unread_counts.clear()
 	_added_contacts.clear()
@@ -172,6 +176,24 @@ func is_script_completed(script_id: String) -> bool:
 	var state: Dictionary = _chat_states.get(script_id, {})
 	return bool(state.get("is_completed", false))
 
+func reconcile_completed_script_events() -> Array[String]:
+	var reconciled: Array[String] = []
+	for raw_script_id in _chat_scripts.keys():
+		var script_id := str(raw_script_id)
+		var state: Dictionary = _chat_states.get(script_id, {})
+		if not bool(state.get("is_completed", false)) or bool(state.get("completion_events_applied", false)):
+			continue
+		var script_data: Variant = _chat_scripts.get(script_id, {})
+		if not script_data is Dictionary:
+			continue
+		_process_script_completion_events(script_id, script_data as Dictionary)
+		state["completion_events_applied"] = true
+		_chat_states[script_id] = state
+		reconciled.append(script_id)
+	if not reconciled.is_empty():
+		_save_states()
+	return reconciled
+
 var _advancing_scripts: Dictionary = {}
 
 # 触发一个固定剧本
@@ -186,6 +208,7 @@ func trigger_script(script_id: String) -> bool:
 	state["is_active"] = true
 	state["current_step"] = 0
 	state["completion_notice_sent"] = false
+	state["completion_events_applied"] = false
 	_save_states()
 	
 	var script = _chat_scripts[script_id]
@@ -226,6 +249,7 @@ func trigger_pending_for_main_scene() -> Array[String]:
 		if script_id == "":
 			continue
 		if not _chat_scripts.has(script_id) or not _chat_states.has(script_id):
+			_pending_trigger_queue.append(script_id)
 			continue
 		var state: Dictionary = _chat_states.get(script_id, {})
 		if bool(state.get("is_completed", false)) or bool(state.get("is_active", false)):
@@ -312,6 +336,8 @@ func _advance_script(script_id: String) -> void:
 		if appended_completion_notice:
 			unread_count_changed.emit(char_id, _unread_counts[char_id])
 		_process_script_completion_events(script_id, script)
+		_chat_states[script_id]["completion_events_applied"] = true
+		_save_states()
 		
 	_advancing_scripts[script_id] = false
 

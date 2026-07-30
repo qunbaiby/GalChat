@@ -39,8 +39,24 @@ static func merge_incomplete_parentheses(parts: Array) -> Array:
             temp_balance = b
 
     if temp_str != "":
-        merged.append(temp_str)
+        merged.append(close_unbalanced_parentheses(temp_str))
     return merged
+
+static func close_unbalanced_parentheses(text: String) -> String:
+    var closing_stack: Array[String] = []
+    for i in text.length():
+        var ch := text[i]
+        if ch == "（":
+            closing_stack.append("）")
+        elif ch == "(":
+            closing_stack.append(")")
+        elif ch == "）" or ch == ")":
+            if not closing_stack.is_empty() and closing_stack[closing_stack.size() - 1] == ch:
+                closing_stack.pop_back()
+    var result := text
+    while not closing_stack.is_empty():
+        result += closing_stack.pop_back()
+    return result
 
 static func strip_parentheses(text: String) -> String:
     var result = ""

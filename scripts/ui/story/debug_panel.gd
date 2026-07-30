@@ -24,6 +24,7 @@ const SUB_STAT_CONFIG := [
 ]
 const MAIN_FEATURE_DEBUG_CONFIG := [
 	{"id": "main.gift", "label": "礼物"},
+	{"id": "main.diary", "label": "日记"},
 	{"id": "main.creation", "label": "创作"},
 	{"id": "main.wechat", "label": "微聊"},
 	{"id": "main.wardrobe", "label": "换装"},

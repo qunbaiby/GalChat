@@ -23,6 +23,7 @@ enum PanelMode {
 @onready var list_title: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox/Title
 @onready var list_subtitle: Label = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/HeaderVBox/SubTitle
 @onready var list_container: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ListPanel/ListVBox/ListContainer
+@onready var content_panel: PanelContainer = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel
 @onready var chat_empty_state: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatEmptyState
 @onready var contact_empty_state: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ContactEmptyState
 @onready var chat_container: Control = $CenterContainer/WindowPanel/WindowVBox/MainHBox/ContentPanel/ContentStack/ChatContainer
@@ -170,11 +171,11 @@ func get_recent_chats_focus_entry() -> Dictionary:
 	return _build_rounded_focus_entry(target, 18.0)
 
 func get_chat_session_target() -> Control:
-	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_message_area_target"):
-		var target: Variant = chat_session_instance.get_message_area_target()
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_message_list_target"):
+		var target: Variant = chat_session_instance.get_message_list_target()
 		if target is Control and is_instance_valid(target as Control):
 			return target as Control
-	return chat_container
+	return content_panel
 
 func get_chat_session_focus_entry() -> Dictionary:
 	var target := get_chat_session_target()
@@ -194,7 +195,7 @@ func get_fixed_options_focus_entry() -> Dictionary:
 func get_input_edit_target() -> Control:
 	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("should_highlight_entire_chat_container_for_fixed_conversation"):
 		if bool(chat_session_instance.should_highlight_entire_chat_container_for_fixed_conversation()):
-			return chat_container
+			return content_panel
 	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_input_edit_target"):
 		var target: Variant = chat_session_instance.get_input_edit_target()
 		if target is Control and is_instance_valid(target as Control):

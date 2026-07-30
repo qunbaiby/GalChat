@@ -3,6 +3,7 @@ extends VBoxContainer
 
 signal move_requested(row: Control, direction: int)
 signal delete_requested(row: Control)
+signal value_changed
 
 var source_option: Dictionary = {}
 
@@ -11,6 +12,11 @@ func _ready() -> void:
 	%MoveUpButton.pressed.connect(move_requested.emit.bind(self, -1))
 	%MoveDownButton.pressed.connect(move_requested.emit.bind(self, 1))
 	%DeleteButton.pressed.connect(delete_requested.emit.bind(self))
+	%IdEdit.text_changed.connect(value_changed.emit.unbind(1))
+	%TextEdit.text_changed.connect(value_changed.emit)
+	%TargetSelect.item_selected.connect(value_changed.emit.unbind(1))
+	%IntimacySpin.value_changed.connect(value_changed.emit.unbind(1))
+	%TrustSpin.value_changed.connect(value_changed.emit.unbind(1))
 
 
 func setup(option: Dictionary, chapter_ids: Array[String]) -> void:

@@ -109,6 +109,9 @@ var _schedule_start_day_offset: int = 0
 var _local_event_pool: Dictionary = {}
 var _has_started_execution: bool = false
 var _schedule_random_event_count: int = 0
+var _started_story_event_keys: Array[String] = []
+var _result_shown: bool = false
+var _settlement_committed: bool = false
 
 func _ready() -> void:
 	_local_event_pool = _load_local_event_pool()
@@ -175,6 +178,9 @@ func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) 
 	_pending_event_attr_changes.clear()
 	_has_started_execution = false
 	_schedule_random_event_count = 0
+	_started_story_event_keys.clear()
+	_result_shown = false
+	_settlement_committed = false
 	if GameDataManager.story_time_manager:
 		_schedule_start_day_offset = GameDataManager.story_time_manager.current_day_offset
 	else:
@@ -519,10 +525,21 @@ func _has_remaining_schedule_random_event_quota() -> bool:
 func _consume_schedule_random_event_quota() -> void:
 	_schedule_random_event_count = mini(MAX_SCHEDULE_RANDOM_EVENTS, _schedule_random_event_count + 1)
 
-func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) -> bool:
-	if course_data.get("is_event", false):
+static func is_course_schedule_item(course_data: Dictionary) -> bool:
+	var item_type := str(course_data.get("schedule_item_type", "")).strip_edges()
+	if item_type != "":
+		return item_type == "course"
+	if bool(course_data.get("is_event", false)):
+		return false
+	var event_entries: Variant = course_data.get("event_entries", [])
+	if event_entries is Array and not (event_entries as Array).is_empty():
 		return false
 	if str(course_data.get("script_path", "")).strip_edges() != "":
+		return false
+	return str(course_data.get("id", "")).strip_edges() != "" and str(course_data.get("category_id", "")).strip_edges() != ""
+
+func _should_trigger_schedule_event(course_index: int, course_data: Dictionary) -> bool:
+	if not is_course_schedule_item(course_data):
 		return false
 	if not _has_remaining_schedule_random_event_quota():
 		return false
@@ -576,6 +593,8 @@ func _get_pending_story_entry(course_data: Dictionary) -> Dictionary:
 		var event_id := str(entry.get("event_id", "")).strip_edges()
 		if event_id == "":
 			event_id = str(entry.get("script_path", "")).get_file().get_basename()
+		if event_id != "" and _started_story_event_keys.has(event_id):
+			continue
 		if profile and event_id != "" and profile.has_finished_story(event_id):
 			continue
 		return entry
@@ -872,6 +891,9 @@ func _trigger_story_script(course_data: Dictionary, course_index: int) -> void:
 		_last_processed_course_index = max(_last_processed_course_index, course_index)
 		_finish_slot_move()
 		return
+	var story_event_key := str(story_entry.get("event_id", script_path.get_file().get_basename())).strip_edges()
+	if story_event_key != "" and not _started_story_event_keys.has(story_event_key):
+		_started_story_event_keys.append(story_event_key)
 	var debug_bridge := get_node_or_null("/root/StoryRuntimeDebugBridge")
 	if debug_bridge != null:
 		debug_bridge.prepare_story("story_time", str(story_entry.get("event_id", script_path.get_file().get_basename())), script_path, {
@@ -1191,6 +1213,9 @@ func set_slot_status(index: int, completed: bool) -> void:
 		_slots[index].set_state("completed" if completed else "pending")
 
 func _show_result_popup() -> void:
+	if _result_shown:
+		return
+	_result_shown = true
 	_rebuild_final_end_attrs()
 	result_popup.modulate.a = 0
 	result_popup.show()
@@ -1347,6 +1372,13 @@ func _prepare_result_panel_for_scene_exit() -> void:
 		loading_overlay.hide()
 
 func _on_end_button_pressed() -> void:
+	if _settlement_committed:
+		return
+	_settlement_committed = true
+	if is_instance_valid(close_button):
+		close_button.disabled = true
+	if is_instance_valid(result_panel_close_button):
+		result_panel_close_button.disabled = true
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("report_action"):
 		guide_manager.report_action("close_schedule_result_popup")

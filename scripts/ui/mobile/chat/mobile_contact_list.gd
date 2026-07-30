@@ -14,11 +14,6 @@ func _ready() -> void:
 	_load_contacts()
 
 func _load_contacts() -> void:
-	# 清空列表
-	for child in contact_list.get_children():
-		child.queue_free()
-	_item_map.clear()
-		
 	var contacts: Array = []
 	
 	# Load main characters
@@ -49,9 +44,26 @@ func _load_contacts() -> void:
 	contacts.sort_custom(func(a, b):
 		return a.raw_time > b.raw_time
 	)
-	
-	for c in contacts:
-		_create_contact_item(c)
+
+	var visible_ids: Dictionary = {}
+	for index in range(contacts.size()):
+		var contact_info: Dictionary = contacts[index]
+		var char_id := str(contact_info.get("id", ""))
+		visible_ids[char_id] = true
+		var item := _item_map.get(char_id) as Button
+		if not is_instance_valid(item):
+			item = _create_contact_item(contact_info)
+		else:
+			item.setup(contact_info)
+		contact_list.move_child(item, index)
+
+	for item_id in _item_map.keys():
+		if visible_ids.has(item_id):
+			continue
+		var stale_item: Variant = _item_map.get(item_id)
+		if is_instance_valid(stale_item):
+			stale_item.queue_free()
+		_item_map.erase(item_id)
 
 	_apply_selected_state()
 
@@ -127,12 +139,13 @@ func _format_time(time_str: String) -> String:
 				return date_split[1] + "-" + date_split[2] # MM-DD
 	return time_str.substr(0, 10)
 
-func _create_contact_item(info: Dictionary) -> void:
+func _create_contact_item(info: Dictionary) -> Button:
 	var item: Button = CONTACT_ITEM_SCENE.instantiate()
 	contact_list.add_child(item)
 	item.setup(info)
 	item.selected.connect(_on_contact_selected)
 	_item_map[str(info.get("id", ""))] = item
+	return item
 
 func _on_contact_selected(char_id: String) -> void:
 	_selected_char_id = char_id

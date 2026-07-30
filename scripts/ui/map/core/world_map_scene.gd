@@ -19,6 +19,7 @@ signal location_selected(location_id: String)
 
 var _bg_tween: Tween
 var _current_area_id: String = ""
+var _guide_targets_ready: bool = false
 var _debug_label: Label
 var _location_entry_transition_busy: bool = false
 const QUICK_LOCATION_SKIP_EVENT_META := "skip_quick_location_initial_event_broadcast"
@@ -43,6 +44,8 @@ func _ready():
 	back_button.pressed.connect(_on_back_pressed)
 	
 	_apply_time_filter()
+	if MapDataManager.has_method("sync_story_progress_unlocks"):
+		MapDataManager.sync_story_progress_unlocks()
 	
 	# Clear any previous children (in case of re-initialization)
 	for child in area_list_container.get_children():
@@ -67,21 +70,11 @@ func _ready():
 		item.setup(area_id, area_data, is_unlocked, MapDataManager.get_area_lock_reason(area_id))
 		item.pressed.connect(_on_area_pressed)
 	
-	# Select default area
+	# 世界地图每次打开都从青屿街开始，保持区域入口认知一致。
 	var fallback_area_id: String = first_unlocked_area_id if first_unlocked_area_id != "" else default_area_id
-	if not MapDataManager.has_method("get_last_area") or MapDataManager.get_last_area() == "":
-		if fallback_area_id != "":
-			_on_area_pressed(fallback_area_id, true)
-	else:
-		var last = MapDataManager.get_last_area()
-		if last == "studio":
-			last = "qingyu_street"
-		# Verify last area still exists and unlocked, else use fallback
-		if MapDataManager.areas.has(last) and MapDataManager.is_area_unlocked(last):
-			_on_area_pressed(last, true)
-		else:
-			if fallback_area_id != "":
-				_on_area_pressed(fallback_area_id, true)
+	var initial_area_id := "qingyu_street" if MapDataManager.areas.has("qingyu_street") and MapDataManager.is_area_unlocked("qingyu_street") else fallback_area_id
+	if initial_area_id != "":
+		_on_area_pressed(initial_area_id, true)
 
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("on_world_map_scene_ready"):
@@ -115,6 +108,13 @@ func _on_area_pressed(area_id: String, force: bool = false):
 	
 	if not force and _current_area_id == area_id:
 		return
+	_guide_targets_ready = false
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("refresh_current_step_display"):
+		guide_manager.refresh_current_step_display()
+	if not force:
+		if guide_manager and guide_manager.has_method("report_action"):
+			guide_manager.report_action("select_map_area", {"area_id": area_id})
 		
 	_current_area_id = area_id
 	
@@ -190,6 +190,7 @@ func _on_area_pressed(area_id: String, force: bool = false):
 
 func _show_locations_for_area(area_id: String):
 	var locs = MapDataManager.get_area_locations(area_id)
+	var final_reveal_tween: Tween = null
 	if typeof(locs) == TYPE_ARRAY:
 		locs = locs.duplicate()
 	
@@ -269,6 +270,24 @@ func _show_locations_for_area(area_id: String):
 			btn.pivot_offset = btn_size / 2
 			var tween = create_tween()
 			tween.tween_property(btn, "scale", Vector2.ONE, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK).set_delay(i * 0.1)
+			final_reveal_tween = tween
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("refresh_current_step_display"):
+		if final_reveal_tween:
+			final_reveal_tween.finished.connect(
+				func() -> void:
+					_guide_targets_ready = true
+					guide_manager.refresh_current_step_display(),
+				CONNECT_ONE_SHOT
+			)
+		else:
+			_guide_targets_ready = true
+			guide_manager.call_deferred("refresh_current_step_display")
+	else:
+		_guide_targets_ready = final_reveal_tween == null
+
+func is_guide_target_ready() -> bool:
+	return _guide_targets_ready
 
 func _on_location_pressed(location_id: String):
 	# 检查是否解锁
@@ -279,11 +298,6 @@ func _on_location_pressed(location_id: String):
 			reason = "暂未解锁"
 		ToastManager.show_system_toast(reason, Color.RED)
 		return
-		
-	# 移动消耗时间 (15分钟)
-	if GameDataManager.story_time_manager:
-		GameDataManager.story_time_manager.tick_minutes(15)
-
 	if MapDataManager.has_method("set_last_location"):
 		MapDataManager.set_last_location(location_id)
 	var guide_manager = get_node_or_null("/root/GuideManager")
@@ -307,7 +321,10 @@ func _on_location_pressed(location_id: String):
 		panel.setup(location_id)
 		panel.enter_pressed.connect(_on_location_enter_pressed)
 		if guide_manager and guide_manager.has_method("on_location_detail_panel_ready"):
-			guide_manager.on_location_detail_panel_ready(panel)
+			panel.guide_target_ready.connect(
+				func() -> void: guide_manager.on_location_detail_panel_ready(panel),
+				CONNECT_ONE_SHOT
+			)
 
 func get_first_unlocked_location_button() -> Control:
 	for child in sub_area_container.get_children():
@@ -316,6 +333,18 @@ func get_first_unlocked_location_button() -> Control:
 			if btn.disabled:
 				continue
 			return btn
+	return null
+
+func get_area_button(area_id: String) -> Control:
+	for child in area_list_container.get_children():
+		if child is Control and str(child.get("area_id")) == area_id:
+			return child as Control
+	return null
+
+func get_location_button(location_id: String) -> Control:
+	for child in sub_area_container.get_children():
+		if child is Control and str(child.get("location_id")) == location_id:
+			return child as Control
 	return null
 
 func _on_location_enter_pressed(location_id: String, npc_id: String):
@@ -331,7 +360,7 @@ func _on_location_enter_pressed(location_id: String, npc_id: String):
 	var story_trigger := _resolve_location_story_trigger(location_id)
 	if not story_trigger.is_empty():
 		_location_entry_transition_busy = true
-		await _play_location_entry_story(location_id, npc_id, story_trigger)
+		_play_location_entry_story(location_id, npc_id, story_trigger)
 		_location_entry_transition_busy = false
 		return
 	

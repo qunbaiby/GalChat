@@ -11,13 +11,11 @@ var character_id: String = "luna"
 var runtime_profile = null
 
 var _deepseek_client: Node = null
-var _bubble_stream_buffer: String = ""
 var _bubble_audio_player: AudioStreamPlayer = null
 var _bubble_typewriter_tween: Tween = null
 var _bubble_hide_tween: Tween = null
 var _bubble_sequence_id: int = 0
 var _bubble_current_tts_text: String = ""
-var _bubble_request_fallback_text: String = ""
 var _bubble_pending_requests: Array[Dictionary] = []
 var _bubble_request_in_flight: bool = false
 
@@ -44,6 +42,8 @@ func set_runtime_profile(profile_instance) -> void:
 
 
 func cleanup() -> void:
+	if _deepseek_client and _deepseek_client.has_method("cancel_realize_turn_requests"):
+		_deepseek_client.cancel_realize_turn_requests()
 	_disconnect_ai_signals()
 	_bubble_pending_requests.clear()
 	_bubble_request_in_flight = false
@@ -215,25 +215,20 @@ func _dispatch_next_bubble_request() -> void:
 	var request_data: Dictionary = _bubble_pending_requests[0]
 	_bubble_pending_requests.remove_at(0)
 	_bubble_request_in_flight = true
-	_bubble_request_fallback_text = str(request_data.get("fallback", "")).strip_edges()
 	_disconnect_ai_signals()
 	_deepseek_client = request_data.get("ai_client", null)
 	var prompt: String = str(request_data.get("prompt", "")).strip_edges()
 	var history_type: String = str(request_data.get("history_type", "date_scene_slot_comment")).strip_edges()
-	if not _deepseek_client.is_connected("chat_stream_delta", _on_bubble_chunk_received):
-		_deepseek_client.chat_stream_delta.connect(_on_bubble_chunk_received)
-	if not _deepseek_client.is_connected("chat_request_completed", _on_bubble_completed):
-		_deepseek_client.chat_request_completed.connect(_on_bubble_completed)
-	if not _deepseek_client.is_connected("chat_request_failed", _on_bubble_failed):
-		_deepseek_client.chat_request_failed.connect(_on_bubble_failed)
-	_bubble_stream_buffer = ""
-	if _deepseek_client.has_method("start_chat_stream_with_messages"):
-		_deepseek_client.start_chat_stream_with_messages([
-			{"role": "system", "content": "你正在扮演约会中的角色本人。请严格贴合当前人设、关系阶段、心情和表情，只返回一句自然口语化短评。禁止旁白、禁止解释、禁止 OOC。"},
-			{"role": "user", "content": prompt}
-		])
-	else:
-		_deepseek_client.send_chat_message_stream(prompt, history_type)
+	if not _deepseek_client.is_connected("realize_turn_completed", _on_bubble_realize_turn_completed):
+		_deepseek_client.realize_turn_completed.connect(_on_bubble_realize_turn_completed)
+	if not _deepseek_client.is_connected("realize_turn_failed", _on_bubble_realize_turn_failed):
+		_deepseek_client.realize_turn_failed.connect(_on_bubble_realize_turn_failed)
+	_deepseek_client.send_realize_turn_message(prompt, "story_chat", {
+		"channel": "date_bubble",
+		"event_kind": history_type,
+		"turn_origin": "program_event",
+		"recent_messages": []
+	})
 
 
 func _finish_current_bubble_request() -> void:
@@ -242,7 +237,7 @@ func _finish_current_bubble_request() -> void:
 	call_deferred("_dispatch_next_bubble_request")
 
 
-func show_text(text: String) -> void:
+func show_text(text: String, delivery_instruction: String = "") -> void:
 	if bubble_panel == null or bubble_text == null:
 		return
 	_bubble_sequence_id += 1
@@ -262,7 +257,7 @@ func show_text(text: String) -> void:
 	var typewriter_duration: float = maxf(0.35, float(text.length()) * BUBBLE_TYPEWRITER_CHAR_TIME)
 	_bubble_typewriter_tween = create_tween()
 	_bubble_typewriter_tween.tween_property(bubble_text, "visible_ratio", 1.0, typewriter_duration)
-	_play_bubble_tts(text)
+	_play_bubble_tts(text, delivery_instruction)
 
 
 func hide_bubble() -> void:
@@ -275,7 +270,7 @@ func hide_bubble() -> void:
 	_bubble_hide_tween.tween_callback(bubble_panel.hide)
 
 
-func _play_bubble_tts(text: String) -> void:
+func _play_bubble_tts(text: String, delivery_instruction: String = "") -> void:
 	if not GameDataManager or not GameDataManager.config:
 		return
 	if not GameDataManager.config.voice_enabled:
@@ -297,27 +292,31 @@ func _play_bubble_tts(text: String) -> void:
 			profile_speaker = str(tts_config.get("qwen_voice_type", "")).strip_edges()
 		if profile_speaker != "":
 			options["speaker"] = profile_speaker
+	options.merge(TTSManager.build_tts_2_instruction_options(delivery_instruction), true)
 	TTSManager.synthesize(spoken_text, options)
 
 
-func _on_bubble_chunk_received(chunk: String) -> void:
-	_bubble_stream_buffer += chunk
-
-
-func _on_bubble_completed(response: Dictionary) -> void:
-	var full_text: String = ""
-	if response.has("choices") and response["choices"].size() > 0:
-		full_text = response["choices"][0]["message"]["content"]
-	var clean_text: String = _strip_bubble_action_descriptions(full_text)
+func _on_bubble_realize_turn_completed(realized_turn: Dictionary, request_context: Dictionary) -> void:
+	if str(request_context.get("channel", "")) != "date_bubble":
+		return
+	var segments: Variant = realized_turn.get("segments")
+	if not segments is Array or segments.is_empty() or not segments[0] is Dictionary:
+		_on_bubble_realize_turn_failed("约会气泡没有可展示内容。", request_context)
+		return
+	var segment := segments[0] as Dictionary
+	var speech := str(segment.get("speech", "")).strip_edges()
+	var delivery_instruction := str(segment.get("delivery_instruction", "")).strip_edges()
+	if GameDataManager.memory_retrieval_trace_service:
+		GameDataManager.memory_retrieval_trace_service.mark_response_adopted(str(request_context.get("trace_id", "")), speech, 0)
 	_finish_current_bubble_request()
-	if clean_text.is_empty():
-		clean_text = _bubble_request_fallback_text
-	show_text(clean_text)
+	show_text(speech, delivery_instruction)
 
 
-func _on_bubble_failed(error_msg: String) -> void:
+func _on_bubble_realize_turn_failed(error_msg: String, request_context: Dictionary) -> void:
+	if str(request_context.get("channel", "")) != "date_bubble":
+		return
 	_finish_current_bubble_request()
-	show_text(_bubble_request_fallback_text)
+	push_warning("约会气泡生成失败: %s" % error_msg)
 
 
 func _on_bubble_tts_success(audio_stream: AudioStream, text: String) -> void:
@@ -333,6 +332,15 @@ func _on_bubble_tts_failed(_error_msg: String, text: String) -> void:
 		return
 
 
+func _disconnect_ai_signals() -> void:
+	if _deepseek_client:
+		if _deepseek_client.is_connected("realize_turn_completed", _on_bubble_realize_turn_completed):
+			_deepseek_client.realize_turn_completed.disconnect(_on_bubble_realize_turn_completed)
+		if _deepseek_client.is_connected("realize_turn_failed", _on_bubble_realize_turn_failed):
+			_deepseek_client.realize_turn_failed.disconnect(_on_bubble_realize_turn_failed)
+	_deepseek_client = null
+
+
 func _on_bubble_audio_finished() -> void:
 	if bubble_panel and bubble_panel.visible:
 		var seq: int = _bubble_sequence_id
@@ -343,24 +351,3 @@ func _on_bubble_audio_finished() -> void:
 			return
 		if bubble_panel and bubble_panel.visible:
 			hide_bubble()
-
-
-func _disconnect_ai_signals() -> void:
-	if _deepseek_client:
-		if _deepseek_client.is_connected("chat_stream_delta", _on_bubble_chunk_received):
-			_deepseek_client.chat_stream_delta.disconnect(_on_bubble_chunk_received)
-		if _deepseek_client.is_connected("chat_request_completed", _on_bubble_completed):
-			_deepseek_client.chat_request_completed.disconnect(_on_bubble_completed)
-		if _deepseek_client.is_connected("chat_request_failed", _on_bubble_failed):
-			_deepseek_client.chat_request_failed.disconnect(_on_bubble_failed)
-	_deepseek_client = null
-
-
-func _strip_bubble_action_descriptions(text: String) -> String:
-	var cleaned: String = text.strip_edges()
-	var patterns: Array[String] = ["\\([^()]*\\)", "（[^（）]*）"]
-	for pattern in patterns:
-		var regex := RegEx.new()
-		if regex.compile(pattern) == OK:
-			cleaned = regex.sub(cleaned, "", true)
-	return cleaned.strip_edges()

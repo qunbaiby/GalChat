@@ -50,7 +50,9 @@ var _gender_button_theme_cache: Dictionary = {}
 @onready var year_spin_box: SpinBox = %YearSpinBox
 @onready var month_spin_box: SpinBox = %MonthSpinBox
 @onready var day_spin_box: SpinBox = %DaySpinBox
+@onready var zodiac_field: HBoxContainer = %ZodiacField
 @onready var zodiac_label: Label = %ZodiacLabel
+@onready var zodiac_divider: HSeparator = %ZodiacDivider
 @onready var mbti_button: Button = %MBTIButton
 @onready var confirm_btn: Button = %ConfirmBtn
 @onready var mbti_popup: PanelContainer = %MBTIPopup
@@ -296,8 +298,11 @@ func _get_formatted_birthday() -> String:
 	return "%04d-%02d-%02d" % [_birth_year, _birth_month, _birth_day]
 
 func _update_zodiac() -> void:
-	if not _has_birthdate_selection:
-		zodiac_label.text = BIRTHDAY_PLACEHOLDER
+	var should_show := _has_birthdate_selection
+	zodiac_field.visible = should_show
+	zodiac_divider.visible = should_show
+	if not should_show:
+		zodiac_label.text = ""
 		return
 	var month: int = _birth_month
 	var day: int = _birth_day

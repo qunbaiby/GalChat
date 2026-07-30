@@ -89,3 +89,4 @@ unique_name_in_owner = true
 layout_mode = 2
 disabled = true
 text = "应用到当前剧情"
+tooltip_text = "字段修改会自动同步；此按钮可立即手动提交当前表单"

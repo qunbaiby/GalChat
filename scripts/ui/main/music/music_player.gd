@@ -193,6 +193,36 @@ func reload_library() -> void:
 	_build_playlist_ui()
 	_update_ui()
 
+func play_track_by_id(track_id: String) -> bool:
+	reload_library()
+	var track_index := _find_track_index_by_id(track_id.strip_edges())
+	if track_index < 0:
+		return false
+	current_bgm_index = track_index
+	_play_current_index()
+	return true
+
+func get_player_focus_target() -> Control:
+	return self
+
+func get_cover_focus_target() -> Control:
+	return cover_btn
+
+func get_playlist_focus_target() -> Control:
+	_ensure_playlist_popup()
+	if not is_instance_valid(playlist_popup_instance) or not playlist_popup_instance.visible:
+		return null
+	return playlist_popup_instance
+
+func open_playlist_from_guide() -> void:
+	_ensure_playlist_popup()
+	if is_instance_valid(playlist_popup_instance) and not playlist_popup_instance.visible:
+		_on_cover_pressed()
+
+func is_playlist_ready_for_guide() -> bool:
+	var target := get_playlist_focus_target()
+	return is_instance_valid(target) and target.is_visible_in_tree() and target.get_global_rect().size.y > 8.0
+
 func _clear_missing_current_track() -> void:
 	if not is_instance_valid(audio_player):
 		return

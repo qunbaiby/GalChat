@@ -766,21 +766,19 @@ Battle、Map、Story 等其他业务若有独立离线 fallback，应通过明�
 
 | 通用职责 | 当前 Godot 实现 |
 | --- | --- |
-| 主编排器 | `scripts/chat_runtime/core/chat_orchestrator.gd` |
-| 上下文编译 | `scripts/chat_runtime/prompt/chat_reply_context_compiler.gd` |
-| RealizeTurn v6 Prompt | `scripts/chat_runtime/prompt/chat_realize_turn_prompt_builder.gd` |
-| 硬验证器 | `scripts/chat_runtime/ai/chat_realize_turn_validator.gd` |
-| 事件仲裁 | `scripts/chat_runtime/state/chat_realize_turn_event_arbiter.gd` |
-| 权威现场状态 | `scripts/chat_runtime/state/chat_scene_state_runtime.gd` |
-| UI 编排与提交时机 | `scripts/interaction/interaction_interface.gd` |
-| 玩家建议控制器 | `scripts/interaction/chat_interaction/chat_player_option_controller.gd` |
-| 角色声音配置 | `config/chat/characters/*/voice_profile.json` |
-| 主合同质量门禁 | `scripts/chat_runtime/quality/run_realize_turn_pipeline_check.gd` |
-| 动态语音门禁 | `scripts/chat_runtime/quality/run_dynamic_voice_instruction_check.gd` |
-| 角色配置门禁 | `scripts/chat_runtime/quality/run_chat_character_config_quality_check.gd` |
-| 玩家建议门禁 | `scripts/chat_runtime/quality/run_player_option_pipeline_check.gd` |
+| 主编排器 | `scripts/api/chat_realize_turn_service.gd` |
+| 上下文与记忆召回 | `scripts/data/memory_retrieval_service.gd` |
+| RealizeTurn v6 Prompt | `scripts/api/chat_realize_turn_prompt_builder.gd` |
+| 硬验证器 | `scripts/api/chat_realize_turn_validator.gd` |
+| 模型与鉴权适配 | `scripts/api/deepseek_client.gd` |
+| 权威现场状态与事件提交 | `scripts/data/chat_scene_state_runtime.gd` |
+| 主场景 UI 编排与提交时机 | `scripts/ui/main/main_scene.gd` |
+| 动态 TTS 适配 | `scripts/api/tts/tts_manager.gd` |
+| 合同质量门禁 | `addons/story_editor/tests/realize_turn_validator_smoke.gd` |
+| 编排与重试门禁 | `addons/story_editor/tests/realize_turn_service_smoke.gd` |
+| 场景状态门禁 | `addons/story_editor/tests/chat_scene_state_runtime_smoke.gd` |
 
-当前普通 Chat 标识为 `reply_pipeline=realize_turn_v6`。开场对白复用同一完整回合合同；开场旁白、告别和会话总结属于边界清晰的独立文本任务，不得作为普通回复失败后的替代系统。
+当前主场景普通 Chat、手机自由聊天与红包反应、手机语音/视频自由通话、桌宠玩家输入与主动观察/报时，以及 Story 普通自由对话、送礼、重逢续写和告别均标识为 `reply_pipeline=realize_turn_v6`。玩家输入使用 `current_player_turn`，接通、主动观察等程序事件使用 `current_program_event`；每个渠道显式提交自己的历史域，并将同一 segment 的 `speech` 与 `delivery_instruction` 绑定到 UI/TTS。Guided AI 的剧情 beat JSON、视觉分析、告别后的会话总结等边界清晰的结构化辅助任务仍保留独立合同，不得作为普通回复失败后的替代系统。
 
 Story Editor、Battle、Map 和 Reward 是独立业务边界。复刻或继续重构 Chat 时，应通过质量门禁确认这些边界未被破坏，不因清理 Chat 旧系统而删除其他业务仍在使用的 fallback 或编辑器能力。
 

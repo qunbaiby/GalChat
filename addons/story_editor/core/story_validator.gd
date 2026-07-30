@@ -14,6 +14,8 @@ static func validate(data: Dictionary) -> Array[Dictionary]:
 	var diagnostics: Array[Dictionary] = []
 	if str(data.get("script_id", "")).strip_edges().is_empty():
 		_add(diagnostics, "error", "根节点", "缺少 script_id。")
+	if int(data.get("game_minutes", 0)) < 0 or int(data.get("action_cost", 0)) < 0:
+		_add(diagnostics, "error", "根节点", "整段剧情的时间和行动力消耗不能为负数。")
 	var chapters_value: Variant = data.get("chapters")
 	if not chapters_value is Dictionary:
 		_add(diagnostics, "error", "根节点", "chapters 必须是对象。")
@@ -82,8 +84,8 @@ static func _validate_guided_ai_chat(event: Dictionary, location: String, chapte
 	var max_player_rounds := int(event.get("max_player_rounds", 0))
 	if max_player_rounds <= 0:
 		_add(diagnostics, "error", location, "最大玩家回合必须大于 0。")
-	if int(event.get("game_minutes", 0)) < 0 or int(event.get("action_cost", 0)) < 0:
-		_add(diagnostics, "error", location, "时间和行动力消耗不能为负数。")
+	if event.has("game_minutes") or event.has("action_cost"):
+		_add(diagnostics, "error", location, "时间和行动力消耗必须配置在剧情根节点，不能配置在 Guided AI 事件上。")
 	var beats_value: Variant = event.get("required_beats", [])
 	if not (beats_value is Array):
 		_add(diagnostics, "error", location, "必达剧情点必须是数组。")

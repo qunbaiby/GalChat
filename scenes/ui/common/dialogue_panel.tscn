@@ -1,15 +1,13 @@
-[gd_scene load_steps=19 format=3 uid="uid://31rttm1jhadv"]
+[gd_scene format=3 uid="uid://31rttm1jhadv"]
 
 [ext_resource type="Script" uid="uid://bhbfwopjiyfxg" path="res://scripts/ui/common/dialogue_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://nltc2hcntefl" path="res://assets/images/icons/ui/dialogue/view.png" id="4_06rsy"]
 [ext_resource type="Texture2D" uid="uid://c2iapq3qceai2" path="res://assets/images/icons/ui/dialogue/camera.png" id="4_j786n"]
-[ext_resource type="Shader" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
+[ext_resource type="Shader" uid="uid://d0c1rjblvrdaf" path="res://assets/shaders/horizontal_dialogue_gradient.gdshader" id="5_gradient_shader"]
 [ext_resource type="Texture2D" uid="uid://coagv6nf0bxjb" path="res://assets/images/icons/ui/dialogue/close.png" id="6_e1eto"]
 [ext_resource type="Texture2D" uid="uid://cun1wn1gdjba5" path="res://assets/images/icons/ui/dialogue/writing.png" id="6_nxv13"]
 [ext_resource type="Texture2D" uid="uid://bgm6vn1eos1u3" path="res://assets/images/icons/ui/story/voice_record.svg" id="10_voice_icon"]
 [ext_resource type="Texture2D" uid="uid://dm6oxnmuvephf" path="res://assets/images/icons/ui/story/send_message.svg" id="11_send_icon"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_DialogueLayer"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AiRounds"]
 content_margin_left = 18.0
@@ -30,11 +28,28 @@ shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 8
 shadow_offset = Vector2(0, 3)
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_DialogueLayer"]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_DialogueGradient"]
 shader = ExtResource("5_gradient_shader")
-shader_parameter/center_color = Color(0.02, 0.02, 0.03, 0.94)
+shader_parameter/center_color = Color(0.012, 0.018, 0.028, 0.96)
 shader_parameter/edge_color = Color(0, 0, 0, 0.078431375)
 shader_parameter/edge_softness = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ContinueGlow"]
+bg_color = Color(0.08, 0.3, 0.25, 0.86)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.58, 0.96, 0.82, 0.96)
+shadow_color = Color(0.18, 0.86, 0.67, 0.78)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ContinueCore"]
+bg_color = Color(0.72, 1, 0.88, 1)
+shadow_color = Color(0.3, 0.94, 0.72, 0.9)
+shadow_size = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Toolbar"]
 bg_color = Color(0.09411765, 0.10980392, 0.14901961, 0.47058824)
@@ -74,18 +89,6 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
-bg_color = Color(0.08, 0.08, 0.1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.35, 0.35, 0.4, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InputNormal"]
 content_margin_left = 14.0
 content_margin_top = 8.0
@@ -118,7 +121,19 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="DialoguePanel" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_PrimaryButton"]
+bg_color = Color(0.08, 0.08, 0.1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.35, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="DialoguePanel" type="Control" unique_id=1610976344]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -127,7 +142,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="FreeChatInfoLayer" type="Control" parent="."]
+[node name="FreeChatInfoLayer" type="Control" parent="." unique_id=1488679575]
 visible = false
 layout_mode = 1
 anchors_preset = 0
@@ -137,7 +152,7 @@ offset_right = 348.0
 offset_bottom = 112.0
 mouse_filter = 2
 
-[node name="Panel" type="PanelContainer" parent="FreeChatInfoLayer"]
+[node name="Panel" type="PanelContainer" parent="FreeChatInfoLayer" unique_id=757973060]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -147,22 +162,22 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AiRounds")
 
-[node name="Margin" type="MarginContainer" parent="FreeChatInfoLayer/Panel"]
+[node name="Margin" type="MarginContainer" parent="FreeChatInfoLayer/Panel" unique_id=1354609875]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="VBox" type="VBoxContainer" parent="FreeChatInfoLayer/Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="FreeChatInfoLayer/Panel/Margin" unique_id=832126001]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="RoundLabel" type="Label" parent="FreeChatInfoLayer/Panel/Margin/VBox"]
+[node name="RoundLabel" type="Label" parent="FreeChatInfoLayer/Panel/Margin/VBox" unique_id=753225777]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.92, 0.82, 1)
 theme_override_font_sizes/font_size = 18
 text = "AI 主线对话 · 剩余 4 / 4 回合"
 
-[node name="StrategyLabel" type="RichTextLabel" parent="FreeChatInfoLayer/Panel/Margin/VBox"]
+[node name="StrategyLabel" type="RichTextLabel" parent="FreeChatInfoLayer/Panel/Margin/VBox" unique_id=929551338]
 layout_mode = 2
 theme_override_colors/default_color = Color(0.76, 0.79, 0.84, 1)
 theme_override_font_sizes/normal_font_size = 13
@@ -170,21 +185,23 @@ bbcode_enabled = true
 text = "在限定回合内和 Luna 谈谈这件事"
 fit_content = true
 
-[node name="DialogueLayer" type="Panel" parent="."]
+[node name="DialogueLayer" type="Panel" parent="." unique_id=1861626542]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -205.0
-offset_bottom = -75.0
+offset_left = 1.0
+offset_top = -281.0
+offset_right = 1.0
+offset_bottom = -121.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_DialogueLayer")
 
-[node name="GradientBg" type="ColorRect" parent="DialogueLayer"]
+[node name="GradientBg" type="ColorRect" parent="DialogueLayer" unique_id=811426047]
 material = SubResource("ShaderMaterial_DialogueGradient")
-custom_minimum_size = Vector2(0, 130)
+custom_minimum_size = Vector2(0, 160)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -193,39 +210,101 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="VBox" type="VBoxContainer" parent="DialogueLayer"]
+[node name="VBox" type="VBoxContainer" parent="DialogueLayer" unique_id=886011846]
 layout_mode = 1
-anchors_preset = 5
+anchors_preset = 8
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
-offset_left = -570.0
-offset_top = -10.0
-offset_right = 571.0
-offset_bottom = 120.0
+anchor_bottom = 0.5
+offset_left = -488.0
+offset_top = -80.0
+offset_right = 490.0
+offset_bottom = 80.0
 grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
-alignment = 1
 
-[node name="NameLabel" type="Label" parent="DialogueLayer/VBox"]
+[node name="NameLabel" type="Label" parent="DialogueLayer/VBox" unique_id=747005193]
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.94, 0.95, 0.98, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 23
 text = "name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer/VBox"]
-custom_minimum_size = Vector2(0, 80)
+[node name="NameDivider" type="ColorRect" parent="DialogueLayer/VBox" unique_id=976199034]
+custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/default_color = Color(0.96, 0.96, 0.98, 1)
+color = Color(0.62, 0.68, 0.76, 0.5)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="DialogueLayer/VBox" unique_id=506114501]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.93, 0.94, 0.97, 1)
 theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
-[node name="ToolBarContainer" type="PanelContainer" parent="."]
+[node name="ContinueIndicator" type="Control" parent="DialogueLayer" unique_id=1527070713]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 527.0
+offset_top = 36.0
+offset_right = 572.0
+offset_bottom = 82.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="GlowDiamond" type="Panel" parent="DialogueLayer/ContinueIndicator" unique_id=2082755087]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -13.0
+offset_top = -13.0
+offset_right = 13.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 0.785398
+pivot_offset = Vector2(13, 13)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ContinueGlow")
+
+[node name="CoreDiamond" type="Panel" parent="DialogueLayer/ContinueIndicator" unique_id=988063442]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 0.785398
+pivot_offset = Vector2(5, 5)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ContinueCore")
+
+[node name="ToolBarContainer" type="PanelContainer" parent="." unique_id=317023325]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -236,26 +315,26 @@ offset_bottom = 60.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_Toolbar")
 
-[node name="ToolBarMargin" type="MarginContainer" parent="ToolBarContainer"]
+[node name="ToolBarMargin" type="MarginContainer" parent="ToolBarContainer" unique_id=1512224754]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="HBox" type="HBoxContainer" parent="ToolBarContainer/ToolBarMargin"]
+[node name="HBox" type="HBoxContainer" parent="ToolBarContainer/ToolBarMargin" unique_id=520501216]
 layout_mode = 2
 theme_override_constants/separation = 15
 alignment = 2
 
-[node name="HideUIButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+[node name="HideUIButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox" unique_id=63752586]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 tooltip_text = "隐藏UI"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 
-[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/HideUIButton"]
+[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/HideUIButton" unique_id=580304060]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
@@ -274,14 +353,14 @@ texture = ExtResource("4_06rsy")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CameraButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+[node name="CameraButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox" unique_id=993124733]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 tooltip_text = "相机"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 
-[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/CameraButton"]
+[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/CameraButton" unique_id=1731830470]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
@@ -300,14 +379,14 @@ texture = ExtResource("4_j786n")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="HistoryButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
+[node name="HistoryButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox" unique_id=1987354604]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 tooltip_text = "记录"
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 
-[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/HistoryButton"]
+[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/HistoryButton" unique_id=161894591]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 1
 anchors_preset = 8
@@ -326,48 +405,22 @@ texture = ExtResource("6_nxv13")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="EndChatButton" type="Button" parent="ToolBarContainer/ToolBarMargin/HBox"]
-self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(30, 0)
-layout_mode = 2
-tooltip_text = "结束"
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-
-[node name="Icon" type="TextureRect" parent="ToolBarContainer/ToolBarMargin/HBox/EndChatButton"]
-custom_minimum_size = Vector2(30, 30)
+[node name="QuickOptionLayer" type="Control" parent="." unique_id=827359854]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -9.0
-offset_top = -9.0
-offset_right = 9.0
-offset_bottom = 9.0
+offset_left = -260.0
+offset_top = -244.0
+offset_right = 260.0
+offset_bottom = -27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("6_e1eto")
-expand_mode = 1
-stretch_mode = 5
 
-[node name="QuickOptionLayer" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -534.0
-offset_top = -78.0
-offset_right = -14.0
-offset_bottom = 139.0
-grow_horizontal = 0
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="QuickOptionLayer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="QuickOptionLayer" unique_id=686758683]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -377,13 +430,53 @@ grow_vertical = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
 
-[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer/ScrollContainer"]
+[node name="QuickOptions" type="VBoxContainer" parent="QuickOptionLayer/ScrollContainer" unique_id=1410748274]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 14
 
-[node name="InputLayer" type="Panel" parent="."]
+[node name="AiPlayerOptionLayer" type="PanelContainer" parent="." unique_id=1576597455]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -119.0
+offset_bottom = -58.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="AiPlayerOptionLayer" unique_id=2124001272]
+layout_mode = 2
+theme_override_constants/margin_left = 65
+theme_override_constants/margin_right = 65
+
+[node name="Content" type="VBoxContainer" parent="AiPlayerOptionLayer/Margin" unique_id=83788502]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="StatusLabel" type="Label" parent="AiPlayerOptionLayer/Margin/Content" unique_id=1058345691]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.92, 0.82, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.72)
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 18
+text = "Luna正在思考中"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OptionsGrid" type="GridContainer" parent="AiPlayerOptionLayer/Margin/Content" unique_id=466199552]
+visible = false
+custom_minimum_size = Vector2(0, 66)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 18
+columns = 2
+
+[node name="InputLayer" type="Panel" parent="." unique_id=976604284]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -394,7 +487,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_DialogueLayer")
 
-[node name="GradientBg" type="ColorRect" parent="InputLayer"]
+[node name="GradientBg" type="ColorRect" parent="InputLayer" unique_id=1324682395]
 material = SubResource("ShaderMaterial_InputGradient")
 layout_mode = 1
 anchors_preset = 15
@@ -404,7 +497,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="InputLayer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="InputLayer" unique_id=2142109555]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -417,7 +510,33 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer"]
+[node name="EndChatButton" type="Button" parent="InputLayer/HBoxContainer" unique_id=1882997807]
+custom_minimum_size = Vector2(48, 40)
+layout_mode = 2
+tooltip_text = "结束对话"
+theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
+
+[node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/EndChatButton" unique_id=297061405]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_e1eto")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InputField" type="TextEdit" parent="InputLayer/HBoxContainer" unique_id=1199197455]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -428,7 +547,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_InputNormal")
 theme_override_styles/focus = SubResource("StyleBoxFlat_InputFocus")
 placeholder_text = "输入你想说的话..."
 
-[node name="CharCountLabel" type="Label" parent="InputLayer/HBoxContainer/InputField"]
+[node name="CharCountLabel" type="Label" parent="InputLayer/HBoxContainer/InputField" unique_id=1769747624]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -446,7 +565,7 @@ theme_override_font_sizes/font_size = 12
 text = "0/200"
 horizontal_alignment = 2
 
-[node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer"]
+[node name="VoiceRecordButton" type="Button" parent="InputLayer/HBoxContainer" unique_id=1522968295]
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 tooltip_text = "语音"
@@ -456,7 +575,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_SecondaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
-[node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/VoiceRecordButton"]
+[node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/VoiceRecordButton" unique_id=1403855955]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 8
@@ -475,7 +594,7 @@ texture = ExtResource("10_voice_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SendButton" type="Button" parent="InputLayer/HBoxContainer"]
+[node name="SendButton" type="Button" parent="InputLayer/HBoxContainer" unique_id=1200283766]
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 tooltip_text = "发送"
@@ -484,7 +603,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_PrimaryButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_SecondaryButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_SecondaryButtonHover")
 
-[node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/SendButton"]
+[node name="Icon" type="TextureRect" parent="InputLayer/HBoxContainer/SendButton" unique_id=1770613824]
 custom_minimum_size = Vector2(35, 35)
 layout_mode = 1
 anchors_preset = 8

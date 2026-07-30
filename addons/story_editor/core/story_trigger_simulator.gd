@@ -192,6 +192,6 @@ static func _append_unique(target: Array[String], values: Variant) -> void:
 	if not values is Array:
 		return
 	for value in values:
-		var normalized := str(value).strip_edges()
+		var normalized := str((value as Dictionary).get("id", "")).strip_edges() if value is Dictionary else str(value).strip_edges()
 		if not normalized.is_empty() and not target.has(normalized):
 			target.append(normalized)

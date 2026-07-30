@@ -84,8 +84,6 @@ const EVENT_SCHEMAS := {
 		["required_beats", "必达剧情点", "beat_list"],
 		["redirect_instruction", "偏题回拉策略", "multiline"],
 		["max_player_rounds", "最大玩家回合", "integer"],
-		["game_minutes", "完成后推进分钟", "integer"],
-		["action_cost", "进入所需行动力", "integer"],
 		["allow_early_completion", "允许达标后提前收束", "bool"],
 		["hide_manual_end", "隐藏主动结束", "bool"],
 		["closing_instruction", "自然收束指令", "multiline"],
@@ -102,6 +100,7 @@ var field_controls: Dictionary = {}
 var resource_catalog: Dictionary = {}
 var chapter_ids: Array[String] = ["end"]
 var loading := false
+var auto_apply_timer: Timer
 
 @onready var type_select: OptionButton = %TypeSelect
 @onready var fields_container: VBoxContainer = %FieldsContainer
@@ -111,6 +110,11 @@ var loading := false
 
 
 func _ready() -> void:
+	auto_apply_timer = Timer.new()
+	auto_apply_timer.one_shot = true
+	auto_apply_timer.wait_time = 0.15
+	auto_apply_timer.timeout.connect(_apply_structured.bind(true))
+	add_child(auto_apply_timer)
 	for event_type in EVENT_TYPES:
 		var info := EVENT_TYPE_INFO.get(event_type, [event_type, ""]) as Array
 		type_select.add_item(str(info[0]))
@@ -125,6 +129,8 @@ func _ready() -> void:
 
 
 func load_event(event_data: Dictionary) -> void:
+	if is_instance_valid(auto_apply_timer):
+		auto_apply_timer.stop()
 	current_event = event_data.duplicate(true)
 	loading = true
 	_select_type(str(current_event.get("type", "dialogue")))
@@ -153,6 +159,8 @@ func set_chapter_ids(values: Array) -> void:
 
 
 func clear_event() -> void:
+	if is_instance_valid(auto_apply_timer):
+		auto_apply_timer.stop()
 	current_event = {}
 	_clear_fields()
 	advanced_json_edit.text = ""
@@ -168,6 +176,7 @@ func _on_type_selected(_index: int) -> void:
 		return
 	current_event["type"] = str(type_select.get_item_metadata(type_select.selected))
 	_rebuild_fields()
+	_queue_auto_apply()
 
 
 func _rebuild_fields() -> void:
@@ -238,7 +247,32 @@ func _create_field_control(key: String, label_text: String, kind: String, resour
 		_:
 			control = LineEdit.new()
 	row.add_child(control)
+	_connect_control_change(control, kind)
 	return control
+
+
+func _connect_control_change(control: Control, kind: String) -> void:
+	if kind in ["choice_options", "string_list", "beat_list", "chapter_map", "variant"]:
+		if control.has_signal("value_changed"):
+			control.connect("value_changed", _queue_auto_apply)
+		return
+	match kind:
+		"multiline":
+			(control as TextEdit).text_changed.connect(_queue_auto_apply)
+		"number", "integer":
+			(control as SpinBox).value_changed.connect(_queue_auto_apply.unbind(1))
+		"bool":
+			(control as CheckBox).toggled.connect(_queue_auto_apply.unbind(1))
+		"chapter", "resource":
+			(control as OptionButton).item_selected.connect(_queue_auto_apply.unbind(1))
+		_:
+			(control as LineEdit).text_changed.connect(_queue_auto_apply.unbind(1))
+
+
+func _queue_auto_apply() -> void:
+	if loading or current_event.is_empty() or not is_instance_valid(auto_apply_timer):
+		return
+	auto_apply_timer.start()
 
 
 func _set_control_value(control: Control, kind: String, value: Variant) -> void:
@@ -273,7 +307,7 @@ func _set_control_value(control: Control, kind: String, value: Variant) -> void:
 			control.button_pressed = false if value == null else bool(value)
 
 
-func _apply_structured() -> void:
+func _apply_structured(auto_apply: bool = false) -> void:
 	var updated := current_event.duplicate(true)
 	updated["type"] = str(type_select.get_item_metadata(type_select.selected))
 	for key_value in field_controls.keys():
@@ -286,7 +320,7 @@ func _apply_structured() -> void:
 		updated[key] = value_result.get("value")
 	current_event = updated
 	advanced_json_edit.text = JSON.stringify(current_event, "    ", false)
-	error_label.text = "已应用到剧情，记得保存文件。"
+	error_label.text = "已实时同步到剧情，记得保存文件。" if auto_apply else "已应用到剧情，记得保存文件。"
 	error_label.modulate = Color("#73d9b0")
 	event_applied.emit(current_event.duplicate(true))
 

@@ -23,7 +23,7 @@ func _run() -> void:
 
 	var story_fixture := {
 		"root_unknown": "preserve-time-root",
-		"daily_data": [{"day_offset": 4, "weather": "rainy", "morning_events": ["luna_piano_practice"], "day_unknown": "preserve-day"}]
+		"daily_data": [{"day_offset": 4, "weather": "rainy", "morning_events": [{"id": "luna_piano_practice", "completion_trigger": "tutoring_completed", "completion_events": [{"type": "toast", "text": "保留"}]}], "day_unknown": "preserve-day"}]
 	}
 	var map_fixture := {
 		"root_unknown": "preserve-map-root",
@@ -55,6 +55,7 @@ func _run() -> void:
 	window.get_node("Root/Tabs/剧情日程/DayEditor/DayFields/MorningEdit").text = "luna_piano_practice, jing_library_guidance"
 	_expect(window.apply_day(), "应用日程修改失败。")
 	_expect(window.story_time_data.daily_data[0].morning_events.size() == 2, "日程事件数组没有写回。")
+	_expect(window.story_time_data.daily_data[0].morning_events[0] is Dictionary and window.story_time_data.daily_data[0].morning_events[0].completion_events[0].text == "保留", "编辑日程 ID 时丢失了对象事件的 completion_events。")
 	_expect(window.story_time_data.daily_data[0].day_unknown == "preserve-day", "日程未知字段丢失。")
 	window.get_node("Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields/BadgeTextEdit").text = "主线"
 	window.get_node("Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields/BadgeNpcsEdit").text = "luna, jing"
@@ -76,6 +77,7 @@ func _run() -> void:
 	var saved_time := JsonService.load_dictionary(STORY_TIME_FIXTURE).get("data", {}) as Dictionary
 	var saved_map := JsonService.load_dictionary(MAP_FIXTURE).get("data", {}) as Dictionary
 	_expect(saved_time.root_unknown == "preserve-time-root" and saved_time.daily_data[0].day_unknown == "preserve-day", "保存后日程未知字段丢失。")
+	_expect(saved_time.daily_data[0].morning_events[0] is Dictionary and saved_time.daily_data[0].morning_events[0].completion_trigger == "tutoring_completed", "保存后对象事件触发配置丢失。")
 	_expect(saved_map.root_unknown == "preserve-map-root" and saved_map.locations.concert_hall.location_unknown == "preserve-location", "保存后地图未知字段丢失。")
 
 	window.get_node("Root/Tabs/地图入口/MapEditorScroll/MapEditor/MapFields/MinStageSpin").value = 5

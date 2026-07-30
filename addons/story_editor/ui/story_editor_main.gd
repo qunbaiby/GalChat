@@ -66,11 +66,9 @@ const EVENT_DEFAULTS := {
 		"required_beats": [],
 		"redirect_instruction": "玩家偏题时先简短回应，再自然拉回当前主线。",
 		"max_player_rounds": 4,
-		"game_minutes": 30,
-		"action_cost": 0,
 		"allow_early_completion": false,
-		"hide_manual_end": true,
-		"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。",
+		"hide_manual_end": false,
+		"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。角色与玩家同住，不得说任何人要回家或下次见。",
 		"fallback_closing_text": "（轻轻点头）那今天就先聊到这里吧。",
 		"outcome_branches": {}
 	},
@@ -118,11 +116,9 @@ const EVENT_TEMPLATES := {
 			"required_beats": [{"id": "beat_1", "instruction": "描述角色必须自然表达的第一个剧情点。"}],
 			"redirect_instruction": "玩家偏题时先简短回应，再自然拉回当前主线。",
 			"max_player_rounds": 4,
-			"game_minutes": 30,
-			"action_cost": 0,
 			"allow_early_completion": false,
-			"hide_manual_end": true,
-			"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。",
+			"hide_manual_end": false,
+			"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。角色与玩家同住，不得说任何人要回家或下次见。",
 			"fallback_closing_text": "（轻轻点头）那今天就先聊到这里吧。",
 			"outcome_branches": {"complete": "end", "incomplete": "end"}
 		},
@@ -160,7 +156,6 @@ const CONTENT_MOBILE_AI := 13
 const CONTENT_REFERENCES := 14
 const CONTENT_GUIDE_FLOW := 15
 const CONTENT_SCHEDULE := 16
-const CONTENT_CONCERN_AI := 17
 const SYSTEM_SCHEMA_MIGRATION := 20
 const SYSTEM_RUNTIME_DEBUG := 21
 const CREATE_CONTENT_TYPES := [
@@ -189,6 +184,7 @@ var template_library_path := EventTemplateService.DEFAULT_PATH
 var custom_event_templates: Array[Dictionary] = []
 var template_menu_actions := {}
 var active_workspace := "story"
+var selected_chapter_entry := ""
 
 @onready var search_edit: LineEdit = %SearchEdit
 @onready var story_tree: Tree = %StoryTree
@@ -198,6 +194,7 @@ var active_workspace := "story"
 @onready var document_path: Label = %DocumentPath
 @onready var inspector_title: Label = %InspectorTitle
 @onready var event_inspector: VBoxContainer = %EventInspector
+@onready var chapter_inspector: VBoxContainer = %ChapterInspector
 @onready var event_type_select: OptionButton = %EventTypeSelect
 @onready var event_template_menu: MenuButton = %EventTemplateMenu
 @onready var event_search_edit: LineEdit = %EventSearchEdit
@@ -231,6 +228,8 @@ func _ready() -> void:
 	story_tree.item_selected.connect(_on_story_selected)
 	diagnostics_tree.item_activated.connect(_navigate_to_selected_diagnostic)
 	chapter_select.item_selected.connect(_on_chapter_selected)
+	%StoryMinutesSpin.value_changed.connect(_on_story_minutes_changed)
+	%StoryActionCostSpin.value_changed.connect(_on_story_action_cost_changed)
 	event_search_edit.text_changed.connect(_refresh_event_search)
 	event_search_edit.text_submitted.connect(_on_event_search_submitted)
 	previous_event_match_button.pressed.connect(navigate_event_search.bind(-1))
@@ -242,6 +241,10 @@ func _ready() -> void:
 	graph_edit.begin_node_move.connect(_on_graph_move_started)
 	graph_edit.end_node_move.connect(_on_graph_move_finished)
 	event_inspector.event_applied.connect(_apply_event_data)
+	%ChapterDisplayNameEdit.focus_exited.connect(_apply_selected_chapter_metadata)
+	%ChapterDescriptionEdit.focus_exited.connect(_apply_selected_chapter_metadata)
+	%EnterChapterButton.pressed.connect(_enter_selected_chapter)
+	%RenameSelectedChapterButton.pressed.connect(_rename_selected_chapter)
 	save_button.pressed.connect(save_current_story)
 	%RefreshButton.pressed.connect(_refresh_stories)
 	%ArrangeButton.pressed.connect(graph_edit.arrange_nodes)
@@ -250,7 +253,6 @@ func _ready() -> void:
 	%ValidateButton.pressed.connect(_refresh_diagnostics)
 	%SimulateButton.pressed.connect(_open_branch_simulation)
 	%AIWorkbenchButton.pressed.connect(%DateAIWorkbench.open_workbench)
-	%ConcernAIButton.pressed.connect(%ConcernAIWorkbench.open_workbench)
 	%MobileChatButton.pressed.connect(%MobileChatCatalogWindow.open_catalog)
 	%FixedCallButton.pressed.connect(%FixedVoiceCallCatalogWindow.open_catalog)
 	%MobileAIButton.pressed.connect(%MobileAIWorkbench.open_workbench)
@@ -642,7 +644,7 @@ func _setup_toolbar_menus() -> void:
 	_add_menu_items(story_popup, [[TOOL_VALIDATE, "校验当前剧情"], [TOOL_SIMULATE, "分支模拟"], [TOOL_NODE_TEMPLATES, "节点模板库"], [TOOL_COVERAGE_REPORT, "覆盖率报告"]])
 	story_popup.id_pressed.connect(_on_toolbar_menu_selected)
 	var content_popup: PopupMenu = %ContentToolsMenu.get_popup()
-	_add_menu_items(content_popup, [[CONTENT_AI_WORKBENCH, "AI 约会"], [CONTENT_CONCERN_AI, "AI 心事"], [CONTENT_MOBILE_AI, "手机 AI"], [CONTENT_REFERENCES, "剧情引用"], [CONTENT_GUIDE_FLOW, "Guide Flow"], [CONTENT_SCHEDULE, "入口调度"]])
+	_add_menu_items(content_popup, [[CONTENT_AI_WORKBENCH, "AI 约会"], [CONTENT_MOBILE_AI, "手机 AI"], [CONTENT_REFERENCES, "剧情引用"], [CONTENT_GUIDE_FLOW, "Guide Flow"], [CONTENT_SCHEDULE, "入口调度"]])
 	content_popup.id_pressed.connect(_on_toolbar_menu_selected)
 	var system_popup: PopupMenu = %SystemToolsMenu.get_popup()
 	_add_menu_items(system_popup, [[SYSTEM_SCHEMA_MIGRATION, "Schema 迁移"], [SYSTEM_RUNTIME_DEBUG, "运行时监视"]])
@@ -668,7 +670,6 @@ func _on_toolbar_menu_selected(id: int) -> void:
 			_show_workspace("fixed_call")
 			%FixedVoiceCallCatalogWindow.refresh_catalog()
 		CONTENT_AI_WORKBENCH: %DateAIWorkbench.open_workbench()
-		CONTENT_CONCERN_AI: %ConcernAIWorkbench.open_workbench()
 		CONTENT_MOBILE_AI: %MobileAIWorkbench.open_workbench()
 		CONTENT_REFERENCES: %StoryReferenceCatalogWindow.open_catalog()
 		CONTENT_GUIDE_FLOW: %GuideFlowEditorWindow.open_editor()
@@ -717,6 +718,7 @@ func navigate_to_story_event(path: String, chapter_id: String, event_index: int)
 
 
 func _populate_chapters() -> void:
+	_sync_story_cost_controls()
 	chapter_select.clear()
 	var chapters := current_data.get("chapters", {}) as Dictionary
 	var chapter_ids := chapters.keys()
@@ -734,6 +736,27 @@ func _populate_chapters() -> void:
 			break
 	chapter_select.select(start_index)
 	_show_chapter(chapter_select.get_item_text(start_index))
+
+
+func _sync_story_cost_controls() -> void:
+	%StoryMinutesSpin.set_value_no_signal(float(current_data.get("game_minutes", 0)))
+	%StoryActionCostSpin.set_value_no_signal(float(current_data.get("action_cost", 0)))
+
+
+func _on_story_minutes_changed(value: float) -> void:
+	_update_story_cost("game_minutes", int(value))
+
+
+func _on_story_action_cost_changed(value: float) -> void:
+	_update_story_cost("action_cost", int(value))
+
+
+func _update_story_cost(field_name: String, value: int) -> void:
+	if current_data.is_empty() or int(current_data.get(field_name, 0)) == value:
+		return
+	_record_history()
+	current_data[field_name] = maxi(0, value)
+	_refresh_dirty_state()
 
 
 func _on_chapter_selected(index: int) -> void:
@@ -833,6 +856,7 @@ func _show_chapter(chapter_id: String) -> void:
 	_clear_graph()
 	var events := _current_events()
 	var previous_node: GraphNode
+	var previous_detached := false
 	for event_index in events.size():
 		var event_value: Variant = events[event_index]
 		if not event_value is Dictionary:
@@ -841,9 +865,11 @@ func _show_chapter(chapter_id: String) -> void:
 		graph_edit.add_child(event_node)
 		event_node.setup(chapter_id, event_index, event_value)
 		event_node.event_activated.connect(_select_event)
-		if previous_node != null:
+		var current_detached := bool((event_value as Dictionary).get("_editor_detached_from_previous", false))
+		if previous_node != null and not previous_detached and not current_detached:
 			graph_edit.connect_node(previous_node.name, 0, event_node.name, 0, true)
 		previous_node = event_node
+		previous_detached = current_detached
 	_add_chapter_entries(events)
 	_connect_branch_edges(events)
 	_filter_chapter_entries(chapter_entry_filter.text)
@@ -863,6 +889,7 @@ func _add_chapter_entries(events: Array) -> void:
 		graph_edit.add_child(entry_node)
 		entry_node.setup(chapter_id, Vector2(80.0 + (index % 4) * 230.0, base_y + floori(index / 4.0) * 130.0))
 		entry_node.chapter_activated.connect(_navigate_to_chapter)
+		entry_node.chapter_selected.connect(_select_chapter_entry)
 
 
 func _connect_branch_edges(events: Array) -> void:
@@ -942,6 +969,66 @@ func _navigate_to_chapter(chapter_id: String) -> void:
 	if chapter_id != "end":
 		_select_chapter_by_id(chapter_id)
 
+func _select_chapter_entry(chapter_id: String) -> void:
+	selected_chapter_entry = chapter_id
+	selected_event_index = -1
+	selected_event_indices.clear()
+	_sync_graph_selection(-1)
+	event_inspector.clear_event()
+	event_inspector.hide()
+	chapter_inspector.show()
+	inspector_title.text = "剧情结束" if chapter_id == "end" else "章节配置"
+	%ChapterIdLabel.text = "目标：%s" % chapter_id
+	if chapter_id == "end":
+		%ChapterEventCountLabel.text = "特殊终点：跳转到这里会结束整个剧情脚本。"
+		%ChapterDisplayNameEdit.text = "剧情结束"
+		%ChapterDescriptionEdit.text = "该节点没有内部事件，也不需要配置章节内容。"
+		%ChapterDisplayNameEdit.editable = false
+		%ChapterDescriptionEdit.editable = false
+		%EnterChapterButton.disabled = true
+		%RenameSelectedChapterButton.disabled = true
+	else:
+		var chapters := current_data.get("chapters", {}) as Dictionary
+		var chapter := chapters.get(chapter_id, {}) as Dictionary
+		%ChapterEventCountLabel.text = "%d 个事件。点击“进入章节”编辑内部事件。" % (chapter.get("events", []) as Array).size()
+		%ChapterDisplayNameEdit.text = str(chapter.get("display_name", ""))
+		%ChapterDescriptionEdit.text = str(chapter.get("description", ""))
+		%ChapterDisplayNameEdit.editable = true
+		%ChapterDescriptionEdit.editable = true
+		%EnterChapterButton.disabled = false
+		%RenameSelectedChapterButton.disabled = false
+	_update_event_buttons()
+	_update_workspace_context()
+
+func _apply_selected_chapter_metadata() -> void:
+	if selected_chapter_entry == "" or selected_chapter_entry == "end":
+		return
+	var chapters := current_data.get("chapters", {}) as Dictionary
+	if not chapters.has(selected_chapter_entry):
+		return
+	var chapter := chapters[selected_chapter_entry] as Dictionary
+	var display_name: String = str(%ChapterDisplayNameEdit.text).strip_edges()
+	var description: String = str(%ChapterDescriptionEdit.text).strip_edges()
+	if str(chapter.get("display_name", "")) == display_name and str(chapter.get("description", "")) == description:
+		return
+	_record_history()
+	if display_name == "": chapter.erase("display_name")
+	else: chapter["display_name"] = display_name
+	if description == "": chapter.erase("description")
+	else: chapter["description"] = description
+	_refresh_dirty_state()
+	_set_status("章节配置已更新，尚未写入文件。", false)
+
+func _enter_selected_chapter() -> void:
+	if selected_chapter_entry != "" and selected_chapter_entry != "end":
+		_select_chapter_by_id(selected_chapter_entry)
+
+func _rename_selected_chapter() -> void:
+	if selected_chapter_entry == "" or selected_chapter_entry == "end":
+		return
+	_select_chapter_by_id(selected_chapter_entry)
+	_open_rename_chapter_dialog()
+
 
 func _filter_chapter_entries(filter_text: String) -> void:
 	var normalized_filter := filter_text.strip_edges().to_lower()
@@ -1003,6 +1090,9 @@ func _load_primary_event(event_index: int) -> void:
 	var event_type := str(event.get("type", "unknown"))
 	var selection_label := "%d 个事件 · 主选 #%d" % [selected_event_indices.size(), event_index + 1] if selected_event_indices.size() > 1 else "事件 #%d" % (event_index + 1)
 	inspector_title.text = "%s · %s" % [selection_label, str(EVENT_TYPE_LABELS.get(event_type, event_type))]
+	selected_chapter_entry = ""
+	chapter_inspector.hide()
+	event_inspector.show()
 	event_inspector.load_event(event)
 	_update_event_buttons()
 	_update_workspace_context()
@@ -1034,7 +1124,10 @@ func _apply_event_data(event_data: Dictionary) -> void:
 	var event_node := graph_edit.get_node_or_null(node_name)
 	if event_node != null:
 		event_node.refresh(events[selected_event_index])
-	_select_event(current_chapter, selected_event_index)
+	graph_edit.clear_connections()
+	_connect_branch_edges(events)
+	var event_type := str(updated_event.get("type", "unknown"))
+	inspector_title.text = "事件 #%d · %s" % [selected_event_index + 1, str(EVENT_TYPE_LABELS.get(event_type, event_type))]
 	_refresh_event_search(event_search_edit.text)
 	_refresh_diagnostics()
 	_set_status("事件修改已应用，尚未写入文件。", false)
@@ -1077,6 +1170,7 @@ func add_event() -> void:
 		return
 	var event_type := str(event_type_select.get_item_metadata(event_type_select.selected))
 	var new_event := (EVENT_DEFAULTS.get(event_type, {"type": event_type}) as Dictionary).duplicate(true)
+	new_event["_editor_detached_from_previous"] = true
 	var events := _current_events()
 	var insert_index := events.size() if selected_event_index < 0 else selected_event_index + 1
 	_record_history()
@@ -1453,9 +1547,13 @@ func _navigate_to_simulation_result() -> void:
 func _clear_selection() -> void:
 	selected_event_index = -1
 	selected_event_indices.clear()
+	selected_chapter_entry = ""
 	_sync_graph_selection(-1)
 	inspector_title.text = "事件 Inspector"
+	if is_instance_valid(chapter_inspector):
+		chapter_inspector.hide()
 	if is_instance_valid(event_inspector):
+		event_inspector.show()
 		event_inspector.clear_event()
 	_update_event_buttons()
 	_update_workspace_context()

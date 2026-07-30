@@ -1,6 +1,6 @@
 extends Control
 
-const ChatSplitHelper = preload("res://scripts/utils/chat_split_helper.gd")
+const ChatSplitHelperScript = preload("res://scripts/utils/chat_split_helper.gd")
 const NPC_BUBBLE_LINES_PATH := "res://assets/data/map/npc/npc_bubble_lines.json"
 const SUBMENU_FADE_DURATION := 0.25
 const SUBMENU_PORTRAIT_RATIO_X := 1.0 / 6.0
@@ -11,6 +11,10 @@ const BUBBLE_SHOW_TIME_PER_CHAR := 0.08
 const BUBBLE_TYPEWRITER_CHAR_TIME := 0.045
 const BUBBLE_HIDE_DELAY_AFTER_VOICE := 1.0
 const BUBBLE_RECENT_HISTORY_LIMIT := 4
+const BUBBLE_OOC_TERMS: PackedStringArray = [
+	"精灵", "魔法", "魔力", "咒语", "咒文", "法术", "符文", "炼金",
+	"修仙", "灵气", "系统任务", "穿越", "异世界", "超能力"
+]
 const SUBMENU_PANEL_CENTER_RATIO := 2.0 / 3.0
 const SUBMENU_PANEL_MIN_RIGHT_MARGIN := 28.0
 const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
@@ -62,9 +66,14 @@ var _bubble_ai_request_serial: int = 0
 var _bubble_ai_completed_callable: Callable = Callable()
 var _bubble_ai_failed_callable: Callable = Callable()
 var _recent_bubble_lines: Array[String] = []
+var _action_buttons: Dictionary = {}
+var _guide_targets_ready: bool = false
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_quick_location_scene_ready"):
+		guide_manager.on_quick_location_scene_ready(self)
 	_load_npc_bubble_lines()
 	
 	if npc_portrait:
@@ -101,15 +110,18 @@ func _ready() -> void:
 		if not _should_skip_initial_location_event_broadcast() and event_manager and event_manager.has_method("broadcast_state_change"):
 			event_manager.broadcast_state_change({"location_id": location_id})
 			
-	if location_id == "gym" and initial_npc_id == "":
+	var location_data := MapDataManager.get_location(location_id)
+	var entry_scene_path := str(location_data.get("entry_scene", "")).strip_edges()
+	if entry_scene_path != "" and initial_npc_id == "":
 		interaction_menu.hide()
 		if map_info_panel:
 			map_info_panel.hide()
-		var gym_menu_scene = load("res://scenes/ui/map/gym/gym_training_menu.tscn")
-		if gym_menu_scene:
-			var gym_menu = gym_menu_scene.instantiate()
-			gym_menu.closed.connect(_on_back_pressed)
-			add_child(gym_menu)
+		var entry_scene = load(entry_scene_path)
+		if entry_scene:
+			var entry_instance = entry_scene.instantiate()
+			if entry_instance.has_signal("closed"):
+				entry_instance.closed.connect(_on_back_pressed)
+			add_child(entry_instance)
 			
 	elif initial_npc_id != "":
 		# 进入场景时先自动展示角色，但不触发“打开菜单”台词
@@ -284,7 +296,7 @@ func _get_npc_relation_stage_info(npc_id: String) -> Dictionary:
 		"stage_title": str(npc_stage_data.get("stageTitle", "普通朋友"))
 	}
 
-func _build_bubble_polish_prompt(npc_id: String, npc_name: String, template_line: String, phase: String, action_id: String = "") -> String:
+func _build_bubble_polish_prompt(npc_id: String, npc_name: String, npc_data: Dictionary, template_line: String, phase: String, action_id: String = "") -> String:
 	var heroine_name := "Luna"
 	if GameDataManager.profile and str(GameDataManager.profile.char_name).strip_edges() != "":
 		heroine_name = str(GameDataManager.profile.char_name).strip_edges()
@@ -296,6 +308,13 @@ func _build_bubble_polish_prompt(npc_id: String, npc_name: String, template_line
 		location_name = location_id
 	var current_period := _get_current_story_period()
 	var current_weather := _get_current_weather_desc()
+	var identity_background := str(npc_data.get("identity_background", "")).strip_edges()
+	if identity_background == "":
+		var character_path := "res://assets/data/characters/npc/%s.json" % npc_id
+		if FileAccess.file_exists(character_path):
+			var character_data: Variant = JSON.parse_string(FileAccess.get_file_as_string(character_path))
+			if character_data is Dictionary:
+				identity_background = str((character_data as Dictionary).get("identity_background", "")).strip_edges()
 	var trigger_desc := "进入地点时的招呼"
 	match phase:
 		"menu_open":
@@ -305,7 +324,7 @@ func _build_bubble_polish_prompt(npc_id: String, npc_name: String, template_line
 	var recent_hint := ""
 	if not _recent_bubble_lines.is_empty():
 		recent_hint = "最近已出现过的气泡：%s\n" % " / ".join(_recent_bubble_lines)
-	return "当前是地图场景中的即时气泡台词。请你扮演【%s】，对少女【%s】说一句简短自然的话。\n场景地点：%s\n当前时段：%s\n当前天气：%s\n触发时机：%s\n当前你与%s的关系阶段：第%d阶段（%s）\n基础模板：%s\n%s要求：\n1. 只输出一句成品台词，不要解释。\n2. 保留基础模板原意，但结合当前关系阶段与场景上下文做自然润色。\n3. 长度控制在28字以内，只保留说话内容，不要加入括号动作、旁白或语气说明。\n4. 不要扩写成长对白，不要换行。\n5. 尽量避免与最近已出现的话术过于相似。" % [npc_name, heroine_name, location_name, current_period, current_weather, trigger_desc, heroine_name, stage_num, stage_title, template_line, recent_hint]
+	return "当前是地图场景中的即时气泡台词。请你扮演【%s】，对少女【%s】说一句简短自然的话。\n角色身份：%s\n场景地点：%s\n当前时段：%s\n当前天气：%s\n触发时机：%s\n当前你与%s的关系阶段：第%d阶段（%s）\n基础模板：%s\n%s要求：\n1. 只输出一句成品台词，不要解释。\n2. 只能润色基础模板的措辞，不得改变其话题、事实、专业领域或增添具体知识点。\n3. 严格遵守角色身份与现代现实日常世界观，不得编造角色设定中不存在的课程、职业、经历或关系。禁止出现精灵、魔法、咒语、咒文、法术、修仙、系统、穿越、异世界等内容。\n4. 长度控制在28字以内，只保留说话内容，不要加入括号动作、旁白或语气说明。\n5. 不要扩写成长对白，不要换行。\n6. 尽量避免与最近已出现的话术过于相似。" % [npc_name, heroine_name, identity_background, location_name, current_period, current_weather, trigger_desc, heroine_name, stage_num, stage_title, template_line, recent_hint]
 
 func _normalize_bubble_line(raw_text: String, fallback: String) -> String:
 	var cleaned := raw_text.strip_edges()
@@ -315,8 +334,17 @@ func _normalize_bubble_line(raw_text: String, fallback: String) -> String:
 	for segment in segments:
 		var line := str(segment).strip_edges()
 		if line != "":
-			return _strip_bubble_action_descriptions(line, fallback)
+			var normalized_line := _strip_bubble_action_descriptions(line, fallback)
+			if _contains_bubble_ooc_term(normalized_line):
+				return fallback
+			return normalized_line
 	return fallback
+
+func _contains_bubble_ooc_term(text: String) -> bool:
+	for term in BUBBLE_OOC_TERMS:
+		if text.contains(term):
+			return true
+	return false
 
 func _strip_bubble_action_descriptions(text: String, fallback: String) -> String:
 	var cleaned := text.strip_edges()
@@ -366,7 +394,7 @@ func _request_bubble_line(npc_id: String, npc_name: String, npc_data: Dictionary
 	var effective_phase := phase
 	if action_id != "":
 		effective_phase = "action_open"
-	var prompt := _build_bubble_polish_prompt(npc_id, npc_name, fallback_line, effective_phase, action_id)
+	var prompt := _build_bubble_polish_prompt(npc_id, npc_name, npc_data, fallback_line, effective_phase, action_id)
 	deepseek_client.generate_npc_event_dialogue(npc_id, prompt)
 
 func _on_bubble_line_generated(generated_text: String, request_serial: int, fallback_line: String) -> void:
@@ -383,6 +411,7 @@ func _on_bubble_line_failed(_error_msg: String, request_serial: int, fallback_li
 	_show_npc_bubble(fallback_line)
 
 func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
+	_guide_targets_ready = false
 	current_interacting_npc_id = npc_id
 	
 	var npc_data = MapDataManager.get_npc_data(npc_id)
@@ -497,6 +526,7 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 				npc_static_sprite.show()
 
 	# Clear existing buttons
+	_action_buttons.clear()
 	for child in menu_options_vbox.get_children():
 		child.queue_free()
 
@@ -504,7 +534,6 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 	var interactions = npc_data.get("interactions", [])
 	if interactions.is_empty():
 		interactions = [{"id": "leave", "label": "离开"}]
-	interactions = _inject_placeholder_interactions(interactions)
 
 	for action in interactions:
 		var action_id = str(action.get("id", "")).strip_edges()
@@ -520,6 +549,7 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 		
 		btn.pressed.connect(_on_menu_action_pressed.bind(action_id))
 		menu_options_vbox.add_child(btn)
+		_action_buttons[action_id] = btn
 
 	back_button.hide() # 隐藏返回地图按钮
 	interaction_menu.show()
@@ -540,6 +570,7 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 		npc_portrait.modulate.a = 0.0
 		tween.tween_property(npc_portrait, "position:y", original_char_y, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_property(npc_portrait, "modulate:a", 1.0, 0.28)
+	tween.finished.connect(_refresh_quick_location_guide_target, CONNECT_ONE_SHOT)
 	if play_menu_bubble:
 		tween.finished.connect(func():
 			if not is_inside_tree():
@@ -548,6 +579,15 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 				return
 			_play_menu_open_bubble(npc_id, npc_name, npc_data)
 		, CONNECT_ONE_SHOT)
+
+func _refresh_quick_location_guide_target() -> void:
+	_guide_targets_ready = true
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_quick_location_scene_ready"):
+		guide_manager.on_quick_location_scene_ready(self)
+
+func is_guide_target_ready() -> bool:
+	return _guide_targets_ready
 
 func _get_npc_stage_data(npc_id: String) -> Dictionary:
 	# 暂时返回第一阶段作为默认值。实际应用中需要从全局 NPC 好感度管理器中读取当前进度。
@@ -744,23 +784,6 @@ func _show_map_info_panel(animated: bool) -> void:
 
 func _on_menu_action_pressed(action_id: String):
 	match action_id:
-		"order":
-			print("快捷模式 - 与 NPC: ", current_interacting_npc_id, " 点单/服务")
-			if current_interacting_npc_id == "ya":
-				_open_sub_menu("res://scenes/ui/map/cafe/cafe_order_menu.tscn", action_id)
-			else:
-				# TODO: 其他 NPC 的互动
-				pass
-		"study":
-			print("快捷模式 - 找 NPC: ", current_interacting_npc_id, " 补习/指导")
-			if current_interacting_npc_id == "jing":
-				_open_sub_menu("res://scenes/ui/map/library/tutoring_menu.tscn", action_id)
-			elif current_interacting_npc_id == "shuo":
-				_open_sub_menu("res://scenes/ui/map/art_gallery/art_study_menu.tscn", action_id)
-			elif current_interacting_npc_id == "ling":
-				_open_sub_menu("res://scenes/ui/map/concert_hall/music_study_menu.tscn", action_id)
-			elif current_interacting_npc_id == "aili":
-				_open_sub_menu("res://scenes/ui/map/grand_theater/performance_study_menu.tscn", action_id)
 		"leave":
 			_hide_npc_bubble()
 			var tween = create_tween()
@@ -786,8 +809,33 @@ func _on_menu_action_pressed(action_id: String):
 				_on_back_pressed()
 			)
 		_:
-			print("快捷模式 - 未知操作: ", action_id)
-			_show_action_bubble_from_ai(action_id)
+			_execute_interaction_handler(action_id)
+
+func _execute_interaction_handler(action_id: String) -> void:
+	var npc_data := MapDataManager.get_npc_data(current_interacting_npc_id)
+	var interactions: Variant = npc_data.get("interactions", [])
+	if interactions is Array:
+		for raw_interaction in interactions:
+			if not raw_interaction is Dictionary or str((raw_interaction as Dictionary).get("id", "")) != action_id:
+				continue
+			var handler: Dictionary = (raw_interaction as Dictionary).get("handler", {}) if (raw_interaction as Dictionary).get("handler", {}) is Dictionary else {}
+			var guide_action := str(handler.get("guide_action", "")).strip_edges()
+			if guide_action != "":
+				var guide_manager = get_node_or_null("/root/GuideManager")
+				if guide_manager and guide_manager.has_method("report_action"):
+					guide_manager.report_action(guide_action)
+			match str(handler.get("type", "result_bubble")):
+				"scene":
+					var scene_path := str(handler.get("scene_path", "")).strip_edges()
+					if scene_path != "":
+						_open_sub_menu(scene_path, action_id)
+				"result_bubble":
+					_show_action_bubble_from_ai(action_id)
+			return
+	_show_action_bubble_from_ai(action_id)
+
+func get_action_button_for_guide(action_id: String) -> Node:
+	return _action_buttons.get(action_id)
 
 func _on_back_pressed():
 	_hide_npc_bubble(true)
@@ -865,25 +913,6 @@ func _pick_action_bubble_line(npc_id: String, npc_name: String, npc_data: Dictio
 	if action_id == "study" and ("老师" in identity_text or "学长" in identity_text):
 		return _pick_line_from_candidates(["开始吧，先从你最没把握的部分讲。", "把注意力收回来，我们现在开始。"])
 	return "%s，准备好了就开始吧。".replace("%s", npc_name)
-
-func _inject_placeholder_interactions(interactions: Array) -> Array:
-	var result: Array = []
-	var existing_ids: Array = []
-	for existing_action in interactions:
-		if existing_action is Dictionary:
-			var existing_id := str(existing_action.get("id", "")).strip_edges()
-			if existing_id != "" and not existing_ids.has(existing_id):
-				existing_ids.append(existing_id)
-	for action in interactions:
-		result.append(action)
-		if not (action is Dictionary):
-			continue
-		var action_id := str(action.get("id", "")).strip_edges()
-		if location_id == "cafe" and current_interacting_npc_id == "ya" and action_id == "order" and not existing_ids.has("work"):
-			result.append({"id": "work", "label": "打工"})
-		elif location_id == "library" and current_interacting_npc_id == "jing" and action_id == "study" and not existing_ids.has("self_study"):
-			result.append({"id": "self_study", "label": "自习"})
-	return result
 
 func _show_action_bubble_from_ai(action_id: String, review_text: String = "") -> void:
 	if current_interacting_npc_id == "":
@@ -1011,7 +1040,7 @@ func _play_bubble_tts(text: String) -> void:
 	if not GameDataManager.config.voice_enabled:
 		print("[QuickLocationScene] NPC 气泡 TTS 跳过: voice_enabled=false")
 		return
-	var spoken_text := ChatSplitHelper.strip_parentheses(text).strip_edges()
+	var spoken_text := ChatSplitHelperScript.strip_parentheses(text).strip_edges()
 	if spoken_text == "":
 		print("[QuickLocationScene] NPC 气泡 TTS 跳过: 清理后文本为空 | raw=", text)
 		return

@@ -2,7 +2,8 @@ param(
 	[Parameter(Mandatory = $true)]
 	[string]$Script,
 	[Parameter(Mandatory = $true)]
-	[string]$SuccessMarker
+	[string]$SuccessMarker,
+	[int]$TimeoutSeconds = 90
 )
 
 $ErrorActionPreference = "Continue"
@@ -17,16 +18,59 @@ $originalAppData = $env:APPDATA
 $testAppData = Join-Path ([System.IO.Path]::GetTempPath()) ("galchat-story-smoke-" + [guid]::NewGuid().ToString("N"))
 $output = @()
 $exitCode = 1
+$timedOut = $false
+$failedFast = $false
+$process = $null
 try {
 	New-Item -ItemType Directory -Path $testAppData -Force | Out-Null
 	$env:APPDATA = $testAppData
+	$stdoutPath = Join-Path $testAppData "godot-stdout.log"
+	$stderrPath = Join-Path $testAppData "godot-stderr.log"
 	if ($Script.EndsWith(".tscn", [System.StringComparison]::OrdinalIgnoreCase)) {
-		$output = & $godot --path $projectPath --headless --language en --scene $Script 2>&1
+		$arguments = @("--path", "`"$projectPath`"", "--headless", "--language", "en", "--scene", $Script)
 	} else {
-		$output = & $godot --path $projectPath --headless --language en --script $Script 2>&1
+		$arguments = @("--path", "`"$projectPath`"", "--headless", "--language", "en", "--script", $Script)
 	}
-	$exitCode = $LASTEXITCODE
+	$process = Start-Process -FilePath $godot -ArgumentList $arguments -NoNewWindow -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+	$deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+	while (-not $process.WaitForExit(250)) {
+		$liveOutput = @()
+		if (Test-Path -LiteralPath $stdoutPath) {
+			$liveOutput += Get-Content -LiteralPath $stdoutPath -Raw -ErrorAction SilentlyContinue
+		}
+		if (Test-Path -LiteralPath $stderrPath) {
+			$liveOutput += Get-Content -LiteralPath $stderrPath -Raw -ErrorAction SilentlyContinue
+		}
+		$liveText = $liveOutput -join "`n"
+		if ($liveText -match "SCRIPT ERROR|Failed to load script|Parse Error") {
+			$failedFast = $true
+			& taskkill.exe /PID $process.Id /T /F 2>$null | Out-Null
+			$process.WaitForExit()
+			$exitCode = 1
+			break
+		}
+		if ([DateTime]::UtcNow -ge $deadline) {
+			$timedOut = $true
+			& taskkill.exe /PID $process.Id /T /F 2>$null | Out-Null
+			$process.WaitForExit()
+			$exitCode = 124
+			break
+		}
+	}
+	if (-not $failedFast -and -not $timedOut) {
+		$process.WaitForExit()
+		$exitCode = $process.ExitCode
+	}
+	if (Test-Path -LiteralPath $stdoutPath) {
+		$output += Get-Content -LiteralPath $stdoutPath
+	}
+	if (Test-Path -LiteralPath $stderrPath) {
+		$output += Get-Content -LiteralPath $stderrPath
+	}
 } finally {
+	if ($process -and -not $process.HasExited) {
+		& taskkill.exe /PID $process.Id /T /F 2>$null | Out-Null
+	}
 	$env:APPDATA = $originalAppData
 	if (Test-Path -LiteralPath $testAppData) {
 		Remove-Item -LiteralPath $testAppData -Recurse -Force -ErrorAction SilentlyContinue
@@ -43,6 +87,12 @@ $markerFound = [bool]($textOutput | Where-Object { $_ -match [regex]::Escape($Su
 
 if ($exitCode -ne 0 -or $storyErrors -or -not $markerFound) {
 	$textOutput | ForEach-Object { Write-Host $_ }
+	if ($timedOut) {
+		Write-Error "Godot smoke timed out after $TimeoutSeconds seconds: $Script"
+	}
+	if ($failedFast) {
+		Write-Error "Godot smoke stopped immediately after a script error: $Script"
+	}
 	if (-not $markerFound) {
 		Write-Error "Expected marker not found: $SuccessMarker"
 	}

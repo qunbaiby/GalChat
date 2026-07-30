@@ -3,42 +3,11 @@ extends Node
 const TTS_SERVICE_SCRIPT = preload("res://scripts/api/tts_service.gd")
 const CHAT_SPLIT_HELPER = preload("res://scripts/utils/chat_split_helper.gd")
 const COMPAT_CACHE_DIR := "user://tts_cache/by_key"
-const TTS_2_EXPRESSION_INSTRUCTIONS := {
-	"calm": "请用平静自然的语气说话，保持原本声线、音高和人物年龄感。",
-	"neutral": "请用自然克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"serious": "请用稍微认真但克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"worried": "请用略带担心但克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"shy": "请用略带害羞但自然的语气说话，保持原本声线、音高和人物年龄感。",
-	"happy": "请用略带开心但不过分夸张的语气说话，保持原本声线、音高和人物年龄感。",
-	"sad": "请用略带失落但克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"angry": "请用略带不满但保持平稳的语气说话，保持原本声线、音高和人物年龄感。",
-	"excited": "请用稍微兴奋但不过分夸张的语气说话，保持原本声线、音高和人物年龄感。",
-	"tender": "请用温柔自然的语气说话，保持原本声线、音高和人物年龄感。",
-	"surprise": "请用略带惊喜但不过分夸张的语气说话，保持原本声线、音高和人物年龄感。",
-	"expectant": "请用略带期待且自然的语气说话，保持原本声线、音高和人物年龄感。",
-	"nervous": "请用略带紧张但克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"down": "请用略带低落但克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"empty": "请用稍微慵懒放松的语气说话，保持原本声线、音高和人物年龄感。",
-	"tired": "请用略带疲惫并稍慢一点的语气说话，保持原本声线、音高和人物年龄感。",
-	"aggrieved": "请用略带委屈但不过分哭腔的语气说话，保持原本声线、音高和人物年龄感。",
-	"cry": "请用轻微哽咽但保持克制的语气说话，保持原本声线、音高和人物年龄感。",
-	"disgusted": "请用略带反感但保持平稳的语气说话，保持原本声线、音高和人物年龄感。",
-	"afraid": "请用略带害怕但不过分尖锐的语气说话，保持原本声线、音高和人物年龄感。",
-	"heartbeat": "请用略带心动且轻柔的语气说话，保持原本声线、音高和人物年龄感。",
-	"panic": "请用稍显慌张但不要尖叫的语气说话，保持原本声线、音高和人物年龄感。",
-	"helpless": "请用略显无奈但自然的语气说话，保持原本声线、音高和人物年龄感。",
-	"confused": "请用略带疑惑且自然的语气说话，保持原本声线、音高和人物年龄感。",
-	"ashamed": "请用略带羞愧并稍轻一点的语气说话，保持原本声线、音高和人物年龄感。",
-	"confident": "请用从容自信但不过分强势的语气说话，保持原本声线、音高和人物年龄感。",
-	"playful": "请用略带俏皮且轻快的语气说话，保持原本声线、音高和人物年龄感。"
-}
-const TTS_2_EXPRESSION_ALIASES := {
-	"平静": "calm", "平淡": "calm", "自然": "neutral", "严肃": "serious", "认真": "serious",
-	"担心": "worried", "焦虑": "worried", "害羞": "shy", "开心": "happy", "高兴": "happy",
-	"悲伤": "sad", "失落": "sad", "委屈": "sad", "生气": "angry", "愤怒": "angry",
-	"激动": "excited", "兴奋": "excited", "温柔": "tender"
-}
-const TTS_2_VOICE_IDENTITY_GUARD := "保持原本声线、音高和人物年龄感。"
+const SAFE_CACHE_KEY_PREFIX := "voice-natural-v3_"
+const TTS_2_INSTRUCTION_MAX_LENGTH := 300
+const TTS_2_IDENTITY_TERMS := ["音色", "声线", "音高", "年龄", "年龄感", "性别", "身份"]
+const TTS_2_OVERRIDE_VERBS := ["改变", "改成", "换成", "切换", "变成", "调整为", "模拟", "模仿", "伪装"]
+const TTS_2_FORBIDDEN_VOICE_TYPES := ["男声", "女声", "少女音", "萝莉音", "御姐音", "娃娃音", "童声", "少年音", "大叔音", "老人音"]
 
 signal tts_success(audio_stream: AudioStream, text: String)
 signal tts_failed(error_msg: String, text: String)
@@ -105,28 +74,45 @@ func get_cache_key(text: String, options: Dictionary = {}) -> String:
 	}
 	if final_options.has("additions") and final_options.get("additions", null) is Dictionary:
 		cache_payload["additions"] = (final_options.get("additions", {}) as Dictionary).duplicate(true)
-	return JSON.stringify(cache_payload, "", true).md5_text()
+	return SAFE_CACHE_KEY_PREFIX + JSON.stringify(cache_payload, "", true).md5_text()
 
-func build_tts_2_expression_options(expression: String) -> Dictionary:
-	var normalized_expression: String = expression.strip_edges().to_lower()
-	if TTS_2_EXPRESSION_ALIASES.has(normalized_expression):
-		normalized_expression = str(TTS_2_EXPRESSION_ALIASES.get(normalized_expression, "")).strip_edges()
-	var instruction: String = str(TTS_2_EXPRESSION_INSTRUCTIONS.get(normalized_expression, "")).strip_edges()
-	if instruction.is_empty():
-		return {}
-	return {"context_texts": [instruction]}
+func build_tts_2_expression_options(_expression: String) -> Dictionary:
+	return {}
 
-func build_tts_2_instruction_options(voice_instruction: String, fallback_expression: String = "") -> Dictionary:
-	var normalized_instruction: String = voice_instruction.strip_edges()
+func build_tts_2_instruction_options(voice_instruction: String, _fallback_expression: String = "") -> Dictionary:
+	var normalized_instruction: String = _sanitize_tts_2_instruction(voice_instruction)
 	if normalized_instruction.is_empty():
-		return build_tts_2_expression_options(fallback_expression)
-	if normalized_instruction.length() > 80:
-		normalized_instruction = normalized_instruction.left(80).strip_edges()
-	if not normalized_instruction.ends_with("。") and not normalized_instruction.ends_with("？") and not normalized_instruction.ends_with("！"):
-		normalized_instruction += "。"
-	if not normalized_instruction.contains("保持原本声线"):
-		normalized_instruction += TTS_2_VOICE_IDENTITY_GUARD
+		return {}
 	return {"context_texts": [normalized_instruction]}
+
+func _sanitize_tts_2_instruction(voice_instruction: String) -> String:
+	var normalized := voice_instruction.strip_edges()
+	if normalized.is_empty():
+		return ""
+	if not _is_tts_identity_override(normalized):
+		return normalized if normalized.length() <= TTS_2_INSTRUCTION_MAX_LENGTH else ""
+	var safe_segments: Array[String] = []
+	var sentence_normalized := normalized.replace("！", "。").replace("!", "。").replace("？", "。").replace("?", "。")
+	for raw_segment in sentence_normalized.split("。", false):
+		var segment := raw_segment.strip_edges()
+		if segment.is_empty() or _is_tts_identity_override(segment):
+			continue
+		safe_segments.append(segment)
+	var sanitized := "。".join(safe_segments).strip_edges()
+	return sanitized if sanitized.length() <= TTS_2_INSTRUCTION_MAX_LENGTH else ""
+
+func _is_tts_identity_override(instruction: String) -> bool:
+	var normalized := instruction.to_lower()
+	for voice_type in TTS_2_FORBIDDEN_VOICE_TYPES:
+		if normalized.contains(str(voice_type).to_lower()):
+			return true
+	for override_verb in TTS_2_OVERRIDE_VERBS:
+		if not normalized.contains(str(override_verb).to_lower()):
+			continue
+		for identity_term in TTS_2_IDENTITY_TERMS:
+			if normalized.contains(str(identity_term).to_lower()):
+				return true
+	return false
 
 func create_tts_2_section_id() -> String:
 	var seed_text := "%d:%d:%s" % [Time.get_ticks_usec(), randi(), str(Time.get_unix_time_from_system())]
@@ -141,7 +127,7 @@ func create_tts_2_section_id() -> String:
 
 func load_cached_audio_by_key(cache_key: String) -> AudioStream:
 	var normalized_key: String = cache_key.strip_edges()
-	if normalized_key.is_empty():
+	if normalized_key.is_empty() or not normalized_key.begins_with(SAFE_CACHE_KEY_PREFIX):
 		return null
 	for extension in ["mp3", "wav"]:
 		var cache_path: String = _build_compat_cache_path(normalized_key, extension)

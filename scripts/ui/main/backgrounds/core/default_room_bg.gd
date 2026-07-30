@@ -12,7 +12,6 @@ var _desktop_bubble_suspended := false
 var _ui_tween: Tween
 var _is_ui_hidden := false
 var _chat_button_available := true
-var _concern_mode_available := false
 var _chat_status_badge: PanelContainer = null
 var _chat_status_icon_label: Label = null
 var _chat_status_text_label: Label = null
@@ -69,13 +68,6 @@ func _has_main_story_available() -> bool:
 		return bool(main_scene.has_scene_chat_mainline_available())
 	return false
 
-func _compute_concern_mode_available() -> bool:
-	var main_scene := _get_main_scene()
-	return main_scene != null and main_scene.has_method("has_available_concern_template") and bool(main_scene.has_available_concern_template())
-
-func is_concern_mode_available() -> bool:
-	return _concern_mode_available and _chat_button_available and not _is_ui_hidden
-
 func set_chat_button_available(is_available: bool) -> void:
 	_chat_button_available = is_available
 	refresh_chat_button_state()
@@ -83,17 +75,13 @@ func set_chat_button_available(is_available: bool) -> void:
 func refresh_chat_button_state() -> void:
 	if not is_instance_valid(chat_button):
 		return
-	_concern_mode_available = _compute_concern_mode_available()
 	if _desktop_bubble_mode or _is_ui_hidden or not _chat_button_available:
 		chat_button.visible = false
 		_update_chat_button_status_badge("normal")
 		return
 	chat_button.visible = true
 	chat_button.modulate.a = 1.0
-	if _concern_mode_available:
-		_update_chat_button_status_badge("concern")
-	else:
-		_update_chat_button_status_badge("normal")
+	_update_chat_button_status_badge("normal")
 
 func _ensure_chat_button_decorations() -> void:
 	if not is_instance_valid(chat_button):
@@ -118,12 +106,6 @@ func _update_chat_button_status_badge(mode: String) -> void:
 			_chat_status_text_label.text = "主线"
 			_chat_status_icon_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.58, 1.0))
 			_chat_status_text_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.76, 1.0))
-		"concern":
-			_chat_status_badge.visible = true
-			_chat_status_icon_label.text = "..."
-			_chat_status_text_label.text = "心事"
-			_chat_status_icon_label.add_theme_color_override("font_color", Color(0.98, 0.74, 0.86, 1.0))
-			_chat_status_text_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.93, 1.0))
 		_:
 			_chat_status_badge.visible = false
 
@@ -381,7 +363,6 @@ func _on_time_advanced(_days: int, _current_period: String) -> void:
 		set_ui_hidden(true)
 
 func _check_story_button_visibility() -> void:
-	_concern_mode_available = _compute_concern_mode_available()
 	refresh_chat_button_state()
 	if _bubble_tween and _bubble_tween.is_valid() and (_desktop_bubble_mode or not _chat_button_available or _is_ui_hidden):
 		_bubble_tween.kill()

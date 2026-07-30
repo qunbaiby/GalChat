@@ -49,14 +49,10 @@ var is_voice_call_mode: bool = false
 var video_call_panel_instance = null
 var _current_call_is_incoming: bool = false
 var _current_viewing_image_path: String = ""
-var _follow_up_serial: int = 0
-var _last_player_mobile_text: String = ""
 var _pending_memory_observation_text: String = ""
 var ui_context: Node = null
 var call_window_host: Node = null
 var is_embedded_mode: bool = false
-const FOLLOW_UP_DELAY_MIN: float = 12.0
-const FOLLOW_UP_DELAY_MAX: float = 24.0
 var _default_panel_style: StyleBox = null
 var _default_panel_minimum_size: Vector2 = Vector2.ZERO
 var _default_top_bar_height: float = 60.0
@@ -96,8 +92,8 @@ func _ready() -> void:
 	rp_send_btn.pressed.connect(_on_rp_send_pressed)
 	
 	if deepseek_client:
-		deepseek_client.chat_request_completed.connect(_on_ai_response)
-		deepseek_client.chat_request_failed.connect(_on_ai_error)
+		deepseek_client.realize_turn_completed.connect(_on_realize_turn_completed)
+		deepseek_client.realize_turn_failed.connect(_on_realize_turn_failed)
 		
 	audio_player = AudioStreamPlayer.new()
 	add_child(audio_player)
@@ -454,6 +450,9 @@ func _mount_call_panel(panel: Control, window_title: String, default_size: Vecto
 func get_message_area_target() -> Control:
 	return scroll_container
 
+func get_message_list_target() -> Control:
+	return message_list
+
 func get_fixed_options_target() -> Control:
 	if is_instance_valid(fixed_options_container) and fixed_options_container.visible and fixed_options_container.get_child_count() > 0:
 		return fixed_options_container
@@ -629,27 +628,20 @@ func _on_rp_send_pressed() -> void:
 		_load_mobile_history()
 		_render_history()
 		
-		# 发起AI回复请求，由于上一步修改了chat_history，这里把刚发的红包和系统消息作为上下文带进去
-		var sys_prompt_text = "【系统提示：玩家给你发了一个%dG的红包: %s，并且你已经自动领取了。请你根据当前好感度、心情和你们的聊天语境，给玩家发送一段感谢或反应消息。如果好感度低可能表现得傲娇或惊讶。】" % [amount, text]
-		var fake_msg = {"speaker": "system", "text": sys_prompt_text}
-		chat_history.append(fake_msg)
-		
-		var red_packet_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
-			char_profile,
-			"mobile_chat",
-			sys_prompt_text
-		)
-		var messages = [{"role": "system", "content": red_packet_prompt}]
+		var recent_messages: Array = []
 		var recent = chat_history.slice(-10)
 		for msg in recent:
-			var msg_speaker = msg.get("speaker", "")
-			var msg_text = msg.get("text", "")
+			var normalized_msg = _normalize_history_message(msg)
+			var msg_speaker = normalized_msg.get("speaker", "")
+			var msg_text = normalized_msg.get("text", "")
+			if normalized_msg.get("type", "") == "red_packet" and (msg_speaker == "player" or msg_speaker == "user") and str(msg_text) == text:
+				continue
 			var role = "user" if msg_speaker == "player" or msg_speaker == "user" or msg_speaker == "system" else "assistant"
 			var msg_content = str(msg_text)
 			
-			if msg.get("type", "") == "system":
+			if normalized_msg.get("type", "") == "system":
 				msg_content = "【系统提示：%s】" % msg_content
-			elif msg.get("type", "") == "red_packet":
+			elif normalized_msg.get("type", "") == "red_packet":
 				msg_content = "【系统提示：[%s发了一个红包: %s]】" % [
 					"玩家" if msg_speaker == "player" or msg_speaker == "user" else "你", 
 					msg_content
@@ -657,14 +649,16 @@ func _on_rp_send_pressed() -> void:
 			elif msg_content.begins_with("[img]") and msg_content.ends_with("[/img]"):
 				msg_content = "【系统提示：[%s发送了一张照片]】" % ("玩家" if msg_speaker == "player" or msg_speaker == "user" else "你")
 				
-			messages.append({"role": role, "content": msg_content})
-			
-		chat_history.erase(fake_msg) # 移出伪造的系统提示
+			recent_messages.append({"role": role, "content": msg_content})
 		
 		input_edit.editable = false
 		send_btn.disabled = true
 		_pending_memory_observation_text = ""
-		deepseek_client.call_chat_api_non_stream(messages)
+		deepseek_client.send_realize_turn_message(text, "mobile_chat", {
+			"channel": "mobile_red_packet",
+			"recent_messages": recent_messages,
+			"additional_authoritative_context": "玩家刚刚向角色发送了一个%dG红包，红包留言原文见 current_player_turn；角色已经领取该红包。" % amount
+		})
 
 func _on_image_btn_pressed() -> void:
 	_hide_attachment_panel()
@@ -720,8 +714,8 @@ func _on_voice_call_ended() -> void:
 			
 	is_voice_call_mode = false
 	
-	if deepseek_client and deepseek_client.has_method("cancel_chat_request"):
-		deepseek_client.cancel_chat_request()
+	if deepseek_client:
+		deepseek_client.cancel_realize_turn_requests()
 		
 	input_edit.editable = true
 	send_btn.disabled = false
@@ -762,8 +756,8 @@ func _on_video_call_ended() -> void:
 			
 	is_voice_call_mode = false
 	
-	if deepseek_client and deepseek_client.has_method("cancel_chat_request"):
-		deepseek_client.cancel_chat_request()
+	if deepseek_client:
+		deepseek_client.cancel_realize_turn_requests()
 		
 	input_edit.editable = true
 	send_btn.disabled = false
@@ -811,8 +805,6 @@ func _on_input_submitted(text: String) -> void:
 	_on_send_pressed()
 
 func _send_player_message(text: String) -> void:
-	_follow_up_serial += 1
-	_last_player_mobile_text = text
 	_add_message_bubble("player", text)
 	_save_message_to_history("player", text)
 	
@@ -824,27 +816,14 @@ func _send_player_message(text: String) -> void:
 
 func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
 	if not deepseek_client: return
-	_pending_memory_observation_text = ""
 	
 	var call_type_str = "视频通话" if is_video else "语音通话"
-	var scenario = ""
+	var scenario: String
 	if is_incoming:
-		scenario = "【系统提示：你刚刚主动给玩家打了一个%s，玩家刚刚接通了。请你先开口说第一句话，不要发表情或动作，直接用自然口吻开始聊天。结合你当前的性格、阶段和心情来回应。】" % call_type_str
+		scenario = "角色主动发起的%s刚刚被玩家接通。" % call_type_str
 	else:
-		scenario = "【系统提示：玩家刚刚给你打了一个%s，你接通了。请你先开口说第一句话，不要发表情或动作，直接用自然口吻回应。结合你当前的性格、阶段和心情来回应。】" % call_type_str
-		
-	# 不保存这段 prompt 到历史记录，只是作为一次性的 system/user 引导
-	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
-		char_profile,
-		"mobile_chat",
-		scenario
-	)
+		scenario = "玩家发起的%s刚刚被角色接通。" % call_type_str
 	
-	var messages = [{"role": "system", "content": system_prompt}]
-	
-	messages.append({"role": "user", "content": scenario})
-	
-	# 禁用按钮
 	input_edit.editable = false
 	send_btn.disabled = true
 	if voice_call_panel_instance and voice_call_panel_instance.visible:
@@ -852,30 +831,31 @@ func _request_proactive_call_message(is_incoming: bool, is_video: bool) -> void:
 	elif video_call_panel_instance and video_call_panel_instance.visible:
 		video_call_panel_instance.set_loading_state()
 		
-	deepseek_client.call_chat_api_non_stream(messages)
+	deepseek_client.send_realize_turn_message(scenario, "mobile_chat", {
+		"channel": "mobile_call",
+		"call_type": "video" if is_video else "voice",
+		"turn_origin": "program_event",
+		"recent_messages": [],
+		"additional_authoritative_context": "通话已经接通；角色现在需要自然地说出第一句话。"
+	})
 
 func _request_ai_call_response(player_text: String) -> void:
 	if not deepseek_client: return
-	_pending_memory_observation_text = ""
-	
-	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
-		char_profile,
-		"mobile_chat",
-		player_text
-	)
-	
-	var messages = [{"role": "system", "content": system_prompt}]
-	
-	# Add recent call history (last 10 messages)
+	var recent_messages: Array = []
 	var recent = current_call_history.slice(-10)
 	for msg in recent:
 		var normalized_msg = _normalize_history_message(msg)
 		var msg_speaker = normalized_msg.get("speaker", "")
 		var msg_text = normalized_msg.get("text", "")
 		var role = "user" if msg_speaker == "player" or msg_speaker == "user" else "assistant"
-		messages.append({"role": role, "content": msg_text})
-		
-	deepseek_client.call_chat_api_non_stream(messages)
+		recent_messages.append({"role": role, "content": msg_text})
+	var is_video: bool = video_call_panel_instance != null and bool(video_call_panel_instance.visible)
+	deepseek_client.send_realize_turn_message(player_text, "mobile_chat", {
+		"channel": "mobile_call",
+		"call_type": "video" if is_video else "voice",
+		"recent_messages": recent_messages,
+		"additional_authoritative_context": "玩家与角色当前正在%s中；角色的回复会被立即朗读。" % ("视频通话" if is_video else "语音通话")
+	})
 
 func _request_ai_response(player_text: String) -> void:
 	if not deepseek_client: return
@@ -885,20 +865,15 @@ func _request_ai_response(player_text: String) -> void:
 	if player_text.begins_with("[img]") and player_text.ends_with("[/img]"):
 		processed_text = "【系统动作：玩家向你发送了一张刚刚拍摄的照片。】"
 		
-	var system_prompt: String = await GameDataManager.memory_retrieval_service.build_system_prompt(
-		char_profile,
-		"mobile_chat",
-		processed_text
-	)
-	
-	var messages = [{"role": "system", "content": system_prompt}]
-	
-	# Add recent history (last 10 messages)
+	var recent_messages: Array = []
 	var recent = chat_history.slice(-10)
-	for msg in recent:
+	for message_index in range(recent.size()):
+		var msg = recent[message_index]
 		var normalized_msg = _normalize_history_message(msg)
 		var msg_speaker = normalized_msg.get("speaker", "")
 		var msg_text = normalized_msg.get("text", "")
+		if message_index == recent.size() - 1 and (msg_speaker == "player" or msg_speaker == "user") and str(msg_text) == player_text:
+			continue
 		var role = "user" if msg_speaker == "player" or msg_speaker == "user" or msg_speaker == "system" else "assistant"
 		var msg_content = str(msg_text)
 		
@@ -912,94 +887,108 @@ func _request_ai_response(player_text: String) -> void:
 		elif msg_content.begins_with("[img]") and msg_content.ends_with("[/img]"):
 			msg_content = "【系统提示：[%s发送了一张照片]】" % ("玩家" if msg_speaker == "player" or msg_speaker == "user" else "你")
 			
-		messages.append({"role": role, "content": msg_content})
-		
-	deepseek_client.call_chat_api_non_stream(messages)
+		recent_messages.append({"role": role, "content": msg_content})
+	var request_context := {
+		"channel": "mobile_chat",
+		"recent_messages": recent_messages
+	}
+	if processed_text != player_text:
+		request_context["additional_authoritative_context"] = processed_text
+	deepseek_client.send_realize_turn_message(player_text, "mobile_chat", request_context)
 
-func _on_ai_response(response: Dictionary) -> void:
+func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dictionary) -> void:
+	if str(request_context.get("channel", "")) == "mobile_call":
+		_accept_realized_call_turn(realized_turn, request_context)
+		return
+	var channel := str(request_context.get("channel", ""))
+	if (channel != "mobile_chat" and channel != "mobile_red_packet") or is_voice_call_mode:
+		return
 	input_edit.editable = true
 	send_btn.disabled = false
-	
-	if response.has("choices") and response["choices"].size() > 0:
-		var content = response["choices"][0].get("message", {}).get("content", "")
-		
-		# 强制过滤所有的括号及其内部内容，确保只剩下纯文本
-		var regex = RegEx.new()
-		# 匹配各种中英文括号及其内部的任意字符（包括动作、神态等）
-		regex.compile("(\\(.*?\\)|\\（.*?\\）|\\[.*?\\]|\\【.*?\\】|\\<.*?\\>|\\《.*?\\》|\\{.*?\\}|\\*.*?\\*)")
-		var clean_content = regex.sub(content, "", true).strip_edges()
-		
-		# 如果全被过滤掉了，说明AI只发了括号动作（虽然概率极低），我们给个默认值
-		if clean_content == "":
-			clean_content = "..."
-			
-		# Split by [SPLIT] if any (注意，如果AI依然输出了 [SPLIT]，上面的正则可能会把它当成括号过滤掉。所以我们需要先把 [SPLIT] 替换成安全字符，过滤完再替换回来，或者修改正则不要过滤大写的SPLIT)
-		# 更好的做法是，先按照 [SPLIT] 拆分，然后对每部分分别过滤
-		
-		var parts = ChatSplitHelper.merge_incomplete_parentheses(content.split("[SPLIT]"))
-		
-		if is_voice_call_mode:
-			if voice_call_panel_instance and voice_call_panel_instance.visible:
-				# 此时把原始内容传给通话面板，那边可能也会过滤，或者我们在这里先过滤
-				# 这里我们统一先过滤
-				for i in range(parts.size()):
-					parts[i] = regex.sub(parts[i], "", true).strip_edges()
-					if parts[i] == "": parts[i] = "..."
-				
-				voice_call_panel_instance.add_character_message("[SPLIT]".join(parts))
-			elif video_call_panel_instance and video_call_panel_instance.visible:
-				for i in range(parts.size()):
-					parts[i] = regex.sub(parts[i], "", true).strip_edges()
-					if parts[i] == "": parts[i] = "..."
-					
-				video_call_panel_instance.add_character_message("[SPLIT]".join(parts))
-			
-			# 将其记录在通话历史中，而不是聊天历史
-			for part in parts:
-				if part != "":
-					current_call_history.append({"speaker": "char", "text": part})
-		else:
-			for part in parts:
-				var clean_part = regex.sub(part, "", true).strip_edges()
-				if clean_part != "":
-					# 随机触发角色发红包 (例如文本包含特定词汇)
-					if clean_part.find("红包") != -1 and clean_part.find("给") != -1 and randf() < 0.6:
-						var rp_amount = randi_range(50, 200)
-						var rp_msg = {
-							"speaker": "char",
-							"type": "red_packet",
-							"text": "给你的红包！",
-							"amount": rp_amount,
-							"status": "unclaimed"
-						}
-						rp_msg["is_read"] = visible
-						_append_history_message(rp_msg, visible)
-						
-					# 20% chance to be a voice message
-					var is_voice = randf() < 0.2
-					var duration = max(1, int(clean_part.length() / 4.0)) if is_voice else 0
-					
-					if visible:
-						_add_message_bubble("char", clean_part, is_voice, duration)
-					_save_message_to_history("char", clean_part, is_voice, duration, visible)
-			var observed_player_text := _pending_memory_observation_text
-			_pending_memory_observation_text = ""
-			if GameDataManager.memory_observation_service and not observed_player_text.is_empty():
-				GameDataManager.memory_observation_service.observe_completed_turn("mobile_chat", observed_player_text, clean_content)
-			_schedule_follow_up_message(_last_player_mobile_text, clean_content)
-					
-			# Scroll to bottom
-			await get_tree().create_timer(0.1).timeout
-			scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
-	else:
-		var sys_msg = {
-			"speaker": "system",
-			"type": "system",
-			"text": "消息发送失败..."
+	var segments: Variant = realized_turn.get("segments")
+	if not segments is Array or segments.is_empty():
+		_on_realize_turn_failed("角色回复没有可展示内容。", request_context)
+		return
+	var accepted_speech: Array[String] = []
+	for index in range(segments.size()):
+		var segment: Variant = segments[index]
+		if not segment is Dictionary:
+			continue
+		var speech := str(segment.get("speech", "")).strip_edges()
+		var message := {
+			"speaker": "char",
+			"text": speech,
+			"time": Time.get_datetime_string_from_system(),
+			"is_voice": randf() < 0.2,
+			"duration": maxi(1, int(speech.length() / 4.0)),
+			"is_read": visible,
+			"delivery_instruction": str(segment.get("delivery_instruction", "")).strip_edges(),
+			"reply_pipeline": str(request_context.get("reply_pipeline", "realize_turn_v6")),
+			"ai_request_id": str(request_context.get("request_id", "")),
+			"memory_trace_id": str(request_context.get("trace_id", "")),
+			"response_segment_index": index,
+			"response_adopted": true
 		}
-		_add_message_to_ui(sys_msg)
-		chat_history.append(sys_msg)
-		_save_mobile_history()
+		if not message["is_voice"]:
+			message["duration"] = 0
+		_append_history_message(message, visible)
+		if GameDataManager.memory_retrieval_trace_service:
+			GameDataManager.memory_retrieval_trace_service.mark_response_adopted(str(request_context.get("trace_id", "")), speech, index)
+		accepted_speech.append(speech)
+	var observed_player_text := _pending_memory_observation_text
+	_pending_memory_observation_text = ""
+	if GameDataManager.memory_observation_service and not observed_player_text.is_empty():
+		GameDataManager.memory_observation_service.observe_completed_turn("mobile_chat", observed_player_text, "\n".join(accepted_speech))
+	await get_tree().create_timer(0.1).timeout
+	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+
+func _on_realize_turn_failed(error_message: String, request_context: Dictionary) -> void:
+	if str(request_context.get("channel", "")) == "mobile_call":
+		input_edit.editable = true
+		send_btn.disabled = false
+		var call_panel = video_call_panel_instance if str(request_context.get("call_type", "")) == "video" else voice_call_panel_instance
+		if call_panel and call_panel.visible:
+			call_panel.status_label.text = "网络错误: " + error_message
+			call_panel.record_btn.disabled = false
+		return
+	var channel := str(request_context.get("channel", ""))
+	if (channel != "mobile_chat" and channel != "mobile_red_packet") or is_voice_call_mode:
+		return
+	_on_ai_error(error_message)
+
+func _accept_realized_call_turn(realized_turn: Dictionary, request_context: Dictionary) -> void:
+	input_edit.editable = true
+	send_btn.disabled = false
+	var call_panel = video_call_panel_instance if str(request_context.get("call_type", "")) == "video" else voice_call_panel_instance
+	if call_panel == null or not call_panel.visible:
+		return
+	var segments: Variant = realized_turn.get("segments")
+	if not segments is Array or segments.is_empty():
+		_on_realize_turn_failed("角色回复没有可播放内容。", request_context)
+		return
+	var accepted_speech: Array[String] = []
+	for index in range(segments.size()):
+		var segment: Variant = segments[index]
+		if not segment is Dictionary:
+			continue
+		var speech := str(segment.get("speech", "")).strip_edges()
+		var call_message := {
+			"speaker": "char",
+			"text": speech,
+			"voice_instruction": str(segment.get("delivery_instruction", "")).strip_edges(),
+			"reply_pipeline": str(request_context.get("reply_pipeline", "realize_turn_v6")),
+			"ai_request_id": str(request_context.get("request_id", "")),
+			"memory_trace_id": str(request_context.get("trace_id", "")),
+			"response_segment_index": index,
+			"response_adopted": true
+		}
+		current_call_history.append(call_message)
+		call_panel.add_character_message(call_message)
+		if GameDataManager.memory_retrieval_trace_service:
+			GameDataManager.memory_retrieval_trace_service.mark_response_adopted(str(request_context.get("trace_id", "")), speech, index)
+		accepted_speech.append(speech)
+	if GameDataManager.memory_observation_service and str(request_context.get("turn_origin", "player_input")) == "player_input":
+		GameDataManager.memory_observation_service.observe_completed_turn("mobile_call", str(request_context.get("player_text", "")), "\n".join(accepted_speech))
 
 func _on_ai_error(err_msg: String) -> void:
 	_pending_memory_observation_text = ""
@@ -1118,12 +1107,13 @@ func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 		_render_history()
 	)
 
-func _play_voice_message(text: String) -> void:
+func _play_voice_message(text: String, msg: Dictionary = {}) -> void:
 	if GameDataManager.config.voice_enabled:
-		var options = {}
+		var options: Dictionary = {}
 		if GameDataManager.config.tts_character_speakers.has(current_char_id):
 			options["speaker"] = GameDataManager.config.tts_character_speakers[current_char_id]
-			
+		options.merge(TTSManager.build_tts_2_instruction_options(str(msg.get("delivery_instruction", ""))), true)
+		TTSManager.synthesize(text, options)
 
 func _load_mobile_history() -> void:
 	chat_history.clear()
@@ -1295,51 +1285,6 @@ func _notify_mobile_social_changed() -> void:
 				pass
 			return
 		curr = curr.get_parent()
-
-func _schedule_follow_up_message(player_text: String, ai_reply: String) -> void:
-	if is_voice_call_mode or current_char_id == "":
-		return
-	if randf() > 0.35:
-		return
-	var serial = _follow_up_serial
-	var delay = randf_range(FOLLOW_UP_DELAY_MIN, FOLLOW_UP_DELAY_MAX)
-	call_deferred("_run_follow_up_message", serial, player_text, ai_reply, delay)
-
-func _run_follow_up_message(serial: int, player_text: String, ai_reply: String, delay: float) -> void:
-	await get_tree().create_timer(delay).timeout
-	if serial != _follow_up_serial:
-		return
-	if current_char_id == "" or char_profile == null or deepseek_client == null:
-		return
-	if is_voice_call_mode:
-		return
-	var clean_content = _build_follow_up_message(player_text, ai_reply)
-	if clean_content == "":
-		return
-	var is_now_visible = visible and input_edit.editable
-	_save_message_to_history("char", clean_content, false, 0, is_now_visible)
-	if is_now_visible:
-		_add_message_bubble("char", clean_content)
-
-func _build_follow_up_message(player_text: String, ai_reply: String) -> String:
-	var trimmed_player = player_text.strip_edges()
-	var intimacy = char_profile.intimacy if char_profile else 0.0
-	var trust = char_profile.trust if char_profile else 0.0
-	if trimmed_player.find("?") != -1 or trimmed_player.find("？") != -1:
-		return "刚刚忘了说，我其实还挺在意你这个问题的。"
-	if trimmed_player.find("晚安") != -1:
-		return "真的要去休息的话，记得把被子盖好。"
-	if trimmed_player.find("忙") != -1 or trimmed_player.find("工作") != -1 or trimmed_player.find("学习") != -1:
-		return "你先忙你的，空下来再回我也没关系。"
-	if trimmed_player.find("照片") != -1 or trimmed_player.find("[img]") != -1:
-		return "那张图我刚刚又想了一下，越看越像你的风格。"
-	if intimacy + trust >= 140.0:
-		return "还有一件小事，我刚刚其实有点舍不得你这么快停下。"
-	if intimacy + trust >= 90.0:
-		return "对了，等你有空了，刚才那个话题我还想继续聊。"
-	if ai_reply.find("红包") != -1:
-		return "别突然对我这么好，我会记住的。"
-	return "对了，我刚刚又想起一点，晚点也可以继续和我说。"
 
 func show_panel() -> void:
 	_hide_attachment_panel()

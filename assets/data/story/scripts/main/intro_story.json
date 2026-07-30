@@ -1,7 +1,7 @@
 {
     "script_id": "intro_story",
     "story_location_id": "studio",
-    "day_offset": 0,
+    "day_offset": 0.0,
     "story_period": "上午",
     "use_portraits": false,
     "memory_enabled": true,
@@ -11,7 +11,10 @@
             "layer": "bond",
             "scope": "player_shared",
             "visibility": "prompt",
-            "participants": ["player", "luna"],
+            "participants": [
+                "player",
+                "luna"
+            ],
             "player_involved": true,
             "player_witnessed": true,
             "is_bond_mark": true,
@@ -134,7 +137,13 @@
                 {
                     "type": "dialogue",
                     "speaker": "luna",
-                    "content": "{player_title}，这一周的基础课程规划，就再拜托你啦……\n在你的帮助下，我会慢慢找到方向的。"
+                    "content": "{player_title}，这一周的基础课程规划，就再拜托你啦……在你的帮助下，我会慢慢找到方向的。",
+                    "character": "",
+                    "expression": "",
+                    "display_name": "",
+                    "mood": "",
+                    "focus": false,
+                    "voice_instruction": ""
                 },
                 {
                     "type": "audio",

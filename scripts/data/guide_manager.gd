@@ -7,11 +7,13 @@ signal feature_states_changed
 
 const GUIDE_DATA_PATH := "res://assets/data/guide/guide_flows.json"
 const GUIDE_STATE_KEY := "guide_state_v1"
-const GUIDE_FLOW_REVISION := 3
+const GUIDE_FLOW_REVISION := 5
 const AI_ROUND_GUIDE_INSERT_INDEX := 19
 const DEFAULT_GUIDE_ID := "schedule_onboarding_guide"
 const DEMO_GUIDE_ID := "map_story_demo_guide"
+const DAY6_LIBRARY_GUIDE_ID := "day6_library_guidance_guide"
 const GUIDE_SCENE_PATH := "res://scenes/ui/story/story_scene.tscn"
+const GUIDE_OVERLAY_LAYER := 200
 const GUIDE_LOCK_HINT := "当前处于新手引导中，暂未解锁该功能。"
 const GuideOverlayScene = preload("res://scenes/ui/guide/guide_overlay.tscn")
 const ConditionManagerScript = preload("res://scripts/data/condition_manager.gd")
@@ -20,23 +22,31 @@ const MAIN_SCENE_FEATURE_PATHS := {
 	"main.affection": "UIPanel/AffectionButton",
 	"main.goal": "UIPanel/GoalPanel",
 	"main.stats": "UIPanel/StatsPanelAnchor/StatsPanel",
-	"main.wechat": "UIPanel/BottomBarHBox/BtnHBox/WeChatButton",
+	"main.energy": "UIPanel/TopStatusPanel/MarginContainer/HBoxContainer/EnergySlot",
 	"main.diary": "UIPanel/BottomBarHBox/BtnHBox/GiftButton",
 	"main.wardrobe": "UIPanel/BottomBarHBox/BtnHBox/WardrobeButton",
 	"main.main_action": "UIPanel/BottomBarHBox/ActionHBox/MainActionButton",
 	"main.chat": "UIPanel/InteractGroup/ChatButton",
 	"main.gift": "UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame/AffectionPanel/RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn/GiftButton",
-	"main.date": "UIPanel/DateButton",
-	"main.phone": "UIPanel/SystemButton/ToolBarMargin/HBox/PhoneButton"
+	"main.date": "UIPanel/DateButton"
+}
+const DEFAULT_LOCKED_FEATURES := {
+	"main.diary": true,
+	"main.creation": true,
+	"main.wardrobe": true,
+	"main.date": true
 }
 
 var _guide_defs: Dictionary = {}
 var _state: Dictionary = {}
 var _overlay: Control = null
+var _overlay_layer: CanvasLayer = null
 var _overlay_attach_queued: bool = false
 var _main_scene_ref: WeakRef = null
 var _world_map_scene_ref: WeakRef = null
 var _location_detail_panel_ref: WeakRef = null
+var _quick_location_scene_ref: WeakRef = null
+var _tutoring_panel_ref: WeakRef = null
 var _activity_panel_ref: WeakRef = null
 var _schedule_execution_panel_ref: WeakRef = null
 
@@ -114,7 +124,6 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 			normalized["current_step_index"] = previous_step_index + 1
 		elif previous_step_index == 21:
 			normalized["current_step_index"] = 22
-	normalized["guide_flow_revision"] = GUIDE_FLOW_REVISION
 	var completed_guides: Array[String] = []
 	var raw_completed: Variant = raw_state.get("completed_guides", [])
 	if raw_completed is Array:
@@ -122,6 +131,22 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 			var guide_id := str(item).strip_edges()
 			if guide_id != "":
 				completed_guides.append(guide_id)
+	if saved_revision < 4 and completed_guides.has(DAY6_LIBRARY_GUIDE_ID) and GameDataManager.profile.has_finished_story("jing_library_guidance"):
+		completed_guides.erase(DAY6_LIBRARY_GUIDE_ID)
+		normalized["active_guide_id"] = DAY6_LIBRARY_GUIDE_ID
+		normalized["current_step_index"] = 5
+	if saved_revision < 5 and str(normalized["active_guide_id"]) == DEFAULT_GUIDE_ID and GameDataManager.profile.has_finished_story("jing_piano_practice_followup"):
+		var onboarding_steps: Array = (_guide_defs.get(DEFAULT_GUIDE_ID, {}) as Dictionary).get("steps", [])
+		var current_index := int(normalized["current_step_index"])
+		var current_step_id := ""
+		if current_index >= 0 and current_index < onboarding_steps.size():
+			current_step_id = str((onboarding_steps[current_index] as Dictionary).get("id", ""))
+		if current_step_id in ["explain_guided_ai_round_limit", "finish_first_chat_after_goal"]:
+			for step_index in range(onboarding_steps.size()):
+				if str((onboarding_steps[step_index] as Dictionary).get("id", "")) == "inspect_main_panels_after_interact":
+					normalized["current_step_index"] = step_index
+					break
+	normalized["guide_flow_revision"] = GUIDE_FLOW_REVISION
 	normalized["completed_guides"] = completed_guides
 	var feature_unlocks: Dictionary = {}
 	var raw_feature_unlocks: Variant = raw_state.get("feature_unlocks", {})
@@ -147,6 +172,14 @@ func _save_state() -> bool:
 	return result is bool and bool(result)
 
 func _ensure_overlay() -> bool:
+	var tree := get_tree()
+	if tree == null or tree.root == null:
+		return false
+	if not is_instance_valid(_overlay_layer):
+		_overlay_layer = CanvasLayer.new()
+		_overlay_layer.name = "GuideOverlayLayer"
+		_overlay_layer.layer = GUIDE_OVERLAY_LAYER
+		add_child(_overlay_layer)
 	if not is_instance_valid(_overlay):
 		_overlay = GuideOverlayScene.instantiate()
 		_overlay.name = "GuideOverlay"
@@ -158,11 +191,8 @@ func _ensure_overlay() -> bool:
 			_overlay.background_pressed.connect(_on_overlay_background_pressed)
 		if _overlay.has_signal("focus_pressed") and not _overlay.focus_pressed.is_connected(_on_overlay_focus_pressed):
 			_overlay.focus_pressed.connect(_on_overlay_focus_pressed)
-	var tree := get_tree()
-	if tree == null or tree.root == null:
-		return false
-	if _overlay.get_parent() == tree.root:
-		tree.root.move_child(_overlay, -1)
+	if _overlay.get_parent() == _overlay_layer:
+		_overlay_layer.move_child(_overlay, -1)
 		return true
 	if not _overlay_attach_queued:
 		_overlay_attach_queued = true
@@ -176,14 +206,18 @@ func _attach_overlay_to_root() -> void:
 	var tree := get_tree()
 	if tree == null or tree.root == null:
 		return
-	var root := tree.root
+	if not is_instance_valid(_overlay_layer):
+		_overlay_layer = CanvasLayer.new()
+		_overlay_layer.name = "GuideOverlayLayer"
+		_overlay_layer.layer = GUIDE_OVERLAY_LAYER
+		add_child(_overlay_layer)
 	var overlay_parent := _overlay.get_parent()
 	if overlay_parent == null:
-		root.add_child(_overlay)
-	elif overlay_parent != root:
-		_overlay.reparent(root)
-	if _overlay.get_parent() == root:
-		root.move_child(_overlay, -1)
+		_overlay_layer.add_child(_overlay)
+	elif overlay_parent != _overlay_layer:
+		_overlay.reparent(_overlay_layer)
+	if _overlay.get_parent() == _overlay_layer:
+		_overlay_layer.move_child(_overlay, -1)
 	_refresh_current_step_display()
 
 func _on_overlay_skip_pressed() -> void:
@@ -193,10 +227,38 @@ func _on_overlay_background_pressed(action_id: String) -> void:
 	report_action(action_id)
 
 func _on_overlay_focus_pressed(action_id: String) -> void:
+	var step_data := _get_current_step()
+	var overlay_options: Dictionary = step_data.get("overlay_options", {}) if step_data.get("overlay_options", {}) is Dictionary else {}
+	var focus_handler_method := str(overlay_options.get("focus_handler_method", "")).strip_edges()
+	if focus_handler_method != "":
+		var main_scene := _resolve_main_scene()
+		if is_instance_valid(main_scene) and main_scene.has_method(focus_handler_method):
+			main_scene.call(focus_handler_method)
+			return
+	if action_id == "open_music_playlist":
+		var main_scene := _resolve_main_scene()
+		if is_instance_valid(main_scene) and main_scene.has_method("open_music_playlist_from_guide"):
+			main_scene.open_music_playlist_from_guide()
+			return
+	if action_id == "click_main_goal":
+		var main_scene := _resolve_main_scene()
+		if is_instance_valid(main_scene) and main_scene.has_method("open_main_goal_story_from_guide"):
+			main_scene.open_main_goal_story_from_guide()
+			return
 	if action_id == "open_affection":
 		var main_scene := _resolve_main_scene()
 		if is_instance_valid(main_scene) and main_scene.has_method("open_affection_from_guide"):
 			main_scene.open_affection_from_guide()
+			return
+	if action_id == "open_first_daily_chat":
+		var main_scene := _resolve_main_scene()
+		if is_instance_valid(main_scene) and main_scene.has_method("open_daily_chat_from_guide"):
+			main_scene.open_daily_chat_from_guide()
+			return
+	if action_id == "open_map":
+		var main_scene := _resolve_main_scene()
+		if is_instance_valid(main_scene) and main_scene.has_method("open_map_from_guide"):
+			main_scene.open_map_from_guide()
 			return
 	report_action(action_id)
 
@@ -224,6 +286,14 @@ func on_world_map_scene_ready(world_map_scene: Node) -> void:
 func on_location_detail_panel_ready(panel: Node) -> void:
 	_location_detail_panel_ref = weakref(panel)
 	_refresh_current_step_display()
+
+func on_quick_location_scene_ready(scene: Node) -> void:
+	_quick_location_scene_ref = weakref(scene)
+	call_deferred("_refresh_current_step_display")
+
+func on_tutoring_panel_ready(panel: Node) -> void:
+	_tutoring_panel_ref = weakref(panel)
+	call_deferred("_refresh_current_step_display")
 
 func on_activity_panel_ready(panel: Node) -> void:
 	_activity_panel_ref = weakref(panel)
@@ -267,6 +337,20 @@ func start_guide(guide_id: String) -> bool:
 
 func start_demo_guide() -> bool:
 	return start_guide(DEMO_GUIDE_ID)
+
+func start_scheduled_guides_if_needed() -> bool:
+	if not is_guide_opted_in() or get_active_guide_id() != "":
+		return false
+	if not GameDataManager.story_time_manager or not GameDataManager.story_time_manager.has_method("get_current_start_guide_ids"):
+		return false
+	var guide_ids: Array[String] = GameDataManager.story_time_manager.get_current_start_guide_ids()
+	for guide_id in guide_ids:
+		if _guide_defs.has(guide_id) and not is_guide_completed(guide_id):
+			return start_guide(guide_id)
+	return false
+
+func start_day6_library_guide_if_needed() -> bool:
+	return start_scheduled_guides_if_needed()
 
 func is_guide_opted_in() -> bool:
 	return true
@@ -313,6 +397,8 @@ func is_feature_unlocked(feature_id: String, default_unlocked: bool = true) -> b
 	var unlocks: Dictionary = _state.get("feature_unlocks", {})
 	if unlocks.has(feature_id):
 		return bool(unlocks[feature_id])
+	if DEFAULT_LOCKED_FEATURES.has(feature_id):
+		return false
 	return default_unlocked
 
 func set_feature_unlocked(feature_id: String, unlocked: bool, scene: Node = null, save_now: bool = true) -> bool:
@@ -351,19 +437,31 @@ func set_feature_unlocks(raw_updates: Dictionary, scene: Node = null, save_now: 
 	apply_main_scene_feature_states(scene)
 	return true
 
-func report_action(action_id: String, _payload: Dictionary = {}) -> bool:
+func report_action(action_id: String, payload: Dictionary = {}) -> bool:
 	var current_step := _get_current_step()
 	if current_step.is_empty():
 		return false
 	var wait_action := str(current_step.get("wait_action", "")).strip_edges()
 	if wait_action == "" or wait_action != action_id.strip_edges():
 		return false
+	var payload_match: Variant = current_step.get("action_payload_match", {})
+	if payload_match is Dictionary:
+		for raw_key in (payload_match as Dictionary).keys():
+			var key := str(raw_key)
+			if not payload.has(key) or payload[key] != (payload_match as Dictionary)[raw_key]:
+				return false
 	_advance_step()
 	return true
 
 func report_story_finished(script_id: String, _script_meta: Dictionary = {}) -> bool:
 	var current_step := _get_current_step()
 	if current_step.is_empty():
+		return false
+	if str(current_step.get("type", "")).strip_edges() == "wait_action" and str(current_step.get("wait_action", "")).strip_edges() == "story_finished":
+		var expected_wait_script_id := str(current_step.get("action_payload_match", {}).get("script_id", "")).strip_edges()
+		if expected_wait_script_id == "" or expected_wait_script_id == script_id.strip_edges():
+			_advance_step()
+			return true
 		return false
 	if str(current_step.get("type", "")).strip_edges() != "play_story":
 		return false
@@ -509,7 +607,7 @@ func _complete_active_guide() -> void:
 	_save_state()
 	_hide_overlay()
 	apply_main_scene_feature_states()
-	if ToastManager and ToastManager.has_method("show_system_toast"):
+	if bool(guide_data.get("show_completion_toast", true)) and ToastManager and ToastManager.has_method("show_system_toast"):
 		ToastManager.show_system_toast("新手引导已完成，更多功能已解锁")
 	guide_completed.emit(active_guide_id)
 
@@ -656,6 +754,20 @@ func _resolve_location_detail_panel() -> Node:
 			return ref_value
 	return null
 
+func _resolve_quick_location_scene() -> Node:
+	if _quick_location_scene_ref != null:
+		var ref_value = _quick_location_scene_ref.get_ref()
+		if is_instance_valid(ref_value):
+			return ref_value
+	return null
+
+func _resolve_tutoring_panel() -> Node:
+	if _tutoring_panel_ref != null:
+		var ref_value = _tutoring_panel_ref.get_ref()
+		if is_instance_valid(ref_value):
+			return ref_value
+	return null
+
 func _resolve_activity_panel() -> Node:
 	if _activity_panel_ref != null:
 		var ref_value = _activity_panel_ref.get_ref()
@@ -706,11 +818,14 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 			return bool(main_scene.is_chat_button_ready_for_guide())
 		if target_mode == "topic_options" and main_scene.has_method("is_main_chat_topic_options_ready"):
 			return bool(main_scene.is_main_chat_topic_options_ready())
+		if target_mode == "music_playlist" and main_scene.has_method("is_music_playlist_ready_for_guide"):
+			return bool(main_scene.is_music_playlist_ready_for_guide())
 		if main_scene.has_method("is_main_ui_ready_for_guide"):
 			return bool(main_scene.is_main_ui_ready_for_guide())
 		return true
 	if requires_scene == "world_map":
-		return is_instance_valid(_resolve_world_map_scene())
+		var world_map_scene := _resolve_world_map_scene()
+		return is_instance_valid(world_map_scene) and (not world_map_scene.has_method("is_guide_target_ready") or bool(world_map_scene.is_guide_target_ready()))
 	if requires_scene == "activity":
 		var activity_panel := _resolve_activity_panel()
 		return is_instance_valid(activity_panel) and (not (activity_panel is Control) or (activity_panel as Control).visible)
@@ -743,6 +858,12 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 	if requires_scene == "location_detail":
 		var location_detail_panel := _resolve_location_detail_panel()
 		return is_instance_valid(location_detail_panel) and (not (location_detail_panel is Control) or (location_detail_panel as Control).visible)
+	if requires_scene == "quick_location":
+		var quick_location_scene := _resolve_quick_location_scene()
+		return is_instance_valid(quick_location_scene) and (not quick_location_scene.has_method("is_guide_target_ready") or bool(quick_location_scene.is_guide_target_ready()))
+	if requires_scene == "tutoring":
+		var tutoring_panel := _resolve_tutoring_panel()
+		return is_instance_valid(tutoring_panel) and (not tutoring_panel.has_method("is_guide_target_ready") or bool(tutoring_panel.is_guide_target_ready()))
 	return true
 
 func _should_skip_step(step_data: Dictionary) -> bool:
@@ -868,6 +989,12 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				raw_result = main_scene.get_ai_round_info_focus_entry()
 			elif target_mode == "topic_options" and main_scene.has_method("get_main_chat_topic_options_focus_entry"):
 				raw_result = main_scene.get_main_chat_topic_options_focus_entry()
+			elif target_mode == "music_player" and main_scene.has_method("get_music_player_focus_entry"):
+				raw_result = main_scene.get_music_player_focus_entry()
+			elif target_mode == "music_cover" and main_scene.has_method("get_music_cover_focus_entry"):
+				raw_result = main_scene.get_music_cover_focus_entry()
+			elif target_mode == "music_playlist" and main_scene.has_method("get_music_playlist_focus_entry"):
+				raw_result = main_scene.get_music_playlist_focus_entry()
 	if target_scene == "activity":
 		var activity_panel := _resolve_activity_panel()
 		if is_instance_valid(activity_panel):
@@ -933,6 +1060,10 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				"close_button":
 					if wechat_panel.has_method("get_close_button_focus_entry"):
 						raw_result = wechat_panel.get_close_button_focus_entry()
+	if target_scene == "tutoring":
+		var tutoring_panel := _resolve_tutoring_panel()
+		if is_instance_valid(tutoring_panel) and tutoring_panel.has_method("get_guide_focus_data"):
+			raw_result = tutoring_panel.get_guide_focus_data(target_mode)
 	if raw_result == null:
 		var target_node := _resolve_step_target_node(step_data)
 		if target_node == null or not (target_node is Control):
@@ -1030,6 +1161,10 @@ func _resolve_step_target_node(step_data: Dictionary) -> Node:
 			return null
 		if target_mode == "first_unlocked_location" and world_map_scene.has_method("get_first_unlocked_location_button"):
 			return world_map_scene.get_first_unlocked_location_button()
+		if target_mode == "area_by_id" and world_map_scene.has_method("get_area_button"):
+			return world_map_scene.get_area_button(str(step_data.get("target_id", "")))
+		if target_mode == "location_by_id" and world_map_scene.has_method("get_location_button"):
+			return world_map_scene.get_location_button(str(step_data.get("target_id", "")))
 		if target_path != "":
 			return world_map_scene.get_node_or_null(target_path)
 	elif target_scene == "activity":
@@ -1090,6 +1225,18 @@ func _resolve_step_target_node(step_data: Dictionary) -> Node:
 			return null
 		if target_path != "":
 			return location_detail_panel.get_node_or_null(target_path)
+	elif target_scene == "quick_location":
+		var quick_location_scene := _resolve_quick_location_scene()
+		if not is_instance_valid(quick_location_scene):
+			return null
+		if target_mode == "action_by_id" and quick_location_scene.has_method("get_action_button_for_guide"):
+			return quick_location_scene.get_action_button_for_guide(str(step_data.get("target_id", "")))
+	elif target_scene == "tutoring":
+		var tutoring_panel := _resolve_tutoring_panel()
+		if not is_instance_valid(tutoring_panel):
+			return null
+		if tutoring_panel.has_method("get_guide_target"):
+			return tutoring_panel.get_guide_target(target_mode)
 	return null
 
 func is_guide_interaction_allowed(interaction_id: String) -> bool:
@@ -1100,6 +1247,9 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 		return true
 	if not _is_step_scene_ready(step_data):
 		return true
+	var allowed_interactions: Variant = step_data.get("allowed_interactions", [])
+	if allowed_interactions is Array and not allowed_interactions.is_empty():
+		return (allowed_interactions as Array).has(interaction_id)
 	var step_id := str(step_data.get("id", "")).strip_edges()
 	match step_id:
 		"try_switch_category":
@@ -1138,13 +1288,22 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 			return interaction_id == "main.chat_topic_options"
 		"explain_main_affection_button":
 			return interaction_id == "main.affection"
+		"explain_day6_music_player":
+			return interaction_id == "main.music_player"
+		"open_day6_music_playlist":
+			return interaction_id == "main.music_cover"
+		"explain_day6_music_playlist":
+			return interaction_id == "main.music_playlist"
 		_:
 			return true
 
 func _is_step_focus_interaction_allowed(step_data: Dictionary) -> bool:
+	var overlay_options: Variant = step_data.get("overlay_options", {})
+	if overlay_options is Dictionary and bool((overlay_options as Dictionary).get("capture_focus_clicks", false)):
+		return true
 	var step_id := str(step_data.get("id", "")).strip_edges()
 	match step_id:
-		"explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "execute_schedule_plan", "explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel", "close_schedule_result_popup", "explain_post_schedule_stats", "open_wechat_after_schedule", "explain_wechat_recent_chats", "explain_wechat_chat_session", "explain_wechat_fixed_options", "explain_wechat_fixed_conversation", "close_wechat_after_read", "explain_main_goal_panel", "open_interact_group_after_goal", "choose_topic_after_goal", "explain_main_affection_button", "explain_main_affection_panel":
+		"explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "execute_schedule_plan", "explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel", "close_schedule_result_popup", "explain_post_schedule_stats", "open_wechat_after_schedule", "explain_wechat_recent_chats", "explain_wechat_chat_session", "explain_wechat_fixed_options", "explain_wechat_fixed_conversation", "close_wechat_after_read", "explain_main_goal_panel", "open_interact_group_after_goal", "choose_topic_after_goal", "explain_main_affection_button", "explain_main_affection_panel", "open_map_for_saturday_guidance", "select_art_academy_for_guidance", "select_library_for_guidance", "enter_library_guidance_story", "open_library_tutoring", "select_library_tutoring_courses", "explain_library_tutoring_details", "start_library_tutoring", "explain_day6_music_player", "open_day6_music_playlist", "explain_day6_music_playlist":
 			return true
 		_:
 			return false

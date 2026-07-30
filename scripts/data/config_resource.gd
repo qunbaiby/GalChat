@@ -23,7 +23,7 @@ const GLOBAL_SETTING_KEYS: PackedStringArray = [
 ]
 const ARCHIVE_SETTING_KEYS: PackedStringArray = [
     "current_character_id", "current_main_bg_id", "unlocked_main_bg_ids",
-    "unlocked_area_ids", "player_name", "player_nickname", "player_bio",
+    "unlocked_area_ids", "unlocked_location_ids", "player_name", "player_nickname", "player_bio",
     "moments_cover_path", "player_level", "player_eq_level"
 ]
 
@@ -110,6 +110,7 @@ var active_archive_id: String = ""
 var current_main_bg_id: String = ""
 var unlocked_main_bg_ids: Array = []
 var unlocked_area_ids: Array = []
+var unlocked_location_ids: Array = []
 
 # 音画配置
 var window_mode_idx: int = 0

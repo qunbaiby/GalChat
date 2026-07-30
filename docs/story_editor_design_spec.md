@@ -10,7 +10,7 @@
 - ScriptEngine 驱动的对白、背景、立绘、声音、变量和流程事件。
 - 动态 AI 约会的模板、提示词、生成、清洗、保底、分支和结算。
 - 固定剧情中嵌入的 AI 临时聊天。
-- 主界面的日常、心事、主线话题和记忆回访 AI 对话。
+- 主界面的日常、主线话题和记忆回访 AI 对话。
 - 手机固定聊天和手机消息选项。
 - 地图、日程、引导和事件注册表对剧情的引用。
 
@@ -562,7 +562,6 @@ flowchart LR
 
 - `daily_chat`
 - `daily_topic_chat`
-- `daily_concern_chat`
 - `daily_story_topic_chat`
 - `daily_memory_revisit`
 - `daily_proactive`

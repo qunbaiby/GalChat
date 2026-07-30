@@ -69,7 +69,6 @@ var drag_offset: Vector2i = Vector2i.ZERO
 var pet_prompt: String = ""
 var _pet_prompt_request_context: Dictionary = {}
 var is_chatting: bool = false
-var current_response: String = ""
 var chat_history: Array = []
 var _current_character_id: String = ""
 
@@ -236,10 +235,8 @@ func _ready() -> void:
 	passthrough_timer.timeout.connect(_update_mouse_passthrough)
 	add_child(passthrough_timer)
 	
-	deepseek_client.chat_stream_started.connect(_on_chat_started)
-	deepseek_client.chat_stream_delta.connect(_on_chat_delta)
-	deepseek_client.chat_request_completed.connect(_on_chat_completed)
-	deepseek_client.chat_request_failed.connect(_on_chat_failed)
+	deepseek_client.realize_turn_completed.connect(_on_realize_turn_completed)
+	deepseek_client.realize_turn_failed.connect(_on_realize_turn_failed)
 	deepseek_client.emotion_request_completed.connect(_on_pet_emotion_response)
 	deepseek_client.emotion_request_failed.connect(_on_pet_emotion_error)
 	deepseek_client.character_mood_request_completed.connect(_on_pet_character_mood_response)
@@ -2254,7 +2251,6 @@ func _trigger_vision_chat(prompt_text: String, base64_image: String, origin: Str
 		return
 	_current_chat_origin = origin
 	is_chatting = true
-	current_response = ""
 	bubble_queue.clear()
 	if pet_body: pet_body.clear_bubbles()
 	if audio_player and audio_player.playing: audio_player.stop()
@@ -2620,7 +2616,6 @@ func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: S
 		return
 	_current_chat_origin = origin
 	is_chatting = true
-	current_response = ""
 	
 	bubble_queue.clear()
 	if pet_body:
@@ -2628,28 +2623,12 @@ func _trigger_proactive_chat(prompt_text: String, force: bool = false, origin: S
 	if audio_player and audio_player.playing:
 		audio_player.stop()
 		
-	# 维护历史记录长度
-	if chat_history.size() > 10:
-		chat_history = chat_history.slice(-10)
-		
-	# 每次发送前都重新构建 prompt，确保应用识别的 prompt 也是最新的约束
-	if prompt_access_context.is_empty():
-		_load_prompt()
-	else:
-		await _load_prompt_for_query(prompt_text, prompt_access_context)
-		
-	# 构建专属的独立请求记录，不带历史上下文，防止主动吐槽被历史聊天带偏
-	var proactive_history = []
-	proactive_history.append({"role": "user", "content": prompt_text})
-	
-	# 我们把这次主动事件塞进专属的桌宠聊天历史里
-	chat_history.append({"role": "user", "content": prompt_text})
-	
-	var pet_messages = [{"role": "system", "content": pet_prompt}]
-	for msg in proactive_history:
-		pet_messages.append(msg)
-		
-	deepseek_client.start_chat_stream_with_messages(pet_messages, _pet_prompt_request_context)
+	var realize_context := _build_desktop_pet_history_meta(origin)
+	realize_context["channel"] = "desktop_pet_proactive"
+	realize_context["origin"] = origin
+	realize_context["turn_origin"] = "program_event"
+	realize_context["recent_messages"] = []
+	deepseek_client.send_realize_turn_message(prompt_text, "desktop_pet", realize_context, prompt_access_context)
 
 func _on_send_pressed() -> void:
 	var text = input_edit.text.strip_edges()
@@ -2666,14 +2645,14 @@ func _on_send_pressed() -> void:
 			should_stop = true
 			break
 			
+	var additional_authoritative_context := ""
 	if should_stop and music_player and music_player.playing:
 		_stop_music()
-		text += "\n（系统提示：检测到玩家要求停止，系统已立刻将音乐关闭，请温柔地向玩家确认即可。）"
+		additional_authoritative_context = "玩家要求停止音乐，音乐系统已经完成停止。角色只能回应这一已发生事实，不要声称仍在等待执行。"
 		
 	input_edit.text = ""
 	_current_chat_origin = CHAT_ORIGIN_PLAYER
 	is_chatting = true
-	current_response = ""
 	
 	# 更新最后反应时间
 	_last_reaction_tick = Time.get_ticks_msec()
@@ -2688,146 +2667,65 @@ func _on_send_pressed() -> void:
 	await _load_prompt_for_query(raw_user_text)
 	_append_desktop_pet_history_message("玩家", raw_user_text, "", CHAT_ORIGIN_PLAYER)
 	
-	var pet_messages = [{"role": "system", "content": pet_prompt}]
-	var shared_history: Array = GameDataManager.history.get_messages_by_type("desktop_pet")
-	var start_index := maxi(0, shared_history.size() - 10)
-	for i in range(start_index, shared_history.size()):
-		var record: Dictionary = shared_history[i]
-		var msg := {
-			"role": "assistant" if str(record.get("speaker", "")) == "char" else "user",
-			"content": str(record.get("text", ""))
-		}
-		if i == shared_history.size() - 1 and msg["role"] == "user":
-			# 将音乐指令的双向提醒一次性注入，防止大模型混淆或忘记
-			var injection = "\n(系统强制判定：若玩家要求放歌/播放音乐，你【必须】在回复最后加上 [CMD:PLAY_MUSIC]（随机）或 [CMD:PLAY_MUSIC:歌名]（指定）；若玩家要求停止，你【必须】加 [CMD:STOP_MUSIC]！如果不加，系统将无法执行操作！)"
-			msg["content"] = str(msg["content"]) + injection
-		pet_messages.append(msg)
 	chat_history.append({"role": "user", "content": text})
-		
-	deepseek_client.start_chat_stream_with_messages(pet_messages)
+	var realize_context := _build_desktop_pet_history_meta(CHAT_ORIGIN_PLAYER)
+	realize_context["channel"] = "desktop_pet_player"
+	realize_context["origin"] = CHAT_ORIGIN_PLAYER
+	if not additional_authoritative_context.is_empty():
+		realize_context["additional_authoritative_context"] = additional_authoritative_context
+	deepseek_client.send_realize_turn_message(raw_user_text, "desktop_pet", realize_context)
 
-func _on_chat_started() -> void:
-	current_response = ""
-
-func _on_chat_delta(delta_text: String) -> void:
-	current_response += delta_text
-
-func _on_chat_completed(response: Dictionary) -> void:
+func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dictionary) -> void:
+	var channel := str(request_context.get("channel", ""))
+	if channel != "desktop_pet_player" and channel != "desktop_pet_proactive":
+		return
+	var segments: Variant = realized_turn.get("segments")
+	if not segments is Array or segments.is_empty():
+		_on_realize_turn_failed("角色回复没有可展示内容。", request_context)
+		return
 	is_chatting = false
-	
-	# Extract response text
-	var text = ""
-	if response.has("choices") and response.choices.size() > 0:
-		text = response.choices[0].message.content
-	else:
-		text = current_response
-	var chat_origin: String = _current_chat_origin
-	if chat_origin == CHAT_ORIGIN_TOUCH and _is_model_policy_refusal(text):
-		text = _build_touch_policy_refusal_fallback_reply()
-	if chat_origin == CHAT_ORIGIN_TOUCH:
-		print("[桌宠应用观察][回复结果] ", text)
-		
-	# 提前拦截并执行所有音乐指令，做到在说话前立刻响应，并将指令从文本中剔除
-	var regex = RegEx.new()
-	
-	regex.compile("\\[CMD:STOP_MUSIC\\s*\\]")
-	if regex.search(text):
-		_stop_music()
-		text = regex.sub(text, "", true)
-		
-	regex.compile("\\[CMD:PLAY_MUSIC(?:\\s*:\\s*(.*?))?\\s*\\]")
-	var match = regex.search(text)
-	if match:
-		var specific_song = ""
-		if match.get_string(1) != "":
-			specific_song = match.get_string(1).strip_edges()
-		_play_music(specific_song)
-		text = regex.sub(text, "", true)
-
-	if text.is_empty():
-		text = "（沉默）……"
-		
-	# 如果大模型抽风只回复了括号动作而没有文字，强制补充省略号，否则无法发声且很怪异
-	var pure_dialogue = _extract_dialogue_text(text)
-	if pure_dialogue.is_empty():
-		text += " ……"
-	var voice_cache_key := _build_desktop_pet_voice_cache_key(text)
-		
-	# Add assistant message to history
-	chat_history.append({"role": "assistant", "content": text})
-	_append_desktop_pet_history_message("char", text, voice_cache_key, chat_origin)
-	deepseek_client.mark_chat_response_adopted(text)
-		
-	var user_text = ""
-	if chat_history.size() >= 2:
-		var last_msg = chat_history[chat_history.size() - 2]
-		if last_msg.has("role") and last_msg["role"] == "user":
-			user_text = last_msg["content"]
-	_current_chat_origin = CHAT_ORIGIN_SYSTEM
-			
-	if user_text != "" and GameDataManager.memory_observation_service:
-		GameDataManager.memory_observation_service.observe_completed_turn("desktop_pet", user_text, text)
+	var rendered_segments: Array[String] = []
+	var speech_segments: Array[String] = []
+	var chat_origin := str(request_context.get("origin", CHAT_ORIGIN_PLAYER))
+	for index in range(segments.size()):
+		var segment: Variant = segments[index]
+		if not segment is Dictionary:
+			continue
+		var speech := str(segment.get("speech", "")).strip_edges()
+		var action: Variant = segment.get("action")
+		var action_description := str(action.get("description", "")).strip_edges() if action is Dictionary else ""
+		var rendered_text := speech if action_description.is_empty() else "（%s）%s" % [action_description, speech]
+		var delivery_instruction := str(segment.get("delivery_instruction", "")).strip_edges()
+		var voice_cache_key := TTSManager.get_cache_key(speech, _get_desktop_pet_tts_options(delivery_instruction)) if GameDataManager.config.voice_enabled else ""
+		var history_meta := _build_desktop_pet_history_meta(chat_origin)
+		history_meta["reply_pipeline"] = str(request_context.get("reply_pipeline", "realize_turn_v6"))
+		history_meta["ai_request_id"] = str(request_context.get("request_id", ""))
+		history_meta["memory_trace_id"] = str(request_context.get("trace_id", ""))
+		history_meta["response_segment_index"] = index
+		history_meta["response_adopted"] = true
+		GameDataManager.history.add_message("char", rendered_text, voice_cache_key, "desktop_pet", history_meta)
+		if GameDataManager.memory_retrieval_trace_service:
+			GameDataManager.memory_retrieval_trace_service.mark_response_adopted(str(request_context.get("trace_id", "")), rendered_text, index)
+		bubble_queue.append({"text": rendered_text, "voice_instruction": delivery_instruction})
+		rendered_segments.append(rendered_text)
+		speech_segments.append(speech)
+	var combined_rendered := "[SPLIT]".join(rendered_segments)
+	var combined_speech := "\n".join(speech_segments)
+	chat_history.append({"role": "assistant", "content": combined_rendered})
+	var user_text := str(request_context.get("player_text", ""))
+	if chat_origin == CHAT_ORIGIN_PLAYER and not user_text.is_empty() and GameDataManager.memory_observation_service:
+		GameDataManager.memory_observation_service.observe_completed_turn("desktop_pet", user_text, combined_rendered)
 	if chat_origin == CHAT_ORIGIN_PLAYER or chat_origin == CHAT_ORIGIN_TOUCH:
-		_request_desktop_pet_post_chat_updates(text)
-		
-	display_bubble(text)
+		_request_desktop_pet_post_chat_updates(combined_speech)
+	_current_chat_origin = CHAT_ORIGIN_SYSTEM
+	if not is_processing_bubbles:
+		_process_next_bubble()
 
-func _is_model_policy_refusal(text: String) -> bool:
-	var normalized: String = text.strip_edges().to_lower()
-	if normalized == "":
-		return false
-	var patterns: Array[String] = [
-		"不符合公序良俗",
-		"内容规范要求",
-		"不能按照你的请求",
-		"我不能按照你的请求",
-		"不能处理这类",
-		"避免发布或请求处理",
-		"请遵守相关规定",
-		"不良信息",
-		"涉及色情低俗内容",
-		"我不能帮助",
-		"i can't help with that",
-		"can't comply",
-		"policy",
-        "safety policy"
-	]
-	for pattern in patterns:
-		if pattern.to_lower() in normalized:
-			return true
-	return false
-
-func _build_touch_policy_refusal_fallback_reply() -> String:
-	var stage_level: int = 1
-	if GameDataManager and GameDataManager.profile:
-		stage_level = int(GameDataManager.profile.get_current_stage_config().get("stage", 1))
-	var analysis_text: String = _last_observed_analysis_text
-	var is_adult_scene: bool = _is_touch_observe_adult_scene(analysis_text)
-	var app_type: String = _last_observed_app_type
-	if is_adult_scene:
-		if stage_level <= 2:
-			return "（忽然安静了一下）……哥哥，你看的这个，尺度好像有点大。"
-		elif stage_level <= 4:
-			return "（视线顿了一下，又很快移开）……你怎么偏偏让我看见这种画面呀。"
-		elif stage_level <= 6:
-			return "（轻轻抿了下唇）……这种东西你倒是看得挺认真，我会有一点在意的。"
-		else:
-			return "（凑近看了一眼，又慢慢把视线挪开）……你让我陪着一起看这种东西，我会有点不知道该拿你怎么办。"
-	match app_type:
-		"编程开发工具":
-			return "（盯着屏幕看了一会儿）这里是不是又卡住了……我刚刚都替你一起皱眉了。"
-		"办公文档软件":
-			return "（轻轻叹了口气）你这个界面一看就很费脑子……别硬撑太久。"
-		"网页浏览器":
-			return "（探头看了一眼）你现在看的这个，好像还挺让人在意的……"
-		"视频":
-			return "（目光跟着停了一下）这一眼的信息量有点大……难怪你会停在这里。"
-		"游戏":
-			return "（眼神跟着屏幕晃了一下）你这一段看着就很容易让人跟着紧张起来。"
-		"音乐":
-			return "（安静听了几秒）这个氛围一下就过来了……"
-		_:
-			return "（眨了眨眼，像是重新整理了一下思路）……刚刚那一眼的信息有点多，我先陪你缓一下。"
+func _on_realize_turn_failed(error_message: String, request_context: Dictionary) -> void:
+	var channel := str(request_context.get("channel", ""))
+	if channel != "desktop_pet_player" and channel != "desktop_pet_proactive":
+		return
+	_on_chat_failed(error_message)
 
 func _is_touch_observe_adult_scene(analysis_text: String) -> bool:
 	var normalized: String = analysis_text.to_lower()

@@ -505,6 +505,15 @@ def _extract_bearer_token(authorization: str | None) -> str:
     return token
 
 
+def _rate_limit_scope(path: str) -> str:
+    game_prefix = "/v1/game/"
+    if path.startswith(game_prefix):
+        capability = path.removeprefix(game_prefix).split("/", 1)[0]
+        if capability:
+            return capability
+    return "account"
+
+
 async def authorize_request(
     request: Request,
     authorization: str | None = Header(default=None),
@@ -518,7 +527,7 @@ async def authorize_request(
         user_id = str(claims["sub"])
         if not storage.session_is_active(user_id, str(claims["sid"])):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session is no longer active.")
-    await limiter.check(f"{user_id}:{client_host}")
+    await limiter.check(f"{user_id}:{client_host}:{_rate_limit_scope(request.url.path)}")
     request.state.user_id = user_id
     return user_id
 

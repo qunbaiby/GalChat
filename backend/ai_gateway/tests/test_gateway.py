@@ -669,6 +669,30 @@ def test_rate_limiter_rejects_excess_requests(tmp_path):
     assert second_response.status_code == 429
 
 
+def test_rate_limiter_isolates_game_capabilities(tmp_path):
+    module = load_app(tmp_path)
+    module.limiter = module.SlidingWindowLimiter(limit=1, window_seconds=60)
+    with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(
+            transport=httpx.MockTransport(
+                lambda _request: httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+            )
+        )
+        headers = {"Authorization": "Bearer test-player-token"}
+        tts_response = client.post(
+            "/v1/game/tts/speech",
+            headers=headers,
+            json={"text": "hello", "speaker": "test-speaker"},
+        )
+        chat_response = client.post(
+            "/v1/game/chat/completions",
+            headers=headers,
+            json={"model": "client-model", "messages": [{"role": "user", "content": "hello"}]},
+        )
+    assert tts_response.status_code != 429
+    assert chat_response.status_code == 200
+
+
 def test_device_registration_and_refresh_rotation(tmp_path):
     module = load_app(tmp_path)
     credentials = {"installation_id": "installation-123456", "installation_secret": "s" * 48}

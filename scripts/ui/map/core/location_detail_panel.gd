@@ -2,6 +2,7 @@ extends CanvasLayer
 
 signal enter_pressed(location_id: String, npc_id: String)
 signal closed
+signal guide_target_ready
 
 @onready var main_panel: Panel = $MainPanel
 @onready var thumbnail_rect: TextureRect = $MainPanel/ThumbnailPanel/Mask/ThumbnailRect
@@ -24,6 +25,7 @@ func _ready():
 	var tween = create_tween()
 	tween.tween_property(main_panel, "position:x", get_viewport().get_visible_rect().size.x - 450, 0.3).set_trans(Tween.TRANS_QUAD)
 	tween.parallel().tween_property(color_rect, "modulate:a", 1.0, 0.3)
+	tween.finished.connect(func() -> void: guide_target_ready.emit(), CONNECT_ONE_SHOT)
 
 	if is_instance_valid(color_rect):
 		color_rect.gui_input.connect(_on_bg_gui_input)

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dpw5npcp1x"]
 
-[ext_resource type="Script" uid="uid://cx6g0t8d75w0y" path="res://scripts/ui/map/npc/quick_npc_portrait.gd" id="1_script"]
-[ext_resource type="Shader" uid="uid://1v1v1v1v1v1v1" path="res://assets/shaders/rainbow_border.gdshader" id="2_shader"]
+[ext_resource type="Script" uid="uid://d36irjuq28lge" path="res://scripts/ui/map/npc/quick_npc_portrait.gd" id="1_script"]
+[ext_resource type="Shader" uid="uid://dkyo1vybgpup2" path="res://assets/shaders/rainbow_border.gdshader" id="2_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
 shader = ExtResource("2_shader")

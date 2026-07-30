@@ -159,8 +159,17 @@ func _on_start_pressed():
 	var selected_opt := _get_selected_option()
 	var energy_cost = selected_opt["energy_cost"]
 	var profile = GameDataManager.profile
-	
-	if profile.current_energy < energy_cost:
+	var unavailable := {}
+	if GameDataManager.interaction_manager:
+		unavailable = GameDataManager.interaction_manager.get_cost_unavailable_reason(
+			int(energy_cost),
+			0,
+			int(selected_opt.get("time_cost", 0))
+		)
+	if not unavailable.is_empty():
+		GameDataManager.interaction_manager.show_unavailable_dialog(unavailable)
+		return
+	if not GameDataManager.interaction_manager and profile.current_energy < energy_cost:
 		if ToastManager:
 			ToastManager.show_system_toast("行动力不足！")
 		return

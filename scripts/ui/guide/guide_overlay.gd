@@ -6,33 +6,38 @@ signal background_pressed(action_id: String)
 signal focus_pressed(action_id: String)
 
 const DIM_COLOR := Color(0.02, 0.03, 0.06, 0.72)
-const ACCENT_SOFT_COLOR := Color(0.76, 0.90, 0.96, 1.0)
+const ACCENT_SOFT_COLOR := Color(0.39, 0.96, 0.83, 1.0)
 const WARM_ACCENT_COLOR := Color(0.94, 0.80, 0.61, 1.0)
-const POINTER_COLOR := Color(0.88, 0.96, 1.0, 0.96)
-const POINTER_GLOW_COLOR := Color(0.72, 0.88, 0.97, 0.20)
-const FOCUS_FILL_COLOR := Color(0.60, 0.86, 0.84, 0.04)
-const FOCUS_FRAME_FILL_COLOR := Color(0.95, 0.98, 1.0, 0.025)
-const FOCUS_GLOW_SHADOW_COLOR := Color(0.60, 0.86, 0.84, 0.16)
-const PANEL_SIDE_MARGIN := 10.0
-const BODY_SIDE_MARGIN := 14.0
-const BODY_VERTICAL_PADDING := 20.0
-const MIN_BODY_HEIGHT := 48.0
-const MAX_BODY_HEIGHT := 220.0
+const FOCUS_FILL_COLOR := Color(0.30, 1.0, 0.84, 0.055)
+const FOCUS_FRAME_FILL_COLOR := Color(0.30, 1.0, 0.84, 0.025)
+const FOCUS_GLOW_SHADOW_COLOR := Color(0.25, 1.0, 0.82, 0.34)
+const AVATAR_SIZE := 148.0
+const GUIDE_ROW_OVERLAP := 18.0
+const MESSAGE_MIN_WIDTH := 300.0
+const MESSAGE_MAX_WIDTH := 500.0
+const MESSAGE_HEIGHT := 94.0
+const MESSAGE_HORIZONTAL_PADDING := 44.0
+const MESSAGE_FONT_SIZE := 17
+const POINTER_SIZE := Vector2(88.0, 88.0)
 const FOCUS_SHAPE_RECT := "rect"
 const FOCUS_SHAPE_TRAPEZOID_LEFT := "trapezoid_left"
 
 @onready var _panel_root: PanelContainer = $GuidePanel
-@onready var _guide_margin: MarginContainer = $GuidePanel/GuideMargin
-@onready var _body_card: PanelContainer = $GuidePanel/GuideMargin/BodyCard
-@onready var _body_label: RichTextLabel = $GuidePanel/GuideMargin/BodyCard/BodyMargin/BodyLabel
+@onready var _message_panel: PanelContainer = $GuidePanel/GuideRow/MessagePanel
+@onready var _body_label: RichTextLabel = $GuidePanel/GuideRow/MessagePanel/MessageMargin/BodyLabel
+@onready var _click_pointer: Control = $ClickPointer
+@onready var _click_ring: Panel = $ClickPointer/ClickRing
+@onready var _hand_texture: TextureRect = $ClickPointer/HandTexture
 
 var _focus_entries: Array[Dictionary] = []
 var _focus_rects: Array[Rect2] = []
 var _focus_bounds: Rect2 = Rect2()
-var _pointer_start: Vector2 = Vector2.ZERO
-var _pointer_end: Vector2 = Vector2.ZERO
-var _pointer_points: PackedVector2Array = PackedVector2Array()
 var _show_pointer: bool = false
+var _focus_interaction_allowed: bool = false
+var _animation_time := 0.0
+var _focus_pulse := 0.0
+var _pointer_base_position := Vector2.ZERO
+var _hand_base_position := Vector2.ZERO
 var _ui_built: bool = false
 var _dim_draw_rects: Array[Rect2] = []
 var _dim_overlay_polygons: Array[PackedVector2Array] = []
@@ -47,6 +52,14 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	_ensure_ui()
+	set_process(true)
+
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	_animation_time += delta
+	_update_focus_animation()
+	_update_click_pointer_animation()
 
 func _input(event: InputEvent) -> void:
 	if not visible:
@@ -69,8 +82,11 @@ func _ensure_ui() -> void:
 		_panel_root.z_index = 20
 	if _body_label != null:
 		_body_label.fit_content = false
-		_body_label.scroll_active = true
+		_body_label.scroll_active = false
 		_body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if _click_pointer != null:
+		_click_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hand_base_position = _hand_texture.position
 	_ui_built = true
 
 func _set_control_tree_mouse_filter(node: Node, filter_mode: Control.MouseFilter) -> void:
@@ -110,10 +126,10 @@ func _build_focus_glow(node_name: String) -> Panel:
 	panel.z_index = 12
 	var glow_style := StyleBoxFlat.new()
 	glow_style.bg_color = FOCUS_FILL_COLOR
-	glow_style.corner_radius_top_left = 22
-	glow_style.corner_radius_top_right = 22
-	glow_style.corner_radius_bottom_left = 22
-	glow_style.corner_radius_bottom_right = 22
+	glow_style.corner_radius_top_left = 12
+	glow_style.corner_radius_top_right = 12
+	glow_style.corner_radius_bottom_left = 12
+	glow_style.corner_radius_bottom_right = 12
 	glow_style.shadow_color = FOCUS_GLOW_SHADOW_COLOR
 	glow_style.shadow_size = 6
 	glow_style.shadow_offset = Vector2.ZERO
@@ -128,15 +144,15 @@ func _build_focus_frame(node_name: String) -> Panel:
 	panel.z_index = 13
 	var frame_style := StyleBoxFlat.new()
 	frame_style.bg_color = FOCUS_FRAME_FILL_COLOR
-	frame_style.border_width_left = 1
-	frame_style.border_width_top = 1
-	frame_style.border_width_right = 1
-	frame_style.border_width_bottom = 1
+	frame_style.border_width_left = 2
+	frame_style.border_width_top = 2
+	frame_style.border_width_right = 2
+	frame_style.border_width_bottom = 2
 	frame_style.border_color = ACCENT_SOFT_COLOR
-	frame_style.corner_radius_top_left = 20
-	frame_style.corner_radius_top_right = 20
-	frame_style.corner_radius_bottom_left = 20
-	frame_style.corner_radius_bottom_right = 20
+	frame_style.corner_radius_top_left = 10
+	frame_style.corner_radius_top_right = 10
+	frame_style.corner_radius_bottom_left = 10
+	frame_style.corner_radius_bottom_right = 10
 	panel.add_theme_stylebox_override("panel", frame_style)
 	return panel
 
@@ -146,7 +162,7 @@ func _build_focus_capture_overlay(node_name: String) -> ColorRect:
 	rect.color = Color(1, 1, 1, 0)
 	rect.mouse_filter = Control.MOUSE_FILTER_STOP
 	rect.visible = false
-	rect.z_index = 14
+	rect.z_index = 30
 	if not rect.gui_input.is_connected(_on_focus_capture_gui_input):
 		rect.gui_input.connect(_on_focus_capture_gui_input)
 	return rect
@@ -170,13 +186,14 @@ func show_step(guide_title: String, step_title: String, step_text: String, curre
 	var _unused_current_index := current_index
 	var _unused_total_steps := total_steps
 	_overlay_options = overlay_options.duplicate(true)
+	_focus_interaction_allowed = focus_interaction_allowed
+	_animation_time = 0.0
 	if _panel_root != null:
 		_set_control_tree_mouse_filter(_panel_root, Control.MOUSE_FILTER_IGNORE if focus_interaction_allowed else Control.MOUSE_FILTER_STOP)
 	var final_step_text := step_text.strip_edges()
 	if final_step_text == "":
 		final_step_text = "请根据当前提示继续操作。"
 	_body_label.text = final_step_text
-	_body_label.scroll_to_line(0)
 	_apply_focus_entries(_normalize_focus_input(focus_data))
 	show()
 	_panel_root.visible = true
@@ -293,7 +310,8 @@ func _clear_focus_rects() -> void:
 	_dim_draw_rects.clear()
 	_dim_overlay_polygons.clear()
 	_show_pointer = false
-	_pointer_points = PackedVector2Array()
+	if is_instance_valid(_click_pointer):
+		_click_pointer.visible = false
 	for dim_rect in _dim_segments:
 		dim_rect.visible = false
 	for glow_panel in _focus_glows:
@@ -624,16 +642,32 @@ func _apply_focus_panel_style(panel: Panel, entry: Dictionary, is_glow: bool) ->
 	if is_glow:
 		style.bg_color = FOCUS_FILL_COLOR
 		style.shadow_color = FOCUS_GLOW_SHADOW_COLOR
-		style.shadow_size = 6
+		style.shadow_size = 10
 		style.shadow_offset = Vector2.ZERO
 	else:
 		style.bg_color = FOCUS_FRAME_FILL_COLOR
-		style.border_width_left = 1
-		style.border_width_top = 1
-		style.border_width_right = 1
-		style.border_width_bottom = 1
+		style.border_width_left = 2
+		style.border_width_top = 2
+		style.border_width_right = 2
+		style.border_width_bottom = 2
 		style.border_color = ACCENT_SOFT_COLOR
 	panel.add_theme_stylebox_override("panel", style)
+
+func _update_focus_animation() -> void:
+	var pulse := (sin(_animation_time * TAU / 1.45) + 1.0) * 0.5
+	_focus_pulse = pulse
+	for index in range(_focus_glows.size()):
+		var glow_panel := _focus_glows[index]
+		if not glow_panel.visible:
+			continue
+		glow_panel.pivot_offset = glow_panel.size * 0.5
+		glow_panel.scale = Vector2.ONE * lerpf(1.0, 1.035, pulse)
+		glow_panel.modulate.a = lerpf(0.52, 1.0, pulse)
+	for frame_panel in _focus_frames:
+		if not frame_panel.visible:
+			continue
+		frame_panel.modulate.a = lerpf(0.76, 1.0, pulse)
+	queue_redraw()
 
 func _layout_panel_relative_to_focus() -> void:
 	_ensure_ui()
@@ -644,9 +678,7 @@ func _layout_panel_relative_to_focus() -> void:
 	var spacing := 18.0
 	var panel_width := _resolve_panel_width(viewport_size, horizontal_margin, spacing)
 	_prepare_adaptive_panel_metrics(panel_width, viewport_size.y)
-	var panel_height := minf(_panel_root.get_combined_minimum_size().y, minf(340.0, viewport_size.y * 0.48))
-	panel_height = maxf(panel_height, 1.0)
-	var panel_size := Vector2(panel_width, panel_height)
+	var panel_size := Vector2(panel_width, AVATAR_SIZE)
 	_panel_root.custom_minimum_size = Vector2.ZERO
 	_panel_root.size = panel_size
 
@@ -671,37 +703,63 @@ func _refresh_overlay_layout() -> void:
 	_layout_panel_relative_to_focus()
 
 func _resolve_panel_width(viewport_size: Vector2, horizontal_margin: float, spacing: float) -> float:
-	var max_width := maxf(280.0, viewport_size.x - horizontal_margin * 2.0)
-	var base_width := minf(440.0, max_width)
+	var max_total_width := maxf(280.0, viewport_size.x - horizontal_margin * 2.0)
+	var plain_text := _body_label.get_parsed_text().strip_edges() if is_instance_valid(_body_label) else ""
+	var text_font := _body_label.get_theme_font("normal_font")
+	var measured_width := text_font.get_string_size(plain_text, HORIZONTAL_ALIGNMENT_LEFT, -1, MESSAGE_FONT_SIZE).x
+	var message_max_width := minf(MESSAGE_MAX_WIDTH, max_total_width - AVATAR_SIZE + GUIDE_ROW_OVERLAP)
+	var message_width := clampf(measured_width + MESSAGE_HORIZONTAL_PADDING, minf(MESSAGE_MIN_WIDTH, message_max_width), message_max_width)
+	var base_width := minf(max_total_width, AVATAR_SIZE + message_width - GUIDE_ROW_OVERLAP)
 	if _focus_bounds.size.x <= 1.0 or _focus_bounds.size.y <= 1.0:
 		return base_width
 	var left_space := _focus_bounds.position.x - horizontal_margin - spacing
 	var right_space := viewport_size.x - _focus_bounds.end.x - horizontal_margin - spacing
 	var side_width := maxf(left_space, right_space)
 	if side_width >= 300.0:
-		return clampf(minf(base_width, side_width), 300.0, max_width)
+		return minf(base_width, side_width)
 	return base_width
 
 func _prepare_adaptive_panel_metrics(panel_width: float, viewport_height: float) -> void:
-	var content_width := maxf(220.0, panel_width - PANEL_SIDE_MARGIN * 2.0)
-	var body_width := maxf(180.0, content_width - BODY_SIDE_MARGIN * 2.0)
-	var body_max_height := minf(MAX_BODY_HEIGHT, viewport_height * 0.32)
-	_body_card.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var _unused_viewport_height := viewport_height
+	var message_width := maxf(MESSAGE_MIN_WIDTH, panel_width - AVATAR_SIZE + GUIDE_ROW_OVERLAP)
+	var body_width := maxf(220.0, message_width - MESSAGE_HORIZONTAL_PADDING)
+	_message_panel.custom_minimum_size = Vector2(message_width, MESSAGE_HEIGHT)
+	_message_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_body_label.fit_content = false
-	_body_label.scroll_active = true
-	_body_label.size = Vector2(body_width, body_max_height)
-	_body_label.custom_minimum_size = Vector2(body_width, 0.0)
+	_body_label.scroll_active = false
+	_body_label.custom_minimum_size = Vector2(body_width, 66.0)
+	_body_label.size = Vector2(body_width, 66.0)
 	_body_label.update_minimum_size()
-	var body_content_height := clampf(_body_label.get_content_height(), MIN_BODY_HEIGHT, body_max_height)
-	_body_label.custom_minimum_size = Vector2(body_width, body_content_height)
-	_body_card.custom_minimum_size = Vector2(0.0, body_content_height + BODY_VERTICAL_PADDING)
-	_body_label.update_minimum_size()
-	_body_card.update_minimum_size()
-	_guide_margin.update_minimum_size()
+	_message_panel.update_minimum_size()
 	_panel_root.update_minimum_size()
 
 func _find_best_panel_position(panel_size: Vector2, viewport_rect: Rect2, horizontal_margin: float, vertical_margin: float, spacing: float, fallback_position: Vector2) -> Vector2:
 	var focus_center := _focus_bounds.get_center()
+	var panel_placement := str(_overlay_options.get("panel_placement", "")).strip_edges()
+	if panel_placement == "below":
+		return _clamp_panel_position(
+			Vector2(focus_center.x - panel_size.x * 0.5, _focus_bounds.end.y + spacing),
+			panel_size,
+			viewport_rect,
+			horizontal_margin,
+			vertical_margin
+		)
+	if panel_placement == "left":
+		return _clamp_panel_position(
+			Vector2(_focus_bounds.position.x - panel_size.x - spacing, focus_center.y - panel_size.y * 0.5),
+			panel_size,
+			viewport_rect,
+			horizontal_margin,
+			vertical_margin
+		)
+	if panel_placement == "right":
+		return _clamp_panel_position(
+			Vector2(_focus_bounds.end.x + spacing, focus_center.y - panel_size.y * 0.5),
+			panel_size,
+			viewport_rect,
+			horizontal_margin,
+			vertical_margin
+		)
 	var candidate_positions: Array[Vector2] = [
 		Vector2(focus_center.x - panel_size.x * 0.5, _focus_bounds.position.y - panel_size.y - spacing),
 		Vector2(focus_center.x - panel_size.x * 0.5, _focus_bounds.end.y + spacing),
@@ -755,55 +813,38 @@ func _get_rect_overlap_area(a: Rect2, b: Rect2) -> float:
 		return 0.0
 	return (right - left) * (bottom - top)
 
-func _update_pointer(panel_size: Vector2) -> void:
-	if _focus_rects.is_empty():
+func _update_pointer(_panel_size: Vector2) -> void:
+	var show_click_pointer := bool(_overlay_options.get("show_click_pointer", _focus_interaction_allowed))
+	if _focus_rects.is_empty() or not show_click_pointer:
 		_show_pointer = false
-		_pointer_points = PackedVector2Array()
+		_click_pointer.visible = false
 		return
-	var panel_rect := Rect2(_panel_root.position, panel_size)
-	var pointer_rect := _pick_pointer_focus_rect(panel_rect.get_center())
-	var safe_target_rect := pointer_rect.grow(-6.0)
-	if safe_target_rect.size.x <= 1.0 or safe_target_rect.size.y <= 1.0:
-		safe_target_rect = pointer_rect
-	if panel_rect.end.x <= safe_target_rect.position.x:
-		var line_y := clampf(safe_target_rect.get_center().y, panel_rect.position.y + 24.0, panel_rect.end.y - 24.0)
-		_pointer_points = PackedVector2Array([
-			Vector2(panel_rect.end.x, line_y),
-			Vector2(safe_target_rect.position.x, line_y)
-		])
-	elif safe_target_rect.end.x <= panel_rect.position.x:
-		var line_y := clampf(safe_target_rect.get_center().y, panel_rect.position.y + 24.0, panel_rect.end.y - 24.0)
-		_pointer_points = PackedVector2Array([
-			Vector2(panel_rect.position.x, line_y),
-			Vector2(safe_target_rect.end.x, line_y)
-		])
-	else:
-		var line_x := clampf(safe_target_rect.get_center().x, panel_rect.position.x + 24.0, panel_rect.end.x - 24.0)
-		var start_y := panel_rect.end.y
-		var end_y := safe_target_rect.position.y
-		if panel_rect.get_center().y > safe_target_rect.get_center().y:
-			start_y = panel_rect.position.y
-			end_y = safe_target_rect.end.y
-		_pointer_points = PackedVector2Array([
-			Vector2(line_x, start_y),
-			Vector2(line_x, end_y)
-		])
-	if _pointer_points.size() < 2:
-		_show_pointer = false
-		return
-	_pointer_start = _pointer_points[0]
-	_pointer_end = _pointer_points[_pointer_points.size() - 1]
+	var pointer_index := clampi(int(_overlay_options.get("pointer_focus_index", 0)), 0, _focus_rects.size() - 1)
+	var target_center := _focus_rects[pointer_index].get_center()
+	var raw_offset: Variant = _overlay_options.get("pointer_offset", Vector2.ZERO)
+	var pointer_offset := raw_offset as Vector2 if raw_offset is Vector2 else Vector2.ZERO
+	_pointer_base_position = target_center - POINTER_SIZE * 0.5 + pointer_offset
+	_click_pointer.position = _pointer_base_position
+	_click_pointer.pivot_offset = POINTER_SIZE * 0.5
+	_click_pointer.visible = true
 	_show_pointer = true
 
-func _pick_pointer_focus_rect(panel_center: Vector2) -> Rect2:
-	var best_rect := _focus_rects[0]
-	var best_distance := panel_center.distance_squared_to(best_rect.get_center())
-	for rect in _focus_rects:
-		var distance := panel_center.distance_squared_to(rect.get_center())
-		if distance < best_distance:
-			best_distance = distance
-			best_rect = rect
-	return best_rect
+func _update_click_pointer_animation() -> void:
+	if not _show_pointer or not is_instance_valid(_click_pointer):
+		return
+	var cycle := fmod(_animation_time, 1.2) / 1.2
+	var press_amount := 0.0
+	if cycle < 0.28:
+		press_amount = sin((cycle / 0.28) * PI * 0.5)
+	elif cycle < 0.48:
+		press_amount = cos(((cycle - 0.28) / 0.20) * PI * 0.5)
+	_click_pointer.position = _pointer_base_position
+	_hand_texture.position = _hand_base_position + Vector2(0.0, 5.0 * press_amount)
+	_hand_texture.scale = Vector2.ONE * lerpf(1.0, 0.88, press_amount)
+	var ring_progress := clampf((cycle - 0.20) / 0.48, 0.0, 1.0)
+	_click_ring.pivot_offset = _click_ring.size * 0.5
+	_click_ring.scale = Vector2.ONE * lerpf(0.55, 1.35, ring_progress)
+	_click_ring.modulate.a = 1.0 - ring_progress
 
 func _draw() -> void:
 	for dim_rect in _dim_draw_rects:
@@ -811,15 +852,6 @@ func _draw() -> void:
 	for dim_polygon in _dim_overlay_polygons:
 		draw_colored_polygon(dim_polygon, DIM_COLOR)
 	_draw_custom_focus_highlights()
-	if not _show_pointer:
-		return
-	if _pointer_points.size() < 2:
-		return
-	draw_polyline(_pointer_points, POINTER_GLOW_COLOR, 6.0, true)
-	draw_polyline(_pointer_points, Color(0.88, 0.96, 1.0, 0.40), 3.0, true)
-	draw_polyline(_pointer_points, POINTER_COLOR, 1.8, true)
-	draw_circle(_pointer_end, 4.5, Color(0.86, 0.95, 1.0, 0.18))
-	draw_circle(_pointer_end, 2.5, WARM_ACCENT_COLOR)
 
 func _draw_custom_focus_highlights() -> void:
 	for entry in _focus_entries:
@@ -845,14 +877,18 @@ func _get_focus_display_polygon(entry: Dictionary) -> PackedVector2Array:
 	])
 
 func _draw_focus_polygon_highlight(polygon: PackedVector2Array) -> void:
-	draw_colored_polygon(polygon, FOCUS_FRAME_FILL_COLOR)
+	var pulse_alpha := lerpf(0.68, 1.0, _focus_pulse)
+	var fill_color := FOCUS_FRAME_FILL_COLOR
+	fill_color.a *= pulse_alpha
+	draw_colored_polygon(polygon, fill_color)
 	var closed_points := _build_closed_polyline_points(polygon)
 	if closed_points.size() < 2:
 		return
-	draw_polyline(closed_points, Color(0.60, 0.86, 0.84, 0.05), 8.0, true)
-	draw_polyline(closed_points, Color(0.60, 0.86, 0.84, 0.12), 5.0, true)
-	draw_polyline(closed_points, Color(0.60, 0.86, 0.84, 0.20), 3.0, true)
-	draw_polyline(closed_points, ACCENT_SOFT_COLOR, 1.6, true)
+	draw_polyline(closed_points, Color(0.25, 1.0, 0.82, lerpf(0.08, 0.18, _focus_pulse)), lerpf(7.0, 11.0, _focus_pulse), true)
+	draw_polyline(closed_points, Color(0.30, 1.0, 0.84, lerpf(0.18, 0.38, _focus_pulse)), 4.0, true)
+	var frame_color := ACCENT_SOFT_COLOR
+	frame_color.a = pulse_alpha
+	draw_polyline(closed_points, frame_color, 2.0, true)
 
 func _build_closed_polyline_points(polygon: PackedVector2Array) -> PackedVector2Array:
 	if polygon.size() < 3:

@@ -124,6 +124,44 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Daily Chat Topic Repository",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/daily_chat_topic_repository_smoke.gd",
+				"-SuccessMarker",
+				"DAILY_CHAT_TOPIC_REPOSITORY_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Profile Input Experience",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/profile_input_experience_smoke.gd",
+				"-SuccessMarker",
+				"PROFILE_INPUT_EXPERIENCE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Smoke Test Dialogue Input State",
 			"type": "shell",
 			"command": "powershell.exe",
@@ -541,6 +579,25 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Day6 Library Guidance Guide",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/day6_library_guidance_guide_smoke.gd",
+				"-SuccessMarker",
+				"DAY6_LIBRARY_GUIDANCE_GUIDE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Smoke Test Archive Isolation",
 			"type": "shell",
 			"command": "powershell.exe",
@@ -575,6 +632,82 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test RealizeTurn Validator",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/realize_turn_validator_smoke.gd",
+				"-SuccessMarker",
+				"REALIZE_TURN_VALIDATOR_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test RealizeTurn Service",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/realize_turn_service_smoke.gd",
+				"-SuccessMarker",
+				"REALIZE_TURN_SERVICE_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Chat Scene State Runtime",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/chat_scene_state_runtime_smoke.gd",
+				"-SuccessMarker",
+				"CHAT_SCENE_STATE_RUNTIME_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Smoke Test Chat RealizeTurn Context",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/chat_realize_turn_context_smoke.tscn",
+				"-SuccessMarker",
+				"CHAT_REALIZE_TURN_CONTEXT_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Check Auth Diff Format",
 			"type": "shell",
 			"command": "git",
@@ -599,6 +732,8 @@
 				"Smoke Test Story Branch Runtime",
 				"Smoke Test Guided AI Chat",
 				"Smoke Test Embedded Story Choice",
+				"Smoke Test Daily Chat Topic Repository",
+				"Smoke Test Profile Input Experience",
 				"Smoke Test Dialogue Input State",
 				"Smoke Test Cognition Task Queue",
 				"Smoke Test Memory Observation",
@@ -613,6 +748,11 @@
 				"Smoke Test Date AI Workbench",
 				"Smoke Test Date AI Generation Queue",
 				"Smoke Test Date AI Response Metadata",
+				"Smoke Test Day6 Library Guidance Guide",
+				"Smoke Test RealizeTurn Validator",
+				"Smoke Test RealizeTurn Service",
+				"Smoke Test Chat Scene State Runtime",
+				"Smoke Test Chat RealizeTurn Context",
 				"Smoke Test Story Editor Window",
 				"Validate Story Repository",
 				"Smoke Test Story Schema Migration",

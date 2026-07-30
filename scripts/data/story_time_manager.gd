@@ -104,6 +104,8 @@ func advance_day(days: int = 1) -> void:
     current_period = PERIOD_MORNING
     current_hour = 8
     current_minute = 0
+    if GameDataManager.profile and GameDataManager.profile.has_method("restore_energy"):
+        GameDataManager.profile.restore_energy()
     # 移除自动保存，交由游戏核心的存档系统管理
     # save_data()
     
@@ -254,6 +256,66 @@ func get_day_config(offset: int) -> Dictionary:
 # 获取当前日期的天气与事件配置
 func get_current_day_config() -> Dictionary:
     return get_day_config(current_day_offset)
+
+func get_current_map_unlock_policy() -> Dictionary:
+    var raw_phases: Variant = time_config.get("map_unlock_phases", [])
+    if not raw_phases is Array:
+        return {}
+    for raw_phase in raw_phases:
+        if not raw_phase is Dictionary:
+            continue
+        var phase := raw_phase as Dictionary
+        var min_day_offset := int(phase.get("min_day_offset", 0))
+        var max_day_offset := int(phase.get("max_day_offset", 2147483647))
+        if current_day_offset >= min_day_offset and current_day_offset <= max_day_offset:
+            return phase.duplicate(true)
+    return {}
+
+func get_story_event_id(raw_event: Variant) -> String:
+    if raw_event is Dictionary:
+        return str((raw_event as Dictionary).get("id", "")).strip_edges()
+    return str(raw_event).strip_edges()
+
+func get_current_completion_events(trigger_id: String) -> Array[Dictionary]:
+    var normalized_trigger := trigger_id.strip_edges()
+    var events: Array[Dictionary] = []
+    if normalized_trigger == "":
+        return events
+    var day_config := get_current_day_config()
+    for event_key in ["events", "morning_events", "afternoon_events", "evening_events", "night_events"]:
+        var raw_events: Variant = day_config.get(event_key, [])
+        if not raw_events is Array:
+            continue
+        for raw_event in raw_events:
+            if not raw_event is Dictionary:
+                continue
+            var event_data := raw_event as Dictionary
+            if str(event_data.get("completion_trigger", "")).strip_edges() != normalized_trigger:
+                continue
+            var completion_events: Variant = event_data.get("completion_events", [])
+            if not completion_events is Array:
+                continue
+            for raw_completion_event in completion_events:
+                if raw_completion_event is Dictionary:
+                    var completion_event := (raw_completion_event as Dictionary).duplicate(true)
+                    completion_event["source_story_id"] = get_story_event_id(event_data)
+                    events.append(completion_event)
+    return events
+
+func get_current_start_guide_ids() -> Array[String]:
+    var guide_ids: Array[String] = []
+    var day_config := get_current_day_config()
+    for event_key in ["events", "morning_events", "afternoon_events", "evening_events", "night_events"]:
+        var raw_events: Variant = day_config.get(event_key, [])
+        if not raw_events is Array:
+            continue
+        for raw_event in raw_events:
+            if not raw_event is Dictionary:
+                continue
+            var guide_id := str((raw_event as Dictionary).get("start_guide_id", "")).strip_edges()
+            if guide_id != "" and not guide_ids.has(guide_id):
+                guide_ids.append(guide_id)
+    return guide_ids
 
 func normalize_story_weather_id(raw_weather: String) -> String:
     var key: String = raw_weather.strip_edges().to_lower()

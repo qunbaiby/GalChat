@@ -1,6 +1,8 @@
 @tool
 extends VBoxContainer
 
+signal value_changed
+
 const OptionRowScene = preload("res://addons/story_editor/ui/story_choice_option_row.tscn")
 
 var chapter_ids: Array[String] = []
@@ -23,6 +25,7 @@ func add_option() -> void:
 	var next_index := %Rows.get_child_count() + 1
 	_add_row({"id": "option_%d" % next_index, "text": "新选项", "effects": {"intimacy": 0, "trust": 0}})
 	_refresh_indices()
+	value_changed.emit()
 
 
 func get_options() -> Array:
@@ -39,6 +42,7 @@ func _add_row(option: Dictionary) -> void:
 	row.setup(option, chapter_ids)
 	row.move_requested.connect(_move_row)
 	row.delete_requested.connect(_delete_row)
+	row.value_changed.connect(value_changed.emit)
 
 
 func _move_row(row: Control, direction: int) -> void:
@@ -48,12 +52,14 @@ func _move_row(row: Control, direction: int) -> void:
 		return
 	%Rows.move_child(row, target_index)
 	_refresh_indices()
+	value_changed.emit()
 
 
 func _delete_row(row: Control) -> void:
 	%Rows.remove_child(row)
 	row.queue_free()
 	_refresh_indices()
+	value_changed.emit()
 
 
 func _refresh_indices() -> void:

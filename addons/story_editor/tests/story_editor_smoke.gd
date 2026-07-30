@@ -311,12 +311,17 @@ func _test_editor_scene(fixture: Dictionary) -> void:
 	var end_entry := graph_edit.get_node("chapter_entry_end") as GraphNode
 	_expect(matched_entry.selectable, "章节入口节点不可选中。")
 	_expect(end_entry.selectable, "剧情结束节点不可选中。")
+	matched_entry.chapter_selected.emit(filter_chapter_id)
+	var chapter_inspector := editor.get_node("Root/Body/WorkspaceSplit/Inspector/ChapterInspector") as VBoxContainer
+	_expect(chapter_inspector.visible, "单击章节入口后没有显示章节 Inspector。")
+	_expect(str(editor.get_node("Root/Body/WorkspaceSplit/Inspector/ChapterInspector/ChapterIdLabel").text).contains(filter_chapter_id), "章节 Inspector 没有显示目标章节 ID。")
 	_expect(graph_edit.get_node(matched_entry_name).visible, "章节入口筛选隐藏了匹配章节。")
 	_expect(not graph_edit.get_node(hidden_entry_name).visible, "章节入口筛选没有隐藏不匹配章节。")
 	chapter_entry_filter.text = ""
 	editor.call("_filter_chapter_entries", "")
 	var event_inspector := editor.get_node("Root/Body/WorkspaceSplit/Inspector/EventInspector")
 	var advanced_json_edit := event_inspector.get_node("Tabs/高级 JSON/AdvancedJsonEdit") as CodeEdit
+	editor.call("_select_event", "start", 0)
 	_expect(not advanced_json_edit.text.is_empty(), "选择节点后 Inspector 没有显示事件 JSON。")
 
 	var editor_events := editor.call("_current_events") as Array
@@ -403,11 +408,22 @@ func _test_editor_scene(fixture: Dictionary) -> void:
 	_expect(editor.current_chapter == "start" and editor.selected_event_index == 0, "诊断双击定位没有选择对应事件。")
 
 	var original_count := editor_events.size()
+	if original_count > 1:
+		var existing_connections := graph_edit.get_connection_list() as Array
+		_expect(existing_connections.any(func(connection: Dictionary) -> bool:
+			return str(connection.get("from_node", "")) == "event_start_0" and str(connection.get("to_node", "")) == "event_start_1"
+		), "原有事件之间的顺序连线没有恢复。")
 	editor.event_type_select.select(editor.CREATE_EVENT_TYPES.find("dialogue"))
 	editor.add_event()
 	await process_frame
 	_expect((editor.call("_current_events") as Array).size() == original_count + 1, "新增事件后事件数量不正确。")
 	_expect(_graph_node_count(graph_edit) == original_count + 1, "新增事件后节点数量没有同步。")
+	var inserted_node_name := "event_start_%d" % editor.selected_event_index
+	var previous_node_name := "event_start_%d" % (editor.selected_event_index - 1)
+	var has_automatic_connection := (graph_edit.get_connection_list() as Array).any(func(connection: Dictionary) -> bool:
+		return str(connection.get("from_node", "")) == inserted_node_name or str(connection.get("to_node", "")) == inserted_node_name
+	)
+	_expect(not has_automatic_connection, "新增事件仍然与相邻事件自动连线。")
 	editor.undo()
 	await process_frame
 	_expect((editor.call("_current_events") as Array).size() == original_count, "撤销新增事件后数量没有恢复。")
@@ -422,6 +438,19 @@ func _test_editor_scene(fixture: Dictionary) -> void:
 	await process_frame
 	_expect((editor.call("_current_events") as Array).size() == original_count, "删除事件后没有恢复原事件数量。")
 	_expect(_graph_node_count(graph_edit) == original_count, "删除事件后节点数量没有同步。")
+
+	editor.call("_select_event", "start", 0)
+	var inspector_type_select := event_inspector.type_select as OptionButton
+	inspector_type_select.select(event_inspector.EVENT_TYPES.find("choice"))
+	inspector_type_select.item_selected.emit(inspector_type_select.selected)
+	var live_options_control: Control = (event_inspector.field_controls.get("options", {}) as Dictionary).get("control") as Control
+	live_options_control.call("add_option")
+	await create_timer(0.2).timeout
+	var live_choice_event := (editor.call("_current_events") as Array)[0] as Dictionary
+	_expect(str(live_choice_event.get("type", "")) == "choice", "切换事件类型后没有实时写回剧情。")
+	_expect((live_choice_event.get("options", []) as Array).size() == 1, "新增玩家选项后没有实时写回剧情。")
+	editor.undo()
+	await process_frame
 
 	editor.call("_select_event", "start", 0)
 	var copied_source := ((editor.call("_current_events") as Array)[0] as Dictionary)

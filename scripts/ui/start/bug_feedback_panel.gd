@@ -36,7 +36,7 @@ func show_panel() -> void:
 	modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(self, "modulate:a", 1.0, 0.18)
-	call_deferred("_focus_title_input")
+	title_input.release_focus()
 
 
 func hide_panel() -> void:
@@ -45,11 +45,6 @@ func hide_panel() -> void:
 	tween.tween_callback(func() -> void:
 		visible = false
 	)
-
-
-func _focus_title_input() -> void:
-	if title_input:
-		title_input.grab_focus()
 
 
 func _setup_options() -> void:

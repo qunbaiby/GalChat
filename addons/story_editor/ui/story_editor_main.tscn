@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://addons/story_editor/ui/story_editor_main.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_event_inspector.tscn" id="2_inspector"]
@@ -13,7 +13,6 @@
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_runtime_debug_window.tscn" id="11_runtime_debug"]
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_node_template_library_window.tscn" id="12_node_templates"]
 [ext_resource type="PackedScene" path="res://addons/story_editor/ui/story_coverage_report_window.tscn" id="13_coverage_report"]
-[ext_resource type="PackedScene" path="res://addons/story_editor/ui/concern_ai_workbench.tscn" id="14_concern_ai"]
 
 [node name="StoryEditorMain" type="Control"]
 layout_mode = 3
@@ -116,13 +115,6 @@ visible = false
 layout_mode = 2
 tooltip_text = "打开 AI 约会模板、Prompt 与清洗工作台"
 text = "AI 约会"
-
-[node name="ConcernAIButton" type="Button" parent="Root/Toolbar"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-tooltip_text = "配置确定性心事模板、触发条件和引导式 AI 对话"
-text = "AI 心事"
 
 [node name="MobileChatButton" type="Button" parent="Root/Toolbar"]
 unique_name_in_owner = true
@@ -327,6 +319,27 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 
+[node name="StoryMinutesLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+layout_mode = 2
+text = "剧情耗时"
+
+[node name="StoryMinutesSpin" type="SpinBox" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+max_value = 1440.0
+suffix = " 分钟"
+
+[node name="StoryActionCostLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+layout_mode = 2
+text = "行动力"
+
+[node name="StoryActionCostSpin" type="SpinBox" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+max_value = 999.0
+
 [node name="AddChapterButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -402,7 +415,7 @@ tooltip_text = "选择要新增的事件类型"
 [node name="AddEventButton" type="Button" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
 unique_name_in_owner = true
 layout_mode = 2
-tooltip_text = "在当前节点后新增事件"
+tooltip_text = "新增独立事件节点，不会自动连线"
 text = "新增事件"
 
 [node name="EventTemplateMenu" type="MenuButton" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/EventBar"]
@@ -499,7 +512,7 @@ size_flags_horizontal = 3
 [node name="FlowLegend" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/CanvasGuide/GuideRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
-text = "顺序线：事件流程    分支线：连接章节入口    双击入口：进入章节"
+text = "事件按列表顺序执行    分支线：连接章节入口    双击入口：进入章节"
 
 [node name="GraphEdit" type="GraphEdit" parent="Root/Body/WorkspaceSplit/Workspace"]
 unique_name_in_owner = true
@@ -555,6 +568,57 @@ autowrap_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="ChapterInspector" type="VBoxContainer" parent="Root/Body/WorkspaceSplit/Inspector"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="ChapterIdLabel" type="Label" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="ChapterEventCountLabel" type="Label" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.57, 0.64, 0.68, 1)
+
+[node name="ChapterDisplayNameTitle" type="Label" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+layout_mode = 2
+text = "显示名称"
+
+[node name="ChapterDisplayNameEdit" type="LineEdit" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "可选，仅用于编辑器说明"
+
+[node name="ChapterDescriptionTitle" type="Label" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+layout_mode = 2
+text = "章节说明"
+
+[node name="ChapterDescriptionEdit" type="TextEdit" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+placeholder_text = "记录本章节的剧情目标、进入条件或设计备注"
+wrap_mode = 1
+
+[node name="ChapterActions" type="HBoxContainer" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EnterChapterButton" type="Button" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector/ChapterActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "进入章节"
+
+[node name="RenameSelectedChapterButton" type="Button" parent="Root/Body/WorkspaceSplit/Inspector/ChapterInspector/ChapterActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重命名"
 
 [node name="StatusBar" type="PanelContainer" parent="Root"]
 custom_minimum_size = Vector2(0, 28)
@@ -670,9 +734,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 36)
 
 [node name="DateAIWorkbench" parent="." instance=ExtResource("3_ai_workbench")]
-unique_name_in_owner = true
-
-[node name="ConcernAIWorkbench" parent="." instance=ExtResource("14_concern_ai")]
 unique_name_in_owner = true
 
 [node name="MobileChatCatalogWindow" parent="." instance=ExtResource("4_mobile_catalog")]

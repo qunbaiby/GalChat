@@ -363,6 +363,8 @@ func _create_voice_type_input(char_id: String, config, tag: String = "") -> void
 	line_edit_doubao.name = "InputDoubao_" + char_id
 	line_edit_doubao.placeholder_text = "填入 speaker ID"
 	line_edit_doubao.text = str(config.tts_character_speakers.get(char_id, config.get_default_tts_speaker(char_id)))
+	line_edit_doubao.text_submitted.connect(func(_text: String) -> void: _save_character_voice_input(line_edit_doubao, char_id))
+	line_edit_doubao.focus_exited.connect(func() -> void: _save_character_voice_input(line_edit_doubao, char_id))
 	preview_btn_doubao.text = "试听"
 	preview_btn_doubao.pressed.connect(_on_preview_voice_pressed.bind(line_edit_doubao, char_id))
 
@@ -789,6 +791,19 @@ func _on_save_pressed() -> void:
 	_save_ui_data()
 	hide_panel()
 
+func _save_character_voice_input(input_node: LineEdit, char_id: String) -> bool:
+	var normalized_char_id := char_id.strip_edges().to_lower()
+	var speaker_id := input_node.text.strip_edges()
+	if normalized_char_id.is_empty() or speaker_id.is_empty():
+		return false
+	if GameDataManager.config.call("_is_legacy_tts_speaker", speaker_id):
+		return false
+	GameDataManager.config.tts_character_speakers[normalized_char_id] = speaker_id
+	var saved := GameDataManager.config.save_config()
+	if saved:
+		TTSManager.refresh_from_settings()
+	return saved
+
 func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
 	var voice_type: String = ""
 	if input_node is LineEdit:
@@ -801,6 +816,9 @@ func _on_preview_voice_pressed(input_node: Control, char_id: String) -> void:
 	var is_icl_uranus_2: bool = voice_type.begins_with("ICL_uranus_") and voice_type.ends_with("_tob")
 	if (not is_icl_uranus_2 and (voice_type.begins_with("ICL_") or voice_type.ends_with("_tob"))) or voice_type == "BV001_streaming" or voice_type.contains("_moon_bigtts") or voice_type.contains("_mars_bigtts") or voice_type.contains("_emo_v2_"):
 		_show_settings_toast("当前音色 ID 属于旧版体系，不能用于 TTS 2.0，请改用新版 speaker。", Color.RED)
+		return
+	if input_node is LineEdit and not _save_character_voice_input(input_node, char_id):
+		_show_settings_toast("音色配置保存失败，请检查 speaker ID。", Color.RED)
 		return
 
 	var uses_official: bool = ai_service_mode_option.selected == 0

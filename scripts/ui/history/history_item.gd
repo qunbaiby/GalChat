@@ -19,8 +19,6 @@ func _resolve_type_tag(msg: Dictionary) -> Dictionary:
 
 	if msg_type == "main_chat":
 		match subtype:
-			"daily_concern_chat":
-				return {"text": "心事", "color": Color(0.98, 0.78, 0.52, 1)}
 			"daily_story_topic_chat":
 				return {"text": "主线", "color": Color(1.0, 0.72, 0.84, 1)}
 			"daily_topic_chat":

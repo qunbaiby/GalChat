@@ -10,7 +10,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var story_time := {"daily_data": [{"day_offset": 2, "events": ["base"], "morning_events": ["morning_story"]}]}
+	var story_time := {"daily_data": [{"day_offset": 2, "events": ["base"], "morning_events": [{"id": "morning_story", "completion_events": [{"type": "toast"}]}]}]}
 	var map_data := {"locations": {"library": {"scheduled_entry_stories": [
 		{"id": "low", "trigger_script": "res://low.json", "events": ["morning_story"], "periods": ["上午"], "priority": 10},
 		{"id": "high", "trigger_script": "res://high.json", "events": ["morning_story"], "weather": ["rainy"], "priority": 100}

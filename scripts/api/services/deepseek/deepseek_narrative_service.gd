@@ -105,7 +105,7 @@ func generate_dynamic_topics(client, prompt: String, callback: Callable) -> void
 	}
 	var http_request := HTTPRequest.new()
 	client.add_child(http_request)
-	http_request.request_completed.connect(func(result, response_code, _headers_arr, body):
+	http_request.request_completed.connect(func(_result, response_code, _headers_arr, body):
 		http_request.queue_free()
 		if response_code == 200:
 			var json := JSON.new()
@@ -129,6 +129,8 @@ func generate_npc_event_dialogue(client, npc_id: String, event_desc: String) -> 
 		client.npc_event_http.cancel_request()
 	var npc_name: String = "未知NPC"
 	var personality: String = "普通"
+	var identity_background: String = ""
+	var character_tags: String = ""
 	var stage: int = 1
 	var stage_title: String = "初识"
 	var npc_file: FileAccess = FileAccess.open("res://assets/data/characters/npc/" + npc_id + ".json", FileAccess.READ)
@@ -137,8 +139,22 @@ func generate_npc_event_dialogue(client, npc_id: String, event_desc: String) -> 
 		if json.parse(npc_file.get_as_text()) == OK:
 			var data: Variant = json.get_data()
 			npc_name = data.get("char_name", npc_id)
+			identity_background = str(data.get("identity_background", "")).strip_edges()
+			var tags_value: Variant = data.get("tags", [])
+			if tags_value is Array:
+				var tag_texts: PackedStringArray = []
+				for tag_value in tags_value:
+					var tag_text := str(tag_value).strip_edges()
+					if tag_text != "":
+						tag_texts.append(tag_text)
+				character_tags = "、".join(tag_texts)
 			if data.has("base_personality"):
-				personality = data["base_personality"].get("core_traits", "") + " " + data["base_personality"].get("dialogue_style", "")
+				var base_personality: Dictionary = data["base_personality"]
+				var core_traits := str(base_personality.get("core_traits", "")).strip_edges()
+				var dialogue_style := str(base_personality.get("dialogue_style", "")).strip_edges()
+				personality = " ".join(PackedStringArray([core_traits, dialogue_style])).strip_edges()
+			if personality == "":
+				personality = character_tags if character_tags != "" else "言行符合自身职业、年龄和现实经历"
 	if GameDataManager.profile.current_character_id == npc_id:
 		stage = GameDataManager.profile.current_stage
 		stage_title = GameDataManager.profile.get_current_stage_config().get("stageTitle", "未知")
@@ -197,6 +213,8 @@ func generate_npc_event_dialogue(client, npc_id: String, event_desc: String) -> 
 		if npc_rel:
 			intimacy = npc_rel.get_intimacy(npc_id)
 			trust = npc_rel.get_trust(npc_id)
+	extra_context["identity_background"] = identity_background
+	extra_context["character_tags"] = character_tags
 	var system_prompt: String = GameDataManager.prompt_manager.build_npc_event_prompt(npc_name, personality, protagonist_name, stage, stage_title, event_desc, intimacy, trust, extra_context)
 	if system_prompt.is_empty():
 		system_prompt = "【系统设定】\n你扮演的角色是：%s。\n你的性格特征和说话风格是：%s。\n注意：在这个世界里，你现在面对的是游戏世界中的少女【%s】。\n你当前与少女【%s】的情感关系处于【阶段%d：%s】（亲密度：%.1f，信任度：%.1f）。请严格根据这个情感状态对她表现出相应的态度。\n\n【当前事件】\n%s\n\n【任务要求】\n请结合你的性格、情感阶段以及当前发生的事件，作出非常符合你人设的回复。注意：\n1. 所有的动作、神态、心理描写，必须且只能使用全角或半角的圆括号 () 包裹。\n2. 绝对禁止使用星号 *、中括号 []、波浪号 ~ 等其他任何符号来表示动作或情绪。\n3. 直接输出台词和圆括号动作，不要包含任何旁白。\n4. 语气必须严格符合当前对【%s】的情感状态，且符合现代日常世界观（不要出现魔幻、修仙、系统、穿越等出戏话题）。\n5. 回复可以是多句话，以表达完整的情感和意思，如果有多句可以自然换行。像游戏里的即时互动反馈一样自然流畅。" % [npc_name, personality, protagonist_name, protagonist_name, stage, stage_title, intimacy, trust, event_desc, protagonist_name]

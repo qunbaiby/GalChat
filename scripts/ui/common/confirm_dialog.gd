@@ -32,6 +32,8 @@ func _ready() -> void:
 	cancel_button.pressed.connect(_on_cancel_pressed)
 	if confirm_input:
 		confirm_input.text_changed.connect(_on_confirm_input_changed)
+		confirm_input.focus_entered.connect(_on_confirm_input_focus_entered)
+		confirm_input.focus_exited.connect(_on_confirm_input_focus_exited)
 		confirm_input.text_submitted.connect(func(_text: String) -> void:
 			if not confirm_button.disabled:
 				_on_confirm_pressed()
@@ -81,14 +83,17 @@ func _apply_content() -> void:
 		confirm_input.placeholder_text = _required_text
 		confirm_input.text = ""
 		confirm_button.disabled = true
-		call_deferred("_grab_input_focus")
+		confirm_input.release_focus()
 	else:
 		confirm_button.disabled = false
 	call_deferred("_refresh_panel_layout")
 
-func _grab_input_focus() -> void:
-	if confirm_input and confirm_input.visible:
-		confirm_input.grab_focus()
+func _on_confirm_input_focus_entered() -> void:
+	confirm_input.placeholder_text = ""
+
+func _on_confirm_input_focus_exited() -> void:
+	if confirm_input.text.is_empty():
+		confirm_input.placeholder_text = _required_text
 
 func _on_confirm_input_changed(new_text: String) -> void:
 	var requires_input: bool = _required_text != ""

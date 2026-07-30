@@ -16,8 +16,12 @@ signal closing_started
 var _activities_data: Array = []
 var _course_buttons: Dictionary = {}
 var _planned_counts: Dictionary = {} # Key: course_id, Value: planned times
+var _guide_targets_ready: bool = false
 
 const CourseItemScene = preload("res://scenes/ui/map/library/tutoring_course_item.tscn")
+const MINUTES_PER_COURSE := 60
+const MAX_TUTORING_COUNT_PER_SESSION := 5
+const TUTORING_ENERGY_MULTIPLIER := 2
 
 # 属性名映射
 const STAT_NAME_MAP = {
@@ -33,14 +37,31 @@ const STAT_NAME_MAP = {
 
 func _ready() -> void:
 	$MenuPanel.modulate.a = 0.0
-	create_tween().tween_property($MenuPanel, "modulate:a", 1.0, 0.3)
+	var opening_tween := create_tween()
+	opening_tween.tween_property($MenuPanel, "modulate:a", 1.0, 0.3)
+	opening_tween.finished.connect(_on_tutoring_opening_finished, CONNECT_ONE_SHOT)
 	
 	close_btn.pressed.connect(_on_close_pressed)
 	start_btn.pressed.connect(_on_start_pressed)
 	reset_btn.pressed.connect(_on_reset_pressed)
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_tutoring_panel_ready"):
+		guide_manager.on_tutoring_panel_ready(self)
+	var detail_panel := get_guide_target("detail_panel") as Control
+	if detail_panel and not detail_panel.gui_input.is_connected(_on_detail_panel_gui_input):
+		detail_panel.gui_input.connect(_on_detail_panel_gui_input)
 	
 	_load_activities()
 	_refresh_ui()
+
+func _on_tutoring_opening_finished() -> void:
+	_guide_targets_ready = true
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("on_tutoring_panel_ready"):
+		guide_manager.on_tutoring_panel_ready(self)
+
+func is_guide_target_ready() -> bool:
+	return _guide_targets_ready
 
 func _load_activities() -> void:
 	var path = "res://assets/data/interaction/activity/activities.json"
@@ -60,7 +81,7 @@ func _get_course_by_id(c_id: String) -> Dictionary:
 
 func _get_course_energy_cost(course: Dictionary) -> int:
 	var increment = int(course.get("progress_increment", 0))
-	return max(1, int(ceil(float(increment) / 5.0)))
+	return max(1, int(ceil(float(increment) / 5.0))) * TUTORING_ENERGY_MULTIPLIER
 
 func _refresh_ui() -> void:
 	var profile = GameDataManager.profile
@@ -116,10 +137,16 @@ func _on_course_clicked(course: Dictionary) -> void:
 		_show_warning("该课程进度已满！")
 		return
 		
-	# 检查行动力限制
-	var total_planned_cost = _get_total_planned_cost()
-	if profile.current_energy < total_planned_cost + single_cost:
-		_show_warning("行动力不足！")
+	if _get_total_planned_count() >= MAX_TUTORING_COUNT_PER_SESSION:
+		_show_warning("一次最多安排 %d 次指导。" % MAX_TUTORING_COUNT_PER_SESSION)
+		return
+
+	var prospective_count := _get_total_planned_count() + 1
+	var prospective_cost: int = _get_total_planned_cost() + int(single_cost)
+	var prospective_minutes: int = prospective_count * MINUTES_PER_COURSE
+	var unavailable := _get_unavailable_reason(prospective_cost, prospective_minutes)
+	if not unavailable.is_empty():
+		_show_warning(_format_unavailable_reason(unavailable))
 		return
 		
 	# 隐藏警告
@@ -133,6 +160,8 @@ func _on_course_clicked(course: Dictionary) -> void:
 	
 	# 整体更新右侧面板 UI
 	_update_right_panel()
+	if _get_total_planned_count() >= MAX_TUTORING_COUNT_PER_SESSION:
+		_report_guide_action("tutoring_schedule_full", {"count": _get_total_planned_count()})
 
 func _update_course_button_visuals(c_id: String) -> void:
 	if not _course_buttons.has(c_id): return
@@ -147,9 +176,34 @@ func _get_total_planned_cost() -> int:
 		total += _get_course_energy_cost(course) * _planned_counts[c_id]
 	return total
 
+func _get_total_planned_count() -> int:
+	var total := 0
+	for count_value in _planned_counts.values():
+		total += int(count_value)
+	return total
+
+func _get_total_planned_minutes() -> int:
+	return _get_total_planned_count() * MINUTES_PER_COURSE
+
+func _get_unavailable_reason(energy_cost: int, time_cost: int) -> Dictionary:
+	if GameDataManager.interaction_manager:
+		return GameDataManager.interaction_manager.get_cost_unavailable_reason(energy_cost, 0, time_cost)
+	if GameDataManager.profile.current_energy < energy_cost:
+		return {"reason": "energy", "required": energy_cost, "available": int(GameDataManager.profile.current_energy)}
+	return {}
+
+func _format_unavailable_reason(unavailable: Dictionary) -> String:
+	match str(unavailable.get("reason", "")):
+		"energy":
+			return "行动力不足：安排后共需 %d 点，当前只有 %d 点。" % [int(unavailable.get("required", 0)), int(unavailable.get("available", 0))]
+		"late":
+			return "时间不足：所选课程共需 %d 分钟，无法在 23:00 前完成。" % int(unavailable.get("required_minutes", 0))
+	return "当前无法追加这门课程。"
+
 func _update_right_panel() -> void:
 	var profile = GameDataManager.profile
 	var total_cost = _get_total_planned_cost()
+	var total_minutes := _get_total_planned_minutes()
 	var remaining_energy = profile.current_energy - total_cost
 	
 	var is_empty = _planned_counts.is_empty()
@@ -189,9 +243,9 @@ func _update_right_panel() -> void:
 				aggregate_rewards[stat_key][1] += int(val) * count
 
 	detail_title.text = "指导安排确认"
-	detail_meta_label.text = "已安排 %d 次指导，涉及 %d 门课程" % [total_count, _planned_counts.size()]
+	detail_meta_label.text = "已安排 %d 次指导，涉及 %d 门课程，共需 %d 分钟" % [total_count, _planned_counts.size(), total_minutes]
 	desc_label.text = courses_summary
-	cost_label.text = "预计消耗行动力：%d   |   剩余：%d / %d" % [total_cost, remaining_energy, profile.max_energy]
+	cost_label.text = "预计消耗：%d 行动力、%d 分钟   |   剩余行动力：%d / %d" % [total_cost, total_minutes, remaining_energy, profile.max_energy]
 	
 	var preview_str = "属性提升预览\n"
 	if aggregate_rewards.size() > 0:
@@ -237,14 +291,16 @@ func _on_start_pressed() -> void:
 		
 	var profile = GameDataManager.profile
 	var total_cost = _get_total_planned_cost()
-	
-	if profile.current_energy < total_cost:
-		_show_warning("行动力不足！")
+	var total_minutes := _get_total_planned_minutes()
+	var unavailable := _get_unavailable_reason(total_cost, total_minutes)
+	if not unavailable.is_empty():
+		_show_warning(_format_unavailable_reason(unavailable))
 		return
 		
 	if not profile.consume_energy(total_cost):
 		_show_warning("行动力不足！")
 		return
+	_report_guide_action("tutoring_start")
 	
 	var actual_stat_gains = {}
 	var progress_gains = {}
@@ -289,9 +345,11 @@ func _on_start_pressed() -> void:
 			var display_name = STAT_NAME_MAP.get(stat_key, stat_key)
 			ToastManager.show_stat_toast(stat_key, "%s +%d" % [display_name, actual_stat_gains[stat_key]])
 			
-	# 执行互动开销
-	if GameDataManager.interaction_manager:
-		GameDataManager.interaction_manager.execute_interaction("tutoring")
+	if GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.tick_minutes(total_minutes)
+	var story_post_event_manager := get_node_or_null("/root/StoryPostEventManager")
+	if story_post_event_manager and story_post_event_manager.has_method("register_time_completion"):
+		story_post_event_manager.register_time_completion("tutoring_completed")
 			
 	closing_started.emit()
 	var tween = create_tween()
@@ -311,3 +369,36 @@ func _on_close_pressed():
 	var tween = create_tween()
 	tween.tween_property($MenuPanel, "modulate:a", 0.0, 0.25)
 	tween.tween_callback(queue_free)
+
+func get_guide_target(target_mode: String) -> Node:
+	match target_mode:
+		"course_list":
+			return $MenuPanel/ContentHBox/LeftPanel
+		"detail_panel":
+			return $MenuPanel/ContentHBox/RightPanel/DetailPanel
+		"start_button":
+			return start_btn
+	return null
+
+func get_guide_focus_data(target_mode: String) -> Variant:
+	var target := get_guide_target(target_mode) as Control
+	if not is_instance_valid(target) or not target.is_visible_in_tree():
+		return Rect2()
+	var focus_rect := Rect2(Vector2.ZERO, target.size)
+	var panel_origin: Vector2 = $MenuPanel.get_global_transform_with_canvas().origin
+	var current: Node = target
+	while current != null and current != $MenuPanel:
+		if current is Control:
+			focus_rect.position += (current as Control).position
+		current = current.get_parent()
+	focus_rect.position += panel_origin
+	return focus_rect
+
+func _on_detail_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_report_guide_action("tutoring_click_details")
+
+func _report_guide_action(action_id: String, payload: Dictionary = {}) -> void:
+	var guide_manager = get_node_or_null("/root/GuideManager")
+	if guide_manager and guide_manager.has_method("report_action"):
+		guide_manager.report_action(action_id, payload)
