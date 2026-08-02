@@ -63,10 +63,22 @@ func _run() -> void:
 	var ui_panel: Control = main_scene.get_node("UIPanel") as Control
 	var weather_panel: Control = main_scene.get_node("UIPanel/WeatherPanel") as Control
 	var top_status_panel: Control = main_scene.get_node("UIPanel/TopStatusPanel") as Control
-	main_scene._set_daily_dialogue_hud_visible(true)
-	_expect(weather_panel.get_parent() == main_scene and weather_panel.is_visible_in_tree(), "日常对话没有复用并显示主场景时间天气 UI。")
-	_expect(top_status_panel.get_parent() == main_scene and top_status_panel.is_visible_in_tree(), "日常对话没有复用并显示主场景行动力 UI。")
+	_expect(weather_panel.get_parent() == ui_panel, "日常对话开始前时间天气 UI 不在主场景 UIPanel。")
+	_expect(top_status_panel.get_parent() == ui_panel, "日常对话开始前精力 UI 不在主场景 UIPanel。")
 	var manager = main_scene._ensure_embedded_dialogue_manager()
+	manager._embedded_session_active = true
+	manager._embedded_session_request = {"mode": "daily"}
+	manager._populate_quick_options([
+		{"text": "测试日常回复一", "kind": "intimacy"},
+		{"text": "测试日常回复二", "kind": "trust"}
+	])
+	await process_frame
+	_expect(manager.dialogue_panel.ai_player_option_layer.visible, "日常 AI 玩家选项错误隐藏了 AiPlayerOptionLayer。")
+	_expect(manager.ai_player_options_container.visible and manager.ai_player_options_container.get_child_count() == 2, "日常 AI 玩家选项没有进入 AiPlayerOptionLayer 的双列槽位。")
+	_expect(not manager.quick_option_layer.visible, "日常 AI 动态玩家选项仍显示在旧 QuickOptionLayer。")
+	manager.dialogue_panel.clear_ai_player_options(true)
+	manager._embedded_session_active = false
+	manager._embedded_session_request.clear()
 	var request := {
 		"session_id": "daily_runtime_smoke",
 		"mode": "daily",
@@ -79,11 +91,19 @@ func _run() -> void:
 			{"text": "聊聊今天的生活", "kind": "life"},
 			{"text": "聊聊此刻的感受", "kind": "emotion"}
 		],
-		"energy_cost_per_round": 3,
-		"minutes_per_round": 20,
-		"daily_chat_cutoff_minutes": 23 * 60
+		"reply_energy_cost": 3,
+		"reply_minutes": 10,
+		"daily_chat_cutoff_minutes": 24 * 60
 	}
 	manager.start_embedded_topic_session(request)
+	_expect(manager.free_chat_max_rounds == 0, "日常 AI 会话仍然装载了玩家回合上限。")
+	_expect(manager.free_chat_current_round == 0, "日常 AI 会话开始时玩家回合数不是 0。")
+	_expect(manager.free_chat_info_layer.visible, "日常 AI 会话没有显示资源信息层。")
+	_expect(not manager.free_chat_round_label.visible, "日常 AI 会话仍显示回合数。")
+	_expect(manager.free_chat_time_label.visible, "日常 AI 会话没有显示当前时间。")
+	_expect(manager.free_chat_energy_layer.visible, "日常 AI 会话没有显示当前精力。")
+	var resource_focus_entries: Array = manager.get_daily_resource_status_focus_entries()
+	_expect(resource_focus_entries.size() == 2, "日常 AI 会话没有生成时间与精力两个引导焦点。")
 	var wait_frames := 0
 	while wait_frames < 300 and manager._intro_playing:
 		await process_frame
@@ -169,10 +189,6 @@ func _run() -> void:
 			_expect(not manager._embedded_daily_turn_pending, "选择话题后的角色回复没有播放并结算完成。")
 			var energy_after_topic := int(game_data_manager.profile.current_energy)
 			var minutes_after_topic := int(game_data_manager.story_time_manager.current_hour) * 60 + int(game_data_manager.story_time_manager.current_minute)
-			weather_panel.call("_update_time")
-			await process_frame
-			var displayed_time := str(weather_panel.get_node("Margin/HBox/RightVBox/TimeHBox/TimeLabel").text)
-			var displayed_energy := str(top_status_panel.get_node("MarginContainer/HBoxContainer/EnergySlot/BgPanel/Margin/ValueLabel").text)
 			print("[DailyConversationRuntimeSmoke] topic_ai_speech=%s energy=%d->%d minutes=%d->%d" % [
 				first_speech,
 				energy_before_topic,
@@ -180,10 +196,8 @@ func _run() -> void:
 				minutes_before_topic,
 				minutes_after_topic
 			])
-			_expect(energy_after_topic == energy_before_topic - 3, "话题首轮没有扣除 3 点行动力。")
-			_expect(minutes_after_topic == minutes_before_topic + 20, "话题首轮没有推进 20 分钟。")
-			_expect(displayed_time == "%02d:%02d" % [int(game_data_manager.story_time_manager.current_hour), int(game_data_manager.story_time_manager.current_minute)], "日常对话中的主场景时间 UI 没有随结算刷新。")
-			_expect(displayed_energy == "%d/%d" % [energy_after_topic, int(game_data_manager.profile.max_energy)], "日常对话中的主场景行动力 UI 没有随结算刷新。")
+			_expect(energy_after_topic == energy_before_topic, "系统话题开场错误地再次扣除了精力。")
+			_expect(minutes_after_topic == minutes_before_topic, "系统话题开场错误地再次推进了时间。")
 
 			var player_message := "那你具体卡在哪一部分？"
 			var followup_result := {
@@ -252,13 +266,24 @@ func _run() -> void:
 				minutes_after_followup,
 				str(manager.dialogue_text.text)
 			])
-			_expect(energy_after_followup == energy_after_topic - 3, "玩家消息轮没有扣除 3 点行动力。")
-			_expect(minutes_after_followup == minutes_after_topic + 20, "玩家消息轮没有推进 20 分钟。")
+			_expect(energy_after_followup == energy_after_topic - 3, "玩家消息轮没有扣除 3 点精力。")
+			_expect(minutes_after_followup == minutes_after_topic + 10, "玩家消息轮没有推进 10 分钟。")
+			_expect(manager.free_chat_current_round == 1, "首个玩家消息没有只计为 1 个玩家回合。")
 			_expect(str(manager.dialogue_text.text).contains(followup_last_speech), "第二次角色回复的最后一个气泡没有实际显示在对话 UI。")
 	game_data_manager.config.voice_enabled = original_voice_enabled
-	main_scene._set_daily_dialogue_hud_visible(false)
-	_expect(weather_panel.get_parent() == ui_panel, "日常对话结束后时间天气 UI 没有恢复到主场景 UIPanel。")
-	_expect(top_status_panel.get_parent() == ui_panel, "日常对话结束后行动力 UI 没有恢复到主场景 UIPanel。")
+	_expect(weather_panel.get_parent() == ui_panel, "日常对话期间时间天气 UI 被移出了主场景 UIPanel。")
+	_expect(top_status_panel.get_parent() == ui_panel, "日常对话期间精力 UI 被移出了主场景 UIPanel。")
+	var original_day_offset := int(game_data_manager.story_time_manager.current_day_offset)
+	var original_hour := int(game_data_manager.story_time_manager.current_hour)
+	var original_minute := int(game_data_manager.story_time_manager.current_minute)
+	game_data_manager.story_time_manager.current_day_offset = original_day_offset + 1
+	game_data_manager.story_time_manager.current_hour = 8
+	game_data_manager.story_time_manager.current_minute = 0
+	weather_panel.call("_update_time")
+	_expect(str(weather_panel.get_node("Margin/HBox/RightVBox/TimeHBox/TimeLabel").text) == "08:00", "跨天时间仍然播放了递进动画。")
+	game_data_manager.story_time_manager.current_day_offset = original_day_offset
+	game_data_manager.story_time_manager.current_hour = original_hour
+	game_data_manager.story_time_manager.current_minute = original_minute
 	main_scene.queue_free()
 	await process_frame
 	if logged_in_for_smoke:

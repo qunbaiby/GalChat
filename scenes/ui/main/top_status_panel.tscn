@@ -89,6 +89,23 @@ texture = ExtResource("2_ukdjp")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="DeltaLabel" type="Label" parent="MarginContainer/HBoxContainer/GoldSlot"]
+visible = false
+z_index = 10
+layout_mode = 0
+offset_left = 30.0
+offset_top = 20.0
+offset_right = 108.0
+offset_bottom = 46.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.35, 1, 0.76, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.08, 0.08, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 19
+text = "+10"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="EnergySlot" type="Control" parent="MarginContainer/HBoxContainer" unique_id=650116844]
 custom_minimum_size = Vector2(138, 35)
 layout_mode = 2
@@ -146,3 +163,20 @@ grow_vertical = 2
 texture = ExtResource("3_6ej4b")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="DeltaLabel" type="Label" parent="MarginContainer/HBoxContainer/EnergySlot"]
+visible = false
+z_index = 10
+layout_mode = 0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 124.0
+offset_bottom = 46.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.35, 1, 0.76, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.08, 0.08, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 19
+text = "+3"
+horizontal_alignment = 1
+vertical_alignment = 1

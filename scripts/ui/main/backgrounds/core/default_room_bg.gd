@@ -2,16 +2,16 @@ extends "res://scripts/ui/main/backgrounds/core/bg_scene_base.gd"
 
 @onready var bg_rect: TextureRect = $background
 @onready var chat_button: Button = get_node_or_null("ChatButton") as Button
+@onready var rest_button: Button = get_node_or_null("RestButton") as Button
+@onready var meal_button: Button = get_node_or_null("MealButton") as Button
 
-var _base_bubble_pos := Vector2.ZERO
-var _bubble_tween: Tween
-var _base_interact_pos := Vector2.ZERO
-var _interact_bubble_tween: Tween
 var _desktop_bubble_mode := false
 var _desktop_bubble_suspended := false
 var _ui_tween: Tween
 var _is_ui_hidden := false
 var _chat_button_available := true
+var _rest_button_available := true
+var _meal_button_available := false
 var _chat_status_badge: PanelContainer = null
 var _chat_status_icon_label: Label = null
 var _chat_status_text_label: Label = null
@@ -31,16 +31,12 @@ func _ready() -> void:
 	super._ready()
 
 	if chat_button:
-		_base_interact_pos = chat_button.position
-		_base_bubble_pos = chat_button.position
 		_ensure_chat_button_decorations()
 
 	_check_story_button_visibility()
 	if GameDataManager.story_time_manager and not GameDataManager.story_time_manager.time_advanced.is_connected(_on_time_advanced):
 		GameDataManager.story_time_manager.time_advanced.connect(_on_time_advanced)
 
-	_play_bubble_anim()
-	
 	# Initial UI state check
 	var main_scene = get_tree().root.get_node_or_null("MainScene")
 	if main_scene and main_scene.get("chat_scene_instance") and main_scene.chat_scene_instance.visible:
@@ -71,6 +67,31 @@ func _has_main_story_available() -> bool:
 func set_chat_button_available(is_available: bool) -> void:
 	_chat_button_available = is_available
 	refresh_chat_button_state()
+
+func set_rest_button_available(is_available: bool) -> void:
+	_rest_button_available = is_available
+	refresh_rest_button_state()
+
+func refresh_rest_button_state() -> void:
+	if not is_instance_valid(rest_button):
+		return
+	rest_button.visible = not _desktop_bubble_mode and not _is_ui_hidden and _rest_button_available
+	if rest_button.visible:
+		rest_button.modulate.a = 1.0
+
+func set_meal_button_available(is_available: bool, meal_label: String = "吃饭") -> void:
+	_meal_button_available = is_available
+	var label := meal_button.get_node_or_null("ContentHBox/Label") as Label if is_instance_valid(meal_button) else null
+	if is_instance_valid(label):
+		label.text = meal_label
+	refresh_meal_button_state()
+
+func refresh_meal_button_state() -> void:
+	if not is_instance_valid(meal_button):
+		return
+	meal_button.visible = not _desktop_bubble_mode and not _is_ui_hidden and _meal_button_available
+	if meal_button.visible:
+		meal_button.modulate.a = 1.0
 
 func refresh_chat_button_state() -> void:
 	if not is_instance_valid(chat_button):
@@ -139,9 +160,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if frames and frames.has_animation(luna.animation):
 				var tex = frames.get_frame_texture(luna.animation, luna.frame)
 				if tex:
-					var size = tex.get_size()
-					var offset = -size / 2.0 if luna.centered else Vector2.ZERO
-					var rect = Rect2(offset, size)
+					var texture_size = tex.get_size()
+					var offset = -texture_size / 2.0 if luna.centered else Vector2.ZERO
+					var rect = Rect2(offset, texture_size)
 					if rect.has_point(local_pos):
 						var image = tex.get_image()
 						if image:
@@ -185,6 +206,8 @@ func is_idle_quote_playing() -> bool:
 func set_desktop_bubble_mode(enabled: bool) -> void:
 	_desktop_bubble_mode = enabled
 	refresh_chat_button_state()
+	refresh_rest_button_state()
+	refresh_meal_button_state()
 	if enabled and idle_bubble_panel:
 		idle_bubble_panel.modulate.a = 1.0
 
@@ -304,7 +327,7 @@ func _sanitize_bubble_text(raw_text: String, strip_actions: bool) -> String:
 	final_text = whitespace_regex.sub(final_text, " ", true)
 	return final_text.strip_edges()
 
-func _on_idle_quote_failed(err: String) -> void:
+func _on_idle_quote_failed(_err: String) -> void:
 	var deepseek_client = DeepSeekClientLocator.find(self)
 	if deepseek_client:
 		deepseek_client.idle_quote_completed.disconnect(_on_idle_quote_completed)
@@ -324,7 +347,7 @@ func _on_idle_tts_success(audio_stream: AudioStream, text: String) -> void:
 		idle_audio_player.stream = audio_stream
 		idle_audio_player.play()
 
-func _on_idle_tts_failed(err_msg: String, text: String) -> void:
+func _on_idle_tts_failed(_err_msg: String, text: String) -> void:
 	if text != _current_idle_text:
 		return
 	if not is_inside_tree():
@@ -364,8 +387,6 @@ func _on_time_advanced(_days: int, _current_period: String) -> void:
 
 func _check_story_button_visibility() -> void:
 	refresh_chat_button_state()
-	if _bubble_tween and _bubble_tween.is_valid() and (_desktop_bubble_mode or not _chat_button_available or _is_ui_hidden):
-		_bubble_tween.kill()
 	
 func set_ui_hidden(is_hidden: bool) -> void:
 	_is_ui_hidden = is_hidden
@@ -379,12 +400,18 @@ func set_ui_hidden(is_hidden: bool) -> void:
 	
 	if active_chat_button:
 		_ui_tween.parallel().tween_property(active_chat_button, "modulate:a", target_a, 0.3)
+	if rest_button:
+		_ui_tween.parallel().tween_property(rest_button, "modulate:a", target_a, 0.3)
+	if meal_button:
+		_ui_tween.parallel().tween_property(meal_button, "modulate:a", target_a, 0.3)
 	if idle_bubble_panel and idle_bubble_panel.visible:
 		_ui_tween.parallel().tween_property(idle_bubble_panel, "modulate:a", target_a, 0.3)
 		
 	if is_hidden:
 		_ui_tween.tween_callback(func():
 			if active_chat_button: active_chat_button.visible = false
+			if rest_button: rest_button.visible = false
+			if meal_button: meal_button.visible = false
 			if idle_bubble_panel: 
 				idle_bubble_panel.visible = false
 				_is_idle_speaking = false
@@ -394,6 +421,12 @@ func set_ui_hidden(is_hidden: bool) -> void:
 			active_chat_button.visible = _chat_button_available
 			active_chat_button.modulate.a = 1.0
 		refresh_chat_button_state()
+		if rest_button:
+			rest_button.modulate.a = 1.0
+			refresh_rest_button_state()
+		if meal_button:
+			meal_button.modulate.a = 1.0
+			refresh_meal_button_state()
 
 # 如果有特殊的环境切换需求可以在这里实现
 func play_environment_anim(anim_name: String) -> void:
@@ -402,21 +435,3 @@ func play_environment_anim(anim_name: String) -> void:
 		bg_rect.modulate = Color(0.5, 0.5, 0.7)
 	elif anim_name == "day":
 		bg_rect.modulate = Color(1, 1, 1)
-
-func _play_bubble_anim() -> void:
-	if _bubble_tween:
-		_bubble_tween.kill()
-
-	if is_instance_valid(chat_button):
-		chat_button.pivot_offset = chat_button.size / 2.0
-
-	_bubble_tween = create_tween().set_loops()
-
-	if is_instance_valid(chat_button):
-		_bubble_tween.tween_property(chat_button, "position:y", _base_bubble_pos.y - 10.0, 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		_bubble_tween.parallel().tween_property(chat_button, "scale", Vector2(1.03, 1.03), 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		_bubble_tween.tween_property(chat_button, "position:y", _base_bubble_pos.y, 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		_bubble_tween.parallel().tween_property(chat_button, "scale", Vector2(1.0, 1.0), 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		
-	if _interact_bubble_tween:
-		_interact_bubble_tween.kill()

@@ -129,7 +129,8 @@ static func build_topic_option_item(text: String, topic_kind: String) -> Diction
 static func populate_option_items(
 	container: Node,
 	options: Array,
-	on_selected: Callable
+	on_selected: Callable,
+	presentation_mode: String = "topic"
 ) -> void:
 	clear_container(container)
 	if not is_instance_valid(container):
@@ -144,13 +145,28 @@ static func populate_option_items(
 			continue
 		var item = scene.instantiate()
 		container.add_child(item)
-		item.setup(option_text)
+		item.setup(option_text, presentation_mode)
 		item.option_selected.connect(on_selected)
 
 static func populate_option_items_with_index(
 	container: Node,
 	options: Array,
 	on_selected: Callable
+) -> void:
+	_populate_option_items_with_index(container, options, on_selected, "topic")
+
+static func populate_ai_reply_items_with_index(
+	container: Node,
+	options: Array,
+	on_selected: Callable
+) -> void:
+	_populate_option_items_with_index(container, options, on_selected, "ai_reply")
+
+static func _populate_option_items_with_index(
+	container: Node,
+	options: Array,
+	on_selected: Callable,
+	presentation_mode: String
 ) -> void:
 	clear_container(container)
 	if not is_instance_valid(container):
@@ -179,7 +195,7 @@ static func populate_option_items_with_index(
 		var item = scene.instantiate()
 		container.add_child(item)
 		if option_text is Dictionary:
-			item.setup(option_text)
+			item.setup(option_text, presentation_mode)
 		else:
-			item.setup(clean_text)
+			item.setup(clean_text, presentation_mode)
 		item.option_selected.connect(on_selected.bind(index))

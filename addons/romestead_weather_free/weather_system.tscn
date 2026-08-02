@@ -1,8 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://ciemenbt373pi"]
+[gd_scene load_steps=3 format=3 uid="uid://ciemenbt373pi"]
 
 [ext_resource type="Script" uid="uid://w27pm45d5rgd" path="res://addons/romestead_weather_free/romestead_environment_system.gd" id="1_weather"]
 
+[sub_resource type="Gradient" id="Gradient_day_night_tint"]
+offsets = PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333, 0.666667, 0.75, 0.833333, 0.916667, 1)
+colors = PackedColorArray(0.004, 0.008, 0.028, 0.86, 0.025, 0.05, 0.14, 0.82, 0.04, 0.065, 0.13, 0.72, 0.16, 0.24, 0.34, 0.36, 1, 0.76, 0.38, 0.08, 1, 0.9, 0.68, 0.025, 1, 0.96, 0.82, 0.015, 1, 0.86, 0.64, 0.025, 1, 0.68, 0.34, 0.08, 1, 0.42, 0.16, 0.22, 0.08, 0.11, 0.24, 0.48, 0.025, 0.045, 0.105, 0.72, 0.004, 0.008, 0.028, 0.86)
+
 [node name="Environment" type="Node"]
 script = ExtResource("1_weather")
+day_night_tint_gradient = SubResource("Gradient_day_night_tint")
+weather_overlay_tint_color = Color(0.1, 0.14, 0.22, 1)
 metadata/romestead_environment_system = true
 metadata/romestead_environment_script_path = "res://addons/romestead_weather_free/romestead_environment_system.gd"

@@ -67,6 +67,7 @@ corner_radius_bottom_right = 32
 corner_radius_bottom_left = 32
 
 [node name="GuideOverlay" type="Control" unique_id=1404899017]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -76,19 +77,34 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("2_script")
 
+[node name="InputBlocker" type="ColorRect" parent="."]
+visible = false
+z_index = 30
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(1, 1, 1, 0)
+
 [node name="GuidePanel" type="PanelContainer" parent="." unique_id=1619131671]
+visible = false
+modulate = Color(1, 1, 1, 0)
+z_index = 50
 layout_mode = 0
 offset_right = 520.0
-offset_bottom = 148.0
+offset_bottom = 135.0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_Root")
 
 [node name="GuideRow" type="HBoxContainer" parent="GuidePanel" unique_id=745181263]
 layout_mode = 2
-theme_override_constants/separation = -18
+theme_override_constants/separation = -30
 
 [node name="AvatarFrame" type="PanelContainer" parent="GuidePanel/GuideRow" unique_id=1338788922]
 z_index = 2
-custom_minimum_size = Vector2(148, 148)
+custom_minimum_size = Vector2(135, 135)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_AvatarGlow")
 
@@ -105,14 +121,14 @@ stretch_mode = 5
 
 [node name="MessagePanel" type="PanelContainer" parent="GuidePanel/GuideRow" unique_id=487466041]
 z_index = 1
-custom_minimum_size = Vector2(300, 94)
+custom_minimum_size = Vector2(350, 100)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_Message")
 
 [node name="MessageMargin" type="MarginContainer" parent="GuidePanel/GuideRow/MessagePanel" unique_id=1926543930]
 layout_mode = 2
-theme_override_constants/margin_left = 26
+theme_override_constants/margin_left = 35
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 10
@@ -125,9 +141,9 @@ theme_override_colors/default_color = Color(0.73, 1, 0.94, 1)
 theme_override_font_sizes/normal_font_size = 17
 bbcode_enabled = true
 text = "请根据当前提示继续操作。"
+vertical_alignment = 1
 
 [node name="ClickPointer" type="Control" parent="." unique_id=1911966904]
-visible = false
 z_index = 40
 custom_minimum_size = Vector2(88, 88)
 anchors_preset = 0
@@ -146,10 +162,23 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_ClickRing")
 
 [node name="HandTexture" type="TextureRect" parent="ClickPointer" unique_id=108458839]
 layout_mode = 0
-offset_left = 18.0
-offset_top = 9.0
-offset_right = 82.0
-offset_bottom = 73.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = 76.0
+offset_bottom = 70.0
+mouse_filter = 2
+texture = ExtResource("4_hand")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HandShadow" type="TextureRect" parent="ClickPointer" unique_id=559003625]
+modulate = Color(0.08, 0.78, 0.62, 0.9)
+show_behind_parent = true
+layout_mode = 0
+offset_left = 14.0
+offset_top = 8.0
+offset_right = 78.0
+offset_bottom = 72.0
 mouse_filter = 2
 texture = ExtResource("4_hand")
 expand_mode = 1

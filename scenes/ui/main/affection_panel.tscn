@@ -285,16 +285,6 @@ text = "记录你们之间逐渐靠近的距离"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="GiftButton" type="Button" parent="RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn" unique_id=1811293409]
-custom_minimum_size = Vector2(0, 42)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_Card")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_Row")
-theme_override_styles/hover = SubResource("StyleBoxFlat_Row")
-text = "赠送礼物"
-
 [node name="Divider" type="ColorRect" parent="RootMargin/RootVBox/ContentVBox/MainHBox" unique_id=1364911629]
 custom_minimum_size = Vector2(1, 0)
 layout_mode = 2

@@ -450,7 +450,7 @@ func reload_active_archive_data() -> void:
 	_load_pomodoro_data()
 	sync_profile_to_config()
 	if config:
-		config.apply_settings()
+		config.apply_runtime_settings()
 		config.save_config()
 	archive_changed.emit(get_active_archive_id())
 

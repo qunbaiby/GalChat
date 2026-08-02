@@ -15,7 +15,7 @@ static func validate(data: Dictionary) -> Array[Dictionary]:
 	if str(data.get("script_id", "")).strip_edges().is_empty():
 		_add(diagnostics, "error", "根节点", "缺少 script_id。")
 	if int(data.get("game_minutes", 0)) < 0 or int(data.get("action_cost", 0)) < 0:
-		_add(diagnostics, "error", "根节点", "整段剧情的时间和行动力消耗不能为负数。")
+		_add(diagnostics, "error", "根节点", "整段剧情的时间和精力消耗不能为负数。")
 	var chapters_value: Variant = data.get("chapters")
 	if not chapters_value is Dictionary:
 		_add(diagnostics, "error", "根节点", "chapters 必须是对象。")
@@ -85,7 +85,7 @@ static func _validate_guided_ai_chat(event: Dictionary, location: String, chapte
 	if max_player_rounds <= 0:
 		_add(diagnostics, "error", location, "最大玩家回合必须大于 0。")
 	if event.has("game_minutes") or event.has("action_cost"):
-		_add(diagnostics, "error", location, "时间和行动力消耗必须配置在剧情根节点，不能配置在 Guided AI 事件上。")
+		_add(diagnostics, "error", location, "时间和精力消耗必须配置在剧情根节点，不能配置在 Guided AI 事件上。")
 	var beats_value: Variant = event.get("required_beats", [])
 	if not (beats_value is Array):
 		_add(diagnostics, "error", location, "必达剧情点必须是数组。")
@@ -106,6 +106,11 @@ static func _validate_guided_ai_chat(event: Dictionary, location: String, chapte
 			beat_ids[beat_id] = true
 			if str((beat_value as Dictionary).get("instruction", "")).strip_edges().is_empty():
 				_add(diagnostics, "error", "%s / 剧情点 #%d" % [location, beat_index + 1], "剧情点缺少表达指令。")
+	var fallback_options_value: Variant = event.get("fallback_options", [])
+	if not (fallback_options_value is Array) or (fallback_options_value as Array).size() < 2:
+		_add(diagnostics, "error", location, "引导式 AI 对话必须配置至少两个生成失败备用选项。")
+	else:
+		_validate_guided_ai_fallback_options(fallback_options_value as Array, location, diagnostics)
 	var branches_value: Variant = event.get("outcome_branches", {})
 	if not (branches_value is Dictionary):
 		_add(diagnostics, "error", location, "结果章节映射必须是对象。")
@@ -116,6 +121,25 @@ static func _validate_guided_ai_chat(event: Dictionary, location: String, chapte
 			var branch_target := str((branches_value as Dictionary).get(outcome, "")).strip_edges()
 			if branch_target != "" and branch_target != "end" and not chapters.has(branch_target):
 				_add(diagnostics, "error", location, "结果 %s 指向不存在的章节：%s" % [outcome, branch_target])
+
+
+static func _validate_guided_ai_fallback_options(options: Array, location: String, diagnostics: Array[Dictionary]) -> void:
+	var option_texts := {}
+	for option_index in options.size():
+		var option_location := "%s / 生成失败备用选项 #%d" % [location, option_index + 1]
+		var option_value: Variant = options[option_index]
+		if not option_value is Dictionary:
+			_add(diagnostics, "error", option_location, "备用选项必须是对象。")
+			continue
+		var option := option_value as Dictionary
+		var option_text := str(option.get("text", "")).strip_edges()
+		if option_text.is_empty():
+			_add(diagnostics, "error", option_location, "备用选项文本不能为空。")
+		elif option_texts.has(option_text):
+			_add(diagnostics, "error", option_location, "备用选项文本重复。")
+		option_texts[option_text] = true
+		if str(option.get("focus", "")).strip_edges() not in ["intimacy", "trust"]:
+			_add(diagnostics, "error", option_location, "备用选项 focus 只能是 intimacy 或 trust。")
 
 
 static func _validate_choice_options(options: Array, location: String, chapters: Dictionary, diagnostics: Array[Dictionary]) -> void:

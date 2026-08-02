@@ -13,7 +13,7 @@ var options = [
 		"subtitle": "- DRAWING -",
 		"desc": "由朔帮你改画、抓速写问题，把构图和线条讲透。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+60"}
 		],
 		"gain_tags": [
@@ -31,7 +31,7 @@ var options = [
 		"subtitle": "- GALLERY -",
 		"desc": "一起看展、聊作品，在讨论里练出自己的判断。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+60"}
 		],
 		"gain_tags": [
@@ -49,7 +49,7 @@ var options = [
 		"subtitle": "- WORKSHOP -",
 		"desc": "进入雕塑与版画工坊，把想法一步步做成真正的作品。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+60"}
 		],
 		"gain_tags": [
@@ -129,7 +129,7 @@ func _update_start_button_text() -> void:
 	if selected_opt.is_empty():
 		start_btn.text = " 开始学习 "
 		return
-	start_btn.text = "开始 %s  ·  -%d行动力" % [selected_opt["name"], energy_cost]
+	start_btn.text = "开始 %s  ·  -%d精力" % [selected_opt["name"], energy_cost]
 
 func _get_selected_option() -> Dictionary:
 	for opt in options:
@@ -155,7 +155,7 @@ func _on_start_pressed():
 		var profile = GameDataManager.profile
 		if profile.current_energy < energy_cost:
 			if ToastManager:
-				ToastManager.show_system_toast("行动力不足！")
+				ToastManager.show_system_toast("精力不足！")
 			return
 			
 		if profile.has_method("consume_energy"):

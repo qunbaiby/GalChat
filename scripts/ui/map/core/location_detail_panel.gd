@@ -62,12 +62,13 @@ func setup(loc_id: String):
 	name_label.text = loc_data.get("name", "未知地点")
 	desc_label.text = loc_data.get("description", "没有描述")
 	
-	var bg_id = loc_data.get("bg_id", "")
-	var real_path = ""
-	if not bg_id.is_empty():
-		real_path = ImageManager.get_image_path(bg_id)
-		if real_path.is_empty():
-			real_path = bg_id
+	var real_path := str(loc_data.get("detail_image_path", "")).strip_edges()
+	if real_path == "":
+		var bg_id = loc_data.get("bg_id", "")
+		if not bg_id.is_empty():
+			real_path = ImageManager.get_image_path(bg_id)
+			if real_path.is_empty():
+				real_path = bg_id
 			
 	if not real_path.is_empty() and ResourceLoader.exists(real_path):
 		thumbnail_rect.texture = load(real_path)
@@ -96,6 +97,18 @@ func _refresh_entry_state() -> void:
 		story_title = "当前时段有可触发剧情"
 	story_hint_label.text = "今日事件：%s。完成后今天再次进入将直接进入地点。" % story_title
 	story_hint_label.show()
+
+func get_enter_button_focus_entry() -> Dictionary:
+	if not is_instance_valid(enter_button) or not enter_button.is_visible_in_tree():
+		return {}
+	var rect := enter_button.get_global_rect()
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return {}
+	return {
+		"rect": rect,
+		"shape": "rect",
+		"shape_params": {"corner_radius": 14.0}
+	}
 
 func _resolve_location_story_trigger() -> Dictionary:
 	if MapDataManager and MapDataManager.has_method("get_active_location_story_trigger"):

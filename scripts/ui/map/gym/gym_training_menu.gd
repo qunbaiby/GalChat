@@ -13,7 +13,7 @@ var options = [
 		"subtitle": "- SWIMMING -",
 		"desc": "在泳池里畅游，锻炼心肺与全身协调性。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-10"},
+			{"icon": "⚡", "label": "精力", "value": "-10"},
 			{"icon": "◷", "label": "时间", "value": "+30"}
 		],
 		"gain_tags": [
@@ -31,7 +31,7 @@ var options = [
 		"subtitle": "- FITNESS -",
 		"desc": "通过器械训练提升肌肉力量，挥洒汗水。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+45"}
 		],
 		"gain_tags": [
@@ -49,7 +49,7 @@ var options = [
 		"subtitle": "- YOGA -",
 		"desc": "在舒缓的音乐中冥想拉伸，提升形体与内在气质。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-10"},
+			{"icon": "⚡", "label": "精力", "value": "-10"},
 			{"icon": "◷", "label": "时间", "value": "+30"}
 		],
 		"gain_tags": [
@@ -67,7 +67,7 @@ var options = [
 		"subtitle": "- DANCE -",
 		"desc": "跟随节拍舞动，提升肢体表达和礼仪姿态。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+45"}
 		],
 		"gain_tags": [
@@ -136,7 +136,7 @@ func _update_start_button_text() -> void:
 	if selected_opt.is_empty():
 		start_btn.text = " 开始训练 "
 		return
-	start_btn.text = "开始 %s  ·  -%d行动力" % [selected_opt["name"], int(selected_opt.get("energy_cost", 0))]
+	start_btn.text = "开始 %s  ·  -%d精力" % [selected_opt["name"], int(selected_opt.get("energy_cost", 0))]
 
 func _get_selected_option() -> Dictionary:
 	for opt in options:
@@ -171,7 +171,7 @@ func _on_start_pressed():
 		return
 	if not GameDataManager.interaction_manager and profile.current_energy < energy_cost:
 		if ToastManager:
-			ToastManager.show_system_toast("行动力不足！")
+			ToastManager.show_system_toast("精力不足！")
 		return
 		
 	if profile.has_method("consume_energy"):

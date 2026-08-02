@@ -7,14 +7,12 @@ signal feature_states_changed
 
 const GUIDE_DATA_PATH := "res://assets/data/guide/guide_flows.json"
 const GUIDE_STATE_KEY := "guide_state_v1"
-const GUIDE_FLOW_REVISION := 5
-const AI_ROUND_GUIDE_INSERT_INDEX := 19
 const DEFAULT_GUIDE_ID := "schedule_onboarding_guide"
-const DEMO_GUIDE_ID := "map_story_demo_guide"
-const DAY6_LIBRARY_GUIDE_ID := "day6_library_guidance_guide"
 const GUIDE_SCENE_PATH := "res://scenes/ui/story/story_scene.tscn"
 const GUIDE_OVERLAY_LAYER := 200
 const GUIDE_LOCK_HINT := "当前处于新手引导中，暂未解锁该功能。"
+const FOCUS_STABLE_FRAME_COUNT := 3
+const FOCUS_STABLE_TOLERANCE := 0.75
 const GuideOverlayScene = preload("res://scenes/ui/guide/guide_overlay.tscn")
 const ConditionManagerScript = preload("res://scripts/data/condition_manager.gd")
 
@@ -22,26 +20,33 @@ const MAIN_SCENE_FEATURE_PATHS := {
 	"main.affection": "UIPanel/AffectionButton",
 	"main.goal": "UIPanel/GoalPanel",
 	"main.stats": "UIPanel/StatsPanelAnchor/StatsPanel",
-	"main.energy": "UIPanel/TopStatusPanel/MarginContainer/HBoxContainer/EnergySlot",
-	"main.diary": "UIPanel/BottomBarHBox/BtnHBox/GiftButton",
-	"main.wardrobe": "UIPanel/BottomBarHBox/BtnHBox/WardrobeButton",
+	"main.energy": "UIPanel/TopStatusPanel/MarginContainer/HBoxContainer/EnergySlot/BgPanel",
+	"main.diary": "UIPanel/BottomBarHBox/BtnHBox/DiaryButton",
+	"main.wardrobe": "UIPanel/BottomBarHBox/ActionHBox/WardrobeButton",
 	"main.main_action": "UIPanel/BottomBarHBox/ActionHBox/MainActionButton",
 	"main.chat": "UIPanel/InteractGroup/ChatButton",
-	"main.gift": "UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame/AffectionPanel/RootMargin/RootVBox/ContentVBox/MainHBox/VisualColumn/GiftButton",
 	"main.date": "UIPanel/DateButton"
 }
 const DEFAULT_LOCKED_FEATURES := {
 	"main.diary": true,
 	"main.creation": true,
+	"main.gift": true,
 	"main.wardrobe": true,
 	"main.date": true
 }
 
 var _guide_defs: Dictionary = {}
 var _state: Dictionary = {}
+var _loaded_archive_id := ""
 var _overlay: Control = null
 var _overlay_layer: CanvasLayer = null
 var _overlay_attach_queued: bool = false
+var _schedule_slot_focus_entries: Dictionary = {}
+var _main_focus_retry_active: bool = false
+var _main_focus_retry_token: int = 0
+var _presentation_token: int = 0
+var _active_presentation_key: String = ""
+var _pending_presentation_key: String = ""
 var _main_scene_ref: WeakRef = null
 var _world_map_scene_ref: WeakRef = null
 var _location_detail_panel_ref: WeakRef = null
@@ -56,7 +61,16 @@ func _ready() -> void:
 	_ensure_overlay()
 	if GameDataManager.has_signal("archive_changed") and not GameDataManager.archive_changed.is_connected(_on_archive_changed):
 		GameDataManager.archive_changed.connect(_on_archive_changed)
+	if GameDataManager.has_signal("archive_will_change") and not GameDataManager.archive_will_change.is_connected(_on_archive_will_change):
+		GameDataManager.archive_will_change.connect(_on_archive_will_change)
 	call_deferred("reload_for_current_archive")
+
+func _on_archive_will_change(_old_archive_id: String, _new_archive_id: String) -> void:
+	_loaded_archive_id = ""
+	_main_focus_retry_active = false
+	_main_focus_retry_token += 1
+	_presentation_token += 1
+	_hide_overlay()
 
 func _on_archive_changed(_archive_id: String) -> void:
 	reload_for_current_archive()
@@ -65,7 +79,6 @@ func _build_default_state() -> Dictionary:
 	return {
 		"active_guide_id": "",
 		"current_step_index": 0,
-		"guide_flow_revision": GUIDE_FLOW_REVISION,
 		"completed_guides": [],
 		"feature_unlocks": {},
 		"guide_opt_in": "enabled"
@@ -104,9 +117,36 @@ func _load_guide_defs() -> void:
 		_guide_defs[guide_id] = guide_dict.duplicate(true)
 
 func reload_for_current_archive() -> void:
+	_schedule_slot_focus_entries.clear()
+	_loaded_archive_id = GameDataManager.get_active_archive_id()
 	var raw_state: Variant = GameDataManager.get_archive_custom_config(GUIDE_STATE_KEY, {})
 	_state = _normalize_state(raw_state)
+	if _restart_incomplete_schedule_after_reload():
+		_persist_state_exactly()
 	_refresh_current_step_display()
+
+func _restart_incomplete_schedule_after_reload() -> bool:
+	if get_active_guide_id() != DEFAULT_GUIDE_ID:
+		return false
+	var current_step := _get_current_step()
+	if current_step.is_empty() or str(current_step.get("step_category", "")).strip_edges() != "schedule":
+		return false
+	if int(_state.get("current_step_index", 0)) == 0:
+		return false
+	_state["current_step_index"] = 0
+	_schedule_slot_focus_entries.clear()
+	return true
+
+func _persist_state_exactly() -> bool:
+	if not _is_archive_context_current():
+		return false
+	var result: Variant = GameDataManager.call(
+		"set_archive_custom_config",
+		GUIDE_STATE_KEY,
+		_state.duplicate(true),
+		true
+	)
+	return result is bool and bool(result)
 
 func _normalize_state(raw_state: Variant) -> Dictionary:
 	var normalized := _build_default_state()
@@ -114,16 +154,6 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 		return normalized
 	normalized["active_guide_id"] = str(raw_state.get("active_guide_id", "")).strip_edges()
 	normalized["current_step_index"] = maxi(0, int(raw_state.get("current_step_index", 0)))
-	var saved_revision := maxi(1, int(raw_state.get("guide_flow_revision", 1)))
-	if saved_revision < 2:
-		if str(normalized["active_guide_id"]) == DEFAULT_GUIDE_ID and int(normalized["current_step_index"]) >= AI_ROUND_GUIDE_INSERT_INDEX:
-			normalized["current_step_index"] = int(normalized["current_step_index"]) + 1
-	if saved_revision < 3 and str(normalized["active_guide_id"]) == DEFAULT_GUIDE_ID:
-		var previous_step_index := int(normalized["current_step_index"])
-		if previous_step_index >= 18 and previous_step_index <= 20:
-			normalized["current_step_index"] = previous_step_index + 1
-		elif previous_step_index == 21:
-			normalized["current_step_index"] = 22
 	var completed_guides: Array[String] = []
 	var raw_completed: Variant = raw_state.get("completed_guides", [])
 	if raw_completed is Array:
@@ -131,22 +161,6 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 			var guide_id := str(item).strip_edges()
 			if guide_id != "":
 				completed_guides.append(guide_id)
-	if saved_revision < 4 and completed_guides.has(DAY6_LIBRARY_GUIDE_ID) and GameDataManager.profile.has_finished_story("jing_library_guidance"):
-		completed_guides.erase(DAY6_LIBRARY_GUIDE_ID)
-		normalized["active_guide_id"] = DAY6_LIBRARY_GUIDE_ID
-		normalized["current_step_index"] = 5
-	if saved_revision < 5 and str(normalized["active_guide_id"]) == DEFAULT_GUIDE_ID and GameDataManager.profile.has_finished_story("jing_piano_practice_followup"):
-		var onboarding_steps: Array = (_guide_defs.get(DEFAULT_GUIDE_ID, {}) as Dictionary).get("steps", [])
-		var current_index := int(normalized["current_step_index"])
-		var current_step_id := ""
-		if current_index >= 0 and current_index < onboarding_steps.size():
-			current_step_id = str((onboarding_steps[current_index] as Dictionary).get("id", ""))
-		if current_step_id in ["explain_guided_ai_round_limit", "finish_first_chat_after_goal"]:
-			for step_index in range(onboarding_steps.size()):
-				if str((onboarding_steps[step_index] as Dictionary).get("id", "")) == "inspect_main_panels_after_interact":
-					normalized["current_step_index"] = step_index
-					break
-	normalized["guide_flow_revision"] = GUIDE_FLOW_REVISION
 	normalized["completed_guides"] = completed_guides
 	var feature_unlocks: Dictionary = {}
 	var raw_feature_unlocks: Variant = raw_state.get("feature_unlocks", {})
@@ -158,6 +172,8 @@ func _normalize_state(raw_state: Variant) -> Dictionary:
 	return normalized
 
 func _save_state() -> bool:
+	if not _is_archive_context_current():
+		return false
 	var state_to_save := _state.duplicate(true)
 	var persisted_raw: Variant = GameDataManager.get_archive_custom_config(GUIDE_STATE_KEY, {})
 	if persisted_raw is Dictionary:
@@ -170,6 +186,9 @@ func _save_state() -> bool:
 				_state["current_step_index"] = persisted_step_index
 	var result: Variant = GameDataManager.call("set_archive_custom_config", GUIDE_STATE_KEY, state_to_save, true)
 	return result is bool and bool(result)
+
+func _is_archive_context_current() -> bool:
+	return _loaded_archive_id != "" and _loaded_archive_id == GameDataManager.get_active_archive_id()
 
 func _ensure_overlay() -> bool:
 	var tree := get_tree()
@@ -260,6 +279,16 @@ func _on_overlay_focus_pressed(action_id: String) -> void:
 		if is_instance_valid(main_scene) and main_scene.has_method("open_map_from_guide"):
 			main_scene.open_map_from_guide()
 			return
+	if action_id == "open_library_tutoring":
+		var quick_location_scene := _resolve_quick_location_scene()
+		if is_instance_valid(quick_location_scene) and quick_location_scene.has_method("open_action_from_guide"):
+			quick_location_scene.open_action_from_guide("study")
+			return
+	if action_id == "tutoring_start":
+		var tutoring_panel := _resolve_tutoring_panel()
+		if is_instance_valid(tutoring_panel) and tutoring_panel.has_method("start_from_guide"):
+			tutoring_panel.start_from_guide()
+			return
 	report_action(action_id)
 
 func on_main_scene_ready(main_scene: Node, just_finished_intro_story: bool = false) -> void:
@@ -267,17 +296,25 @@ func on_main_scene_ready(main_scene: Node, just_finished_intro_story: bool = fal
 	_main_scene_ref = weakref(main_scene)
 	_ensure_overlay()
 	apply_main_scene_feature_states(main_scene)
-	call_deferred("_deferred_handle_main_scene_guide_ready", just_finished_intro_story)
+	call_deferred("_deferred_handle_main_scene_guide_ready", just_finished_intro_story, _loaded_archive_id)
 
 func on_story_scene_ready() -> void:
 	_hide_overlay()
 
-func _deferred_handle_main_scene_guide_ready(just_finished_intro_story: bool) -> void:
+func _deferred_handle_main_scene_guide_ready(just_finished_intro_story: bool, expected_archive_id: String) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if expected_archive_id != _loaded_archive_id or not _is_archive_context_current():
+		return
 	if just_finished_intro_story:
 		start_default_guide_if_needed("intro_story")
 	else:
 		if not start_default_guide_if_needed("main_scene_ready"):
 			_refresh_current_step_display()
+	await get_tree().process_frame
+	if expected_archive_id != _loaded_archive_id or not _is_archive_context_current():
+		return
+	_refresh_current_step_display()
 
 func on_world_map_scene_ready(world_map_scene: Node) -> void:
 	_world_map_scene_ref = weakref(world_map_scene)
@@ -297,6 +334,7 @@ func on_tutoring_panel_ready(panel: Node) -> void:
 
 func on_activity_panel_ready(panel: Node) -> void:
 	_activity_panel_ref = weakref(panel)
+	_apply_activity_guide_step(_get_current_step())
 	call_deferred("_refresh_current_step_display")
 
 func on_schedule_execution_panel_ready(panel: Node) -> void:
@@ -335,9 +373,6 @@ func start_guide(guide_id: String) -> bool:
 	guide_started.emit(normalized_guide_id)
 	return true
 
-func start_demo_guide() -> bool:
-	return start_guide(DEMO_GUIDE_ID)
-
 func start_scheduled_guides_if_needed() -> bool:
 	if not is_guide_opted_in() or get_active_guide_id() != "":
 		return false
@@ -348,9 +383,6 @@ func start_scheduled_guides_if_needed() -> bool:
 		if _guide_defs.has(guide_id) and not is_guide_completed(guide_id):
 			return start_guide(guide_id)
 	return false
-
-func start_day6_library_guide_if_needed() -> bool:
-	return start_scheduled_guides_if_needed()
 
 func is_guide_opted_in() -> bool:
 	return true
@@ -496,6 +528,8 @@ func _get_current_step() -> Dictionary:
 	return step_data if step_data is Dictionary else {}
 
 func _enter_current_step() -> void:
+	if not _is_archive_context_current():
+		return
 	var guide_data := _get_active_guide()
 	if guide_data.is_empty():
 		_hide_overlay()
@@ -510,13 +544,14 @@ func _enter_current_step() -> void:
 		_complete_active_guide()
 		return
 	if _should_skip_step(step_data):
-		call_deferred("_advance_step")
+		_queue_advance_step()
 		return
 	_apply_feature_updates(step_data.get("feature_updates", {}))
+	_apply_activity_guide_step(step_data)
 	_save_state()
 	apply_main_scene_feature_states()
 	if _should_complete_step_immediately(step_data):
-		call_deferred("_advance_step")
+		_queue_advance_step()
 		return
 	var step_type := str(step_data.get("type", "message")).strip_edges()
 	if step_type == "play_story":
@@ -530,21 +565,13 @@ func _enter_current_step() -> void:
 	_show_step_overlay(guide_data, step_data, step_index, steps.size())
 	guide_step_changed.emit(get_active_guide_id(), str(step_data.get("id", "")), step_data)
 	if bool(step_data.get("auto_advance", false)):
-		call_deferred("_advance_step")
-
-func _apply_feature_updates(raw_updates: Variant) -> void:
-	if not (raw_updates is Dictionary):
-		return
-	var feature_unlocks: Dictionary = _state.get("feature_unlocks", {})
-	for key in raw_updates.keys():
-		feature_unlocks[str(key)] = bool(raw_updates[key])
-	_state["feature_unlocks"] = feature_unlocks
+		_queue_advance_step()
 
 func _play_story_step(step_data: Dictionary) -> void:
 	var story_path := str(step_data.get("story_path", "")).strip_edges()
 	if story_path == "" or not ResourceLoader.exists(story_path):
 		push_warning("引导剧情不存在：%s" % story_path)
-		call_deferred("_advance_step")
+		_queue_advance_step()
 		return
 	var debug_bridge := get_node_or_null("/root/StoryRuntimeDebugBridge")
 	if debug_bridge != null:
@@ -564,8 +591,39 @@ func _play_story_step(step_data: Dictionary) -> void:
 	else:
 		get_tree().change_scene_to_file(GUIDE_SCENE_PATH)
 
+func _apply_feature_updates(raw_updates: Variant) -> void:
+	if not (raw_updates is Dictionary):
+		return
+	var feature_unlocks: Dictionary = _state.get("feature_unlocks", {})
+	for key in raw_updates.keys():
+		feature_unlocks[str(key)] = bool(raw_updates[key])
+	_state["feature_unlocks"] = feature_unlocks
+
+func _queue_advance_step() -> void:
+	call_deferred(
+		"_advance_step_if_context_matches",
+		_loaded_archive_id,
+		get_active_guide_id(),
+		int(_state.get("current_step_index", 0))
+	)
+
+func _advance_step_if_context_matches(expected_archive_id: String, expected_guide_id: String, expected_step_index: int) -> void:
+	if not _is_archive_context_current():
+		return
+	if expected_archive_id != _loaded_archive_id:
+		return
+	if expected_guide_id != get_active_guide_id() or expected_step_index != int(_state.get("current_step_index", 0)):
+		return
+	_advance_step()
+
 func _advance_step() -> void:
+	if not _is_archive_context_current():
+		return
 	_state["current_step_index"] = int(_state.get("current_step_index", 0)) + 1
+	var next_step := _get_current_step()
+	var next_step_id := str(next_step.get("id", "")).strip_edges()
+	if next_step.is_empty() or next_step_id == "confirm_schedule_courses" or str(next_step.get("step_category", "")).strip_edges() != "schedule":
+		_schedule_slot_focus_entries.clear()
 	_save_state()
 	_enter_current_step()
 
@@ -604,6 +662,7 @@ func _complete_active_guide() -> void:
 	_state["completed_guides"] = completed_guides
 	_state["active_guide_id"] = ""
 	_state["current_step_index"] = 0
+	_schedule_slot_focus_entries.clear()
 	_save_state()
 	_hide_overlay()
 	apply_main_scene_feature_states()
@@ -615,31 +674,231 @@ func _show_step_overlay(guide_data: Dictionary, step_data: Dictionary, step_inde
 	if bool(step_data.get("hide_overlay", false)):
 		_hide_overlay()
 		return
+	var presentation_key := "%s:%d" % [get_active_guide_id(), step_index]
 	var overlay_ready := _ensure_overlay()
 	var scene_ready := _is_step_scene_ready(step_data)
 	var show_before_scene_ready := bool(step_data.get("show_before_scene_ready", false))
+	var target_scene_present := _is_step_target_scene_present(step_data)
 	if not overlay_ready:
 		return
 	if not is_instance_valid(_overlay) or not _overlay.has_method("show_step"):
 		return
 	var guide_title := str(guide_data.get("title", "新手引导")).strip_edges()
 	var step_title := str(step_data.get("title", "当前步骤")).strip_edges()
-	var step_text := str(step_data.get("text", "")).strip_edges()
-	if step_text == "":
-		step_text = "请根据当前提示继续操作。"
-	if not scene_ready and (bool(step_data.get("hide_until_scene_ready", false)) or not show_before_scene_ready):
+	var step_text := _format_guide_text(str(step_data.get("text", "")).strip_edges())
+	var overlay_options := _resolve_overlay_options(step_data)
+	var target_scene := str(step_data.get("target_scene", "")).strip_edges()
+	if step_text == "" and not bool(overlay_options.get("hide_message_panel", false)):
+		step_text = "{player_title}，跟着我标出的地方继续吧。"
+		step_text = _format_guide_text(step_text)
+	if not target_scene_present:
+		if target_scene == "main":
+			_queue_main_focus_retry()
+		if _show_resume_navigation_overlay(guide_data, step_data, step_index, total_steps):
+			return
+		_hide_overlay()
+		return
+	if not scene_ready and (bool(step_data.get("hide_until_scene_ready", false)) or not show_before_scene_ready or not target_scene_present):
+		if target_scene == "main":
+			_queue_main_focus_retry()
+			if presentation_key == _active_presentation_key and is_instance_valid(_overlay) and _overlay.visible:
+				return
 		if _show_resume_navigation_overlay(guide_data, step_data, step_index, total_steps):
 			return
 		_hide_overlay()
 		return
 	if not scene_ready:
-		var scene_hint := str(step_data.get("scene_hint", "请先进入对应界面，再继续当前引导步骤。")).strip_edges()
+		var scene_hint := _format_guide_text(str(step_data.get("scene_hint", "{player_title}，我们先进入对应界面，再继续吧。")).strip_edges())
 		if scene_hint != "":
 			step_text += "\n\n[color=#f2c98d]%s[/color]" % scene_hint
-	var focus_rects: Array = _resolve_step_focus_rects(step_data)
 	var focus_interaction_allowed: bool = _is_step_focus_interaction_allowed(step_data)
-	var overlay_options := _resolve_overlay_options(step_data)
-	_overlay.show_step(guide_title, step_title, step_text, step_index + 1, total_steps, focus_rects, focus_interaction_allowed, overlay_options)
+	if presentation_key != _active_presentation_key:
+		_begin_overlay_step_transition()
+		_active_presentation_key = presentation_key
+	if _pending_presentation_key == presentation_key:
+		return
+	_pending_presentation_key = presentation_key
+	overlay_options["presentation_id"] = presentation_key
+	_presentation_token += 1
+	var presentation_token := _presentation_token
+	_present_step_when_focus_stable(
+		presentation_token,
+		get_active_guide_id(),
+		step_index,
+		guide_title,
+		step_title,
+		step_text,
+		total_steps,
+		focus_interaction_allowed,
+		overlay_options
+	)
+
+func _present_step_when_focus_stable(
+	presentation_token: int,
+	expected_guide_id: String,
+	expected_step_index: int,
+	guide_title: String,
+	step_title: String,
+	step_text: String,
+	total_steps: int,
+	focus_interaction_allowed: bool,
+	overlay_options: Dictionary
+) -> void:
+	var previous_focus_data: Array = []
+	var stable_frames := 0
+	var step_data := _get_current_step()
+	var expects_focus := _step_expects_focus(step_data)
+	while true:
+		await get_tree().process_frame
+		if not _presentation_context_matches(presentation_token, expected_guide_id, expected_step_index):
+			_clear_pending_presentation(presentation_token, expected_guide_id, expected_step_index)
+			return
+		step_data = _get_current_step()
+		if not _is_step_target_scene_present(step_data):
+			stable_frames = 0
+			previous_focus_data.clear()
+			continue
+		var can_show_before_ready := bool(step_data.get("show_before_scene_ready", false))
+		if not _is_step_scene_ready(step_data) and not can_show_before_ready:
+			stable_frames = 0
+			previous_focus_data.clear()
+			continue
+		var focus_data := _resolve_current_focus_data(step_data)
+		if expects_focus and focus_data.is_empty():
+			stable_frames = 0
+			previous_focus_data.clear()
+			continue
+		if _focus_data_is_nearly_equal(previous_focus_data, focus_data):
+			stable_frames += 1
+		else:
+			previous_focus_data = focus_data.duplicate(true)
+			stable_frames = 1
+		if stable_frames < FOCUS_STABLE_FRAME_COUNT:
+			continue
+		if is_instance_valid(_overlay) and _overlay.has_method("show_step"):
+			overlay_options["focus_already_stable"] = true
+			_overlay.show_step(
+				guide_title,
+				step_title,
+				step_text,
+				expected_step_index + 1,
+				total_steps,
+				focus_data,
+				focus_interaction_allowed,
+				overlay_options
+			)
+		_clear_pending_presentation(presentation_token, expected_guide_id, expected_step_index)
+		return
+
+func _clear_pending_presentation(presentation_token: int, expected_guide_id: String, expected_step_index: int) -> void:
+	if presentation_token != _presentation_token:
+		return
+	var expected_key := "%s:%d" % [expected_guide_id, expected_step_index]
+	if _pending_presentation_key == expected_key:
+		_pending_presentation_key = ""
+
+func _presentation_context_matches(presentation_token: int, expected_guide_id: String, expected_step_index: int) -> bool:
+	return (
+		presentation_token == _presentation_token
+		and _is_archive_context_current()
+		and get_active_guide_id() == expected_guide_id
+		and int(_state.get("current_step_index", -1)) == expected_step_index
+	)
+
+func _resolve_current_focus_data(step_data: Dictionary) -> Array:
+	var focus_data := _resolve_step_focus_rects(step_data)
+	for slot_index in _schedule_slot_focus_entries.keys():
+		var slot_entry: Variant = _schedule_slot_focus_entries[slot_index]
+		if slot_entry is Dictionary and not (slot_entry as Dictionary).is_empty():
+			focus_data.append((slot_entry as Dictionary).duplicate(true))
+	return focus_data
+
+func _step_expects_focus(step_data: Dictionary) -> bool:
+	return (
+		str(step_data.get("highlight_feature", "")).strip_edges() != ""
+		or str(step_data.get("target_mode", "")).strip_edges() != ""
+		or str(step_data.get("target_path", "")).strip_edges() != ""
+		or not (step_data.get("focus_targets", []) as Array).is_empty()
+	)
+
+func _focus_data_is_nearly_equal(first: Array, second: Array) -> bool:
+	if first.size() != second.size():
+		return false
+	for index in range(first.size()):
+		var first_rect := _extract_focus_rect(first[index])
+		var second_rect := _extract_focus_rect(second[index])
+		if first_rect.size.x <= 1.0 or first_rect.size.y <= 1.0:
+			return false
+		if first_rect.position.distance_to(second_rect.position) > FOCUS_STABLE_TOLERANCE:
+			return false
+		if first_rect.size.distance_to(second_rect.size) > FOCUS_STABLE_TOLERANCE:
+			return false
+	return true
+
+func _extract_focus_rect(focus_value: Variant) -> Rect2:
+	if focus_value is Rect2:
+		return focus_value as Rect2
+	if focus_value is Dictionary:
+		var rect_value: Variant = (focus_value as Dictionary).get("rect", Rect2())
+		if rect_value is Rect2:
+			return rect_value as Rect2
+	return Rect2()
+
+func _begin_overlay_step_transition() -> void:
+	_presentation_token += 1
+	_pending_presentation_key = ""
+	if is_instance_valid(_overlay) and _overlay.visible and _overlay.has_method("begin_step_transition"):
+		_overlay.begin_step_transition()
+
+func _queue_main_focus_retry() -> void:
+	if _main_focus_retry_active:
+		return
+	_main_focus_retry_active = true
+	_main_focus_retry_token += 1
+	_retry_main_focus_until_ready(_main_focus_retry_token)
+
+func _retry_main_focus_until_ready(retry_token: int) -> void:
+	while true:
+		await get_tree().process_frame
+		if retry_token != _main_focus_retry_token:
+			return
+		var step_data := _get_current_step()
+		if step_data.is_empty() or str(step_data.get("target_scene", "")).strip_edges() != "main":
+			_main_focus_retry_active = false
+			return
+		if _is_step_scene_ready(step_data) and not _resolve_step_focus_rects(step_data).is_empty():
+			_main_focus_retry_active = false
+			_refresh_current_step_display()
+			return
+	_main_focus_retry_active = false
+
+func show_schedule_slot_added_focus(slot_index: int) -> void:
+	var current_step := _get_current_step()
+	if str(current_step.get("wait_action", "")).strip_edges() != "activity_add_course":
+		return
+	var activity_panel := _resolve_activity_panel()
+	if not is_instance_valid(activity_panel) or not activity_panel.has_method("get_schedule_slot_focus_entry"):
+		return
+	var focus_entry: Variant = activity_panel.get_schedule_slot_focus_entry(slot_index)
+	if not (focus_entry is Dictionary) or (focus_entry as Dictionary).is_empty():
+		return
+	_schedule_slot_focus_entries[slot_index] = (focus_entry as Dictionary).duplicate(true)
+	_refresh_current_step_display()
+
+func _format_guide_text(text: String) -> String:
+	var player_title := "老师"
+	if GameDataManager.profile != null:
+		player_title = str(GameDataManager.profile.player_title).strip_edges()
+		if player_title == "":
+			player_title = str(GameDataManager.profile.player_name).strip_edges()
+		if player_title == "":
+			player_title = "老师"
+	return text.replace("{player_title}", player_title)
+
+func _apply_activity_guide_step(step_data: Dictionary) -> void:
+	var activity_panel := _resolve_activity_panel()
+	if is_instance_valid(activity_panel) and activity_panel.has_method("apply_guide_step"):
+		activity_panel.apply_guide_step(step_data)
 
 func _show_resume_navigation_overlay(guide_data: Dictionary, step_data: Dictionary, step_index: int, total_steps: int) -> bool:
 	if not is_instance_valid(_resolve_main_scene()):
@@ -650,10 +909,10 @@ func _show_resume_navigation_overlay(guide_data: Dictionary, step_data: Dictiona
 	match requires_scene:
 		"activity":
 			navigation_feature = "main.main_action"
-			navigation_text = "引导将从当前步骤继续。请重新打开“行程安排”，进入后会恢复这里的操作提示。"
+			navigation_text = "{player_title}，我们刚才的安排还没有结束。重新打开“行程安排”，我会从这里继续陪你。"
 		"wechat":
 			navigation_feature = "main.wechat"
-			navigation_text = "引导将从当前步骤继续。请重新打开“微聊”，进入后会恢复这里的操作提示。"
+			navigation_text = "{player_title}，我们刚才还有消息没有看完。重新打开“微聊”，我会从这里继续陪你。"
 		_:
 			return false
 	var navigation_step := {
@@ -666,7 +925,7 @@ func _show_resume_navigation_overlay(guide_data: Dictionary, step_data: Dictiona
 		return false
 	var guide_title := str(guide_data.get("title", "新手引导")).strip_edges()
 	var step_title := str(step_data.get("title", "继续引导")).strip_edges()
-	_overlay.show_step(guide_title, step_title, navigation_text, step_index + 1, total_steps, focus_rects, true, {})
+	_overlay.show_step(guide_title, step_title, _format_guide_text(navigation_text), step_index + 1, total_steps, focus_rects, true, {})
 	return true
 
 func _resolve_step_focus_rects(step_data: Dictionary) -> Array:
@@ -681,6 +940,7 @@ func _resolve_step_focus_rects(step_data: Dictionary) -> Array:
 				"target_scene": str(raw_target.get("target_scene", step_data.get("target_scene", "main"))).strip_edges(),
 				"target_path": str(raw_target.get("target_path", "")).strip_edges(),
 				"target_mode": str(raw_target.get("target_mode", "")).strip_edges(),
+				"guide_category_id": str(raw_target.get("guide_category_id", step_data.get("guide_category_id", ""))).strip_edges(),
 				"highlight_feature": str(raw_target.get("highlight_feature", "")).strip_edges(),
 				"highlight_padding": float(raw_target.get("highlight_padding", step_data.get("highlight_padding", 10.0)))
 			}
@@ -716,6 +976,9 @@ func _append_focus_rect_result(target_rects: Array, focus_result: Variant) -> vo
 						target_rects.append(focus_entry.duplicate(true))
 
 func _hide_overlay() -> void:
+	_presentation_token += 1
+	_active_presentation_key = ""
+	_pending_presentation_key = ""
 	if is_instance_valid(_overlay) and _overlay.has_method("hide_overlay"):
 		_overlay.hide_overlay()
 
@@ -739,6 +1002,51 @@ func _resolve_main_scene(scene: Node = null) -> Node:
 		if is_instance_valid(ref_value):
 			return ref_value
 	return null
+
+func _is_step_target_scene_present(step_data: Dictionary) -> bool:
+	var target_scene := str(step_data.get("requires_scene", step_data.get("target_scene", ""))).strip_edges()
+	match target_scene:
+		"", "any":
+			return true
+		"main":
+			return _is_node_in_active_scene(_resolve_main_scene())
+		"world_map":
+			return _is_node_in_active_scene(_resolve_world_map_scene())
+		"location_detail":
+			return _is_node_in_active_scene(_resolve_location_detail_panel(), true)
+		"quick_location":
+			return _is_node_in_active_scene(_resolve_quick_location_scene())
+		"tutoring":
+			return _is_tutoring_panel_in_active_context()
+		"activity":
+			return _is_node_in_active_scene(_resolve_activity_panel(), true)
+		"schedule_execution":
+			return _is_node_in_active_scene(_resolve_schedule_execution_panel(), true)
+		"wechat":
+			return _is_node_in_active_scene(_resolve_wechat_panel(), true)
+		_:
+			return false
+
+func _is_node_in_active_scene(node: Node, require_visible: bool = false) -> bool:
+	if not is_instance_valid(node) or not node.is_inside_tree():
+		return false
+	var active_scene := get_tree().current_scene
+	if not is_instance_valid(active_scene):
+		return false
+	var current_node: Node = node
+	while is_instance_valid(current_node):
+		if current_node == active_scene:
+			return not require_visible or not (node is CanvasItem) or (node as CanvasItem).is_visible_in_tree()
+		current_node = current_node.get_parent()
+	return false
+
+func _is_tutoring_panel_in_active_context() -> bool:
+	var tutoring_panel := _resolve_tutoring_panel()
+	if not is_instance_valid(tutoring_panel) or not tutoring_panel.is_inside_tree():
+		return false
+	if tutoring_panel is CanvasItem and not (tutoring_panel as CanvasItem).is_visible_in_tree():
+		return false
+	return _is_node_in_active_scene(_resolve_quick_location_scene())
 
 func _resolve_world_map_scene() -> Node:
 	if _world_map_scene_ref != null:
@@ -814,10 +1122,40 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 			return bool(main_scene.is_affection_button_ready_for_guide())
 		if highlight_feature == "main.affection_panel" and main_scene.has_method("is_affection_panel_ready_for_guide"):
 			return bool(main_scene.is_affection_panel_ready_for_guide())
+		if target_mode == "affection_close_button" and main_scene.has_method("get_affection_close_button_focus_entry"):
+			return not (main_scene.get_affection_close_button_focus_entry() as Dictionary).is_empty()
+		if target_mode == "phone_button" and main_scene.has_method("get_phone_button_focus_entry"):
+			return not (main_scene.get_phone_button_focus_entry() as Dictionary).is_empty()
+		if target_mode == "background_switch_button" and main_scene.has_method("get_background_switch_button_focus_entry"):
+			return not (main_scene.get_background_switch_button_focus_entry() as Dictionary).is_empty()
+		if target_mode == "background_list" and main_scene.has_method("get_background_list_focus_entry"):
+			return not (main_scene.get_background_list_focus_entry() as Dictionary).is_empty()
+		if target_mode == "background_preview_apply" and main_scene.has_method("get_background_preview_apply_focus_entries"):
+			return not (main_scene.get_background_preview_apply_focus_entries() as Array).is_empty()
 		if highlight_feature == "main.chat" and main_scene.has_method("is_chat_button_ready_for_guide"):
 			return bool(main_scene.is_chat_button_ready_for_guide())
+		if highlight_feature == "main.meal" and main_scene.has_method("is_meal_button_ready_for_guide"):
+			return bool(main_scene.is_meal_button_ready_for_guide())
+		if target_mode == "meal_takeout_button" and main_scene.has_method("is_meal_takeout_ready_for_guide"):
+			return bool(main_scene.is_meal_takeout_ready_for_guide())
+		if target_mode == "meal_result" and main_scene.has_method("is_meal_result_ready_for_guide"):
+			return bool(main_scene.is_meal_result_ready_for_guide())
 		if target_mode == "topic_options" and main_scene.has_method("is_main_chat_topic_options_ready"):
 			return bool(main_scene.is_main_chat_topic_options_ready())
+		if target_mode == "daily_topic_options" and main_scene.has_method("are_daily_chat_topic_options_ready_for_guide"):
+			return bool(main_scene.are_daily_chat_topic_options_ready_for_guide())
+		if target_mode == "daily_resource_status" and main_scene.has_method("is_daily_resource_status_ready_for_guide"):
+			return bool(main_scene.is_daily_resource_status_ready_for_guide())
+		if target_mode == "daily_end_chat_button" and main_scene.has_method("is_daily_chat_end_button_ready_for_guide"):
+			return bool(main_scene.is_daily_chat_end_button_ready_for_guide())
+		if target_mode == "guided_ai_player_options" and main_scene.has_method("are_guided_ai_player_options_ready_for_guide"):
+			return bool(main_scene.are_guided_ai_player_options_ready_for_guide())
+		if target_mode.begins_with("guided_ai_") and main_scene.has_method("is_guided_ai_input_control_ready_for_guide"):
+			return bool(main_scene.is_guided_ai_input_control_ready_for_guide(target_mode))
+		if target_mode == "rest_button" and main_scene.has_method("is_rest_button_ready_for_guide"):
+			return bool(main_scene.is_rest_button_ready_for_guide())
+		if target_mode == "rest_confirm_button" and main_scene.has_method("is_rest_confirm_button_ready_for_guide"):
+			return bool(main_scene.is_rest_confirm_button_ready_for_guide())
 		if target_mode == "music_playlist" and main_scene.has_method("is_music_playlist_ready_for_guide"):
 			return bool(main_scene.is_music_playlist_ready_for_guide())
 		if main_scene.has_method("is_main_ui_ready_for_guide"):
@@ -846,8 +1184,12 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 			return bool(wechat_panel.is_recent_chats_ready_for_guide())
 		if target_mode == "chat_session" and wechat_panel.has_method("is_chat_session_ready_for_guide"):
 			return bool(wechat_panel.is_chat_session_ready_for_guide())
+		if target_mode == "first_character_message" and wechat_panel.has_method("is_first_character_message_ready_for_guide"):
+			return bool(wechat_panel.is_first_character_message_ready_for_guide())
 		if target_mode == "fixed_options" and wechat_panel.has_method("is_fixed_options_ready_for_guide"):
 			return bool(wechat_panel.is_fixed_options_ready_for_guide())
+		if target_mode == "fixed_conversation" and wechat_panel.has_method("is_fixed_conversation_ready_for_guide"):
+			return bool(wechat_panel.is_fixed_conversation_ready_for_guide())
 		if target_mode == "input_edit" and wechat_panel.has_method("is_input_edit_ready_for_guide"):
 			return bool(wechat_panel.is_input_edit_ready_for_guide())
 		if target_mode == "send_button" and wechat_panel.has_method("is_send_button_ready_for_guide"):
@@ -867,8 +1209,6 @@ func _is_step_scene_ready(step_data: Dictionary) -> bool:
 	return true
 
 func _should_skip_step(step_data: Dictionary) -> bool:
-	if bool(step_data.get("compatibility_auto_skip", false)):
-		return true
 	var skip_conditions: Variant = step_data.get("skip_conditions", [])
 	if skip_conditions is Array and not skip_conditions.is_empty():
 		var result: Dictionary = ConditionManagerScript.evaluate_conditions(skip_conditions)
@@ -905,25 +1245,6 @@ func _is_action_already_satisfied(action_id: String) -> bool:
 				if is_instance_valid(mobile_interface):
 					var wechat_panel = mobile_interface.get("wechat_panel_instance")
 					return wechat_panel != null and wechat_panel.visible
-		"open_diary":
-			var main_scene := _resolve_main_scene()
-			if is_instance_valid(main_scene):
-				var diary_panel = main_scene.get_node_or_null("UIPanel/DiaryPanel") as Control
-				return diary_panel != null and diary_panel.visible
-		"open_gift":
-			var main_scene := _resolve_main_scene()
-			if is_instance_valid(main_scene):
-				for child in main_scene.get_children():
-					if child != null and child.name == "GiftPanel" and child is Control and child.visible:
-						return true
-		"open_date":
-			var main_scene := _resolve_main_scene()
-			if is_instance_valid(main_scene):
-				var ui_panel = main_scene.get_node_or_null("UIPanel")
-				if ui_panel:
-					for child in ui_panel.get_children():
-						if child != null and child.name == "DateScene" and child is Control and child.visible:
-							return true
 		"open_map", "select_map_location":
 			return is_instance_valid(_resolve_world_map_scene())
 		"enter_location_detail":
@@ -973,7 +1294,17 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				raw_result = main_scene.get_affection_button_focus_entry()
 			elif highlight_feature == "main.affection_panel" and main_scene.has_method("get_affection_panel_focus_entry"):
 				raw_result = main_scene.get_affection_panel_focus_entry()
-			elif highlight_feature == "main.top_status" and main_scene.has_method("get_top_status_panel_focus_entry"):
+			elif target_mode == "affection_close_button" and main_scene.has_method("get_affection_close_button_focus_entry"):
+				raw_result = main_scene.get_affection_close_button_focus_entry()
+			elif target_mode == "phone_button" and main_scene.has_method("get_phone_button_focus_entry"):
+				raw_result = main_scene.get_phone_button_focus_entry()
+			elif target_mode == "background_switch_button" and main_scene.has_method("get_background_switch_button_focus_entry"):
+				raw_result = main_scene.get_background_switch_button_focus_entry()
+			elif target_mode == "background_list" and main_scene.has_method("get_background_list_focus_entry"):
+				raw_result = main_scene.get_background_list_focus_entry()
+			elif target_mode == "background_preview_apply" and main_scene.has_method("get_background_preview_apply_focus_entries"):
+				raw_result = main_scene.get_background_preview_apply_focus_entries()
+			elif (highlight_feature == "main.top_status" or highlight_feature == "main.energy") and main_scene.has_method("get_top_status_panel_focus_entry"):
 				raw_result = main_scene.get_top_status_panel_focus_entry()
 			elif highlight_feature == "main.weather" and main_scene.has_method("get_weather_panel_focus_entry"):
 				raw_result = main_scene.get_weather_panel_focus_entry()
@@ -985,10 +1316,34 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				raw_result = main_scene.get_wechat_button_focus_entry()
 			elif highlight_feature == "main.chat" and main_scene.has_method("get_chat_button_focus_entry"):
 				raw_result = main_scene.get_chat_button_focus_entry()
+			elif highlight_feature == "main.meal" and main_scene.has_method("get_meal_button_focus_entry"):
+				raw_result = main_scene.get_meal_button_focus_entry()
+			elif target_mode == "meal_takeout_button" and main_scene.has_method("get_meal_takeout_focus_entry"):
+				raw_result = main_scene.get_meal_takeout_focus_entry()
+			elif target_mode == "meal_result" and main_scene.has_method("get_meal_result_focus_entry"):
+				raw_result = main_scene.get_meal_result_focus_entry()
 			elif highlight_feature == "main.ai_rounds" and main_scene.has_method("get_ai_round_info_focus_entry"):
 				raw_result = main_scene.get_ai_round_info_focus_entry()
 			elif target_mode == "topic_options" and main_scene.has_method("get_main_chat_topic_options_focus_entry"):
 				raw_result = main_scene.get_main_chat_topic_options_focus_entry()
+			elif target_mode == "daily_topic_options" and main_scene.has_method("get_daily_chat_topic_options_focus_entries"):
+				raw_result = main_scene.get_daily_chat_topic_options_focus_entries()
+			elif target_mode == "daily_resource_status" and main_scene.has_method("get_daily_resource_status_focus_entries"):
+				raw_result = main_scene.get_daily_resource_status_focus_entries()
+			elif target_mode == "daily_end_chat_button" and main_scene.has_method("get_daily_chat_end_button_focus_entry"):
+				raw_result = main_scene.get_daily_chat_end_button_focus_entry()
+			elif target_mode == "guided_ai_player_options" and main_scene.has_method("get_guided_ai_player_options_focus_entries"):
+				raw_result = main_scene.get_guided_ai_player_options_focus_entries()
+			elif target_mode == "guided_ai_input_field" and main_scene.has_method("get_guided_ai_input_field_focus_entry"):
+				raw_result = main_scene.get_guided_ai_input_field_focus_entry()
+			elif target_mode == "guided_ai_send_button" and main_scene.has_method("get_guided_ai_send_button_focus_entry"):
+				raw_result = main_scene.get_guided_ai_send_button_focus_entry()
+			elif target_mode == "guided_ai_voice_button" and main_scene.has_method("get_guided_ai_voice_button_focus_entry"):
+				raw_result = main_scene.get_guided_ai_voice_button_focus_entry()
+			elif target_mode == "rest_button" and main_scene.has_method("get_rest_button_focus_entry"):
+				raw_result = main_scene.get_rest_button_focus_entry()
+			elif target_mode == "rest_confirm_button" and main_scene.has_method("get_rest_confirm_button_focus_entry"):
+				raw_result = main_scene.get_rest_confirm_button_focus_entry()
 			elif target_mode == "music_player" and main_scene.has_method("get_music_player_focus_entry"):
 				raw_result = main_scene.get_music_player_focus_entry()
 			elif target_mode == "music_cover" and main_scene.has_method("get_music_cover_focus_entry"):
@@ -1002,8 +1357,13 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				"category_tabs":
 					if activity_panel.has_method("get_category_tabs_focus_rect"):
 						raw_result = activity_panel.get_category_tabs_focus_rect()
+				"guide_category_tab":
+					if activity_panel.has_method("get_category_tab_focus_rect"):
+						raw_result = activity_panel.get_category_tab_focus_rect(str(step_data.get("guide_category_id", "")))
 				"activity_list":
-					if activity_panel.has_method("get_activity_list_focus_rect"):
+					if activity_panel.has_method("get_activity_items_focus_data"):
+						raw_result = activity_panel.get_activity_items_focus_data()
+					elif activity_panel.has_method("get_activity_list_focus_rect"):
 						raw_result = activity_panel.get_activity_list_focus_rect()
 				"tabs_and_list":
 					if activity_panel.has_method("get_tabs_and_list_focus_rect"):
@@ -1011,6 +1371,18 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				"schedule_slots":
 					if activity_panel.has_method("get_schedule_slots_focus_rect"):
 						raw_result = activity_panel.get_schedule_slots_focus_rect()
+				"user_course_slots":
+					if activity_panel.has_method("get_user_course_slots_focus_rect"):
+						raw_result = activity_panel.get_user_course_slots_focus_rect()
+				"main_event_slot":
+					if activity_panel.has_method("get_main_event_slot_focus_entry"):
+						raw_result = activity_panel.get_main_event_slot_focus_entry()
+				"mood_bonus_region":
+					if activity_panel.has_method("get_mood_bonus_focus_data"):
+						raw_result = activity_panel.get_mood_bonus_focus_data()
+				"attribute_benefit_region":
+					if activity_panel.has_method("get_attribute_benefit_focus_data"):
+						raw_result = activity_panel.get_attribute_benefit_focus_data()
 			if raw_result == null:
 				var target_path := str(step_data.get("target_path", "")).strip_edges()
 				if target_path == "BackgroundPanel/Margin/MainHBox/RightPanel":
@@ -1048,9 +1420,15 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 				"chat_session":
 					if wechat_panel.has_method("get_chat_session_focus_entry"):
 						raw_result = wechat_panel.get_chat_session_focus_entry()
+				"first_character_message":
+					if wechat_panel.has_method("get_first_character_message_focus_entry"):
+						raw_result = wechat_panel.get_first_character_message_focus_entry()
 				"fixed_options":
 					if wechat_panel.has_method("get_fixed_options_focus_entry"):
 						raw_result = wechat_panel.get_fixed_options_focus_entry()
+				"fixed_conversation":
+					if wechat_panel.has_method("get_fixed_conversation_focus_entry"):
+						raw_result = wechat_panel.get_fixed_conversation_focus_entry()
 				"input_edit":
 					if wechat_panel.has_method("get_input_edit_focus_entry"):
 						raw_result = wechat_panel.get_input_edit_focus_entry()
@@ -1064,6 +1442,21 @@ func _resolve_step_focus_result(step_data: Dictionary) -> Variant:
 		var tutoring_panel := _resolve_tutoring_panel()
 		if is_instance_valid(tutoring_panel) and tutoring_panel.has_method("get_guide_focus_data"):
 			raw_result = tutoring_panel.get_guide_focus_data(target_mode)
+	if target_scene == "quick_location":
+		var quick_location_scene := _resolve_quick_location_scene()
+		if target_mode == "action_by_id" and is_instance_valid(quick_location_scene) and quick_location_scene.has_method("get_action_button_focus_entry"):
+			raw_result = quick_location_scene.get_action_button_focus_entry(str(step_data.get("target_id", "")))
+	if target_scene == "world_map":
+		var world_map_scene := _resolve_world_map_scene()
+		if is_instance_valid(world_map_scene):
+			if target_mode == "area_by_id" and world_map_scene.has_method("get_area_button_focus_entry"):
+				raw_result = world_map_scene.get_area_button_focus_entry(str(step_data.get("target_id", "")))
+			elif target_mode == "location_by_id" and world_map_scene.has_method("get_location_button_focus_entry"):
+				raw_result = world_map_scene.get_location_button_focus_entry(str(step_data.get("target_id", "")))
+	if target_scene == "location_detail":
+		var location_detail_panel := _resolve_location_detail_panel()
+		if is_instance_valid(location_detail_panel) and location_detail_panel.has_method("get_enter_button_focus_entry"):
+			raw_result = location_detail_panel.get_enter_button_focus_entry()
 	if raw_result == null:
 		var target_node := _resolve_step_target_node(step_data)
 		if target_node == null or not (target_node is Control):
@@ -1159,8 +1552,6 @@ func _resolve_step_target_node(step_data: Dictionary) -> Node:
 		var world_map_scene := _resolve_world_map_scene()
 		if not is_instance_valid(world_map_scene):
 			return null
-		if target_mode == "first_unlocked_location" and world_map_scene.has_method("get_first_unlocked_location_button"):
-			return world_map_scene.get_first_unlocked_location_button()
 		if target_mode == "area_by_id" and world_map_scene.has_method("get_area_button"):
 			return world_map_scene.get_area_button(str(step_data.get("target_id", "")))
 		if target_mode == "location_by_id" and world_map_scene.has_method("get_location_button"):
@@ -1209,8 +1600,12 @@ func _resolve_step_target_node(step_data: Dictionary) -> Node:
 			return wechat_panel.get_recent_chats_target()
 		if target_mode == "chat_session" and wechat_panel.has_method("get_chat_session_target"):
 			return wechat_panel.get_chat_session_target()
+		if target_mode == "first_character_message" and wechat_panel.has_method("get_first_character_message_target"):
+			return wechat_panel.get_first_character_message_target()
 		if target_mode == "fixed_options" and wechat_panel.has_method("get_fixed_options_target"):
 			return wechat_panel.get_fixed_options_target()
+		if target_mode == "fixed_conversation" and wechat_panel.has_method("get_fixed_conversation_target"):
+			return wechat_panel.get_fixed_conversation_target()
 		if target_mode == "input_edit" and wechat_panel.has_method("get_input_edit_target"):
 			return wechat_panel.get_input_edit_target()
 		if target_mode == "send_button" and wechat_panel.has_method("get_send_button_target"):
@@ -1252,6 +1647,8 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 		return (allowed_interactions as Array).has(interaction_id)
 	var step_id := str(step_data.get("id", "")).strip_edges()
 	match step_id:
+		"explain_schedule_tabs", "confirm_schedule_courses", "explain_schedule_mood_bonus", "explain_schedule_attribute_benefits":
+			return false
 		"try_switch_category":
 			return interaction_id == "activity.category_tabs"
 		"explain_schedule_list", "explain_schedule_slots":
@@ -1260,8 +1657,6 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 			return interaction_id == "activity.main_event_slot"
 		"execute_schedule_plan":
 			return interaction_id == "activity.execute_button"
-		"explain_schedule_tabs":
-			return interaction_id == "activity.category_tabs"
 		"explain_schedule_preview":
 			return interaction_id == "activity.preview_panel"
 		"explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel":
@@ -1279,7 +1674,7 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 		"explain_wechat_fixed_options":
 			return interaction_id == "wechat.fixed_option"
 		"explain_wechat_fixed_conversation":
-			return interaction_id == "wechat.fixed_option" or interaction_id == "wechat.input_edit" or interaction_id == "wechat.send"
+			return interaction_id == "wechat.fixed_option"
 		"close_wechat_after_read":
 			return interaction_id == "wechat.close"
 		"explain_main_goal_panel":
@@ -1288,12 +1683,26 @@ func is_guide_interaction_allowed(interaction_id: String) -> bool:
 			return interaction_id == "main.chat_topic_options"
 		"explain_main_affection_button":
 			return interaction_id == "main.affection"
+		"explain_main_affection_panel":
+			return interaction_id == "main.affection_panel"
+		"close_main_affection_panel":
+			return interaction_id == "main.affection_close"
+		"open_first_meal":
+			return interaction_id == "main.meal"
 		"explain_day6_music_player":
 			return interaction_id == "main.music_player"
 		"open_day6_music_playlist":
 			return interaction_id == "main.music_cover"
 		"explain_day6_music_playlist":
 			return interaction_id == "main.music_playlist"
+		"open_phone_for_background_switch":
+			return interaction_id == "main.phone"
+		"open_background_switch_panel":
+			return interaction_id == "main.background_switch"
+		"choose_day6_background":
+			return interaction_id == "main.background_list"
+		"apply_day6_background":
+			return interaction_id == "main.background_apply"
 		_:
 			return true
 
@@ -1303,7 +1712,7 @@ func _is_step_focus_interaction_allowed(step_data: Dictionary) -> bool:
 		return true
 	var step_id := str(step_data.get("id", "")).strip_edges()
 	match step_id:
-		"explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "execute_schedule_plan", "explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel", "close_schedule_result_popup", "explain_post_schedule_stats", "open_wechat_after_schedule", "explain_wechat_recent_chats", "explain_wechat_chat_session", "explain_wechat_fixed_options", "explain_wechat_fixed_conversation", "close_wechat_after_read", "explain_main_goal_panel", "open_interact_group_after_goal", "choose_topic_after_goal", "explain_main_affection_button", "explain_main_affection_panel", "open_map_for_saturday_guidance", "select_art_academy_for_guidance", "select_library_for_guidance", "enter_library_guidance_story", "open_library_tutoring", "select_library_tutoring_courses", "explain_library_tutoring_details", "start_library_tutoring", "explain_day6_music_player", "open_day6_music_playlist", "explain_day6_music_playlist":
+		"open_schedule_panel", "explain_schedule_tabs", "explain_schedule_list", "explain_schedule_slots", "explain_main_story_slot", "explain_schedule_preview", "execute_schedule_plan", "explain_execution_panel", "advance_first_course", "explain_execution_info_panel", "explain_execution_track_panel", "close_schedule_result_popup", "explain_post_schedule_stats", "open_wechat_after_schedule", "explain_wechat_recent_chats", "explain_wechat_chat_session", "explain_wechat_fixed_options", "explain_wechat_fixed_conversation", "close_wechat_after_read", "explain_main_goal_panel", "open_interact_group_after_goal", "choose_topic_after_goal", "explain_main_affection_button", "explain_main_affection_panel", "close_main_affection_panel", "open_first_meal", "open_first_rest_confirmation", "confirm_first_rest", "open_map_for_saturday_guidance", "select_art_academy_for_guidance", "select_library_for_guidance", "enter_library_guidance_story", "open_library_tutoring", "select_library_tutoring_courses", "explain_library_tutoring_details", "start_library_tutoring", "explain_day6_music_player", "open_day6_music_playlist", "explain_day6_music_playlist", "open_phone_for_background_switch", "open_background_switch_panel", "choose_day6_background", "apply_day6_background":
 			return true
 		_:
 			return false

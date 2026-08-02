@@ -1,0 +1,81 @@
+{
+  "allowed_weekdays": [5, 6, 0],
+  "time_cost_minutes": 30,
+  "slots": {
+    "breakfast": {
+      "label": "早餐",
+      "start_minutes": 360,
+      "end_minutes": 480,
+      "items": [
+        {
+          "id": "breakfast_sandwich",
+          "name": "暖心早餐拼盘",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 12, "mood": 5}
+        },
+        {
+          "id": "breakfast_porridge",
+          "name": "晨光粥点组合",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 10, "mood": 7}
+        },
+        {
+          "id": "breakfast_toast",
+          "name": "奶香吐司套餐",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 9, "mood": 9}
+        }
+      ]
+    },
+    "lunch": {
+      "label": "午餐",
+      "start_minutes": 660,
+      "end_minutes": 780,
+      "items": [
+        {
+          "id": "lunch_bento",
+          "name": "照烧鸡肉便当",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 16, "mood": 7}
+        },
+        {
+          "id": "lunch_noodles",
+          "name": "番茄牛肉面",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 14, "mood": 10}
+        },
+        {
+          "id": "lunch_sushi",
+          "name": "寿司组合",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 13, "mood": 12}
+        }
+      ]
+    },
+    "dinner": {
+      "label": "晚餐",
+      "start_minutes": 1020,
+      "end_minutes": 1140,
+      "items": [
+        {
+          "id": "dinner_hotpot",
+          "name": "暖锅双人套餐",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 18, "mood": 12}
+        },
+        {
+          "id": "dinner_rice",
+          "name": "秘制烤肉饭",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 17, "mood": 10}
+        },
+        {
+          "id": "dinner_pasta",
+          "name": "奶油海鲜意面",
+          "image": "res://assets/images/ui/creation/cafe_break.png",
+          "stats": {"energy": 15, "mood": 14}
+        }
+      ]
+    }
+  }
+}

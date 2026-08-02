@@ -86,6 +86,7 @@ const EVENT_SCHEMAS := {
 		["max_player_rounds", "最大玩家回合", "integer"],
 		["allow_early_completion", "允许达标后提前收束", "bool"],
 		["hide_manual_end", "隐藏主动结束", "bool"],
+		["fallback_options", "生成失败备用选项", "choice_options"],
 		["closing_instruction", "自然收束指令", "multiline"],
 		["fallback_closing_text", "失败兜底收束台词", "multiline"],
 		["outcome_branches", "结果章节映射", "chapter_map"]

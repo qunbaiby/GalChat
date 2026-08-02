@@ -1,5 +1,8 @@
 extends Node
 
+const DetailedTimePeriodScript = preload("res://scripts/data/detailed_time_period.gd")
+var _detailed_time_period := DetailedTimePeriodScript.new()
+
 # 剧情时间系统管理器
 # 用于管理虚构的故事时间，提供给桌宠外的其他界面和对话使用。
 
@@ -10,11 +13,12 @@ const PERIOD_MORNING = "上午"
 const PERIOD_AFTERNOON = "下午"
 const PERIOD_EVENING = "傍晚"
 const PERIOD_NIGHT = "夜晚"
+const DAY_START_HOUR := 6
 
 # 虚构时间的存档数据
 var current_day_offset: int = 0
 var current_period: String = PERIOD_MORNING
-var current_hour: int = 8
+var current_hour: int = DAY_START_HOUR
 var current_minute: int = 0
 var debug_weather_overrides: Dictionary = {}
 
@@ -56,7 +60,7 @@ func _load_config() -> void:
 func load_data(char_id: String = "") -> void:
     current_day_offset = 0
     current_period = PERIOD_MORNING
-    current_hour = 8
+    current_hour = DAY_START_HOUR
     current_minute = 0
     debug_weather_overrides = {}
     var path = get_save_path(char_id)
@@ -68,8 +72,9 @@ func load_data(char_id: String = "") -> void:
             var data: Dictionary = json.data
             current_day_offset = data.get("current_day_offset", 0)
             current_period = data.get("current_period", PERIOD_MORNING)
-            current_hour = data.get("current_hour", 8)
+            current_hour = data.get("current_hour", DAY_START_HOUR)
             current_minute = data.get("current_minute", 0)
+            current_period = _resolve_period_from_hour(current_hour)
             var raw_overrides: Variant = data.get("debug_weather_overrides", {})
             if raw_overrides is Dictionary:
                 for raw_key in raw_overrides.keys():
@@ -102,7 +107,7 @@ func save_data() -> bool:
 func advance_day(days: int = 1) -> void:
     current_day_offset += days
     current_period = PERIOD_MORNING
-    current_hour = 8
+    current_hour = DAY_START_HOUR
     current_minute = 0
     if GameDataManager.profile and GameDataManager.profile.has_method("restore_energy"):
         GameDataManager.profile.restore_energy()
@@ -187,16 +192,11 @@ func tick_minutes(mins: int = 1) -> void:
     # 只要时间发生变化，就发出信号，方便外部UI更新（如按钮禁用状态）
     time_advanced.emit(days_added, current_period)
 
-func set_debug_time(day_offset: int, period: String, hour: int, minute: int) -> void:
+func set_debug_time(day_offset: int, _period: String, hour: int, minute: int) -> void:
     current_day_offset = max(day_offset, 0)
     current_hour = clamp(hour, 0, 23)
     current_minute = clamp(minute, 0, 59)
-    var normalized_period: String = period.strip_edges()
-    if normalized_period == "":
-        normalized_period = _resolve_period_from_hour(current_hour)
-    elif not _is_valid_period(normalized_period):
-        normalized_period = _resolve_period_from_hour(current_hour)
-    current_period = normalized_period
+    current_period = _resolve_period_from_hour(current_hour)
     save_data()
     time_advanced.emit(0, current_period)
 
@@ -384,3 +384,6 @@ func _resolve_period_from_hour(hour: int) -> String:
     if hour >= 17 and hour < 20:
         return PERIOD_EVENING
     return PERIOD_NIGHT
+
+func get_detailed_period_label(hour: int = current_hour) -> String:
+    return _detailed_time_period.get_label(hour)

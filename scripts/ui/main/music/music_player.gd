@@ -305,6 +305,9 @@ func _on_playlist_close_pressed() -> void:
 	if is_instance_valid(playlist_popup_instance):
 		playlist_popup_instance.hide()
 
+func close_playlist_popup() -> void:
+	_on_playlist_close_pressed()
+
 func _update_playlist_ui() -> void:
 	if not is_instance_valid(playlist_popup_instance):
 		return

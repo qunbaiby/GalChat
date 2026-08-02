@@ -1,8 +1,8 @@
 {
     "script_id": "jing_piano_practice_followup",
-    "game_minutes": 30,
+    "game_minutes": 60,
     "action_cost": 0,
-    "summary": "静老师发来周六专项辅导邀约后，Luna 与指导人谈论自己的期待和顾虑。",
+    "summary": "静老师发来周六专项辅导邀约后，Luna 与玩家谈论自己的期待和顾虑。玩家不是静老师。",
     "use_portraits": false,
     "memory_enabled": true,
     "memory_layer": "bond",
@@ -52,7 +52,7 @@
                 {
                     "type": "guided_ai_chat",
                     "session_id": "jing_piano_practice_followup_chat",
-                    "narrative_anchor": "静老师今天听了 Luna 弹《星空下的祈愿》，了解了她现在的状态，并已经约好周六在学校图书馆进行单独专项辅导。Luna 已经知道邀约内容。",
+                    "narrative_anchor": "当前对话只发生在 Luna 与玩家之间。玩家是一直陪伴 Luna 的同住者和指导人，但玩家不是静老师；静老师是另一个独立人物，并不在当前对话现场。静老师今天听了 Luna 弹《星空下的祈愿》，了解了她现在的状态，并已经约好周六在学校图书馆为 Luna 进行单独专项辅导。Luna 已经知道邀约内容。Luna 必须始终把眼前的玩家称作‘你’，只能用第三人称‘静老师’谈论老师，绝不能对玩家使用‘静老师’称呼，也不能误以为玩家将负责周六的专项辅导。",
                     "scene_objective": "让 Luna 表达对专项辅导的期待和至少一个具体顾虑，并确认她愿意参加周六辅导。",
                     "allowed_topics": [
                         "周六专项辅导",
@@ -61,6 +61,9 @@
                         "Luna 对表现不好的担忧"
                     ],
                     "forbidden_facts": [
+                        "不得把玩家当成静老师；玩家与静老师是两个不同人物",
+                        "不得称呼玩家为静老师，不得暗示玩家负责周六的专项辅导",
+                        "不得让不在场的静老师参与当前对话或回应 Luna",
                         "不得否认静老师已经发出邀约",
                         "不得改变周六和学校图书馆的安排",
                         "不得提前知道尚未发生的辅导结果",
@@ -81,9 +84,19 @@
                         }
                     ],
                     "redirect_instruction": "玩家偏题时先用一句话自然回应，再把话题带回周六专项辅导、练习状态或 Luna 的真实感受。",
-                    "max_player_rounds": 4.0,
+                    "max_player_rounds": 5.0,
                     "allow_early_completion": false,
                     "hide_manual_end": true,
+                    "fallback_options": [
+                        {"text": "周六的辅导里，你最期待什么？", "focus": "intimacy"},
+                        {"text": "现在最让你担心的是哪一点？", "focus": "trust"},
+                        {"text": "我会陪你一起准备周六的辅导。", "focus": "intimacy"},
+                        {"text": "你希望提前做哪些准备？", "focus": "trust"},
+                        {"text": "静老师不会因为一次失误否定你的。", "focus": "intimacy"},
+                        {"text": "姐姐的事情让你很难集中吗？", "focus": "trust"},
+                        {"text": "紧张的时候，也可以先告诉我。", "focus": "intimacy"},
+                        {"text": "你愿意按约定参加周六辅导吗？", "focus": "trust"}
+                    ],
                     "closing_instruction": "以需要为周六辅导做好准备为理由自然结束交流，语气应体现她已经得到玩家陪伴后的安心。",
                     "fallback_closing_text": "（她轻轻抱紧怀里的琴谱，低头看了片刻，又抬起眼认真望向你）我会去参加周六的辅导。虽然还有点紧张……但我想认真试试看。",
                     "outcome_branches": {
@@ -98,7 +111,6 @@
                     "type": "dialogue",
                     "speaker": "旁白",
                     "content": "说出心里的顾虑后，她的神情终于放松了一些。",
-                    "auto_advance": true,
                     "_editor_position": {
                         "x": 1800.0,
                         "y": 280.0

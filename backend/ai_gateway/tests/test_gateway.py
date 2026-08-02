@@ -587,11 +587,62 @@ def test_chat_accepts_json_object_response_format(tmp_path):
             json={
                 "model": "deepseek-chat",
                 "messages": [{"role": "user", "content": "Return JSON."}],
+                "temperature": 0.6,
                 "response_format": {"type": "json_object"},
             },
         )
     assert response.status_code == 200
     assert captured_payload["response_format"] == {"type": "json_object"}
+    assert captured_payload["model"] == "deepseek-chat"
+    assert captured_payload["temperature"] == 0.6
+
+
+def test_chat_retries_whitespace_only_provider_content(tmp_path):
+    module = load_app(tmp_path)
+    provider_calls = 0
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal provider_calls
+        provider_calls += 1
+        content = " " * 59 if provider_calls == 1 else '{"dialogue":"ok"}'
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+
+    with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        response = client.post(
+            "/v1/game/chat/completions",
+            headers={"Authorization": "Bearer test-player-token"},
+            json={"model": "deepseek-chat", "messages": [{"role": "user", "content": "Return JSON."}]},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["choices"][0]["message"]["content"] == '{"dialogue":"ok"}'
+    assert provider_calls == 2
+
+
+def test_chat_rejects_repeated_whitespace_only_provider_content(tmp_path):
+    module = load_app(tmp_path)
+    provider_calls = 0
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal provider_calls
+        provider_calls += 1
+        return httpx.Response(200, json={"choices": [{"message": {"content": " " * 59}}]})
+
+    with TestClient(module.app) as client:
+        module.app.state.http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        headers = {"Authorization": "Bearer test-player-token"}
+        response = client.post(
+            "/v1/game/chat/completions",
+            headers=headers,
+            json={"model": "deepseek-chat", "messages": [{"role": "user", "content": "Return JSON."}]},
+        )
+        quota = client.get("/v1/account/quota", headers=headers).json()
+
+    assert response.status_code == 502
+    assert response.json()["error"]["message"] == "Chat provider returned empty content."
+    assert quota["capabilities"]["chat"]["used"] == 0
+    assert provider_calls == 2
 
 
 def test_chat_rejects_unknown_response_format(tmp_path):

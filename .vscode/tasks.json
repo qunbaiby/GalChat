@@ -708,6 +708,25 @@
 			"group": "test"
 		},
 		{
+			"label": "Smoke Test Day Night Tint",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\addons\\story_editor\\tests\\run_story_smoke.ps1",
+				"-Script",
+				"res://addons/story_editor/tests/day_night_tint_smoke.gd",
+				"-SuccessMarker",
+				"DAY_NIGHT_TINT_SMOKE_OK"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
 			"label": "Check Auth Diff Format",
 			"type": "shell",
 			"command": "git",
@@ -753,6 +772,7 @@
 				"Smoke Test RealizeTurn Service",
 				"Smoke Test Chat Scene State Runtime",
 				"Smoke Test Chat RealizeTurn Context",
+				"Smoke Test Day Night Tint",
 				"Smoke Test Story Editor Window",
 				"Validate Story Repository",
 				"Smoke Test Story Schema Migration",

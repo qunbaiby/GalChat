@@ -1,0 +1,290 @@
+[gd_scene format=3 uid="uid://cklb2dqg6rmec"]
+
+[ext_resource type="Script" uid="uid://dvhhjpxudi3ti" path="res://scripts/ui/main/meal_panel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bpdde8d43jj50" path="res://assets/images/icons/ui/system/order.svg" id="2_order"]
+[ext_resource type="Texture2D" uid="uid://dy3e1ljkm5cr" path="res://assets/images/icons/ui/main/lock.png" id="4_lock"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.925, 0.976, 0.965, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.68, 0.64, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.05, 0.22, 0.22, 0.2)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="ButtonStyle"]
+bg_color = Color(0.78, 0.93, 0.9, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.68, 0.64, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="ButtonHoverStyle"]
+bg_color = Color(0.62, 0.86, 0.82, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16, 0.55, 0.53, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="DisabledStyle"]
+bg_color = Color(0.82, 0.9, 0.88, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.68, 0.65, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="CancelStyle"]
+bg_color = Color(0.88, 0.96, 0.945, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.68, 0.64, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="ProgressBackground"]
+bg_color = Color(0.72, 0.86, 0.84, 0.75)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="ProgressFill"]
+bg_color = Color(0.2, 0.68, 0.62, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="MealPanel" type="Control" unique_id=1007464035]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="DismissButton" type="Button" parent="." unique_id=392021871]
+visible = false
+z_index = 10
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=505329181]
+custom_minimum_size = Vector2(440, 420)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -210.0
+offset_right = 220.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=1642549120]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="OptionPage" type="VBoxContainer" parent="Panel/Margin" unique_id=1039012807]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Panel/Margin/OptionPage" unique_id=384379995]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.34, 0.33, 1)
+theme_override_font_sizes/font_size = 23
+text = "今天吃什么？"
+horizontal_alignment = 1
+
+[node name="Options" type="VBoxContainer" parent="Panel/Margin/OptionPage" unique_id=270235488]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TakeoutButton" type="Button" parent="Panel/Margin/OptionPage/Options" unique_id=1045247175]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.06, 0.3, 0.29, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("ButtonStyle")
+theme_override_styles/pressed = SubResource("ButtonHoverStyle")
+theme_override_styles/hover = SubResource("ButtonHoverStyle")
+text = "点外卖"
+
+[node name="OptionIcon" type="TextureRect" parent="Panel/Margin/OptionPage/Options/TakeoutButton" unique_id=701004337]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 18.0
+offset_top = -9.0
+offset_right = 36.0
+offset_bottom = 9.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_order")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LunaCooksButton" type="Button" parent="Panel/Margin/OptionPage/Options" unique_id=570296913]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+tooltip_text = "暂未解锁"
+theme_override_colors/font_disabled_color = Color(0.3, 0.48, 0.46, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/disabled = SubResource("DisabledStyle")
+text = "Luna做"
+
+[node name="LockIcon" type="TextureRect" parent="Panel/Margin/OptionPage/Options/LunaCooksButton" unique_id=926177363]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 18.0
+offset_top = -9.0
+offset_right = 36.0
+offset_bottom = 9.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_lock")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DineOutButton" type="Button" parent="Panel/Margin/OptionPage/Options" unique_id=84971809]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+tooltip_text = "暂未解锁"
+theme_override_colors/font_disabled_color = Color(0.3, 0.48, 0.46, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/disabled = SubResource("DisabledStyle")
+text = "出去吃"
+
+[node name="LockIcon" type="TextureRect" parent="Panel/Margin/OptionPage/Options/DineOutButton" unique_id=589331107]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 18.0
+offset_top = -9.0
+offset_right = 36.0
+offset_bottom = 9.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_lock")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/OptionPage" unique_id=1031198369]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.36, 0.34, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.28, 0.27, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("CancelStyle")
+theme_override_styles/pressed = SubResource("ButtonHoverStyle")
+theme_override_styles/hover = SubResource("ButtonHoverStyle")
+text = "取消"
+
+[node name="ResultPage" type="VBoxContainer" parent="Panel/Margin" unique_id=2103043382]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MealName" type="Label" parent="Panel/Margin/ResultPage" unique_id=527492433]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.34, 0.33, 1)
+theme_override_font_sizes/font_size = 23
+text = "今日餐点"
+horizontal_alignment = 1
+
+[node name="MealImage" type="TextureRect" parent="Panel/Margin/ResultPage" unique_id=1420647971]
+custom_minimum_size = Vector2(360, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CompletionContent" type="VBoxContainer" parent="Panel/Margin/ResultPage"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StatChanges" type="Label" parent="Panel/Margin/ResultPage/CompletionContent" unique_id=571017451]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.4, 0.38, 1)
+theme_override_font_sizes/font_size = 17
+text = "精力 +0    心情 +0
+用餐时间  30 分钟"
+horizontal_alignment = 1
+
+[node name="CompletionHint" type="Label" parent="Panel/Margin/ResultPage/CompletionContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.5, 0.48, 1)
+theme_override_font_sizes/font_size = 14
+text = "用餐完成，点击任意位置关闭"
+horizontal_alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="Panel/Margin/ResultPage/CompletionContent" unique_id=1946292030]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.06, 0.3, 0.29, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("ButtonStyle")
+theme_override_styles/pressed = SubResource("ButtonHoverStyle")
+theme_override_styles/hover = SubResource("ButtonHoverStyle")
+text = "完成"
+
+[node name="MealProgress" type="ProgressBar" parent="Panel/Margin/ResultPage"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("ProgressBackground")
+theme_override_styles/fill = SubResource("ProgressFill")
+show_percentage = false
+
+[node name="ProgressLabel" type="Label" parent="Panel/Margin/ResultPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.48, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "正在用餐  0 / 30 分钟"
+horizontal_alignment = 1

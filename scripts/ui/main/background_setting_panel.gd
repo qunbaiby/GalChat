@@ -4,6 +4,7 @@ static var _grayscale_texture_cache: Dictionary = {}
 
 signal back_requested
 signal apply_requested(bg_id: String)
+signal non_current_background_selected
 
 const ITEM_SCENE = preload("res://scenes/ui/main/background_setting_item.tscn")
 const THUMB_TARGET_SIZE: Vector2 = Vector2(116, 92)
@@ -11,6 +12,7 @@ const PREVIEW_CARD_PADDING: Vector2 = Vector2(24, 24)
 
 @onready var title_label: Label = $PanelRoot/MainMargin/RootHBox/SidebarPanel/SidebarMargin/SidebarVBox/TitleLabel
 @onready var thumb_grid: GridContainer = $PanelRoot/MainMargin/RootHBox/SidebarPanel/SidebarMargin/SidebarVBox/ThumbScroll/ThumbGrid
+@onready var preview_panel: PanelContainer = $PanelRoot/MainMargin/RootHBox/PreviewPanel
 @onready var preview_card: PanelContainer = $PanelRoot/MainMargin/RootHBox/PreviewPanel/PreviewMargin/PreviewVBox/PreviewCard
 @onready var preview_host: Control = $PanelRoot/MainMargin/RootHBox/PreviewPanel/PreviewMargin/PreviewVBox/PreviewCard/PreviewMargin/PreviewHost
 @onready var description_label: Label = $PanelRoot/MainMargin/RootHBox/PreviewPanel/PreviewMargin/PreviewVBox/DescriptionPanel/DescriptionMargin/DescriptionLabel
@@ -159,6 +161,34 @@ func _select_index(new_index: int) -> void:
 	_refresh_grid_selection()
 	_refresh_preview()
 	_refresh_dimmer()
+	var selected_entry: Dictionary = _entries[_current_index]
+	if bool(selected_entry.get("unlocked", true)) and str(selected_entry.get("id", "")) != _active_bg_id:
+		non_current_background_selected.emit()
+
+func get_background_list_focus_entry() -> Dictionary:
+	if not visible or not thumb_grid.is_visible_in_tree():
+		return {}
+	return {
+		"rect": thumb_grid.get_global_rect(),
+		"shape": "rect",
+		"shape_params": {"corner_radius": 12.0}
+	}
+
+func get_preview_apply_focus_entries() -> Array[Dictionary]:
+	var focus_entries: Array[Dictionary] = []
+	if not visible or not preview_panel.is_visible_in_tree() or not apply_button.is_visible_in_tree() or apply_button.disabled:
+		return focus_entries
+	focus_entries.append({
+		"rect": preview_panel.get_global_rect(),
+		"shape": "rect",
+		"shape_params": {"corner_radius": 16.0}
+	})
+	focus_entries.append({
+		"rect": apply_button.get_global_rect(),
+		"shape": "rect",
+		"shape_params": {"corner_radius": 10.0}
+	})
+	return focus_entries
 
 func _on_dimmer_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

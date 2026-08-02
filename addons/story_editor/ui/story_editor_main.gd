@@ -68,6 +68,10 @@ const EVENT_DEFAULTS := {
 		"max_player_rounds": 4,
 		"allow_early_completion": false,
 		"hide_manual_end": false,
+		"fallback_options": [
+			{"text": "你可以慢慢说，我在听。", "focus": "intimacy"},
+			{"text": "哪一点最让你在意？", "focus": "trust"}
+		],
 		"closing_instruction": "自然收束当前话题，不要提及系统、回合数或限制。角色与玩家同住，不得说任何人要回家或下次见。",
 		"fallback_closing_text": "（轻轻点头）那今天就先聊到这里吧。",
 		"outcome_branches": {}

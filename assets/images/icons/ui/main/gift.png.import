@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b856qy3copu6c"
-path="res://.godot/imported/street_menu_icon_activity.png-0cf349934070110d8c3f51144f74b71d.ctex"
+path="res://.godot/imported/gift.png-30810fe33b5394184e9fdd6e38478bfb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/icons/ui/main/street_menu_icon_activity.png"
-dest_files=["res://.godot/imported/street_menu_icon_activity.png-0cf349934070110d8c3f51144f74b71d.ctex"]
+source_file="res://assets/images/icons/ui/main/gift.png"
+dest_files=["res://.godot/imported/gift.png-30810fe33b5394184e9fdd6e38478bfb.ctex"]
 
 [params]
 

@@ -215,11 +215,11 @@ func _build_stats_tab() -> void:
 	var apply_relation_btn := _create_button(apply_relation_row, "应用关系状态", true)
 	apply_relation_btn.pressed.connect(_on_apply_relation_pressed)
 
-	var resource_card := _create_card(stats_content, "资源数值", "金币、当前行动力与行动力上限会立即写入角色存档。")
+	var resource_card := _create_card(stats_content, "资源数值", "金币、当前精力与精力上限会立即写入角色存档。")
 	var resource_row := _create_row(resource_card)
-	_create_field_label(resource_row, "当前行动力")
+	_create_field_label(resource_row, "当前精力")
 	energy_spin = _create_spin_box(resource_row, 0, 999, 1, 20, false)
-	_create_field_label(resource_row, "行动力上限")
+	_create_field_label(resource_row, "精力上限")
 	max_energy_spin = _create_spin_box(resource_row, 1, 999, 1, 50, false)
 	_create_field_label(resource_row, "金币")
 	gold_spin = _create_spin_box(resource_row, 0, 999999, 10, 500, false)
@@ -756,10 +756,10 @@ func _init_macro_mood_options() -> void:
 		return
 	for i in range(GameDataManager.mood_system.macro_mood_configs.size()):
 		var config = GameDataManager.mood_system.macro_mood_configs[i]
-		var name := str(config.get("name", "未知"))
+		var mood_name := str(config.get("name", "未知"))
 		var min_val := int(config.get("min_value", 0))
 		var max_val := int(config.get("max_value", 100))
-		macro_mood_option.add_item("%s (%d-%d)" % [name, min_val, max_val], i)
+		macro_mood_option.add_item("%s (%d-%d)" % [mood_name, min_val, max_val], i)
 
 func _init_expression_options() -> void:
 	expression_option.clear()
@@ -854,7 +854,7 @@ func _refresh_summary_labels() -> void:
 	var event_manager = get_node_or_null("/root/EventManager")
 	if event_manager:
 		triggered_count = event_manager.triggered_events.size()
-	overview_story_summary_label.text = "已完成剧情 %d 项 | 已触发事件 %d 项 | 金币 %d | 行动力 %d/%d" % [
+	overview_story_summary_label.text = "已完成剧情 %d 项 | 已触发事件 %d 项 | 金币 %d | 精力 %d/%d" % [
 		profile.finished_stories.size(),
 		triggered_count,
 		profile.gold,
@@ -1262,11 +1262,11 @@ func _on_apply_time_weather_pressed() -> void:
 	if story_time_manager == null:
 		_update_status("时间系统未就绪")
 		return
-	story_time_manager.set_debug_time(int(day_spin.value), period_option.get_item_text(period_option.selected), int(hour_spin.value), int(minute_spin.value))
+	story_time_manager.set_debug_time(int(day_spin.value), "", int(hour_spin.value), int(minute_spin.value))
 	story_time_manager.set_debug_weather(_get_selected_weather_id(), int(temperature_spin.value), int(day_spin.value))
 	_trigger_global_auto_save()
 	_refresh_all_views()
-	_update_status("已应用时间与天气覆盖")
+	_update_status("已应用时间与天气覆盖，时段已按小时自动校正")
 
 func _on_advance_period_pressed() -> void:
 	var story_time_manager = GameDataManager.story_time_manager
@@ -1329,7 +1329,7 @@ func _on_apply_resources_pressed() -> void:
 	profile.max_energy = max(1, int(max_energy_spin.value))
 	profile.current_energy = clamp(int(energy_spin.value), 0, profile.max_energy)
 	profile.gold = int(gold_spin.value)
-	_commit_profile_changes("已应用金币与行动力")
+	_commit_profile_changes("已应用金币与精力")
 
 func _on_apply_sub_stats_pressed() -> void:
 	var profile = GameDataManager.profile

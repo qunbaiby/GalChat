@@ -176,24 +176,6 @@ func is_script_completed(script_id: String) -> bool:
 	var state: Dictionary = _chat_states.get(script_id, {})
 	return bool(state.get("is_completed", false))
 
-func reconcile_completed_script_events() -> Array[String]:
-	var reconciled: Array[String] = []
-	for raw_script_id in _chat_scripts.keys():
-		var script_id := str(raw_script_id)
-		var state: Dictionary = _chat_states.get(script_id, {})
-		if not bool(state.get("is_completed", false)) or bool(state.get("completion_events_applied", false)):
-			continue
-		var script_data: Variant = _chat_scripts.get(script_id, {})
-		if not script_data is Dictionary:
-			continue
-		_process_script_completion_events(script_id, script_data as Dictionary)
-		state["completion_events_applied"] = true
-		_chat_states[script_id] = state
-		reconciled.append(script_id)
-	if not reconciled.is_empty():
-		_save_states()
-	return reconciled
-
 var _advancing_scripts: Dictionary = {}
 
 # 触发一个固定剧本
@@ -309,6 +291,8 @@ func _advance_script(script_id: String) -> void:
 	if state["current_step"] >= messages.size() and not state.get("is_completed", false):
 		state["is_completed"] = true
 		state["is_active"] = false
+		_save_states()
+		unread_count_changed.emit(char_id, _unread_counts.get(char_id, 0))
 		
 		# 强制中断正在播放的气泡
 		_advancing_scripts[script_id] = false

@@ -17,6 +17,7 @@ var _activities_data: Array = []
 var _course_buttons: Dictionary = {}
 var _planned_counts: Dictionary = {} # Key: course_id, Value: planned times
 var _guide_targets_ready: bool = false
+var _settlement_committed: bool = false
 
 const CourseItemScene = preload("res://scenes/ui/map/library/tutoring_course_item.tscn")
 const MINUTES_PER_COURSE := 60
@@ -137,8 +138,8 @@ func _on_course_clicked(course: Dictionary) -> void:
 		_show_warning("该课程进度已满！")
 		return
 		
-	if _get_total_planned_count() >= MAX_TUTORING_COUNT_PER_SESSION:
-		_show_warning("一次最多安排 %d 次指导。" % MAX_TUTORING_COUNT_PER_SESSION)
+	if _get_total_planned_count() >= _get_daily_remaining_count():
+		_show_warning("今天最多还能安排 %d 次指导。" % _get_daily_remaining_count())
 		return
 
 	var prospective_count := _get_total_planned_count() + 1
@@ -160,8 +161,8 @@ func _on_course_clicked(course: Dictionary) -> void:
 	
 	# 整体更新右侧面板 UI
 	_update_right_panel()
-	if _get_total_planned_count() >= MAX_TUTORING_COUNT_PER_SESSION:
-		_report_guide_action("tutoring_schedule_full", {"count": _get_total_planned_count()})
+	if _get_total_planned_count() >= _get_daily_remaining_count():
+		_report_guide_action("tutoring_schedule_full", {"count": _get_daily_completed_count() + _get_total_planned_count()})
 
 func _update_course_button_visuals(c_id: String) -> void:
 	if not _course_buttons.has(c_id): return
@@ -185,6 +186,15 @@ func _get_total_planned_count() -> int:
 func _get_total_planned_minutes() -> int:
 	return _get_total_planned_count() * MINUTES_PER_COURSE
 
+func _get_daily_completed_count() -> int:
+	var profile = GameDataManager.profile
+	if profile and profile.has_method("get_daily_tutoring_count"):
+		return profile.get_daily_tutoring_count()
+	return 0
+
+func _get_daily_remaining_count() -> int:
+	return maxi(0, MAX_TUTORING_COUNT_PER_SESSION - _get_daily_completed_count())
+
 func _get_unavailable_reason(energy_cost: int, time_cost: int) -> Dictionary:
 	if GameDataManager.interaction_manager:
 		return GameDataManager.interaction_manager.get_cost_unavailable_reason(energy_cost, 0, time_cost)
@@ -195,7 +205,7 @@ func _get_unavailable_reason(energy_cost: int, time_cost: int) -> Dictionary:
 func _format_unavailable_reason(unavailable: Dictionary) -> String:
 	match str(unavailable.get("reason", "")):
 		"energy":
-			return "行动力不足：安排后共需 %d 点，当前只有 %d 点。" % [int(unavailable.get("required", 0)), int(unavailable.get("available", 0))]
+			return "精力不足：安排后共需 %d 点，当前只有 %d 点。" % [int(unavailable.get("required", 0)), int(unavailable.get("available", 0))]
 		"late":
 			return "时间不足：所选课程共需 %d 分钟，无法在 23:00 前完成。" % int(unavailable.get("required_minutes", 0))
 	return "当前无法追加这门课程。"
@@ -212,9 +222,9 @@ func _update_right_panel() -> void:
 	
 	if is_empty:
 		detail_title.text = "课业指导安排"
-		detail_meta_label.text = "当前行动力 %d / %d" % [profile.current_energy, profile.max_energy]
+		detail_meta_label.text = "今日剩余 %d / %d 次   |   当前精力 %d / %d" % [_get_daily_remaining_count(), MAX_TUTORING_COUNT_PER_SESSION, profile.current_energy, profile.max_energy]
 		desc_label.text = "点击左侧课程可追加指导次数。\n支持重复安排或组合多门课程。"
-		cost_label.text = "安排后将自动结算行动力消耗"
+		cost_label.text = "安排后将自动结算精力消耗"
 		preview_label.text = ""
 		return
 		
@@ -243,9 +253,9 @@ func _update_right_panel() -> void:
 				aggregate_rewards[stat_key][1] += int(val) * count
 
 	detail_title.text = "指导安排确认"
-	detail_meta_label.text = "已安排 %d 次指导，涉及 %d 门课程，共需 %d 分钟" % [total_count, _planned_counts.size(), total_minutes]
+	detail_meta_label.text = "本次 %d 次，今日完成后 %d / %d 次，共需 %d 分钟" % [total_count, _get_daily_completed_count() + total_count, MAX_TUTORING_COUNT_PER_SESSION, total_minutes]
 	desc_label.text = courses_summary
-	cost_label.text = "预计消耗：%d 行动力、%d 分钟   |   剩余行动力：%d / %d" % [total_cost, total_minutes, remaining_energy, profile.max_energy]
+	cost_label.text = "预计消耗：%d 精力、%d 分钟   |   剩余精力：%d / %d" % [total_cost, total_minutes, remaining_energy, profile.max_energy]
 	
 	var preview_str = "属性提升预览\n"
 	if aggregate_rewards.size() > 0:
@@ -286,7 +296,7 @@ func _show_warning(msg: String) -> void:
 	fade_tween.tween_callback(func(): warning_label.text = "")
 
 func _on_start_pressed() -> void:
-	if _planned_counts.is_empty():
+	if _settlement_committed or _planned_counts.is_empty():
 		return
 		
 	var profile = GameDataManager.profile
@@ -296,9 +306,13 @@ func _on_start_pressed() -> void:
 	if not unavailable.is_empty():
 		_show_warning(_format_unavailable_reason(unavailable))
 		return
-		
+
+	_settlement_committed = true
+	start_btn.disabled = true
 	if not profile.consume_energy(total_cost):
-		_show_warning("行动力不足！")
+		_settlement_committed = false
+		start_btn.disabled = false
+		_show_warning("精力不足！")
 		return
 	_report_guide_action("tutoring_start")
 	
@@ -334,11 +348,13 @@ func _on_start_pressed() -> void:
 	for stat_key in actual_stat_gains.keys():
 		if stat_key in profile:
 			profile.set(stat_key, profile.get(stat_key) + actual_stat_gains[stat_key])
-			
+
+	if profile.has_method("record_daily_tutoring"):
+		profile.record_daily_tutoring(_get_total_planned_count())
 	profile.save_profile()
 	
 	if ToastManager:
-		ToastManager.show_toast("行动力 -%d" % total_cost, Color(0.9, 0.6, 0.4, 0.9))
+		ToastManager.show_toast("精力 -%d" % total_cost, Color(0.9, 0.6, 0.4, 0.9))
 		
 		# 使用左侧带颜色的属性 Toast
 		for stat_key in actual_stat_gains.keys():
@@ -347,6 +363,7 @@ func _on_start_pressed() -> void:
 			
 	if GameDataManager.story_time_manager:
 		GameDataManager.story_time_manager.tick_minutes(total_minutes)
+		GameDataManager.story_time_manager.save_data()
 	var story_post_event_manager := get_node_or_null("/root/StoryPostEventManager")
 	if story_post_event_manager and story_post_event_manager.has_method("register_time_completion"):
 		story_post_event_manager.register_time_completion("tutoring_completed")
@@ -359,10 +376,15 @@ func _on_start_pressed() -> void:
 	var parent_scene = get_parent()
 	while parent_scene and not parent_scene.has_method("_on_menu_action_pressed"):
 		parent_scene = parent_scene.get_parent()
+	if parent_scene and parent_scene.has_method("refresh_tutoring_action_lock"):
+		parent_scene.refresh_tutoring_action_lock()
 	if parent_scene and parent_scene.has_method("_show_action_bubble_from_ai"):
 		parent_scene._show_action_bubble_from_ai("tutoring")
 		
 	tween.tween_callback(queue_free)
+
+func start_from_guide() -> void:
+	_on_start_pressed()
 
 func _on_close_pressed():
 	closing_started.emit()
@@ -383,7 +405,7 @@ func get_guide_target(target_mode: String) -> Node:
 func get_guide_focus_data(target_mode: String) -> Variant:
 	var target := get_guide_target(target_mode) as Control
 	if not is_instance_valid(target) or not target.is_visible_in_tree():
-		return Rect2()
+		return {}
 	var focus_rect := Rect2(Vector2.ZERO, target.size)
 	var panel_origin: Vector2 = $MenuPanel.get_global_transform_with_canvas().origin
 	var current: Node = target
@@ -392,7 +414,14 @@ func get_guide_focus_data(target_mode: String) -> Variant:
 			focus_rect.position += (current as Control).position
 		current = current.get_parent()
 	focus_rect.position += panel_origin
-	return focus_rect
+	var corner_radius := 18.0
+	if target_mode == "start_button":
+		corner_radius = 12.0
+	return {
+		"rect": focus_rect,
+		"shape": "rect",
+		"shape_params": {"corner_radius": corner_radius}
+	}
 
 func _on_detail_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

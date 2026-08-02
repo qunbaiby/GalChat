@@ -2,12 +2,17 @@ extends Control
 
 const QUICK_LOCATION_SCENE = preload("res://scenes/ui/map/core/quick_location_scene.tscn")
 const STORY_SCENE = preload("res://scenes/ui/story/story_scene.tscn")
+const MAP_BACKGROUND_SCALE := Vector2(0.85, 0.85)
+const AREA_FADE_OUT_DURATION := 0.28
+const AREA_FADE_IN_DURATION := 0.36
 
 @onready var back_button: Button = $TopBar/TopBarMargin/TopBarHBox/BackButton
 @onready var title_label: Label = $TopBar/TopBarMargin/TopBarHBox/TitleCenter/Title
 
 # Sub areas container
 @onready var sub_area_container: Control = $SubAreaContainer
+@onready var background_shade: ColorRect = $BackgroundShade
+@onready var area_transition_input_blocker: ColorRect = $AreaTransitionInputBlocker
 
 # Area list container
 @onready var area_list_container: HBoxContainer = $BottomBar/ScrollContainer/MarginContainer/AreaList
@@ -22,9 +27,14 @@ var _current_area_id: String = ""
 var _guide_targets_ready: bool = false
 var _debug_label: Label
 var _location_entry_transition_busy: bool = false
+var _area_transition_busy: bool = false
 const QUICK_LOCATION_SKIP_EVENT_META := "skip_quick_location_initial_event_broadcast"
 
 func _ready():
+	var background := $Background as TextureRect
+	background.pivot_offset = background.size / 2.0
+	background.scale = MAP_BACKGROUND_SCALE
+
 	# --- 调试工具：实时显示鼠标相对 SubAreaContainer 的坐标 ---
 	_debug_label = Label.new()
 	_debug_label.add_theme_font_size_override("font_size", 20)
@@ -98,6 +108,8 @@ func _on_back_pressed():
 	SceneTransitionManager.transition_to_scene("res://scenes/ui/main/main_scene.tscn")
 
 func _on_area_pressed(area_id: String, force: bool = false):
+	if _area_transition_busy and not force:
+		return
 	if not MapDataManager.is_area_unlocked(area_id):
 		if not force:
 			var reason: String = MapDataManager.get_area_lock_reason(area_id)
@@ -133,60 +145,68 @@ func _on_area_pressed(area_id: String, force: bool = false):
 		
 	title_label.text = area_data.get("name", "未知区域")
 	
-	# Clear previous sub areas immediately so they don't linger during pan
-	for child in sub_area_container.get_children():
-		child.queue_free()
-		
-	# --- 计算背景图的镜头移动效果 ---
-	var bg = $Background
-	# 计算背景图比屏幕多出来的部分（即可移动的最大范围）
-	var max_x = max(0, bg.size.x - size.x)
-	var max_y = max(0, bg.size.y - size.y)
-	
-	var target_x = 0.0
-	var target_y = 0.0
-	
+	# --- 计算缩放后背景图的区域位置 ---
+	var bg := $Background as TextureRect
+	var camera_offset := Vector2(0.5, 0.5)
+
 	# 优先读取 JSON 中配置的 camera_offset 比例，让每个区域分散在不同角落
 	if area_data.has("camera_offset"):
 		var offset = area_data["camera_offset"]
 		# Godot JSON 解析后，如果是个对象它通常是个 Dictionary，但如果之前被其他代码强转了，它可能是个 Vector2
 		if typeof(offset) == TYPE_DICTIONARY:
-			target_x = - (max_x * offset.get("x", 0.0))
-			target_y = - (max_y * offset.get("y", 0.0))
+			camera_offset = Vector2(float(offset.get("x", 0.5)), float(offset.get("y", 0.5)))
 		elif typeof(offset) == TYPE_VECTOR2:
-			target_x = - (max_x * offset.x)
-			target_y = - (max_y * offset.y)
-	else:
-		# 如果 JSON 没配，给个默认的中心位置
-		target_x = - (max_x * 0.5)
-		target_y = - (max_y * 0.5)
-		
-	var target_pos = Vector2(target_x, target_y)
+			camera_offset = offset
+	var target_pos := _get_background_position_for_camera_offset(bg, camera_offset)
 	
 	if _bg_tween and _bg_tween.is_valid():
 		_bg_tween.kill()
 		
-	# 设置背景居中缩放
+	# 地图常态略微拉远，区域切换时不再改变缩放。
 	bg.pivot_offset = bg.size / 2.0
+	bg.scale = MAP_BACKGROUND_SCALE
 	
-	# 第一步：缩小（拉远），如果 force 则不需要动画
 	if force:
-		bg.scale = Vector2(1.0, 1.0)
+		_clear_sub_area_locations()
 		bg.position = target_pos
 		self._show_locations_for_area(area_id)
 	else:
-		_bg_tween = create_tween()
-		# 缩小 (拉远) 0~0.45s，幅度稍微收一点，避免镜头跳动感太强
-		_bg_tween.tween_property(bg, "scale", Vector2(0.94, 0.94), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-		
-		# 平移 0~0.9s，时间加长让其更平滑
-		_bg_tween.parallel().tween_property(bg, "position", target_pos, 0.9).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
-		
-		# 放大 (拉近) 0.45~0.9s
-		_bg_tween.parallel().tween_property(bg, "scale", Vector2(1.0, 1.0), 0.45).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD).set_delay(0.45)
-		
-		# 等待镜头就位后，再显示区域内的具体地点按钮
-		_bg_tween.chain().tween_callback(self._show_locations_for_area.bind(area_id))
+		_play_area_fade_transition(area_id, target_pos)
+
+func _get_background_position_for_camera_offset(background: TextureRect, camera_offset: Vector2) -> Vector2:
+	var displayed_size := background.size * MAP_BACKGROUND_SCALE
+	var overflow := Vector2(
+		maxf(0.0, displayed_size.x - size.x),
+		maxf(0.0, displayed_size.y - size.y)
+	)
+	var visual_top_left := -overflow * camera_offset.clamp(Vector2.ZERO, Vector2.ONE)
+	var pivot_compensation := background.pivot_offset * (Vector2.ONE - MAP_BACKGROUND_SCALE)
+	return visual_top_left - pivot_compensation
+
+func _play_area_fade_transition(area_id: String, target_position: Vector2) -> void:
+	_area_transition_busy = true
+	area_transition_input_blocker.show()
+	var fade_targets: Array[Control] = [$Background, background_shade, sub_area_container]
+	_bg_tween = create_tween().set_parallel(true)
+	for target in fade_targets:
+		_bg_tween.tween_property(target, "modulate:a", 0.0, AREA_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await _bg_tween.finished
+
+	_clear_sub_area_locations()
+	$Background.position = target_position
+	_show_locations_for_area(area_id)
+
+	_bg_tween = create_tween().set_parallel(true)
+	for target in fade_targets:
+		_bg_tween.tween_property(target, "modulate:a", 1.0, AREA_FADE_IN_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await _bg_tween.finished
+	area_transition_input_blocker.hide()
+	_area_transition_busy = false
+
+func _clear_sub_area_locations() -> void:
+	for child in sub_area_container.get_children():
+		sub_area_container.remove_child(child)
+		child.queue_free()
 
 func _show_locations_for_area(area_id: String):
 	var locs = MapDataManager.get_area_locations(area_id)
@@ -263,7 +283,7 @@ func _show_locations_for_area(area_id: String):
 				target_pos = fallback_positions[i % fallback_positions.size()]
 			
 			
-			btn.position = target_pos
+			btn.position = _get_scaled_location_position(target_pos, btn_size)
 			
 			# Add animation
 			btn.scale = Vector2.ZERO
@@ -285,6 +305,17 @@ func _show_locations_for_area(area_id: String):
 			guide_manager.call_deferred("refresh_current_step_display")
 	else:
 		_guide_targets_ready = final_reveal_tween == null
+
+func _get_scaled_location_position(source_position: Vector2, button_size: Vector2) -> Vector2:
+	var canvas_center := sub_area_container.size / 2.0
+	var source_center := source_position + button_size / 2.0
+	var scaled_center := canvas_center + (source_center - canvas_center) * MAP_BACKGROUND_SCALE
+	var scaled_position := scaled_center - button_size / 2.0
+	var max_position := Vector2(
+		maxf(0.0, sub_area_container.size.x - button_size.x),
+		maxf(0.0, sub_area_container.size.y - button_size.y)
+	)
+	return scaled_position.clamp(Vector2.ZERO, max_position)
 
 func is_guide_target_ready() -> bool:
 	return _guide_targets_ready
@@ -326,20 +357,14 @@ func _on_location_pressed(location_id: String):
 				CONNECT_ONE_SHOT
 			)
 
-func get_first_unlocked_location_button() -> Control:
-	for child in sub_area_container.get_children():
-		if child is Button:
-			var btn := child as Button
-			if btn.disabled:
-				continue
-			return btn
-	return null
-
 func get_area_button(area_id: String) -> Control:
 	for child in area_list_container.get_children():
 		if child is Control and str(child.get("area_id")) == area_id:
 			return child as Control
 	return null
+
+func get_area_button_focus_entry(area_id: String) -> Dictionary:
+	return _get_rounded_guide_focus_entry(get_area_button(area_id), 18.0)
 
 func get_location_button(location_id: String) -> Control:
 	for child in sub_area_container.get_children():
@@ -347,8 +372,23 @@ func get_location_button(location_id: String) -> Control:
 			return child as Control
 	return null
 
+func get_location_button_focus_entry(location_id: String) -> Dictionary:
+	return _get_rounded_guide_focus_entry(get_location_button(location_id), 14.0)
+
+func _get_rounded_guide_focus_entry(target: Control, corner_radius: float) -> Dictionary:
+	if not is_instance_valid(target) or not target.is_visible_in_tree():
+		return {}
+	return {
+		"rect": target.get_global_rect(),
+		"shape": "rect",
+		"shape_params": {"corner_radius": corner_radius}
+	}
+
 func _on_location_enter_pressed(location_id: String, npc_id: String):
 	if _location_entry_transition_busy:
+		return
+	if location_id == "studio":
+		_on_back_pressed()
 		return
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("report_action"):

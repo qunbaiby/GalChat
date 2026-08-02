@@ -6,6 +6,9 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	var game_data_source := FileAccess.get_file_as_string("res://scripts/data/game_data_manager.gd")
+	_expect(game_data_source.contains("config.apply_runtime_settings()"), "创建存档后没有保留当前窗口几何。")
+	_expect(not game_data_source.contains("\t\tconfig.apply_settings()\n\t\tconfig.save_config()\n\tarchive_changed.emit"), "创建存档进入玩家信息面板时仍会重新应用分辨率。")
 	await _verify_placeholder_focus(
 		"res://scenes/ui/save_load/archive_name_popup.tscn",
 		"PopupPanel/MarginContainer/VBoxContainer/NameInput",

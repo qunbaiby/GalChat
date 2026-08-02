@@ -574,8 +574,8 @@ def _validated_payload(payload: ChatCompletionRequest) -> dict[str, Any]:
     if settings.default_chat_model not in settings.allowed_models:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Default Chat model is not allowed.")
     provider_payload = payload.model_dump(exclude_none=True)
-    provider_payload["model"] = settings.default_chat_model
-    provider_payload["temperature"] = settings.chat_temperature
+    provider_payload["model"] = "deepseek-chat" if payload.response_format and payload.response_format.type == "json_object" and "deepseek-chat" in settings.allowed_models else settings.default_chat_model
+    provider_payload["temperature"] = min(payload.temperature, settings.chat_temperature) if payload.response_format and payload.response_format.type == "json_object" else settings.chat_temperature
     provider_payload["max_tokens"] = settings.chat_max_tokens
     return provider_payload
 
@@ -661,6 +661,16 @@ def _capture_usage_tokens(request: Request, body: Any) -> None:
         request.state.total_tokens = int(total_tokens)
     elif request.state.input_tokens is not None or request.state.output_tokens is not None:
         request.state.total_tokens = int(request.state.input_tokens or 0) + int(request.state.output_tokens or 0)
+
+
+def _has_nonempty_chat_content(body: Any) -> bool:
+    if not isinstance(body, dict):
+        return False
+    choices = body.get("choices")
+    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+        return False
+    message = choices[0].get("message")
+    return isinstance(message, dict) and isinstance(message.get("content"), str) and bool(message["content"].strip())
 
 
 def _quota_payload(user_id: str) -> dict[str, Any]:
@@ -1144,23 +1154,36 @@ async def chat_completions(
     quota_headers = _quota_headers("chat", remaining)
 
     if not payload.stream:
-        try:
-            response = await request.app.state.http.post(provider_url, headers=headers, json=provider_payload)
-        except httpx.TimeoutException as error:
-            _release_quota(user_id, "chat")
-            raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail="Chat provider timed out.") from error
-        except httpx.RequestError as error:
-            _release_quota(user_id, "chat")
-            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Chat provider is unavailable.") from error
-        if response.status_code >= 400:
-            _release_quota(user_id, "chat")
-            return JSONResponse(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                content={"error": {"message": _safe_provider_error(response.content)}},
-                headers=quota_headers,
-            )
-        _capture_usage_tokens(request, response.json())
-        return _json_response(response, quota_headers)
+        for provider_attempt in range(2):
+            try:
+                response = await request.app.state.http.post(provider_url, headers=headers, json=provider_payload)
+            except httpx.TimeoutException as error:
+                _release_quota(user_id, "chat")
+                raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail="Chat provider timed out.") from error
+            except httpx.RequestError as error:
+                _release_quota(user_id, "chat")
+                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Chat provider is unavailable.") from error
+            if response.status_code >= 400:
+                _release_quota(user_id, "chat")
+                return JSONResponse(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    content={"error": {"message": _safe_provider_error(response.content)}},
+                    headers=quota_headers,
+                )
+            try:
+                response_body = response.json()
+            except ValueError:
+                response_body = None
+            if _has_nonempty_chat_content(response_body):
+                _capture_usage_tokens(request, response_body)
+                return _json_response(response, quota_headers)
+            access_logger.warning("Chat provider returned empty content; retrying upstream attempt=%d", provider_attempt + 1)
+        _release_quota(user_id, "chat")
+        return JSONResponse(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            content={"error": {"message": "Chat provider returned empty content."}},
+            headers=quota_headers,
+        )
 
     request.state.defer_usage_recording = True
     started_at = time.monotonic()

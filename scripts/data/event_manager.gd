@@ -206,8 +206,6 @@ func execute_event(event_id: String, params: Dictionary = {}) -> void:
 			_handle_post_moment()
 		"start_guide":
 			_handle_start_guide(params)
-		"start_demo_guide":
-			_handle_start_demo_guide()
 		"unlock_main_feature":
 			_handle_set_main_feature_unlock(params, true)
 		"lock_main_feature":
@@ -286,11 +284,6 @@ func _handle_memory_revisit(params: Dictionary) -> void:
 	var main_scene = get_tree().root.get_node_or_null("MainScene")
 	if main_scene and main_scene.has_method("start_memory_revisit"):
 		main_scene.start_memory_revisit(params)
-
-func _handle_start_demo_guide() -> void:
-	var guide_manager = get_node_or_null("/root/GuideManager")
-	if guide_manager and guide_manager.has_method("start_demo_guide"):
-		guide_manager.start_demo_guide()
 
 func _handle_start_guide(params: Dictionary) -> void:
 	var guide_id := str(params.get("guide_id", "")).strip_edges()

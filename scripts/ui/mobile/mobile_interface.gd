@@ -7,6 +7,8 @@ signal wechat_closed
 const MemoryAlbumManagerScript = preload("res://scripts/data/memory_album_manager.gd")
 const PhotoMemoryManagerScript = preload("res://scripts/data/photo_memory_manager.gd")
 
+@export var standalone_wechat_overlay_color: Color
+
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 @onready var personality_btn: Button = $PhonePanel/MainMargin/RootHBox/LeftColumn/MainContentVBox/TopContentHBox/TopActionGrid/PersonalityBtn
@@ -332,25 +334,36 @@ func hide_phone(emit_closing: bool = true) -> void:
 	_slide_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	_slide_tween.tween_property(phone_panel, "position:x", 1280.0, 0.4)
 	_slide_tween.tween_property(color_rect, "color:a", 0.0, 0.4)
-	_slide_tween.chain().tween_callback(func():
-		hide()
-		if personality_panel_instance:
-			personality_panel_instance.hide()
-		if memory_panel_instance:
-			memory_panel_instance.hide()
-		if relation_panel_instance:
-			relation_panel_instance.hide()
-		if between_panel_instance:
-			between_panel_instance.hide()
-		if chat_panel_instance:
-			chat_panel_instance.hide_panel(true)
-			if chat_panel_instance.voice_call_panel_instance:
-				chat_panel_instance.voice_call_panel_instance.hide()
-			if chat_panel_instance.video_call_panel_instance:
-				chat_panel_instance.video_call_panel_instance.hide()
-		if wechat_panel_instance:
-			wechat_panel_instance.hide_panel(true)
-	)
+	_slide_tween.chain().tween_callback(_complete_phone_hide)
+
+func hide_phone_immediately(emit_closing: bool = true) -> void:
+	if emit_closing:
+		phone_closing.emit()
+	if _slide_tween:
+		_slide_tween.kill()
+	phone_panel.position.x = 1280.0
+	color_rect.color.a = 0.0
+	color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_complete_phone_hide()
+
+func _complete_phone_hide() -> void:
+	hide()
+	if personality_panel_instance:
+		personality_panel_instance.hide()
+	if memory_panel_instance:
+		memory_panel_instance.hide()
+	if relation_panel_instance:
+		relation_panel_instance.hide()
+	if between_panel_instance:
+		between_panel_instance.hide()
+	if chat_panel_instance:
+		chat_panel_instance.hide_panel(true)
+		if chat_panel_instance.voice_call_panel_instance:
+			chat_panel_instance.voice_call_panel_instance.hide()
+		if chat_panel_instance.video_call_panel_instance:
+			chat_panel_instance.video_call_panel_instance.hide()
+	if wechat_panel_instance:
+		wechat_panel_instance.hide_panel(true)
 
 func _on_back_pressed() -> void:
 	hide_phone()
@@ -568,7 +581,16 @@ func _show_wechat_overlay_root() -> void:
 	phone_panel.hide()
 	phone_panel.position.x = 1280.0
 	color_rect.mouse_filter = Control.MOUSE_FILTER_STOP
-	color_rect.color.a = 0.22
+	color_rect.color = standalone_wechat_overlay_color
+
+func is_standalone_wechat_open() -> bool:
+	return (
+		_wechat_overlay_only
+		and visible
+		and is_instance_valid(wechat_panel_instance)
+		and wechat_panel_instance is CanvasItem
+		and (wechat_panel_instance as CanvasItem).is_visible_in_tree()
+	)
 
 func open_wechat_directly(standalone: bool = false) -> void:
 	if standalone:
@@ -577,7 +599,13 @@ func open_wechat_directly(standalone: bool = false) -> void:
 		_wechat_overlay_only = false
 		phone_panel.show()
 	if wechat_panel_instance == null:
-		var WeChatPanelObj = load("res://scenes/ui/mobile/wechat/wechat_main_panel.tscn")
+		var WeChatPanelObj := load("res://scenes/ui/mobile/wechat/wechat_main_panel.tscn") as PackedScene
+		if WeChatPanelObj == null:
+			push_error("无法加载微聊界面：res://scenes/ui/mobile/wechat/wechat_main_panel.tscn")
+			if standalone:
+				_wechat_overlay_only = false
+				hide()
+			return
 		wechat_panel_instance = WeChatPanelObj.instantiate()
 		add_child(wechat_panel_instance)
 		wechat_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -34,7 +34,7 @@ func _run() -> void:
 		"feature_unlocks": {},
 		"guide_opt_in": "enabled"
 	})
-	_expect(int(migrated_guide_state.get("current_step_index", 0)) == 21, "旧引导断点没有跨过 AI 回合说明和 GoalPanel 步骤。")
+	_expect(int(migrated_guide_state.get("current_step_index", 0)) == 24, "旧引导断点没有迁移到当前引导流程位置。")
 	var pre_insert_guide_state: Dictionary = guide_manager._normalize_state({
 		"active_guide_id": "schedule_onboarding_guide",
 		"current_step_index": 18,
@@ -42,12 +42,17 @@ func _run() -> void:
 		"feature_unlocks": {},
 		"guide_opt_in": "enabled"
 	})
-	_expect(int(pre_insert_guide_state.get("current_step_index", 0)) == 19, "旧话题选择断点没有迁移到 GoalPanel 之后。")
+	_expect(int(pre_insert_guide_state.get("current_step_index", 0)) == 22, "旧话题选择断点没有迁移到当前引导流程位置。")
+	var onboarding_steps: Array = (guide_manager._guide_defs.get("schedule_onboarding_guide", {}) as Dictionary).get("steps", [])
+	var archive_a_step_index := _find_guide_step_index(onboarding_steps, "choose_topic_after_goal")
+	var archive_b_step_index := _find_guide_step_index(onboarding_steps, "explain_wechat_fixed_conversation")
+	_expect(archive_a_step_index >= 0 and archive_b_step_index >= 0, "无法定位存档隔离测试所需的引导步骤。")
 
 	save_manager.delete_save(ARCHIVE_A)
 	save_manager.delete_save(ARCHIVE_B)
 
 	_expect(save_manager.prepare_empty_archive(ARCHIVE_A, "隔离测试 A"), "无法创建档案 A。")
+	_expect(str(guide_manager._loaded_archive_id) == ARCHIVE_A, "创建档案 A 后 GuideManager 没有绑定当前档案身份。")
 	game_data_manager.profile.player_name = "档案 A"
 	game_data_manager.profile.finished_stories = ["intro_story"]
 	game_data_manager.config.bgm_volume = 0.23
@@ -58,7 +63,10 @@ func _run() -> void:
 	game_data_manager.set_archive_custom_config("desktop_wallpaper_enabled", true)
 	guide_manager.set_guide_opt_in(true)
 	guide_manager._state["active_guide_id"] = "schedule_onboarding_guide"
-	guide_manager._state["current_step_index"] = 19
+	guide_manager._state["current_step_index"] = archive_a_step_index
+	var archive_a_completed_guides: Array[String] = ["archive_a_completed_guide"]
+	guide_manager._state["completed_guides"] = archive_a_completed_guides
+	guide_manager._state["feature_unlocks"] = {"archive_a_feature": true}
 	_expect(guide_manager._save_state(), "档案 A 引导断点保存失败。")
 	_expect(guide_manager.start_guide("schedule_onboarding_guide"), "重复启动活动引导应保持当前流程。")
 	_expect(guide_manager.get_current_step_id() == "choose_topic_after_goal", "重复启动活动引导错误重置了断点。")
@@ -126,6 +134,7 @@ func _run() -> void:
 	_expect(int(rebuilt_pointer.get("generation", 0)) == 2, "manifest 没有重建到最新有效 generation。")
 
 	_expect(save_manager.prepare_empty_archive(ARCHIVE_B, "隔离测试 B"), "无法创建档案 B。")
+	_expect(str(guide_manager._loaded_archive_id) == ARCHIVE_B, "创建档案 B 后 GuideManager 没有切换档案身份。")
 	_expect(is_equal_approx(game_data_manager.config.bgm_volume, 0.23), "全局背景音量没有沿用到新档。")
 	_expect(game_data_manager.config.resolution_idx == 2, "全局分辨率没有沿用到新档。")
 	_expect(game_data_manager.config.pet_disturbance_mode == "安静模式", "全局桌宠设置没有沿用到新档。")
@@ -134,6 +143,17 @@ func _run() -> void:
 	_expect(not game_data_manager.profile.has_finished_story("intro_story"), "新档继承了 A 的开篇剧情完成状态。")
 	_expect(not bool(game_data_manager.get_archive_custom_config("desktop_wallpaper_enabled", false)), "新档继承了 A 的壁纸模式。")
 	_expect(guide_manager.is_guide_opted_in(), "新档没有自动开启新手引导。")
+	_expect(guide_manager.get_active_guide_id() == "", "新档继承了 A 的活动引导。")
+	_expect(not (guide_manager._state.get("completed_guides", []) as Array).has("archive_a_completed_guide"), "新档继承了 A 的已完成引导。")
+	_expect(not (guide_manager._state.get("feature_unlocks", {}) as Dictionary).has("archive_a_feature"), "新档继承了 A 的引导功能解锁。")
+	guide_manager._state["active_guide_id"] = "schedule_onboarding_guide"
+	guide_manager._state["current_step_index"] = archive_b_step_index
+	var archive_b_completed_guides: Array[String] = ["archive_b_completed_guide"]
+	guide_manager._state["completed_guides"] = archive_b_completed_guides
+	guide_manager._state["feature_unlocks"] = {"archive_b_feature": true}
+	_expect(guide_manager._save_state(), "档案 B 引导状态保存失败。")
+	guide_manager._advance_step_if_context_matches(ARCHIVE_A, "schedule_onboarding_guide", archive_a_step_index)
+	_expect(int(guide_manager._state.get("current_step_index", -1)) == archive_b_step_index, "档案 A 的延迟推进污染了档案 B 的引导进度。")
 	_expect(game_data_manager.config.free_chat_enabled, "全局自由聊天开关没有沿用到新档。")
 	_expect(game_data_manager.load_active_story_checkpoint().is_empty(), "新档继承了 A 的剧情检查点。")
 	game_data_manager.save_story_checkpoint_for_archive({"script_id": "stale_archive_a_story"}, ARCHIVE_A)
@@ -145,6 +165,7 @@ func _run() -> void:
 	_expect(save_manager.auto_save("archive_isolation_b", ARCHIVE_B), "档案 B 保存失败。")
 
 	_expect(save_manager.load_archive(ARCHIVE_A), "无法切回档案 A。")
+	_expect(str(guide_manager._loaded_archive_id) == ARCHIVE_A, "切回档案 A 后 GuideManager 仍绑定其他档案。")
 	_expect(is_equal_approx(game_data_manager.config.bgm_volume, 0.23), "切回 A 后背景音量未恢复。")
 	_expect(game_data_manager.config.resolution_idx == 2, "切回 A 后分辨率未恢复。")
 	_expect(game_data_manager.config.pet_disturbance_mode == "安静模式", "切回 A 后桌宠设置未恢复。")
@@ -154,6 +175,9 @@ func _run() -> void:
 	_expect(guide_manager.is_guide_opted_in(), "切回 A 后引导选择未恢复。")
 	_expect(guide_manager.get_active_guide_id() == "schedule_onboarding_guide", "切回 A 后活动引导未恢复。")
 	_expect(guide_manager.get_current_step_id() == "choose_topic_after_goal", "切回 A 后没有恢复到保存的引导断点。")
+	_expect((guide_manager._state.get("completed_guides", []) as Array).has("archive_a_completed_guide"), "切回 A 后已完成引导列表被 B 污染。")
+	_expect(bool((guide_manager._state.get("feature_unlocks", {}) as Dictionary).get("archive_a_feature", false)), "切回 A 后引导功能解锁被 B 污染。")
+	_expect(not (guide_manager._state.get("completed_guides", []) as Array).has("archive_b_completed_guide"), "切回 A 后继承了 B 的已完成引导。")
 	_expect(game_data_manager.config.free_chat_enabled, "切回 A 后全局自由聊天开关发生变化。")
 	var restored_checkpoint: Dictionary = game_data_manager.load_active_story_checkpoint()
 	_expect(int(restored_checkpoint.get("schema_version", 0)) == 1, "剧情检查点没有写入当前 schema。")
@@ -165,6 +189,12 @@ func _run() -> void:
 	_expect(int(game_data_manager.pomodoro_data.get("total_focus_time", 0)) == 88, "切回 A 后番茄钟时长未恢复。")
 	_expect((game_data_manager.pomodoro_data.get("todos", []) as Array).size() == 1, "切回 A 后待办未恢复。")
 	_expect(bool(MusicLibrary.load_tracks()[0].get("is_favorite", false)) == not default_favorite, "切回 A 后音乐收藏未恢复。")
+	_expect(save_manager.load_archive(ARCHIVE_B), "无法再次切回档案 B。")
+	_expect(guide_manager.get_current_step_id() == "explain_wechat_fixed_conversation", "切回 B 后没有恢复 B 独立的引导断点。")
+	_expect((guide_manager._state.get("completed_guides", []) as Array).has("archive_b_completed_guide"), "切回 B 后已完成引导列表没有恢复。")
+	_expect(bool((guide_manager._state.get("feature_unlocks", {}) as Dictionary).get("archive_b_feature", false)), "切回 B 后引导功能解锁没有恢复。")
+	_expect(not (guide_manager._state.get("completed_guides", []) as Array).has("archive_a_completed_guide"), "切回 B 后继承了 A 的已完成引导。")
+	_expect(save_manager.load_archive(ARCHIVE_A), "完成 B 隔离校验后无法切回档案 A。")
 	_expect(save_manager.auto_save("snapshot_retention_smoke", ARCHIVE_A), "无法提交快照保留策略测试代次。")
 	var generations_root_a := archive_root_a.path_join(".generations")
 	var generations_dir := DirAccess.open(generations_root_a)
@@ -191,6 +221,14 @@ func _run() -> void:
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		failures.append(message)
+
+
+func _find_guide_step_index(steps: Array, step_id: String) -> int:
+	for index in range(steps.size()):
+		var step: Variant = steps[index]
+		if step is Dictionary and str((step as Dictionary).get("id", "")) == step_id:
+			return index
+	return -1
 
 
 func _finish() -> void:

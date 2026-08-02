@@ -9,16 +9,12 @@ var player_name: String = ""
 var player_title: String = ""
 var player_gender: String = "其他"
 var player_birthday: String = ""
-var player_zodiac: String = ""
 var player_mbti: String = "未选择"
-var player_profession: String = "创奇引路人"
 var player_avatar_path: String = ""
 var age: int = 22
 var description: String = ""
 var tags: Array = []
-var spine_path: String = ""
 var sprite_frames_path: String = ""
-var desktop_pet_frames_path: String = ""
 var avatar: String = ""
 var current_outfit: String = "default" # 当前穿着服装的 ID
 var current_main_bg_id: String = ""
@@ -86,6 +82,8 @@ var gold: int = 500
 var unlocked_outfits: Array = ["default"] # 已解锁服装的 ID 列表
 
 var course_progress: Dictionary = {}
+var meal_history: Dictionary = {}
+var tutoring_history: Dictionary = {}
 
 var diaries: Array = []
 var finished_stories: Array = []
@@ -120,14 +118,17 @@ func _create_default_personality_tension() -> Dictionary:
 		"neuroticism": 0.0
 	}
 
+func _dictionary_or_default(value: Variant, default_value: Dictionary = {}) -> Dictionary:
+	if value is Dictionary:
+		return (value as Dictionary).duplicate(true)
+	return default_value.duplicate(true)
+
 func _reset_dynamic_state() -> void:
 	player_name = ""
 	player_title = ""
 	player_gender = "其他"
 	player_birthday = ""
-	player_zodiac = ""
 	player_mbti = "未选择"
-	player_profession = "创奇引路人"
 	player_avatar_path = ""
 	intimacy = 0.0
 	mood_value = 50.0
@@ -164,6 +165,8 @@ func _reset_dynamic_state() -> void:
 	unlocked_outfits = ["default"]
 	gold = 500
 	course_progress = {}
+	meal_history = {}
+	tutoring_history = {}
 	diaries = []
 	finished_stories = []
 
@@ -237,9 +240,7 @@ func load_profile(force_char_id: String = "") -> void:
 				player_title = data.get("player_title", player_title)
 				player_gender = data.get("player_gender", player_gender)
 				player_birthday = data.get("player_birthday", player_birthday)
-				player_zodiac = data.get("player_zodiac", player_zodiac)
 				player_mbti = data.get("player_mbti", player_mbti)
-				player_profession = data.get("player_profession", player_profession)
 				player_avatar_path = data.get("player_avatar_path", player_avatar_path)
 				intimacy = float(str(data.get("intimacy", intimacy)))
 				mood_value = float(str(data.get("mood_value", 50.0)))
@@ -256,9 +257,6 @@ func load_profile(force_char_id: String = "") -> void:
 				
 				personality_history = data.get("personality_history", [])
 				personality_event_log = data.get("personality_event_log", [])
-				personality_state = data.get("personality_state", personality_state)
-				if not (personality_state is Dictionary):
-					personality_state = {}
 				var default_personality_state: Dictionary = {
 					"primary_id": "",
 					"primary_desc": "",
@@ -272,15 +270,16 @@ func load_profile(force_char_id: String = "") -> void:
 					"pending_secondary_id": "",
 					"pending_secondary_streak": 0
 				}
+				personality_state = _dictionary_or_default(data.get("personality_state"), default_personality_state)
 				for state_key in default_personality_state.keys():
 					if not personality_state.has(state_key):
 						personality_state[state_key] = default_personality_state[state_key]
 				last_personality_snapshot_day = int(str(data.get("last_personality_snapshot_day", -1)))
-				personality_tension = data.get("personality_tension", data.get("personality_pressure", _create_default_personality_tension()))
-				short_term_personality_tension = data.get("short_term_personality_tension", data.get("short_term_personality_pressure", personality_tension.duplicate(true)))
-				long_term_personality_shaping = data.get("long_term_personality_shaping", data.get("long_term_personality_pressure", _create_default_personality_tension()))
-				last_personality_settlement = data.get("last_personality_settlement", {})
-				personality_pattern_state = data.get("personality_pattern_state", {})
+				personality_tension = _dictionary_or_default(data.get("personality_tension", data.get("personality_pressure")), _create_default_personality_tension())
+				short_term_personality_tension = _dictionary_or_default(data.get("short_term_personality_tension", data.get("short_term_personality_pressure")), personality_tension)
+				long_term_personality_shaping = _dictionary_or_default(data.get("long_term_personality_shaping", data.get("long_term_personality_pressure")), _create_default_personality_tension())
+				last_personality_settlement = _dictionary_or_default(data.get("last_personality_settlement"))
+				personality_pattern_state = _dictionary_or_default(data.get("personality_pattern_state"))
 				companion_streak_days = int(str(data.get("companion_streak_days", 0)))
 				last_care_event_streak = int(str(data.get("last_care_event_streak", 0)))
 				
@@ -303,7 +302,9 @@ func load_profile(force_char_id: String = "") -> void:
 				current_main_bg_id = str(data.get("current_main_bg_id", default_main_bg_id)).strip_edges()
 				unlocked_outfits = data.get("unlocked_outfits", ["default"])
 				gold = int(str(data.get("gold", 500)))
-				course_progress = data.get("course_progress", {})
+				course_progress = _dictionary_or_default(data.get("course_progress"))
+				meal_history = _dictionary_or_default(data.get("meal_history"))
+				tutoring_history = _dictionary_or_default(data.get("tutoring_history"))
 				diaries = data.get("diaries", [])
 				finished_stories = data.get("finished_stories", [])
 	else:
@@ -386,9 +387,7 @@ func _load_static_data() -> void:
 			if data is Dictionary:
 				char_name = data.get("char_name", "")
 				age = data.get("age", 22)
-				spine_path = data.get("spine_path", "")
 				sprite_frames_path = data.get("sprite_frames_path", "")
-				desktop_pet_frames_path = data.get("desktop_pet_frames_path", "")
 				avatar = data.get("avatar", "")
 				description = data.get("identity_background", "")
 				tags = data.get("tags", [])
@@ -708,6 +707,24 @@ func consume_energy(amount: int) -> bool:
 		return true
 	return false
 
+func get_daily_tutoring_count(day_offset: int = -1) -> int:
+	var target_day := day_offset
+	if target_day < 0 and GameDataManager.story_time_manager:
+		target_day = int(GameDataManager.story_time_manager.current_day_offset)
+	return maxi(0, int(tutoring_history.get(str(target_day), 0)))
+
+func get_daily_tutoring_remaining(limit: int, day_offset: int = -1) -> int:
+	return maxi(0, limit - get_daily_tutoring_count(day_offset))
+
+func record_daily_tutoring(count: int, day_offset: int = -1) -> void:
+	if count <= 0:
+		return
+	var target_day := day_offset
+	if target_day < 0 and GameDataManager.story_time_manager:
+		target_day = int(GameDataManager.story_time_manager.current_day_offset)
+	var day_key := str(target_day)
+	tutoring_history[day_key] = get_daily_tutoring_count(target_day) + count
+
 func restore_energy(save_now: bool = true) -> void:
 	current_energy = max_energy
 	if save_now:
@@ -774,9 +791,7 @@ func save_profile() -> bool:
 		"player_title": player_title,
 		"player_gender": player_gender,
 		"player_birthday": player_birthday,
-		"player_zodiac": player_zodiac,
 		"player_mbti": player_mbti,
-		"player_profession": player_profession,
 		"player_avatar_path": player_avatar_path,
 		"intimacy": intimacy,
 		"mood_value": mood_value,
@@ -815,6 +830,8 @@ func save_profile() -> bool:
 		"unlocked_outfits": unlocked_outfits,
 		"gold": gold,
 		"course_progress": course_progress,
+		"meal_history": meal_history,
+		"tutoring_history": tutoring_history,
 		"diaries": diaries,
 		"finished_stories": finished_stories
 	}

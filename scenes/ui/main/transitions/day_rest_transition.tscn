@@ -1,0 +1,206 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main/day_rest_transition.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/images/backgrounds/main/home/wardrobe_bedroom_morning.png" id="2_bedroom"]
+
+[sub_resource type="Gradient" id="Gradient_morning_glow"]
+offsets = PackedFloat32Array(0, 0.42, 1)
+colors = PackedColorArray(1, 0.69, 0.36, 0.38, 1, 0.79, 0.5, 0.14, 1, 0.9, 0.72, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_morning_glow"]
+gradient = SubResource("Gradient_morning_glow")
+width = 1280
+height = 720
+fill_from = Vector2(0.82, 0.08)
+fill_to = Vector2(0.25, 0.82)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_info_line"]
+bg_color = Color(1, 0.94, 0.82, 0.72)
+
+[node name="DayRestTransition" type="Control"]
+visible = false
+z_index = 900
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="NightBackdrop" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bedroom")
+expand_mode = 1
+stretch_mode = 6
+self_modulate = Color(0.44, 0.53, 0.72, 1)
+
+[node name="MorningBackdrop" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bedroom")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="NightTint" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.018, 0.035, 0.09, 0.72)
+
+[node name="MorningGlow" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_morning_glow")
+
+[node name="Vignette" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.16)
+
+[node name="NightContent" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -105.0
+offset_right = 360.0
+offset_bottom = 105.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="EndingDateLabel" type="Label" parent="NightContent"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.91, 0.94, 1, 0.96)
+theme_override_font_sizes/font_size = 34
+text = "3月7日 · 星期六"
+horizontal_alignment = 1
+
+[node name="RestLabel" type="Label" parent="NightContent"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 76.0
+offset_bottom = 122.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.78, 0.83, 0.94, 0.9)
+theme_override_font_sizes/font_size = 19
+text = "夜色渐深，今天就到这里。"
+horizontal_alignment = 1
+
+[node name="MorningContent" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -410.0
+offset_top = -155.0
+offset_right = 410.0
+offset_bottom = 165.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NewDayLabel" type="Label" parent="MorningContent"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.75, 0.98)
+theme_override_font_sizes/font_size = 22
+text = "新的一天"
+horizontal_alignment = 1
+
+[node name="NewDateLabel" type="Label" parent="MorningContent"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 50.0
+offset_bottom = 112.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.93, 1)
+theme_override_font_sizes/font_size = 40
+text = "3月8日 · 星期日"
+horizontal_alignment = 1
+
+[node name="Separator" type="ColorRect" parent="MorningContent"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 132.0
+offset_right = 570.0
+offset_bottom = 134.0
+pivot_offset = Vector2(160, 1)
+color = Color(1, 0.94, 0.82, 0.72)
+
+[node name="WeatherRow" type="HBoxContainer" parent="MorningContent"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 157.0
+offset_bottom = 199.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="WeatherIcon" type="TextureRect" parent="MorningContent/WeatherRow"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeatherLabel" type="Label" parent="MorningContent/WeatherRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.97, 0.9, 0.96)
+theme_override_font_sizes/font_size = 18
+text = "晴天 · 22°C"
+vertical_alignment = 1
+
+[node name="EnergyLabel" type="Label" parent="MorningContent"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 218.0
+offset_bottom = 260.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.82, 0.96, 0.87, 0.96)
+theme_override_font_sizes/font_size = 18
+text = "精力已恢复"
+horizontal_alignment = 1

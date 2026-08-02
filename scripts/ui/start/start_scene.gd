@@ -201,12 +201,8 @@ func _apply_player_info_from_popup(player_info: Dictionary) -> void:
 		GameDataManager.profile.player_gender = player_info["gender"]
 	if player_info.has("birthday"):
 		GameDataManager.profile.player_birthday = player_info["birthday"]
-	if player_info.has("zodiac"):
-		GameDataManager.profile.player_zodiac = player_info["zodiac"]
 	if player_info.has("mbti"):
 		GameDataManager.profile.player_mbti = player_info["mbti"]
-	if player_info.has("profession"):
-		GameDataManager.profile.player_profession = player_info["profession"]
 	if player_info.has("avatar_path"):
 		GameDataManager.profile.player_avatar_path = player_info["avatar_path"]
 	GameDataManager.sync_profile_to_config()

@@ -1,7 +1,5 @@
 extends CanvasLayer
 
-const DeepSeekClientLocator = preload("res://scripts/api/utils/deepseek_client_locator.gd")
-
 var item_data: Dictionary = {}
 var ai_response_text: String = ""
 var is_generating: bool = false
@@ -72,7 +70,7 @@ func _on_ai_success(dialogue: String):
 	ai_response_text = dialogue
 	_on_ai_finished()
 
-func _on_ai_failed(error_msg: String):
+func _on_ai_failed(_error_msg: String):
 	ai_response_text = "（雅微笑着递上了单品）" # 兜底
 	_on_ai_finished()
 
@@ -103,7 +101,7 @@ func _on_consume_button_pressed():
 		profile.current_energy += val
 		if profile.current_energy > profile.max_energy:
 			profile.current_energy = profile.max_energy
-		toast_msg += "行动力 +%d  " % val
+		toast_msg += "精力 +%d  " % val
 		
 	if stats_to_add.has("mood"):
 		var val = stats_to_add["mood"]

@@ -73,11 +73,9 @@ func _load_texture_from_path(path: String) -> Texture2D:
 func _ready() -> void:
 	more_btn.pressed.connect(_on_more_btn_pressed)
 	send_btn.pressed.connect(_on_send_pressed)
-	send_btn.gui_input.connect(_on_send_btn_gui_input)
 	plus_btn.pressed.connect(_on_plus_btn_pressed)
 	input_edit.text_submitted.connect(_on_input_submitted)
 	input_edit.gui_input.connect(_on_input_edit_gui_input)
-	input_row.gui_input.connect(_on_input_row_gui_input)
 	scroll_container.gui_input.connect(_on_message_area_gui_input)
 	voice_call_option_btn.pressed.connect(_on_voice_call_option_pressed)
 	video_call_option_btn.pressed.connect(_on_video_call_option_pressed)
@@ -141,7 +139,7 @@ func _on_character_typing_state_changed(char_id: String, is_typing: bool) -> voi
 			bubble.setup(msg, c_profile_dict)
 			
 			await get_tree().process_frame
-			scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+			scroll_container.scroll_vertical = roundi(scroll_container.get_v_scroll_bar().max_value)
 	else:
 		if existing_typing_bubble != null:
 			existing_typing_bubble.queue_free()
@@ -167,10 +165,7 @@ func _refresh_fixed_chat_view_from_manager() -> void:
 	_render_history()
 	_check_fixed_chat_state()
 
-var _pending_fixed_script_id: String = ""
-var _pending_fixed_option_id: String = ""
 var _fixed_chat_completion_reported: bool = false
-var _fixed_conversation_sent_once: bool = false
 var _fixed_chat_refresh_queued: bool = false
 var _latest_fixed_chat_unread_count: int = 0
 
@@ -182,6 +177,7 @@ func _check_fixed_chat_state() -> void:
 	var active_script = MobileFixedChatManager.get_active_script_for_char(current_char_id)
 	if active_script != "":
 		_fixed_chat_completion_reported = false
+		input_row.hide()
 		var options = MobileFixedChatManager.get_current_options(active_script)
 		if options.size() > 0:
 			if input_edit.text == "对方正在输入...":
@@ -194,15 +190,22 @@ func _check_fixed_chat_state() -> void:
 			input_edit.text = "对方正在输入..."
 	else:
 		_hide_fixed_options()
-		if not has_fixed_chat_completion_notice():
-			_fixed_conversation_sent_once = false
-		if not is_free_chat_enabled:
+		if has_fixed_chat_completion_notice():
+			input_row.hide()
+			input_edit.editable = false
+			send_btn.disabled = true
+			input_edit.text = ""
+			more_btn.hide()
+			plus_btn.hide()
+		elif not is_free_chat_enabled:
+			input_row.hide()
 			input_edit.editable = false
 			send_btn.disabled = true
 			input_edit.text = "自由聊天已关闭"
 			more_btn.hide()
 			plus_btn.hide()
 		else:
+			input_row.show()
 			input_edit.editable = true
 			send_btn.disabled = false
 			input_edit.text = ""
@@ -213,9 +216,10 @@ func _check_fixed_chat_state() -> void:
 func _show_fixed_options(options: Array, script_id: String) -> void:
 	_hide_fixed_options()
 	fixed_options_container.show()
+	input_row.hide()
 	input_edit.editable = false
 	send_btn.disabled = true
-	input_edit.text = "请选择回复"
+	input_edit.text = ""
 	for opt in options:
 		var btn = Button.new()
 		btn.text = opt.get("text", "")
@@ -253,15 +257,9 @@ func _on_fixed_option_pressed(script_id: String, option_id: String, text: String
 	if not _is_guide_interaction_allowed("wechat.fixed_option"):
 		_notify_guide_interaction_blocked()
 		return
-	_on_fixed_option_selected(script_id, option_id, text)
 	_report_guide_action("wechat_select_player_option")
-
-func _on_fixed_option_selected(script_id: String, option_id: String, text: String) -> void:
 	_hide_fixed_options()
-	input_edit.text = text
-	send_btn.disabled = false
-	_pending_fixed_script_id = script_id
-	_pending_fixed_option_id = option_id
+	MobileFixedChatManager.submit_player_option(script_id, option_id, text)
 
 func set_ui_context(context: Node) -> void:
 	ui_context = context
@@ -368,24 +366,12 @@ func _on_plus_btn_pressed() -> void:
 
 func _on_input_edit_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if _try_acknowledge_fixed_conversation_finished():
-			accept_event()
-			return
 		if not _is_guide_interaction_allowed("wechat.input_edit"):
 			_notify_guide_interaction_blocked()
 			accept_event()
 			return
 		_hide_attachment_panel()
 		_hide_more_menu()
-
-func _on_input_row_gui_input(event: InputEvent) -> void:
-	if not (event is InputEventMouseButton):
-		return
-	var mouse_event := event as InputEventMouseButton
-	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
-		return
-	if _try_acknowledge_fixed_conversation_finished():
-		accept_event()
 
 func _on_message_area_gui_input(event: InputEvent) -> void:
 	if not (event is InputEventMouseButton):
@@ -399,19 +385,6 @@ func _on_message_area_gui_input(event: InputEvent) -> void:
 			guide_manager.report_action("wechat_view_chat_session")
 			accept_event()
 			return
-		if _try_acknowledge_fixed_conversation_finished():
-			accept_event()
-			return
-
-func _on_send_btn_gui_input(event: InputEvent) -> void:
-	if not (event is InputEventMouseButton):
-		return
-	var mouse_event := event as InputEventMouseButton
-	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
-		return
-	if _try_acknowledge_fixed_conversation_finished():
-		accept_event()
-		return
 
 func _on_voice_call_option_pressed() -> void:
 	_hide_more_menu()
@@ -453,6 +426,31 @@ func get_message_area_target() -> Control:
 func get_message_list_target() -> Control:
 	return message_list
 
+func get_first_character_message_target() -> Control:
+	for child in message_list.get_children():
+		if child is Control and str(child.get_meta("guide_message_speaker", "")) == "char" and child.is_visible_in_tree():
+			return child as Control
+	return message_list
+
+func get_first_character_message_focus_entry() -> Dictionary:
+	var message_row := get_first_character_message_target()
+	if message_row == message_list:
+		return {}
+	var avatar_margin := message_row.get_node_or_null("AvatarMargin") as Control
+	var bubble_panel := message_row.get_node_or_null("BubblePanel") as Control
+	if not is_instance_valid(avatar_margin) or not is_instance_valid(bubble_panel):
+		return {}
+	var rect := avatar_margin.get_global_rect().merge(bubble_panel.get_global_rect())
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return {}
+	return {
+		"rect": rect,
+		"shape": "rect",
+		"shape_params": {
+			"corner_radius": 18.0
+		}
+	}
+
 func get_fixed_options_target() -> Control:
 	if is_instance_valid(fixed_options_container) and fixed_options_container.visible and fixed_options_container.get_child_count() > 0:
 		return fixed_options_container
@@ -460,9 +458,6 @@ func get_fixed_options_target() -> Control:
 
 func get_input_edit_target() -> Control:
 	return input_row
-
-func should_highlight_entire_chat_container_for_fixed_conversation() -> bool:
-	return _fixed_conversation_sent_once
 
 func get_send_button_target() -> Control:
 	return send_btn
@@ -506,19 +501,8 @@ func _try_report_fixed_chat_conversation_finished() -> void:
 	if str(guide_manager.get_current_step_id()) != "explain_wechat_fixed_conversation":
 		return
 	_fixed_chat_completion_reported = true
-
-func _try_acknowledge_fixed_conversation_finished() -> bool:
-	var guide_manager := _get_guide_manager()
-	if guide_manager == null or not guide_manager.has_method("get_current_step_id"):
-		return false
-	if str(guide_manager.get_current_step_id()) != "explain_wechat_fixed_conversation":
-		return false
-	if not has_fixed_chat_completion_notice():
-		return false
 	if guide_manager.has_method("report_action"):
-		guide_manager.report_action("wechat_acknowledge_fixed_conversation_finished")
-		return true
-	return false
+		guide_manager.report_action("wechat_fixed_conversation_finished")
 
 func _get_guide_manager() -> Node:
 	return get_node_or_null("/root/GuideManager")
@@ -554,7 +538,6 @@ func _on_tts_failed(err_msg: String, _text: String) -> void:
 func setup(char_id: String) -> void:
 	current_char_id = char_id
 	_fixed_chat_completion_reported = false
-	_fixed_conversation_sent_once = false
 	
 	# Load profile
 	char_profile = CharacterProfile.new()
@@ -664,7 +647,10 @@ func _on_image_btn_pressed() -> void:
 	_hide_attachment_panel()
 	print("Image button pressed!")
 	var mobile_interface = _resolve_ui_context()
-	print("mobile_interface: ", mobile_interface, ", has method: ", mobile_interface.has_method("_on_album_app_pressed") if mobile_interface else "null")
+	var has_album_handler: Variant = "null"
+	if mobile_interface:
+		has_album_handler = mobile_interface.has_method("_on_album_app_pressed")
+	print("mobile_interface: ", mobile_interface, ", has method: ", has_album_handler)
 	if mobile_interface and mobile_interface.has_method("_on_album_app_pressed"):
 		mobile_interface._on_album_app_pressed()
 		
@@ -790,18 +776,9 @@ func _on_send_pressed() -> void:
 	_hide_more_menu()
 	input_edit.text = ""
 	
-	if _pending_fixed_script_id != "" and _pending_fixed_option_id != "":
-		var sid = _pending_fixed_script_id
-		var oid = _pending_fixed_option_id
-		_pending_fixed_script_id = ""
-		_pending_fixed_option_id = ""
-		_fixed_conversation_sent_once = true
-		call_deferred("_refresh_current_guide_highlight")
-		MobileFixedChatManager.submit_player_option(sid, oid, text)
-	else:
-		_send_player_message(text)
+	_send_player_message(text)
 
-func _on_input_submitted(text: String) -> void:
+func _on_input_submitted(_text: String) -> void:
 	_on_send_pressed()
 
 func _send_player_message(text: String) -> void:
@@ -940,7 +917,7 @@ func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dict
 	if GameDataManager.memory_observation_service and not observed_player_text.is_empty():
 		GameDataManager.memory_observation_service.observe_completed_turn("mobile_chat", observed_player_text, "\n".join(accepted_speech))
 	await get_tree().create_timer(0.1).timeout
-	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+	scroll_container.scroll_vertical = roundi(scroll_container.get_v_scroll_bar().max_value)
 
 func _on_realize_turn_failed(error_message: String, request_context: Dictionary) -> void:
 	if str(request_context.get("channel", "")) == "mobile_call":
@@ -1046,6 +1023,7 @@ func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, 
 	else:
 		var char_bubble = load("res://scenes/ui/mobile/chat/bubbles/character_bubble.tscn").instantiate()
 		message_list.add_child(char_bubble)
+		char_bubble.set_meta("guide_message_speaker", "char")
 		var c_profile_dict = {}
 		if char_profile:
 			c_profile_dict["avatar_path"] = char_profile.avatar
@@ -1053,7 +1031,7 @@ func _add_message_bubble(speaker: String, text: String, is_voice: bool = false, 
 		
 	# Scroll down
 	await get_tree().process_frame
-	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+	scroll_container.scroll_vertical = roundi(scroll_container.get_v_scroll_bar().max_value)
 
 func _on_red_packet_message_clicked(msg: Dictionary) -> void:
 	var normalized_msg = _normalize_history_message(msg)
@@ -1296,7 +1274,7 @@ func show_panel() -> void:
 		modulate.a = 1.0
 		position = Vector2.ZERO
 		await get_tree().process_frame
-		scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+		scroll_container.scroll_vertical = roundi(scroll_container.get_v_scroll_bar().max_value)
 		return
 	position.x = size.x
 	modulate.a = 0.0
@@ -1307,7 +1285,7 @@ func show_panel() -> void:
 	
 	# Scroll to bottom when shown
 	await get_tree().create_timer(0.1).timeout
-	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+	scroll_container.scroll_vertical = roundi(scroll_container.get_v_scroll_bar().max_value)
 
 func hide_panel(immediate: bool = false) -> void:
 	_hide_attachment_panel()

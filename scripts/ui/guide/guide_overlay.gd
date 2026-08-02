@@ -5,28 +5,39 @@ signal skip_pressed
 signal background_pressed(action_id: String)
 signal focus_pressed(action_id: String)
 
-const DIM_COLOR := Color(0.02, 0.03, 0.06, 0.72)
+const DIM_COLOR := Color(0.02, 0.03, 0.06, 0.64)
 const ACCENT_SOFT_COLOR := Color(0.39, 0.96, 0.83, 1.0)
 const WARM_ACCENT_COLOR := Color(0.94, 0.80, 0.61, 1.0)
-const FOCUS_FILL_COLOR := Color(0.30, 1.0, 0.84, 0.055)
-const FOCUS_FRAME_FILL_COLOR := Color(0.30, 1.0, 0.84, 0.025)
-const FOCUS_GLOW_SHADOW_COLOR := Color(0.25, 1.0, 0.82, 0.34)
-const AVATAR_SIZE := 148.0
-const GUIDE_ROW_OVERLAP := 18.0
+const FOCUS_FILL_COLOR := Color(0.30, 1.0, 0.84, 0.0)
+const FOCUS_FRAME_FILL_COLOR := Color(0.30, 1.0, 0.84, 0.0)
+const FOCUS_GLOW_SHADOW_COLOR := Color(0.25, 1.0, 0.82, 0.38)
+const FOCUS_GLOW_MIN_EXPANSION := 1.5
+const FOCUS_GLOW_MAX_EXPANSION := 5.5
+const FOCUS_AURA_MIN_EXPANSION := 4.0
+const FOCUS_AURA_MAX_EXPANSION := 8.0
+const MESSAGE_REVEAL_DELAY := 0.2
+const MESSAGE_REVEAL_DURATION := 0.5
 const MESSAGE_MIN_WIDTH := 300.0
 const MESSAGE_MAX_WIDTH := 500.0
-const MESSAGE_HEIGHT := 94.0
 const MESSAGE_HORIZONTAL_PADDING := 44.0
 const MESSAGE_FONT_SIZE := 17
+const MESSAGE_BODY_HEIGHT := 66.0
 const POINTER_SIZE := Vector2(88.0, 88.0)
+const POINTER_HOTSPOT := Vector2(22.0, 16.0)
+const HAND_BASE_SCALE := 1.12
+const HAND_RUNTIME_OFFSET := Vector2(15.0, 3.0)
 const FOCUS_SHAPE_RECT := "rect"
 const FOCUS_SHAPE_TRAPEZOID_LEFT := "trapezoid_left"
 
 @onready var _panel_root: PanelContainer = $GuidePanel
+@onready var _input_blocker: ColorRect = $InputBlocker
+@onready var _guide_row: HBoxContainer = $GuidePanel/GuideRow
+@onready var _avatar_frame: PanelContainer = $GuidePanel/GuideRow/AvatarFrame
 @onready var _message_panel: PanelContainer = $GuidePanel/GuideRow/MessagePanel
 @onready var _body_label: RichTextLabel = $GuidePanel/GuideRow/MessagePanel/MessageMargin/BodyLabel
 @onready var _click_pointer: Control = $ClickPointer
 @onready var _click_ring: Panel = $ClickPointer/ClickRing
+@onready var _hand_shadow: TextureRect = $ClickPointer/HandShadow
 @onready var _hand_texture: TextureRect = $ClickPointer/HandTexture
 
 var _focus_entries: Array[Dictionary] = []
@@ -37,19 +48,32 @@ var _focus_interaction_allowed: bool = false
 var _animation_time := 0.0
 var _focus_pulse := 0.0
 var _pointer_base_position := Vector2.ZERO
+var _hand_shadow_base_position := Vector2.ZERO
 var _hand_base_position := Vector2.ZERO
+var _avatar_size := 135.0
+var _message_height := 100.0
+var _guide_row_overlap := 30.0
 var _ui_built: bool = false
 var _dim_draw_rects: Array[Rect2] = []
 var _dim_overlay_polygons: Array[PackedVector2Array] = []
 var _dim_segments: Array[ColorRect] = []
+var _focus_auras: Array[Panel] = []
 var _focus_glows: Array[Panel] = []
 var _focus_frames: Array[Panel] = []
 var _focus_capture_overlays: Array[ColorRect] = []
 var _overlay_options: Dictionary = {}
+var _message_reveal_token := 0
+var _message_reveal_tween: Tween
+var _presentation_signature := ""
+var _focus_press_pending := false
+var _focus_press_action_id := ""
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_input_blocker.gui_input.connect(_on_input_blocker_gui_input)
+	_panel_root.visible = false
+	_panel_root.modulate.a = 0.0
 	visible = false
 	_ensure_ui()
 	set_process(true)
@@ -74,18 +98,49 @@ func _input(event: InputEvent) -> void:
 		if bool(guide_manager.go_to_previous_step_in_current_scene()):
 			get_viewport().set_input_as_handled()
 
+func _on_input_blocker_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	_input_blocker.accept_event()
+	get_viewport().set_input_as_handled()
+	if not mouse_event.pressed:
+		return
+	if not _focus_bounds.has_point(mouse_event.position):
+		var background_action_id := str(_overlay_options.get("background_wait_action", "")).strip_edges()
+		if background_action_id != "":
+			background_pressed.emit(background_action_id)
+		return
+	var focus_action_id := str(_overlay_options.get("focus_wait_action", "")).strip_edges()
+	if focus_action_id == "" or _focus_press_pending:
+		return
+	_focus_press_pending = true
+	_focus_press_action_id = focus_action_id
+	call_deferred("_emit_focus_pressed", focus_action_id)
+
 func _ensure_ui() -> void:
 	if _ui_built:
 		return
+	if _panel_root == null or _body_label == null or _avatar_frame == null or _message_panel == null or _guide_row == null:
+		return
 	if _panel_root != null:
 		_panel_root.mouse_filter = Control.MOUSE_FILTER_STOP
-		_panel_root.z_index = 20
+		_panel_root.z_index = 50
 	if _body_label != null:
 		_body_label.fit_content = false
 		_body_label.scroll_active = false
 		_body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if _avatar_frame != null:
+		_avatar_size = maxf(_avatar_frame.custom_minimum_size.x, _avatar_frame.custom_minimum_size.y)
+	if _message_panel != null:
+		_message_height = _message_panel.custom_minimum_size.y
+	if _guide_row != null:
+		_guide_row_overlap = maxf(0.0, -float(_guide_row.get_theme_constant("separation")))
 	if _click_pointer != null:
 		_click_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hand_shadow_base_position = _hand_shadow.position
 		_hand_base_position = _hand_texture.position
 	_ui_built = true
 
@@ -126,14 +181,42 @@ func _build_focus_glow(node_name: String) -> Panel:
 	panel.z_index = 12
 	var glow_style := StyleBoxFlat.new()
 	glow_style.bg_color = FOCUS_FILL_COLOR
+	glow_style.draw_center = false
+	glow_style.border_width_left = 2
+	glow_style.border_width_top = 2
+	glow_style.border_width_right = 2
+	glow_style.border_width_bottom = 2
+	glow_style.border_color = FOCUS_GLOW_SHADOW_COLOR
+	glow_style.border_blend = true
+	glow_style.anti_aliasing_size = 3.0
 	glow_style.corner_radius_top_left = 12
 	glow_style.corner_radius_top_right = 12
 	glow_style.corner_radius_bottom_left = 12
 	glow_style.corner_radius_bottom_right = 12
-	glow_style.shadow_color = FOCUS_GLOW_SHADOW_COLOR
-	glow_style.shadow_size = 6
-	glow_style.shadow_offset = Vector2.ZERO
 	panel.add_theme_stylebox_override("panel", glow_style)
+	return panel
+
+func _build_focus_aura(node_name: String) -> Panel:
+	var panel := Panel.new()
+	panel.name = node_name
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.visible = false
+	panel.z_index = 11
+	var aura_style := StyleBoxFlat.new()
+	aura_style.bg_color = FOCUS_FILL_COLOR
+	aura_style.draw_center = false
+	aura_style.border_width_left = 1
+	aura_style.border_width_top = 1
+	aura_style.border_width_right = 1
+	aura_style.border_width_bottom = 1
+	aura_style.border_color = Color(0.32, 1.0, 0.88, 0.22)
+	aura_style.border_blend = true
+	aura_style.anti_aliasing_size = 6.0
+	aura_style.corner_radius_top_left = 14
+	aura_style.corner_radius_top_right = 14
+	aura_style.corner_radius_bottom_left = 14
+	aura_style.corner_radius_bottom_right = 14
+	panel.add_theme_stylebox_override("panel", aura_style)
 	return panel
 
 func _build_focus_frame(node_name: String) -> Panel:
@@ -144,10 +227,11 @@ func _build_focus_frame(node_name: String) -> Panel:
 	panel.z_index = 13
 	var frame_style := StyleBoxFlat.new()
 	frame_style.bg_color = FOCUS_FRAME_FILL_COLOR
-	frame_style.border_width_left = 2
-	frame_style.border_width_top = 2
-	frame_style.border_width_right = 2
-	frame_style.border_width_bottom = 2
+	frame_style.draw_center = false
+	frame_style.border_width_left = 1
+	frame_style.border_width_top = 1
+	frame_style.border_width_right = 1
+	frame_style.border_width_bottom = 1
 	frame_style.border_color = ACCENT_SOFT_COLOR
 	frame_style.corner_radius_top_left = 10
 	frame_style.corner_radius_top_right = 10
@@ -171,13 +255,28 @@ func _on_focus_capture_gui_input(event: InputEvent) -> void:
 	if not (event is InputEventMouseButton):
 		return
 	var mouse_event := event as InputEventMouseButton
-	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
 		return
-	var action_id := str(_overlay_options.get("focus_wait_action", "")).strip_edges()
-	if action_id == "":
+	accept_event()
+	if mouse_event.pressed:
+		var pressed_action_id := str(_overlay_options.get("focus_wait_action", "")).strip_edges()
+		if pressed_action_id == "":
+			return
+		get_viewport().set_input_as_handled()
+		if _focus_press_pending:
+			return
+		_focus_press_pending = true
+		_focus_press_action_id = pressed_action_id
+		call_deferred("_emit_focus_pressed", pressed_action_id)
 		return
-	focus_pressed.emit(action_id)
 	get_viewport().set_input_as_handled()
+
+func _emit_focus_pressed(action_id: String) -> void:
+	if not _focus_press_pending or _focus_press_action_id != action_id:
+		return
+	_focus_press_pending = false
+	_focus_press_action_id = ""
+	focus_pressed.emit(action_id)
 
 func show_step(guide_title: String, step_title: String, step_text: String, current_index: int, total_steps: int, focus_data: Variant = null, focus_interaction_allowed: bool = false, overlay_options: Dictionary = {}) -> void:
 	_ensure_ui()
@@ -187,21 +286,79 @@ func show_step(guide_title: String, step_title: String, step_text: String, curre
 	var _unused_total_steps := total_steps
 	_overlay_options = overlay_options.duplicate(true)
 	_focus_interaction_allowed = focus_interaction_allowed
-	_animation_time = 0.0
+	_input_blocker.visible = bool(_overlay_options.get("capture_focus_clicks", false))
 	if _panel_root != null:
 		_set_control_tree_mouse_filter(_panel_root, Control.MOUSE_FILTER_IGNORE if focus_interaction_allowed else Control.MOUSE_FILTER_STOP)
+	var hide_message_panel := bool(_overlay_options.get("hide_message_panel", false))
 	var final_step_text := step_text.strip_edges()
-	if final_step_text == "":
-		final_step_text = "请根据当前提示继续操作。"
+	if final_step_text == "" and not hide_message_panel:
+		final_step_text = "跟着我标出的地方继续吧。"
+	var normalized_focus_entries := _normalize_focus_input(focus_data)
+	var presentation_signature := _build_presentation_signature(final_step_text, hide_message_panel)
+	var is_same_presentation := presentation_signature == _presentation_signature
+	_presentation_signature = presentation_signature
 	_body_label.text = final_step_text
-	_apply_focus_entries(_normalize_focus_input(focus_data))
+	_apply_focus_entries(normalized_focus_entries)
 	show()
-	_panel_root.visible = true
+	if is_same_presentation:
+		call_deferred("_refresh_overlay_layout")
+		return
+	_animation_time = 0.0
+	_message_reveal_token += 1
+	if _message_reveal_tween != null and _message_reveal_tween.is_valid():
+		_message_reveal_tween.kill()
+	_panel_root.visible = false
+	_panel_root.modulate.a = 0.0
 	call_deferred("_refresh_overlay_layout")
+	if not hide_message_panel:
+		call_deferred("_reveal_message_panel", _message_reveal_token)
+
+func _build_presentation_signature(step_text: String, hide_message_panel: bool) -> String:
+	return "%s|%s|%s" % [str(_overlay_options.get("presentation_id", "")), step_text, str(hide_message_panel)]
+
+func _reveal_message_panel(reveal_token: int) -> void:
+	await get_tree().create_timer(MESSAGE_REVEAL_DELAY).timeout
+	if reveal_token != _message_reveal_token or not visible:
+		return
+	_panel_root.visible = true
+	_panel_root.modulate.a = 0.0
+	_layout_panel_relative_to_focus()
+	_message_reveal_tween = create_tween()
+	_message_reveal_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_message_reveal_tween.tween_property(_panel_root, "modulate:a", 1.0, MESSAGE_REVEAL_DURATION)
+
+func begin_step_transition() -> void:
+	_ensure_ui()
+	_focus_press_pending = false
+	_focus_press_action_id = ""
+	_focus_interaction_allowed = false
+	if is_instance_valid(_input_blocker):
+		_input_blocker.visible = false
+	_show_pointer = false
+	if is_instance_valid(_click_pointer):
+		_click_pointer.visible = false
+	for capture_overlay in _focus_capture_overlays:
+		capture_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		capture_overlay.visible = false
+	for dim_rect in _dim_segments:
+		dim_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	if is_instance_valid(_panel_root):
+		_set_control_tree_mouse_filter(_panel_root, Control.MOUSE_FILTER_STOP)
 
 func hide_overlay() -> void:
 	_ensure_ui()
+	if is_instance_valid(_input_blocker):
+		_input_blocker.visible = false
+	_focus_press_pending = false
+	_focus_press_action_id = ""
+	_message_reveal_token += 1
+	if _message_reveal_tween != null and _message_reveal_tween.is_valid():
+		_message_reveal_tween.kill()
 	_overlay_options.clear()
+	_presentation_signature = ""
+	if is_instance_valid(_panel_root):
+		_panel_root.visible = false
+		_panel_root.modulate.a = 0.0
 	_clear_focus_rects()
 	hide()
 
@@ -316,6 +473,8 @@ func _clear_focus_rects() -> void:
 		dim_rect.visible = false
 	for glow_panel in _focus_glows:
 		glow_panel.visible = false
+	for aura_panel in _focus_auras:
+		aura_panel.visible = false
 	for frame_panel in _focus_frames:
 		frame_panel.visible = false
 	for capture_overlay in _focus_capture_overlays:
@@ -348,6 +507,10 @@ func _ensure_dim_segment_count(target_count: int) -> void:
 		add_child(dim_rect)
 
 func _ensure_focus_frame_count(target_count: int) -> void:
+	while _focus_auras.size() < target_count:
+		var aura_panel := _build_focus_aura("FocusAura%d" % _focus_auras.size())
+		_focus_auras.append(aura_panel)
+		add_child(aura_panel)
 	while _focus_glows.size() < target_count:
 		var glow_panel := _build_focus_glow("FocusGlow%d" % _focus_glows.size())
 		_focus_glows.append(glow_panel)
@@ -575,12 +738,14 @@ func _get_polygon_horizontal_intersections(polygon: PackedVector2Array, y: float
 func _rebuild_focus_frames() -> void:
 	_ensure_focus_frame_count(_focus_entries.size())
 	for index in range(_focus_glows.size()):
+		var aura_panel := _focus_auras[index]
 		var glow_panel := _focus_glows[index]
 		var frame_panel := _focus_frames[index]
 		if index < _focus_entries.size():
 			var entry := _focus_entries[index]
 			var rect: Rect2 = entry.get("rect", Rect2())
 			if _should_use_custom_focus_draw(entry):
+				aura_panel.visible = false
 				glow_panel.visible = false
 				frame_panel.visible = false
 				continue
@@ -588,11 +753,16 @@ func _rebuild_focus_frames() -> void:
 			glow_panel.size = Vector2(ceilf(rect.size.x), ceilf(rect.size.y))
 			frame_panel.position = rect.position.floor()
 			frame_panel.size = Vector2(ceilf(rect.size.x), ceilf(rect.size.y))
+			aura_panel.position = rect.position.floor()
+			aura_panel.size = Vector2(ceilf(rect.size.x), ceilf(rect.size.y))
+			_apply_focus_panel_style(aura_panel, entry, true, true)
 			_apply_focus_panel_style(glow_panel, entry, true)
 			_apply_focus_panel_style(frame_panel, entry, false)
+			aura_panel.visible = true
 			glow_panel.visible = true
 			frame_panel.visible = true
 		else:
+			aura_panel.visible = false
 			glow_panel.visible = false
 			frame_panel.visible = false
 	_rebuild_focus_capture_overlays()
@@ -615,15 +785,18 @@ func _rebuild_focus_capture_overlays() -> void:
 				continue
 			capture_overlay.position = rect.position.floor()
 			capture_overlay.size = Vector2(ceilf(rect.size.x), ceilf(rect.size.y))
+			capture_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			capture_overlay.visible = true
 		else:
 			capture_overlay.visible = false
+	for dim_rect in _dim_segments:
+		dim_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _should_use_custom_focus_draw(entry: Dictionary) -> bool:
 	var shape := str(entry.get("shape", FOCUS_SHAPE_RECT)).strip_edges()
 	return shape == FOCUS_SHAPE_TRAPEZOID_LEFT
 
-func _apply_focus_panel_style(panel: Panel, entry: Dictionary, is_glow: bool) -> void:
+func _apply_focus_panel_style(panel: Panel, entry: Dictionary, is_glow: bool, is_aura: bool = false) -> void:
 	var style := StyleBoxFlat.new()
 	var shape := str(entry.get("shape", FOCUS_SHAPE_RECT)).strip_edges()
 	if shape == "":
@@ -641,32 +814,54 @@ func _apply_focus_panel_style(panel: Panel, entry: Dictionary, is_glow: bool) ->
 		style.skew = Vector2(float(shape_params.get("skew", 0.3)), 0.0)
 	if is_glow:
 		style.bg_color = FOCUS_FILL_COLOR
-		style.shadow_color = FOCUS_GLOW_SHADOW_COLOR
-		style.shadow_size = 10
-		style.shadow_offset = Vector2.ZERO
+		style.draw_center = false
+		var border_width := 1 if is_aura else 2
+		style.border_width_left = border_width
+		style.border_width_top = border_width
+		style.border_width_right = border_width
+		style.border_width_bottom = border_width
+		style.border_color = Color(0.32, 1.0, 0.88, 0.22) if is_aura else FOCUS_GLOW_SHADOW_COLOR
+		style.border_blend = true
+		style.anti_aliasing_size = 6.0 if is_aura else 3.0
 	else:
 		style.bg_color = FOCUS_FRAME_FILL_COLOR
-		style.border_width_left = 2
-		style.border_width_top = 2
-		style.border_width_right = 2
-		style.border_width_bottom = 2
+		style.draw_center = false
+		style.border_width_left = 1
+		style.border_width_top = 1
+		style.border_width_right = 1
+		style.border_width_bottom = 1
 		style.border_color = ACCENT_SOFT_COLOR
 	panel.add_theme_stylebox_override("panel", style)
 
 func _update_focus_animation() -> void:
 	var pulse := (sin(_animation_time * TAU / 1.45) + 1.0) * 0.5
-	_focus_pulse = pulse
+	var smooth_pulse := pulse * pulse * (3.0 - 2.0 * pulse)
+	_focus_pulse = smooth_pulse
+	for index in range(_focus_auras.size()):
+		var aura_panel := _focus_auras[index]
+		if not aura_panel.visible or index >= _focus_entries.size():
+			continue
+		var focus_rect: Rect2 = _focus_entries[index].get("rect", Rect2())
+		var aura_pulse := (sin(_animation_time * TAU / 2.2 + 0.7) + 1.0) * 0.5
+		var aura_expansion := lerpf(FOCUS_AURA_MIN_EXPANSION, FOCUS_AURA_MAX_EXPANSION, aura_pulse)
+		aura_panel.position = focus_rect.position - Vector2.ONE * aura_expansion
+		aura_panel.size = focus_rect.size + Vector2.ONE * aura_expansion * 2.0
+		aura_panel.modulate = Color(0.72, 1.0, 0.94, lerpf(0.16, 0.34, aura_pulse))
 	for index in range(_focus_glows.size()):
 		var glow_panel := _focus_glows[index]
-		if not glow_panel.visible:
+		if not glow_panel.visible or index >= _focus_entries.size():
 			continue
-		glow_panel.pivot_offset = glow_panel.size * 0.5
-		glow_panel.scale = Vector2.ONE * lerpf(1.0, 1.035, pulse)
-		glow_panel.modulate.a = lerpf(0.52, 1.0, pulse)
+		var focus_rect: Rect2 = _focus_entries[index].get("rect", Rect2())
+		var expansion := lerpf(FOCUS_GLOW_MIN_EXPANSION, FOCUS_GLOW_MAX_EXPANSION, smooth_pulse)
+		glow_panel.scale = Vector2.ONE
+		glow_panel.position = focus_rect.position - Vector2.ONE * expansion
+		glow_panel.size = focus_rect.size + Vector2.ONE * expansion * 2.0
+		glow_panel.modulate = Color(0.88, 1.0, 0.97, lerpf(0.38, 0.76, smooth_pulse))
 	for frame_panel in _focus_frames:
 		if not frame_panel.visible:
 			continue
-		frame_panel.modulate.a = lerpf(0.76, 1.0, pulse)
+		var shimmer_color := ACCENT_SOFT_COLOR.lerp(WARM_ACCENT_COLOR, smooth_pulse * 0.22)
+		frame_panel.modulate = Color(shimmer_color.r, shimmer_color.g, shimmer_color.b, lerpf(0.78, 1.0, smooth_pulse))
 	queue_redraw()
 
 func _layout_panel_relative_to_focus() -> void:
@@ -676,9 +871,9 @@ func _layout_panel_relative_to_focus() -> void:
 	var horizontal_margin := 28.0
 	var vertical_margin := 24.0
 	var spacing := 18.0
-	var panel_width := _resolve_panel_width(viewport_size, horizontal_margin, spacing)
+	var panel_width := _resolve_panel_width(viewport_size, horizontal_margin)
 	_prepare_adaptive_panel_metrics(panel_width, viewport_size.y)
-	var panel_size := Vector2(panel_width, AVATAR_SIZE)
+	var panel_size := Vector2(panel_width, _avatar_size)
 	_panel_root.custom_minimum_size = Vector2.ZERO
 	_panel_root.size = panel_size
 
@@ -690,6 +885,7 @@ func _layout_panel_relative_to_focus() -> void:
 	if _focus_bounds.size.x <= 1.0 or _focus_bounds.size.y <= 1.0:
 		_panel_root.position = default_position
 		_show_pointer = false
+		_click_pointer.visible = false
 		queue_redraw()
 		return
 
@@ -702,33 +898,30 @@ func _refresh_overlay_layout() -> void:
 		return
 	_layout_panel_relative_to_focus()
 
-func _resolve_panel_width(viewport_size: Vector2, horizontal_margin: float, spacing: float) -> float:
+func _resolve_panel_width(viewport_size: Vector2, horizontal_margin: float) -> float:
 	var max_total_width := maxf(280.0, viewport_size.x - horizontal_margin * 2.0)
 	var plain_text := _body_label.get_parsed_text().strip_edges() if is_instance_valid(_body_label) else ""
 	var text_font := _body_label.get_theme_font("normal_font")
-	var measured_width := text_font.get_string_size(plain_text, HORIZONTAL_ALIGNMENT_LEFT, -1, MESSAGE_FONT_SIZE).x
-	var message_max_width := minf(MESSAGE_MAX_WIDTH, max_total_width - AVATAR_SIZE + GUIDE_ROW_OVERLAP)
-	var message_width := clampf(measured_width + MESSAGE_HORIZONTAL_PADDING, minf(MESSAGE_MIN_WIDTH, message_max_width), message_max_width)
-	var base_width := minf(max_total_width, AVATAR_SIZE + message_width - GUIDE_ROW_OVERLAP)
-	if _focus_bounds.size.x <= 1.0 or _focus_bounds.size.y <= 1.0:
-		return base_width
-	var left_space := _focus_bounds.position.x - horizontal_margin - spacing
-	var right_space := viewport_size.x - _focus_bounds.end.x - horizontal_margin - spacing
-	var side_width := maxf(left_space, right_space)
-	if side_width >= 300.0:
-		return minf(base_width, side_width)
-	return base_width
+	var message_max_width := minf(MESSAGE_MAX_WIDTH, max_total_width - _avatar_size + _guide_row_overlap)
+	var message_width := minf(MESSAGE_MIN_WIDTH, message_max_width)
+	while message_width < message_max_width:
+		var body_width := maxf(220.0, message_width - MESSAGE_HORIZONTAL_PADDING)
+		var text_size := text_font.get_multiline_string_size(plain_text, HORIZONTAL_ALIGNMENT_LEFT, body_width, MESSAGE_FONT_SIZE)
+		if text_size.y <= MESSAGE_BODY_HEIGHT:
+			break
+		message_width = minf(message_max_width, message_width + 20.0)
+	return minf(max_total_width, _avatar_size + message_width - _guide_row_overlap)
 
 func _prepare_adaptive_panel_metrics(panel_width: float, viewport_height: float) -> void:
 	var _unused_viewport_height := viewport_height
-	var message_width := maxf(MESSAGE_MIN_WIDTH, panel_width - AVATAR_SIZE + GUIDE_ROW_OVERLAP)
+	var message_width := maxf(MESSAGE_MIN_WIDTH, panel_width - _avatar_size + _guide_row_overlap)
 	var body_width := maxf(220.0, message_width - MESSAGE_HORIZONTAL_PADDING)
-	_message_panel.custom_minimum_size = Vector2(message_width, MESSAGE_HEIGHT)
+	_message_panel.custom_minimum_size = Vector2(message_width, _message_height)
 	_message_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_body_label.fit_content = false
 	_body_label.scroll_active = false
-	_body_label.custom_minimum_size = Vector2(body_width, 66.0)
-	_body_label.size = Vector2(body_width, 66.0)
+	_body_label.custom_minimum_size = Vector2(body_width, MESSAGE_BODY_HEIGHT)
+	_body_label.size = Vector2(body_width, MESSAGE_BODY_HEIGHT)
 	_body_label.update_minimum_size()
 	_message_panel.update_minimum_size()
 	_panel_root.update_minimum_size()
@@ -823,9 +1016,10 @@ func _update_pointer(_panel_size: Vector2) -> void:
 	var target_center := _focus_rects[pointer_index].get_center()
 	var raw_offset: Variant = _overlay_options.get("pointer_offset", Vector2.ZERO)
 	var pointer_offset := raw_offset as Vector2 if raw_offset is Vector2 else Vector2.ZERO
-	_pointer_base_position = target_center - POINTER_SIZE * 0.5 + pointer_offset
+	_pointer_base_position = target_center - POINTER_HOTSPOT + pointer_offset
 	_click_pointer.position = _pointer_base_position
-	_click_pointer.pivot_offset = POINTER_SIZE * 0.5
+	_click_pointer.pivot_offset = POINTER_HOTSPOT
+	_click_ring.position = POINTER_HOTSPOT - _click_ring.size * 0.5
 	_click_pointer.visible = true
 	_show_pointer = true
 
@@ -839,8 +1033,12 @@ func _update_click_pointer_animation() -> void:
 	elif cycle < 0.48:
 		press_amount = cos(((cycle - 0.28) / 0.20) * PI * 0.5)
 	_click_pointer.position = _pointer_base_position
-	_hand_texture.position = _hand_base_position + Vector2(0.0, 5.0 * press_amount)
-	_hand_texture.scale = Vector2.ONE * lerpf(1.0, 0.88, press_amount)
+	_hand_shadow.position = _hand_shadow_base_position + HAND_RUNTIME_OFFSET
+	_hand_shadow.pivot_offset = POINTER_HOTSPOT - _hand_shadow.position
+	_hand_shadow.scale = Vector2.ONE * lerpf(HAND_BASE_SCALE, 0.98, press_amount)
+	_hand_texture.position = _hand_base_position + HAND_RUNTIME_OFFSET
+	_hand_texture.pivot_offset = POINTER_HOTSPOT - _hand_texture.position
+	_hand_texture.scale = Vector2.ONE * lerpf(HAND_BASE_SCALE, 0.98, press_amount)
 	var ring_progress := clampf((cycle - 0.20) / 0.48, 0.0, 1.0)
 	_click_ring.pivot_offset = _click_ring.size * 0.5
 	_click_ring.scale = Vector2.ONE * lerpf(0.55, 1.35, ring_progress)
@@ -877,18 +1075,18 @@ func _get_focus_display_polygon(entry: Dictionary) -> PackedVector2Array:
 	])
 
 func _draw_focus_polygon_highlight(polygon: PackedVector2Array) -> void:
-	var pulse_alpha := lerpf(0.68, 1.0, _focus_pulse)
+	var pulse_alpha := lerpf(0.52, 1.0, _focus_pulse)
 	var fill_color := FOCUS_FRAME_FILL_COLOR
 	fill_color.a *= pulse_alpha
 	draw_colored_polygon(polygon, fill_color)
 	var closed_points := _build_closed_polyline_points(polygon)
 	if closed_points.size() < 2:
 		return
-	draw_polyline(closed_points, Color(0.25, 1.0, 0.82, lerpf(0.08, 0.18, _focus_pulse)), lerpf(7.0, 11.0, _focus_pulse), true)
-	draw_polyline(closed_points, Color(0.30, 1.0, 0.84, lerpf(0.18, 0.38, _focus_pulse)), 4.0, true)
-	var frame_color := ACCENT_SOFT_COLOR
+	draw_polyline(closed_points, Color(0.25, 1.0, 0.82, lerpf(0.05, 0.22, _focus_pulse)), lerpf(3.0, 7.0, _focus_pulse), true)
+	draw_polyline(closed_points, Color(0.30, 1.0, 0.84, lerpf(0.16, 0.44, _focus_pulse)), lerpf(1.5, 2.5, _focus_pulse), true)
+	var frame_color := ACCENT_SOFT_COLOR.lerp(WARM_ACCENT_COLOR, _focus_pulse * 0.22)
 	frame_color.a = pulse_alpha
-	draw_polyline(closed_points, frame_color, 2.0, true)
+	draw_polyline(closed_points, frame_color, 1.0, true)
 
 func _build_closed_polyline_points(polygon: PackedVector2Array) -> PackedVector2Array:
 	if polygon.size() < 3:

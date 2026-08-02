@@ -4,13 +4,13 @@ extends RefCounted
 
 static func get_unavailable_reason(
 	current_energy: int,
-	energy_cost_per_round: int,
+	session_energy_cost: int,
 	current_minutes: int,
-	minutes_per_round: int,
+	session_minutes: int,
 	cutoff_minutes: int
 ) -> String:
-	if current_energy < maxi(0, energy_cost_per_round):
+	if current_energy < maxi(0, session_energy_cost):
 		return "energy"
-	if current_minutes + maxi(0, minutes_per_round) >= maxi(0, cutoff_minutes):
+	if current_minutes + maxi(0, session_minutes) >= maxi(0, cutoff_minutes):
 		return "late"
 	return ""

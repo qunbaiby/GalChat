@@ -60,7 +60,7 @@ func setup(course: Dictionary, cur: int, max_p: int) -> void:
 	_increment = course.get("progress_increment", 0)
 	
 	name_label.text = course.get("name", "未知课程")
-	energy_cost_label.text = "行动力 -%d" % _get_energy_cost()
+	energy_cost_label.text = "精力 -%d" % _get_energy_cost()
 	increment_label.text = "+%d/次" % _increment
 	
 	progress_bar.max_value = max_p

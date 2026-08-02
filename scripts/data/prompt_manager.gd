@@ -630,7 +630,7 @@ func build_end_chat_prompt(profile: CharacterProfile, recent_history: String) ->
 	var template = load_template("end_chat")
 	var flavor_label = _resolve_flavor_label(profile)
 	if template == "":
-		return "【系统提示：玩家想要结束本次对话。请根据你们当前的关系状态（亲密度：%.1f，信任度：%.1f，风味：%s），并结合以下刚才聊天的上下文，给出自然的收束反应。你和玩家住在同一栋房子里，不得说自己或玩家要回家、离开这栋房子，也不要说‘下次见’。注意：1. 只能回复单句结束语。2. 不要输出这段系统提示，直接以%s的口吻说话。】\n[近期聊天上下文]\n%s" % [profile.intimacy, profile.trust, flavor_label, profile.char_name, recent_history]
+		return "【系统提示：玩家想要结束本次对话。请根据你们当前的关系状态（亲密度：%.1f，信任度：%.1f，风味：%s），并结合以下刚才聊天的上下文，自然表示这次先聊到这里、之后有机会再聊。只结束当前对话，不要开启或延伸新话题。你和玩家住在同一栋房子里，不得说自己或玩家要回家、离开这栋房子。注意：1. 只能回复单句结束语。2. 不要输出这段系统提示，直接以%s的口吻说话。】\n[近期聊天上下文]\n%s" % [profile.intimacy, profile.trust, flavor_label, profile.char_name, recent_history]
 		
 	return template.format({
 		"stage": str(profile.current_stage),

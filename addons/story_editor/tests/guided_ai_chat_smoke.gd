@@ -34,9 +34,9 @@ func _run() -> void:
 		if story_event_value is Dictionary and str((story_event_value as Dictionary).get("type", "")) == "guided_ai_chat":
 			guided_story_event = story_event_value as Dictionary
 			break
-	_expect(int(guided_story_event.get("max_player_rounds", 0)) == 4, "首个 AI 主线没有配置为 4 个玩家回合。")
-	_expect(int(story_data.get("action_cost", -1)) == 0, "目标引导后的整段固定剧情不应消耗行动力。")
-	_expect(int(story_data.get("game_minutes", 0)) == 30, "整段固定剧情时间推进不是 30 分钟。")
+	_expect(int(guided_story_event.get("max_player_rounds", 0)) == 5, "首个 AI 主线没有配置为 5 个玩家回合。")
+	_expect(int(story_data.get("action_cost", -1)) == 0, "目标引导后的整段固定剧情不应消耗精力。")
+	_expect(int(story_data.get("game_minutes", 0)) == 60, "整段固定剧情时间推进不是 60 分钟。")
 	_expect(not guided_story_event.has("action_cost") and not guided_story_event.has("game_minutes"), "Guided AI 事件仍持有整剧成本字段。")
 	var guided_schema: Array = EventInspector.EVENT_SCHEMAS.get("guided_ai_chat", [])
 	_expect(not _schema_has_field(guided_schema, "action_cost") and not _schema_has_field(guided_schema, "game_minutes"), "Guided AI Inspector 仍暴露整剧成本字段。")
@@ -45,9 +45,11 @@ func _run() -> void:
 	var fallback_closing_text := str(guided_story_event.get("fallback_closing_text", ""))
 	var fallback_display_text := ChatSplitHelper.format_actions(fallback_closing_text)
 	_expect(fallback_display_text.contains("[color=green]（她轻轻抱紧怀里的琴谱，低头看了片刻，又抬起眼认真望向你）[/color]"), "guided AI fallback 收尾动作没有使用统一绿色格式。")
-	_expect(not story_events.is_empty() and bool((story_events.back() as Dictionary).get("auto_advance", false)), "AI 主线结尾固定旁白没有配置自动推进。")
+	_expect(not story_events.is_empty() and not bool((story_events.back() as Dictionary).get("auto_advance", false)), "AI 主线结尾固定旁白仍会自动结束，玩家来不及阅读。")
 	var guided_prompt_result: Dictionary = GuidedAiPromptBuilder.build_user_message(guided_story_event, [], 1, 4, "我会陪着你。")
 	_expect(str(guided_prompt_result.get("prompt", "")).contains("必须至少包含一处使用全角圆括号包裹"), "guided AI prompt 没有强制圆括号动作契约。")
+	var used_option_prompt_result: Dictionary = GuidedAiPromptBuilder.build_user_message_with_used_options(guided_story_event, [], 2, 4, "我会陪着你。", ["你最担心什么？"])
+	_expect(str(used_option_prompt_result.get("prompt", "")).contains("你最担心什么？"), "Guided AI Prompt 没有告知模型已使用选项，后续轮次可能重复生成。")
 	var opening_prompt_result: Dictionary = GuidedAiPromptBuilder.build_user_message(guided_story_event, [], 0, 4, "（玩家尚未发言，请由角色主动开始这段对话。）", true)
 	_expect(str(opening_prompt_result.get("prompt", "")).contains("这是角色主动开场，玩家尚未发言"), "guided AI 没有生成角色主动开场 Prompt。")
 	_expect(str(opening_prompt_result.get("prompt", "")).contains("本轮之后剩余玩家回合：4"), "角色主动开场错误消耗了玩家回合。")
@@ -57,6 +59,8 @@ func _run() -> void:
 	_expect(bool(wrapped_guided_response.get("ok", false)), "guided AI 无法从包裹文本中提取 JSON 对象。")
 	var short_action_response := GuidedAiResponseParser.parse_response("{\"dialogue\":\"（点头）我明白。\",\"beat_evaluations\":[]}", ["confirm"])
 	_expect(bool(short_action_response.get("ok", false)), "guided AI 把动作较短但结构合法的回复误判为生成失败。")
+	var missing_options_response := GuidedAiResponseParser.parse_response_with_required_options("{\"dialogue\":\"（她轻轻按住琴谱，抬眼认真望向你）我会继续说下去。\",\"beat_evaluations\":[],\"next_options\":[]}", [])
+	_expect(not bool(missing_options_response.get("ok", true)), "非收束轮缺少模型选项时被错误采用，可能静默使用本地兜底。")
 
 	var event_data := (EditorMain.EVENT_DEFAULTS["guided_ai_chat"] as Dictionary).duplicate(true)
 	event_data["narrative_anchor"] = "已发生的剧情事实"
@@ -78,6 +82,21 @@ func _run() -> void:
 	_expect(engine.current_event_index == blocked_event_index and engine.is_waiting_for_resume, "通用 resume 错误越过了 guided_ai_chat。")
 	engine.complete_guided_ai_chat()
 	_expect(not engine.is_guided_ai_blocked, "guided_ai_chat 显式完成后没有解除专属锁。")
+	var continuation_engine := ScriptEngine.new()
+	root.add_child(continuation_engine)
+	var continuation_dialogues: Array[String] = []
+	continuation_engine.on_dialogue_requested.connect(func(_speaker: String, content: String, _mood: String, _presentation: Dictionary): continuation_dialogues.append(content))
+	_expect(continuation_engine.load_script_data({
+		"script_id": "guided_ai_continuation",
+		"chapters": {"start": {"events": [event_data, {"type": "dialogue", "speaker": "旁白", "content": "AI 后固定旁白"}]}}
+	}), "ScriptEngine 无法加载 Guided AI 后续固定对话回归脚本。")
+	continuation_engine.start_script()
+	continuation_engine.complete_guided_ai_chat()
+	_expect(continuation_dialogues == ["AI 后固定旁白"], "Guided AI 完成后没有播放后续固定对话。")
+	_expect(continuation_engine.is_running and continuation_engine.is_waiting_for_resume, "后续固定对话尚未确认时脚本已经结束。")
+	continuation_engine.resume()
+	_expect(not continuation_engine.is_running, "确认后续固定对话后脚本没有正常结束。")
+	continuation_engine.queue_free()
 	var ending_engine := ScriptEngine.new()
 	root.add_child(ending_engine)
 	var finish_signal_state := {"count": 0}
@@ -123,7 +142,10 @@ func _run() -> void:
 	_expect(dialogue_manager_source.contains("_guided_ai_used_option_texts.has(option_text)"), "Guided AI 没有过滤已选择过的重复选项。")
 	_expect(dialogue_manager_source.contains("_is_duplicate_guided_ai_reply(reply)"), "Guided AI 没有在采用前拒绝会话内重复回复。")
 	_expect(dialogue_manager_source.contains('error_message.contains("429")'), "Guided AI 遇到 429 后仍可能立即连续重试。")
-	_expect(dialogue_manager_source.contains("await _finish_guided_ai_chat_with_fallback()"), "Guided AI 请求耗尽后没有通过本地收束解除剧情锁。")
+	_expect(dialogue_manager_source.contains("_resume_guided_ai_after_request_failure()"), "Guided AI 请求耗尽后没有保留当前 AI 会话。")
+	_expect(dialogue_manager_source.contains('"trace_source": "guided_ai_chat",\n\t\t\t\t"turn_started_at_ms": _guided_ai_turn_started_at_ms,\n\t\t\t\t"force_text_response": true'), "Guided AI 首请求仍使用会返回全空白内容的 JSON 传输模式。")
+	_expect(dialogue_manager_source.contains("if not is_system_event and is_free_chat_mode:\n\t\tfree_chat_current_round += 1"), "玩家自由输入没有在统一发送入口计入回合。")
+	_expect(dialogue_manager_source.contains("func _on_quick_option_selected") and dialogue_manager_source.contains("_on_send_pressed()"), "AI 选项没有复用玩家发送入口，可能导致重复或遗漏计数。")
 	_expect(dialogue_manager_source.contains('await _show_message_async(fallback_display_text, GameDataManager.profile.char_name, false, "", "", "", true)'), "Guided AI 本地收束对白仍会等待点击并阻断剧情。")
 	var dialogue_event_source := FileAccess.get_file_as_string("res://scripts/script_engine/events/event_dialogue.gd")
 	_expect(dialogue_event_source.contains('"auto_advance": data.get("auto_advance", false)'), "固定对白事件没有向播放层传递自动推进配置。")

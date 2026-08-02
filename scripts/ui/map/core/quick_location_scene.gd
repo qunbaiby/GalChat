@@ -20,6 +20,7 @@ const SUBMENU_PANEL_MIN_RIGHT_MARGIN := 28.0
 const SUBMENU_PANEL_MAX_WIDTH_RATIO := 0.60
 const QUICK_LOCATION_SKIP_EVENT_META := "skip_quick_location_initial_event_broadcast"
 const QUICK_ACTION_BUTTON_SCENE = preload("res://scenes/ui/map/core/quick_action_button.tscn")
+const MAX_DAILY_TUTORING_COUNT := 5
 const HEART_ICON: Texture2D = preload("res://assets/images/icons/ui/system/heart.svg")
 const HEART_FILLED_COLOR := Color(0.18, 0.70, 0.64, 1.0)
 const HEART_EMPTY_COLOR := Color(0.55, 0.73, 0.71, 0.72)
@@ -541,8 +542,9 @@ func _on_npc_clicked(npc_id: String, play_menu_bubble: bool = true):
 			continue
 		var btn = QUICK_ACTION_BUTTON_SCENE.instantiate()
 		var action_label = action.get("label", "未知操作")
-		
-		btn.setup(action_id, action_label)
+		var action_locked := _is_action_locked(action_id)
+
+		btn.setup(action_id, action_label, action_locked)
 		
 		# Store original text
 		btn.set_meta("original_text", action_label)
@@ -783,6 +785,8 @@ func _show_map_info_panel(animated: bool) -> void:
 	tween.tween_property(map_info_panel, "modulate:a", 1.0, SUBMENU_FADE_DURATION)
 
 func _on_menu_action_pressed(action_id: String):
+	if _is_action_locked(action_id):
+		return
 	match action_id:
 		"leave":
 			_hide_npc_bubble()
@@ -812,6 +816,8 @@ func _on_menu_action_pressed(action_id: String):
 			_execute_interaction_handler(action_id)
 
 func _execute_interaction_handler(action_id: String) -> void:
+	if _is_action_locked(action_id):
+		return
 	var npc_data := MapDataManager.get_npc_data(current_interacting_npc_id)
 	var interactions: Variant = npc_data.get("interactions", [])
 	if interactions is Array:
@@ -834,8 +840,35 @@ func _execute_interaction_handler(action_id: String) -> void:
 			return
 	_show_action_bubble_from_ai(action_id)
 
+func _is_action_locked(action_id: String) -> bool:
+	if current_interacting_npc_id != "jing" or action_id != "study":
+		return false
+	var profile = GameDataManager.profile
+	if profile and profile.has_method("get_daily_tutoring_remaining"):
+		return profile.get_daily_tutoring_remaining(MAX_DAILY_TUTORING_COUNT) <= 0
+	return false
+
+func refresh_tutoring_action_lock() -> void:
+	var action_button = _action_buttons.get("study")
+	if is_instance_valid(action_button) and action_button.has_method("set_locked"):
+		action_button.set_locked(_is_action_locked("study"))
+
 func get_action_button_for_guide(action_id: String) -> Node:
 	return _action_buttons.get(action_id)
+
+func get_action_button_focus_entry(action_id: String) -> Dictionary:
+	var action_button := get_action_button_for_guide(action_id) as Control
+	if not is_instance_valid(action_button) or not action_button.is_visible_in_tree():
+		return {}
+	return {
+		"rect": action_button.get_global_rect(),
+		"shape": "rect",
+		"shape_params": {"corner_radius": 16.0}
+	}
+
+func open_action_from_guide(action_id: String) -> void:
+	if _action_buttons.has(action_id):
+		_on_menu_action_pressed(action_id)
 
 func _on_back_pressed():
 	_hide_npc_bubble(true)

@@ -426,9 +426,7 @@ func _on_confirm_pressed() -> void:
 		"name": name_text,
 		"gender": gender_text,
 		"birthday": birthday_text,
-		"zodiac": zodiac_label.text,
 		"mbti": selected_mbti,
-		"profession": "创奇引路人",
 		"avatar_path": avatar_path
 	}
 

@@ -21,9 +21,14 @@ func _run() -> void:
 	var name_label := panel.get_node("DialogueLayer/VBox/NameLabel") as Label
 	var divider := panel.get_node("DialogueLayer/VBox/NameDivider") as ColorRect
 	var dialogue_text := panel.get_node("DialogueLayer/VBox/RichTextLabel") as RichTextLabel
+	var free_chat_info_layer := panel.get_node("FreeChatInfoLayer") as Control
+	var free_chat_panel := panel.get_node("FreeChatInfoLayer/Panel") as PanelContainer
+	var free_chat_round_label := panel.get_node("FreeChatInfoLayer/Panel/Margin/VBox/RoundLabel") as Label
+	var toolbar := panel.get_node("ToolBarContainer") as PanelContainer
 	var quick_option_layer := panel.get_node("QuickOptionLayer") as Control
 	var quick_options_container := panel.get_node("QuickOptionLayer/ScrollContainer/QuickOptions") as VBoxContainer
 	var ai_option_layer := panel.get_node("AiPlayerOptionLayer") as Control
+	var ai_options_container := panel.get_node("AiPlayerOptionLayer/Margin/Content/OptionsGrid") as GridContainer
 	var input_layer := panel.get_node("InputLayer") as Control
 	var input_row := panel.get_node("InputLayer/HBoxContainer") as HBoxContainer
 	var end_chat_button := panel.get_node("InputLayer/HBoxContainer/EndChatButton") as Button
@@ -38,10 +43,17 @@ func _run() -> void:
 	var default_input_size := input_layer.size
 	var default_name_font_size := name_label.get_theme_font_size("font_size")
 	var default_dialogue_font_size := dialogue_text.get_theme_font_size("normal_font_size")
+	var free_chat_style := free_chat_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	var toolbar_style := toolbar.get_theme_stylebox("panel") as StyleBoxFlat
 	_expect(dialogue_vbox.get_child(0) == name_label, "角色名不是对话内容的第一层。")
 	_expect(dialogue_vbox.get_child(1) == divider, "角色名下方缺少分割线。")
 	_expect(dialogue_vbox.get_child(2) == dialogue_text, "对话正文没有放在分割线下方。")
 	_expect(not divider.visible, "没有角色名时仍然显示分割线。")
+	_expect(free_chat_info_layer.size.is_equal_approx(toolbar.size), "回合面板尺寸与 ToolBarContainer 不一致：回合面板=%s，工具栏=%s。" % [str(free_chat_info_layer.size), str(toolbar.size)])
+	_expect(free_chat_style.bg_color == toolbar_style.bg_color and free_chat_style.shadow_color == toolbar_style.shadow_color and free_chat_style.shadow_size == toolbar_style.shadow_size and free_chat_style.shadow_offset == toolbar_style.shadow_offset, "回合面板的颜色或阴影与 ToolBarContainer 不一致。")
+	_expect(free_chat_style.corner_radius_top_left == 30 and free_chat_style.corner_radius_top_right == 30 and free_chat_style.corner_radius_bottom_right == 30 and free_chat_style.corner_radius_bottom_left == 30, "回合面板没有使用四个一致的圆角。")
+	_expect(free_chat_round_label.text == "对话轮次0/4", "回合面板没有使用单行紧凑文案。")
+	_expect((free_chat_round_label.get_parent() as Control).get_child_count() == 1, "回合面板仍包含额外说明文字。")
 	name_label.text = "Luna"
 	await process_frame
 	_expect(divider.visible, "显示角色名时分割线没有出现。")
@@ -71,6 +83,20 @@ func _run() -> void:
 	var rendered_option := quick_options_container.get_child(0) as Button
 	_expect(rendered_option.custom_minimum_size.is_equal_approx(expected_option_minimum_size), "选项渲染代码覆盖了场景默认尺寸。")
 	_expect((rendered_option.get_node("HBox/TextVBox/PrimaryLabel") as Label).get_theme_font_size("font_size") == expected_option_font_size, "选项渲染代码覆盖了场景默认字号。")
+	_expect((rendered_option.get_node("HBox/IconPanel") as Control).visible, "顶部话题选项错误隐藏了识别图标。")
+	option_helper.populate_ai_reply_items_with_index(
+		ai_options_container,
+		[{"text": "我想再听你多说一点", "kind": "intimacy"}, {"text": "这件事可以相信我", "kind": "trust"}],
+		func(_text: String, _index: int) -> void: pass
+	)
+	await process_frame
+	var ai_reply_option := ai_options_container.get_child(0) as Button
+	_expect(ai_reply_option.custom_minimum_size.is_equal_approx(Vector2(0.0, 54.0)), "AI 玩家选项没有使用紧凑的双列尺寸。")
+	_expect(absf(ai_reply_option.get_global_rect().get_center().y - ai_option_layer.get_global_rect().get_center().y) <= 1.0, "AI 玩家选项没有在 AiPlayerOptionLayer 中垂直居中。")
+	_expect(not (ai_reply_option.get_node("HBox/IconPanel") as Control).visible, "AI 玩家选项仍显示厚重图标块。")
+	_expect(not (ai_reply_option.get_node("HBox/Divider") as Control).visible, "AI 玩家选项仍显示菜单式分割线。")
+	_expect((ai_reply_option.get_node("HBox/AccentBar") as Control).visible, "AI 玩家选项缺少轻量语义色条。")
+	_expect(ai_reply_option.get_presentation_mode() == "ai_reply", "AI 玩家选项没有进入专属展示模式。")
 	panel.set_story_mode(false)
 	_expect(end_chat_button.visible, "日常对话模式没有显示输入框左侧的结束按钮。")
 	_expect(Vector2(dialogue_layer.offset_top, dialogue_layer.offset_bottom).is_equal_approx(default_dialogue_offsets), "AI 对话模式覆盖了场景默认对话框位置。")
@@ -87,6 +113,24 @@ func _run() -> void:
 	_expect(Vector2(dialogue_layer.offset_top, dialogue_layer.offset_bottom).is_equal_approx(default_dialogue_offsets), "退出固定剧情后没有恢复场景默认对话框位置。")
 	panel.queue_free()
 	await process_frame
+	var main_scene_resource := load("res://scenes/ui/main/main_scene.tscn") as PackedScene
+	_expect(main_scene_resource != null, "无法加载主场景以验证回合面板引导高亮。")
+	if main_scene_resource != null:
+		var main_scene := main_scene_resource.instantiate()
+		root.add_child(main_scene)
+		await process_frame
+		await process_frame
+		var main_round_info := main_scene.dialogue_panel.get_node("FreeChatInfoLayer") as Control
+		main_scene.dialogue_panel.show()
+		main_round_info.show()
+		await process_frame
+		var round_focus_entry: Dictionary = main_scene.get_ai_round_info_focus_entry()
+		var round_focus_rect: Rect2 = round_focus_entry.get("rect", Rect2())
+		var round_shape_params: Dictionary = round_focus_entry.get("shape_params", {})
+		_expect(round_focus_rect.is_equal_approx(main_round_info.get_global_rect()), "AI 主线回合引导高亮没有跟随新回合面板的实时尺寸。")
+		_expect(str(round_focus_entry.get("shape", "")) == "rect" and is_equal_approx(float(round_shape_params.get("corner_radius", 0.0)), 20.0), "AI 主线回合引导高亮没有使用匹配面板的圆角矩形。")
+		main_scene.queue_free()
+		await process_frame
 	_finish()
 
 func _expect(condition: bool, message: String) -> void:

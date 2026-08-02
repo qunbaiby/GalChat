@@ -3,7 +3,7 @@ extends Node
 const INTERACTION_CUTOFF_MINUTES := 23 * 60
 
 # 互动行为开销与收益管理器
-# 用于统一管理玩家与角色交互时产生的行动力、金币、心情等影响
+# 用于统一管理玩家与角色交互时产生的精力、金币、心情等影响
 
 var interaction_config: Dictionary = {}
 
@@ -53,7 +53,7 @@ func show_unavailable_dialog(unavailable: Dictionary) -> void:
 	var message := "暂时无法开始这次互动。"
 	match str(unavailable.get("reason", "")):
 		"energy":
-			message = "行动力不足，至少需要 %d 点行动力才能开始这次互动。" % int(unavailable.get("required", 0))
+			message = "精力不足，至少需要 %d 点精力才能开始这次互动。" % int(unavailable.get("required", 0))
 		"gold":
 			message = "金币不足，至少需要 %d 金币才能开始这次互动。" % int(unavailable.get("required", 0))
 		"late":

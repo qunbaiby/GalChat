@@ -32,6 +32,13 @@ const EVENT_CHANCE_BY_CATEGORY := {
 }
 const MAX_SCHEDULE_RANDOM_EVENTS := 1
 const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_schedule_events.json"
+const CHARACTER_BOB_AMPLITUDE := 3.0
+const CHARACTER_BOB_DURATION := 1.2
+const COURSE_RESULT_GRADES := [
+	{"name": "优秀", "weight": 0.25, "reward_multiplier": 1.25},
+	{"name": "良好", "weight": 0.50, "reward_multiplier": 1.00},
+	{"name": "合格", "weight": 0.25, "reward_multiplier": 0.75}
+]
 
 @onready var info_panel: Panel = $InfoPanel
 @onready var top_image_rect: TextureRect = $InfoPanel/InfoPanel/TopImageRect
@@ -40,7 +47,7 @@ const LOCAL_EVENT_POOL_PATH := "res://assets/data/interaction/activity/local_sch
 @onready var control_toolbar: PanelContainer = $ControlToolbar
 @onready var track_panel: Panel = $TrackPanel
 @onready var track_container: HBoxContainer = $TrackPanel/TrackMargin/TrackFrame/TrackContainer
-@onready var character_icon: Node2D = $TrackPanel/TrackMargin/TrackFrame/TrackContainer/CharacterIcon
+@onready var character_icon: AnimatedSprite2D = $TrackPanel/TrackMargin/TrackFrame/TrackContainer/CharacterIcon
 @onready var click_area: Button = $ClickArea
 
 @onready var result_popup: Control = $ResultPopup
@@ -89,11 +96,16 @@ var _result_anim_tween: Tween = null
 var _courses_data: Array
 var _start_attrs: Dictionary
 var _base_end_attrs: Dictionary
+var _non_course_end_attrs: Dictionary
 var _end_attrs: Dictionary
 
 var _current_slot_index: int = 0
 var _is_moving: bool = false
 var _slots: Array = []
+var _character_track_y_offset: float = 0.0
+var _character_bob_time: float = 0.0
+var _course_results: Dictionary = {}
+var _completed_course_notifications: Array[int] = []
 
 var _current_event_panel: Node = null
 var _current_event_desc: String = ""
@@ -114,6 +126,7 @@ var _result_shown: bool = false
 var _settlement_committed: bool = false
 
 func _ready() -> void:
+	_character_track_y_offset = character_icon.position.y
 	_local_event_pool = _load_local_event_pool()
 	click_area.pressed.connect(_on_click_area_pressed)
 	if info_panel and not info_panel.gui_input.is_connected(_on_info_panel_gui_input):
@@ -137,6 +150,14 @@ func _ready() -> void:
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("on_schedule_execution_panel_ready"):
 		guide_manager.on_schedule_execution_panel_ready(self)
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(character_icon):
+		return
+	_character_bob_time = fmod(_character_bob_time + delta, CHARACTER_BOB_DURATION)
+	var scale_y := maxf(absf(character_icon.scale.y), 0.001)
+	var bob_phase := _character_bob_time * TAU / CHARACTER_BOB_DURATION
+	character_icon.offset.y = sin(bob_phase) * CHARACTER_BOB_AMPLITUDE / scale_y
 
 func _load_local_event_pool() -> Dictionary:
 	if not FileAccess.file_exists(LOCAL_EVENT_POOL_PATH):
@@ -167,6 +188,7 @@ func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) 
 	_courses_data = courses_data
 	_start_attrs = start_attrs.duplicate(true)
 	_base_end_attrs = end_attrs.duplicate(true)
+	_non_course_end_attrs = _build_non_course_end_attrs()
 	_end_attrs = _base_end_attrs.duplicate(true)
 	_last_processed_course_index = -1
 	_last_time_synced_course_index = -1
@@ -179,6 +201,8 @@ func setup(courses_data: Array, start_attrs: Dictionary, end_attrs: Dictionary) 
 	_has_started_execution = false
 	_schedule_random_event_count = 0
 	_started_story_event_keys.clear()
+	_course_results.clear()
+	_completed_course_notifications.clear()
 	_result_shown = false
 	_settlement_committed = false
 	if GameDataManager.story_time_manager:
@@ -295,22 +319,66 @@ func _refresh_slot_states() -> void:
 		if slot == null:
 			continue
 		if _current_slot_index == 4 and _last_processed_course_index >= 4:
-			slot.set_state("completed")
+			_apply_course_result_to_slot(i)
 		elif i < _current_slot_index:
-			slot.set_state("completed")
+			_apply_course_result_to_slot(i)
 		elif i == _current_slot_index:
 			slot.set_state("current")
 		else:
 			slot.set_state("pending")
 
+func _apply_course_result_to_slot(course_index: int) -> void:
+	if course_index < 0 or course_index >= _slots.size():
+		return
+	var result := _ensure_course_result(course_index)
+	_slots[course_index].set_result_grade(str(result.get("grade", "合格")))
+	if not _completed_course_notifications.has(course_index):
+		_completed_course_notifications.append(course_index)
+		course_completed.emit(course_index)
+
+func _ensure_course_result(course_index: int) -> Dictionary:
+	if _course_results.has(course_index):
+		return (_course_results[course_index] as Dictionary).duplicate(true)
+	var roll := randf()
+	var cumulative_weight := 0.0
+	var selected_grade: Dictionary = COURSE_RESULT_GRADES.back()
+	for grade_data in COURSE_RESULT_GRADES:
+		cumulative_weight += float(grade_data.get("weight", 0.0))
+		if roll <= cumulative_weight:
+			selected_grade = grade_data
+			break
+	var result := {
+		"grade": str(selected_grade.get("name", "合格")),
+		"reward_multiplier": float(selected_grade.get("reward_multiplier", 0.75))
+	}
+	_course_results[course_index] = result
+	_rebuild_final_end_attrs()
+	return result.duplicate(true)
+
+func _build_non_course_end_attrs() -> Dictionary:
+	var non_course_attrs := _base_end_attrs.duplicate(true)
+	for course_data in _courses_data:
+		for bonus_value in course_data.get("bonus_list", []):
+			if not bonus_value is Dictionary:
+				continue
+			var bonus := bonus_value as Dictionary
+			var attr_name := str(bonus.get("name", ""))
+			if attr_name == "" or not non_course_attrs.has(attr_name):
+				continue
+			non_course_attrs[attr_name] -= float(bonus.get("applied_value", bonus.get("value", 0.0)))
+	return non_course_attrs
+
 func _reset_character_position() -> void:
 	if _slots.is_empty(): return
 	var current_slot = _slots[_current_slot_index]
 	# 需要在 yield 之后调用，确保 global_position 计算准确
-	var char_size = Vector2(50, 50)
-	if character_icon is AnimatedSprite2D:
-		char_size = Vector2(0, 0) # AnimatedSprite2D 的中心通常在坐标原点
-	character_icon.global_position = current_slot.global_position + (current_slot.size - char_size) / 2.0
+	character_icon.global_position = _get_character_slot_position(current_slot)
+
+func _get_character_slot_position(slot: Control) -> Vector2:
+	return Vector2(
+		slot.global_position.x + slot.size.x * 0.5,
+		track_container.global_position.y + _character_track_y_offset
+	)
 
 func _get_day_label(course_index: int) -> String:
 	var weekdays = ["周六", "周日", "周一", "周二", "周三", "周四", "周五"]
@@ -483,7 +551,20 @@ func _accumulate_pending_event_attr_changes(raw_changes: Dictionary) -> void:
 		_pending_event_attr_changes[attr] = int(_pending_event_attr_changes.get(attr, 0)) + int(changes[attr])
 
 func _rebuild_final_end_attrs() -> void:
-	_end_attrs = _base_end_attrs.duplicate(true)
+	_end_attrs = _non_course_end_attrs.duplicate(true)
+	for course_index in _course_results.keys():
+		if int(course_index) < 0 or int(course_index) >= _courses_data.size():
+			continue
+		var multiplier := float((_course_results[course_index] as Dictionary).get("reward_multiplier", 1.0))
+		for bonus_value in (_courses_data[int(course_index)] as Dictionary).get("bonus_list", []):
+			if not bonus_value is Dictionary:
+				continue
+			var bonus := bonus_value as Dictionary
+			var attr_name := str(bonus.get("name", ""))
+			if attr_name == "":
+				continue
+			var applied_value := float(bonus.get("applied_value", bonus.get("value", 0.0))) * multiplier
+			_end_attrs[attr_name] = float(_end_attrs.get(attr_name, _start_attrs.get(attr_name, 0.0))) + applied_value
 	if not _pending_event_attr_changes.is_empty():
 		_apply_attr_changes_to_target(_pending_event_attr_changes, _end_attrs)
 
@@ -517,7 +598,7 @@ func _sync_story_time_after_course(course_index: int) -> void:
 	if course_index < 4:
 		_set_story_time(_schedule_start_day_offset + course_index + 1, time_manager.PERIOD_MORNING, 8, 0)
 	elif course_index == 4:
-		_set_story_time(_schedule_start_day_offset + 4, time_manager.PERIOD_NIGHT, 20, 0)
+		_set_story_time(_schedule_start_day_offset + 4, time_manager.PERIOD_EVENING, 18, 0)
 
 func _has_remaining_schedule_random_event_quota() -> bool:
 	return _schedule_random_event_count < MAX_SCHEDULE_RANDOM_EVENTS
@@ -667,16 +748,9 @@ func _advance_execution_progress(guide_manager: Node = null) -> void:
 		
 	_is_moving = true
 	
-	# 立即标记当前所在槽位为完成
-	set_slot_status(_current_slot_index, true)
-	course_completed.emit(_current_slot_index)
-	
 	var next_index = _current_slot_index + 1
 	var target_slot = _slots[next_index]
-	var char_size = Vector2(50, 50)
-	if character_icon is AnimatedSprite2D:
-		char_size = Vector2(0, 0)
-	var target_pos = target_slot.global_position + (target_slot.size - char_size) / 2.0
+	var target_pos = _get_character_slot_position(target_slot)
 	
 	var duration = 0.05 if _is_skipping else 0.35
 	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
@@ -714,6 +788,8 @@ func _is_left_click_press(event: InputEvent) -> bool:
 
 func _finish_slot_move(skip_ui_update: bool = false) -> void:
 	_is_moving = false
+	if _last_processed_course_index >= 0:
+		_ensure_course_result(_last_processed_course_index)
 	_refresh_slot_states()
 	
 	# 走到下一个槽位时，立刻刷新顶部的当前课程图文信息
@@ -728,9 +804,7 @@ func _finish_slot_move(skip_ui_update: bool = false) -> void:
 		_last_time_synced_course_index = _last_processed_course_index
 		
 	if _current_slot_index == 4 and _last_processed_course_index >= 4:
-		# 走到最后一个槽位时，立刻将最后一个也标为完成
-		set_slot_status(_current_slot_index, true)
-		course_completed.emit(_current_slot_index)
+		_apply_course_result_to_slot(_current_slot_index)
 		all_courses_completed.emit()
 		_show_result_popup()
 	elif _is_auto_playing:

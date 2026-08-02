@@ -138,7 +138,7 @@ text = "课业指导"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.36, 0.52, 0.55, 1)
 theme_override_font_sizes/font_size = 12
-text = "安排补习课程，消耗行动力并预览本次提升。"
+text = "安排补习课程，消耗精力并预览本次提升。"
 
 [node name="CloseBtn" type="Button" parent="MenuPanel"]
 layout_mode = 1

@@ -68,10 +68,10 @@ func _build_cost_lines(lines: Array) -> void:
 			var raw_text := str(line).strip_edges()
 			if raw_text != "":
 				final_lines.append({"icon":"◉","label":raw_text,"value":""})
-	var top := final_lines[0] if final_lines.size() > 0 else {"icon":"⚡","label":"行动力","value":"-0"}
+	var top := final_lines[0] if final_lines.size() > 0 else {"icon":"⚡","label":"精力","value":"-0"}
 	var bottom := final_lines[1] if final_lines.size() > 1 else {"icon":"◷","label":"时间","value":"+0"}
 	cost_icon_top.text = str(top.get("icon", "◉"))
-	cost_text_top.text = str(top.get("label", "行动力"))
+	cost_text_top.text = str(top.get("label", "精力"))
 	cost_value_top.text = str(top.get("value", "-0"))
 	cost_icon_bottom.text = str(bottom.get("icon", "◉"))
 	cost_text_bottom.text = str(bottom.get("label", "时间"))

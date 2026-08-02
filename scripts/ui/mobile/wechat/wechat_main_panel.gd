@@ -181,6 +181,20 @@ func get_chat_session_focus_entry() -> Dictionary:
 	var target := get_chat_session_target()
 	return _build_rounded_focus_entry(target, 20.0)
 
+func get_first_character_message_target() -> Control:
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_first_character_message_target"):
+		var target: Variant = chat_session_instance.get_first_character_message_target()
+		if target is Control and is_instance_valid(target as Control):
+			return target as Control
+	return get_chat_session_target()
+
+func get_first_character_message_focus_entry() -> Dictionary:
+	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_first_character_message_focus_entry"):
+		var focus_entry: Variant = chat_session_instance.get_first_character_message_focus_entry()
+		if focus_entry is Dictionary and not (focus_entry as Dictionary).is_empty():
+			return focus_entry as Dictionary
+	return _build_rounded_focus_entry(get_first_character_message_target(), 18.0)
+
 func get_fixed_options_target() -> Control:
 	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_fixed_options_target"):
 		var target: Variant = chat_session_instance.get_fixed_options_target()
@@ -192,10 +206,13 @@ func get_fixed_options_focus_entry() -> Dictionary:
 	var target := get_fixed_options_target()
 	return _build_rounded_focus_entry(target, 18.0)
 
+func get_fixed_conversation_target() -> Control:
+	return content_panel
+
+func get_fixed_conversation_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(get_fixed_conversation_target(), 24.0)
+
 func get_input_edit_target() -> Control:
-	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("should_highlight_entire_chat_container_for_fixed_conversation"):
-		if bool(chat_session_instance.should_highlight_entire_chat_container_for_fixed_conversation()):
-			return content_panel
 	if is_instance_valid(chat_session_instance) and chat_session_instance.has_method("get_input_edit_target"):
 		var target: Variant = chat_session_instance.get_input_edit_target()
 		if target is Control and is_instance_valid(target as Control):
@@ -232,11 +249,19 @@ func is_chat_session_ready_for_guide() -> bool:
 	var target := get_chat_session_target()
 	return is_instance_valid(target) and target.is_visible_in_tree() and target.get_global_rect().size.y > 8.0
 
+func is_first_character_message_ready_for_guide() -> bool:
+	var target := get_first_character_message_target()
+	return is_instance_valid(target) and target != get_chat_session_target() and target.is_visible_in_tree() and target.get_global_rect().size.y > 8.0
+
 func is_close_button_ready_for_guide() -> bool:
 	return is_instance_valid(btn_close) and btn_close.is_visible_in_tree()
 
 func is_fixed_options_ready_for_guide() -> bool:
 	return is_instance_valid(chat_session_instance) and chat_session_instance.has_method("is_fixed_options_ready_for_guide") and bool(chat_session_instance.is_fixed_options_ready_for_guide())
+
+func is_fixed_conversation_ready_for_guide() -> bool:
+	var target := get_fixed_conversation_target()
+	return is_instance_valid(target) and target.is_visible_in_tree() and target.get_global_rect().size.y > 8.0
 
 func is_input_edit_ready_for_guide() -> bool:
 	return is_instance_valid(chat_session_instance) and chat_session_instance.has_method("is_input_edit_ready_for_guide") and bool(chat_session_instance.is_input_edit_ready_for_guide())
@@ -692,18 +717,16 @@ func _on_moments_top_style_progress_changed(progress: float) -> void:
 func show_panel(animated: bool = true) -> void:
 	open_default_mode()
 	show()
+	dim_bg.color = Color(0, 0, 0, 0)
 	window_panel.scale = Vector2.ONE
 	if not animated:
-		dim_bg.color.a = 1.0
 		window_panel.modulate.a = 1.0
 		return
 
-	dim_bg.color.a = 0.0
 	window_panel.modulate.a = 0.0
 	window_panel.scale = Vector2(0.96, 0.96)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(dim_bg, "color:a", 1.0, 0.18)
 	tween.tween_property(window_panel, "modulate:a", 1.0, 0.22)
 	tween.tween_property(window_panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
@@ -716,7 +739,6 @@ func hide_panel(immediate: bool = false) -> void:
 
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(dim_bg, "color:a", 0.0, 0.16)
 	tween.tween_property(window_panel, "modulate:a", 0.0, 0.16)
 	tween.tween_property(window_panel, "scale", Vector2(0.96, 0.96), 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(hide)

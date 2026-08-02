@@ -74,15 +74,6 @@ corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_dn0wj"]
-load_path = "res://.godot/imported/closebg.png-b4ede7627493c00f7ec44ff9f899f280.ctex"
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_h7f3h"]
-texture = SubResource("CompressedTexture2D_dn0wj")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pubd1"]
-bg_color = Color(1, 1, 1, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32c5d"]
 bg_color = Color(0.24705882, 0.77254903, 0.74509805, 0.78431374)
 corner_radius_top_left = 30
@@ -273,20 +264,6 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_disabled_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "应用到大厅"
-
-[node name="ToolNavButtonbg" type="Panel" parent="." unique_id=608449887]
-clip_children = 1
-layout_mode = 0
-offset_left = 1208.0
-offset_right = 1251.0
-offset_bottom = 44.0
-theme_override_styles/panel = SubResource("StyleBoxTexture_h7f3h")
-
-[node name="ToolNavButtonbg" type="Panel" parent="ToolNavButtonbg" unique_id=1283355550]
-layout_mode = 0
-offset_right = 46.0
-offset_bottom = 44.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_pubd1")
 
 [node name="BackButton" type="Button" parent="." unique_id=2732146]
 custom_minimum_size = Vector2(30, 30)

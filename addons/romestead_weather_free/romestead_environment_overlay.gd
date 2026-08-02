@@ -47,7 +47,7 @@ func _draw() -> void:
 		return
 	_update_atmosphere_layers(rect)
 	_draw_clear_weather(rect)
-	_draw_time_tint(rect)
+	_draw_weather_tint(rect)
 	_draw_atmosphere_overlay(
 		rect,
 		_weather_strength("rainy"),
@@ -121,7 +121,7 @@ func _create_shader_layer(layer_name: String, shader: Shader, texture: Texture2D
 	var layer := TextureRect.new()
 	layer.name = layer_name
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	layer.texture = texture
 	layer.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	layer.stretch_mode = TextureRect.STRETCH_SCALE
@@ -345,25 +345,13 @@ func _draw_clear_weather(rect: Rect2) -> void:
 				draw_line(pos + Vector2(0.0, -2.0), pos + Vector2(0.0, 2.0), Color(0.92, 0.96, 1.0, star_alpha * 0.42), 1.0)
 
 
-func _draw_time_tint(rect: Rect2) -> void:
-	var night_curve: float = float(environment.get("time_based_light_curve"))
+func _draw_weather_tint(rect: Rect2) -> void:
 	var weather_curve: float = float(environment.get("weather_light_curve"))
-	var ambient: Color = environment.get("ambient_color")
-	var cloudy_strength: float = _weather_strength("cloudy")
-	var overcast_strength: float = _weather_strength("overcast")
-	var foggy_strength: float = _weather_strength("foggy")
-	var cloud_cover: float = clamp(cloudy_strength * 0.55 + overcast_strength * 1.0 + foggy_strength * 0.45, 0.0, 1.0)
-	var darkness: float = clamp(1.0 - ((ambient.r + ambient.g + ambient.b) / 3.0), 0.0, 1.0)
-	var blue_alpha: float = clamp(night_curve * 0.48 + weather_curve * 0.18 + darkness * 0.12, 0.0, 0.68)
-	if blue_alpha > 0.001:
-		draw_rect(rect, Color(0.025, 0.045, 0.105, blue_alpha), true)
-
-	var hour: float = float(environment.get("current_hour"))
-	var dawn: float = 1.0 - _smoothstep(0.0, 1.05, abs(hour - 5.75))
-	var dusk: float = 1.0 - _smoothstep(0.0, 0.8, abs(hour - 21.8))
-	var warm: float = max(dawn, dusk) * lerp(1.0, 0.35, cloud_cover)
-	if warm > 0.0:
-		draw_rect(rect, Color(1.0, 0.48, 0.22, warm * 0.08), true)
+	var weather_tint: Color = environment.get("weather_overlay_tint_color")
+	var weather_strength: float = float(environment.get("weather_overlay_tint_strength"))
+	weather_tint.a *= clamp(weather_curve * weather_strength, 0.0, 1.0)
+	if weather_tint.a > 0.001:
+		draw_rect(rect, weather_tint, true)
 
 
 func _draw_atmosphere_overlay(rect: Rect2, rainy_strength: float, thunder_strength: float, cloudy_strength: float, overcast_strength: float, foggy_strength: float) -> void:

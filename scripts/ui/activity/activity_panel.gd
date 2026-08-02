@@ -18,6 +18,12 @@ const ActivityLoadingOverlayScene = preload("res://scenes/ui/activity/activity_l
 @onready var undo_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/UndoButton
 @onready var place_into_button: Button = $BackgroundPanel/Margin/MainHBox/LeftPanel/Margin/VBox/BottomHBox/ControlButtoon/PlaceIntoButton
 @onready var right_panel: Control = $BackgroundPanel/Margin/MainHBox/RightPanel
+@onready var right_vbox: VBoxContainer = $BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox
+@onready var status_hbox: HBoxContainer = $BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/StatusHBox
+@onready var attribute_title: Label = $BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/AttributeTitle
+@onready var attribute_scroll: ScrollContainer = $BackgroundPanel/Margin/MainHBox/RightPanel/Margin/VBox/ScrollContainer
+@onready var mood_bonus_focus_region: Control = $BackgroundPanel/Margin/MainHBox/RightPanel/GuideFocusRegions/MoodBonusRegion
+@onready var attribute_benefit_focus_region: Control = $BackgroundPanel/Margin/MainHBox/RightPanel/GuideFocusRegions/AttributeBenefitRegion
 
 @export var category_tab_scene: PackedScene = preload("res://scenes/ui/activity/category_tab_item.tscn")
 
@@ -137,10 +143,11 @@ func _notify_guide_interaction_blocked() -> void:
 	if typeof(ToastManager) != TYPE_NIL:
 		ToastManager.show_system_toast("请按当前高亮区域完成引导操作")
 
-func _report_guide_action(action_id: String, payload: Dictionary = {}) -> void:
+func _report_guide_action(action_id: String, payload: Dictionary = {}) -> bool:
 	var guide_manager := _get_guide_manager()
 	if guide_manager and guide_manager.has_method("report_action"):
-		guide_manager.report_action(action_id, payload)
+		return bool(guide_manager.report_action(action_id, payload))
+	return false
 
 func _get_control_focus_rect(control: Control) -> Rect2:
 	if not is_instance_valid(control):
@@ -396,6 +403,7 @@ func _populate_activities() -> void:
 		return
 	
 	for child in activities_grid.get_children():
+		activities_grid.remove_child(child)
 		child.queue_free()
 
 	var profile = GameDataManager.profile
@@ -566,7 +574,6 @@ func _build_slot_button_style(item: Variant) -> StyleBoxFlat:
 		style.shadow_size = 8
 	return style
 
-
 func _can_use_auto_schedule() -> bool:
 	for item in scheduled_activities:
 		if item == null or typeof(item) == TYPE_STRING:
@@ -624,7 +631,7 @@ func _update_right_panel(profile) -> void:
 					total_rewards[key] = 0.0
 				total_rewards[key] += avg_val
 				
-	# 行动力相关的 UI 气泡全部强行隐藏
+	# 精力相关的 UI 气泡全部强行隐藏
 	if energy_label: energy_label.hide()
 	if energy_bubble: energy_bubble.hide()
 
@@ -779,14 +786,23 @@ func _on_activity_pressed(activity_id: String) -> void:
 	if not _is_guide_interaction_allowed("activity.activity_list"):
 		_notify_guide_interaction_blocked()
 		return
+	var activity: Dictionary = GameDataManager.activity_manager.get_activity_by_id(activity_id)
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("get_current_step_id"):
+		var current_step_id := str(guide_manager.get_current_step_id()).strip_edges()
+		if current_step_id.begins_with("select_schedule_category_") and str(activity.get("category_id", "")) != current_category_id:
+			_notify_guide_interaction_blocked()
+			return
 	for i in range(MAX_SLOTS):
 		if scheduled_activities[i] == null:
 			scheduled_activities[i] = activity_id
 			_update_ui()
-			_report_guide_action("activity_add_course", {
+			var guide_advanced := _report_guide_action("activity_add_course", {
 				"activity_id": activity_id,
 				"slot_index": i
 			})
+			if guide_advanced and guide_manager and guide_manager.has_method("show_schedule_slot_added_focus"):
+				guide_manager.show_schedule_slot_added_focus(i)
 			return
 
 func _on_slot_pressed(index: int) -> void:
@@ -1135,9 +1151,11 @@ func _on_execute_pressed() -> void:
 		for bonus in course["bonus_list"]:
 			var zh_name = bonus["name"]
 			var val = bonus["value"]
+			var applied_value = val * (1.0 + final_bonus_rate)
+			bonus["applied_value"] = applied_value
 			if not end_attrs.has(zh_name):
 				end_attrs[zh_name] = start_attrs.get(zh_name, 0)
-			end_attrs[zh_name] += (val * (1.0 + final_bonus_rate))
+			end_attrs[zh_name] += applied_value
 				
 	end_attrs["心情"] = clamp(end_attrs["心情"], 0, 100)
 	end_attrs["金币"] = max(0, end_attrs["金币"])
@@ -1417,6 +1435,13 @@ func get_category_tabs_focus_rect() -> Variant:
 		return Rect2()
 	return _make_focus_entry(rect, 16.0)
 
+func get_category_tab_focus_rect(category_id: String) -> Variant:
+	var button := _category_tab_buttons.get(category_id) as Button
+	var rect := _get_control_focus_rect(button)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return Rect2()
+	return _make_focus_entry(rect, 10.0)
+
 func get_activity_list_focus_rect() -> Variant:
 	var item_rects: Array[Rect2] = []
 	for child in activities_grid.get_children():
@@ -1435,6 +1460,20 @@ func get_activity_list_focus_rect() -> Variant:
 		return Rect2()
 	return _make_focus_entry(rect, 18.0)
 
+func get_activity_items_focus_data() -> Array:
+	var focus_entries: Array = []
+	for child in activities_grid.get_children():
+		if not (child is Control):
+			continue
+		var item := child as Control
+		if not item.is_visible_in_tree():
+			continue
+		var rect := _get_control_focus_rect(item)
+		if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+			continue
+		focus_entries.append(_make_focus_entry(rect, 14.0, true))
+	return focus_entries
+
 func get_tabs_and_list_focus_rect() -> Array:
 	return [
 		get_category_tabs_focus_rect(),
@@ -1450,11 +1489,70 @@ func get_schedule_slots_focus_rect() -> Variant:
 		return Rect2()
 	return _make_focus_entry(fallback_rect, 16.0)
 
+func get_schedule_slot_focus_entry(slot_index: int) -> Variant:
+	var slots := _get_all_slot_buttons()
+	if slot_index < 0 or slot_index >= slots.size():
+		return Rect2()
+	var rect := _get_control_focus_rect(slots[slot_index] as Control)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return Rect2()
+	return _make_focus_entry(rect, 22.0, true)
+
+func get_user_course_slots_focus_rect() -> Variant:
+	var slot_rects: Array[Rect2] = []
+	var slots := _get_all_slot_buttons()
+	for index in range(mini(slots.size(), scheduled_activities.size())):
+		if typeof(scheduled_activities[index]) != TYPE_STRING:
+			continue
+		var rect := _get_control_focus_rect(slots[index] as Control)
+		if rect.size.x > 1.0 and rect.size.y > 1.0:
+			slot_rects.append(rect)
+	var merged_rect := _merge_rects(slot_rects)
+	if merged_rect.size.x <= 1.0 or merged_rect.size.y <= 1.0:
+		return Rect2()
+	return _make_focus_entry(merged_rect, 16.0)
+
+func apply_guide_step(step_data: Dictionary) -> void:
+	var category_id := str(step_data.get("guide_category_id", "")).strip_edges()
+	if category_id == "" or not _category_tab_buttons.has(category_id):
+		return
+	current_category_id = category_id
+	_refresh_category_tabs()
+	_populate_activities()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var guide_manager := _get_guide_manager()
+	if guide_manager and guide_manager.has_method("refresh_current_step_display"):
+		guide_manager.refresh_current_step_display()
+
 func get_preview_panel_focus_data() -> Variant:
 	var rect: Rect2 = _get_control_focus_rect(right_panel)
 	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
 		return Rect2()
 	return _make_focus_entry(rect, 18.0)
+
+func get_mood_bonus_focus_data() -> Variant:
+	_update_guide_focus_region(mood_bonus_focus_region, status_hbox, bonus_label)
+	var rect: Rect2 = _get_control_focus_rect(mood_bonus_focus_region)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return Rect2()
+	return _make_focus_entry(rect, 12.0)
+
+func get_attribute_benefit_focus_data() -> Variant:
+	_update_guide_focus_region(attribute_benefit_focus_region, attribute_title, attribute_scroll)
+	var rect: Rect2 = _get_control_focus_rect(attribute_benefit_focus_region)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return Rect2()
+	return _make_focus_entry(rect, 12.0)
+
+func _update_guide_focus_region(region: Control, first_control: Control, last_control: Control) -> void:
+	if not is_instance_valid(region) or not is_instance_valid(first_control) or not is_instance_valid(last_control):
+		return
+	var first_rect := first_control.get_global_rect()
+	var combined_rect := first_rect.merge(last_control.get_global_rect())
+	var right_panel_origin := right_panel.get_global_rect().position
+	region.position = combined_rect.position - right_panel_origin
+	region.size = combined_rect.size
 
 func get_execute_button_focus_data() -> Variant:
 	var rect: Rect2 = _get_control_focus_rect(execute_button)
@@ -1472,6 +1570,13 @@ func get_main_event_slot_button() -> Control:
 		if typeof(item) == TYPE_DICTIONARY and item.get("type") == "event":
 			return slots[i] as Control
 	return null
+
+func get_main_event_slot_focus_entry() -> Variant:
+	var slot_button := get_main_event_slot_button()
+	var rect := _get_control_focus_rect(slot_button)
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
+		return Rect2()
+	return _make_focus_entry(rect, 22.0, true)
 
 func get_user_selected_course_count() -> int:
 	var count := 0

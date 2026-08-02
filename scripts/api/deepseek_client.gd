@@ -297,18 +297,26 @@ func _start_structured_chat_request(api_messages: Array, request_context: Dictio
 	add_child(request)
 	var request_id := int(request_context.get("network_request_id", request_context.get("request_id", 0)))
 	request_context["model_request_started_at_ms"] = Time.get_ticks_msec()
+	var force_text_response := bool(request_context.get("force_text_response", false))
+	var default_temperature := GameDataManager.config.temperature
+	var generation_temperature := clampf(float(request_context.get("generation_temperature", default_temperature)), 0.0, 1.5)
 	if str(request_context.get("trace_source", "")) == "guided_ai_chat":
-		print("[GuidedAITrace] request=%d stage=model_http_started messages=%d" % [request_id, api_messages.size()])
+		print("[GuidedAITrace] request=%d stage=model_http_started messages=%d json_mode=%s temperature=%.2f" % [
+			request_id,
+			api_messages.size(),
+			str(not force_text_response),
+			generation_temperature
+		])
 	_structured_chat_requests[request_id] = request
 	request.request_completed.connect(_on_structured_chat_completed.bind(request, request_context, api_messages), CONNECT_ONE_SHOT)
 	var body := {
-		"model": get_chat_model_id(),
+		"model": get_chat_model_id() if force_text_response else "deepseek-chat",
 		"messages": api_messages,
-		"temperature": GameDataManager.config.temperature,
+		"temperature": generation_temperature,
 		"max_tokens": GameDataManager.config.max_tokens,
 		"stream": false
 	}
-	if not bool(request_context.get("force_text_response", false)):
+	if not force_text_response:
 		body["response_format"] = {"type": "json_object"}
 	var error := request.request(_get_url(), _get_headers(), HTTPClient.METHOD_POST, JSON.stringify(body))
 	if error != OK:

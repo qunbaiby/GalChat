@@ -1,7 +1,7 @@
 extends PanelContainer
 
 @onready var name_label: Label = $CourseMargin/NameLabel
-@onready var check_mark: Label = $CourseMargin/CheckMark
+@onready var result_label: Label = $CourseMargin/ResultLabel
 @onready var icon_rect: TextureRect = $CourseMargin/IconPlate/IconRect
 @onready var icon_plate: Panel = $CourseMargin/IconPlate
 @onready var accent_bar: ColorRect = $CourseMargin/AccentBar
@@ -17,6 +17,13 @@ var _current_style: StyleBoxFlat
 var _completed_style: StyleBoxFlat
 var _current_state: String = STATE_PENDING
 var _has_story_badge: bool = false
+var _result_grade: String = "合格"
+
+const RESULT_COLORS := {
+	"优秀": Color(0.95, 0.68, 0.22, 1.0),
+	"良好": Color(0.25, 0.67, 0.78, 1.0),
+	"合格": Color(0.48, 0.56, 0.61, 1.0)
+}
 
 func _ready() -> void:
 	_pending_style = get_theme_stylebox("panel").duplicate() as StyleBoxFlat
@@ -99,6 +106,10 @@ func set_state(state: String) -> void:
 func set_completed(completed: bool) -> void:
 	set_state(STATE_COMPLETED if completed else STATE_PENDING)
 
+func set_result_grade(grade: String) -> void:
+	_result_grade = grade if RESULT_COLORS.has(grade) else "合格"
+	set_state(STATE_COMPLETED)
+
 func _apply_state_style() -> void:
 	if not is_node_ready():
 		return
@@ -106,8 +117,9 @@ func _apply_state_style() -> void:
 	match _current_state:
 		STATE_CURRENT:
 			add_theme_stylebox_override("panel", _current_style)
+			name_label.show()
 			name_label.add_theme_color_override("font_color", Color(0.17, 0.31, 0.54, 1))
-			check_mark.visible = false
+			result_label.visible = false
 			if accent_bar:
 				accent_bar.color = Color(0.43, 0.68, 0.98, 1)
 			if icon_plate:
@@ -116,18 +128,23 @@ func _apply_state_style() -> void:
 				icon_rect.modulate = Color(1, 1, 1, 1)
 		STATE_COMPLETED:
 			add_theme_stylebox_override("panel", _completed_style)
-			name_label.add_theme_color_override("font_color", Color(0.18, 0.34, 0.31, 1))
-			check_mark.visible = true
+			name_label.hide()
+			result_label.text = _result_grade
+			result_label.add_theme_color_override("font_color", RESULT_COLORS[_result_grade])
+			result_label.visible = true
 			if accent_bar:
 				accent_bar.color = Color(0.57, 0.82, 0.76, 1)
 			if icon_plate:
-				icon_plate.modulate = Color(0.97, 1, 0.99, 1)
-			if icon_rect and icon_rect.visible:
-				icon_rect.modulate = Color(1, 1, 1, 0.96)
+				icon_plate.hide()
+			if icon_rect:
+				icon_rect.hide()
+			if event_badge:
+				event_badge.hide()
 		_:
 			add_theme_stylebox_override("panel", _pending_style)
+			name_label.show()
 			name_label.add_theme_color_override("font_color", Color(0.42, 0.48, 0.52, 1))
-			check_mark.visible = false
+			result_label.visible = false
 			if accent_bar:
 				accent_bar.color = Color(0.7, 0.75, 0.82, 0.0)
 			if icon_plate:
@@ -135,6 +152,6 @@ func _apply_state_style() -> void:
 			if icon_rect and icon_rect.visible:
 				icon_rect.modulate = Color(1, 1, 1, 0.88)
 
-	if event_badge:
+	if event_badge and _current_state != STATE_COMPLETED:
 		event_badge.visible = _has_story_badge
 		event_badge.modulate = Color(1, 1, 1, 1.0 if _current_state != STATE_PENDING else 0.88)

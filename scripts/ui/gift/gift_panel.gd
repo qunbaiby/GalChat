@@ -84,7 +84,7 @@ func _update_ui() -> void:
 			cost = int(GameDataManager.interaction_manager.interaction_config["gift"].get("energy_cost", cost))
 			
 		var text = "[b]%s[/b]\n" % gift.name
-		text += "消耗行动力：%d\n" % cost
+		text += "消耗精力：%d\n" % cost
 		text += "基础亲密：+%d | 基础信任：+%d\n" % [gift.get("base_intimacy", 0), gift.get("base_trust", 0)]
 		text += "[color=#aaaaaa]%s[/color]" % gift.desc
 		detail_label.text = text
@@ -93,7 +93,7 @@ func _update_ui() -> void:
 			send_button.disabled = false
 		else:
 			send_button.disabled = true
-			detail_label.text += "\n[color=#ff4444](行动力不足)[/color]"
+			detail_label.text += "\n[color=#ff4444](精力不足)[/color]"
 
 func _init_gift_list() -> void:
 	for child in grid_container.get_children():

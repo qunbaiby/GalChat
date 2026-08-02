@@ -2,6 +2,14 @@ extends RefCounted
 
 
 static func parse_response(content: String, candidate_beat_ids: Array[String]) -> Dictionary:
+	return _parse_response(content, candidate_beat_ids, false)
+
+
+static func parse_response_with_required_options(content: String, candidate_beat_ids: Array[String]) -> Dictionary:
+	return _parse_response(content, candidate_beat_ids, true)
+
+
+static func _parse_response(content: String, candidate_beat_ids: Array[String], require_next_options: bool) -> Dictionary:
 	var normalized_content := _normalize_response_content(content)
 	var parser := JSON.new()
 	if parser.parse(normalized_content) != OK:
@@ -42,6 +50,8 @@ static func parse_response(content: String, candidate_beat_ids: Array[String]) -
 			if option_text.is_empty() or next_options.any(func(existing: Dictionary) -> bool: return str(existing.get("text", "")) == option_text):
 				continue
 			next_options.append({"text": option_text, "focus": "trust" if option_focus == "trust" else "intimacy"})
+	if require_next_options and next_options.size() != 2:
+		return {"ok": false, "error": "响应必须包含两个有效且不同的 next_options。"}
 	return {"ok": true, "dialogue": dialogue, "covered_beat_ids": covered_beat_ids, "next_options": next_options}
 
 

@@ -46,6 +46,9 @@ var _input_waiting: bool = false
 var _dialogue_default_offset_top: float = 0.0
 var _dialogue_default_offset_bottom: float = 0.0
 var _name_divider_has_speaker: bool = true
+var _animated_ai_status_base: String = ""
+var _animated_ai_status_elapsed: float = 0.0
+var _animated_ai_status_frame: int = 0
 
 const MAX_CHARS = 200
 const DEFAULT_INPUT_PLACEHOLDER := "输入你想说的话..."
@@ -106,8 +109,19 @@ func _ready():
 		input_field.placeholder_text = DEFAULT_INPUT_PLACEHOLDER
 		_update_char_count()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_sync_name_divider_visibility()
+	_update_ai_status_animation(delta)
+
+func _update_ai_status_animation(delta: float) -> void:
+	if _animated_ai_status_base.is_empty() or not is_instance_valid(ai_player_option_status_label) or not ai_player_option_status_label.visible:
+		return
+	_animated_ai_status_elapsed += delta
+	if _animated_ai_status_elapsed < 0.35:
+		return
+	_animated_ai_status_elapsed = fmod(_animated_ai_status_elapsed, 0.35)
+	_animated_ai_status_frame = (_animated_ai_status_frame + 1) % 4
+	ai_player_option_status_label.text = _animated_ai_status_base + ".".repeat(_animated_ai_status_frame)
 
 func _sync_name_divider_visibility() -> void:
 	if name_label == null or name_divider == null:
@@ -171,6 +185,8 @@ func set_input_waiting_state(_char_name: String = "角色") -> void:
 	if voice_btn:
 		voice_btn.disabled = true
 		voice_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if end_chat_button:
+		end_chat_button.disabled = true
 
 func set_input_ready_state(clear_text: bool = true) -> void:
 	_input_waiting = false
@@ -193,6 +209,8 @@ func set_input_ready_state(clear_text: bool = true) -> void:
 	if voice_btn:
 		voice_btn.disabled = false
 		voice_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	if end_chat_button:
+		end_chat_button.disabled = false
 	_update_char_count()
 
 func set_story_mode(enabled: bool) -> void:
@@ -217,6 +235,9 @@ func _apply_dialogue_mode_layout() -> void:
 
 func set_ai_player_option_status(status_text: String) -> void:
 	clear_ai_player_options(false)
+	_animated_ai_status_base = status_text if status_text == "Luna正在思考中" or status_text == "Luna正在讲话" else ""
+	_animated_ai_status_elapsed = 0.0
+	_animated_ai_status_frame = 0
 	if ai_player_option_status_label:
 		ai_player_option_status_label.text = status_text
 		ai_player_option_status_label.show()
@@ -226,6 +247,7 @@ func set_ai_player_option_status(status_text: String) -> void:
 		ai_player_option_layer.show()
 
 func show_ai_player_options() -> void:
+	_animated_ai_status_base = ""
 	if ai_player_option_status_label:
 		ai_player_option_status_label.hide()
 	if ai_player_options_container:
@@ -234,6 +256,7 @@ func show_ai_player_options() -> void:
 		ai_player_option_layer.show()
 
 func clear_ai_player_options(hide_layer: bool = true) -> void:
+	_animated_ai_status_base = ""
 	if ai_player_options_container:
 		for child in ai_player_options_container.get_children():
 			child.queue_free()

@@ -7,7 +7,6 @@ const BackgroundSettingPanelScene = preload("res://scenes/ui/main/background_set
 const EVENT_REGISTRY_PATH := "res://assets/data/events/event_registry.json"
 const MAP_DATA_PATH := "res://assets/data/map/core/map_data.json"
 const MAIN_BACKGROUND_DATA_PATH := "res://assets/data/main_backgrounds.json"
-const FEATURE_LOCK_ICON = preload("res://assets/images/icons/ui/main/lock.png")
 const MAIN_SCENE_IDLE_CHAT_MIN_SECONDS := 55.0
 const MAIN_SCENE_IDLE_CHAT_MAX_SECONDS := 95.0
 const MAIN_SCENE_IDLE_CHAT_RETRY_SECONDS := 12.0
@@ -15,14 +14,23 @@ const MAIN_SCENE_BGM_FADE_FLOOR_DB := -40.0
 const DRAWING_BOARD_SCENE_PATH := "res://scenes/ui/main/drawing_board_panel.tscn"
 const CREATION_MUSIC_SCENE_PATH := "res://scenes/ui/main/creation_music_panel.tscn"
 const GIFT_PANEL_SCENE: PackedScene = preload("res://scenes/ui/gift/gift_panel.tscn")
+const DAY_REST_TRANSITION_SCENE: PackedScene = preload("res://scenes/ui/main/transitions/day_rest_transition.tscn")
+const WEATHER_ICON_SUNNY: Texture2D = preload("res://assets/images/icons/ui/weather/sunny.svg")
+const WEATHER_ICON_CLOUDY: Texture2D = preload("res://assets/images/icons/ui/weather/cloudy.svg")
+const WEATHER_ICON_RAINY: Texture2D = preload("res://assets/images/icons/ui/weather/rainy.svg")
 const DailyChatRoundPolicyScript = preload("res://scripts/dialogue/daily_chat_round_policy.gd")
 const DailyChatTopicRepositoryScript = preload("res://scripts/data/daily_chat_topic_repository.gd")
-const DAILY_CHAT_ENERGY_COST := 3
-const DAILY_CHAT_MINUTES_PER_ROUND := 20
+const MealServiceScript = preload("res://scripts/data/meal_service.gd")
+const MEAL_PROMPT_TEXT := "要吃饭了吗？吃什么呢？"
+const DAILY_CHAT_REPLY_ENERGY_COST := 3
+const DAILY_CHAT_REPLY_MINUTES := 10
+const DAILY_CHAT_CUTOFF_MINUTES := 24 * 60
+var _daily_chat_completion_pending: bool = false
 const INTERACTION_CUTOFF_MINUTES := 23 * 60
-const MAIN_FEATURE_LOCK_HINT := "功能尚未解锁"
+const MAIN_FEATURE_LOCK_HINT := "该功能尚未解锁"
 const LOCKED_BUTTON_MODULATE := Color(0.58, 0.6, 0.66, 0.92)
 const UNLOCKED_BUTTON_MODULATE := Color(1, 1, 1, 1)
+const CLICKABLE_LOCKED_FEATURES := ["main.diary", "main.creation", "main.gift", "main.wardrobe", "main.date"]
 const MAIN_FEATURE_ALIASES := {
 	"main.creation": ["main.diary"],
 	"main.schedule": ["main.main_action"],
@@ -30,13 +38,18 @@ const MAIN_FEATURE_ALIASES := {
 }
 
 @onready var ui_panel: Panel = $UIPanel
-@onready var rest_button: Button = $UIPanel/BottomBarHBox/ActionHBox/RestButton
-@onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/GiftButton
+var rest_button: Button = null
+var meal_button: Button = null
+@onready var meal_panel: Control = $MealPanel
+@onready var diary_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
 @onready var date_button: Button = $UIPanel/DateButton
+@onready var date_button_label: Label = $UIPanel/DateButton/ContentHBox/Label
 @onready var hide_ui_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/HideUIButton
 @onready var camera_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/CameraButton
 @onready var phone_button: Button = $UIPanel/SystemButton/ToolBarMargin/HBox/PhoneButton
 @onready var affection_button: Button = $UIPanel/AffectionButton
+@onready var main_gift_button: Button = $UIPanel/BottomBarHBox/BtnHBox/MainGiftButton
+@onready var main_gift_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/MainGiftButton/ContentVBox/Label
 @onready var affection_stage_level_label: Label = $UIPanel/AffectionButton/ContentHBox/HeartWrap/HeartLevelLabel
 @onready var affection_stage_title_label: Label = $UIPanel/AffectionButton/ContentHBox/StageVBox/StageTitleLabel
 @onready var goal_panel: Control = $UIPanel/GoalPanel
@@ -53,21 +66,24 @@ const MAIN_FEATURE_ALIASES := {
 @onready var affection_overlay: Control = $UIPanel/AffectionOverlay
 @onready var affection_dismiss_button: Button = $UIPanel/AffectionOverlay/DismissButton
 @onready var affection_popup_frame: Control = $UIPanel/AffectionOverlay/PopupCenter/AffectionPopupFrame
-@onready var wardrobe_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WardrobeButton
-@onready var diary_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox/Label
-@onready var creation_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox/Label
+@onready var gift_overlay: Control = $UIPanel/GiftOverlay
+@onready var gift_dismiss_button: Button = $UIPanel/GiftOverlay/DismissButton
+@onready var gift_popup_frame: Control = $UIPanel/GiftOverlay/PopupCenter/GiftPopupFrame
+@onready var wardrobe_button: Button = $UIPanel/BottomBarHBox/ActionHBox/WardrobeButton
+@onready var diary_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox/Label
+@onready var creation_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/CreationButton/ContentVBox/Label
 @onready var wechat_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox/Label
-@onready var wardrobe_button_label: Label = $UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox/Label
 @onready var bg_switch_button: Button = $BgSwitchButton
 @onready var bg_transition_fade: ColorRect = $BgTransitionFade
 @onready var desktop_mode_overlay: Control = $DesktopModeOverlay
 @onready var desktop_controls_window: Window = $DesktopControlsWindow
 @onready var desktop_chat_window: Window = $DesktopChatWindow
 
-@onready var creation_button: Button = $UIPanel/BottomBarHBox/BtnHBox/DiaryButton
+@onready var creation_button: Button = $UIPanel/BottomBarHBox/BtnHBox/CreationButton
 @onready var wechat_button: Button = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton
 @onready var wechat_unread_badge: Label = $UIPanel/BottomBarHBox/BtnHBox/WeChatButton/UnreadBadge
 @onready var main_action_button: Button = $UIPanel/BottomBarHBox/ActionHBox/MainActionButton
+@onready var main_action_button_label: Label = $UIPanel/BottomBarHBox/ActionHBox/MainActionButton/ContentHBox/Label
 
 @onready var stats_panel = $UIPanel/StatsPanelAnchor/StatsPanel
 @onready var top_status_panel = $UIPanel/TopStatusPanel
@@ -87,6 +103,7 @@ const MAIN_FEATURE_ALIASES := {
 @onready var input_layer: Panel = $DialoguePanel/InputLayer
 @onready var input_field: TextEdit = $DialoguePanel/InputLayer/HBoxContainer/InputField
 @onready var send_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/SendButton
+@onready var voice_record_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/VoiceRecordButton
 @onready var dialogue_toolbar_container: Control = $DialoguePanel/ToolBarContainer
 @onready var end_chat_btn: Button = $DialoguePanel/InputLayer/HBoxContainer/EndChatButton
 @onready var history_btn: Button = $DialoguePanel/ToolBarContainer/ToolBarMargin/HBox/HistoryButton
@@ -121,14 +138,11 @@ var schedule_panel_instance = null
 var gift_panel_instance: Control = null
 
 var _story_mode_active: bool = false
-var _daily_dialogue_hud_nodes: Array[Control] = []
-var _daily_dialogue_hud_indices: Dictionary = {}
+var _active_rest_confirm_dialog: Control = null
 var _main_action_mode: String = "schedule"
 var _main_action_time_disabled: bool = false
 var _interaction_ui_locked_by_dialogue: bool = false
 var _feature_lock_views: Dictionary = {}
-var _date_button_display_label: Label = null
-var _main_action_display_label: Label = null
 
 var _window_detector: Node = null
 var _is_afk: bool = false
@@ -145,6 +159,9 @@ var _affection_button_pending_reveal: bool = false
 var _mood_hover_tween: Tween = null
 var audio_player: AudioStreamPlayer = null
 var _pending_main_scene_tts_counts: Dictionary = {}
+var _meal_service = MealServiceScript.new()
+var _pending_meal: Dictionary = {}
+var _pending_meal_context: Dictionary = {}
 var _proactive_bubble_request_in_flight: bool = false
 var _main_scene_idle_chat_elapsed: float = 0.0
 var _main_scene_idle_chat_interval: float = MAIN_SCENE_IDLE_CHAT_MIN_SECONDS
@@ -163,7 +180,10 @@ var is_memory_revisit_active: bool = false
 var _active_memory_revisit: Dictionary = {}
 var _generated_image_panel: Panel = null
 var _pending_guided_ai_completion_guide_actions: bool = false
+var _guided_ai_guide_resume_retry_active: bool = false
 var _guided_ai_round_guide_ready_last_frame: bool = false
+var _main_chat_topic_options_layout_ready: bool = false
+var _main_chat_topic_layout_generation: int = 0
 
 var _waiting_for_chat_click: bool = false
 signal _chat_click_proceed
@@ -294,12 +314,6 @@ func _consume_selected_story_topic_if_needed() -> void:
 	_selected_main_story_topic.clear()
 
 func _on_wechat_closed() -> void:
-	var guide_manager := _get_guide_manager()
-	var waiting_for_goal_guide := guide_manager and guide_manager.has_method("get_current_step_id") and str(guide_manager.get_current_step_id()) == "explain_main_goal_panel"
-	if waiting_for_goal_guide:
-		var fixed_chat_manager := get_node_or_null("/root/MobileFixedChatManager")
-		if fixed_chat_manager and fixed_chat_manager.has_method("reconcile_completed_script_events"):
-			fixed_chat_manager.reconcile_completed_script_events()
 	_pending_auto_main_story_after_wechat_close = true
 	_pending_auto_main_story_character_id = _get_current_main_chat_character_id()
 
@@ -616,8 +630,6 @@ func _sync_fullscreen_overlay_bgm_pause() -> void:
 func _has_fullscreen_main_overlay() -> bool:
 	if _story_mode_active or _bg_transition_active or _interaction_ui_locked_by_dialogue:
 		return true
-	if _phone_mode_active:
-		return true
 	var overlay_controls: Array = [
 		mobile_interface_instance,
 		camera_panel_instance,
@@ -628,18 +640,16 @@ func _has_fullscreen_main_overlay() -> bool:
 		history_panel_instance,
 		archive_panel_instance,
 		wardrobe_panel,
-		diary_panel,
-		creation_panel,
-		drawing_board_instance,
-		creation_music_panel_instance,
-		affection_overlay,
-		affection_popup_frame,
 		settings_panel_instance,
 		bg_setting_panel_instance,
 		_generated_image_panel
 	]
 	for overlay_value in overlay_controls:
 		if overlay_value is CanvasItem and is_instance_valid(overlay_value) and (overlay_value as CanvasItem).is_visible_in_tree():
+			if overlay_value == mobile_interface_instance:
+				continue
+			if overlay_value == bg_setting_panel_instance and _phone_mode_active:
+				continue
 			return true
 	var schedule_execution_panel := find_child("ScheduleExecutionPanel", true, false) as Control
 	return is_instance_valid(schedule_execution_panel) and schedule_execution_panel.is_visible_in_tree()
@@ -819,12 +829,6 @@ func _ensure_affection_panel_popup() -> void:
 	affection_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if affection_panel_instance.has_signal("back_requested"):
 		affection_panel_instance.back_requested.connect(_hide_affection_popup)
-	if affection_panel_instance.has_signal("gift_requested"):
-		affection_panel_instance.gift_requested.connect(_on_affection_gift_requested)
-
-func _on_affection_gift_requested() -> void:
-	if _is_ui_blocked(): return
-	_open_gift_panel()
 
 func _show_affection_popup() -> void:
 	_ensure_affection_panel_popup()
@@ -879,16 +883,12 @@ func _refresh_scene_chat_button_state() -> void:
 		current_bg_scene.refresh_chat_button_state()
 
 func _is_scene_chat_entry_allowed_by_time() -> bool:
-	var guide_manager := _get_guide_manager()
-	if guide_manager and guide_manager.has_method("get_current_step_id"):
-		if str(guide_manager.get_current_step_id()) == "open_first_daily_chat":
-			return true
 	if not GameDataManager.story_time_manager:
 		return true
 	var date_dict = GameDataManager.story_time_manager.get_current_date_dict()
 	var weekday = date_dict.weekday
 	var current_hour = GameDataManager.story_time_manager.current_hour
-	return weekday == 0 or weekday == 6 or (weekday == 5 and current_hour >= 20)
+	return weekday == 0 or weekday == 6 or (weekday == 5 and current_hour >= 18)
 
 func _on_scene_chat_button_pressed() -> void:
 	var chat_btn := _get_scene_chat_button()
@@ -900,21 +900,21 @@ func _get_daily_chat_entry_unavailable_reason() -> String:
 		current_minutes = int(GameDataManager.story_time_manager.current_hour) * 60 + int(GameDataManager.story_time_manager.current_minute)
 	return DailyChatRoundPolicyScript.get_unavailable_reason(
 		int(GameDataManager.profile.current_energy),
-		DAILY_CHAT_ENERGY_COST,
+		DAILY_CHAT_REPLY_ENERGY_COST,
 		current_minutes,
-		DAILY_CHAT_MINUTES_PER_ROUND,
-		INTERACTION_CUTOFF_MINUTES
+		DAILY_CHAT_REPLY_MINUTES,
+		DAILY_CHAT_CUTOFF_MINUTES
 	)
 
-func _show_interaction_unavailable_dialog(reason: String, required_energy: int = 0) -> void:
+func _show_interaction_unavailable_dialog(reason: String, required_energy: int = 0, cutoff_hour: int = 23) -> void:
 	var confirm_scene = load("res://scenes/ui/common/confirm_dialog.tscn")
 	if confirm_scene == null:
 		return
 	var dialog = confirm_scene.instantiate()
 	add_child(dialog)
-	var message := "时间已经很晚了，无法在 23:00 前完成这次互动。"
+	var message := "时间已经很晚了，无法在 %02d:00 前完成这次互动。" % cutoff_hour
 	if reason == "energy":
-		message = "行动力不足，至少需要 %d 点行动力才能开始这次互动。" % required_energy
+		message = "精力不足，至少需要 %d 点精力才能开始这次互动。" % required_energy
 	dialog.setup_advanced("暂时无法互动", message, "", "", "知道了", "")
 	if dialog.cancel_button:
 		dialog.cancel_button.hide()
@@ -987,7 +987,6 @@ func _start_embedded_dialogue_session(request: Dictionary, animate_target: Butto
 	if is_instance_valid(animate_target):
 		_animate_button(animate_target)
 	_story_mode_active = true
-	_set_daily_dialogue_hud_visible(str(request.get("mode", "")) == "daily")
 	if _ui_tween:
 		_ui_tween.kill()
 	_ui_tween = create_tween()
@@ -1064,7 +1063,7 @@ func _start_embedded_daily_chat(animate_target: Button = null) -> void:
 		return
 	var unavailable_reason := _get_daily_chat_entry_unavailable_reason()
 	if unavailable_reason != "":
-		_show_interaction_unavailable_dialog(unavailable_reason, DAILY_CHAT_ENERGY_COST)
+		_show_interaction_unavailable_dialog(unavailable_reason, DAILY_CHAT_REPLY_ENERGY_COST, 24)
 		return
 	if is_instance_valid(animate_target):
 		_animate_button(animate_target)
@@ -1089,42 +1088,56 @@ func _start_embedded_daily_chat(animate_target: Button = null) -> void:
 		],
 		"ai_context": "请围绕玩家选择的日常话题自然交流。",
 		"topic_prompt_template": "【系统提示】玩家选择了日常话题：{topic}。请自然承接，直接以角色第一人称回复并包含括号动作描写。",
-		"energy_cost_per_round": DAILY_CHAT_ENERGY_COST,
-		"minutes_per_round": DAILY_CHAT_MINUTES_PER_ROUND,
-		"daily_chat_cutoff_minutes": INTERACTION_CUTOFF_MINUTES
+		"reply_energy_cost": DAILY_CHAT_REPLY_ENERGY_COST,
+		"reply_minutes": DAILY_CHAT_REPLY_MINUTES,
+		"daily_chat_cutoff_minutes": DAILY_CHAT_CUTOFF_MINUTES
 	}
 	_start_embedded_dialogue_session(request)
 
-func _set_daily_dialogue_hud_visible(should_show: bool) -> void:
-	if should_show:
-		if not _daily_dialogue_hud_nodes.is_empty():
-			return
-		for node_path in [NodePath("UIPanel/WeatherPanel"), NodePath("UIPanel/TopStatusPanel")]:
-			var hud_node := get_node_or_null(node_path) as Control
-			if not hud_node:
-				continue
-			_daily_dialogue_hud_indices[hud_node.get_instance_id()] = hud_node.get_index()
-			_daily_dialogue_hud_nodes.append(hud_node)
-			hud_node.reparent(self, true)
-			hud_node.show()
-			hud_node.move_to_front()
-		return
-	for hud_node in _daily_dialogue_hud_nodes:
-		if not is_instance_valid(hud_node):
-			continue
-		hud_node.reparent(ui_panel, true)
-		var original_index := int(_daily_dialogue_hud_indices.get(hud_node.get_instance_id(), -1))
-		if original_index >= 0:
-			ui_panel.move_child(hud_node, mini(original_index, ui_panel.get_child_count() - 1))
-	_daily_dialogue_hud_nodes.clear()
-	_daily_dialogue_hud_indices.clear()
-
 func _on_embedded_topic_options_ready(request: Dictionary) -> void:
+	_begin_main_chat_topic_options_layout_stabilization()
 	if str(request.get("mode", "")) == "main_story":
 		_report_guide_action("first_main_story_auto_opened")
 	_refresh_guide_overlay_if_needed()
 
+func _begin_main_chat_topic_options_layout_stabilization() -> void:
+	_main_chat_topic_options_layout_ready = false
+	_main_chat_topic_layout_generation += 1
+	_stabilize_main_chat_topic_options_layout(_main_chat_topic_layout_generation)
+
+func _stabilize_main_chat_topic_options_layout(generation: int) -> void:
+	var previous_rect := Rect2()
+	var stable_frames := 0
+	for _frame_index in range(8):
+		await get_tree().process_frame
+		if generation != _main_chat_topic_layout_generation or not is_inside_tree():
+			return
+		var target := _get_preferred_topic_option_target()
+		if not is_instance_valid(target):
+			stable_frames = 0
+			continue
+		var current_rect := target.get_global_rect()
+		if current_rect.size.x <= 1.0 or current_rect.size.y <= 1.0:
+			stable_frames = 0
+			continue
+		if current_rect.position.distance_to(previous_rect.position) <= 0.5 and current_rect.size.distance_to(previous_rect.size) <= 0.5:
+			stable_frames += 1
+		else:
+			previous_rect = current_rect
+			stable_frames = 0
+		if stable_frames >= 2:
+			_main_chat_topic_options_layout_ready = true
+			_refresh_guide_overlay_if_needed()
+			return
+	var fallback_target := _get_preferred_topic_option_target()
+	if generation == _main_chat_topic_layout_generation and is_instance_valid(fallback_target):
+		var fallback_rect := fallback_target.get_global_rect()
+		if fallback_rect.size.x > 32.0 and fallback_rect.size.y > 32.0:
+			_main_chat_topic_options_layout_ready = true
+			_refresh_guide_overlay_if_needed()
+
 func _on_embedded_story_choice_ready(request: Dictionary) -> void:
+	_begin_main_chat_topic_options_layout_stabilization()
 	if str(request.get("mode", "")) == "main_story":
 		_report_guide_action("first_main_story_auto_opened")
 	_refresh_guide_overlay_if_needed()
@@ -1143,8 +1156,11 @@ func _on_embedded_topic_selected(topic: String, _metadata: Dictionary) -> void:
 		_report_guide_action("select_main_chat_topic")
 		return
 	_set_main_chat_context(_resolve_topic_chat_subtype(topic), topic)
+	_report_guide_action("select_daily_chat_topic")
 
 func _on_embedded_session_completed(request: Dictionary) -> void:
+	if str(request.get("mode", "")) == "daily":
+		_daily_chat_completion_pending = true
 	if str(request.get("mode", "")) == "main_story":
 		var completed_topic: Variant = request.get("story_topic", {})
 		if completed_topic is Dictionary and not (completed_topic as Dictionary).is_empty():
@@ -1153,21 +1169,32 @@ func _on_embedded_session_completed(request: Dictionary) -> void:
 			_selected_main_story_topic = _active_embedded_main_story_topic.duplicate(true)
 		_consume_selected_story_topic_if_needed()
 		_pending_guided_ai_completion_guide_actions = true
+		_advance_guided_ai_completion_guide_steps()
 		call_deferred("_resume_guide_after_embedded_main_story")
 	_active_embedded_main_story_topic.clear()
 	_reset_main_chat_context()
 
 func _resume_guide_after_embedded_main_story() -> void:
-	if not _pending_guided_ai_completion_guide_actions or not is_inside_tree():
+	if _guided_ai_guide_resume_retry_active:
 		return
-	if not is_main_ui_ready_for_guide():
-		return
-	_pending_guided_ai_completion_guide_actions = false
-	_advance_guided_ai_completion_guide_steps()
+	_guided_ai_guide_resume_retry_active = true
+	for _attempt in range(300):
+		if not _pending_guided_ai_completion_guide_actions or not is_inside_tree():
+			_guided_ai_guide_resume_retry_active = false
+			return
+		if is_main_ui_ready_for_guide():
+			_pending_guided_ai_completion_guide_actions = false
+			_guided_ai_guide_resume_retry_active = false
+			_refresh_guide_overlay_if_needed()
+			return
+		await get_tree().process_frame
+	_guided_ai_guide_resume_retry_active = false
 
 var is_ending_chat: bool = false
 
 func _on_date_pressed() -> void:
+	if _show_locked_feature_toast_if_needed("main.date", date_button):
+		return
 	if _is_ui_blocked(): return
 	if is_instance_valid(date_button):
 		_animate_button(date_button)
@@ -1186,22 +1213,46 @@ func _on_date_pressed() -> void:
 			_report_guide_action("open_date")
 
 func _on_gift_pressed() -> void:
+	if _show_locked_feature_toast_if_needed("main.gift", main_gift_button):
+		return
 	if _is_ui_blocked(): return
 	if not _can_open_cost_interaction("gift"):
 		return
 	_open_gift_panel()
 
 func _open_gift_panel() -> void:
-	_ensure_affection_panel_popup()
-	if not is_instance_valid(affection_panel_instance):
-		return
 	if not is_instance_valid(gift_panel_instance):
 		gift_panel_instance = GIFT_PANEL_SCENE.instantiate()
+		gift_popup_frame.add_child(gift_panel_instance)
+		gift_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		if gift_panel_instance.has_signal("gift_sent"):
 			gift_panel_instance.gift_sent.connect(_on_gift_sent)
-	if affection_panel_instance.has_method("show_gift_panel"):
-		affection_panel_instance.show_gift_panel(gift_panel_instance)
+		if gift_panel_instance.has_signal("close_requested"):
+			gift_panel_instance.close_requested.connect(_hide_gift_popup)
+	if gift_panel_instance.has_method("show_panel"):
+		gift_panel_instance.show_panel()
+	else:
+		gift_panel_instance.show()
+	gift_overlay.show()
+	gift_overlay.modulate.a = 0.0
+	gift_popup_frame.scale = Vector2(0.94, 0.94)
+	gift_popup_frame.pivot_offset = gift_popup_frame.custom_minimum_size * 0.5
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(gift_overlay, "modulate:a", 1.0, 0.2)
+	tween.tween_property(gift_popup_frame, "scale", Vector2.ONE, 0.2)
 	_report_guide_action("open_gift")
+
+func _hide_gift_popup() -> void:
+	if not is_instance_valid(gift_overlay) or not gift_overlay.visible:
+		return
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(gift_overlay, "modulate:a", 0.0, 0.18)
+	tween.tween_property(gift_popup_frame, "scale", Vector2(0.94, 0.94), 0.18)
+	tween.chain().tween_callback(func() -> void:
+		if is_instance_valid(gift_panel_instance):
+			gift_panel_instance.hide()
+		gift_overlay.hide()
+	)
 
 func _on_gift_sent(gift_data: Dictionary) -> void:
 	var gift_id = gift_data.get("id", "")
@@ -1222,40 +1273,11 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 
 	if top_status_panel and top_status_panel.has_method("_update_ui"):
 		top_status_panel._update_ui()
-	if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("restore_info_panel"):
-		affection_panel_instance.restore_info_panel()
 	if is_instance_valid(affection_panel_instance) and affection_panel_instance.has_method("update_ui"):
 		affection_panel_instance.update_ui(GameDataManager.profile)
+	_hide_gift_popup()
 	_set_main_chat_context(MAIN_CHAT_SUBTYPE_DAILY, "gift_reaction")
 	_start_main_chat_session("daily")
-
-	if _ui_tween:
-		_ui_tween.kill()
-	_ui_tween = create_tween()
-	_ui_tween.tween_property(ui_panel, "modulate:a", 0.0, 0.3)
-	_ui_tween.tween_callback(func(): ui_panel.visible = false)
-
-	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
-		current_bg_scene.set_ui_hidden(true)
-
-	dialogue_panel.visible = true
-	dialogue_panel.modulate.a = 0.0
-	var dialogue_tween = create_tween()
-	dialogue_tween.tween_property(dialogue_panel, "modulate:a", 1.0, 0.3)
-
-	dialogue_name_label.text = GameDataManager.profile.char_name
-	dialogue_text.text = "..."
-	_set_dialogue_input_waiting(GameDataManager.profile.char_name)
-	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
-		dialogue_panel.set_ai_player_option_status("Luna正在思考中")
-
-	if end_chat_btn:
-		end_chat_btn.show()
-	if history_btn:
-		history_btn.show()
-
-	for child in quick_options_container.get_children():
-		child.queue_free()
 
 	var gift_name = gift_data.get("name", "礼物")
 	var stage_conf = GameDataManager.profile.get_current_stage_config()
@@ -1265,13 +1287,13 @@ func _on_gift_sent(gift_data: Dictionary) -> void:
 		player_name = "指导人"
 
 	var user_msg = "【系统提示】玩家（当前身份：" + player_name + "）刚刚送给你一份礼物：【" + gift_name + "】。当前情感阶段是：" + stage_desc + "。请结合你的性格、心情和这份礼物的特点，主动对玩家说出你的感谢和反应（必须包含动作描写）。不要复述系统提示，直接给出台词。"
-	_get_main_chat_session_client().send_realize_turn_message(user_msg, "main_chat", _build_main_chat_meta())
+	_get_main_chat_session_client().send_realize_turn_message(user_msg, "main_chat", _build_main_chat_meta({"display_mode": "main_bubble", "event_kind": "gift_reaction"}))
 
 func _on_rest_pressed() -> void:
 	if _is_ui_blocked(): return
 	_animate_button(rest_button)
 	
-	# 检查行动力
+	# 检查精力
 	var energy_val = GameDataManager.profile.current_energy
 	var energy_warning = energy_val > 0
 	
@@ -1283,23 +1305,38 @@ func _on_rest_pressed() -> void:
 		if current_time < 1440:
 			time_warning = true
 	
-	if energy_warning or time_warning:
+	var guide_manager := _get_guide_manager()
+	var force_confirmation := guide_manager != null and guide_manager.has_method("get_current_step_id") and str(guide_manager.get_current_step_id()) == "open_first_rest_confirmation"
+	if energy_warning or time_warning or force_confirmation:
 		var warning_text = ""
 		if energy_warning and time_warning:
-			warning_text = "还有未消耗的行动力，且时间还早，确定要休息了吗？"
+			warning_text = "还有未消耗的精力，且时间还早，确定要休息了吗？"
 		elif energy_warning:
-			warning_text = "还有未消耗的行动力，确定要休息了吗？"
-		else:
+			warning_text = "还有未消耗的精力，确定要休息了吗？"
+		elif time_warning:
 			warning_text = "时间还早，确定要休息了吗？"
+		else:
+			warning_text = "确定结束今天并休息吗？"
 			
 		var ConfirmDialogObj = load("res://scenes/ui/common/confirm_dialog.tscn")
 		var confirm_dialog = ConfirmDialogObj.instantiate()
 		add_child(confirm_dialog)
+		_active_rest_confirm_dialog = confirm_dialog
 		confirm_dialog.setup(warning_text)
+		confirm_dialog.confirmed.connect(_on_first_rest_confirmed)
 		confirm_dialog.confirmed.connect(_execute_rest_transition.bind(confirm_dialog))
-		confirm_dialog.canceled.connect(func(): confirm_dialog.queue_free())
+		confirm_dialog.canceled.connect(func():
+			if _active_rest_confirm_dialog == confirm_dialog:
+				_active_rest_confirm_dialog = null
+			confirm_dialog.queue_free()
+		)
+		_report_guide_action("open_first_rest_confirmation")
 	else:
 		_execute_rest_transition(null)
+
+func _on_first_rest_confirmed() -> void:
+	_report_guide_action("confirm_first_rest")
+	_active_rest_confirm_dialog = null
 
 func _execute_rest_transition(dialog: Node) -> void:
 	if is_instance_valid(dialog):
@@ -1307,35 +1344,42 @@ func _execute_rest_transition(dialog: Node) -> void:
 		
 	# 屏蔽交互
 	ui_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	# 创建黑屏遮罩
-	var black_screen = ColorRect.new()
-	black_screen.color = Color.BLACK
-	black_screen.modulate.a = 0.0
-	black_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	# 确保盖在最上面
-	add_child(black_screen)
-	move_child(black_screen, get_child_count() - 1)
+	var transition_data := _build_day_rest_transition_data()
+	var rest_transition: Control = DAY_REST_TRANSITION_SCENE.instantiate()
+	add_child(rest_transition)
+	rest_transition.setup(transition_data)
+	bg_transition_fade.show()
+	bg_transition_fade.mouse_filter = Control.MOUSE_FILTER_STOP
+	bg_transition_fade.modulate.a = 0.0
+	move_child(bg_transition_fade, get_child_count() - 1)
 	
 	var should_restart_bgm := is_instance_valid(bgm) and bgm.playing and not bgm.stream_paused
 	var black_fade_in := create_tween()
-	black_fade_in.tween_property(black_screen, "modulate:a", 1.0, 1.0)
+	black_fade_in.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	black_fade_in.tween_property(bg_transition_fade, "modulate:a", 1.0, 0.85)
 	if should_restart_bgm:
-		_tween_main_scene_bgm_volume(MAIN_SCENE_BGM_FADE_FLOOR_DB, 1.0)
+		_tween_main_scene_bgm_volume(MAIN_SCENE_BGM_FADE_FLOOR_DB, 0.85)
 	await black_fade_in.finished
 
 	if should_restart_bgm and is_instance_valid(bgm):
 		_clear_main_scene_bgm_fade_tween()
 		bgm.stop()
 
+	rest_transition.play_transition()
+	var reveal_transition := create_tween()
+	reveal_transition.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	reveal_transition.tween_property(bg_transition_fade, "modulate:a", 0.0, 0.75)
+	await reveal_transition.finished
+	await rest_transition.transition_completed
+
+	var transition_fade_out := create_tween()
+	transition_fade_out.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	transition_fade_out.tween_property(bg_transition_fade, "modulate:a", 1.0, 0.7)
+	await transition_fade_out.finished
+
 	if GameDataManager.story_time_manager:
 		# 跳到下一天
 		GameDataManager.story_time_manager.advance_day(1)
-		# 确保时间设置为早上6点
-		GameDataManager.story_time_manager.current_hour = 6
-		GameDataManager.story_time_manager.current_minute = 0
-		GameDataManager.story_time_manager.current_period = GameDataManager.story_time_manager.PERIOD_MORNING
-		GameDataManager.story_time_manager.time_advanced.emit(0, GameDataManager.story_time_manager.current_period)
 		
 		if MapDataManager and MapDataManager.has_method("sync_story_progress_unlocks"):
 			MapDataManager.sync_story_progress_unlocks(false)
@@ -1344,7 +1388,7 @@ func _execute_rest_transition(dialog: Node) -> void:
 		GameDataManager.story_time_manager.save_data()
 		GameDataManager.save_manager.auto_save("day_advanced", GameDataManager.get_active_archive_id())
 
-	await get_tree().create_timer(1.0).timeout
+	rest_transition.queue_free()
 
 	var should_fade_in_bgm := should_restart_bgm and _can_resume_main_scene_bgm()
 	if should_fade_in_bgm and is_instance_valid(bgm):
@@ -1353,19 +1397,67 @@ func _execute_rest_transition(dialog: Node) -> void:
 		bgm.play()
 
 	var black_fade_out := create_tween()
-	black_fade_out.tween_property(black_screen, "modulate:a", 0.0, 1.0)
+	black_fade_out.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	black_fade_out.tween_property(bg_transition_fade, "modulate:a", 0.0, 0.9)
 	if should_fade_in_bgm:
-		_tween_main_scene_bgm_volume(_main_scene_bgm_base_volume_db, 1.0)
+		_tween_main_scene_bgm_volume(_main_scene_bgm_base_volume_db, 0.9)
 	await black_fade_out.finished
 
-	black_screen.queue_free()
+	bg_transition_fade.hide()
+	bg_transition_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	if not should_fade_in_bgm:
 		_sync_main_scene_bgm_state()
+	_update_button_states_by_time()
+	_report_guide_action("first_rest_transition_finished")
 	var guide_manager = get_node_or_null("/root/GuideManager")
 	if guide_manager and guide_manager.has_method("start_scheduled_guides_if_needed"):
 		guide_manager.start_scheduled_guides_if_needed()
 	print("[MainScene] 休息按钮被点击，预留接口")
+
+func _build_day_rest_transition_data() -> Dictionary:
+	var story_time = GameDataManager.story_time_manager
+	if story_time == null:
+		return {}
+	var current_offset := int(story_time.current_day_offset)
+	var next_offset := current_offset + 1
+	var next_config: Dictionary = story_time.get_day_config(next_offset)
+	var weather_id := str(story_time.get_story_weather_id(next_offset))
+	return {
+		"ending_date": _format_rest_transition_date(story_time.get_current_date_dict()),
+		"new_date": _format_rest_transition_date(_get_story_date_for_offset(story_time, next_offset)),
+		"weather": "%s · %d°C" % [story_time.get_story_weather_desc(next_offset), int(next_config.get("temperature", 22))],
+		"weather_icon": _get_rest_transition_weather_icon(weather_id),
+		"rest_text": "夜色渐深，今天就到这里。",
+		"new_day_text": "新的一天",
+		"energy_text": "精力已恢复"
+	}
+
+func _get_story_date_for_offset(story_time: Node, day_offset: int) -> Dictionary:
+	var start_date := {
+		"year": int(story_time.start_year),
+		"month": int(story_time.start_month),
+		"day": int(story_time.start_day),
+		"hour": 0,
+		"minute": 0,
+		"second": 0
+	}
+	var start_unix := Time.get_unix_time_from_datetime_dict(start_date)
+	return Time.get_datetime_dict_from_unix_time(start_unix + day_offset * 86400)
+
+func _format_rest_transition_date(date_data: Dictionary) -> String:
+	var weekdays := ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+	var weekday_index := clampi(int(date_data.get("weekday", 0)), 0, weekdays.size() - 1)
+	return "%d月%d日 · %s" % [int(date_data.get("month", 1)), int(date_data.get("day", 1)), weekdays[weekday_index]]
+
+func _get_rest_transition_weather_icon(weather_id: String) -> Texture2D:
+	match weather_id:
+		"rainy", "thunder":
+			return WEATHER_ICON_RAINY
+		"cloudy", "overcast", "foggy", "snow":
+			return WEATHER_ICON_CLOUDY
+		_:
+			return WEATHER_ICON_SUNNY
 
 func _open_drawing_board() -> void:
 	if drawing_board_instance == null:
@@ -1729,6 +1821,17 @@ func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dict
 	if not segments is Array or segments.is_empty():
 		_on_realize_turn_failed("角色回复没有可展示内容。", request_context, source_client)
 		return
+	if str(request_context.get("display_mode", "")) == "main_bubble":
+		var bubble_parts: Array[String] = []
+		for segment in segments:
+			if segment is Dictionary:
+				var speech := str(segment.get("speech", "")).strip_edges()
+				if speech != "":
+					bubble_parts.append(speech)
+		_show_proactive_greeting_bubble(" ".join(bubble_parts))
+		_end_main_chat_session()
+		_reset_main_chat_context()
+		return
 	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
 		dialogue_panel.set_ai_player_option_status("Luna正在讲话")
 	var scene_commit: Dictionary = GameDataManager.chat_scene_state_runtime.apply_realized_turn(realized_turn) if GameDataManager.chat_scene_state_runtime else {}
@@ -1758,8 +1861,13 @@ func _on_realize_turn_completed(realized_turn: Dictionary, request_context: Dict
 	session_client.send_emotion_generation(accepted_reply)
 	_try_start_stream_worker()
 
-func _on_realize_turn_failed(error_message: String, _request_context: Dictionary, source_client: DeepSeekClient = null) -> void:
+func _on_realize_turn_failed(error_message: String, request_context: Dictionary, source_client: DeepSeekClient = null) -> void:
 	if source_client != null and source_client != _main_chat_session_client:
+		return
+	if str(request_context.get("display_mode", "")) == "main_bubble":
+		_show_proactive_greeting_bubble("谢谢你，我会好好珍惜这份礼物的。")
+		_end_main_chat_session()
+		_reset_main_chat_context()
 		return
 	stream_live_active = false
 	stream_live_done = false
@@ -1768,8 +1876,8 @@ func _on_realize_turn_failed(error_message: String, _request_context: Dictionary
 	dialogue_name_label.text = GameDataManager.profile.char_name
 	dialogue_text.text = "回复失败，请重试。"
 	_set_dialogue_input_ready(false)
-	if dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
-		dialogue_panel.clear_ai_player_options(true)
+	if dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
+		dialogue_panel.set_ai_player_option_status("Luna暂时没有回应")
 	ToastManager.show_system_toast(error_message, Color.RED)
 
 func _try_start_stream_worker() -> void:
@@ -1974,7 +2082,7 @@ func _stream_worker_loop() -> void:
 	_try_show_options()
 	if not is_memory_revisit_active and pending_options_data.is_empty() and ai_player_options_container.get_child_count() == 0:
 		if _main_chat_options_request_failed:
-			dialogue_panel.clear_ai_player_options(true)
+			dialogue_panel.set_ai_player_option_status("你也可以直接输入回复")
 		else:
 			dialogue_panel.set_ai_player_option_status("Luna正在思考中")
 	
@@ -1996,6 +2104,98 @@ func _on_tts_failed(error_msg: String, text: String) -> void:
 		return
 	_consume_pending_main_scene_tts(text)
 	print("MainScene TTS 失败: ", error_msg)
+
+
+func _on_scene_meal_button_pressed() -> void:
+	var context: Dictionary = _meal_service.get_current_context(GameDataManager.story_time_manager, GameDataManager.profile)
+	if not bool(context.get("available", false)):
+		_update_meal_button_state()
+		return
+	_animate_button(meal_button)
+	meal_panel.show_options()
+	_report_guide_action("open_meal")
+	_refresh_guide_overlay_if_needed()
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(true)
+	_play_meal_prompt()
+
+
+func open_meal_from_guide() -> void:
+	_on_scene_meal_button_pressed()
+
+
+func _play_meal_prompt() -> void:
+	var options := {}
+	var cache_key := TTSManager.get_cache_key(MEAL_PROMPT_TEXT, options)
+	var cached_stream: AudioStream = TTSManager.load_cached_audio_by_key(cache_key)
+	if cached_stream:
+		audio_player.stream = cached_stream
+		audio_player.play()
+		return
+	_remember_pending_main_scene_tts(MEAL_PROMPT_TEXT)
+	TTSManager.synthesize(MEAL_PROMPT_TEXT, options)
+
+
+func _on_meal_takeout_requested() -> void:
+	var context: Dictionary = _meal_service.get_current_context(GameDataManager.story_time_manager, GameDataManager.profile)
+	var meal: Dictionary = _meal_service.draw_takeout(str(context.get("slot_id", "")))
+	if meal.is_empty():
+		return
+	_pending_meal = meal
+	_pending_meal_context = context.duplicate(true)
+	meal_panel.show_result(meal)
+
+
+func _on_meal_minute_elapsed(minutes: int) -> void:
+	if minutes > 0 and GameDataManager.story_time_manager:
+		GameDataManager.story_time_manager.tick_minutes(minutes)
+
+
+func _on_meal_progress_completed() -> void:
+	if _pending_meal.is_empty() or _pending_meal_context.is_empty():
+		return
+	var result: Dictionary = _meal_service.consume_takeout(
+		GameDataManager.profile,
+		GameDataManager.story_time_manager,
+		_pending_meal,
+		true,
+		_pending_meal_context
+	)
+	if not bool(result.get("ok", false)):
+		_update_meal_button_state()
+		return
+	meal_panel.reveal_completion(result)
+	_refresh_guide_overlay_if_needed()
+	_pending_meal.clear()
+	_pending_meal_context.clear()
+	_update_mood_panel_ui()
+	_update_meal_button_state()
+
+
+func _on_meal_panel_closed() -> void:
+	var guide_manager := _get_guide_manager()
+	var should_start_scheduled_guide := guide_manager != null and guide_manager.has_method("get_current_step_id") and str(guide_manager.get_current_step_id()) == "close_first_meal_result"
+	_report_guide_action("close_meal_result")
+	if should_start_scheduled_guide and guide_manager.has_method("start_scheduled_guides_if_needed"):
+		guide_manager.start_scheduled_guides_if_needed()
+	_pending_meal.clear()
+	_pending_meal_context.clear()
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(false)
+	_update_button_states_by_time()
+
+
+func close_meal_result_from_guide() -> void:
+	if is_instance_valid(meal_panel) and meal_panel.has_method("_try_close_result"):
+		meal_panel.call("_try_close_result")
+
+
+func _update_meal_button_state() -> void:
+	var context: Dictionary = _meal_service.get_current_context(GameDataManager.story_time_manager, GameDataManager.profile)
+	var available := bool(context.get("available", false))
+	var meal_label := str(context.get("slot_label", "吃饭"))
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_meal_button_available"):
+		current_bg_scene.set_meal_button_available(available, meal_label)
 
 
 func _on_dialogue_panel_gui_input(event: InputEvent) -> void:
@@ -2123,8 +2323,8 @@ func _on_main_chat_options_failed(_error_message: String, source_client: DeepSee
 		return
 	pending_options_data.clear()
 	_main_chat_options_request_failed = true
-	if is_text_playback_finished and dialogue_panel and dialogue_panel.has_method("clear_ai_player_options"):
-		dialogue_panel.clear_ai_player_options(true)
+	if is_text_playback_finished and dialogue_panel and dialogue_panel.has_method("set_ai_player_option_status"):
+		dialogue_panel.set_ai_player_option_status("你也可以直接输入回复")
 
 func _try_show_options() -> void:
 	if is_text_playback_finished and pending_options_data.size() > 0:
@@ -2142,7 +2342,7 @@ func _try_show_options() -> void:
 			pending_options_data.clear()
 			return
 		_rendered_quick_options = _rendered_quick_options.slice(0, 2)
-		QuickOptionListHelper.populate_option_items_with_index(
+		QuickOptionListHelper.populate_ai_reply_items_with_index(
 			ai_player_options_container,
 			_rendered_quick_options,
 			_on_quick_option_selected
@@ -2257,7 +2457,7 @@ func _ensure_main_bg_unlock_state() -> void:
 	if current_bg_id == "":
 		current_bg_id = str(GameDataManager.config.current_main_bg_id).strip_edges()
 	if current_bg_id == "" or not _main_bg_catalog_by_id.has(current_bg_id):
-		current_bg_id = _match_main_bg_id_from_path(ImageManager.get_image_path("main_bg_scene"))
+		current_bg_id = _match_main_bg_id_from_path(ImageManager.get_image_path("main_bg_scene")) if ImageManager.has_image_id("main_bg_scene") else ""
 		if current_bg_id == "" and not GameDataManager.config.unlocked_main_bg_ids.is_empty():
 			current_bg_id = str(GameDataManager.config.unlocked_main_bg_ids[0])
 		if current_bg_id == "" and not _main_bg_catalog.is_empty():
@@ -2280,7 +2480,7 @@ func _get_current_main_bg_id() -> String:
 		var config_bg_id := str(GameDataManager.config.current_main_bg_id).strip_edges()
 		if config_bg_id != "":
 			return config_bg_id
-	return _match_main_bg_id_from_path(ImageManager.get_image_path("main_bg_scene"))
+	return _match_main_bg_id_from_path(ImageManager.get_image_path("main_bg_scene")) if ImageManager.has_image_id("main_bg_scene") else ""
 
 func _resolve_current_main_bg_path() -> String:
 	var bg_id := _get_current_main_bg_id()
@@ -2289,7 +2489,7 @@ func _resolve_current_main_bg_path() -> String:
 		if scene_path != "" and ResourceLoader.exists(scene_path):
 			return scene_path
 
-	var main_bg_path = ImageManager.get_image_path("main_bg_scene")
+	var main_bg_path = ImageManager.get_image_path("main_bg_scene") if ImageManager.has_image_id("main_bg_scene") else ""
 	if main_bg_path != "" and ResourceLoader.exists(main_bg_path):
 		return main_bg_path
 	return "res://scenes/ui/main/backgrounds/locations/default_room_bg.tscn"
@@ -2319,6 +2519,7 @@ func _ensure_bg_setting_panel() -> void:
 	add_child(bg_setting_panel_instance)
 	bg_setting_panel_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bg_setting_panel_instance.apply_requested.connect(_on_main_bg_apply_requested)
+	bg_setting_panel_instance.non_current_background_selected.connect(_on_non_current_background_selected)
 
 func _update_bg_switch_button_visibility() -> void:
 	if not is_instance_valid(bg_switch_button):
@@ -2345,8 +2546,27 @@ func _on_bg_switch_pressed() -> void:
 		bg_setting_panel_instance.hide_panel()
 		return
 	bg_setting_panel_instance.show_panel(_get_unlocked_main_bg_entries(), _get_current_main_bg_id())
+	_report_guide_action("open_background_switch_panel")
+	call_deferred("_refresh_guide_overlay_if_needed")
+
+func _on_non_current_background_selected() -> void:
+	_report_guide_action("select_non_current_background")
+	call_deferred("_refresh_guide_overlay_if_needed")
 
 func _on_main_bg_apply_requested(bg_id: String) -> void:
+	var final_id := bg_id.strip_edges()
+	var should_advance_guide := not _bg_transition_active and final_id != "" and final_id != _get_current_main_bg_id() and _main_bg_catalog_by_id.has(final_id)
+	if should_advance_guide and GameDataManager.config:
+		if GameDataManager.config.has_method("is_main_background_unlocked"):
+			should_advance_guide = bool(GameDataManager.config.is_main_background_unlocked(final_id))
+		else:
+			should_advance_guide = GameDataManager.config.unlocked_main_bg_ids.has(final_id)
+	if should_advance_guide:
+		var target_entry: Dictionary = _main_bg_catalog_by_id[final_id]
+		var target_path := str(target_entry.get("path", "")).strip_edges()
+		should_advance_guide = target_path != "" and ResourceLoader.exists(target_path)
+	if should_advance_guide:
+		_report_guide_action("apply_selected_background")
 	await _apply_main_background(bg_id)
 
 func _apply_main_background(bg_id: String) -> void:
@@ -2368,7 +2588,6 @@ func _apply_main_background(bg_id: String) -> void:
 		return
 
 	_bg_transition_active = true
-	_hide_bg_setting_panel_immediately()
 	bg_transition_fade.visible = true
 	bg_transition_fade.mouse_filter = Control.MOUSE_FILTER_STOP
 	bg_transition_fade.modulate.a = 0.0
@@ -2376,6 +2595,19 @@ func _apply_main_background(bg_id: String) -> void:
 	fade_in.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	fade_in.tween_property(bg_transition_fade, "modulate:a", 1.0, 0.38)
 	await fade_in.finished
+	_hide_bg_setting_panel_immediately()
+	if is_instance_valid(mobile_interface_instance) and mobile_interface_instance.has_method("hide_phone_immediately"):
+		mobile_interface_instance.hide_phone_immediately()
+	if _ui_tween:
+		_ui_tween.kill()
+	_phone_mode_active = false
+	ui_panel.visible = true
+	ui_panel.modulate.a = 1.0
+	bg_container.position.x = 0.0
+	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_ui_hidden"):
+		current_bg_scene.set_ui_hidden(false)
+	_update_bg_switch_button_visibility()
+	_refresh_scene_chat_button_state()
 	await get_tree().create_timer(0.22).timeout
 
 	_load_bg_scene(target_path)
@@ -2424,7 +2656,8 @@ func _ready() -> void:
 		bg_transition_fade.modulate.a = 0.0
 	affection_button.pressed.connect(_on_affection_pressed)
 	affection_dismiss_button.pressed.connect(_hide_affection_popup)
-	rest_button.pressed.connect(_on_rest_pressed)
+	main_gift_button.pressed.connect(_on_gift_pressed)
+	gift_dismiss_button.pressed.connect(_hide_gift_popup)
 	main_action_button.pressed.connect(_on_main_action_pressed)
 	diary_button.pressed.connect(_on_diary_pressed)
 	date_button.pressed.connect(_on_date_pressed)
@@ -2466,6 +2699,11 @@ func _ready() -> void:
 		wardrobe_button.pressed.connect(_on_wardrobe_pressed)
 	if wardrobe_panel:
 		wardrobe_panel.outfit_changed.connect(_on_outfit_changed)
+	if meal_panel:
+		meal_panel.takeout_requested.connect(_on_meal_takeout_requested)
+		meal_panel.meal_minute_elapsed.connect(_on_meal_minute_elapsed)
+		meal_panel.meal_progress_completed.connect(_on_meal_progress_completed)
+		meal_panel.closed.connect(_on_meal_panel_closed)
 		
 	if GameDataManager.profile and GameDataManager.profile.current_outfit != "default":
 		call_deferred("_apply_saved_outfit")
@@ -2515,13 +2753,15 @@ func _ready() -> void:
 	# 所以下面这些其实可以移除，但保留也没坏处
 	camera_button.pivot_offset = camera_button.size / 2
 	phone_button.pivot_offset = phone_button.size / 2
-	rest_button.pivot_offset = rest_button.size / 2
+	if is_instance_valid(rest_button):
+		rest_button.pivot_offset = rest_button.size / 2
 	if is_instance_valid(diary_button):
 		diary_button.pivot_offset = diary_button.size / 2
 	if is_instance_valid(date_button):
 		date_button.pivot_offset = date_button.size / 2
 	hide_ui_button.pivot_offset = hide_ui_button.size / 2
 	affection_button.pivot_offset = affection_button.size / 2
+	main_gift_button.pivot_offset = main_gift_button.size / 2
 	if is_instance_valid(main_action_button):
 		main_action_button.pivot_offset = main_action_button.size / 2
 	_setup_feature_lock_ui()
@@ -2640,6 +2880,12 @@ func open_music_playlist_from_guide() -> void:
 		music_player.open_playlist_from_guide()
 		_report_guide_action("open_music_playlist")
 		call_deferred("_refresh_guide_overlay_if_needed")
+
+func finish_music_playlist_guide_step() -> void:
+	if is_instance_valid(music_player) and music_player.has_method("close_playlist_popup"):
+		music_player.close_playlist_popup()
+	_report_guide_action("inspect_music_playlist")
+	call_deferred("_refresh_guide_overlay_if_needed")
 
 func is_music_playlist_ready_for_guide() -> bool:
 	return is_instance_valid(music_player) and music_player.has_method("is_playlist_ready_for_guide") and bool(music_player.is_playlist_ready_for_guide())
@@ -2767,16 +3013,20 @@ func _setup_feature_lock_ui() -> void:
 	_feature_lock_views.clear()
 	_register_compound_feature_lock_view("main.diary", diary_button, diary_button_label)
 	_register_compound_feature_lock_view("main.creation", creation_button, creation_button_label)
+	_register_compound_feature_lock_view("main.gift", main_gift_button, main_gift_button_label)
 	_register_compound_feature_lock_view("main.wechat", wechat_button, wechat_button_label)
-	_register_compound_feature_lock_view("main.wardrobe", wardrobe_button, wardrobe_button_label)
+	var wardrobe_view := _ensure_text_button_lock_view(wardrobe_button)
+	if not wardrobe_view.is_empty():
+		wardrobe_view["feature_id"] = "main.wardrobe"
+		_feature_lock_views["main.wardrobe"] = wardrobe_view
 	var date_view := _ensure_text_button_lock_view(date_button)
 	if not date_view.is_empty():
+		date_view["feature_id"] = "main.date"
 		_feature_lock_views["main.date"] = date_view
-		_date_button_display_label = date_view.get("label") as Label
 	var main_action_view := _ensure_text_button_lock_view(main_action_button)
 	if not main_action_view.is_empty():
+		main_action_view["feature_id"] = "main.main_action"
 		_feature_lock_views["main.main_action"] = main_action_view
-		_main_action_display_label = main_action_view.get("label") as Label
 	_set_date_button_text("约会")
 	_set_main_action_button_text(main_action_button.text)
 	_update_main_feature_lock_states()
@@ -2784,102 +3034,34 @@ func _setup_feature_lock_ui() -> void:
 func _register_compound_feature_lock_view(feature_id: String, button: Button, label_node: Label) -> void:
 	var view := _ensure_compound_button_lock_view(button, label_node)
 	if not view.is_empty():
+		view["feature_id"] = feature_id
 		_feature_lock_views[feature_id] = view
 
 func _ensure_compound_button_lock_view(button: Button, label_node: Label) -> Dictionary:
 	if not is_instance_valid(button) or not is_instance_valid(label_node):
 		return {}
-	var row := label_node.get_parent() as HBoxContainer
-	if row == null or row.name != "LockRow":
-		var original_parent := label_node.get_parent()
-		if original_parent == null:
-			return {}
-		var label_index := label_node.get_index()
-		row = HBoxContainer.new()
-		row.name = "LockRow"
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		original_parent.remove_child(label_node)
-		row.add_child(label_node)
-		original_parent.add_child(row)
-		original_parent.move_child(row, label_index)
-	var icon := row.get_node_or_null("LockIcon") as TextureRect
-	if icon == null:
-		icon = TextureRect.new()
-		icon.name = "LockIcon"
-		icon.custom_minimum_size = Vector2(12, 12)
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		icon.texture = FEATURE_LOCK_ICON
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.visible = false
-		row.add_child(icon)
 	return {
 		"button": button,
 		"label": label_node,
-		"icon": icon,
 		"default_tooltip": button.tooltip_text
 	}
 
 func _ensure_text_button_lock_view(button: Button) -> Dictionary:
 	if not is_instance_valid(button):
 		return {}
-	var center := button.get_node_or_null("LockCenter") as CenterContainer
-	if center == null:
-		center = CenterContainer.new()
-		center.name = "LockCenter"
-		center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		button.add_child(center)
-	var row := center.get_node_or_null("LockRow") as HBoxContainer
-	if row == null:
-		row = HBoxContainer.new()
-		row.name = "LockRow"
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 6)
-		center.add_child(row)
-	var label := row.get_node_or_null("TextLabel") as Label
-	if label == null:
-		label = Label.new()
-		label.name = "TextLabel"
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.add_theme_color_override("font_color", Color(0.3, 0.35, 0.35, 1))
-		label.add_theme_font_size_override("font_size", 18)
-		row.add_child(label)
-	var icon := row.get_node_or_null("LockIcon") as TextureRect
-	if icon == null:
-		icon = TextureRect.new()
-		icon.name = "LockIcon"
-		icon.custom_minimum_size = Vector2(14, 14)
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		icon.texture = FEATURE_LOCK_ICON
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.visible = false
-		row.add_child(icon)
-	var original_text := button.text
-	button.text = ""
-	label.text = original_text
 	return {
 		"button": button,
-		"label": label,
-		"icon": icon,
+		"label": null,
 		"default_tooltip": button.tooltip_text
 	}
 
 func _set_date_button_text(text: String) -> void:
-	if is_instance_valid(_date_button_display_label):
-		_date_button_display_label.text = text
-	if is_instance_valid(date_button):
-		date_button.text = "" if is_instance_valid(_date_button_display_label) else text
+	if is_instance_valid(date_button_label):
+		date_button_label.text = text
 
 func _set_main_action_button_text(text: String) -> void:
-	if is_instance_valid(_main_action_display_label):
-		_main_action_display_label.text = text
-	if is_instance_valid(main_action_button):
-		main_action_button.text = "" if is_instance_valid(_main_action_display_label) else text
+	if is_instance_valid(main_action_button_label):
+		main_action_button_label.text = text
 
 func _get_main_feature_fallbacks(feature_id: String) -> Array:
 	if MAIN_FEATURE_ALIASES.has(feature_id):
@@ -2898,17 +3080,21 @@ func _is_main_feature_unlocked_internal(feature_id: String, default_unlocked: bo
 func is_main_feature_unlocked(feature_id: String) -> bool:
 	return _is_main_feature_unlocked_internal(feature_id, true)
 
+func _show_locked_feature_toast_if_needed(feature_id: String, button: Button) -> bool:
+	if not CLICKABLE_LOCKED_FEATURES.has(feature_id) or not is_instance_valid(button) or not bool(button.get_meta("feature_locked", false)):
+		return false
+	ToastManager.show_system_toast(MAIN_FEATURE_LOCK_HINT)
+	return true
+
 func _apply_feature_lock_view(view: Dictionary, is_locked: bool, extra_disabled: bool = false) -> void:
 	if view.is_empty():
 		return
 	var target_button := view.get("button") as Button
 	if not is_instance_valid(target_button):
 		return
-	var lock_icon := view.get("icon") as TextureRect
-	if is_instance_valid(lock_icon):
-		lock_icon.visible = is_locked
 	target_button.set_meta("feature_locked", is_locked)
-	target_button.disabled = is_locked or extra_disabled
+	var keep_locked_button_clickable := is_locked and CLICKABLE_LOCKED_FEATURES.has(str(view.get("feature_id", "")))
+	target_button.disabled = extra_disabled or (is_locked and not keep_locked_button_clickable)
 	target_button.modulate = LOCKED_BUTTON_MODULATE if is_locked else UNLOCKED_BUTTON_MODULATE
 	var default_tooltip := str(view.get("default_tooltip", "")).strip_edges()
 	target_button.tooltip_text = MAIN_FEATURE_LOCK_HINT if is_locked else default_tooltip
@@ -2916,12 +3102,13 @@ func _apply_feature_lock_view(view: Dictionary, is_locked: bool, extra_disabled:
 func _update_main_feature_lock_states() -> void:
 	_apply_feature_lock_view(_feature_lock_views.get("main.diary", {}), not _is_main_feature_unlocked_internal("main.diary", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.creation", {}), not _is_main_feature_unlocked_internal("main.creation", true))
+	_apply_feature_lock_view(_feature_lock_views.get("main.gift", {}), not _is_main_feature_unlocked_internal("main.gift", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.wechat", {}), not _is_main_feature_unlocked_internal("main.wechat", true))
 	_apply_feature_lock_view(_feature_lock_views.get("main.wardrobe", {}), not _is_main_feature_unlocked_internal("main.wardrobe", true))
 	var date_unlocked := _is_main_feature_unlocked_internal("main.date", true)
 	_apply_feature_lock_view(_feature_lock_views.get("main.date", {}), not date_unlocked)
 	if is_instance_valid(date_button):
-		date_button.visible = date_unlocked
+		date_button.visible = true
 	var main_action_locked := false
 	if _main_action_mode == "map":
 		main_action_locked = not _is_main_feature_unlocked_internal("main.outing", true)
@@ -2931,7 +3118,7 @@ func _update_main_feature_lock_states() -> void:
 	_keep_main_utility_buttons_available()
 
 func _keep_main_utility_buttons_available() -> void:
-	for button_value in [wechat_button, rest_button, hide_ui_button, camera_button, phone_button]:
+	for button_value in [wechat_button, hide_ui_button, camera_button, phone_button]:
 		if button_value is Button and is_instance_valid(button_value):
 			var utility_button := button_value as Button
 			utility_button.disabled = false
@@ -2940,8 +3127,6 @@ func _keep_main_utility_buttons_available() -> void:
 			utility_button.set_meta("feature_locked", false)
 			if utility_button.tooltip_text == MAIN_FEATURE_LOCK_HINT:
 				utility_button.tooltip_text = ""
-	if is_instance_valid(rest_button):
-		rest_button.show()
 
 func _refresh_guide_overlay_if_needed() -> void:
 	var guide_manager := _get_guide_manager()
@@ -2961,8 +3146,12 @@ func _on_guide_feature_states_changed() -> void:
 	_refresh_guide_overlay_if_needed()
 
 func _on_main_ui_restored_after_chat_closed() -> void:
-	_resume_guide_after_embedded_main_story()
+	var daily_chat_finished := _daily_chat_completion_pending
+	_daily_chat_completion_pending = false
+	if daily_chat_finished:
+		_report_guide_action("first_daily_chat_finished")
 	var guide_manager := _get_guide_manager()
+	_resume_guide_after_embedded_main_story()
 	var waiting_for_goal_guide := false
 	if guide_manager and guide_manager.has_method("get_current_step_id"):
 		waiting_for_goal_guide = str(guide_manager.get_current_step_id()) == "explain_main_goal_panel"
@@ -2976,8 +3165,6 @@ func _advance_guided_ai_completion_guide_steps() -> void:
 	var guide_manager := _get_guide_manager()
 	if not guide_manager or not guide_manager.has_method("get_current_step_id"):
 		return
-	if str(guide_manager.get_current_step_id()) == "explain_guided_ai_round_limit":
-		_report_guide_action("acknowledge_guided_ai_round_limit")
 	if str(guide_manager.get_current_step_id()) == "finish_first_chat_after_goal":
 		_report_guide_action("finish_first_main_chat_after_goal")
 	_refresh_guide_overlay_if_needed()
@@ -3039,6 +3226,18 @@ func is_chat_button_ready_for_guide() -> bool:
 		return false
 	return chat_btn.is_visible_in_tree() and chat_btn.modulate.a > 0.01
 
+func is_meal_button_ready_for_guide() -> bool:
+	if not is_main_ui_ready_for_guide() or not is_instance_valid(current_bg_scene):
+		return false
+	var scene_meal_button := current_bg_scene.get_node_or_null("MealButton") as Button
+	return is_instance_valid(scene_meal_button) and scene_meal_button.is_visible_in_tree() and not scene_meal_button.disabled
+
+func is_meal_takeout_ready_for_guide() -> bool:
+	return is_instance_valid(meal_panel) and meal_panel.has_method("is_takeout_button_ready_for_guide") and bool(meal_panel.is_takeout_button_ready_for_guide())
+
+func is_meal_result_ready_for_guide() -> bool:
+	return is_instance_valid(meal_panel) and meal_panel.has_method("is_result_ready_for_guide") and bool(meal_panel.is_result_ready_for_guide())
+
 func is_affection_button_ready_for_guide() -> bool:
 	if not is_main_ui_ready_for_guide():
 		return false
@@ -3072,7 +3271,10 @@ func is_main_chat_topic_options_ready() -> bool:
 		return false
 	if not is_instance_valid(quick_option_layer) or not quick_option_layer.visible:
 		return false
-	return quick_option_layer.is_visible_in_tree()
+	if not quick_option_layer.is_visible_in_tree() or not _main_chat_topic_options_layout_ready:
+		return false
+	var target := _get_preferred_topic_option_target()
+	return is_instance_valid(target) and target.get_global_rect().size.x > 32.0 and target.get_global_rect().size.y > 32.0
 
 func _get_control_focus_rect(control: Control) -> Rect2:
 	if not is_instance_valid(control):
@@ -3134,6 +3336,23 @@ func get_affection_panel_focus_entry() -> Dictionary:
 		return _build_rounded_focus_entry(target_control, 28.0)
 	return _build_rounded_focus_entry(affection_popup_frame, 28.0)
 
+func get_affection_close_button_focus_entry() -> Dictionary:
+	if is_instance_valid(affection_panel_instance):
+		return _build_rounded_focus_entry(affection_panel_instance.get("back_btn") as Control, 14.0)
+	return {}
+
+func get_phone_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(phone_button, 14.0)
+
+func get_background_switch_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(bg_switch_button, 14.0)
+
+func get_background_list_focus_entry() -> Dictionary:
+	return bg_setting_panel_instance.get_background_list_focus_entry() if is_instance_valid(bg_setting_panel_instance) else {}
+
+func get_background_preview_apply_focus_entries() -> Array[Dictionary]:
+	return bg_setting_panel_instance.get_preview_apply_focus_entries() if is_instance_valid(bg_setting_panel_instance) else []
+
 func _get_affection_panel_focus_target() -> Control:
 	if is_instance_valid(affection_panel_instance) and affection_panel_instance is Control:
 		var panel_control := affection_panel_instance as Control
@@ -3142,10 +3361,17 @@ func _get_affection_panel_focus_target() -> Control:
 	return affection_popup_frame
 
 func get_top_status_panel_focus_entry() -> Dictionary:
-	return _build_rounded_focus_entry(top_status_panel, 24.0)
+	if is_instance_valid(top_status_panel) and top_status_panel.has_method("get_energy_guide_focus_target"):
+		var energy_target: Variant = top_status_panel.get_energy_guide_focus_target()
+		if energy_target is Control and is_instance_valid(energy_target):
+			return _build_rounded_focus_entry(energy_target as Control, 8.0)
+	return {}
 
 func get_weather_panel_focus_entry() -> Dictionary:
 	return _build_rounded_focus_entry(weather_panel, 24.0)
+
+func get_stats_panel_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(stats_panel, 26.0)
 
 func get_goal_panel_focus_entry() -> Dictionary:
 	return _build_rounded_focus_entry(goal_panel, 22.0)
@@ -3159,17 +3385,106 @@ func get_interact_trigger_focus_entry() -> Dictionary:
 func get_chat_button_focus_entry() -> Dictionary:
 	return _build_rounded_focus_entry(_get_scene_chat_button(), 18.0)
 
+func get_meal_button_focus_entry() -> Dictionary:
+	var scene_meal_button := current_bg_scene.get_node_or_null("MealButton") as Button if is_instance_valid(current_bg_scene) else null
+	return _build_rounded_focus_entry(scene_meal_button, 18.0)
+
+func get_meal_takeout_focus_entry() -> Dictionary:
+	return meal_panel.get_takeout_button_focus_entry() if is_instance_valid(meal_panel) and meal_panel.has_method("get_takeout_button_focus_entry") else {}
+
+func get_meal_result_focus_entry() -> Dictionary:
+	return meal_panel.get_result_focus_entry() if is_instance_valid(meal_panel) and meal_panel.has_method("get_result_focus_entry") else {}
+
 func get_main_chat_topic_options_focus_entry() -> Dictionary:
-	if not is_instance_valid(quick_option_layer) or not quick_option_layer.visible:
+	if not is_main_chat_topic_options_ready():
 		return {}
 	var preferred_target := _get_preferred_topic_option_target()
 	if is_instance_valid(preferred_target):
 		return _build_rounded_focus_entry(preferred_target, 26.0)
 	return _build_rounded_focus_entry(quick_option_layer, 24.0)
 
+func get_daily_chat_topic_options_focus_entries() -> Array[Dictionary]:
+	var focus_entries: Array[Dictionary] = []
+	if not is_main_chat_topic_options_ready():
+		return focus_entries
+	for child in quick_options_container.get_children():
+		if child is Control and is_instance_valid(child) and (child as Control).is_visible_in_tree():
+			var focus_entry := _build_rounded_focus_entry(child as Control, 8.0)
+			if not focus_entry.is_empty():
+				focus_entries.append(focus_entry)
+	return focus_entries
+
+func are_daily_chat_topic_options_ready_for_guide() -> bool:
+	return get_daily_chat_topic_options_focus_entries().size() == 3
+
+func get_daily_resource_status_focus_entries() -> Array[Dictionary]:
+	if is_instance_valid(chat_scene_instance) and chat_scene_instance.has_method("get_daily_resource_status_focus_entries"):
+		return chat_scene_instance.get_daily_resource_status_focus_entries()
+	return []
+
+func is_daily_resource_status_ready_for_guide() -> bool:
+	return get_daily_resource_status_focus_entries().size() == 2
+
+func get_daily_chat_end_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(end_chat_btn, 8.0)
+
+func is_daily_chat_end_button_ready_for_guide() -> bool:
+	return is_instance_valid(end_chat_btn) and end_chat_btn.is_visible_in_tree()
+
+func get_rest_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(rest_button, 18.0)
+
+func is_rest_button_ready_for_guide() -> bool:
+	return is_instance_valid(rest_button) and rest_button.is_visible_in_tree() and not rest_button.disabled
+
+func get_rest_confirm_button_focus_entry() -> Dictionary:
+	if not is_instance_valid(_active_rest_confirm_dialog):
+		return {}
+	var confirm_button := _active_rest_confirm_dialog.get_node_or_null("ConfirmPanel/ConfirmMargin/ConfirmContainer/VBoxContainer/HBoxContainer/ConfirmButton") as Button
+	return _build_rounded_focus_entry(confirm_button, 20.0)
+
+func is_rest_confirm_button_ready_for_guide() -> bool:
+	return not get_rest_confirm_button_focus_entry().is_empty()
+
+func get_guided_ai_player_options_focus_entries() -> Array[Dictionary]:
+	var focus_entries: Array[Dictionary] = []
+	if not is_instance_valid(ai_player_option_layer) or not ai_player_option_layer.is_visible_in_tree():
+		return focus_entries
+	for child in ai_player_options_container.get_children():
+		if child is Control and is_instance_valid(child) and (child as Control).is_visible_in_tree():
+			var focus_entry := _build_rounded_focus_entry(child as Control, 8.0)
+			if not focus_entry.is_empty():
+				focus_entries.append(focus_entry)
+	return focus_entries
+
+func are_guided_ai_player_options_ready_for_guide() -> bool:
+	return get_guided_ai_player_options_focus_entries().size() == 2
+
+func get_guided_ai_input_field_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(input_field, 8.0)
+
+func get_guided_ai_send_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(send_btn, 8.0)
+
+func get_guided_ai_voice_button_focus_entry() -> Dictionary:
+	return _build_rounded_focus_entry(voice_record_btn, 8.0)
+
+func is_guided_ai_input_control_ready_for_guide(target_mode: String) -> bool:
+	var target: Control = null
+	match target_mode:
+		"guided_ai_input_field":
+			target = input_field
+		"guided_ai_send_button":
+			target = send_btn
+		"guided_ai_voice_button":
+			target = voice_record_btn
+		"guided_ai_dialogue":
+			target = dialogue_panel
+	return is_instance_valid(target) and target.is_visible_in_tree()
+
 func get_ai_round_info_focus_entry() -> Dictionary:
 	var round_info := dialogue_panel.get_node_or_null("FreeChatInfoLayer") as Control if is_instance_valid(dialogue_panel) else null
-	return _build_rounded_focus_entry(round_info, 10.0)
+	return _build_rounded_focus_entry(round_info, 20.0)
 
 func is_ai_round_info_ready_for_guide() -> bool:
 	var round_info := dialogue_panel.get_node_or_null("FreeChatInfoLayer") as Control if is_instance_valid(dialogue_panel) else null
@@ -3228,10 +3543,13 @@ func open_main_goal_story_from_guide() -> void:
 	call_deferred("_try_start_auto_main_story_after_wechat_close")
 
 func _update_button_states_by_time() -> void:
+	_update_meal_button_state()
 	if not GameDataManager.story_time_manager:
 		_main_action_time_disabled = false
 		if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_chat_button_available"):
 			current_bg_scene.set_chat_button_available(true)
+		if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_rest_button_available"):
+			current_bg_scene.set_rest_button_available(true)
 		_refresh_scene_chat_button_state()
 		var fallback_guide_manager := _get_guide_manager()
 		if fallback_guide_manager and fallback_guide_manager.has_method("apply_main_scene_feature_states"):
@@ -3242,6 +3560,7 @@ func _update_button_states_by_time() -> void:
 	var weekday = date_dict.weekday
 	var current_hour = GameDataManager.story_time_manager.current_hour
 	var scene_chat_available := _is_scene_chat_entry_allowed_by_time()
+	var rest_available: bool = current_hour >= 19
 
 	if _interaction_ui_locked_by_dialogue or _phone_mode_active or (is_instance_valid(mobile_interface_instance) and mobile_interface_instance.visible):
 		_main_action_time_disabled = false
@@ -3261,31 +3580,34 @@ func _update_button_states_by_time() -> void:
 			_set_main_action_button_text("外出")
 		_main_action_time_disabled = false
 		_main_action_mode = "map"
+		if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_rest_button_available"):
+			current_bg_scene.set_rest_button_available(rest_available)
 		if rest_button:
-			rest_button.show()
-			rest_button.disabled = false
+			rest_button.disabled = not rest_available
 	else:
 		# 周一到周五
-		# 3. 到了周五晚上八点（20:00 及之后）：课程安排和外出都禁用，显示互动触发按钮
-		if weekday == 5 and current_hour >= 20:
+		# 3. 到了周五傍晚六点（18:00 及之后）：课程安排和外出都禁用，显示互动触发按钮
+		if weekday == 5 and current_hour >= 18:
 			if main_action_button:
 				main_action_button.disabled = true
 				_set_main_action_button_text("行程安排")
 			_main_action_time_disabled = true
 			_main_action_mode = "disabled"
+			if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_rest_button_available"):
+				current_bg_scene.set_rest_button_available(rest_available)
 			if rest_button:
-				rest_button.show()
-				rest_button.disabled = false
+				rest_button.disabled = not rest_available
 		else:
-			# 2. 周内（周一至周五 20:00前）：外出禁用，隐藏互动触发按钮和互动组，只能进行课程安排
+			# 2. 周内（周一至周五 18:00前）：外出禁用，隐藏互动触发按钮和互动组，只能进行课程安排
 			if main_action_button:
 				main_action_button.disabled = false
 				_set_main_action_button_text("行程安排")
 			_main_action_time_disabled = false
 			_main_action_mode = "schedule"
+			if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_rest_button_available"):
+				current_bg_scene.set_rest_button_available(rest_available)
 			if rest_button:
-				rest_button.hide()
-				rest_button.disabled = true
+				rest_button.disabled = not rest_available
 	if is_instance_valid(current_bg_scene) and current_bg_scene.has_method("set_chat_button_available"):
 		current_bg_scene.set_chat_button_available(scene_chat_available)
 	_refresh_scene_chat_button_state()
@@ -3473,186 +3795,14 @@ func start_farewell() -> void:
 	if quick_option_layer:
 		quick_option_layer.hide()
 		
-	var farewell_event := "玩家已按下结束对话按钮，本轮需要由角色自然告别并结束当前会话。"
+	var farewell_event := "玩家已按下结束对话按钮，本轮需要由角色自然结束当前会话，并表达之后有机会再聊。"
 	session_client.send_realize_turn_message(farewell_event, "main_chat", {
 		"module": DAILY_HISTORY_MODULE,
 		"subtype": _current_main_chat_subtype,
 		"channel": "main_chat_farewell",
 		"turn_origin": "program_event",
-		"additional_authoritative_context": "角色应简短告别，不再开启新话题；这是程序事件，不是玩家说出的话。"
+		"additional_authoritative_context": "角色应简短表示这次先聊到这里、之后有机会再聊，不再开启新话题；这是程序事件，不是玩家说出的话。"
 	})
-
-func _add_neon_effect_to_button(btn: Button) -> void:
-	if btn.has_meta("neon_style"):
-		btn.remove_meta("neon_style")
-	if btn.has_meta("neon_mat"):
-		btn.remove_meta("neon_mat")
-
-	if btn.name == "RestButton":
-		var base_style = btn.get_theme_stylebox("normal")
-		var style := (base_style.duplicate() as StyleBoxFlat) if base_style is StyleBoxFlat else StyleBoxFlat.new()
-		btn.add_theme_stylebox_override("normal", style)
-		btn.add_theme_stylebox_override("hover", style)
-		btn.add_theme_stylebox_override("pressed", style)
-		btn.add_theme_stylebox_override("focus", style)
-		style.border_color = Color(0, 0, 0, 0)
-		style.shadow_color = Color(0, 0, 0, 0)
-		style.shadow_size = 0
-		btn.set_meta("neon_style", style)
-	elif btn.name == "MainActionButton":
-		var style = btn.get_theme_stylebox("normal")
-		var bg_color = Color(0.15, 0.16, 0.18, 0.7) # 默认的半透明灰色
-		if style is StyleBoxFlat:
-			bg_color = style.bg_color
-
-		var source_material = btn.material as ShaderMaterial
-		if source_material == null:
-			# 无材质时退回普通 StyleBox 方案，保留当前按钮的斜切外观。
-			var fallback_style := (style.duplicate() as StyleBoxFlat) if style is StyleBoxFlat else StyleBoxFlat.new()
-			fallback_style.bg_color = bg_color
-			fallback_style.border_color = Color(0, 0, 0, 0)
-			fallback_style.shadow_color = Color(0, 0, 0, 0)
-			fallback_style.shadow_size = 0
-			btn.add_theme_stylebox_override("normal", fallback_style)
-			btn.add_theme_stylebox_override("hover", fallback_style)
-			btn.add_theme_stylebox_override("pressed", fallback_style)
-			btn.add_theme_stylebox_override("focus", fallback_style)
-			btn.set_meta("neon_style", fallback_style)
-		else:
-			var mat = source_material.duplicate() as ShaderMaterial
-			btn.material = null
-
-			var empty_style = StyleBoxEmpty.new()
-			btn.add_theme_stylebox_override("normal", empty_style)
-			btn.add_theme_stylebox_override("hover", empty_style)
-			btn.add_theme_stylebox_override("pressed", empty_style)
-			btn.add_theme_stylebox_override("focus", empty_style)
-
-			var bg_rect = ColorRect.new()
-			bg_rect.color = bg_color # 恢复半透明底色，让 Shader 去裁剪它
-
-			var pad = 0.15
-			var h = btn.size.y / (1.0 - 2.0 * pad)
-			var w = btn.size.x + h * 2.0 * pad
-			bg_rect.size = Vector2(w, h)
-			bg_rect.position = Vector2(-h * pad, -h * pad)
-			bg_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			bg_rect.show_behind_parent = true
-
-			mat.set_shader_parameter("padding", pad)
-			mat.set_shader_parameter("aspect_ratio", w / h)
-			mat.set_shader_parameter("border_width", 0.0)
-			mat.set_shader_parameter("border_color", Color(0, 0, 0, 0))
-			mat.set_shader_parameter("glow_size", 0.0)
-			mat.set_shader_parameter("glow_color", Color(0, 0, 0, 0))
-
-			# 关键修复：把原本的纯色背景色通过 shader parameter 传给 shader，让 shader 自己去画内部的半透明底色！
-			if mat.get_shader().get_code().find("uniform vec4 bg_color") != -1:
-				mat.set_shader_parameter("bg_color", bg_color)
-
-			bg_rect.material = mat
-			btn.add_child(bg_rect)
-			btn.set_meta("neon_mat", mat)
-		
-	btn.mouse_entered.connect(_on_neon_btn_hover.bind(btn, true))
-	btn.mouse_exited.connect(_on_neon_btn_hover.bind(btn, false))
-	btn.button_down.connect(_on_neon_btn_press.bind(btn, true))
-	btn.button_up.connect(_on_neon_btn_press.bind(btn, false))
-
-func _on_neon_btn_hover(btn: Button, is_hover: bool) -> void:
-	if btn.has_meta("neon_tween"):
-		var active_tween = btn.get_meta("neon_tween") as Tween
-		if active_tween: active_tween.kill()
-	if btn.has_meta("neon_loop"):
-		var loop = btn.get_meta("neon_loop") as Tween
-		if loop: loop.kill()
-		
-	if btn.button_pressed: return
-	
-	var tween = create_tween().set_parallel(true)
-	btn.set_meta("neon_tween", tween)
-	
-	var target_color = Color(0.0, 0.8, 1.0, 0.8) # 青蓝色
-	var target_border = 1
-	var target_shadow = 2
-	var target_shader_border = 0.008
-	var target_shader_glow = 0.015
-	
-	if not is_hover:
-		target_color = Color(0, 0, 0, 0)
-		target_border = 0
-		target_shadow = 0
-		target_shader_border = 0.0
-		target_shader_glow = 0.0
-		
-	if btn.has_meta("neon_style"):
-		var style = btn.get_meta("neon_style") as StyleBoxFlat
-		tween.tween_property(style, "border_color", target_color, 0.3)
-		tween.tween_property(style, "shadow_color", target_color, 0.3)
-		tween.tween_property(style, "border_width_left", target_border, 0.3)
-		tween.tween_property(style, "border_width_top", target_border, 0.3)
-		tween.tween_property(style, "border_width_right", target_border, 0.3)
-		tween.tween_property(style, "border_width_bottom", target_border, 0.3)
-		tween.tween_property(style, "shadow_size", target_shadow, 0.3)
-	elif btn.has_meta("neon_mat"):
-		var mat = btn.get_meta("neon_mat") as ShaderMaterial
-		tween.tween_method(func(v): mat.set_shader_parameter("border_color", v), mat.get_shader_parameter("border_color"), target_color, 0.3)
-		tween.tween_method(func(v): mat.set_shader_parameter("glow_color", v), mat.get_shader_parameter("glow_color"), target_color, 0.3)
-		tween.tween_method(func(v): mat.set_shader_parameter("border_width", v), mat.get_shader_parameter("border_width"), target_shader_border, 0.3)
-		tween.tween_method(func(v): mat.set_shader_parameter("glow_size", v), mat.get_shader_parameter("glow_size"), target_shader_glow, 0.3)
-		
-	if is_hover:
-		tween.chain().tween_callback(_start_neon_loop.bind(btn, Color(0.0, 0.8, 1.0, 0.8), Color(1.0, 0.0, 0.5, 0.8), 1.0))
-
-func _on_neon_btn_press(btn: Button, is_pressed: bool) -> void:
-	if btn.has_meta("neon_tween"):
-		var active_tween = btn.get_meta("neon_tween") as Tween
-		if active_tween: active_tween.kill()
-	if btn.has_meta("neon_loop"):
-		var loop = btn.get_meta("neon_loop") as Tween
-		if loop: loop.kill()
-		
-	var tween = create_tween().set_parallel(true)
-	btn.set_meta("neon_tween", tween)
-	
-	if is_pressed:
-		var target_color = Color(1.0, 0.9, 0.2, 1.0) # 黄色/爆亮
-		if btn.has_meta("neon_style"):
-			var style = btn.get_meta("neon_style") as StyleBoxFlat
-			tween.tween_property(style, "border_color", target_color, 0.1)
-			tween.tween_property(style, "shadow_color", target_color, 0.1)
-			tween.tween_property(style, "border_width_left", 1, 0.1)
-			tween.tween_property(style, "border_width_top", 1, 0.1)
-			tween.tween_property(style, "border_width_right", 1, 0.1)
-			tween.tween_property(style, "border_width_bottom", 1, 0.1)
-			tween.tween_property(style, "shadow_size", 2, 0.1)
-		elif btn.has_meta("neon_mat"):
-			var mat = btn.get_meta("neon_mat") as ShaderMaterial
-			tween.tween_method(func(v): mat.set_shader_parameter("border_color", v), mat.get_shader_parameter("border_color"), target_color, 0.1)
-			tween.tween_method(func(v): mat.set_shader_parameter("glow_color", v), mat.get_shader_parameter("glow_color"), target_color, 0.1)
-			tween.tween_method(func(v): mat.set_shader_parameter("border_width", v), mat.get_shader_parameter("border_width"), 0.008, 0.1)
-			tween.tween_method(func(v): mat.set_shader_parameter("glow_size", v), mat.get_shader_parameter("glow_size"), 0.015, 0.1)
-			
-		tween.chain().tween_callback(_start_neon_loop.bind(btn, Color(1.0, 0.9, 0.2, 1.0), Color(1.0, 0.2, 0.2, 1.0), 0.2))
-	else:
-		_on_neon_btn_hover(btn, btn.is_hovered())
-
-func _start_neon_loop(btn: Button, color1: Color, color2: Color, duration: float) -> void:
-	var loop = create_tween().set_loops()
-	btn.set_meta("neon_loop", loop)
-	
-	if btn.has_meta("neon_style"):
-		var style = btn.get_meta("neon_style") as StyleBoxFlat
-		loop.tween_property(style, "border_color", color2, duration)
-		loop.parallel().tween_property(style, "shadow_color", color2, duration)
-		loop.tween_property(style, "border_color", color1, duration)
-		loop.parallel().tween_property(style, "shadow_color", color1, duration)
-	elif btn.has_meta("neon_mat"):
-		var mat = btn.get_meta("neon_mat") as ShaderMaterial
-		loop.tween_method(func(v): mat.set_shader_parameter("border_color", v), color1, color2, duration)
-		loop.parallel().tween_method(func(v): mat.set_shader_parameter("glow_color", v), color1, color2, duration)
-		loop.tween_method(func(v): mat.set_shader_parameter("border_color", v), color2, color1, duration)
-		loop.parallel().tween_method(func(v): mat.set_shader_parameter("glow_color", v), color2, color1, duration)
 
 func _check_afk_status() -> void:
 	if _desktop_mode_active:
@@ -3792,7 +3942,10 @@ func _stop_wechat_shake() -> void:
 
 func _ensure_mobile_interface() -> void:
 	if mobile_interface_instance == null:
-		var MobileInterfaceObj = load("res://scenes/ui/mobile/mobile_interface.tscn")
+		var MobileInterfaceObj := load("res://scenes/ui/mobile/mobile_interface.tscn") as PackedScene
+		if MobileInterfaceObj == null:
+			push_error("无法加载手机界面：res://scenes/ui/mobile/mobile_interface.tscn")
+			return
 		mobile_interface_instance = MobileInterfaceObj.instantiate()
 		add_child(mobile_interface_instance)
 		mobile_interface_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -4136,6 +4289,16 @@ func _load_bg_scene(path: String) -> void:
 			if not scene_chat_btn.pressed.is_connected(_on_scene_chat_button_pressed):
 				scene_chat_btn.pressed.connect(_on_scene_chat_button_pressed)
 			scene_chat_btn.pivot_offset = scene_chat_btn.size / 2
+		rest_button = current_bg_scene.get_node_or_null("RestButton") as Button
+		if is_instance_valid(rest_button):
+			if not rest_button.pressed.is_connected(_on_rest_pressed):
+				rest_button.pressed.connect(_on_rest_pressed)
+			rest_button.pivot_offset = rest_button.size / 2
+		meal_button = current_bg_scene.get_node_or_null("MealButton") as Button
+		if is_instance_valid(meal_button):
+			if not meal_button.pressed.is_connected(_on_scene_meal_button_pressed):
+				meal_button.pressed.connect(_on_scene_meal_button_pressed)
+			meal_button.pivot_offset = meal_button.size / 2
 		if _phone_mode_active and current_bg_scene.has_method("set_ui_hidden"):
 			current_bg_scene.set_ui_hidden(true)
 		_sync_background_weather_layer()
@@ -4148,7 +4311,6 @@ func _on_interact_trigger_pressed() -> void:
 
 func _on_chat_closed() -> void:
 	_story_mode_active = false
-	_set_daily_dialogue_hud_visible(false)
 	_set_interaction_ui_hidden_for_dialogue(false)
 	
 	if dialogue_panel and dialogue_panel.visible:
@@ -4303,6 +4465,8 @@ func open_affection_from_guide() -> void:
 	_report_guide_action("open_affection")
 
 func _on_creation_pressed() -> void:
+	if _show_locked_feature_toast_if_needed("main.creation", creation_button):
+		return
 	if _is_ui_blocked(): return
 	if not _can_open_cost_interaction("co_create_board"):
 		return
@@ -4310,6 +4474,8 @@ func _on_creation_pressed() -> void:
 	_show_creation_panel()
 
 func _on_diary_pressed() -> void:
+	if _show_locked_feature_toast_if_needed("main.diary", diary_button):
+		return
 	if _is_ui_blocked(): return
 	_animate_button(diary_button)
 	_show_diary_panel()
@@ -4353,6 +4519,8 @@ func _on_creation_closed() -> void:
 	pass
 
 func _on_wardrobe_pressed() -> void:
+	if _show_locked_feature_toast_if_needed("main.wardrobe", wardrobe_button):
+		return
 	if _is_ui_blocked(): return
 	if is_instance_valid(wardrobe_button):
 		_animate_button(wardrobe_button)

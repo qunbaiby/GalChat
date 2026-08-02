@@ -332,7 +332,7 @@ suffix = " 分钟"
 
 [node name="StoryActionCostLabel" type="Label" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
 layout_mode = 2
-text = "行动力"
+text = "精力"
 
 [node name="StoryActionCostSpin" type="SpinBox" parent="Root/Body/WorkspaceSplit/Workspace/DocumentBar/ChapterBar"]
 unique_name_in_owner = true

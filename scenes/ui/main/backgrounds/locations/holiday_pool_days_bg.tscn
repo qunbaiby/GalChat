@@ -6,6 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://dastiw472pihf" path="res://assets/images/icons/ui/main/talk_right_white_icon.png" id="4_pha5k"]
 [ext_resource type="PackedScene" uid="uid://cwm5mqnckotbj" path="res://scenes/ui/main/backgrounds/components/chat_status_badge.tscn" id="4_status_badge"]
 [ext_resource type="Texture2D" uid="uid://dmwq0agevlhky" path="res://assets/images/icons/ui/main/talk_right_blue_icon.png" id="5_3pewi"]
+[ext_resource type="Texture2D" uid="uid://svinccvak8ui" path="res://assets/images/icons/ui/main/home.png" id="6_rest_icon"]
+[ext_resource type="Texture2D" path="res://assets/images/icons/ui/date/dining.svg" id="7_meal_icon"]
+[ext_resource type="Script" uid="uid://m0rxcs22ufyp" path="res://scripts/ui/common/button_content_state.gd" id="8_button_state"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_LunaIdle"]
 animations = [{
@@ -31,17 +34,7 @@ corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.1)
 shadow_size = 4
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ewbh2"]
-texture = ExtResource("4_pha5k")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nctuo"]
-texture = ExtResource("5_3pewi")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ean4d"]
-texture = ExtResource("5_3pewi")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qdl6d"]
-texture = ExtResource("5_3pewi")
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ActionButton"]
 
 [node name="HolidayPoolDaysBg" type="Control" unique_id=1387662033]
 layout_mode = 3
@@ -102,18 +95,154 @@ autowrap_mode = 2
 
 [node name="ChatButton" type="Button" parent="." unique_id=1154254517]
 layout_mode = 0
-offset_left = 775.0
-offset_top = 144.0
-offset_right = 872.0202
-offset_bottom = 229.0
+offset_left = 712.4899
+offset_top = 91.5
+offset_right = 934.5303
+offset_bottom = 281.5
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_colors/font_pressed_color = Color(0.3, 0.3, 0.3, 1)
 theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_styles/normal = SubResource("StyleBoxTexture_ewbh2")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_nctuo")
-theme_override_styles/hover = SubResource("StyleBoxTexture_ean4d")
-theme_override_styles/focus = SubResource("StyleBoxTexture_qdl6d")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ActionButton")
+
+[node name="ContentHBox" type="HBoxContainer" parent="ChatButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -88.0
+offset_top = -36.0
+offset_right = 88.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+script = ExtResource("8_button_state")
+
+[node name="Icon" type="TextureRect" parent="ChatButton/ContentHBox"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_3pewi")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="ChatButton/ContentHBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 34
+text = "聊天"
+vertical_alignment = 1
 
 [node name="StatusBadge" parent="ChatButton" unique_id=644519446 instance=ExtResource("4_status_badge")]
 layout_mode = 0
+
+[node name="RestButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 494.4495
+offset_top = 91.5
+offset_right = 716.4899
+offset_bottom = 281.5
+tooltip_text = "休息"
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_constants/h_separation = 4
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ActionButton")
+
+[node name="ContentHBox" type="HBoxContainer" parent="RestButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -88.0
+offset_top = -36.0
+offset_right = 88.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+script = ExtResource("8_button_state")
+
+[node name="Icon" type="TextureRect" parent="RestButton/ContentHBox"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("6_rest_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="RestButton/ContentHBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 34
+text = "休息"
+vertical_alignment = 1
+
+[node name="MealButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 276.4091
+offset_top = 91.5
+offset_right = 498.4495
+offset_bottom = 281.5
+tooltip_text = "吃饭"
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_constants/h_separation = 4
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ActionButton")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ActionButton")
+
+[node name="ContentHBox" type="HBoxContainer" parent="MealButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -88.0
+offset_top = -36.0
+offset_right = 88.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+script = ExtResource("8_button_state")
+
+[node name="Icon" type="TextureRect" parent="MealButton/ContentHBox"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_meal_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="MealButton/ContentHBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 34
+text = "早餐"
+vertical_alignment = 1

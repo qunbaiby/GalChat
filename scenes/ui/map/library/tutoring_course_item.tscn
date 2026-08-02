@@ -90,7 +90,7 @@ mouse_filter = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.38, 0.49, 0.53, 1)
 theme_override_font_sizes/font_size = 12
-text = "行动力 -5"
+text = "精力 -5"
 vertical_alignment = 1
 
 [node name="ProgressContainer" type="VBoxContainer" parent="Margin/VBox"]

@@ -100,11 +100,11 @@ text = "主线"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CheckMark" type="Label" parent="CourseMargin" unique_id=1504829935]
+[node name="ResultLabel" type="Label" parent="CourseMargin" unique_id=1504829935]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.57, 0.82, 0.76, 1)
-theme_override_font_sizes/font_size = 24
-text = "✔"
+theme_override_font_sizes/font_size = 18
+text = "良好"
 horizontal_alignment = 1
 vertical_alignment = 1

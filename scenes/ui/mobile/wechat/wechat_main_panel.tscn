@@ -5,23 +5,6 @@
 [ext_resource type="Texture2D" uid="uid://7isnld2hxqai" path="res://assets/images/icons/ui/system/invite.svg" id="4_contacts"]
 [ext_resource type="Texture2D" uid="uid://dl4occg3ib45l" path="res://assets/images/icons/ui/system/heart.svg" id="5_moments"]
 
-[sub_resource type="Shader" id="Shader_WechatBlur"]
-code = "shader_type canvas_item;
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float lod: hint_range(0.0, 5.0) = 2.8;
-uniform vec4 mix_color: source_color = vec4(0.05, 0.08, 0.09, 0.22);
-
-void fragment() {
-	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
-	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_WechatBlur"]
-shader = SubResource("Shader_WechatBlur")
-shader_parameter/lod = 2.8
-shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_joedt"]
 bg_color = Color(0.827451, 0.8666667, 0.91764706, 1)
 border_width_left = 1
@@ -187,13 +170,13 @@ grow_vertical = 2
 script = ExtResource("1_script")
 
 [node name="DimBg" type="ColorRect" parent="." unique_id=1412354415]
-material = SubResource("ShaderMaterial_WechatBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0, 0, 0, 0)
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=259321176]
 layout_mode = 1

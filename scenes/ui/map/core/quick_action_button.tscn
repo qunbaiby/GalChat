@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dbx5u34jlwg5r"]
+[gd_scene load_steps=6 format=3 uid="uid://dbx5u34jlwg5r"]
 
 [ext_resource type="Script" path="res://scripts/ui/map/core/quick_action_button.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dodnvu50aoxom" path="res://assets/images/icons/ui/system/chat.svg" id="2_icon"]
+[ext_resource type="Texture2D" uid="uid://cwe5wxgvmk2n3" path="res://assets/images/icons/ui/map/area_lock.svg" id="3_lock_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActionButton"]
 content_margin_left = 18.0
@@ -50,6 +51,7 @@ offset_bottom = 50.0
 theme_override_styles/normal = SubResource("StyleBoxFlat_ActionButton")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ActionButtonHover")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ActionButtonHover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_ActionButton")
 script = ExtResource("1_script")
 
 [node name="HBox" type="HBoxContainer" parent="."]
@@ -89,5 +91,20 @@ vertical_alignment = 1
 
 [node name="Spacer" type="Control" parent="HBox"]
 custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LockIcon" type="TextureRect" parent="HBox"]
+visible = false
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("3_lock_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LockMargin" type="Control" parent="HBox"]
+visible = false
+custom_minimum_size = Vector2(18, 0)
 layout_mode = 2
 mouse_filter = 2

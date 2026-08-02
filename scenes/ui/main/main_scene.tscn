@@ -21,15 +21,20 @@
 [ext_resource type="Texture2D" uid="uid://bu8ct32d0p3mc" path="res://assets/images/icons/ui/main/apps.png" id="16_fbdjj"]
 [ext_resource type="PackedScene" uid="uid://b0afs3fe0t3uv" path="res://scenes/ui/wardrobe/wardrobe_panel.tscn" id="16_wardrobe"]
 [ext_resource type="Texture2D" uid="uid://cv303mddfg2o" path="res://assets/images/icons/ui/main/background_switch.svg" id="23_bg_switch_icon"]
+[ext_resource type="Texture2D" uid="uid://b856qy3copu6c" path="res://assets/images/icons/ui/main/gift.png" id="24_gift_icon"]
 [ext_resource type="Texture2D" uid="uid://depo1intjeejp" path="res://assets/images/icons/ui/affection/loveicon.png" id="24_love_icon"]
 [ext_resource type="PackedScene" uid="uid://cxayt83m0bccg" path="res://scenes/ui/main/desktop_mode_overlay.tscn" id="25_desktop_mode"]
 [ext_resource type="PackedScene" uid="uid://cfpj8moaoaiy1" path="res://scenes/ui/main/desktop_controls_window.tscn" id="26_desktop_controls"]
 [ext_resource type="PackedScene" uid="uid://dsiie0wlugon" path="res://scenes/ui/main/desktop_chat_window.tscn" id="27_desktop_chat"]
+[ext_resource type="Texture2D" uid="uid://bdgf7wbpp6mct" path="res://assets/images/icons/ui/system/leave.svg" id="29_outing_icon"]
+[ext_resource type="Texture2D" uid="uid://dh8s3g1fvc8cl" path="res://assets/images/icons/ui/system/date.svg" id="30_date_icon"]
+[ext_resource type="Script" uid="uid://m0rxcs22ufyp" path="res://scripts/ui/common/button_content_state.gd" id="31_button_content_state"]
+[ext_resource type="PackedScene" uid="uid://cklb2dqg6rmec" path="res://scenes/ui/main/meal_panel.tscn" id="32_meal_panel"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f5e1b"]
 shader = ExtResource("15_trapezoid_shader")
-shader_parameter/slant = 0.3550000168625
-shader_parameter/corner_radius = 0.06
+shader_parameter/slant = 0.254000012065
+shader_parameter/corner_radius = 0.1350000064125
 shader_parameter/aspect_ratio = 2.533
 shader_parameter/padding = 0.0
 shader_parameter/border_width = 0.0
@@ -38,14 +43,23 @@ shader_parameter/glow_size = 0.0
 shader_parameter/glow_color = Color(0, 0, 0, 0)
 shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
-bg_color = Color(0.49278682, 0.56711507, 0.6399743, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
+bg_color = Color(0.94, 0.98, 0.97, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionPressed"]
 bg_color = Color(1, 0.96, 0.9, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionHover"]
-bg_color = Color(0.94, 0.98, 0.97, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActivityDisabled"]
+bg_color = Color(0.8, 0.8, 0.8, 0.5)
+skew = Vector2(0.3, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_AppCardNormal"]
 bg_color = Color(0.5803922, 0.63529414, 0.6784314, 0.6)
@@ -128,17 +142,20 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ActivityDisabled"]
-bg_color = Color(0.8, 0.8, 0.8, 0.5)
-skew = Vector2(0.3, 0)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_trapezoid_map"]
+shader = ExtResource("15_trapezoid_shader")
+shader_parameter/slant = 0.34000001615
+shader_parameter/corner_radius = 0.1210000057475
+shader_parameter/aspect_ratio = 2.533
+shader_parameter/padding = 0.0
+shader_parameter/border_width = 0.0
+shader_parameter/border_color = Color(0.57, 0.82, 0.76, 1)
+shader_parameter/glow_size = 0.0
+shader_parameter/glow_color = Color(0, 0, 0, 0)
+shader_parameter/bg_color = Color(0.5686275, 0.81960785, 0.7607843, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_MainActionNormal"]
+bg_color = Color(0.49278682, 0.56711507, 0.6399743, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p33vi"]
 bg_color = Color(0.5164497, 0.69378436, 0.8060388, 0.21176471)
@@ -273,23 +290,6 @@ corner_radius_top_left = 16
 corner_radius_bottom_left = 16
 shadow_offset = Vector2(0, 2)
 
-[sub_resource type="Shader" id="Shader_AffectionOverlayBlur"]
-code = "shader_type canvas_item;
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float lod: hint_range(0.0, 5.0) = 2.8;
-uniform vec4 mix_color: source_color = vec4(0.05, 0.10, 0.12, 0.34);
-
-void fragment() {
-	vec4 bg = textureLod(screen_texture, SCREEN_UV, lod);
-	COLOR = vec4(mix(bg.rgb, mix_color.rgb, mix_color.a), COLOR.a);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_AffectionOverlayBlur"]
-shader = SubResource("Shader_AffectionOverlayBlur")
-shader_parameter/lod = 2.8
-shader_parameter/mix_color = Color(0.05, 0.1, 0.12, 0.34)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_clf1o"]
 content_margin_left = 5.0
 content_margin_right = 5.0
@@ -366,18 +366,46 @@ offset_right = 1092.0
 offset_bottom = 52.0
 
 [node name="DateButton" type="Button" parent="UIPanel" unique_id=8074925]
-material = SubResource("ShaderMaterial_trapezoid_map")
-custom_minimum_size = Vector2(160, 75)
+material = SubResource("ShaderMaterial_f5e1b")
+custom_minimum_size = Vector2(195, 70)
 layout_mode = 0
-offset_left = 1073.0
-offset_top = 551.0
-offset_right = 1271.0
-offset_bottom = 626.0
+offset_left = 1076.0
+offset_top = 561.0
+offset_right = 1275.0
+offset_bottom = 631.0
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionNormal")
+theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionHover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_ActivityDisabled")
+
+[node name="ContentHBox" type="HBoxContainer" parent="UIPanel/DateButton" unique_id=1188276076]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 39.0
+offset_right = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+alignment = 1
+script = ExtResource("31_button_content_state")
+
+[node name="Icon" type="TextureRect" parent="UIPanel/DateButton/ContentHBox" unique_id=435897056]
+self_modulate = Color(0.08, 0.13, 0.15, 1)
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("30_date_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UIPanel/DateButton/ContentHBox" unique_id=2132923962]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 18
 text = "约会"
 
 [node name="BottomBarHBox" type="HBoxContainer" parent="UIPanel" unique_id=1262766178]
@@ -399,7 +427,7 @@ layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 3
 
-[node name="GiftButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=593884269]
+[node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=593884269]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
@@ -409,7 +437,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_AppCardNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_AppCardPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_AppCardHover")
 
-[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/GiftButton" unique_id=1648838588]
+[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton" unique_id=1648838588]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -423,8 +451,9 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 alignment = 1
+script = ExtResource("31_button_content_state")
 
-[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox" unique_id=1941732434]
+[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox" unique_id=1941732434]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -434,14 +463,14 @@ texture = ExtResource("6_fbdjj")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/GiftButton/ContentVBox" unique_id=1996260350]
+[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox" unique_id=1996260350]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "日记"
 horizontal_alignment = 1
 
-[node name="DiaryButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=466334356]
+[node name="CreationButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=466334356]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
@@ -451,7 +480,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_AppCardNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_AppCardPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_AppCardHover")
 
-[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton" unique_id=1483726537]
+[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/CreationButton" unique_id=1483726537]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -465,8 +494,9 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 alignment = 1
+script = ExtResource("31_button_content_state")
 
-[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox" unique_id=991246003]
+[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/CreationButton/ContentVBox" unique_id=991246003]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -475,7 +505,7 @@ texture = ExtResource("7_p33vi")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/DiaryButton/ContentVBox" unique_id=707311097]
+[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/CreationButton/ContentVBox" unique_id=707311097]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
@@ -534,6 +564,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 alignment = 1
+script = ExtResource("31_button_content_state")
 
 [node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/WeChatButton/ContentVBox" unique_id=1237178796]
 custom_minimum_size = Vector2(30, 30)
@@ -551,17 +582,17 @@ theme_override_font_sizes/font_size = 12
 text = "微聊"
 horizontal_alignment = 1
 
-[node name="WardrobeButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=2087149745]
+[node name="MainGiftButton" type="Button" parent="UIPanel/BottomBarHBox/BtnHBox" unique_id=165551214]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_vertical = 8
-tooltip_text = "服装"
+tooltip_text = "赠送礼物"
 theme_override_styles/normal = SubResource("StyleBoxFlat_AppCardNormal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_AppCardPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_AppCardHover")
 
-[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton" unique_id=1409879779]
+[node name="ContentVBox" type="VBoxContainer" parent="UIPanel/BottomBarHBox/BtnHBox/MainGiftButton" unique_id=1645671783]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -575,21 +606,22 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 alignment = 1
+script = ExtResource("31_button_content_state")
 
-[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox" unique_id=1889919325]
+[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/BtnHBox/MainGiftButton/ContentVBox" unique_id=958536478]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("8_fbdjj")
+texture = ExtResource("24_gift_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/WardrobeButton/ContentVBox" unique_id=1812687676]
+[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/BtnHBox/MainGiftButton/ContentVBox" unique_id=1627719831]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
-text = "服装"
+text = "礼物"
 horizontal_alignment = 1
 
 [node name="MusicPlayer" parent="UIPanel/BottomBarHBox" unique_id=1244991283 instance=ExtResource("10_music_player")]
@@ -603,27 +635,82 @@ layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 0
 
-[node name="RestButton" type="Button" parent="UIPanel/BottomBarHBox/ActionHBox" unique_id=1875838064]
-custom_minimum_size = Vector2(110, 75)
+[node name="WardrobeButton" type="Button" parent="UIPanel/BottomBarHBox/ActionHBox" unique_id=1875838064]
+custom_minimum_size = Vector2(110, 70)
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
+tooltip_text = "服装"
 theme_override_styles/normal = SubResource("StyleBoxFlat_fvueq")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fmm1x")
 theme_override_styles/hover = SubResource("StyleBoxFlat_rntma")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_ActivityDisabled")
-text = "休息"
+
+[node name="ContentHBox" type="HBoxContainer" parent="UIPanel/BottomBarHBox/ActionHBox/WardrobeButton" unique_id=297375412]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 13.0
+offset_right = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+alignment = 1
+script = ExtResource("31_button_content_state")
+
+[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/ActionHBox/WardrobeButton/ContentHBox" unique_id=895074853]
+self_modulate = Color(0.08, 0.13, 0.15, 1)
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_fbdjj")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/ActionHBox/WardrobeButton/ContentHBox" unique_id=1500446180]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 17
+text = "服装"
 
 [node name="MainActionButton" type="Button" parent="UIPanel/BottomBarHBox/ActionHBox" unique_id=1253263634]
 material = SubResource("ShaderMaterial_trapezoid_map")
-custom_minimum_size = Vector2(160, 75)
+custom_minimum_size = Vector2(160, 70)
 layout_mode = 2
 size_flags_vertical = 8
-theme_override_colors/font_color = Color(0.3, 0.35, 0.35, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_MainActionHover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_MainActionPressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_MainActionHover")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_MainActionNormal")
+
+[node name="ContentHBox" type="HBoxContainer" parent="UIPanel/BottomBarHBox/ActionHBox/MainActionButton" unique_id=2054018317]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 31.0
+offset_right = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+script = ExtResource("31_button_content_state")
+
+[node name="Icon" type="TextureRect" parent="UIPanel/BottomBarHBox/ActionHBox/MainActionButton/ContentHBox" unique_id=695693522]
+self_modulate = Color(0.08, 0.13, 0.15, 1)
+custom_minimum_size = Vector2(23, 23)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("29_outing_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UIPanel/BottomBarHBox/ActionHBox/MainActionButton/ContentHBox" unique_id=1418837774]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.13, 0.15, 1)
+theme_override_font_sizes/font_size = 17
 text = "外出"
 
 [node name="MoodPanel" type="Panel" parent="UIPanel" unique_id=1164367690]
@@ -959,16 +1046,15 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
 
 [node name="Dimmer" type="ColorRect" parent="UIPanel/AffectionOverlay" unique_id=1192161944]
-material = SubResource("ShaderMaterial_AffectionOverlayBlur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0, 0, 0, 0)
 
 [node name="DismissButton" type="Button" parent="UIPanel/AffectionOverlay" unique_id=51522570]
 layout_mode = 1
@@ -989,6 +1075,46 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="AffectionPopupFrame" type="Control" parent="UIPanel/AffectionOverlay/PopupCenter" unique_id=2103850279]
+custom_minimum_size = Vector2(930, 438)
+layout_mode = 2
+
+[node name="GiftOverlay" type="Control" parent="UIPanel" unique_id=1537103507]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="UIPanel/GiftOverlay" unique_id=241763322]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="DismissButton" type="Button" parent="UIPanel/GiftOverlay" unique_id=2129346400]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="PopupCenter" type="CenterContainer" parent="UIPanel/GiftOverlay" unique_id=1302908530]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="GiftPopupFrame" type="Control" parent="UIPanel/GiftOverlay/PopupCenter" unique_id=422274194]
 custom_minimum_size = Vector2(930, 438)
 layout_mode = 2
 
@@ -1065,6 +1191,7 @@ layout_mode = 1
 
 [node name="BgTransitionFade" type="ColorRect" parent="." unique_id=1776469405]
 visible = false
+z_index = 1000
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1076,6 +1203,9 @@ color = Color(0, 0, 0, 1)
 
 [node name="WardrobePanel" parent="." unique_id=1505705933 instance=ExtResource("16_wardrobe")]
 visible = false
+layout_mode = 1
+
+[node name="MealPanel" parent="." unique_id=237553753 instance=ExtResource("32_meal_panel")]
 layout_mode = 1
 
 [node name="BGM" type="AudioStreamPlayer" parent="." unique_id=1978098407]

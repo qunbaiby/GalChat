@@ -32,7 +32,7 @@ func _run() -> void:
 	_expect(str(manager.get_interaction_unavailable_reason("gift").get("reason", "")) == "late", "到达 23:00 的互动没有返回 late。")
 
 	profile.current_energy = 1
-	_expect(str(manager.get_interaction_unavailable_reason("gift").get("reason", "")) == "energy", "行动力与时间同时不足时没有优先返回 energy。")
+	_expect(str(manager.get_interaction_unavailable_reason("gift").get("reason", "")) == "energy", "精力与时间同时不足时没有优先返回 energy。")
 
 	time_manager.current_hour = original_hour
 	time_manager.current_minute = original_minute

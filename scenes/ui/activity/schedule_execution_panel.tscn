@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://d2ag1128cxp50" path="res://assets/animation/activities/image.png" id="3_5ofb5"]
 [ext_resource type="SpriteFrames" uid="uid://dr8uutpcpd4xq" path="res://assets/images/characters/Luna/QLuna_Walk.tres" id="3_cgj2u"]
 [ext_resource type="Theme" uid="uid://1ybgemd38kig" path="res://assets/themes/common_0.tres" id="3_i54jf"]
-[ext_resource type="PackedScene" path="res://scenes/ui/activity/schedule_result_popup.tscn" id="4_result"]
+[ext_resource type="PackedScene" uid="uid://cemrll4qv0v8n" path="res://scenes/ui/activity/schedule_result_popup.tscn" id="4_result"]
 
 [sub_resource type="Shader" id="Shader_ExecutionBlur"]
 code = "shader_type canvas_item;
@@ -274,9 +274,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -315.0
-offset_top = -223.0
+offset_top = -174.0
 offset_right = 315.0
-offset_bottom = -121.0
+offset_bottom = -72.0
 grow_horizontal = 2
 grow_vertical = 0
 theme = ExtResource("3_i54jf")
@@ -311,7 +311,7 @@ theme_override_constants/separation = 40
 alignment = 1
 
 [node name="CharacterIcon" type="AnimatedSprite2D" parent="TrackPanel/TrackMargin/TrackFrame/TrackContainer" unique_id=594067514]
-position = Vector2(281.25, 35.75)
+position = Vector2(281.25, -28.25)
 scale = Vector2(0.081543, 0.081543)
 sprite_frames = ExtResource("3_cgj2u")
 
@@ -357,4 +357,5 @@ theme_override_font_sizes/font_size = 24
 text = "事件生成中..."
 horizontal_alignment = 1
 
-[node name="ResultPopup" parent="." instance=ExtResource("4_result")]
+[node name="ResultPopup" parent="." unique_id=1199808300 instance=ExtResource("4_result")]
+layout_mode = 1

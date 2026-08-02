@@ -13,7 +13,7 @@ var options = [
 		"subtitle": "- THEORY -",
 		"desc": "拆解和声与结构，和铃一起理顺谱面和听感逻辑。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+60"}
 		],
 		"gain_tags": [
@@ -31,7 +31,7 @@ var options = [
 		"subtitle": "- VOCAL -",
 		"desc": "练气息、咬字和音准，把今天的声音状态稳下来。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+60"}
 		],
 		"gain_tags": [
@@ -49,7 +49,7 @@ var options = [
 		"subtitle": "- ENSEMBLE -",
 		"desc": "和铃一起磨节奏与配合，把合奏默契真正带出来。",
 		"cost_lines": [
-			{"icon": "⚡", "label": "行动力", "value": "-15"},
+			{"icon": "⚡", "label": "精力", "value": "-15"},
 			{"icon": "◷", "label": "时间", "value": "+60"}
 		],
 		"gain_tags": [
@@ -129,7 +129,7 @@ func _update_start_button_text() -> void:
 	if selected_opt.is_empty():
 		start_btn.text = " 开始学习 "
 		return
-	start_btn.text = "开始 %s  ·  -%d行动力" % [selected_opt["name"], energy_cost]
+	start_btn.text = "开始 %s  ·  -%d精力" % [selected_opt["name"], energy_cost]
 
 func _get_selected_option() -> Dictionary:
 	for opt in options:
@@ -155,7 +155,7 @@ func _on_start_pressed():
 		var profile = GameDataManager.profile
 		if profile.current_energy < energy_cost:
 			if ToastManager:
-				ToastManager.show_system_toast("行动力不足！")
+				ToastManager.show_system_toast("精力不足！")
 			return
 			
 		if profile.has_method("consume_energy"):

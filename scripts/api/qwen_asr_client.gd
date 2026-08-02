@@ -37,6 +37,8 @@ func start_recording() -> void:
     _mutex.unlock()
 
 func stop_recording() -> void:
+    if not _is_recording:
+        return
     if _effect_capture:
         var frames = _effect_capture.get_frames_available()
         if frames > 0:

@@ -159,6 +159,11 @@ const WEATHER_DATABASE := {
 @export var biome_provider_path: NodePath
 @export var overlay_layer := 20
 @export var show_screen_overlay := true
+@export_group("Day Night Overlay")
+@export var day_night_tint_gradient: Gradient
+@export var weather_overlay_tint_color := Color.TRANSPARENT
+@export_range(0.0, 1.0, 0.01) var weather_overlay_tint_strength := 0.28
+@export_group("")
 @export var draw_weather_debug_world := false
 @export var use_original_weather_assets := true
 @export var anchor_precipitation_to_world := true
@@ -205,6 +210,7 @@ var _camera_3d: Camera3D
 var _biome_provider: Node
 var _overlay_target: Control
 var _overlay_layer_node: CanvasLayer
+var _day_night_tint_control: ColorRect
 var _overlay_control: Control
 var _overlay_script: Script
 var _package_base_path := ""
@@ -233,6 +239,9 @@ func _process(delta: float) -> void:
 		_update_weather_check(delta)
 		_update_weather_spawn_system(delta)
 	_update_environment_mix(delta)
+	_update_day_night_tint_layer()
+	if _day_night_tint_control != null:
+		_day_night_tint_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
 	if _overlay_control != null:
 		_refresh_overlay_parent()
 		_overlay_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
@@ -538,8 +547,14 @@ func _setup_overlay() -> void:
 	_overlay_layer_node.layer = overlay_layer
 	add_child(_overlay_layer_node)
 
+	_day_night_tint_control = ColorRect.new()
+	_day_night_tint_control.name = "DayNightTintLayer"
+	_day_night_tint_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_day_night_tint_control.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay_layer_node.add_child(_day_night_tint_control)
+
 	_overlay_control = Control.new()
-	_overlay_control.name = "EnvironmentOverlay"
+	_overlay_control.name = "WeatherEffectLayer"
 	_overlay_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_overlay_control.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay_control.set_script(_overlay_script)
@@ -554,12 +569,25 @@ func _refresh_overlay_parent() -> void:
 	var target_parent: Node = _overlay_layer_node
 	if is_instance_valid(_overlay_target):
 		target_parent = _overlay_target
+	if _day_night_tint_control.get_parent() != target_parent:
+		if _day_night_tint_control.get_parent() != null:
+			_day_night_tint_control.get_parent().remove_child(_day_night_tint_control)
+		target_parent.add_child(_day_night_tint_control)
 	if _overlay_control.get_parent() != target_parent:
 		if _overlay_control.get_parent() != null:
 			_overlay_control.get_parent().remove_child(_overlay_control)
 		target_parent.add_child(_overlay_control)
+	_day_night_tint_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_overlay_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_day_night_tint_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
 	_overlay_control.visible = show_screen_overlay and is_instance_valid(_overlay_target)
+	_update_day_night_tint_layer()
+
+
+func _update_day_night_tint_layer() -> void:
+	if _day_night_tint_control == null:
+		return
+	_day_night_tint_control.color = get_day_night_tint()
 
 
 func _spawn_initial_weather() -> void:
@@ -732,6 +760,12 @@ func _update_environment_mix(delta: float) -> void:
 	moon_direction = moon["direction"]
 
 	_update_lightning(delta)
+
+
+func get_day_night_tint(hour: float = current_hour) -> Color:
+	if day_night_tint_gradient == null:
+		return Color.TRANSPARENT
+	return day_night_tint_gradient.sample(fposmod(hour, 24.0) / 24.0)
 
 
 func _update_dominant_weather() -> void:

@@ -26,3 +26,6 @@ func get_image_path(img_id: String) -> String:
 		return image_data[img_id]
 	push_warning("Image ID not found: " + img_id)
 	return ""
+
+func has_image_id(img_id: String) -> bool:
+	return image_data.has(img_id)

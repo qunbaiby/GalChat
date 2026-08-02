@@ -37,10 +37,12 @@ func _run() -> void:
 	var original_day_offset := int(game_data_manager.story_time_manager.current_day_offset)
 	var original_post_events: Dictionary = story_post_event_manager._pending_events_by_timing.duplicate(true)
 	var original_voice_enabled := bool(game_data_manager.config.voice_enabled)
+	var original_current_scene: Node = current_scene
 	game_data_manager.config.voice_enabled = false
 
 	var main_scene := main_scene_resource.instantiate()
 	root.add_child(main_scene)
+	current_scene = main_scene
 	await process_frame
 	await process_frame
 
@@ -82,7 +84,53 @@ func _run() -> void:
 	_expect(guide_manager.get_current_step_id() == "explain_day6_music_playlist", "点击 CoverBtn 没有推进到播放列表引导。")
 	_expect(main_scene.is_music_playlist_ready_for_guide(), "CoverBtn 没有实际打开可高亮的播放列表。")
 	guide_manager._on_overlay_focus_pressed("inspect_music_playlist")
-	_expect(guide_manager.is_guide_completed(GUIDE_ID), "点击播放列表后没有完成音乐后续引导。")
+	_expect(guide_manager.get_current_step_id() == "introduce_day6_location_switch", "播放列表说明后没有进入琴房居中提示。")
+	_expect(not main_scene.is_music_playlist_ready_for_guide(), "播放列表说明结束后弹窗没有关闭，遮挡了 PhoneButton 引导。")
+	_expect(main_scene.music_player.visible, "播放列表说明结束时错误隐藏了底部音乐播放器。")
+	guide_manager._on_overlay_background_pressed("acknowledge_day6_location_switch")
+	_expect(guide_manager.get_current_step_id() == "open_phone_for_background_switch", "琴房居中提示后没有进入 PhoneButton 引导。")
+	_expect(not main_scene.get_phone_button_focus_entry().is_empty(), "PhoneButton 没有生成引导焦点。")
+	main_scene._on_phone_pressed()
+	await create_timer(0.5).timeout
+	_expect(guide_manager.get_current_step_id() == "open_background_switch_panel", "打开手机面板后没有进入 BgSwitchButton 引导。")
+	_expect(not main_scene.get_background_switch_button_focus_entry().is_empty(), "BgSwitchButton 没有生成引导焦点。")
+	_expect(not bgm.stream_paused, "打开手机面板后错误暂停了主场景音乐。")
+	main_scene._on_bg_switch_pressed()
+	await process_frame
+	await process_frame
+	_expect(guide_manager.get_current_step_id() == "choose_day6_background", "打开背景面板后没有进入左侧背景列表引导。")
+	_expect(not main_scene.get_background_list_focus_entry().is_empty(), "背景列表没有生成完整区域高亮。")
+	_expect(not bgm.stream_paused, "手机内打开背景设置页后错误暂停了主场景音乐。")
+	var bg_panel = main_scene.bg_setting_panel_instance
+	var default_room_index := -1
+	for entry_index in range(bg_panel._entries.size()):
+		if str((bg_panel._entries[entry_index] as Dictionary).get("id", "")) == "default_room":
+			default_room_index = entry_index
+			break
+	_expect(default_room_index >= 0, "背景列表缺少非当前使用的默认房间。")
+	if default_room_index >= 0:
+		bg_panel._select_index(default_room_index)
+	await process_frame
+	_expect(guide_manager.get_current_step_id() == "apply_day6_background", "选择非当前背景后没有进入预览与应用按钮引导。")
+	var preview_focus_entries: Array = main_scene.get_background_preview_apply_focus_entries()
+	_expect(preview_focus_entries.size() == 2, "最终背景引导没有同时高亮 PreviewPanel 和应用按钮。")
+	bg_panel.apply_button.emit_signal("pressed")
+	await process_frame
+	_expect(guide_manager.get_current_step_id() == "open_day6_lunch", "点击应用到大厅后没有进入午餐按钮引导。")
+	_expect(not is_instance_valid(guide_manager._overlay) or not guide_manager._overlay.visible, "点击应用到大厅后引导高亮没有立即移除。")
+	_expect(bg_panel.visible, "黑屏淡入完成前背景设置页被提前关闭。")
+	_expect(main_scene.mobile_interface_instance.visible, "黑屏淡入完成前手机面板被提前收起。")
+	await create_timer(1.2).timeout
+	_expect(str(game_data_manager.config.current_main_bg_id) == "default_room", "点击应用到大厅后没有切换到所选背景。")
+	_expect(main_scene.music_player.visible, "重新设置主场景背景后底部音乐播放器丢失。")
+	_expect(not main_scene._phone_mode_active and not main_scene.mobile_interface_instance.visible, "应用背景后手机面板没有收起。")
+	_expect(main_scene.ui_panel.visible and main_scene.ui_panel.modulate.a > 0.99, "应用背景后没有直接恢复主界面。")
+	_expect(not main_scene.bg_transition_fade.visible, "应用背景后黑屏没有完成淡出。")
+	guide_manager._refresh_current_step_display()
+	await process_frame
+	_expect(guide_manager.get_current_step_id() == "open_day6_lunch", "背景转场完成后午餐按钮引导步骤丢失。")
+	_expect(main_scene.is_meal_button_ready_for_guide(), "背景转场完成后午餐按钮不可用于引导。")
+	_expect(not main_scene.get_meal_button_focus_entry().is_empty(), "午餐按钮没有生成引导焦点。")
 
 	MusicLibrary.save_tracks(original_tracks)
 	game_data_manager.story_time_manager.current_day_offset = original_day_offset
@@ -93,6 +141,7 @@ func _run() -> void:
 		game_data_manager.profile.current_main_bg_id = original_profile_background_id
 	guide_manager._state = original_guide_state
 	game_data_manager.set_active_archive_id(original_archive_id, false)
+	current_scene = original_current_scene
 	main_scene.queue_free()
 	await process_frame
 	_finish()
